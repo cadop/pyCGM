@@ -1,28 +1,9 @@
 # -*- coding: utf-8 -*-
-#pyCGM
+"""
+Created on Tue Jul 28 16:55:25 2015
 
-# Copyright (c) 2015 Mathew Schwartz <umcadop@gmail.com>
-# Core Developers: Seungeun Yeon, Mathew Schwartz
-# Contributors Filipe Alves Caixeta, Robert Van-wesep
-#
-# Permission is hereby granted, free of charge, to any person obtaining a copy
-# of this software and associated documentation files (the "Software"), to deal
-# in the Software without restriction, including without limitation the rights
-# to use, copy, modify, merge, publish, distribute, sublicense, and/or sell
-# copies of the Software, and to permit persons to whom the Software is
-# furnished to do so, subject to the following conditions:
-
-# The above copyright notice and this permission notice shall be included in
-# all copies or substantial portions of the Software.
-
-# THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR
-# IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY,
-# FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE
-# AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER
-# LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
-# OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN
-# THE SOFTWARE.
-
+@author: cadop
+"""
 import numpy as np
 from math import *
 
@@ -45,7 +26,10 @@ def getStatic(motionData,vsk,flat_foot=False):
 		calibratedMeasurements['R_AsisToTrocanterMeasure'] = ( 0.1288 * RightLegLength ) - 48.56
 		calibratedMeasurements['L_AsisToTrocanterMeasure'] = ( 0.1288 * LeftLegLength ) - 48.56
 		
-	calibratedMeasurements['InterAsisDistance'] = vsk['InterAsisDistance']
+	if vsk['InterAsisDistance'] != 0:
+		calibratedMeasurements['InterAsisDistance'] = vsk['InterAsisDistance']
+	else:
+		pass
 	calibratedMeasurements['RightKneeWidth'] = vsk['RightKneeWidth']
 	calibratedMeasurements['LeftKneeWidth'] = vsk['LeftKneeWidth']
 	calibratedMeasurements['RightAnkleWidth'] = vsk['RightAnkleWidth']
@@ -72,20 +56,31 @@ def getStatic(motionData,vsk,flat_foot=False):
 		angle = staticCalculation(frame,ankle_JC,knee_JC,flat_foot,calibratedMeasurements)
 		head = headJC(frame)
 		headangle = staticCalculationHead(frame,head)
-		iadCalc = IADcalculation(frame)
+		if vsk['InterAsisDistance'] != 0:
+			pass
+		else:
+			iadCalc = IADcalculation(frame)
+			IAD.append(iadCalc)
 		static_offset.append(angle)
 		head_offset.append(headangle)
-		IAD.append(iadCalc)
+		
+	
 	static=np.average(static_offset,axis=0)
-	staticHead=average(head_offset)
-	InterAsisDistance = average(IAD)
+	staticHead=np.average(head_offset)
+	if vsk['InterAsisDistance'] != 0:
+		pass
+	else:
+		InterAsisDistance = np.average(IAD)
 	
 	calibratedMeasurements['RightStaticRotOff'] = static[0][0]*-1
 	calibratedMeasurements['RightStaticPlantFlex'] = static[0][1]
 	calibratedMeasurements['LeftStaticRotOff'] = static[1][0]
 	calibratedMeasurements['LeftStaticPlantFlex'] = static[1][1]
 	calibratedMeasurements['HeadOffset'] = staticHead
-	calibratedMeasurements['InterAsisDistance'] = InterAsisDistance
+	if vsk['InterAsisDistance'] != 0:
+		pass
+	else:
+		calibratedMeasurements['InterAsisDistance'] = InterAsisDistance
 
 	return calibratedMeasurements
 
@@ -100,7 +95,7 @@ def average(list):
 def IADcalculation(frame):
 	RASI = frame['RASI']
 	LASI = frame['LASI']
-	IAD = sqrt((RASI[0]-LASI[0])*(RASI[0]-LASI[0])+(RASI[1]-LASI[1])*(RASI[1]-LASI[1])+(RASI[2]-LASI[2])*(RASI[2]-LASI[2]))
+	IAD = np.sqrt((RASI[0]-LASI[0])*(RASI[0]-LASI[0])+(RASI[1]-LASI[1])*(RASI[1]-LASI[1])+(RASI[2]-LASI[2])*(RASI[2]-LASI[2]))
 	
 	return IAD
 	
@@ -130,7 +125,7 @@ def headoffCalc(axisP, axisD):
 	axisPi = np.linalg.inv(axisP)
 	
 	# rotation matrix is in order XYZ
-	M = matrixmult(axisD,axisP)
+	M = matrixmult(axisD,axisPi)
 	
 	# get y angle from rotation matrix using inverse trigonometry.
 	getB= M[0][2] / M[2][2]
@@ -394,6 +389,7 @@ def hipJointCenter(frame,pel_origin,pel_x,pel_y,pel_z,vsk=None):
     MeanLegLength = vsk['MeanLegLength']
     R_AsisToTrocanterMeasure = vsk['R_AsisToTrocanterMeasure']
     L_AsisToTrocanterMeasure = vsk['L_AsisToTrocanterMeasure']
+	
     interAsisMeasure = vsk['InterAsisDistance']
     C = ( MeanLegLength * 0.115 ) - 15.3
     theta = 0.500000178813934
