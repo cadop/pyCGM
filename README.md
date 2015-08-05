@@ -26,7 +26,7 @@ Developed in the Digital Human Research Center http://dhrc.snu.ac.kr at the
 
 Advanced Institutes of Convergence Technology (AICT) http://aict.snu.ac.kr
 
-Project Lead: Mathew Schwartz
+Project Lead: Mathew Schwartz (umcadop at gmail) For issues, use github or email me directly
 
 Core Developers: Seungeun Yeon (연승은), Mathew Schwartz
 
