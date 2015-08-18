@@ -22,6 +22,12 @@
 # OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN
 # THE SOFTWARE.
 
+###########
+#To Run, Copy the sample files into the same directory as the code, then in a terminal type:
+# python runpyCGM.py -i ReplicateRobotGait01.c3d -o test -v Jisub.vsk --staticinput "Jisub Cal 01.c3d" 
+#This will output a test.csv file with the results
+##########
+
 import sys
 import getopt
 import pycgmStatic
@@ -32,7 +38,7 @@ def main(argv):
     """
     Take in motion data file, time span
     returns output file of angles
-    pyCGM.py -i <motionFile> -o <outputfile> -s <start> -e <end> -c <calctype>
+    pyCGM.py -i <motionFile> -o <outputfile> -s <start> -e <end> 
     """
     flat_foot = False
     global vskdata
