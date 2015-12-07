@@ -28,6 +28,4 @@ Advanced Institutes of Convergence Technology (AICT) http://aict.snu.ac.kr
 
 Project Lead: Mathew Schwartz (umcadop at gmail) For issues, use github or email me directly
 
-Core Developers: Seungeun Yeon (연승은), Mathew Schwartz
-
-Contributors: Filipe Alves Caixeta, Robert Van-Wesep
+Contributors: Seungeun Yeon (연승은),Filipe Alves Caixeta, Robert Van-Wesep
