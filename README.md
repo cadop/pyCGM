@@ -1,6 +1,23 @@
 # pyCGM
 
-This is a work in progress document.  Full documentation of the module will be available soon.  This is part of ongoing research that will be published in the upcoming months.
+This is a work in progress document.  
+
+Read about this code
+The effect of subject measurement error on joint kinematics in the conventional gait model: Insights from the open-source pyCGM tool using high performance computing methods
+http://journals.plos.org/plosone/article/comments?id=10.1371/journal.pone.0189984
+
+Bibtex:
+@article{schwartz2018effect,
+  title={The effect of subject measurement error on joint kinematics in the conventional gait model: Insights from the open-source pyCGM tool using high performance computing methods},
+  author={Schwartz, Mathew and Dixon, Philippe C},
+  journal={PloS one},
+  volume={13},
+  number={1},
+  pages={e0189984},
+  year={2018},
+  publisher={Public Library of Science}
+}
+
 
 Python Module for the Conventional Gait Model, calculates kinematics.
 
