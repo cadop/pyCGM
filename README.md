@@ -2,7 +2,8 @@
 
 This is a work in progress document.  
 
-Read about this code
+Read about this code and if you find it useful in your work please cite:
+
 The effect of subject measurement error on joint kinematics in the conventional gait model: Insights from the open-source pyCGM tool using high performance computing methods
 http://journals.plos.org/plosone/article/comments?id=10.1371/journal.pone.0189984
 
