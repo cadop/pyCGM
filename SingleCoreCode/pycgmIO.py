@@ -23,7 +23,17 @@
 # THE SOFTWARE.
 # Input and output of pycgm functions
 
-import c3d
+import sys
+if sys.version_info[0]==2:
+    import c3d
+    pyver = 2
+    print("Using python 2 c3d loader")
+
+else:
+    import c3dpy3 as c3d
+    pyver = 3
+    print("Using python 3 c3d loader - c3dpy3")
+    
 from math import *
 import numpy as np
 import xml.etree.ElementTree as ET
@@ -52,13 +62,22 @@ def createMotionDataDict(labels,data):
 	return motiondata
 
 def splitMotionDataDict(motiondata):
-	labels=motiondata[0].keys()
-	data=np.zeros((len(motiondata),len(labels),3))
-	counter=0
-	for md in motiondata:
-		data[counter]=np.asarray(md.values())
-		counter+=1
-	return labels,data
+    if pyver == 2:
+        labels=motiondata[0].keys()
+        data=np.zeros((len(motiondata),len(labels),3))
+        counter=0
+        for md in motiondata:
+            data[counter]=np.asarray(md.values())
+            counter+=1
+        return labels,data
+    if pyver == 3:
+        labels=list(motiondata[0].keys())
+        data=np.zeros((len(motiondata),len(labels),3))
+        counter=0
+        for md in motiondata:
+            data[counter]=np.asarray(list(md.values()))
+            counter+=1
+        return labels,data
 
 def createVskDataDict(labels,data):
 	vsk={}
@@ -67,7 +86,9 @@ def createVskDataDict(labels,data):
 	return vsk
 
 def splitVskDataDict(vsk):
-	return vsk.keys(),np.asarray(vsk.values())
+    if pyver == 2: return vsk.keys(),np.asarray(vsk.values())
+    if pyver == 3: return list(vsk.keys()),np.asarray(list(vsk.values()))
+        
 def loadC3D(filename):
     #Calls the py c3d file
     reader = c3d.Reader(open(filename, 'rb'))
@@ -108,7 +129,8 @@ def loadCSV(filename):
     def rowToDict(row,labels):
         dic={}
         unlabeleddic={}
-        row=zip(row[0::3],row[1::3],row[2::3])
+        if pyver == 2: row=zip(row[0::3],row[1::3],row[2::3])
+        if pyver == 3: row=list(zip(row[0::3],row[1::3],row[2::3]))
         empty=np.asarray([np.nan,np.nan,np.nan],dtype=np.float64)
         for coordinates,label in zip(row,labels):
             #unlabeled data goes to a different dictionary
@@ -134,13 +156,19 @@ def loadCSV(filename):
 
     def parseTrajectories(fh,framesNumber):
         delimiter=','
-        freq=np.float64(split_line(fh.next())[0])
-        labels=split_line(fh.next())[1::3]
-        fields=split_line(fh.next())
+        if pyver == 2:
+            freq=np.float64(split_line(fh.next())[0])
+            labels=split_line(fh.next())[1::3]
+            fields=split_line(fh.next())
+        elif pyver == 3:
+            freq=np.float64(split_line(next(fh))[0])
+            labels=split_line(next(fh))[1::3]
+            fields=split_line(next(fh))
         delimiter = asbytes(delimiter)
         rows=[]
         rowsUnlabeled=[]
-        first_line=fh.next()
+        if pyver == 2: first_line=fh.next()
+        elif pyver == 3: first_line=next(fh)
         first_elements=split_line(first_line)[1:]
         colunsNum=len(first_elements)
         first_elements,first_elements_unlabeled=rowToDict(first_elements,labels)
@@ -163,7 +191,8 @@ def loadCSV(filename):
     for i in fh:
         if i.startswith("TRAJECTORIES"):
             #First elements with freq,labels,fields
-            rows=[fh.next(),fh.next(),fh.next()]
+            if pyver == 2: rows=[fh.next(),fh.next(),fh.next()]
+            if pyver == 3: rows=[next(fh),next(fh),next(fh)]
             for j in fh:
                 if j.startswith("\r\n"):
                     break
@@ -177,7 +206,7 @@ def loadCSV(filename):
 
 def loadData(filename,rawData=True):
         
-        print filename
+        print(filename)
         if str(filename).endswith('.c3d'):
                 return loadC3D(filename)[0]
                 
@@ -215,9 +244,9 @@ def writeResult(data,filename,**kargs):
         dataFilter=None
         delimiter=","
         filterData=[]
-        if kargs.has_key('delimiter'):
+        if 'delimiter' in kargs:
                 delimiter=kargs['delimiter']
-        if kargs.has_key('angles'):
+        if 'angles' in kargs:
                 if kargs['angles']==True:
                         outputAngs=True
                 elif kargs['angles']==False:
@@ -229,7 +258,7 @@ def writeResult(data,filename,**kargs):
                                 outputAngs=False
                         labelsAngs=[i for i in labelsAngs if i in kargs['angles']]
 
-        if kargs.has_key('axis'):
+        if 'axis' in kargs:
                 if kargs['axis']==True:
                         outputAxis=True
                 elif kargs['axis']==False:
@@ -250,14 +279,14 @@ def writeResult(data,filename,**kargs):
         if outputAngs==outputAxis==False:
                 return
         elif outputAngs==False:
-                print np.shape(data)
+                print(np.shape(data))
                 dataFilter=np.transpose(data)
                 dataFilter=dataFilter[SA:EA]
                 dataFilter=np.transpose(dataFilter)
-                print np.shape(dataFilter)
-                print filterData
+                print(np.shape(dataFilter))
+                print(filterData)
                 filterData=[i-SA for i in filterData]
-                print filterData
+                print(filterData)
         elif outputAxis==False:
                 dataFilter=np.transpose(data)
                 dataFilter=dataFilter[SJA:EJA]
@@ -285,7 +314,10 @@ def writeResult(data,filename,**kargs):
         if len(labelsAxis)>0:
                 labels=labels+",,,".join(labelsAxis)
         labels=labels+"\n"
-        xyz="frame num,"+"X,Y,Z,"*(len(dataFilter[0])/3)
+        if pyver == 2:
+            xyz="frame num,"+"X,Y,Z,"*(len(dataFilter[0])/3)
+        else:
+            xyz="frame num,"+"X,Y,Z,"*(len(dataFilter[0])//3)
         header=header+labels+xyz
         #Creates the frame numbers
         frames=np.arange(len(dataFilter),dtype=dataFilter[0].dtype)
@@ -332,13 +364,22 @@ def loadVSK(filename):
         return [vsk_keys,vsk_data]
 
 
-def splitDataDict(motionData):        
-    labels = motionData[0].keys()
-    values = []
-    for i in range(len(motionData)):
-        values.append(np.asarray(motionData[i].values()))
+def splitDataDict(motionData):       
+    if pyver == 2:
+        labels = motionData[0].keys()
+        values = []
+        for i in range(len(motionData)):
+            values.append(np.asarray(motionData[i].values()))
+            
+        return values,labels
         
-    return values,labels
+    if pyver == 3:
+        labels = list(motionData[0].keys())
+        values = []
+        for i in range(len(motionData)):
+            values.append(np.asarray(list(motionData[i].values())))
+            
+        return values,labels
 
 def combineDataDict(values,labels):
     data = []
@@ -358,3 +399,4 @@ def make_sure_path_exists(path):
     except OSError as exception:
         if exception.errno != errno.EEXIST:
             raise
+            

@@ -63,28 +63,30 @@ def calcAngles(data,**kargs):
 	splitAnglesAxis=True
 	formatData=True
 
-	if kargs.has_key('start') and kargs['start']!=None:
+    #modified to work between python 2 and 3
+    # used to rely on .has_key()
+	if 'start' in kargs and kargs['start']!=None:
 		start=kargs['start']
 		if start <0 and start!=None:
 			raise Exception("Start can not be negative")
-	if kargs.has_key('end') and kargs['end']!=None:
+	if 'end' in kargs and kargs['end']!=None:
 		end=kargs['end']
 		if start>end:
 			raise Exception("Start can not be larger than end")
 		if end>len(data):
 			raise Exception("Range cannot be larger than data length")
-	if kargs.has_key('frame'):
+	if 'frame' in kargs:
 		start=kargs['frame']
 		end=kargs['frame']+1
-	if kargs.has_key('vsk'):
+	if 'vsk' in kargs:
 		vsk=kargs['vsk']
-	if kargs.has_key('angles'):
+	if 'angles' in kargs:
 		returnangles=kargs['angles']
-	if kargs.has_key('axis'):
+	if 'axis' in kargs:
 		returnaxis=kargs['axis']
-	if kargs.has_key('splitAnglesAxis'):
+	if 'splitAnglesAxis' in kargs:
 		splitAnglesAxis=kargs['splitAnglesAxis']
-	if kargs.has_key('formatData'):
+	if 'formatData' in kargs:
 		formatData=kargs['formatData']
 
 	r=None

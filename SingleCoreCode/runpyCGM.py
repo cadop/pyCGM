@@ -46,12 +46,12 @@ def main(argv):
     try:
         opts, args = getopt.getopt(argv,"h:i:o:s:e:v:x",["ifile=","ofile=","start=","end=","vskfile=","staticinput="])
     except getopt.GetoptError:
-        print 'pyCGM.py -i <motionFile> -o <outputfile> -s <start> -e <end>'
+        print('pyCGM.py -i <motionFile> -o <outputfile> -s <start> -e <end>')
         sys.exit(2)
           
     for opt, arg in opts:
         if opt == '-h':
-                print 'pyCGM.py -i <motionFile> -o <outputfile> -s <start> -e <end>'
+                print('pyCGM.py -i <motionFile> -o <outputfile> -s <start> -e <end>')
                 sys.exit()
         elif opt in ("-i", "--ifile"):
                 inputfile = arg
@@ -71,7 +71,7 @@ def main(argv):
     filename = './'+inputfile
     motionData  = pycgmIO.loadData(filename) 
     if len(motionData) == 0 or motionData == None:
-        print "No Data Loaded"
+        print("No Data Loaded")
         sys.exit()
     
     if inputvsk != None:
