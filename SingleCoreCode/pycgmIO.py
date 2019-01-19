@@ -35,10 +35,10 @@ else:
     pyver = 3
     print("Using python 3 c3d loader - c3dpy3")
     
+    
 from math import *
 import numpy as np
 import xml.etree.ElementTree as ET
-
 import os
 import errno
 
@@ -122,8 +122,10 @@ def loadCSV(filename):
     if filename == '':
         self.returnedData.emit(None)
     import numpy as np
-    from numpy.compat import asbytes
-    fh=file(filename,'r')
+    from numpy.compat import asbytes #probably not needed
+
+    fh = open(filename,'r')
+
     fh=iter(fh)
     delimiter=','
 
@@ -149,7 +151,8 @@ def loadCSV(filename):
         return dic,unlabeleddic
 
     def split_line(line):
-        line = asbytes(line).strip(asbytes('\r\n'))
+        if pyver == 2: line = asbytes(line).strip(asbytes('\r\n'))
+        elif pyver == 3: line = line.strip('\r\n')
         if line:
             return line.split(delimiter)
         else:
