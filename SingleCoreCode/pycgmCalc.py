@@ -24,7 +24,7 @@
 # -*- coding: utf-8 -*-
 
 
-from pyCGM import *
+from .pyCGM import *
 
 #Used to split the arrays with angles and axis
 #Start Joint Angles

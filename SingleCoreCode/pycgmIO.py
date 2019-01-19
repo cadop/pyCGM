@@ -24,20 +24,21 @@
 # Input and output of pycgm functions
 
 import sys
+from .pyCGM import *
 if sys.version_info[0]==2:
     import c3d
     pyver = 2
     print("Using python 2 c3d loader")
 
 else:
-    import c3dpy3 as c3d
+    from . import c3dpy3 as c3d
     pyver = 3
     print("Using python 3 c3d loader - c3dpy3")
     
 from math import *
 import numpy as np
 import xml.etree.ElementTree as ET
-from pyCGM import *
+
 import os
 import errno
 

@@ -27,7 +27,7 @@ import os
 from math import *
 import math
 import numpy as np
-from pycgmIO import *
+from .pycgmIO import *
 
 # Lowerbody Coordinate System
 def pelvisJointCenter(frame):
