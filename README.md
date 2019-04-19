@@ -9,6 +9,8 @@ Our aim is to provide researchers and students a tool that can aid in understand
 
 The kinematics are validated against Nexus 1.8, and file types are known from Nexus 1.8.  Newer C3D files may not work (but files re-exported from Mokka usually work). 
 
+## How to use?
+For getting started, please check the WIKI on github
 
 ### Requirements:
 * Python 2.7 or Python 3
@@ -22,10 +24,7 @@ The kinematics are validated against Nexus 1.8, and file types are known from Ne
 
 Uses a modified version of the c3d.py loader from github. https://pypi.python.org/pypi/c3d/0.2.1
 
-## How to use?
-Please check the WIKI on github
-
-### Credits:
+## Credits:
 
 Originally developed in the Digital Human Research Center at the Advanced Institutes of Convergence Technology (AICT), Seoul National University http://aict.snu.ac.kr
 
