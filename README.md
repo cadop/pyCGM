@@ -10,10 +10,14 @@ The goal of this project is to release an easy to understand conventional gait m
 Our aim is to provide researchers and students a tool that can aid in understanding and developing modifications to the conventional gait model through python without much more. 
 
 ### Requirements:
-Python 2.7 or Python 3, Numpy
+* Python 2.7 or Python 3
+* Numpy
+* Scipy (only if using the pipeline operations)
 
 ### Requirements for HPC:
-Python 2.7, Numpy, MPI, Preferably Linux (MPI is not as simple to setup on windows)
+* Python 2.7
+* Numpy
+* MPI Preferably Linux (MPI is not as simple to setup on windows)
 
 Uses a modified version of the c3d.py loader from github. 
 
@@ -39,7 +43,7 @@ Contributors: Neil M. Thomas, Philippe C. Dixon,  Seungeun Yeon (연승은),Fili
 ## Reference
 Read about this code and if you find it useful in your work please cite:
 
-The effect of subject measurement error on joint kinematics in the conventional gait model: Insights from the open-source pyCGM tool using high performance computing methods
+Schwartz, Mathew, and Philippe C. Dixon. "*The effect of subject measurement error on joint kinematics in the conventional gait model: Insights from the open-source pyCGM tool using high performance computing methods.*" PloS one 13.1 (2018): e0189984.
 http://journals.plos.org/plosone/article/comments?id=10.1371/journal.pone.0189984
 
 ### Bibtex:
