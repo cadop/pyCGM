@@ -36,7 +36,7 @@ Contributors: Neil M. Thomas, Philippe C. Dixon,  Seungeun Yeon (연승은),Fili
 Read about this code and if you find it useful in your work please cite:
 
 Schwartz, Mathew, and Philippe C. Dixon. "*The effect of subject measurement error on joint kinematics in the conventional gait model: Insights from the open-source pyCGM tool using high performance computing methods.*" PloS one 13.1 (2018): e0189984.
-http://journals.plos.org/plosone/article/comments?id=10.1371/journal.pone.0189984
+https://journals.plos.org/plosone/article?id=10.1371/journal.pone.0189984
 
 ### Bibtex:
 @article{schwartz2018effect,
