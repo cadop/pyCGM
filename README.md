@@ -23,15 +23,7 @@ The kinematics are validated against Nexus 1.8, and file types are known from Ne
 Uses a modified version of the c3d.py loader from github. https://pypi.python.org/pypi/c3d/0.2.1
 
 ## How to use?
-**Ensure the code is running on your system**
-1. Clone or download the repository  
-1. Run the *pycgm_embed.py* file
-1. Check the *SampleData* folder for a newly created *.csv* results file
-
-**Change the file to calculate**
-1. Open the *pyCGM_Helpers.py* file
-1. Modify/Add a file directory and name
-1. Change the loading value in *main()* function of the *pycgm_embed.py* file
+Please check the WIKI on github
 
 ### Credits:
 
