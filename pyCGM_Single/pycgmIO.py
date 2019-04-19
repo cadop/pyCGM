@@ -35,7 +35,6 @@ else:
     pyver = 3
     print("Using python 3 c3d loader - c3dpy3")
     
-    
 from math import *
 import numpy as np
 import xml.etree.ElementTree as ET
@@ -216,7 +215,35 @@ def loadData(filename,rawData=True):
                 
         elif str(filename).endswith('.csv'):
                 return loadCSV(filename)[0]		
+                
+def dataAsDict(data,npArray=False):
+    """
+    convert the frame by frame based data to a dictionary of keys 
+    with all motion data as an array per key
+    
+    takes an option npArray flag, when set to true, will return a numpy array
+    for each key instead of a list
+    
+    """
+    dataDict = {}
+    
+    for frame in data:
+        for key in frame:
+            dataDict.setdefault(key,[])
+            dataDict[key].append(frame[key])
+    
+    if npArray == True:
+        for key in dataDict:
+            dataDict[key] = np.array(dataDict[key])
+        
+        return dataDict
 
+def writeKinetics(CoM_output,kinetics):
+    """
+    temp function to write kinetics data.  Just uses numpy.save
+    """
+    np.save(CoM_output,kinetics)
+        
 def writeResult(data,filename,**kargs):
         """
         Writes the result of the calculation into a csv file 
@@ -301,7 +328,7 @@ def writeResult(data,filename,**kargs):
                         dataFilter=np.delete(data, filterData, 1)
                 else:
                         dataFilter=np.delete(dataFilter, filterData, 1)
-        if dataFilter==None:
+        if type(dataFilter)==type(None):
                 dataFilter=data
         header=","
         headerAngs=["Joint Angle,,,",",,,x = flexion/extension angle",",,,y= abudction/adduction angle",",,,z = external/internal rotation angle",",,,"]
@@ -364,7 +391,7 @@ def loadVSK(filename):
             vsk_data.append(float(val))
 
         #vsk_data=np.asarray([float(R.get('VALUE')) for R in root[0]])
-
+        #print vsk_keys
         return [vsk_keys,vsk_data]
 
 

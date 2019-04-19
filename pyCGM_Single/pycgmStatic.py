@@ -7,135 +7,213 @@ Created on Tue Jul 28 16:55:25 2015
 import numpy as np
 from math import *
 
-def getStatic(motionData,vsk,flat_foot=False):
-	"""
-	Calculate the static offset angle values and return the values in radians
-	"""
-	static_offset = []
-	head_offset = []
-	IAD = []
-	calibratedMeasurements = {}
-	LeftLegLength = vsk['LeftLegLength']
-	RightLegLength = vsk['RightLegLength']  
-	calibratedMeasurements['MeanLegLength'] = (LeftLegLength+RightLegLength)/2
-	
-	if vsk['LeftAsisTrocanterDistance'] != 0 and vsk['RightAsisTrocanterDistance'] != 0:
-		calibratedMeasurements['L_AsisToTrocanterMeasure'] = vsk['LeftAsisTrocanterDistance']
-		calibratedMeasurements['R_AsisToTrocanterMeasure'] = vsk['RightAsisTrocanterDistance']
-	else:
-		calibratedMeasurements['R_AsisToTrocanterMeasure'] = ( 0.1288 * RightLegLength ) - 48.56
-		calibratedMeasurements['L_AsisToTrocanterMeasure'] = ( 0.1288 * LeftLegLength ) - 48.56
-		
-	if vsk['InterAsisDistance'] != 0:
-		calibratedMeasurements['InterAsisDistance'] = vsk['InterAsisDistance']
-	else:
-		pass
-	calibratedMeasurements['RightKneeWidth'] = vsk['RightKneeWidth']
-	calibratedMeasurements['LeftKneeWidth'] = vsk['LeftKneeWidth']
-	calibratedMeasurements['RightAnkleWidth'] = vsk['RightAnkleWidth']
-	calibratedMeasurements['LeftAnkleWidth'] = vsk['LeftAnkleWidth']
-	calibratedMeasurements['RightTibialTorsion'] = vsk['RightTibialTorsion']
-	calibratedMeasurements['LeftTibialTorsion'] =vsk['LeftTibialTorsion']
+def rotmat(x=0,y=0,z=0):
+    x = radians(x)
+    y = radians(y)
+    z = radians(z)
+    Rx = [ [1,0,0],[0,cos(x),sin(x)*-1],[0,sin(x),cos(x)] ]
+    Ry = [ [cos(y),0,sin(y)],[0,1,0],[sin(y)*-1,0,cos(y)] ]
+    Rz = [ [cos(z),sin(z)*-1,0],[sin(z),cos(z),0],[0,0,1] ]
+    
+    Rxy = matrixmult(Rx,Ry)
+    Rxyz = matrixmult(Rxy,Rz)    
+    
+    Ryx = matrixmult(Ry,Rx)
+    Ryxz = matrixmult(Ryx,Rz)
+    
+    return Rxyz
+    
+def getDist(p0, p1):
+    return sqrt((p0[0] - p1[0])**2 + (p0[1] - p1[1])**2 + (p0[2] - p1[2])**2)
+    
+def getStatic(motionData,vsk,flat_foot=False,GCS=None):
+    """
+    Calculate the static offset angle values and return the values in radians
+    
+    """
+    static_offset = []
+    head_offset = []
+    IAD = []
+    calSM = {}
+    LeftLegLength = vsk['LeftLegLength']
+    RightLegLength = vsk['RightLegLength']  
+    calSM['MeanLegLength'] = (LeftLegLength+RightLegLength)/2
+    calSM['Bodymass'] = vsk['Bodymass']
+    
+    #Define the global coordinate system
+    if GCS == None: calSM['GCS'] = [[1,0,0],[0,1,0],[0,0,1]] 
+    
+    if vsk['LeftAsisTrocanterDistance'] != 0 and vsk['RightAsisTrocanterDistance'] != 0:
+        calSM['L_AsisToTrocanterMeasure'] = vsk['LeftAsisTrocanterDistance']
+        calSM['R_AsisToTrocanterMeasure'] = vsk['RightAsisTrocanterDistance']
+    else:
+        calSM['R_AsisToTrocanterMeasure'] = ( 0.1288 * RightLegLength ) - 48.56
+        calSM['L_AsisToTrocanterMeasure'] = ( 0.1288 * LeftLegLength ) - 48.56
+        
+    if vsk['InterAsisDistance'] != 0:
+        calSM['InterAsisDistance'] = vsk['InterAsisDistance']
+    else:
+        for frame in motionData:
+            iadCalc = IADcalculation(frame)
+            IAD.append(iadCalc)
+        InterAsisDistance = np.average(IAD)
+        calSM['InterAsisDistance'] = InterAsisDistance
+        
+    try: 
+        calSM['RightKneeWidth'] = vsk['RightKneeWidth']
+        calSM['LeftKneeWidth'] = vsk['LeftKneeWidth']
+    
+    except: 
+        #no knee width
+        calSM['RightKneeWidth'] = 0
+        calSM['LeftKneeWidth'] = 0
+        
+    if calSM['RightKneeWidth'] == 0:
+        if 'RMKN' in list(motionData[0].keys()):
+            #medial knee markers are available
+            Rwidth = []
+            Lwidth = []
+            #average each frame 
+            for frame in motionData:
+                RMKN = frame['RMKN']
+                LMKN = frame['LMKN']
+                
+                RKNE = frame['RKNE']
+                LKNE = frame['LKNE']
 
-	calibratedMeasurements['RightShoulderOffset'] = vsk['RightShoulderOffset']
-	calibratedMeasurements['LeftShoulderOffset'] = vsk['LeftShoulderOffset']
-    
-	calibratedMeasurements['RightElbowWidth'] = vsk['RightElbowWidth']
-	calibratedMeasurements['LeftElbowWidth'] = vsk['LeftElbowWidth']
-	calibratedMeasurements['RightWristWidth'] = vsk['RightWristWidth']
-	calibratedMeasurements['LeftWristWidth'] = vsk['LeftWristWidth']
-    
-	calibratedMeasurements['RightHandThickness'] = vsk['RightHandThickness']
-	calibratedMeasurements['LeftHandThickness'] = vsk['LeftHandThickness']
-    
-	for frame in motionData:
-		pelvis_origin,pelvis_axis,sacrum = pelvisJointCenter(frame)
-		hip_JC = hipJointCenter(frame,pelvis_origin,pelvis_axis[0],pelvis_axis[1],pelvis_axis[2],calibratedMeasurements)
-		knee_JC = kneeJointCenter(frame,hip_JC,0,vsk=calibratedMeasurements)
-		ankle_JC = ankleJointCenter(frame,knee_JC,0,vsk=calibratedMeasurements)
-		angle = staticCalculation(frame,ankle_JC,knee_JC,flat_foot,calibratedMeasurements)
-		head = headJC(frame)
-		headangle = staticCalculationHead(frame,head)
-		if vsk['InterAsisDistance'] != 0:
-			pass
-		else:
-			iadCalc = IADcalculation(frame)
-			IAD.append(iadCalc)
-		static_offset.append(angle)
-		head_offset.append(headangle)
-		
-	
-	static=np.average(static_offset,axis=0)
-	staticHead=np.average(head_offset)
-	if vsk['InterAsisDistance'] != 0:
-		pass
-	else:
-		InterAsisDistance = np.average(IAD)
-	
-	calibratedMeasurements['RightStaticRotOff'] = static[0][0]*-1
-	calibratedMeasurements['RightStaticPlantFlex'] = static[0][1]
-	calibratedMeasurements['LeftStaticRotOff'] = static[1][0]
-	calibratedMeasurements['LeftStaticPlantFlex'] = static[1][1]
-	calibratedMeasurements['HeadOffset'] = staticHead
-	if vsk['InterAsisDistance'] != 0:
-		pass
-	else:
-		calibratedMeasurements['InterAsisDistance'] = InterAsisDistance
+                Rdst = getDist(RKNE,RMKN)
+                Ldst = getDist(LKNE,LMKN)
+                Rwidth.append(Rdst)
+                Lwidth.append(Ldst)
 
-	return calibratedMeasurements
+            calSM['RightKneeWidth'] = sum(Rwidth)/len(Rwidth)
+            calSM['LeftKneeWidth'] = sum(Lwidth)/len(Lwidth)        
+    try: 
+        calSM['RightAnkleWidth'] = vsk['RightAnkleWidth']
+        calSM['LeftAnkleWidth'] = vsk['LeftAnkleWidth']
+    
+    except: 
+        #no knee width
+        calSM['RightAnkleWidth'] = 0
+        calSM['LeftAnkleWidth'] = 0
+        
+    if calSM['RightAnkleWidth'] == 0:
+        if 'RMKN' in list(motionData[0].keys()):
+            #medial knee markers are available
+            Rwidth = []
+            Lwidth = []
+            #average each frame 
+            for frame in motionData:
+                RMMA = frame['RMMA']
+                LMMA = frame['LMMA']
+                
+                RANK = frame['RANK']
+                LANK = frame['LANK']
+
+                Rdst = getDist(RMMA,RANK)
+                Ldst = getDist(LMMA,LANK)
+                Rwidth.append(Rdst)
+                Lwidth.append(Ldst)
+
+            calSM['RightAnkleWidth'] = sum(Rwidth)/len(Rwidth)
+            calSM['LeftAnkleWidth'] = sum(Lwidth)/len(Lwidth)
+
+    #calSM['RightKneeWidth'] = vsk['RightKneeWidth']
+    #calSM['LeftKneeWidth'] = vsk['LeftKneeWidth']
+    
+    #calSM['RightAnkleWidth'] = vsk['RightAnkleWidth']
+    #calSM['LeftAnkleWidth'] = vsk['LeftAnkleWidth']
+    
+    calSM['RightTibialTorsion'] = vsk['RightTibialTorsion']
+    calSM['LeftTibialTorsion'] =vsk['LeftTibialTorsion']
+
+    calSM['RightShoulderOffset'] = vsk['RightShoulderOffset']
+    calSM['LeftShoulderOffset'] = vsk['LeftShoulderOffset']
+    
+    calSM['RightElbowWidth'] = vsk['RightElbowWidth']
+    calSM['LeftElbowWidth'] = vsk['LeftElbowWidth']
+    calSM['RightWristWidth'] = vsk['RightWristWidth']
+    calSM['LeftWristWidth'] = vsk['LeftWristWidth']
+    
+    calSM['RightHandThickness'] = vsk['RightHandThickness']
+    calSM['LeftHandThickness'] = vsk['LeftHandThickness']
+    
+    for frame in motionData:
+        pelvis_origin,pelvis_axis,sacrum = pelvisJointCenter(frame)
+        hip_JC = hipJointCenter(frame,pelvis_origin,pelvis_axis[0],pelvis_axis[1],pelvis_axis[2],calSM)
+        knee_JC = kneeJointCenter(frame,hip_JC,0,vsk=calSM)
+        ankle_JC = ankleJointCenter(frame,knee_JC,0,vsk=calSM)
+        angle = staticCalculation(frame,ankle_JC,knee_JC,flat_foot,calSM)
+        head = headJC(frame)
+        headangle = staticCalculationHead(frame,head)
+
+        static_offset.append(angle)
+        head_offset.append(headangle)
+        
+    
+    static=np.average(static_offset,axis=0)
+    staticHead=np.average(head_offset)
+    
+    calSM['RightStaticRotOff'] = static[0][0]*-1
+    calSM['RightStaticPlantFlex'] = static[0][1]
+    calSM['LeftStaticRotOff'] = static[1][0]
+    calSM['LeftStaticPlantFlex'] = static[1][1]
+    calSM['HeadOffset'] = staticHead
+    
+    return calSM
 
 def average(list):
-	i =0
-	total = 0.0
-	while(i <len(list)):
-		total = total + list[i]
-		i = i+1
-	return total / len(list)	
+    i =0
+    total = 0.0
+    while(i <len(list)):
+        total = total + list[i]
+        i = i+1
+    return total / len(list)    
 
 def IADcalculation(frame):
-	RASI = frame['RASI']
-	LASI = frame['LASI']
-	IAD = np.sqrt((RASI[0]-LASI[0])*(RASI[0]-LASI[0])+(RASI[1]-LASI[1])*(RASI[1]-LASI[1])+(RASI[2]-LASI[2])*(RASI[2]-LASI[2]))
-	
-	return IAD
-	
+    RASI = frame['RASI']
+    LASI = frame['LASI']
+    IAD = np.sqrt((RASI[0]-LASI[0])*(RASI[0]-LASI[0])+(RASI[1]-LASI[1])*(RASI[1]-LASI[1])+(RASI[2]-LASI[2])*(RASI[2]-LASI[2]))
+    
+    return IAD
+    
 def staticCalculationHead(frame,head):
-	
-	headAxis = head[0]
-	headOrigin = head[1]
-	x_axis = [headAxis[0][0]-headOrigin[0],headAxis[0][1]-headOrigin[1],headAxis[0][2]-headOrigin[2]]
-	y_axis = [headAxis[1][0]-headOrigin[0],headAxis[1][1]-headOrigin[1],headAxis[1][2]-headOrigin[2]]
-	z_axis = [headAxis[2][0]-headOrigin[0],headAxis[2][1]-headOrigin[1],headAxis[2][2]-headOrigin[2]]
-	
-	axis = [x_axis,y_axis,z_axis]
-	global_axis = [[0,1,0],[-1,0,0],[0,0,1]]
-	
-	offset = headoffCalc(global_axis,axis)
+    
+    headAxis = head[0]
+    headOrigin = head[1]
+    x_axis = [headAxis[0][0]-headOrigin[0],headAxis[0][1]-headOrigin[1],headAxis[0][2]-headOrigin[2]]
+    y_axis = [headAxis[1][0]-headOrigin[0],headAxis[1][1]-headOrigin[1],headAxis[1][2]-headOrigin[2]]
+    z_axis = [headAxis[2][0]-headOrigin[0],headAxis[2][1]-headOrigin[1],headAxis[2][2]-headOrigin[2]]
+    
+    axis = [x_axis,y_axis,z_axis]
+    global_axis = [[0,1,0],[-1,0,0],[0,0,1]]
+    
+    offset = headoffCalc(global_axis,axis)
 
-	return offset
+    return offset
 
 def headoffCalc(axisP, axisD):
-	"""
-	
-	Calculate head offset angle for static calibration.
-	This function is only called in static trial. 
-	and output will be used in dynamic later. 
-	
-	"""
-	axisPi = np.linalg.inv(axisP)
-	
-	# rotation matrix is in order XYZ
-	M = matrixmult(axisD,axisPi)
-	
-	# get y angle from rotation matrix using inverse trigonometry.
-	getB= M[0][2] / M[2][2]
-	
-	beta = np.arctan(getB)
-	
-	angle = beta
-	
-	return angle
-	
+    """
+    
+    Calculate head offset angle for static calibration.
+    This function is only called in static trial. 
+    and output will be used in dynamic later. 
+    
+    """
+    axisPi = np.linalg.inv(axisP)
+    
+    # rotation matrix is in order XYZ
+    M = matrixmult(axisD,axisPi)
+    
+    # get y angle from rotation matrix using inverse trigonometry.
+    getB= M[0][2] / M[2][2]
+    
+    beta = np.arctan(getB)
+    
+    angle = beta
+    
+    return angle
+    
 def staticCalculation(frame,ankle_JC,knee_JC,flat_foot,vsk=None):
     """
     Calculate the Static angle function
@@ -289,17 +367,30 @@ def pelvisJointCenter(frame):
 
     RASI = frame['RASI']
     LASI = frame['LASI']
-    RPSI = frame['RPSI']    
-    LPSI = frame['LPSI']    
+    
+    try:
+        RPSI = frame['RPSI']    
+        LPSI = frame['LPSI'] 
+        #  If no sacrum, mean of posterior markers is used as the sacrum
+        sacrum = (RPSI+LPSI)/2  
+    except:
+        pass #going to use sacrum marker
+
+    if 'SACR' in frame:
+        sacrum = frame['SACR']
+        
+        
     # REQUIRED LANDMARKS:
     # origin
     # sacrum 
     
     # Origin is Midpoint between RASI and LASI
     origin = (RASI+LASI)/2
+    
+    # print('Static calc Origin: ',origin)
+    # print('Static calc RASI: ',RASI)
+    # print('Static calc LASI: ',LASI)
 
-    #  If no sacrum, mean of posterior markers is used as the sacrum
-    sacrum = (RPSI+LPSI)/2
     
     # This calculate the each axis
     # beta1,2,3 is arbitrary name to help calculate.
@@ -328,7 +419,7 @@ def pelvisJointCenter(frame):
 
     pelvis = [origin,pelvis_axis,sacrum]
     
-    
+    #print('Pelvis JC in static: ',pelvis)
     return pelvis
             
 def hipJointCenter(frame,pel_origin,pel_x,pel_y,pel_z,vsk=None):
@@ -386,10 +477,11 @@ def hipJointCenter(frame,pel_origin,pel_x,pel_y,pel_z,vsk=None):
     #Set the variables needed to calculate the joint angle
     
     mm = 7.0
+    #mm = 14.0 #can this be given?
     MeanLegLength = vsk['MeanLegLength']
     R_AsisToTrocanterMeasure = vsk['R_AsisToTrocanterMeasure']
     L_AsisToTrocanterMeasure = vsk['L_AsisToTrocanterMeasure']
-	
+    
     interAsisMeasure = vsk['InterAsisDistance']
     C = ( MeanLegLength * 0.115 ) - 15.3
     theta = 0.500000178813934
@@ -1102,89 +1194,89 @@ def footJointCenter(frame,static_info,ankle_JC,knee_JC,delta):
     return [R,L,foot_axis]
 
 def headJC(frame):
-	"""
+    """
 
-	Calculate the head joint axis function.
+    Calculate the head joint axis function.
 
-	Takes in a dictionary of x,y,z positions and marker names.
-	Calculates the head joint center and returns the head joint center and axis.
-	-------------------------------------------------------------------------
+    Takes in a dictionary of x,y,z positions and marker names.
+    Calculates the head joint center and returns the head joint center and axis.
+    -------------------------------------------------------------------------
 
-	INPUT:  dictionaries of marker lists.  
-			{ [], [], [] }
-	
-	OUTPUT: Returns the Head joint center and axis in three array
-			head_JC = [[[head x axis x,y,z position],
-						[head y axis x,y,z position],
-						[head z axis x,y,z position]],
-						[head x,y,z position]]
-	
-	MODIFIES: -
-	---------------------------------------------------------------------------
-	
-	EXAMPLE:
-			i = 1
-			frame = {'RFHD': [325.82983398, 402.55450439, 1722.49816895],
-					 'LFHD': [184.55158997, 409.68713379, 1721.34289551],
-					 'RBHD': [304.39898682, 242.91339111, 1694.97497559],
-					 'LBHD': [197.8621521, 251.28889465, 1696.90197754], ...}
-			
-			headJC(frame,vsk=None)
-
-			>>> [[[255.21590217746564, 407.10741939149585, 1722.0817317995723],
-				[254.19105385179665, 406.146809183757, 1721.9176771191715],
-				[255.18370553356357, 405.959746549898, 1722.9074499262838]],
-				[255.19071197509766, 406.12081909179687, 1721.9205322265625]]
-
-	"""
-	
-	#Get the marker positions used for joint calculation
-	LFHD = frame['LFHD']
-	RFHD = frame['RFHD']
-	LBHD = frame['LBHD']
-	RBHD = frame['RBHD']
-
-	#get the midpoints of the head to define the sides
-	front = [(LFHD[0]+RFHD[0])/2.0, (LFHD[1]+RFHD[1])/2.0,(LFHD[2]+RFHD[2])/2.0]
-	back = [(LBHD[0]+RBHD[0])/2.0, (LBHD[1]+RBHD[1])/2.0,(LBHD[2]+RBHD[2])/2.0]
-	left = [(LFHD[0]+LBHD[0])/2.0, (LFHD[1]+LBHD[1])/2.0,(LFHD[2]+LBHD[2])/2.0]
-	right = [(RFHD[0]+RBHD[0])/2.0, (RFHD[1]+RBHD[1])/2.0,(RFHD[2]+RBHD[2])/2.0]
-	origin = front
-	
-	#Get the vectors from the sides with primary x axis facing front
-	#First get the x direction
-	x_vec = [front[0]-back[0],front[1]-back[1],front[2]-back[2]]
-	x_vec_div = norm2d(x_vec)
-	x_vec = [x_vec[0]/x_vec_div,x_vec[1]/x_vec_div,x_vec[2]/x_vec_div]
-	
-	#get the direction of the y axis
-	y_vec = [left[0]-right[0],left[1]-right[1],left[2]-right[2]]
-	y_vec_div = norm2d(y_vec)
-	y_vec = [y_vec[0]/y_vec_div,y_vec[1]/y_vec_div,y_vec[2]/y_vec_div]
-	
-	# get z axis by cross-product of x axis and y axis.
-	z_vec = cross(x_vec,y_vec)
-	z_vec_div = norm2d(z_vec)
-	z_vec = [z_vec[0]/z_vec_div,z_vec[1]/z_vec_div,z_vec[2]/z_vec_div]
+    INPUT:  dictionaries of marker lists.  
+            { [], [], [] }
     
-	# make sure all x,y,z axis is orthogonal each other by cross-product
-	y_vec = cross(z_vec,x_vec)
-	y_vec_div = norm2d(y_vec)
-	y_vec = [y_vec[0]/y_vec_div,y_vec[1]/y_vec_div,y_vec[2]/y_vec_div]
-	x_vec = cross(y_vec,z_vec)
-	x_vec_div = norm2d(x_vec)
-	x_vec = [x_vec[0]/x_vec_div,x_vec[1]/x_vec_div,x_vec[2]/x_vec_div]
+    OUTPUT: Returns the Head joint center and axis in three array
+            head_JC = [[[head x axis x,y,z position],
+                        [head y axis x,y,z position],
+                        [head z axis x,y,z position]],
+                        [head x,y,z position]]
+    
+    MODIFIES: -
+    ---------------------------------------------------------------------------
+    
+    EXAMPLE:
+            i = 1
+            frame = {'RFHD': [325.82983398, 402.55450439, 1722.49816895],
+                     'LFHD': [184.55158997, 409.68713379, 1721.34289551],
+                     'RBHD': [304.39898682, 242.91339111, 1694.97497559],
+                     'LBHD': [197.8621521, 251.28889465, 1696.90197754], ...}
+            
+            headJC(frame,vsk=None)
 
-	#Add the origin back to the vector to get it in the right position
-	x_axis = [x_vec[0]+origin[0],x_vec[1]+origin[1],x_vec[2]+origin[2]]
-	y_axis = [y_vec[0]+origin[0],y_vec[1]+origin[1],y_vec[2]+origin[2]]
-	z_axis = [z_vec[0]+origin[0],z_vec[1]+origin[1],z_vec[2]+origin[2]]
-	
-	head_axis =[x_axis,y_axis,z_axis]
+            >>> [[[255.21590217746564, 407.10741939149585, 1722.0817317995723],
+                [254.19105385179665, 406.146809183757, 1721.9176771191715],
+                [255.18370553356357, 405.959746549898, 1722.9074499262838]],
+                [255.19071197509766, 406.12081909179687, 1721.9205322265625]]
 
-	#Return the three axis and origin
-	return [head_axis,origin]
-	
+    """
+    
+    #Get the marker positions used for joint calculation
+    LFHD = frame['LFHD']
+    RFHD = frame['RFHD']
+    LBHD = frame['LBHD']
+    RBHD = frame['RBHD']
+
+    #get the midpoints of the head to define the sides
+    front = [(LFHD[0]+RFHD[0])/2.0, (LFHD[1]+RFHD[1])/2.0,(LFHD[2]+RFHD[2])/2.0]
+    back = [(LBHD[0]+RBHD[0])/2.0, (LBHD[1]+RBHD[1])/2.0,(LBHD[2]+RBHD[2])/2.0]
+    left = [(LFHD[0]+LBHD[0])/2.0, (LFHD[1]+LBHD[1])/2.0,(LFHD[2]+LBHD[2])/2.0]
+    right = [(RFHD[0]+RBHD[0])/2.0, (RFHD[1]+RBHD[1])/2.0,(RFHD[2]+RBHD[2])/2.0]
+    origin = front
+    
+    #Get the vectors from the sides with primary x axis facing front
+    #First get the x direction
+    x_vec = [front[0]-back[0],front[1]-back[1],front[2]-back[2]]
+    x_vec_div = norm2d(x_vec)
+    x_vec = [x_vec[0]/x_vec_div,x_vec[1]/x_vec_div,x_vec[2]/x_vec_div]
+    
+    #get the direction of the y axis
+    y_vec = [left[0]-right[0],left[1]-right[1],left[2]-right[2]]
+    y_vec_div = norm2d(y_vec)
+    y_vec = [y_vec[0]/y_vec_div,y_vec[1]/y_vec_div,y_vec[2]/y_vec_div]
+    
+    # get z axis by cross-product of x axis and y axis.
+    z_vec = cross(x_vec,y_vec)
+    z_vec_div = norm2d(z_vec)
+    z_vec = [z_vec[0]/z_vec_div,z_vec[1]/z_vec_div,z_vec[2]/z_vec_div]
+    
+    # make sure all x,y,z axis is orthogonal each other by cross-product
+    y_vec = cross(z_vec,x_vec)
+    y_vec_div = norm2d(y_vec)
+    y_vec = [y_vec[0]/y_vec_div,y_vec[1]/y_vec_div,y_vec[2]/y_vec_div]
+    x_vec = cross(y_vec,z_vec)
+    x_vec_div = norm2d(x_vec)
+    x_vec = [x_vec[0]/x_vec_div,x_vec[1]/x_vec_div,x_vec[2]/x_vec_div]
+
+    #Add the origin back to the vector to get it in the right position
+    x_axis = [x_vec[0]+origin[0],x_vec[1]+origin[1],x_vec[2]+origin[2]]
+    y_axis = [y_vec[0]+origin[0],y_vec[1]+origin[1],y_vec[2]+origin[2]]
+    z_axis = [z_vec[0]+origin[0],z_vec[1]+origin[1],z_vec[2]+origin[2]]
+    
+    head_axis =[x_axis,y_axis,z_axis]
+
+    #Return the three axis and origin
+    return [head_axis,origin]
+    
 def uncorrect_footaxis(frame,ankle_JC): 
     """
 
@@ -1698,12 +1790,12 @@ def findJointC(a, b, c, delta):
     m = [(b[0]+c[0])/2,(b[1]+c[1])/2,(b[2]+c[2])/2]
     length = np.subtract(b,m)
     length = norm2d(length)
-	
+    
     # iterate_acosdomain =  1 - ( delta/norm2d(v2) - int(delta/norm2d(v2)) )
-	
+    
     # print "iterate_acosdomain:",iterate_acosdomain
 
-	
+    
     theta = acos(delta/norm2d(v2))
 
     cs = cos(theta*2)

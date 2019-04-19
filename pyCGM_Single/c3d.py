@@ -782,7 +782,9 @@ class Reader(Manager):
                     group.desc = desc
                     self[name] = group
                 else:
-                    self.add_group(group_id, name, desc)
+                    try: self.add_group(group_id, name, desc)
+                    except: print("C3D Conflict of Information: ",group_id,name,desc)
+
 
             bytes = bytes[2 + abs(chars_in_name) + offset_to_next:]
 

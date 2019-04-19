@@ -575,6 +575,7 @@ class Manager(dict):
         if group_id in self:
             raise KeyError(group_id)
         name = name.upper()
+        #print(name)
         if name in self:
             raise KeyError(name)
         group = self[name] = self[group_id] = Group(name, desc)
@@ -783,7 +784,8 @@ class Reader(Manager):
                     group.desc = desc
                     self[name] = group
                 else:
-                    self.add_group(group_id, name, desc)
+                    try: self.add_group(group_id, name, desc)
+                    except: print("C3D Conflict of Information: ",group_id,name,desc)
 
             bytes = bytes[2 + abs(chars_in_name) + offset_to_next:]
 
