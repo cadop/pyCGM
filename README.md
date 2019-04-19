@@ -1,6 +1,7 @@
 # pyCGM
 
-Python Module for the Conventional Gait Model, calculates Kinematics and Center of Mass.
+**Python Module for the Conventional Gait Model**
+*calculates Kinematics and Center of Mass*
 
 This is a python module for calculating conventional gait model.  It can read a .c3d file (thanks to https://pypi.python.org/pypi/c3d/0.2.1)  or .csv file generated from Vicon Nexus under the Export ASCII settings.  The kinematics are validated against Nexus 1.8, and file types are known from Nexus 1.8.  Newer C3D files may not work (but files re-exported from Mokka usually work). 
 
