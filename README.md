@@ -10,7 +10,7 @@ Our aim is to provide researchers and students a tool that can aid in understand
 The kinematics are validated against Nexus 1.8, and file types are known from Nexus 1.8.  Newer C3D files may not work (but files re-exported from Mokka usually work). 
 
 ## How to use?
-For getting started, please check the WIKI on github
+For getting started, please check the [WIKI on github] (https://github.com/cadop/pyCGM/wiki/Overview)
 
 ### Requirements:
 * Python 2.7 or Python 3
