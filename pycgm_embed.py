@@ -31,7 +31,7 @@ def loadData(dynamic_trial,static_trial,vsk_file):
 def main():
     #Load the filenames
     #pyCGM_Helpers.py contains some sample directory data based on github directories
-    dynamic_trial,static_trial,vsk_file,outputfile,CoM_output = pyCGM_Helpers.getfilenames(x=3) #change x to use different files
+    dynamic_trial,static_trial,vsk_file,outputfile,CoM_output = pyCGM_Helpers.getfilenames(x=2) #change x to use different files
     
     #Load a dynamic trial, static trial, and vsk (subject measurements)
     motionData,vskData,staticData = loadData(dynamic_trial,static_trial,vsk_file)

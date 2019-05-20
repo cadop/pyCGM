@@ -392,7 +392,8 @@ def kneeJointCenter(frame,hip_JC,delta,vsk=None):
     # X axis is perpendicular to the points plane which is determined by KJC, HJC, KNE markers.
     # and calculated by each point's vector cross vector. 
     # the axis is then normalized.
-    axis_x = cross(axis_z,thi_kne_R)
+    # axis_x = cross(axis_z,thi_kne_R)
+    axis_x = cross(axis_z,RKNE-R_hip_JC)
     
     # Y axis is determined by cross product of axis_z and axis_x.
     # the axis is then normalized.
@@ -411,7 +412,9 @@ def kneeJointCenter(frame,hip_JC,delta,vsk=None):
     # X axis is perpendicular to the points plane which is determined by KJC, HJC, KNE markers.
     # and calculated by each point's vector cross vector. 
     # the axis is then normalized.
-    axis_x = cross(thi_kne_L,axis_z)
+    # axis_x = cross(thi_kne_L,axis_z)
+    #using hipjc instead of thigh marker
+    axis_x = cross(LKNE-L_hip_JC,axis_z)
     
     # Y axis is determined by cross product of axis_z and axis_x.
     # the axis is then normalized.
