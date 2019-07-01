@@ -21,10 +21,10 @@ def loadData(dynamic_trial,static_trial,vsk_file):
     #load the data, usually there is some checks in here to make sure we loaded
     # correctly, but for now we assume its loaded
     motionData  = pycgmIO.loadData(dynamic_trial) 
-    vskdata = pycgmIO.loadVSK(vsk_file)
+    vsk = pycgmIO.loadVSK(vsk_file,dict=False)
     staticData = pycgmIO.loadData(static_trial)
-    #The vsk is loaded, but for some reasons the return is split, so we combine
-    vsk = pycgmIO.createVskDataDict(vskdata[0],vskdata[1]) 
+    #The vsk is loaded, if dict=True (default), we combine
+    #vsk = pycgmIO.createVskDataDict(vsk[0],vsk[1]) 
     
     return motionData,vsk,staticData
 

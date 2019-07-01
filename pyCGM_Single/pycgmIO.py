@@ -88,7 +88,14 @@ def createVskDataDict(labels,data):
 def splitVskDataDict(vsk):
     if pyver == 2: return vsk.keys(),np.asarray(vsk.values())
     if pyver == 3: return list(vsk.keys()),np.asarray(list(vsk.values()))
-        
+
+def markerKeys():
+    marker_keys = ['RASI','LASI','RPSI','LPSI','RTHI','LTHI','RKNE','LKNE','RTIB',
+               'LTIB','RANK','LANK','RTOE','LTOE','LFHD','RFHD','LBHD','RBHD',
+               'RHEE','LHEE','CLAV','C7','STRN','T10','RSHO','LSHO','RELB','LELB',
+               'RWRA','RWRB','LWRA','LWRB','RFIN','LFIN']
+    return marker_keys
+    
 def loadC3D(filename):
     #Calls the py c3d file
     reader = c3d.Reader(open(filename, 'rb'))
@@ -211,7 +218,14 @@ def loadData(filename,rawData=True):
         
         print(filename)
         if str(filename).endswith('.c3d'):
-                return loadC3D(filename)[0]
+                
+                data = loadC3D(filename)[0]
+                #add any missing keys
+                keys = markerKeys()
+                for frame in data:
+                    for key in keys:
+                        frame.setdefault(key,[np.nan,np.nan,np.nan])
+                return data
                 
         elif str(filename).endswith('.csv'):
                 return loadCSV(filename)[0]		
@@ -324,7 +338,7 @@ def writeResult(data,filename,**kargs):
                 dataFilter=np.transpose(dataFilter)
 
         if len(filterData)>0:
-                if dataFilter==None:
+                if type(dataFilter)==type(None):
                         dataFilter=np.delete(data, filterData, 1)
                 else:
                         dataFilter=np.delete(dataFilter, filterData, 1)
@@ -361,7 +375,21 @@ def writeResult(data,filename,**kargs):
         #np.savetxt(filename, dataFilter, delimiter=delimiter,fmt="%.15f")
         #np.savez_compressed(filename,dataFilter)
 
-def loadVSK(filename):
+def smKeys():
+    keys = ['Bodymass', 'Height', 'HeadOffset', 'InterAsisDistance', 'LeftAnkleWidth', 'LeftAsisTrocanterDistance',
+            'LeftClavicleLength',
+            'LeftElbowWidth', 'LeftFemurLength', 'LeftFootLength', 'LeftHandLength', 'LeftHandThickness',
+            'LeftHumerusLength', 'LeftKneeWidth',
+            'LeftLegLength', 'LeftRadiusLength', 'LeftShoulderOffset', 'LeftTibiaLength', 'LeftWristWidth',
+            'RightAnkleWidth',
+            'RightClavicleLength', 'RightElbowWidth', 'RightFemurLength', 'RightFootLength', 'RightHandLength',
+            'RightHandThickness', 'RightHumerusLength',
+            'RightKneeWidth', 'RightLegLength', 'RightRadiusLength', 'RightShoulderOffset', 'RightTibiaLength',
+            'RightWristWidth',
+            ]
+    return keys
+        
+def loadVSK(filename,dict=True):
         #Check if the filename is valid
         #if not, return None
         if filename == '':
@@ -377,9 +405,6 @@ def loadVSK(filename):
         # <KinematicModel>
         root = tree.getroot()
         
-        # for i in range(len(root[2][0])):
-        #     vskMarkers.append(root[2][0][i].get('NAME'))
-        
         #Store the values of each parameter in a dictionary
         # the format is (NAME,VALUE)
         vsk_keys=[r.get('NAME') for r in root[0]]
@@ -392,6 +417,8 @@ def loadVSK(filename):
 
         #vsk_data=np.asarray([float(R.get('VALUE')) for R in root[0]])
         #print vsk_keys
+        if dict==False: return createVskDataDict(vsk_keys,vsk_data) 
+        
         return [vsk_keys,vsk_data]
 
 
