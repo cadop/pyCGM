@@ -34,7 +34,14 @@ else:
     from . import c3dpy3 as c3d
     pyver = 3
     print("Using python 3 c3d loader - c3dpy3")
-    
+
+try:
+    from ezc3d import c3d as ezc
+    useEZC3D = True
+    print("EZC3D Found, using instead of Python c3d")
+except:
+    useEZC3D = False
+
 from math import *
 import numpy as np
 import xml.etree.ElementTree as ET
@@ -95,11 +102,24 @@ def markerKeys():
                'RHEE','LHEE','CLAV','C7','STRN','T10','RSHO','LSHO','RELB','LELB',
                'RWRA','RWRB','LWRA','LWRB','RFIN','LFIN']
     return marker_keys
-    
-def loadC3D(filename):
-    #Calls the py c3d file
-    reader = c3d.Reader(open(filename, 'rb'))
 
+def loadEZC3D(filename):
+    #Relative import mod for python 2 and 3
+    try: from . import c3dez
+    except: import c3dez
+
+    dataclass = c3dez.C3DData(None, filename)
+    data = dataAsArray(dataclass.Data['Markers'])
+    return [data,None,None]
+
+def loadC3D(filename):
+
+    if useEZC3D == True:
+        print("Using EZC3D")
+        return loadEZC3D(filename)
+
+    reader = c3d.Reader(open(filename, 'rb'))
+    
     labels = reader.get('POINT:LABELS').string_array
     mydict = {}
     mydictunlabeled ={}
@@ -229,7 +249,37 @@ def loadData(filename,rawData=True):
                 
         elif str(filename).endswith('.csv'):
                 return loadCSV(filename)[0]		
-                
+
+def dataAsArray(data):
+    """
+    convert a dictionary of markers with xyz data as an array 
+    to an array of dictionaries 
+
+    Assumes all markers have the same length of data
+    """
+    names = list(data.keys())
+    dataArray = []
+
+    #make the marker arrays a better format
+    for marker in data:
+        #Turn multi array into single
+        xyz = [ np.array(x) for x in zip( data[marker][0],data[marker][1],data[marker][2] ) ]
+        data[marker] = xyz
+
+    #use the first marker to get the length of frames
+    datalen = len( data[names[0]] )
+
+    for i in range(datalen):
+
+        frameDict = {}
+
+        for marker in data:
+            frameDict[marker] = data[marker][i]
+
+        dataArray.append(frameDict)
+
+    return dataArray
+
 def dataAsDict(data,npArray=False):
     """
     convert the frame by frame based data to a dictionary of keys 
