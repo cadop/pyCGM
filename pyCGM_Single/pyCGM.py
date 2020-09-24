@@ -38,38 +38,41 @@ def pelvisJointCenter(frame):
     Calculates the pelvis joint center and axis and returns both.
     -------------------------------------------------------------------------
     
-    INPUT: 
-        dictionaries of marker lists.  
+    Parameters
+    ---------- 
+        frame : dict 
+            dictionaries of marker lists.
             { [], [], [] }
     
-    OUTPUT: Returns the origin and pelvis axis also sacrum
+    Returns
+    ----------
+    array
+        Returns the origin and pelvis axis also sacrum.
+            
             Pelvis = [[origin x,y,z position],
                       [[pelvis x_axis x,y,z position],
                        [pelvis y_axis x,y,z position],
                        [pelvis z_axis x,y,z position]],
                        [sacrum x,y,z position]]    
-    MODIFIES: -
     
-    -------------------------------------------------------------------------
-    
-    EXAMPLE:
+    Modifies
+    ----------
+        -
+
+    Example
+    ----------
             i = 3883
             frame = {...,'LASIX': 183.18504333, 'LASIY': 422.78927612, 'LASIZ': 1033.07299805,  
                             'LPSIX': 255.79994202, 'LPSIY': 241.42199707, 'LPSIZ': 1057.30065918,        
                             'RASIX': 395.36532593, 'RASIY': 428.09790039, 'RASIZ': 1036.82763672,
                             'RPSIX': 341.41815186, 'RPSIY': 246.72117615, 'RPSIZ': 1055.99145508}
-
             pelvisJointCenter(frame)
-
             >>> [array([ 289.27518463, 425.44358826, 1034.95031738]),
                 array([[ 289.25243803, 426.43632163, 1034.8321521],
                     [ 288.27565385, 425.41858059, 1034.93263017],
                     [ 289.25467091, 425.56129577, 1035.94315379]]),
                 array([ 298,60904694, 244.07158661, 1056.64605715])]
-
-
     """
-    
 
     # Get the Pelvis Joint Centre
     
@@ -131,28 +134,39 @@ def pelvisJointCenter(frame):
     return pelvis
             
 def hipJointCenter(frame,pel_origin,pel_x,pel_y,pel_z,vsk=None):
-
     """
-
     Calculate the hip joint center function.
 
     Takes in a dictionary of x,y,z positions and marker names, as well as an index.
     Calculates the hip joint center and returns the hip joint center.
     -------------------------------------------------------------------------
 
-    INPUT: 
+    Parameters
+    ----------
+        frame : dict
+            dictionaries of marker lists.
+            { [], [], [] }
+
+        pel_origin : array
             An array of pel_origin, pel_x, pel_y, pel_z each x,y,z position.
-            and pel_x,y,z is axis of pelvis.
-              [(),(),()]
+            [(),(),()]
+
+        pel_x, pel_y, pel_z : int
+            pel_x,y,z is axis of pelvis.
+
+    Modifies
+    ----------
+        -
     
-    OUTPUT: Returns the hip joint center in two array
+    Returns
+    ----------
+        array
+            Returns the hip joint center in two array.
+
             hip_JC = [[L_hipJC x,y,z position], [R_hipJC x,y,z position]]
     
-    MODIFIES: -
-
-    ---------------------------------------------------------------------------
-    
-    EXAMPLE:
+    Example
+    ----------
             i = 1
             pel_origin = [ 251.60830688, 391.74131775, 1032.89349365]
             pel_x = [251.74063624, 392.72694721, 1032.78850073]
@@ -160,7 +174,6 @@ def hipJointCenter(frame,pel_origin,pel_x,pel_y,pel_z,vsk=None):
             pel_z = [251.60295336, 391.84795134, 1033.88777762]
             
             hipJointCenter(frame,pel_origin,pel_x,pel_y,pel_z)
-
             >>> [[ 182.57097863, 339.43231855, 935.52900126],
                 [308.38050472, 322.80342417, 937.98979061]]
 
@@ -235,10 +248,8 @@ def hipJointCenter(frame,pel_origin,pel_x,pel_y,pel_z,vsk=None):
     
     return hip_JC
     
-def hipAxisCenter(l_hip_jc,r_hip_jc,pelvis_axis):
-    
+def hipAxisCenter(l_hip_jc,r_hip_jc,pelvis_axis):  
     """
-
     Calculate the hip joint axis function.
 
     Takes in a hip joint center of x,y,z positions as well as an index.
@@ -246,11 +257,20 @@ def hipAxisCenter(l_hip_jc,r_hip_jc,pelvis_axis):
     Calculates the hip axis and returns hip joint origin and axis.
     -------------------------------------------------------------------------
 
-    INPUT:  Array of R_hip_jc, L_hip_jc, pelvis_axis each x,y,z position.
-            and pelvis_axis is array of pelvis origin and axis. the axis also composed of 3 arrays 
+    Parameters
+    ----------
+        l_hip_jc, r_hip_jc: array
+            Array of R_hip_jc and L_hip_jc each x,y,z position.
+
+        pelvis_axis : array
+            An array of pelvis origin and axis. The axis is also composed of 3 arrays,
             each things are x axis, y axis, z axis.
             
-    OUTPUT: Returns the hip Axis Center and hip Axis.
+    Returns
+    ----------
+        array
+            Returns the hip Axis Center and hip Axis.
+             
              return = [[hipaxis_center x,y,z position],
                        [array([[hipaxis_center x,y,z position],
                                [hip x_axis x,y,z position]]),
@@ -258,27 +278,26 @@ def hipAxisCenter(l_hip_jc,r_hip_jc,pelvis_axis):
                                [hip y_axis x,y,z position]])
                         array([[hipaxis_center x,y,z position],
                                [hip z_axis x,y,z position]])]]","                   
-    MODIFIES: -
+    Modifies
+    ----------
+        -
 
-    ---------------------------------------------------------------------------
-
-    EXAMPLE:
-            i = 1
-            r_hip_jc = [182.57097863, 339.43231855, 935.529000126]
-            l_hip_jc = [308.38050472, 322.80342417, 937.98979061]
-            pelvis_axis = [array([251.60830688, 391.74131775, 1032.89349365]),
-                            array([[251.74063624, 392.72694721, 1032.78850073],
-                                [250.61711554, 391.87232862, 1032.8741063],
-                                [251.60295336, 391.84795134, 1033.88777762]]),
-                            array([231.57849121, 210.25262451, 1052.24969482])]
-
-            hipAxisCenter(l_hip_jc,r_hip_jc,pelvis_axis)
-
-            >>> [[245.47574168208043, 331.1178713574418, 936.75939593146768],
-                [[245.60807102843359, 332.10350081526684, 936.65440301116018],
-                [244.48455032769033, 331.24888223306482, 936.74000858315412],
-                [245.47038814489719, 331.22450494659665, 937.75367990368613]]]
-
+    Example
+    ----------
+        i = 1
+        r_hip_jc = [182.57097863, 339.43231855, 935.529000126]
+        l_hip_jc = [308.38050472, 322.80342417, 937.98979061]
+        pelvis_axis = [array([251.60830688, 391.74131775, 1032.89349365]),
+                        array([[251.74063624, 392.72694721, 1032.78850073],
+                            [250.61711554, 391.87232862, 1032.8741063],
+                            [251.60295336, 391.84795134, 1033.88777762]]),
+                        array([231.57849121, 210.25262451, 1052.24969482])]
+        hipAxisCenter(l_hip_jc,r_hip_jc,pelvis_axis)
+        >>> [[245.47574168208043, 331.1178713574418, 936.75939593146768],
+            [[245.60807102843359, 332.10350081526684, 936.65440301116018],
+            [244.48455032769033, 331.24888223306482, 936.74000858315412],
+            [245.47038814489719, 331.22450494659665, 937.75367990368613]]]
+    
     """
     
     # Get shared hip axis, it is inbetween the two hip joint centers
@@ -300,9 +319,7 @@ def hipAxisCenter(l_hip_jc,r_hip_jc,pelvis_axis):
     return [hipaxis_center,axis]
 
 def kneeJointCenter(frame,hip_JC,delta,vsk=None):
-    
     """
-
     Calculate the knee joint center and axis function.
 
     Takes in a dictionary of xyz positions and marker names, as well as an index.
@@ -310,24 +327,37 @@ def kneeJointCenter(frame,hip_JC,delta,vsk=None):
     Calculates the knee joint axis and returns the knee origin and axis
     -------------------------------------------------------------------
     
-    INPUT:dictionaries of marker lists.  
+    Parameters
+    ----------
+        frame : dict 
+            dictionaries of marker lists.
             { [], [], [] }
-           An array of hip_JC, pelvis_axis each x,y,z position.
-           delta = get from subject measurement file
-    
-    OUTPUT:  Returns the Knee Axis Center and Knee Axis.
-             return = [[kneeaxis_center x,y,z position],
-                       [array([[kneeaxis_center x,y,z position],
-                               [knee x_axis x,y,z position]]),
-                        array([[kneeaxis_center x,y,z position],
-                               [knee y_axis x,y,z position]])
-                        array([[kneeaxis_center x,y,z position],
-                               [knee z_axis x,y,z position]])]]                               
-        
-    MODIFIES: delta is changed suitably to knee
 
-    -------------------------------------------------------------------
-    EXAMPLE:
+        hip_JC : array
+            An array of hip_JC, pelvis_axis each x,y,z position.
+        
+        delta 
+            Get from subject measurement file
+    
+    Returns
+    ----------
+        array
+            Returns the Knee Axis Center and Knee Axis.
+
+                return = [[kneeaxis_center x,y,z position],
+                        [array([[kneeaxis_center x,y,z position],
+                                [knee x_axis x,y,z position]]),
+                        array([[kneeaxis_center x,y,z position],
+                                [knee y_axis x,y,z position]])
+                        array([[kneeaxis_center x,y,z position],
+                                [knee z_axis x,y,z position]])]]                               
+        
+    Modifies
+    ----------
+        delta is changed suitably to knee.
+
+    Example
+    ----------
             i = 1
             frame
             = { 'RTHI': [426.50338745, 262.65310669, 673.66247559],
@@ -348,8 +378,6 @@ def kneeJointCenter(frame,hip_JC,delta,vsk=None):
                        [[143.65611282, 280.88685896, 524.63197541],
                         [142.56434499, 280.01777943, 524.86163553],
                         [143.64837987, 280.04650381, 525.76940383]]])]
-                   
-
     """
     
     
@@ -454,7 +482,6 @@ def kneeJointCenter(frame,hip_JC,delta,vsk=None):
     return [R,L,axis]    
 
 def ankleJointCenter(frame,knee_JC,delta,vsk=None):
-    
     """
 
     Calculate the ankle joint center and axis function.
@@ -464,24 +491,36 @@ def ankleJointCenter(frame,knee_JC,delta,vsk=None):
     Calculates the ankle joint axis and returns the ankle origin and axis
     -------------------------------------------------------------------
 
-    INPUT: dictionaries of marker lists.  
+    Parameters
+    ----------
+        frame : dict 
+            dictionaries of marker lists.
             { [], [], [] }
+
+        knee_JC : array
            An array of knee_JC each x,y,z position.
-           delta = 0
+
+        delta
+            delta = 0
     
-    OUTPUT:  Returns the Ankle Axis Center and Ankle Axis.
-             return = [[ankle axis_center x,y,z position],
-                       [array([[ankleaxis_center x,y,z position],
-                               [ankle x_axis x,y,z position]]),
-                        array([[ankleaxis_center x,y,z position],
-                               [ankle y_axis x,y,z position]])
-                        array([[ankleaxis_center x,y,z position],
-                               [ankle z_axis x,y,z position]])]]                               
-    MODIFIES: -
+    Returns
+    ----------
+        array
+            Returns the Ankle Axis Center and Ankle Axis.
 
-    ---------------------------------------------------------------------
+                return = [[ankle axis_center x,y,z position],
+                        [array([[ankleaxis_center x,y,z position],
+                                [ankle x_axis x,y,z position]]),
+                            array([[ankleaxis_center x,y,z position],
+                                [ankle y_axis x,y,z position]])
+                            array([[ankleaxis_center x,y,z position],
+                                [ankle z_axis x,y,z position]])]]                               
+    Modifies
+    ----------
+        -
 
-    EXAMPLE:
+    Example
+    ----------
             i = 1
             frame
             = { 'RTIB': [433.97537231, 211.93408203, 273.3008728],
@@ -641,7 +680,7 @@ def ankleJointCenter(frame,knee_JC,delta,vsk=None):
     return [R,L,axis]
     
 def footJointCenter(frame,vsk,ankle_JC,knee_JC,delta): 
-    
+
     """
 
     Calculate the foot joint center and axis function.
@@ -662,23 +701,36 @@ def footJointCenter(frame,vsk,ankle_JC,knee_JC,delta):
 
     -------------------------------------------------------------------
         
-    INPUT: dictionaries of marker lists.  
+    Parameters
+    ---------- 
+        frame : dict 
+            dictionaries of marker lists.
             { [], [], [] }
+
+        ankle_JC, knee_JC : array
             An array of ankle_JC,knee_JC each x,y,z position.
-           delta = 0
-           static_info = [[R_plantar_static_angle, R_static_rotation_angle, 0], # Right Static information
-                          [L_plantar_static_angle, L_static_rotation_angle, 0]] # Left Static information
         
-    OUTPUT: Returns the footJointCenter and foot axis. and save the static offset angle in a global variable.
-          return = [[foot axis_center x,y,z position],
-                    [array([[footaxis_center x,y,z position],
-                            [foot x_axis x,y,z position]]),
-                    array([[footaxis_center x,y,z position],
-                           [foot y_axis x,y,z position]])
-                    array([[footaxis_center x,y,z position],
-                            [foot z_axis x,y,z position]])]]        
-         
-    MODIFIES:   Axis changes following to the static info.
+        delta
+           delta = 0
+
+        static_info = [[R_plantar_static_angle, R_static_rotation_angle, 0], # Right Static information
+                        [L_plantar_static_angle, L_static_rotation_angle, 0]] # Left Static information
+        
+    Returns
+    ----------
+        array
+            Returns the footJointCenter and foot axis. and save the static offset angle in a global variable.
+                return = [[foot axis_center x,y,z position],
+                        [array([[footaxis_center x,y,z position],
+                                [foot x_axis x,y,z position]]),
+                        array([[footaxis_center x,y,z position],
+                                [foot y_axis x,y,z position]])
+                        array([[footaxis_center x,y,z position],
+                                [foot z_axis x,y,z position]])]]        
+            
+    Modifies
+    ----------   
+                Axis changes following to the static info.
         
                 you can set the static_info by the button. and this will calculate the offset angles 
                 the first setting, the foot axis show foot uncorrected anatomical reference axis(Z_axis point to the AJC from TOE)
@@ -687,9 +739,8 @@ def footJointCenter(frame,vsk,ankle_JC,knee_JC,delta):
                 and then the static offsets angles are applied to the reference axis.
                 the reference axis is Z axis point to HEE from TOE
 
-    --------------------------------------------------------------------
-
-    EXAMPLE:
+    Example
+    ----------
             i = 1
             frame = { 'RHEE': [374.01257324, 181.57929993, 49.50960922],
                       'LHEE': [105.30126953, 180.2130127, 47.15660858],
@@ -913,19 +964,31 @@ def headJC(frame,vsk=None):
     Calculates the head joint center and returns the head joint center and axis.
     -------------------------------------------------------------------------
 
-    INPUT:  dictionaries of marker lists.  
+    Parameters
+    ----------
+        frame : dict 
+            Dictionaries of marker lists.
             { [], [], [] }
+        
+        vsk : array, optional
+            Use values from a vsk,"Vicon Skeleton", file (the default is None, which implies no usage of a vsk).
     
-    OUTPUT: Returns the Head joint center and axis in three array
-            head_JC = [[[head x axis x,y,z position],
-                        [head y axis x,y,z position],
-                        [head z axis x,y,z position]],
-                        [head x,y,z position]]
+    Returns
+    ----------
+        array
+            Returns the Head joint center and axis in three array
+                    
+                    head_JC = [[[head x axis x,y,z position],
+                                [head y axis x,y,z position],
+                                [head z axis x,y,z position]],
+                                [head x,y,z position]]
+            
+    Modifies: 
+    ----------
+        -
     
-    MODIFIES: -
-    ---------------------------------------------------------------------------
-    
-    EXAMPLE:
+    Example
+    ----------
             i = 1
             frame = {'RFHD': [325.82983398, 402.55450439, 1722.49816895],
                      'LFHD': [184.55158997, 409.68713379, 1721.34289551],
@@ -1010,22 +1073,31 @@ def thoraxJC(frame):
     Calculates the thorax joint center and returns the thorax joint center and axis.
     -------------------------------------------------------------------------
 
-    INPUT:  dictionaries of marker lists.  
+    Parameters
+    ----------
+        frame : dict 
+            Dictionaries of marker lists.
             { [], [], [] }
     
-    OUTPUT: Returns the Head joint center and axis in three array
-            thorax_JC = [[R_thorax x,y,z position], [L_thorax x,y,z position],
-                        [[R_thorax x axis x,y,z position],
-                        [R_thorax y axis x,y,z position],
-                        [R_thorax z axis x,y,z position],
-                        [L_thorax x axis x,y,z position],
-                        [L_thorax y axis x,y,z position],
-                        [L_thorax z axis x,y,z position]]]
+    Returns
+    ----------
+        array
+            Returns the Head joint center and axis in three array
+                
+                thorax_JC = [[R_thorax x,y,z position], [L_thorax x,y,z position],
+                            [[R_thorax x axis x,y,z position],
+                            [R_thorax y axis x,y,z position],
+                            [R_thorax z axis x,y,z position],
+                            [L_thorax x axis x,y,z position],
+                            [L_thorax y axis x,y,z position],
+                            [L_thorax z axis x,y,z position]]]
     
-    MODIFIES: -
-    ---------------------------------------------------------------------------
+    Modifies: 
+    ----------
+        -
     
-    EXAMPLE:
+    Example
+    ----------
             i = 1
             frame = {'C7': [256.78051758, 371.28042603, 1459.70300293],
                      'T10': [228.64323425, 192.32041931, 1279.6418457],
@@ -1105,17 +1177,26 @@ def findwandmarker(frame,thorax):
     Calculates the wand marker for calculating the clavicle.
     -------------------------------------------------------------------------
 
-    INPUT:  dictionaries of marker lists.  
+    Parameters
+    ----------  
+        frame : dict 
+            Dictionaries of marker lists.
             { [], [], [] }
     
-    OUTPUT: Returns wand marker position for calculating knee joint center later.
-        return = [[R wand marker x,y,z position],
-                  [L wand marker x,y,z position]]
+    Returns
+    ---------- 
+        array
+            Returns wand marker position for calculating knee joint center later.
+                
+                return = [[R wand marker x,y,z position],
+                        [L wand marker x,y,z position]]
     
-    MODIFIES: -
-    ---------------------------------------------------------------------------
+    Modifies: 
+    ----------
+        -
     
-    EXAMPLE:
+    Example:
+    ----------
             i = 1
             frame : {'RSHO': [428.88496562, 270.552948, 1500.73010254],
                      'LSHO': [68.24668121, 269.01049805, 1510.1072998], ...}
@@ -1178,17 +1259,26 @@ def findshoulderJC(frame,thorax,wand,vsk=None):
     Calculate each shoulder joint center and returns it.
     -------------------------------------------------------------------------
 
-    INPUT:  dictionaries of marker lists.  
+    Parameters
+    ----------
+        frame : dict 
+            Dictionaries of marker lists.
             { [], [], [] }
     
-    OUTPUT: Returns the Shoulder joint center in two array
-            head_JC = [[R_shoulderJC_x, R_shoulderJC_y, R_shoulderJC_z],
-                        [L_shoulderJC_x,L_shoulderJC_y,L_shoulderJC_z]]
+    Returns
+    ----------
+        array
+            Returns the Shoulder joint center in two array.
+                
+                head_JC = [[R_shoulderJC_x, R_shoulderJC_y, R_shoulderJC_z],
+                            [L_shoulderJC_x,L_shoulderJC_y,L_shoulderJC_z]]
     
-    MODIFIES: -
-    ---------------------------------------------------------------------------
+    Modifies: 
+    ----------
+        -
     
-    EXAMPLE:
+    Example
+    ----------
             i = 1
             frame : {'RSHO': [428.88496562, 270.552948, 1500.73010254],
                      'LSHO': [68.24668121, 269.01049805, 1510.1072998], ...}
@@ -1243,19 +1333,35 @@ def shoulderAxisCalc(frame,thorax,shoulderJC,wand):
     Calculate each shoulder joint axis and returns it.
     -------------------------------------------------------------------------
 
-    INPUT:  dictionaries of marker lists.  
+    Parameters
+    ----------
+        frame : dict 
+            Dictionaries of marker lists.
             { [], [], [] }
-            thorax = [[R_thorax joint center x,y,z position],
-                        [L_thorax_joint center x,y,z position],
-                        [[R_thorax x axis x,y,z position],
-                        [R_thorax,y axis x,y,z position],
-                        [R_thorax z axis x,y,z position]]]
-            shoulderJC = [[R shoulder joint center x,y,z position],
-                        [L shoulder joint center x,y,z position]]
-            wand = [[R wand x,y,z, position],
-                    [L wand x,y,z position]]
+
+        thorax : array
+            The x,y,z position of the thorax.
+
+                thorax = [[R_thorax joint center x,y,z position],
+                            [L_thorax_joint center x,y,z position],
+                            [[R_thorax x axis x,y,z position],
+                            [R_thorax,y axis x,y,z position],
+                            [R_thorax z axis x,y,z position]]]
+
+        shoulderJC : array
+            The x,y,z position of the shoulder joint center.
+
+                shoulderJC = [[R shoulder joint center x,y,z position],
+                            [L shoulder joint center x,y,z position]]
+
+        wand : array
+            The x,y,z position of the wand.
+
+                wand = [[R wand x,y,z, position],
+                        [L wand x,y,z position]]
     
-    OUTPUT: Returns the Shoulder joint center and axis in three array
+    Returns
+    ---------- Returns the Shoulder joint center and axis in three array
             shoulder_JC = [[[[R_shoulder x axis, x,y,z position],
                         [R_shoulder y axis, x,y,z position],
                         [R_shoulder z axis, x,y,z position]],
