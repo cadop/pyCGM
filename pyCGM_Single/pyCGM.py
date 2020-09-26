@@ -40,15 +40,14 @@ def pelvisJointCenter(frame):
     
     Parameters
     ---------- 
-        frame : dict 
-            dictionaries of marker lists.
-            { [], [], [] }
+    frame : dict 
+        Dictionaries of marker lists.
+        { [], [], [] }
     
     Returns
-    ----------
+    -------
     array
-        Returns the origin and pelvis axis also sacrum.
-            
+        Returns the origin and pelvis axis also sacrum. 
             Pelvis = [[origin x,y,z position],
                       [[pelvis x_axis x,y,z position],
                        [pelvis y_axis x,y,z position],
@@ -56,24 +55,21 @@ def pelvisJointCenter(frame):
                        [sacrum x,y,z position]]    
     
     Modifies
-    ----------
-        -
+    ---------
+    -
 
     Example
-    ----------
-            i = 3883
-            frame = {...,'LASIX': 183.18504333, 'LASIY': 422.78927612, 'LASIZ': 1033.07299805,  
-                            'LPSIX': 255.79994202, 'LPSIY': 241.42199707, 'LPSIZ': 1057.30065918,        
-                            'RASIX': 395.36532593, 'RASIY': 428.09790039, 'RASIZ': 1036.82763672,
-                            'RPSIX': 341.41815186, 'RPSIY': 246.72117615, 'RPSIZ': 1055.99145508}
-            pelvisJointCenter(frame)
-            >>> [array([ 289.27518463, 425.44358826, 1034.95031738]),
-                array([[ 289.25243803, 426.43632163, 1034.8321521],
-                    [ 288.27565385, 425.41858059, 1034.93263017],
-                    [ 289.25467091, 425.56129577, 1035.94315379]]),
-                array([ 298,60904694, 244.07158661, 1056.64605715])]
+    -------
+    >>> frame = {'RASI': np.array([ 395.36532593,  428.09790039, 1036.82763672]), 
+    ...          'LASI': np.array([ 183.18504333,  422.78927612, 1033.07299805]),
+    ...          'RPSI': np.array([ 341.41815186,  246.72117615, 1055.99145508]), 
+    ...          'LPSI': np.array([ 255.79994202,  241.42199707, 1057.30065918]) }
+    
+    >>> pelvisJointCenter(frame) #doctest: +NORMALIZE_WHITESPACE
+    [array([ 289.27518463,  425.44358826, 1034.95031739]), array([[ 289.25243803,  426.43632163, 1034.8321521 ],
+    [ 288.27565385,  425.41858059, 1034.93263018],
+    [ 289.25467091,  425.56129577, 1035.94315379]]), array([ 298.60904694,  244.07158661, 1056.64605713])]         
     """
-
     # Get the Pelvis Joint Centre
     
     #REQUIRED MARKERS: 
@@ -143,39 +139,50 @@ def hipJointCenter(frame,pel_origin,pel_x,pel_y,pel_z,vsk=None):
 
     Parameters
     ----------
-        frame : dict
-            dictionaries of marker lists.
-            { [], [], [] }
+    frame : dict
+        Dictionaries of marker lists.
+        { [], [], [], ... }
 
-        pel_origin : array
-            An array of pel_origin, pel_x, pel_y, pel_z each x,y,z position.
-            [(),(),()]
+    pel_origin : array
+        An array of pel_origin, pel_x, pel_y, pel_z each x,y,z position.
+        [(),(),()]
 
-        pel_x, pel_y, pel_z : int
-            pel_x,y,z is axis of pelvis.
+    pel_x, pel_y, pel_z : int
+        Respective axes of the pelvis.
+    
+    vsk : dict
+        Dictionary of various attributes of the skeleton.
+        { [], [], [], ... }
 
     Modifies
-    ----------
-        -
+    --------
+    -
     
     Returns
-    ----------
-        array
-            Returns the hip joint center in two array.
+    -------
+    array
+        Returns the hip joint center in two array.
 
-            hip_JC = [[L_hipJC x,y,z position], [R_hipJC x,y,z position]]
+        hip_JC = [[L_hipJC x,y,z position], [R_hipJC x,y,z position]]
     
     Example
-    ----------
-            i = 1
-            pel_origin = [ 251.60830688, 391.74131775, 1032.89349365]
-            pel_x = [251.74063624, 392.72694721, 1032.78850073]
-            pel_y = [250.61711554, 391.87232862, 1032.8741063]
-            pel_z = [251.60295336, 391.84795134, 1033.88777762]
-            
-            hipJointCenter(frame,pel_origin,pel_x,pel_y,pel_z)
-            >>> [[ 182.57097863, 339.43231855, 935.52900126],
-                [308.38050472, 322.80342417, 937.98979061]]
+    -------
+    >>> frame={'LASIX': 183.18504333, 'LASIY': 422.78927612, 'LASIZ': 1033.07299805,  
+    ...     'LPSIX': 255.79994202, 'LPSIY': 241.42199707, 'LPSIZ': 1057.30065918,        
+    ...               'RASIX': 395.36532593, 'RASIY': 428.09790039, 'RASIZ': 1036.82763672,
+    ...                'RPSIX': 341.41815186, 'RPSIY': 246.72117615, 'RPSIZ': 1055.99145508}
+
+    >>> vsk = {'MeanLegLength': 940.0, 'R_AsisToTrocanterMeasure': 72.512, 'L_AsisToTrocanterMeasure': 72.512,
+    ...        'InterAsisDistance': 215.908996582031}
+
+    >>> pel_origin = [ 251.60830688, 391.74131775, 1032.89349365]
+    >>> pel_x = [251.74063624, 392.72694721, 1032.78850073]
+    >>> pel_y = [250.61711554, 391.87232862, 1032.8741063]
+    >>> pel_z = [251.60295336, 391.84795134, 1033.88777762]
+    
+    >>> hipJointCenter(frame,pel_origin,pel_x,pel_y,pel_z,vsk) #doctest: +NORMALIZE_WHITESPACE
+    array([[182.57097799, 339.43231799, 935.52900136],
+    [308.38050352, 322.80342433, 937.98979092]])
 
     """
     #Get Global Values
@@ -259,45 +266,45 @@ def hipAxisCenter(l_hip_jc,r_hip_jc,pelvis_axis):
 
     Parameters
     ----------
-        l_hip_jc, r_hip_jc: array
-            Array of R_hip_jc and L_hip_jc each x,y,z position.
+    l_hip_jc, r_hip_jc: array
+        Array of R_hip_jc and L_hip_jc each x,y,z position.
 
-        pelvis_axis : array
-            An array of pelvis origin and axis. The axis is also composed of 3 arrays,
-            each things are x axis, y axis, z axis.
+    pelvis_axis : array
+        An array of pelvis origin and axis. The axis is also composed of 3 arrays,
+        each things are x axis, y axis, z axis.
             
     Returns
-    ----------
-        array
-            Returns the hip Axis Center and hip Axis.
-             
-             return = [[hipaxis_center x,y,z position],
-                       [array([[hipaxis_center x,y,z position],
-                               [hip x_axis x,y,z position]]),
+    -------
+    array
+        Returns the hip Axis Center and hip Axis.
+            return = [[hipaxis_center x,y,z position],
+                    [array([[hipaxis_center x,y,z position],
+                            [hip x_axis x,y,z position]]),
                         array([[hipaxis_center x,y,z position],
-                               [hip y_axis x,y,z position]])
+                            [hip y_axis x,y,z position]])
                         array([[hipaxis_center x,y,z position],
-                               [hip z_axis x,y,z position]])]]","                   
+                            [hip z_axis x,y,z position]])]]","   
+
     Modifies
-    ----------
-        -
+    --------
+    -
 
     Example
-    ----------
-        i = 1
-        r_hip_jc = [182.57097863, 339.43231855, 935.529000126]
-        l_hip_jc = [308.38050472, 322.80342417, 937.98979061]
-        pelvis_axis = [array([251.60830688, 391.74131775, 1032.89349365]),
-                        array([[251.74063624, 392.72694721, 1032.78850073],
-                            [250.61711554, 391.87232862, 1032.8741063],
-                            [251.60295336, 391.84795134, 1033.88777762]]),
-                        array([231.57849121, 210.25262451, 1052.24969482])]
-        hipAxisCenter(l_hip_jc,r_hip_jc,pelvis_axis)
-        >>> [[245.47574168208043, 331.1178713574418, 936.75939593146768],
-            [[245.60807102843359, 332.10350081526684, 936.65440301116018],
-            [244.48455032769033, 331.24888223306482, 936.74000858315412],
-            [245.47038814489719, 331.22450494659665, 937.75367990368613]]]
+    -------
+    >>> r_hip_jc = [182.57097863, 339.43231855, 935.529000126]
+    >>> l_hip_jc = [308.38050472, 322.80342417, 937.98979061]
+    >>> pelvis_axis = [np.array([251.60830688, 391.74131775, 1032.89349365]),
+    ...                np.array([[251.74063624, 392.72694721, 1032.78850073],
+    ...                    [250.61711554, 391.87232862, 1032.8741063],
+    ...                    [251.60295336, 391.84795134, 1033.88777762]]),
+    ...                np.array([231.57849121, 210.25262451, 1052.24969482])]
     
+    >>> hipAxisCenter(l_hip_jc,r_hip_jc,pelvis_axis) #doctest: +NORMALIZE_WHITESPACE
+    [[245.475741675, 331.11787136, 936.759395368], 
+    [[245.608071035, 332.10350081999997, 936.6544024479999], 
+    [244.484550335, 331.24888223, 936.740008018], 
+    [245.470388155, 331.22450495, 937.753679338]]]
+
     """
     
     # Get shared hip axis, it is inbetween the two hip joint centers
@@ -3310,3 +3317,4 @@ def JointAngleCalc(frame,vsk):
     jc['LHand'] = kin_L_Hand_JC
     
     return r,jc
+    
