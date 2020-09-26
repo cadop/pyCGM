@@ -1,5 +1,5 @@
 import sys
-sys.path.append('./pyCGM_Single')
+sys.path.append('./pyCGM_Single') # TODO update to pycgm when fixed
 from _about import __version__
 import setuptools
 
@@ -7,9 +7,9 @@ with open("README.md", "r",encoding="utf8") as fh:
     long_description = fh.read()
 
 setuptools.setup(
-    name="pyCGM_Single", # TODO change this when folder is properly named  
+    name="pyCGM", 
     version= __version__,
-    author="Mathew Schwartz, et al.",
+    author="", # Many
     author_email="cadop@umich.edu",
     description="A Python Implementation of the Conventional Gait Model",
     long_description=long_description,
