@@ -37,8 +37,9 @@ def pelvisJointCenter(frame):
     Calculates the pelvis joint center and axis and returns both.
     
     Markers used: RASI,LASI,RPSI,LPSI
-    Landmarks used: origin, sacrum
-    
+    Other landmarks used: origin, sacrum
+    VSK values used: None
+
     Pelvis X_axis: Computed with a Gram-Schmidt orthogonalization procedure(ref. Kadaba 1990) and then normalized.
     Pelvis Y_axis: LASI-RASI x,y,z positions, then normalized.
     Pelvis Z_axis: Cross product of x_axis and y_axis.
@@ -62,18 +63,29 @@ def pelvisJointCenter(frame):
     Example
     -------
     >>> import numpy as np
-    >>> from .pyCGM import norm3d, cross
     >>> frame = {'RASI': np.array([ 395.36532593,  428.09790039, 1036.82763672]), 
     ...          'LASI': np.array([ 183.18504333,  422.78927612, 1033.07299805]),
     ...          'RPSI': np.array([ 341.41815186,  246.72117615, 1055.99145508]), 
     ...          'LPSI': np.array([ 255.79994202,  241.42199707, 1057.30065918]) }
-    
+
     >>> pelvisJointCenter(frame) #doctest: +NORMALIZE_WHITESPACE
     [array([ 289.27518463,  425.44358826, 1034.95031739]), 
     array([[ 289.25243803,  426.43632163, 1034.8321521 ],
     [ 288.27565385,  425.41858059, 1034.93263018],
     [ 289.25467091,  425.56129577, 1035.94315379]]), 
-    array([ 298.60904694,  244.07158661, 1056.64605713])]         
+    array([ 298.60904694,  244.07158661, 1056.64605713])]  
+
+
+    >>> frame = {'RASI': np.array([ 395.36532593,  428.09790039, 1036.82763672]), 
+    ...          'LASI': np.array([ 183.18504333,  422.78927612, 1033.07299805]),
+    ...          'SACR': np.array([ 294.60904694,  242.07158661, 1049.64605713]) }
+    
+    >>> pelvisJointCenter(frame) #doctest: +NORMALIZE_WHITESPACE
+    [array([ 289.27518463,  425.44358826, 1034.95031739]), 
+    array([[ 289.25166321,  426.44012508, 1034.87056085],
+    [ 288.27565385,  425.41858059, 1034.93263018],
+    [ 289.25556415,  425.52289134, 1035.94697483]]), 
+    array([ 294.60904694,  242.07158661, 1049.64605713])]
     """
     # Get the Pelvis Joint Centre
     
@@ -135,12 +147,18 @@ def pelvisJointCenter(frame):
     return pelvis
             
 def hipJointCenter(frame,pel_origin,pel_x,pel_y,pel_z,vsk=None):
-    """
-    Calculate the hip joint center function.
+    """Calculate the hip joint center function.
 
     Takes in a dictionary of x,y,z positions and marker names, as well as an index.
     Calculates the hip joint center and returns the hip joint center.
-    -------------------------------------------------------------------------
+
+    Takes in a dictionary of x,y,z positions and marker names, as well as an index
+    Calculates the pelvis joint center and axis and returns both.
+    
+    Other landmarks used: origin, sacrum
+    VSK values used: MeanLegLength, R_AsisToTrocanterMeasure, InterAsisDistance, L_AsisToTrocanterMeasure
+
+    Hip Joint Center: Computed using Hip Joint Center Calculation (ref. Davis_1991)
 
     Parameters
     ----------
@@ -149,17 +167,13 @@ def hipJointCenter(frame,pel_origin,pel_x,pel_y,pel_z,vsk=None):
             { [], [], [], ... }
     pel_origin : array
         An array of pel_origin, pel_x, pel_y, pel_z each x,y,z position.
-        [(),(),()]
+            [(),(),()]
     pel_x, pel_y, pel_z : int
         Respective axes of the pelvis.
     vsk : dict, optional
         Dictionary of various attributes of the skeleton.
-        { [], [], [], ... }
+            { [], [], [], ... }
 
-    Modifies
-    --------
-    -
-    
     Returns
     -------
     array
@@ -168,10 +182,8 @@ def hipJointCenter(frame,pel_origin,pel_x,pel_y,pel_z,vsk=None):
     
     Example
     -------
-    >>> frame={'LASIX': 183.18504333, 'LASIY': 422.78927612, 'LASIZ': 1033.07299805,  
-    ...     'LPSIX': 255.79994202, 'LPSIY': 241.42199707, 'LPSIZ': 1057.30065918,        
-    ...               'RASIX': 395.36532593, 'RASIY': 428.09790039, 'RASIZ': 1036.82763672,
-    ...                'RPSIX': 341.41815186, 'RPSIY': 246.72117615, 'RPSIZ': 1055.99145508}
+    >>> import numpy as np
+    >>> frame = None
 
     >>> vsk = {'MeanLegLength': 940.0, 'R_AsisToTrocanterMeasure': 72.512, 'L_AsisToTrocanterMeasure': 72.512,
     ...        'InterAsisDistance': 215.908996582031}
@@ -263,7 +275,9 @@ def hipAxisCenter(l_hip_jc,r_hip_jc,pelvis_axis):
     Takes in a hip joint center of x,y,z positions as well as an index.
     and takes the hip joint center and pelvis origin/axis from previous functions.
     Calculates the hip axis and returns hip joint origin and axis.
-    -------------------------------------------------------------------------
+
+    Hip center axis: Computed by taking the mean at each x,y,z axis of the left and right hip joint center.
+    Hip axis: Computed by getting the summation of the pelvis and hip center axes.
 
     Parameters
     ----------
@@ -285,12 +299,9 @@ def hipAxisCenter(l_hip_jc,r_hip_jc,pelvis_axis):
                         array([[hipaxis_center x,y,z position],
                             [hip z_axis x,y,z position]])]]","   
 
-    Modifies
-    --------
-    -
-
     Example
     -------
+    >>> import numpy as np
     >>> r_hip_jc = [182.57097863, 339.43231855, 935.529000126]
     >>> l_hip_jc = [308.38050472, 322.80342417, 937.98979061]
     >>> pelvis_axis = [np.array([251.60830688, 391.74131775, 1032.89349365]),
@@ -304,7 +315,6 @@ def hipAxisCenter(l_hip_jc,r_hip_jc,pelvis_axis):
     [[245.608071035, 332.10350081999997, 936.6544024479999], 
     [244.484550335, 331.24888223, 936.740008018], 
     [245.470388155, 331.22450495, 937.753679338]]]
-
     """
     
     # Get shared hip axis, it is inbetween the two hip joint centers
@@ -332,7 +342,11 @@ def kneeJointCenter(frame,hip_JC,delta,vsk=None):
     Takes in a dictionary of xyz positions and marker names, as well as an index.
     and takes the hip axis and pelvis axis.
     Calculates the knee joint axis and returns the knee origin and axis
-    -------------------------------------------------------------------
+
+    Markers used: RTHI, LTHI, RKNE, LKNE, hip_JC
+    VSK values used: RightKneeWidth, LeftKneeWidth
+
+    Knee joint center: Computed using Knee Axis Calculation(ref. Clinical Gait Analysis hand book, Baker2013)
     
     Parameters
     ----------
@@ -365,6 +379,7 @@ def kneeJointCenter(frame,hip_JC,delta,vsk=None):
 
     Example
     -------
+    >>> import numpy as np
     >>> vsk = { 'RightKneeWidth' : 105.0, 'LeftKneeWidth' : 105.0 }
     >>> frame = { 'RTHI': np.array([426.50338745, 262.65310669, 673.66247559]),
     ...           'LTHI': np.array([51.93867874, 320.01849365, 723.03186035]),
