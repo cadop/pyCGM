@@ -23,8 +23,8 @@ setuptools.setup(
     ],
     python_requires='>=3',
     install_requires=['numpy>=1.15'],
-    # package_data={
-    #     "": ["SampleData/ROM/*.c3d","SampleData/ROM/*.vsk"],
-    # },
+    package_data={
+        "": ["SampleData/ROM/*.c3d","SampleData/ROM/*.vsk"], # TODO Need to fix
+    },
     include_package_data=True,   
 )
