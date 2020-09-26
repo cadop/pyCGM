@@ -162,8 +162,7 @@ def hipJointCenter(frame,pel_origin,pel_x,pel_y,pel_z,vsk=None):
     -------
     array
         Returns the hip joint center in two array.
-
-        hip_JC = [[L_hipJC x,y,z position], [R_hipJC x,y,z position]]
+            hip_JC = [[L_hipJC x,y,z position], [R_hipJC x,y,z position]]
     
     Example
     -------
@@ -336,55 +335,56 @@ def kneeJointCenter(frame,hip_JC,delta,vsk=None):
     
     Parameters
     ----------
-        frame : dict 
-            dictionaries of marker lists.
-            { [], [], [] }
+    frame : dict 
+        dictionaries of marker lists.
+        { [], [], [] }
 
-        hip_JC : array
-            An array of hip_JC, pelvis_axis each x,y,z position.
-        
-        delta 
-            Get from subject measurement file
+    hip_JC : array
+        An array of hip_JC, pelvis_axis each x,y,z position.
     
-    Returns
-    ----------
-        array
-            Returns the Knee Axis Center and Knee Axis.
+    delta : float
+        Get from subject measurement file
 
-                return = [[kneeaxis_center x,y,z position],
-                        [array([[kneeaxis_center x,y,z position],
-                                [knee x_axis x,y,z position]]),
-                        array([[kneeaxis_center x,y,z position],
-                                [knee y_axis x,y,z position]])
-                        array([[kneeaxis_center x,y,z position],
-                                [knee z_axis x,y,z position]])]]                               
+    vsk : dict
+        Dictionary of various attributes of the skeleton.
+        { [], [], [], ... }
+
+    Returns
+    -------
+    array
+        Returns the Knee Axis Center and Knee Axis.
+            return = [[kneeaxis_center x,y,z position],
+                    [array([[kneeaxis_center x,y,z position],
+                            [knee x_axis x,y,z position]]),
+                    array([[kneeaxis_center x,y,z position],
+                            [knee y_axis x,y,z position]])
+                    array([[kneeaxis_center x,y,z position],
+                            [knee z_axis x,y,z position]])]]                               
         
     Modifies
-    ----------
-        delta is changed suitably to knee.
+    --------
+    delta is changed suitably to knee.
 
     Example
-    ----------
-            i = 1
-            frame
-            = { 'RTHI': [426.50338745, 262.65310669, 673.66247559],
-                'LTHI': [51.93867874, 320.01849365, 723.03186035],
-                'RKNE': [416.98687744, 266.22558594, 524.04089355],
-                'LKNE': [84.62355804, 286.69122314, 529.39819336],...}
-                hip_JC: [[182.57097863, 339.43231855, 935.52900126],
-                        [309.38050472, 32280342417, 937.98979061]]
-                delta: 0
+    -------
+    >>> vsk = { 'RightKneeWidth' : 105.0, 'LeftKneeWidth' : 105.0 }
+    >>> frame = { 'RTHI': np.array([426.50338745, 262.65310669, 673.66247559]),
+    ...           'LTHI': np.array([51.93867874, 320.01849365, 723.03186035]),
+    ...           'RKNE': np.array([416.98687744, 266.22558594, 524.04089355]),
+    ...           'LKNE': np.array([84.62355804, 286.69122314, 529.39819336])}
+    >>> hip_JC = [[182.57097863, 339.43231855, 935.52900126],
+    ...         [309.38050472, 32280342417, 937.98979061]]
+    >>> delta = 0
 
-            kneeJointCenter(frame,hip_JC,delta,vsk=None)
-
-            >>> [array([364.17774614, 292.17051722, 515.19181496]),
-                array([143.55478579, 279.90370346, 524.78408753]),
-                array([[[364.64959153, 293.06758353, 515.18513093],
-                        [363.29019771, 292.60656648, 515.04309095],
-                        [364.04724541, 292.24216264, 516.18067112]],
-                       [[143.65611282, 280.88685896, 524.63197541],
-                        [142.56434499, 280.01777943, 524.86163553],
-                        [143.64837987, 280.04650381, 525.76940383]]])]
+    >>> kneeJointCenter(frame,hip_JC,delta,vsk) #doctest: +NORMALIZE_WHITESPACE
+    [array([413.21007973, 266.22558784, 464.66088466]), 
+    array([143.55478579, 279.90370346, 524.78408753]), 
+    array([[[414.20806312, 266.22558785, 464.59740907],
+    [413.14660414, 266.22558786, 463.66290127], 
+    [413.21007973, 267.22558784, 464.66088468]],
+    [[143.65611281, 280.88685896, 524.63197541],
+    [142.56434499, 280.01777942, 524.86163553],
+    [143.64837987, 280.0465038 , 525.76940383]]])]
     """
     
     
@@ -500,60 +500,59 @@ def ankleJointCenter(frame,knee_JC,delta,vsk=None):
 
     Parameters
     ----------
-        frame : dict 
-            dictionaries of marker lists.
-            { [], [], [] }
+    frame : dict 
+        dictionaries of marker lists.
+        { [], [], [] }
 
-        knee_JC : array
-           An array of knee_JC each x,y,z position.
+    knee_JC : array
+        An array of knee_JC each x,y,z position.
 
-        delta
-            delta = 0
+    delta
+        delta = 0
     
     Returns
-    ----------
-        array
-            Returns the Ankle Axis Center and Ankle Axis.
-
-                return = [[ankle axis_center x,y,z position],
-                        [array([[ankleaxis_center x,y,z position],
-                                [ankle x_axis x,y,z position]]),
-                            array([[ankleaxis_center x,y,z position],
-                                [ankle y_axis x,y,z position]])
-                            array([[ankleaxis_center x,y,z position],
-                                [ankle z_axis x,y,z position]])]]                               
+    -------
+    array
+        Returns the Ankle Axis Center and Ankle Axis.
+            return = [[ankle axis_center x,y,z position],
+                    [array([[ankleaxis_center x,y,z position],
+                            [ankle x_axis x,y,z position]]),
+                        array([[ankleaxis_center x,y,z position],
+                            [ankle y_axis x,y,z position]])
+                        array([[ankleaxis_center x,y,z position],
+                            [ankle z_axis x,y,z position]])]]                               
+    
     Modifies
-    ----------
-        -
+    --------
+    -
 
     Example
-    ----------
-            i = 1
-            frame
-            = { 'RTIB': [433.97537231, 211.93408203, 273.3008728],
-                'LTIB': [50.04016495, 235.90718079, 364.32226562],
-                'RANK': [422.77005005, 217.74053955, 92.86152649],
-                'LANK': [58.57380676, 208.54806519, 86.16953278],...}
-            knee_JC: [array([364.17774614, 292.17051722, 515.19181496]),
-                    array([143.55478579, 279.90370346, 524.78408753]),
-                    array([[[364.64959153, 293.06758353, 515.18513093],
-                            [363.29019771, 292.60656648, 515.04309095],
-                            [364.04724541, 292.24216264, 516.18067112]],
-                           [[143.65611282, 280.88685896, 524.63197541],
-                            [142.56434499, 280.01777943, 524.86163553],
-                            [143.64837987, 280.04650381, 525.76940383]]])]
-            delta: 0
-            
-            ankleJointCenter(frame,knee_JC,delta,vsk=None)
-
-            >>> [array([393.76181608, 247.67829633, 87.73775041]),
-                array([98.74901939, 219.46930221, 80.6306816]),
-                [[array([394.4817575, 248.37201348, 87.715368]),
-                array([393.07114384, 248.39110006, 87.61575574]),
-                array([393.69314056, 247.78157916, 88.73002876])],
-                [array([98.47494966, 220.42553803, 80.52821783]),
-                array([97.79246671, 219.20927275, 80.76255901]),
-                array([98.84848169, 219.60345781, 81.61663775])]]]
+    -------
+    >>> vsk = { 'RightAnkleWidth' : 70.0, 'LeftAnkleWidth' : 70.0, 
+    ...         'RightTibialTorsion': 0.0, 'LeftTibialTorsion' : 0.0}
+    >>> frame = { 'RTIB': np.array([433.97537231, 211.93408203, 273.3008728]),
+    ...           'LTIB': np.array([50.04016495, 235.90718079, 364.32226562]),
+    ...           'RANK': np.array([422.77005005, 217.74053955, 92.86152649]),
+    ...           'LANK': np.array([58.57380676, 208.54806519, 86.16953278]) }
+    >>> knee_JC = [np.array([364.17774614, 292.17051722, 515.19181496]),
+    ...           np.array([143.55478579, 279.90370346, 524.78408753]),
+    ...           np.array([[[364.64959153, 293.06758353, 515.18513093],
+    ...           [363.29019771, 292.60656648, 515.04309095],
+    ...           [364.04724541, 292.24216264, 516.18067112]],
+    ...           [[143.65611282, 280.88685896, 524.63197541],
+    ...           [142.56434499, 280.01777943, 524.86163553],
+    ...            [143.64837987, 280.04650381, 525.76940383]]])]
+    >>> delta = 0
+    
+    >>> ankleJointCenter(frame,knee_JC,delta,vsk) #doctest: +NORMALIZE_WHITESPACE
+    [array([393.76181609, 247.67829633,  87.73775041]), 
+    array([ 98.74901939, 219.46930221,  80.63068161]), 
+    [[array([394.48171575, 248.37201349,  87.715368  ]), 
+    array([393.07114385, 248.39110006,  87.61575574]), 
+    array([393.69314056, 247.78157916,  88.73002876])], 
+    [array([ 98.47494966, 220.42553804,  80.52821783]), 
+    array([ 97.79246671, 219.20927276,  80.76255902]), 
+    array([ 98.84848169, 219.60345781,  81.61663776])]]]
     """
     
     #Get Global Values
