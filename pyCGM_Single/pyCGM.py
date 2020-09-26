@@ -1072,7 +1072,7 @@ def thoraxJC(frame):
         { [], [], [] }
     
     Returns
-    ----------
+    -------
     array
         Returns the Head joint center and axis in three array
             thorax_JC = [[R_thorax x,y,z position], [L_thorax x,y,z position],
@@ -1083,12 +1083,12 @@ def thoraxJC(frame):
                         [L_thorax y axis x,y,z position],
                         [L_thorax z axis x,y,z position]]]
     
-    Modifies: 
-    ----------
+    Modifies
+    --------
     -
     
     Example
-    ----------
+    -------
     >>> frame = {'C7': np.array([256.78051758, 371.28042603, 1459.70300293]),
     ...          'T10': np.array([228.64323425, 192.32041931, 1279.6418457]),
     ...          'CLAV': np.array([256.78051758, 371.28042603, 1459.70300293]),
@@ -1167,37 +1167,35 @@ def findwandmarker(frame,thorax):
 
     Parameters
     ----------  
-        frame : dict 
-            Dictionaries of marker lists.
-            { [], [], [] }
-    
+    frame : dict 
+        Dictionaries of marker lists.
+        { [], [], [] }
+    thorax : array
+        Array containing several x,y,z markers for the thorax.
+
     Returns
-    ---------- 
-        array
-            Returns wand marker position for calculating knee joint center later.
-                
-                return = [[R wand marker x,y,z position],
-                        [L wand marker x,y,z position]]
+    ------- 
+    array
+        Returns wand marker position for calculating knee joint center later.
+            return = [[R wand marker x,y,z position],
+                    [L wand marker x,y,z position]]
     
-    Modifies: 
-    ----------
-        -
+    Modifies
+    --------
+    -
     
-    Example:
-    ----------
-            i = 1
-            frame : {'RSHO': [428.88496562, 270.552948, 1500.73010254],
-                     'LSHO': [68.24668121, 269.01049805, 1510.1072998], ...}
-            thorax : [[[256.23991128535846, 365.30496976939753, 1459.662169500559],
-                  [257.1435863244796, 364.21960599061947, 1459.5889787129829],
-                  [256.08430536580352, 354.32180498523223, 1458.6575930699294]],
-                  [256.14981023656401, 364.30906039339868, 1459.6553639290375]]
-                  
-            findwandmarker(frame,thorax)
-
-            >>> [[255.92550222678443, 364.32269504976051, 1460.6297868417887],
-                 [256.42380097331767, 364.27770361353487, 1460.6165849382387]]
-
+    Example
+    -------
+    >>> frame = {'RSHO': np.array([428.88496562, 270.552948, 1500.73010254]),
+    ...          'LSHO': np.array([68.24668121, 269.01049805, 1510.1072998])}
+    >>> thorax = [[[256.23991128535846, 365.30496976939753, 1459.662169500559],
+    ...          [257.1435863244796, 364.21960599061947, 1459.5889787129829],
+    ...          [256.08430536580352, 354.32180498523223, 1458.6575930699294]],
+    ...          [256.14981023656401, 364.30906039339868, 1459.6553639290375]]
+            
+    >>> findwandmarker(frame,thorax) #doctest: +NORMALIZE_WHITESPACE
+    [[255.9255024618064, 364.322695028126, 1460.6297868961926], 
+    [256.4238009732892, 364.27770361353737, 1460.616584938247]]
     """
     thorax_origin = thorax[1]
 
@@ -1249,39 +1247,43 @@ def findshoulderJC(frame,thorax,wand,vsk=None):
 
     Parameters
     ----------
-        frame : dict 
-            Dictionaries of marker lists.
-            { [], [], [] }
-    
+    frame : dict 
+        Dictionaries of marker lists.
+        { [], [], [] }
+    thorax : array
+        Array containing several x,y,z markers for the thorax.
+    wand : array
+        Array containing two x,y,z markers for right and left wands.
+    vsk : dict, optional
+        Dictionary of various attributes of the skeleton.
+        { [], [], [], ... }
+
     Returns
-    ----------
-        array
-            Returns the Shoulder joint center in two array.
-                
-                head_JC = [[R_shoulderJC_x, R_shoulderJC_y, R_shoulderJC_z],
-                            [L_shoulderJC_x,L_shoulderJC_y,L_shoulderJC_z]]
+    -------
+    array
+        Returns the Shoulder joint center in two array.
+            head_JC = [[R_shoulderJC_x, R_shoulderJC_y, R_shoulderJC_z],
+                        [L_shoulderJC_x,L_shoulderJC_y,L_shoulderJC_z]]
     
-    Modifies: 
-    ----------
-        -
+    Modifies 
+    --------
+    -
     
     Example
-    ----------
-            i = 1
-            frame : {'RSHO': [428.88496562, 270.552948, 1500.73010254],
-                     'LSHO': [68.24668121, 269.01049805, 1510.1072998], ...}
-            thorax : [[[256.23991128535846, 365.30496976939753, 1459.662169500559],
-                  [257.1435863244796, 364.21960599061947, 1459.5889787129829],
-                  [256.08430536580352, 354.32180498523223, 1458.6575930699294]],
-                  [256.14981023656401, 364.30906039339868, 1459.6553639290375]]
-            wand : [[255.92550222678443, 364.32269504976051, 1460.6297868417887],
-                    [256.42380097331767, 364.27770361353487, 1460.6165849382387]]
-            
-            findshoulderJC(frame,thorax,wand,vsk=None)
+    -------
+    >>> vsk = { 'RightShoulderOffset' : 40.0, 'LeftShoulderOffset' : 40.0 }
+    >>> frame = {'RSHO': np.array([428.88496562, 270.552948, 1500.73010254]),
+    ...          'LSHO': np.array([68.24668121, 269.01049805, 1510.1072998])}
+    >>> thorax = [[[256.23991128535846, 365.30496976939753, 1459.662169500559],
+    ...        [257.1435863244796, 364.21960599061947, 1459.5889787129829],
+    ...        [256.08430536580352, 354.32180498523223, 1458.6575930699294]],
+    ...        [256.14981023656401, 364.30906039339868, 1459.6553639290375]]
+    >>> wand = [[255.92550222678443, 364.32269504976051, 1460.6297868417887],
+    ...        [256.42380097331767, 364.27770361353487, 1460.6165849382387]]
 
-            >>> [array([429.66951995, 275.06718615, 1453.953978131]),
-                array([64.51952734, 274.93442161, 1463.6313334])]
-
+    >>> findshoulderJC(frame,thorax,wand,vsk) #doctest: +NORMALIZE_WHITESPACE
+    [array([ 429.66971693,  275.06718208, 1453.95397769]), 
+    array([  64.51952733,  274.93442161, 1463.63133339])]
     """
   
     thorax_origin = thorax[1]
