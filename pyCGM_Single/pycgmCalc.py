@@ -47,45 +47,47 @@ def calcKinetics(data, Bodymass):
     
 
 def calcAngles(data,**kargs):
-    """Calculates the joint angles and axis
+    """Calculates the joint angles and axis.
     
     By default, the function will calculate all the data and return angles
-    and axis as separate arrays
+    and axis as separate arrays.
 
     Parameters
     ----------
-    data : list of dict
+    data : array
         Joint centres in the global coordinate system. List indices correspond 
         to each frame of trial. Dict keys correspond to name of each joint centre,
         dict values are arrays ([],[],[]) of x,y,z coordinates for each joint 
-        centre
+        centre.
     **kargs : dict of keyword arguments
         start
-           Indicates which index in `data` to start the calculation
+           Indicates which index in `data` to start the calculation.
         end
-           Indicates which index in `data` to end the calculation
+           Indicates which index in `data` to end the calculation.
         frame : int
-            Frame number if the calculation is only for one frame
-        cores : int
-            Number of processes to use on the calculation
+            Frame number if the calculation is only for one frame.
         vsk : dict
-            Vsk file as a dictionary or label and data
-        angles : boolean
-            If true, the function will return the angles
-        axis : boolean
-            If true, the function will return the axis
-        splitAnglesAxis : boolean
+            Vsk file as a dictionary or label and data.
+        cores : int
+            Number of processes to use on the calculation.
+        angles : bool
+            If true, the function will return the angles.
+        axis : bool
+            If true, the function will return the axis.
+        splitAnglesAxis : bool
             If true, the function will return the angles and axis as
-            separate arrays. If false, it will be the same array
-        multiprocessing : boolean
-            If true, the function will use multiprocessing
+            separate arrays. If false, it will be the same array.            
+        returnjoints : bool
+            If true, the function will return the joint centers.
     
     Returns
     -------
-        r : list of list
-            List of joint angle values
-        jcs : List of dict  
-            List of joint center locations for each frame of trial. 
+    r : array
+        Every index of the returned array is a list of joint angle 
+        values corresponding to a frame in the trial.
+    jcs : array  
+        List of dictionaries. Each dict holds joint center locations for each 
+        frame of trial. Returned only if returnjoints is True.
 
     Raises
     ------
@@ -175,7 +177,7 @@ def calcAngles(data,**kargs):
 def Calc(start,end,data,vsk):
     """Calculates angles and joint values for marker data in a given range
     
-    This function is a wrapper around `calcFrames`. It calls calcFrames
+    This function is a wrapper around `calcFrames`. It calls `calcFrames`
     with the given `data` and `vsk` inputs starting at index `start` and 
     ending at index `end` in `data`.
 
@@ -185,17 +187,24 @@ def Calc(start,end,data,vsk):
         Start index for the range of frames in `data` to calculate
     end : int
         End index for the range of frames in `data` to calculate
-    data : list of list
-        List of xyz coordinates of marker positions in a frame.
-    vsk : dict
-        Dictionary containing vsk file values
+    data : array of dict or array
+        List of xyz coordinates of marker positions in a frame. Each 
+        coordinate is a dict where the key is the marker name and the 
+        value is a 3 element array of its xyz coordinate. Can also pass
+        as an array of [labels, data], where labels is a list of
+        marker names and data is list of corresponding xyz coordinates. 
+    vsk : dict or array
+        Dictionary containing vsk file values, or array of labels and 
+        data: [labels, data]. 
 
     Returns
     -------
-    angles : list of list
-        List of lists containing joint angle values
-    joints : list of dict
-        List of dictionaries containing joint values
+    tuple
+        Returns a tuple of `angles` and `jcs`. `angles` is an array 
+        where each index of the returned array is a list of joint angle 
+        values corresponding to a frame in the trial. `jcs` is an array
+        of dicts where each dict holds joint center locations for each 
+        frame of trial.
 
     """
     d=data[start:end]
@@ -208,17 +217,24 @@ def calcFrames(data,vsk):
     
     Parameters
     ----------
-    data : list of list
-        List of xyz coordinates of marker positions in a frame. 
-    vsk : dict
-        Dictionary containing vsk file values
+    data : array of dict or array
+        List of xyz coordinates of marker positions in a frame. Each 
+        coordinate is a dict where the key is the marker name and the 
+        value is a 3 element array of its xyz coordinate. Can also pass
+        as a 2 element array of [labels, data], where labels is a list of
+        marker names and data is list of corresponding xyz coordinates. 
+    vsk : dict or array
+        Dictionary containing vsk file values, or array of labels and 
+        data: [labels, data]. 
  
     Returns
     -------
-    angles : list of list
-        List of lists containing joint angle values
-    joints : list of dict
-        List of dictionaries containing joint values
+    tuple
+        Returns a tuple of `angles` and `joints`. `angles` is an array 
+        where each index of the returned array is a list of joint angle 
+        values corresponding to a frame in the trial. `joints` is an array
+        of dicts where each dict holds joint center locations for each 
+        frame of trial.
     
     """
     angles=[]
