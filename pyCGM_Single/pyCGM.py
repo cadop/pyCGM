@@ -42,7 +42,7 @@ def pelvisJointCenter(frame):
     ---------- 
     frame : dict 
         Dictionaries of marker lists.
-        { [], [], [] }
+            { [], [], [] }
     
     Returns
     -------
@@ -141,7 +141,7 @@ def hipJointCenter(frame,pel_origin,pel_x,pel_y,pel_z,vsk=None):
     ----------
     frame : dict
         Dictionaries of marker lists.
-        { [], [], [], ... }
+            { [], [], [], ... }
     pel_origin : array
         An array of pel_origin, pel_x, pel_y, pel_z each x,y,z position.
         [(),(),()]
@@ -333,7 +333,7 @@ def kneeJointCenter(frame,hip_JC,delta,vsk=None):
     ----------
     frame : dict 
         dictionaries of marker lists.
-        { [], [], [] }
+            { [], [], [] }
     hip_JC : array
         An array of hip_JC, pelvis_axis each x,y,z position.
     delta : float
@@ -495,7 +495,7 @@ def ankleJointCenter(frame,knee_JC,delta,vsk=None):
     ----------
     frame : dict 
         dictionaries of marker lists.
-        { [], [], [] }
+            { [], [], [] }
     knee_JC : array
         An array of knee_JC each x,y,z position.
     delta : float
@@ -704,7 +704,7 @@ def footJointCenter(frame,vsk,ankle_JC,knee_JC,delta):
     ---------- 
     frame : dict 
         Dictionaries of marker lists.
-        { [], [], [] }
+            { [], [], [] }
     vsk : dict
         Dictionary of various attributes of the skeleton.
         { [], [], [], ... }
@@ -963,7 +963,7 @@ def headJC(frame,vsk=None):
     ----------
     frame : dict 
         Dictionaries of marker lists.
-        { [], [], [] }
+            { [], [], [] }
     vsk : dict, optional
         Dictionary of various attributes of the skeleton.
         { [], [], [], ... }
@@ -1069,7 +1069,7 @@ def thoraxJC(frame):
     ----------
     frame : dict 
         Dictionaries of marker lists.
-        { [], [], [] }
+            { [], [], [] }
     
     Returns
     -------
@@ -1169,7 +1169,7 @@ def findwandmarker(frame,thorax):
     ----------  
     frame : dict 
         Dictionaries of marker lists.
-        { [], [], [] }
+            { [], [], [] }
     thorax : array
         Array containing several x,y,z markers for the thorax.
 
@@ -1249,11 +1249,18 @@ def findshoulderJC(frame,thorax,wand,vsk=None):
     ----------
     frame : dict 
         Dictionaries of marker lists.
-        { [], [], [] }
+            { [], [], [] }
     thorax : array
         Array containing several x,y,z markers for the thorax.
+            thorax = [[R_thorax joint center x,y,z position],
+                        [L_thorax_joint center x,y,z position],
+                        [[R_thorax x axis x,y,z position],
+                        [R_thorax,y axis x,y,z position],
+                        [R_thorax z axis x,y,z position]]]
     wand : array
-        Array containing two x,y,z markers for right and left wands.
+        Array containing two x,y,z markers for wand.
+                wand = [[R wand x,y,z, position],
+                        [L wand x,y,z position]]
     vsk : dict, optional
         Dictionary of various attributes of the skeleton.
         { [], [], [], ... }
@@ -1325,33 +1332,29 @@ def shoulderAxisCalc(frame,thorax,shoulderJC,wand):
 
     Parameters
     ----------
-        frame : dict 
-            Dictionaries of marker lists.
+    frame : dict 
+        Dictionaries of marker lists.
             { [], [], [] }
-
-        thorax : array
-            The x,y,z position of the thorax.
-
-                thorax = [[R_thorax joint center x,y,z position],
-                            [L_thorax_joint center x,y,z position],
-                            [[R_thorax x axis x,y,z position],
-                            [R_thorax,y axis x,y,z position],
-                            [R_thorax z axis x,y,z position]]]
-
-        shoulderJC : array
-            The x,y,z position of the shoulder joint center.
-
-                shoulderJC = [[R shoulder joint center x,y,z position],
-                            [L shoulder joint center x,y,z position]]
-
-        wand : array
-            The x,y,z position of the wand.
-
-                wand = [[R wand x,y,z, position],
-                        [L wand x,y,z position]]
+    thorax : array
+        The x,y,z position of the thorax.
+            thorax = [[R_thorax joint center x,y,z position],
+                        [L_thorax_joint center x,y,z position],
+                        [[R_thorax x axis x,y,z position],
+                        [R_thorax,y axis x,y,z position],
+                        [R_thorax z axis x,y,z position]]]
+    shoulderJC : array
+        The x,y,z position of the shoulder joint center.
+            shoulderJC = [[R shoulder joint center x,y,z position],
+                        [L shoulder joint center x,y,z position]]
+    wand : array
+        The x,y,z position of the wand.
+            wand = [[R wand x,y,z, position],
+                    [L wand x,y,z position]]
     
     Returns
-    ---------- Returns the Shoulder joint center and axis in three array
+    ------- 
+    array
+        Returns the Shoulder joint center and axis in three array
             shoulder_JC = [[[[R_shoulder x axis, x,y,z position],
                         [R_shoulder y axis, x,y,z position],
                         [R_shoulder z axis, x,y,z position]],
@@ -1361,33 +1364,32 @@ def shoulderAxisCalc(frame,thorax,shoulderJC,wand):
                         [R_shoulderJC_x, R_shoulderJC_y, R_shoulderJC_z],
                         [L_shoulderJC_x,L_shoulderJC_y,L_shoulderJC_z]]
     
-    MODIFIES: -
-    ---------------------------------------------------------------------------
-    
-    EXAMPLE:
-            i = 1
-            frame : {'RSHO': [428.88496562, 270.552948, 1500.73010254],
-                     'LSHO': [68.24668121, 269.01049805, 1510.1072998], ...}
-            thorax : [[[256.23991128535846, 365.30496976939753, 1459.662169500559],
-                  [257.1435863244796, 364.21960599061947, 1459.5889787129829],
-                  [256.08430536580352, 354.32180498523223, 1458.6575930699294]],
-                  [256.14981023656401, 364.30906039339868, 1459.6553639290375]]
-            wand : [[255.92550222678443, 364.32269504976051, 1460.6297868417887],
-                    [256.42380097331767, 364.27770361353487, 1460.6165849382387]]
-            shoulderJC :[array([429.66951995, 275.06718615, 1453.953978131]),
-                        array([64.51952734, 274.93442161, 1463.6313334])]
+    Modifies 
+    --------
+    -
+
+    Example
+    -------
+            >>> frame = {'RSHO': np.array([428.88496562, 270.552948, 1500.73010254]),
+            ...          'LSHO': np.array([68.24668121, 269.01049805, 1510.1072998])}
+            >>> thorax = [[[256.23991128535846, 365.30496976939753, 1459.662169500559],
+            ...          [257.1435863244796, 364.21960599061947, 1459.5889787129829],
+            ...          [256.08430536580352, 354.32180498523223, 1458.6575930699294]],
+            ...          [256.14981023656401, 364.30906039339868, 1459.6553639290375]]
+            >>> shoulderJC = [np.array([429.66951995, 275.06718615, 1453.953978131]),
+            ...              np.array([64.51952734, 274.93442161, 1463.6313334])]
+            >>> wand = [[255.92550222678443, 364.32269504976051, 1460.6297868417887],
+            ...        [256.42380097331767, 364.27770361353487, 1460.6165849382387]]
             
-            shoulderJointCenter(frame,thorax,shoulderJC,wand)
-
-            >>> [[array([429.66951995, 275.06718615, 1453.95397813]),
-                  array([64.51952734, 274.93442161, 1463.6313334])],
-                  [[[430.12731330596756, 275.95136619074628, 1454.0469882869343],
-                    [429.6862168456729, 275.16323376713137, 1452.9587414419757],
-                    [428.78061812142147, 275.52435187706021, 1453.9831850281803]],
-                    [[64.104003248699883, 275.83192826468195, 1463.7790545425958],
-                    [64.598828482031223, 274.8083068265837, 1464.6201837453893],
-                    [65.425646015184384, 275.35702720425769, 1463.6125331307378]]]]
-
+            >>> shoulderAxisCalc(frame,thorax,shoulderJC,wand) #doctest: +NORMALIZE_WHITESPACE
+            [[array([ 429.66951995,  275.06718615, 1453.95397813]), 
+            array([  64.51952734,  274.93442161, 1463.6313334 ])], 
+            [[[430.12731331070347, 275.95136619381606, 1454.0469882864306], 
+            [429.686216850424, 275.163233770186, 1452.9587414414768], 
+            [428.7806181261679, 275.5243518800958, 1453.983185027684]], 
+            [[64.1040032529989, 275.831928265157, 1463.7790545463224], 
+            [64.59882848635098, 274.80838068314233, 1464.6201837491146], 
+            [65.42564601948371, 275.3570272047403, 1463.6125331344456]]]]
     """
 
             
