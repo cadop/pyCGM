@@ -142,15 +142,12 @@ def hipJointCenter(frame,pel_origin,pel_x,pel_y,pel_z,vsk=None):
     frame : dict
         Dictionaries of marker lists.
         { [], [], [], ... }
-
     pel_origin : array
         An array of pel_origin, pel_x, pel_y, pel_z each x,y,z position.
         [(),(),()]
-
     pel_x, pel_y, pel_z : int
         Respective axes of the pelvis.
-    
-    vsk : dict
+    vsk : dict, optional
         Dictionary of various attributes of the skeleton.
         { [], [], [], ... }
 
@@ -267,11 +264,10 @@ def hipAxisCenter(l_hip_jc,r_hip_jc,pelvis_axis):
     ----------
     l_hip_jc, r_hip_jc: array
         Array of R_hip_jc and L_hip_jc each x,y,z position.
-
     pelvis_axis : array
         An array of pelvis origin and axis. The axis is also composed of 3 arrays,
         each things are x axis, y axis, z axis.
-            
+       
     Returns
     -------
     array
@@ -338,14 +334,11 @@ def kneeJointCenter(frame,hip_JC,delta,vsk=None):
     frame : dict 
         dictionaries of marker lists.
         { [], [], [] }
-
     hip_JC : array
         An array of hip_JC, pelvis_axis each x,y,z position.
-    
     delta : float
         Get from subject measurement file
-
-    vsk : dict
+    vsk : dict, optional
         Dictionary of various attributes of the skeleton.
         { [], [], [], ... }
 
@@ -503,13 +496,14 @@ def ankleJointCenter(frame,knee_JC,delta,vsk=None):
     frame : dict 
         dictionaries of marker lists.
         { [], [], [] }
-
     knee_JC : array
         An array of knee_JC each x,y,z position.
+    delta : float
+        delta = 0.0
+    vsk : dict, optional
+        Dictionary of various attributes of the skeleton.
+        { [], [], [], ... }
 
-    delta
-        delta = 0
-    
     Returns
     -------
     array
@@ -686,7 +680,6 @@ def ankleJointCenter(frame,knee_JC,delta,vsk=None):
     return [R,L,axis]
     
 def footJointCenter(frame,vsk,ankle_JC,knee_JC,delta): 
-
     """
 
     Calculate the foot joint center and axis function.
@@ -709,79 +702,75 @@ def footJointCenter(frame,vsk,ankle_JC,knee_JC,delta):
         
     Parameters
     ---------- 
-        frame : dict 
-            dictionaries of marker lists.
-            { [], [], [] }
-
-        ankle_JC, knee_JC : array
-            An array of ankle_JC,knee_JC each x,y,z position.
-        
-        delta
-           delta = 0
-
-        static_info = [[R_plantar_static_angle, R_static_rotation_angle, 0], # Right Static information
-                        [L_plantar_static_angle, L_static_rotation_angle, 0]] # Left Static information
+    frame : dict 
+        Dictionaries of marker lists.
+        { [], [], [] }
+    vsk : dict
+        Dictionary of various attributes of the skeleton.
+        { [], [], [], ... }
+    ankle_JC, knee_JC : 
+        An array of ankle_JC,knee_JC each x,y,z position. 
+    delta
+        delta = 0.0
         
     Returns
-    ----------
-        array
-            Returns the footJointCenter and foot axis. and save the static offset angle in a global variable.
-                return = [[foot axis_center x,y,z position],
-                        [array([[footaxis_center x,y,z position],
-                                [foot x_axis x,y,z position]]),
-                        array([[footaxis_center x,y,z position],
-                                [foot y_axis x,y,z position]])
-                        array([[footaxis_center x,y,z position],
-                                [foot z_axis x,y,z position]])]]        
+    -------
+    array
+        Returns the footJointCenter and foot axis. and save the static offset angle in a global variable.
+            return = [[foot axis_center x,y,z position],
+                    [array([[footaxis_center x,y,z position],
+                            [foot x_axis x,y,z position]]),
+                    array([[footaxis_center x,y,z position],
+                            [foot y_axis x,y,z position]])
+                    array([[footaxis_center x,y,z position],
+                            [foot z_axis x,y,z position]])]]        
             
     Modifies
-    ----------   
-                Axis changes following to the static info.
-        
-                you can set the static_info by the button. and this will calculate the offset angles 
-                the first setting, the foot axis show foot uncorrected anatomical reference axis(Z_axis point to the AJC from TOE)
-        
-                if press the static_info button so if static_info is not None,
-                and then the static offsets angles are applied to the reference axis.
-                the reference axis is Z axis point to HEE from TOE
+    --------   
+    Axis changes following to the static info.
+
+    you can set the static_info by the button. and this will calculate the offset angles 
+    the first setting, the foot axis show foot uncorrected anatomical reference axis(Z_axis point to the AJC from TOE)
+
+    if press the static_info button so if static_info is not None,
+    and then the static offsets angles are applied to the reference axis.
+    the reference axis is Z axis point to HEE from TOE
 
     Example
-    ----------
-            i = 1
-            frame = { 'RHEE': [374.01257324, 181.57929993, 49.50960922],
-                      'LHEE': [105.30126953, 180.2130127, 47.15660858],
-                      'RTOE': [442.81997681, 381.62280273, 42.66047668 
-                      'LTOE': [39.43652725, 382.44522095, 41.78911591],...}
-            static_info : [[0.03482194, 0.14879424, 0],
-                           [0.01139704, 0.02142806, 0]]
-            knee_JC: [array([364.17774614, 292.17051722, 515.19181496]),
-                    array([143.55478579, 279.90370346, 524.78408753]),
-                    array([[[364.64959153, 293.06758353, 515.18513093],
-                            [363.29019771, 292.60656648, 515.04309095],
-                            [364.04724541, 292.24216264, 516.18067112]],
-                           [[143.65611282, 280.88685896, 524.63197541],
-                            [142.56434499, 280.01777943, 524.86163553],
-                            [143.64837987, 280.04650381, 525.76940383]]])]
-            ankle_JC: [array([393.76181608, 247.67829633, 87.73775041]),
-                        array([98.74901939, 219.46930221, 80.6306816]),
-                        [[array([394.4817575, 248.37201348, 87.715368]),
-                        array([393.07114384, 248.39110006, 87.61575574]),
-                        array([393.69314056, 247.78157916, 88.73002876])],
-                        [array([98.47494966, 220.42553803, 80.52821783]),
-                        array([97.79246671, 219.20927275, 80.76255901]),
-                        array([98.84848169, 219.60345781, 81.61663775])]]]
-            delta: 0
+    -------
+            >>> vsk = { 'RightStaticRotOff' : 0.015683497632642047, 'LeftStaticRotOff': 0.009402910292403012,
+            ...         'RightStaticPlantFlex' : 0.2702417907002758, 'LeftStaticPlantFlex': 0.20251085737834015}
+            >>> frame = { 'RHEE': np.array([374.01257324, 181.57929993, 49.50960922]),
+            ...           'LHEE': np.array([105.30126953, 180.2130127, 47.15660858]),
+            ...           'RTOE': np.array([442.81997681, 381.62280273, 42.66047668]),
+            ...           'LTOE': np.array([39.43652725, 382.44522095, 41.78911591])}
+            >>> knee_JC = [np.array([364.17774614, 292.17051722, 515.19181496]),
+            ...           np.array([143.55478579, 279.90370346, 524.78408753]),
+            ...           np.array([[[364.64959153, 293.06758353, 515.18513093],
+            ...           [363.29019771, 292.60656648, 515.04309095],
+            ...           [364.04724541, 292.24216264, 516.18067112]],
+            ...           [[143.65611282, 280.88685896, 524.63197541],
+            ...           [142.56434499, 280.01777943, 524.86163553],
+            ...           [143.64837987, 280.04650381, 525.76940383]]])]
+            >>> ankle_JC = [np.array([393.76181608, 247.67829633, 87.73775041]),
+            ...            np.array([98.74901939, 219.46930221, 80.6306816]),
+            ...            [[np.array([394.4817575, 248.37201348, 87.715368]),
+            ...            np.array([393.07114384, 248.39110006, 87.61575574]),
+            ...            np.array([393.69314056, 247.78157916, 88.73002876])],
+            ...            [np.array([98.47494966, 220.42553803, 80.52821783]),
+            ...            np.array([97.79246671, 219.20927275, 80.76255901]),
+            ...            np.array([98.84848169, 219.60345781, 81.61663775])]]]
+            >>> delta = 0
 
-            footJointCenter(frame,static_info,ankle_JC,knee_JC,delta,vsk=None)
-
-            >>> [array([442.81997681, 381.62280273, 42.66047668]),
-                array([39.43652725, 382.44522095, 41.78911591]),
-                [[[442.88815408948221, 381.7646059422284, 43.648020966284719],
-                  [441.87135392672275, 381.93856951438391, 42.680625439845173],
-                  [442.51100028681969, 380.68462194642137, 42.816522573058428]],
-                 [[39.507852120747259, 382.67891585204035, 42.75880629687082],
-                  [38.49231838166678, 385.14765969549836, 41.930278614215709],
-                  [39.758058544512153, 381.51956226668784, 41.98854919067994]]]]
+            >>> footJointCenter(frame,vsk,ankle_JC,knee_JC,delta) #doctest: +NORMALIZE_WHITESPACE
+            [array([442.81997681, 381.62280273,  42.66047668]), 
+            array([ 39.43652725, 382.44522095,  41.78911591]), 
+            [[[442.84624126850076, 381.65130239735896, 43.65972537135771], 
+            [441.8773505652145, 381.95630349685143, 42.675741055225664], 
+            [442.4871616347733, 380.680483777909, 42.69610043147115]], 
+            [[39.56652625520302, 382.509010007187, 42.77857597227105], 
+            [38.493133281642635, 382.1460684083941, 41.9323485086557], 
+            [39.741663414872626, 381.4931501999851, 41.81040458898463]]]]
                   
     """
     
@@ -972,42 +961,39 @@ def headJC(frame,vsk=None):
 
     Parameters
     ----------
-        frame : dict 
-            Dictionaries of marker lists.
-            { [], [], [] }
-        
-        vsk : array, optional
-            Use values from a vsk,"Vicon Skeleton", file (the default is None, which implies no usage of a vsk).
+    frame : dict 
+        Dictionaries of marker lists.
+        { [], [], [] }
+    vsk : dict, optional
+        Dictionary of various attributes of the skeleton.
+        { [], [], [], ... }
     
     Returns
-    ----------
-        array
-            Returns the Head joint center and axis in three array
-                    
-                    head_JC = [[[head x axis x,y,z position],
-                                [head y axis x,y,z position],
-                                [head z axis x,y,z position]],
-                                [head x,y,z position]]
+    -------
+    array
+        Returns the Head joint center and axis in three array 
+                head_JC = [[[head x axis x,y,z position],
+                            [head y axis x,y,z position],
+                            [head z axis x,y,z position]],
+                            [head x,y,z position]]
             
-    Modifies: 
-    ----------
-        -
+    Modifies
+    --------
+    -
     
     Example
-    ----------
-            i = 1
-            frame = {'RFHD': [325.82983398, 402.55450439, 1722.49816895],
-                     'LFHD': [184.55158997, 409.68713379, 1721.34289551],
-                     'RBHD': [304.39898682, 242.91339111, 1694.97497559],
-                     'LBHD': [197.8621521, 251.28889465, 1696.90197754], ...}
-            
-            headJC(frame,vsk=None)
-
-            >>> [[[255.21590217746564, 407.10741939149585, 1722.0817317995723],
-                [254.19105385179665, 406.146809183757, 1721.9176771191715],
-                [255.18370553356357, 405.959746549898, 1722.9074499262838]],
-                [255.19071197509766, 406.12081909179687, 1721.9205322265625]]
-
+    -------
+    >>> vsk = { 'HeadOffset': 0.2571990469310653 }
+    >>> frame = {'RFHD': np.array([325.82983398, 402.55450439, 1722.49816895]),
+    ...          'LFHD': np.array([184.55158997, 409.68713379, 1721.34289551]),
+    ...          'RBHD': np.array([304.39898682, 242.91339111, 1694.97497559]),
+    ...          'LBHD': np.array([197.8621521, 251.28889465, 1696.90197754])}
+    
+    >>> headJC(frame,vsk) #doctest: +NORMALIZE_WHITESPACE
+    [[[255.216855825006, 407.11593887578425, 1721.82538439215], 
+    [254.19105385169885, 406.1468091819513, 1721.917677122581], 
+    [255.1903437021715, 406.2160090425213, 1722.9159912885825]], 
+    [255.190711975, 406.12081909, 1721.92053223]]
     """
     
     #Get Global Values
@@ -1081,42 +1067,38 @@ def thoraxJC(frame):
 
     Parameters
     ----------
-        frame : dict 
-            Dictionaries of marker lists.
-            { [], [], [] }
+    frame : dict 
+        Dictionaries of marker lists.
+        { [], [], [] }
     
     Returns
     ----------
-        array
-            Returns the Head joint center and axis in three array
-                
-                thorax_JC = [[R_thorax x,y,z position], [L_thorax x,y,z position],
-                            [[R_thorax x axis x,y,z position],
-                            [R_thorax y axis x,y,z position],
-                            [R_thorax z axis x,y,z position],
-                            [L_thorax x axis x,y,z position],
-                            [L_thorax y axis x,y,z position],
-                            [L_thorax z axis x,y,z position]]]
+    array
+        Returns the Head joint center and axis in three array
+            thorax_JC = [[R_thorax x,y,z position], [L_thorax x,y,z position],
+                        [[R_thorax x axis x,y,z position],
+                        [R_thorax y axis x,y,z position],
+                        [R_thorax z axis x,y,z position],
+                        [L_thorax x axis x,y,z position],
+                        [L_thorax y axis x,y,z position],
+                        [L_thorax z axis x,y,z position]]]
     
     Modifies: 
     ----------
-        -
+    -
     
     Example
     ----------
-            i = 1
-            frame = {'C7': [256.78051758, 371.28042603, 1459.70300293],
-                     'T10': [228.64323425, 192.32041931, 1279.6418457],
-                     'CLAV': [256.78051758, 371.28042603, 1459.70300293],
-                     'STRN': [251.67492676, 414.10391235, 1292.08508301], ...}
-            
-            thoraxJC(frame)
-
-            >>> [[[256.23991128535846, 365.30496976939753, 1459.662169500559],
-                  [257.1435863244796, 364.21960599061947, 1459.5889787129829],
-                  [256.08430536580352, 354.32180498523223, 1458.6575930699294]],
-                  [256.14981023656401, 364.30906039339868, 1459.6553639290375]]
-
+    >>> frame = {'C7': np.array([256.78051758, 371.28042603, 1459.70300293]),
+    ...          'T10': np.array([228.64323425, 192.32041931, 1279.6418457]),
+    ...          'CLAV': np.array([256.78051758, 371.28042603, 1459.70300293]),
+    ...          'STRN': np.array([251.67492676, 414.10391235, 1292.08508301])}
+    
+    >>> thoraxJC(frame) #doctest: +NORMALIZE_WHITESPACE
+    [[[256.3454633226447, 365.7223958512035, 1461.920891187948], 
+    [257.26637166499415, 364.69602499862503, 1462.2347234647593], 
+    [256.1842731803127, 364.4328898435265, 1461.363045336319]], 
+    [256.2729542797522, 364.79605748807074, 1462.2905392309394]]
     """
     
     #Set or get a marker size as mm
