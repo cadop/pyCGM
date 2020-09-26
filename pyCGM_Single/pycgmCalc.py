@@ -47,24 +47,55 @@ def calcKinetics(data, Bodymass):
     
 
 def calcAngles(data,**kargs):
-    """
-    Calculates the joint angles and axis
-    @param  data Motion data as a vector of dictionaries like the data in 
-    marb or labels and raw data like the data from loadData function
-    @param  static Static angles
-    @param  Kargs 
-        start   Position of the data to start the calculation
-        end     Position of the data to end the calculation
-        frame   Frame number if the calculation is only for one frame
-        cores   Number of processes to use on the calculation
-        vsk     Vsk file as a dictionary or label and data
-        angles  If true it will return the angles
-        axis    If true it will return the axis
-        splitAnglesAxis     If true the function will return angles and axis as separete arrays. For false it will be the same array
-        multiprocessing     If true it will use multiprocessing
+    """Calculates the joint angles and axis
+    
+    By default, the function will calculate all the data and return angles
+    and axis as separate arrays
 
-    By default the function will calculate all the data and return angles and axis as separete arrays
+    Parameters
+    ----------
+    data : list of dict
+        Joint centres in the global coordinate system. List indices correspond 
+        to each frame of trial. Dict keys correspond to name of each joint centre,
+        dict values are arrays ([],[],[]) of x,y,z coordinates for each joint 
+        centre
+    **kargs : dict of keyword arguments
+        start
+           Indicates which index in `data` to start the calculation
+        end
+           Indicates which index in `data` to end the calculation
+        frame : int
+            Frame number if the calculation is only for one frame
+        cores : int
+            Number of processes to use on the calculation
+        vsk : dict
+            Vsk file as a dictionary or label and data
+        angles : boolean
+            If true, the function will return the angles
+        axis : boolean
+            If true, the function will return the axis
+        splitAnglesAxis : boolean
+            If true, the function will return the angles and axis as
+            separate arrays. If false, it will be the same array
+        multiprocessing : boolean
+            If true, the function will use multiprocessing
+    
+    Returns
+    -------
+        r : list of list
+            List of joint angle values
+        jcs : List of dict  
+            List of joint center locations for each frame of trial. 
+
+    Raises
+    ------
+    Exception
+        If `start` is given and is negative
+        If `start` is larger than `end`
+        If `end` is larger than the length of `data`
+
     """
+
     start=0
     end=len(data)
     vsk=None
@@ -142,12 +173,54 @@ def calcAngles(data,**kargs):
         return r,jcs
 
 def Calc(start,end,data,vsk):
+    """Calculates angles and joint values for marker data in a given range
+    
+    This function is a wrapper around `calcFrames`. It calls calcFrames
+    with the given `data` and `vsk` inputs starting at index `start` and 
+    ending at index `end` in `data`.
+
+    Parameters
+    ----------
+    start : int
+        Start index for the range of frames in `data` to calculate
+    end : int
+        End index for the range of frames in `data` to calculate
+    data : list of list
+        List of xyz coordinates of marker positions in a frame.
+    vsk : dict
+        Dictionary containing vsk file values
+
+    Returns
+    -------
+    angles : list of list
+        List of lists containing joint angle values
+    joints : list of dict
+        List of dictionaries containing joint values
+
+    """
     d=data[start:end]
     angles,jcs=calcFrames(d,vsk)
     
     return angles,jcs
 
 def calcFrames(data,vsk):
+    """Calculates angles and joint values for given marker data
+    
+    Parameters
+    ----------
+    data : list of list
+        List of xyz coordinates of marker positions in a frame. 
+    vsk : dict
+        Dictionary containing vsk file values
+ 
+    Returns
+    -------
+    angles : list of list
+        List of lists containing joint angle values
+    joints : list of dict
+        List of dictionaries containing joint values
+    
+    """
     angles=[]
     joints=[] #added this here for normal data
     if type(data[0])!=type({}):
@@ -162,5 +235,5 @@ def calcFrames(data,vsk):
         joints.append(jcs)
     return angles, joints
 
-    
+
             
