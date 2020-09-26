@@ -352,7 +352,7 @@ def kneeJointCenter(frame,hip_JC,delta,vsk=None):
         dictionaries of marker lists.
             { [], [], [] }
     hip_JC : array
-        An array of hip_JC, pelvis_axis each x,y,z position.
+        An array of ankle_JC containing the x,y,z axes marker positions of the knee joint center. 
     delta : float
         Get from subject measurement file
     vsk : dict, optional
@@ -725,8 +725,10 @@ def footJointCenter(frame,vsk,ankle_JC,knee_JC,delta):
     vsk : dict
         Dictionary of various attributes of the skeleton.
             { [], [], [], ... }
-    ankle_JC, knee_JC : 
-        An array of ankle_JC,knee_JC each x,y,z position. 
+    ankle_JC : array
+        An array of ankle_JC containing the x,y,z axes marker positions of the ankle joint center. 
+    knee_JC : array
+        An array of ankle_JC containing the x,y,z axes marker positions of the knee joint center. 
     delta
         delta = 0.0
         
@@ -975,7 +977,6 @@ def headJC(frame,vsk=None):
     Calculates the head joint center and returns the head joint center and axis.
     
     Markers used: LFHD, RFHD, LBHD, RBHD
-    Other landmarks used: head front, head back, head left, head right
     VSK values used: HeadOffset
 
     Parameters
@@ -1084,7 +1085,7 @@ def thoraxJC(frame):
     ----------
     frame : dict 
         Dictionaries of marker lists.
-            { [], [], [] }
+            { [], [], [], ...}
     
     Returns
     -------
@@ -1173,13 +1174,14 @@ def findwandmarker(frame,thorax):
     Takes in a dictionary of x,y,z positions and marker names.
     and takes the thorax axis.
     Calculates the wand marker for calculating the clavicle.
-    -------------------------------------------------------------------------
+
+    Markers used: RSHO, LSHO 
 
     Parameters
     ----------  
     frame : dict 
         Dictionaries of marker lists.
-            { [], [], [] }
+            { [], [], [], ...}
     thorax : array
         The x,y,z position of the thorax.
             thorax = [[R_thorax joint center x,y,z position],
@@ -1195,12 +1197,9 @@ def findwandmarker(frame,thorax):
             return = [[R wand marker x,y,z position],
                     [L wand marker x,y,z position]]
     
-    Modifies
-    --------
-    -
-    
     Example
     -------
+    >>> import numpy as np
     >>> frame = {'RSHO': np.array([428.88496562, 270.552948, 1500.73010254]),
     ...          'LSHO': np.array([68.24668121, 269.01049805, 1510.1072998])}
     >>> thorax = [[[256.23991128535846, 365.30496976939753, 1459.662169500559],
@@ -1251,20 +1250,20 @@ def findwandmarker(frame,thorax):
     return wand
     
 def findshoulderJC(frame,thorax,wand,vsk=None):
-    """
-
-    Calculate the Shoulder joint center function.
+    """Calculate the Shoulder joint center function.
 
     Takes in a dictionary of x,y,z positions and marker names.
     and takes the thorax axis and wand marker.
     Calculate each shoulder joint center and returns it.
-    -------------------------------------------------------------------------
+
+    Markers used: RSHO, LSHO
+    VSK values used: RightShoulderOffset, LeftShoulderOffset
 
     Parameters
     ----------
     frame : dict 
         Dictionaries of marker lists.
-            { [], [], [] }
+            { [], [], [], ... }
     thorax : array
         Array containing several x,y,z markers for the thorax.
             thorax = [[R_thorax joint center x,y,z position],
@@ -1278,7 +1277,7 @@ def findshoulderJC(frame,thorax,wand,vsk=None):
                         [L wand x,y,z position]]
     vsk : dict, optional
         Dictionary of various attributes of the skeleton.
-        { [], [], [], ... }
+            { [], [], [], ... }
 
     Returns
     -------
@@ -1287,12 +1286,9 @@ def findshoulderJC(frame,thorax,wand,vsk=None):
             head_JC = [[R_shoulderJC_x, R_shoulderJC_y, R_shoulderJC_z],
                         [L_shoulderJC_x,L_shoulderJC_y,L_shoulderJC_z]]
     
-    Modifies 
-    --------
-    -
-    
     Example
     -------
+    >>> import numpy as np
     >>> vsk = { 'RightShoulderOffset' : 40.0, 'LeftShoulderOffset' : 40.0 }
     >>> frame = {'RSHO': np.array([428.88496562, 270.552948, 1500.73010254]),
     ...          'LSHO': np.array([68.24668121, 269.01049805, 1510.1072998])}
@@ -1336,20 +1332,17 @@ def findshoulderJC(frame,thorax,wand,vsk=None):
     return Sho_JC
 
 def shoulderAxisCalc(frame,thorax,shoulderJC,wand):
-    """
-
-    Calculate the Shoulder joint axis ( Clavicle) function.
+    """Calculate the Shoulder joint axis ( Clavicle) function.
 
     Takes in a dictionary of x,y,z positions and marker names, as well as an index.
     and takes the thorax axis and wand marker and then, shoulder joint center.
     Calculate each shoulder joint axis and returns it.
-    -------------------------------------------------------------------------
 
     Parameters
     ----------
     frame : dict 
         Dictionaries of marker lists.
-            { [], [], [] }
+            { [], [], [], ... }
     thorax : array
         The x,y,z position of the thorax.
             thorax = [[R_thorax joint center x,y,z position],
@@ -1378,15 +1371,11 @@ def shoulderAxisCalc(frame,thorax,shoulderJC,wand):
                         [L_shoulder z axis, x,y,z position]]],
                         [R_shoulderJC_x, R_shoulderJC_y, R_shoulderJC_z],
                         [L_shoulderJC_x,L_shoulderJC_y,L_shoulderJC_z]]
-    
-    Modifies 
-    --------
-    -
 
     Example
     -------
-    >>> frame = {'RSHO': np.array([428.88496562, 270.552948, 1500.73010254]),
-    ...          'LSHO': np.array([68.24668121, 269.01049805, 1510.1072998])}
+    >>> import numpy as np
+    >>> frame = None
     >>> thorax = [[[256.23991128535846, 365.30496976939753, 1459.662169500559],
     ...          [257.1435863244796, 364.21960599061947, 1459.5889787129829],
     ...          [256.08430536580352, 354.32180498523223, 1458.6575930699294]],
@@ -1465,20 +1454,20 @@ def shoulderAxisCalc(frame,thorax,shoulderJC,wand):
     return [shoulderJC,axis]
     
 def elbowJointCenter(frame,thorax,shoulderJC,wand,vsk=None):
-    """
-
-    Calculate the Elbow joint axis ( Humerus) function.
+    """Calculate the Elbow joint axis ( Humerus) function.
 
     Takes in a dictionary of x,y,z positions and marker names, as well as an index.
     and takes the thorax axis and wand marker and then, shoulder joint center.
     Calculate each elbow joint axis and returns it.
-    -------------------------------------------------------------------------
+
+    Markers used: RSHO, LSHO, RELB, LELB, RWRA ,RWRB, LWRA, LWRB
+    VSK values used: RightElbowWidth, LeftElbowWidth
 
     Parameters
     ---------- 
     frame 
         Dictionaries of marker lists.  
-            { [], [], [] }
+            { [], [], [], ... }
     thorax : array
         The x,y,z position of the thorax.
             thorax = [[R_thorax joint center x,y,z position],
@@ -1513,12 +1502,9 @@ def elbowJointCenter(frame,thorax,shoulderJC,wand,vsk=None):
                             [R_wrist_JC_x, R_wrist_JC_y, R_wrist_JC_z],
                             [L_wrist_JC_x,L_wrist_JC_y,L_wrist_JC_z]]
     
-    Modifies
-    --------
-    -
-    
     Example
     -------
+    >>> import numpy as np
     >>> frame = {'RSHO': np.array([428.88496562, 270.552948, 1500.73010254]),
     ...          'LSHO': np.array([68.24668121, 269.01049805, 1510.1072998]),
     ...          'RELB': np.array([658.90338135, 326.07580566, 1285.28515625]),
@@ -1769,9 +1755,7 @@ def elbowJointCenter(frame,thorax,shoulderJC,wand,vsk=None):
     return [origin,axis,wrist_O]
     
 def wristJointCenter(frame,shoulderJC,wand,elbowJC):
-    """
-
-    Calculate the Wrist joint axis ( Radius) function.
+    """Calculate the Wrist joint axis ( Radius) function.
 
     Takes in a dictionary of x,y,z positions and marker names, as well as an index.
     and takes the elbow axis and wand marker and then, shoulder joint center.
@@ -1782,17 +1766,8 @@ def wristJointCenter(frame,shoulderJC,wand,elbowJC):
     ----------
     frame : dict
         Dictionaries of marker lists.  
-            { [], [], [] }
+            { [], [], [], ... }
     elbowJC : array
-        A
-    shoulderJC : array
-        The x,y,z position of the shoulder joint center.
-            shoulderJC = [[R shoulder joint center x,y,z position],
-                        [L shoulder joint center x,y,z position]]
-    wand : array
-        The x,y,z position of the wand.
-            wand = [[R wand x,y,z, position],
-                    [L wand x,y,z position]]
             elbowJC = [[R_elbow_JC_x, R_elbow_JC_y, R_elbow_JC_z],
                         [L_elbow_JC_x,L_elbow_JC_y,L_elbow_JC_z]
                         [[[R_elbow x axis, x,y,z position],
@@ -1803,8 +1778,12 @@ def wristJointCenter(frame,shoulderJC,wand,elbowJC):
                         [L_elbow z axis, x,y,z position]]],
                         [R_wrist_JC_x, R_wrist_JC_y, R_wrist_JC_z],
                         [L_wrist_JC_x,L_wrist_JC_y,L_wrist_JC_z]]
+    shoulderJC : array
+        The x,y,z position of the shoulder joint center.
             shoulderJC = [[R shoulder joint center x,y,z position],
                         [L shoulder joint center x,y,z position]]
+    wand : array
+        The x,y,z position of the wand.
             wand = [[R wand x,y,z, position],
                     [L wand x,y,z position]]
     
