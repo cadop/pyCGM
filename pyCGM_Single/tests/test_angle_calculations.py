@@ -1,5 +1,6 @@
 import unittest
 import pyCGM_Single.pyCGM as pyCGM
+import numpy as np
 
 class TestCalculations(unittest.TestCase):
 
@@ -10,7 +11,10 @@ class TestCalculations(unittest.TestCase):
         axisD = [[0.14362551354236074985, -0.98963110439615320502, -0.00141034441480769601],
                  [0.68540404438920177199, 0.09844473917718232769, 0.72147760135931093828],
                  [-0.71385783444225126004, -0.10458924677044478813, 0.69243633762630452111]]
-        self.assertEqual(pyCGM.getangle_sho(axisP, axisD), [-9.42569150165887, 130.86647058885387, -170.3887751198432])
+        expected = [-9.42569150165887, 130.86647058885387, -170.3887751198432]
+
+        result = pyCGM.getangle_sho(axisP, axisD)
+        self.assertEqual(np.around(result, decimals=8).all(), np.around(expected, decimals=8).all())
 
     def test_getangle_spi(self):
         axisP = [[0.13232935635315357104, 0.98562945782504129966, -0.10499292030749529658],
@@ -19,11 +23,17 @@ class TestCalculations(unittest.TestCase):
         axisD = [[0.09010104879445179904, 0.99590937599884910014, 0.00680557152145411237],
                  [0.99377608791559168822, -0.08945440277921079542, -0.06638521605464120512],
                  [-0.06550487076049194002, 0.01274459183355247660, -0.99777085910818641423]]
-        self.assertEqual(pyCGM.getangle_spi(axisP, axisD), [-6.4797057790916615, -2.893068979100172, -4.638276625836626])
+        expected = [-6.4797057790916615, -2.893068979100172, -4.638276625836626]
+
+        result = pyCGM.getangle_spi(axisP, axisD)
+        self.assertEqual(np.around(result, decimals=8).all(), np.around(expected, decimals=8).all())
 
     def test_getangle(self):
         axisP = [[1, 0, 0], [0, 1, 0], [0, 0, 1]]
         axisD = [[0.13232935635315357103, 0.98562945782504129965, -0.10499292030749529658],
                  [-0.99119134439010281312, 0.13101087562301927391, -0.01938734831355759524],
                  [-0.00535352718324588749, 0.10663358915485332545, 0.99428397221845443709]]
-        self.assertEqual(pyCGM.getangle(axisP, axisD), [-0.30849491450945404, -6.121292793370006, 7.5714311021517124])
+        expected = [-0.30849491450945404, -6.121292793370006, 7.5714311021517124]
+
+        result = pyCGM.getangle(axisP, axisD)
+        self.assertEqual(np.around(result, decimals=8).all(), np.around(expected, decimals=8).all())
