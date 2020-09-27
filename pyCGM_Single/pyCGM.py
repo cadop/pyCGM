@@ -52,9 +52,9 @@ def pelvisJointCenter(frame):
     
     Returns
     -------
-    array
+    pelvis : array
         Returns the origin and pelvis axis also sacrum. 
-            Pelvis = [[origin x,y,z position],
+            pelvis = [[origin x,y,z position],
                       [[pelvis x_axis x,y,z position],
                        [pelvis y_axis x,y,z position],
                        [pelvis z_axis x,y,z position]],
@@ -176,7 +176,7 @@ def hipJointCenter(frame,pel_origin,pel_x,pel_y,pel_z,vsk=None):
 
     Returns
     -------
-    array
+    hip_JC : array
         Returns the hip joint center in two array.
             hip_JC = [[L_hipJC x,y,z position], [R_hipJC x,y,z position]]
     
@@ -1192,9 +1192,9 @@ def findwandmarker(frame,thorax):
 
     Returns
     ------- 
-    array
+    wand : array
         Returns wand marker position for calculating knee joint center later.
-            return = [[R wand marker x,y,z position],
+            wand = [[R wand marker x,y,z position],
                     [L wand marker x,y,z position]]
     
     Example
@@ -2086,7 +2086,7 @@ def findJointC(a, b, c, delta):
     
     Returns
     -------
-    array
+    mr : array
         Joint C x,y,z position
             return = [joint C x position, joint C y position, joint C z position]
 
@@ -2220,40 +2220,40 @@ def getHeadangle(axisP,axisD):
     return angle
     
 def getangle_sho(axisP,axisD):
-    """
-    
-    Shoulder angle calculation function.
+    """Shoulder angle calculation function.
     
     This function takes in two axis and returns three angles.
     and It use inverse Euler rotation matrix in XYZ order.
     the output shows the angle in degrees.
-    ------------------------------------------------------
     
-    INPUT: each axis show the unit vector of axis.
+    Parameters
+    ----------
+    axisP, axisD : array
+        each axis show the unit vector of axis.
            axisP = [[axisP-x axis x,y,z position],
                     [axisP-y axis x,y,z position],
-                    [axisP-z axis x,y,z position]]
+                    [axisP-z axis x,y,z position]]  
            axisD = [[axisD-x axis x,y,z position],
                     [axisD-y axis x,y,z position],
                     [axisD-z axis x,y,z position]]
-    OUTPUT: these angles are show on degree.
+    Returns
+    -------
+    angle : array
+        These angles are show on degree.
             angle = [gamma,beta,alpha]
-    MODIFIES:
-    ------------------------------------------------------
     
-    EXAMPLE:
-            INPUT:
-            
-            axisP: [[ 0.0464229   0.99648672  0.06970743]
-                    [ 0.99734011 -0.04231089 -0.05935067]
-                    [-0.05619277  0.07227725 -0.99580037]]
-            axisD: [[-0.18067218 -0.98329158 -0.02225371]
-                    [ 0.71383942 -0.1155303  -0.69071415]
-                    [ 0.67660243 -0.1406784   0.7227854 ]]
-                    
-            OUTPUT:
-            angle: [-3.3474505645829722, -140.28662967555562, 172.50982144894826]
-            
+    Example
+    -------
+    >>> import numpy as np            
+    >>> axisP = [[ 0.0464229, 0.99648672, 0.06970743],
+    ...        [ 0.99734011, -0.04231089, -0.05935067],
+    ...       [-0.05619277,  0.07227725, -0.99580037]]
+    >>> axisD = [[-0.18067218, -0.98329158, -0.02225371],
+    ...        [ 0.71383942, -0.1155303, -0.69071415],
+    ...        [ 0.67660243, -0.1406784, 0.7227854 ]]
+
+    >>> getangle_sho(axisP,axisD)  #doctest: +NORMALIZE_WHITESPACE
+    [-3.3474502956722025, -140.2866297707928, 172.50982167717098]
     """
     
     # beta is flexion /extension
@@ -2270,40 +2270,40 @@ def getangle_sho(axisP,axisD):
     return angle
     
 def getangle_spi(axisP,axisD):
-    """
-    
-    Spine angle calculation function.
+    """Spine angle calculation function.
     
     This function takes in two axis and returns three angles.
     and It use inverse Euler rotation matrix in XZX order.
     the output shows the angle in degrees.
-    ------------------------------------------------------
     
-    INPUT: each axis show the unit vector of axis.
+    Parameters
+    ----------
+    axisP, axisD : array
+        each axis show the unit vector of axis.
            axisP = [[axisP-x axis x,y,z position],
                     [axisP-y axis x,y,z position],
                     [axisP-z axis x,y,z position]]
            axisD = [[axisD-x axis x,y,z position],
                     [axisD-y axis x,y,z position],
                     [axisD-z axis x,y,z position]]
-    OUTPUT: these angles are show on degree.
+    Return
+    ------
+    angle : array
+        These angles are show on degree.
             angle = [gamma,beta,alpha]
-    MODIFIES:
-    ------------------------------------------------------
     
-    EXAMPLE:
-            INPUT:
+    Example
+    -------
+    >>> import numpy as np
+    >>> axisP = [[ 0.0464229,   0.99648672,  0.06970743],
+    ...        [ 0.99734011, -0.04231089, -0.05935067],
+    ...        [-0.05619277,  0.07227725, -0.99580037]]
+    >>> axisD = [[-0.18067218, -0.98329158,-0.02225371],
+    ...        [ 0.71383942, -0.1155303,  -0.69071415],
+    ...        [ 0.67660243, -0.1406784,   0.7227854 ]]
             
-            axisP: [[ 0.0464229   0.99648672  0.06970743]
-                    [ 0.99734011 -0.04231089 -0.05935067]
-                    [-0.05619277  0.07227725 -0.99580037]]
-            axisD: [[-0.18067218 -0.98329158 -0.02225371]
-                    [ 0.71383942 -0.1155303  -0.69071415]
-                    [ 0.67660243 -0.1406784   0.7227854 ]]
-                    
-            OUTPUT:
-            angle: [-9.8208335778582327, -2.8188534655021193, -4.0537090802755111]
-            
+    >>> getangle_spi(axisP,axisD) #doctest: +NORMALIZE_WHITESPACE
+    [2.889196398545522, 9.743829502459766, 39.743410871479554]      
     """
     # this angle calculation is for spine angle.
     
@@ -2316,42 +2316,42 @@ def getangle_spi(axisP,axisD):
     return angle
         
 def getangle(axisP,axisD):
-    """
-    
-    Normal angle calculation function.
+    """Normal angle calculation function.
     
     This function takes in two axis and returns three angles.
     and It use inverse Euler rotation matrix in YXZ order.
     the output shows the angle in degrees.
     
     As we use arc sin we have to care about if the angle is in area between -pi/2 to pi/2
-    ------------------------------------------------------
     
-    INPUT: each axis show the unit vector of axis.
+    Parameters
+    ----------
+    axisP, axisD : array
+        Each axis show the unit vector of axis.
             axisP = [[axisP-x axis x,y,z position],
                     [axisP-y axis x,y,z position],
                     [axisP-z axis x,y,z position]]
             axisD = [[axisD-x axis x,y,z position],
                     [axisD-y axis x,y,z position],
                     [axisD-z axis x,y,z position]]
-    OUTPUT: these angles are show on degree.
+    Returns
+    -------
+    angle : array
+        These angles are show on degree.
             angle = [gamma,beta,alpha]
-    MODIFIES:
-    ------------------------------------------------------
     
-    EXAMPLE:
-            INPUT:
-            
-            axisP: [[ 0.0464229   0.99648672  0.06970743]
-                    [ 0.99734011 -0.04231089 -0.05935067]
-                    [-0.05619277  0.07227725 -0.99580037]]
-            axisD: [[-0.18067218 -0.98329158 -0.02225371]
-                    [ 0.71383942 -0.1155303  -0.69071415]
-                    [ 0.67660243 -0.1406784   0.7227854 ]]
-                    
-            OUTPUT:
-            angle:  [37.141616013785963, -9.5416640443905497e-13, 89.999999999997684]
-            
+    Example
+    -------
+    >>> import numpy as np
+    >>> axisP = [[ 0.0464229,   0.99648672,  0.06970743],
+    ...         [ 0.99734011, -0.04231089, -0.05935067],
+    ...         [-0.05619277,  0.07227725, -0.99580037]]
+    >>> axisD = [[-0.18067218, -0.98329158, -0.02225371],
+    ...         [ 0.71383942, -0.1155303,  -0.69071415],
+    ...         [ 0.67660243, -0.1406784,   0.7227854 ]]
+    
+    >>> getangle(axisP,axisD) #doctest: +NORMALIZE_WHITESPACE
+    [-175.6518348318989, -39.63221919951575, 100.26684770068714]    
     """
     # this is the angle calculation which order is Y-X-Z
     
