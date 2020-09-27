@@ -2142,6 +2142,31 @@ def findJointC(a, b, c, delta):
     return mr
 
 def cross(a, b):
+    """Calculate the cross product function
+    
+    Given vectors a and b, calculate the cross product.
+    
+    Parameters
+    ----------
+    a : array
+        First vector x,y,z positions.
+    b : array 
+        Second vector x,y,z positions.
+    
+    Returns
+    -------
+    c : array
+        The cross product of vector a and vector b.
+
+    Example
+    -------
+    >>> import numpy as np
+    >>> a = [6.25286248, 7.91367254, 18.63620527]
+    >>> b = [3.49290439, 4.42038315, 19.23948238]
+
+    >>> cross(a, b) #doctest: +NORMALIZE_WHITESPACE
+    [69.87579563897063, -55.207354307998955, -0.001653610129238814]      
+    """
     c = [a[1]*b[2] - a[2]*b[1],
         a[2]*b[0] - a[0]*b[2],
         a[0]*b[1] - a[1]*b[0]]
@@ -2149,6 +2174,41 @@ def cross(a, b):
     return c
 
 def getPelangle(axisP,axisD):
+    """Pelvis angle calculation function.
+    
+    This function takes in two axis and returns three angles.
+    and It uses the inverse Euler rotation matrix in YXZ order.
+    the output shows the angle in degrees.
+    
+    Parameters
+    ----------
+    axisP, axisD : array
+        Each axis show the unit vector of axis.
+           axisP = [[axisP-x axis x,y,z position],
+                    [axisP-y axis x,y,z position],
+                    [axisP-z axis x,y,z position]]  
+           axisD = [[axisD-x axis x,y,z position],
+                    [axisD-y axis x,y,z position],
+                    [axisD-z axis x,y,z position]]
+    Returns
+    -------
+    angle : array
+        These angles are show on degree.
+            angle = [gamma,beta,alpha]
+    
+    Example
+    -------
+    >>> import numpy as np            
+    >>> axisP = [[ 0.0464229, 0.99648672, 0.06970743],
+    ...        [ 0.99734011, -0.04231089, -0.05935067],
+    ...       [-0.05619277,  0.07227725, -0.99580037]]
+    >>> axisD = [[-0.18067218, -0.98329158, -0.02225371],
+    ...        [ 0.71383942, -0.1155303, -0.69071415],
+    ...        [ 0.67660243, -0.1406784, 0.7227854 ]]
+
+    >>> getPelangle(axisP,axisD)  #doctest: +NORMALIZE_WHITESPACE
+    [-175.6518348318989, 39.63221917535683, -10.266847700687125]
+    """
     # this is the angle calculation which order is Y-X-Z
     
     # alpha is abdcution angle. 
@@ -2169,7 +2229,41 @@ def getPelangle(axisP,axisD):
     return angle
     
 def getHeadangle(axisP,axisD):
+    """Head angle calculation function.
     
+    This function takes in two axis and returns three angles.
+    and It uses the inverse Euler rotation matrix in YXZ order.
+    the output shows the angle in degrees.
+    
+    Parameters
+    ----------
+    axisP, axisD : array
+        Each axis show the unit vector of axis.
+           axisP = [[axisP-x axis x,y,z position],
+                    [axisP-y axis x,y,z position],
+                    [axisP-z axis x,y,z position]]  
+           axisD = [[axisD-x axis x,y,z position],
+                    [axisD-y axis x,y,z position],
+                    [axisD-z axis x,y,z position]]
+    Returns
+    -------
+    angle : array
+        These angles are show on degree.
+            angle = [gamma,beta,alpha]
+    
+    Example
+    -------
+    >>> import numpy as np            
+    >>> axisP = [[ 0.0464229, 0.99648672, 0.06970743],
+    ...        [ 0.99734011, -0.04231089, -0.05935067],
+    ...       [-0.05619277,  0.07227725, -0.99580037]]
+    >>> axisD = [[-0.18067218, -0.98329158, -0.02225371],
+    ...        [ 0.71383942, -0.1155303, -0.69071415],
+    ...        [ 0.67660243, -0.1406784, 0.7227854 ]]
+
+    >>> getHeadangle(axisP,axisD)  #doctest: +NORMALIZE_WHITESPACE
+    [184.3481651681011, -39.63221893711292, -190.26684770068712]
+    """
     # this is the angle calculation which order is Y-X-Z
     
     # alpha is abdcution angle. 
