@@ -1,13 +1,41 @@
+"""This file is used for calculating cluster transformations to apply
+in the case of a missing marker.
+
+It is used in:
+pycgmStatic.py - lines 105-115
+pycgmCalc.py - lines 132-133
+pycgmCalc.py - lines 142-181
+
+"""
+
 #plotting 
 import numpy as np
 
-#This file is used for calculating cluster transformations to apply in the case of a missing marker
-# it is used in:
-#pycgmStatic.py - lines 105-115
-#pycgmCalc.py - lines 132-133
-#pycgmCalc.py - lines 142-181
-
 def normalize(v):
+    """Normalizes an input vector
+
+    Parameters
+    ----------
+    v : ndarray
+        Input vector. 1-D list of floating point numbers.
+    
+    Returns
+    -------
+    ndarray
+        Normalized form of input vector `v`. Returns `v` if its norm is 0.
+
+    Examples
+    --------
+    >>> import numpy as np
+    >>> v = np.array([1.0, 2.0, 3.0])
+    >>> normalize(v)
+    array([0.26726124, 0.53452248, 0.80178373])
+    
+    >>> v = np.array([0, 0, 0])
+    >>> normalize(v)
+    array([0, 0, 0])
+
+    """
     norm = np.linalg.norm(v)
     if norm == 0: 
        return v
@@ -155,3 +183,4 @@ def segment_dict():
     segmentDict['LHum'] = ['LMELB','LSHO','LUPA']
     
     return segmentDict
+

@@ -59,16 +59,63 @@ SA=EJA
 EA=SA+72*3
 
 def createMotionDataDict(labels,data):
-	motiondata = []
-	for frame in data:
-		mydict={}
-		for label,xyz in zip(labels,frame):
-			l=str(label.rstrip())
-			mydict[l] = xyz
-		motiondata.append(mydict)
-	return motiondata
+    """Creates an array of motion capture data given labels and data
+
+    Arguments
+    ---------
+    labels : array
+        List of marker position names. Example:
+        ['LFHD', 'RFHD', 'LBHD', ...]
+    data : array
+        List of xyz coordinate positions corresponding to the marker
+        names in `labels`. Indices of `data` correspond to frames in the trial.
+        Example for two frames of trial: 
+            [[[x1, y1, z1], [x2, y2, z2], ...]], 
+             [[x1, y1, z1], [x2, y2, z2], ...]]]
+
+    Returns
+    -------
+    motiondata : array
+        List of dict. Indices of `motiondata` correspond to frames
+        in the trial. Keys in the dictionary are marker names and 
+        values are xyz coordinates of the corresponding marker.
+        Example for two frames of trial:
+            [{marker1_name : [x1, y1, z1], marker2_name: [x2, y2, z2], ...}
+             {marker1_name : [x1, y1, z1], marker2_name: [x2, y2, z2], ...}]
+
+    """
+    motiondata = []
+    for frame in data:
+        mydict={}
+        for label,xyz in zip(labels,frame):
+            l=str(label.rstrip())
+            mydict[l] = xyz
+        motiondata.append(mydict)
+    return motiondata
 
 def splitMotionDataDict(motiondata):
+    """Splits an array of motion capture data into separate labels and data
+
+    Arguments
+    ---------
+    motiondata : array
+        List of dict. Indices of `motiondata` correspond to frames
+        in the trial. Keys in the dictionary are marker names and 
+        values are xyz coordinates of the corresponding marker.
+        Example for two frames of trial:
+            [{marker1_name : [x1, y1, z1], marker2_name: [x2, y2, z2], ...}
+             {marker1_name : [x1, y1, z1], marker2_name: [x2, y2, z2], ...}]
+    
+    Returns
+    -------
+    tuple
+        Returns a tuple of `(labels, data)`. `labels` is a list of
+        marker position names from the dictionary keys in `motiondata`. 
+        `data` is a list of xyz coordinate positions corresponding 
+        to the marker names in `labels`. Indices of `data` correspond 
+        to frames in the trial.
+
+    """
     if pyver == 2:
         labels=motiondata[0].keys()
         data=np.zeros((len(motiondata),len(labels),3))
@@ -87,13 +134,55 @@ def splitMotionDataDict(motiondata):
         return labels,data
 
 def createVskDataDict(labels,data):
-	vsk={}
-	for key,data in zip(labels,data):
-		vsk[key]=data
-	return vsk
+    """Creates a dictionary of vsk file values from labels and data
+
+    Arguments
+    ---------
+    labels : array
+        list of label names for vsk file values. Example:
+            ['MeanLegLength', 'LeftKneeWidth', 'RightAnkleWidth', ...]
+    data : array
+        list of vsk file values corresponding to label names in `labels`.
+        Example: [940.0, 105.0, 70.0, ...]
+
+    Returns
+    -------
+    dict
+        dictionary of vsk file values. Dictionary keys correspond to 
+        names in `labels` and dictionary values correspond to values in 
+        `data`.
+    
+    Examples
+    --------
+    >>> labels = ['MeanLegLength', 'LeftKneeWidth', 'RightAnkleWidth']
+    >>> data = [940.0, 105.0, 70.0]
+    >>> createVskDataDict(labels, data)
+    {'MeanLegLength':940.0, 'LeftKneeWidth':105.0, 'RightAnkleWidth':70.0} 
+    """
+    vsk={}
+    for key,data in zip(labels,data):
+        vsk[key]=data
+    return vsk
 
 def splitVskDataDict(vsk):
-    if pyver == 2: return vsk.keys(),np.asarray(vsk.values())
+    """Splits a dictionary of vsk file values into labels and data arrays
+    
+    Arguments
+    ---------
+    vsk : dict
+        dictionary of vsk file values. Dictionary keys correspond to 
+        names in `labels` and dictionary values correspond to values in 
+        `data`.
+
+    Returns
+    -------
+    tuple
+        Returns a tuple: `(labels, data)`. `labels` is a list of label names
+        for vsk file values. `data` is a list holding the corresponding 
+        values.
+
+    """
+    if pyver == 2: return vsk.keys(),np.asarray(vsk.values())70.07070.070.0.0
     if pyver == 3: return list(vsk.keys()),np.asarray(list(vsk.values()))
 
 def markerKeys():
@@ -113,7 +202,8 @@ def loadEZC3D(filename):
     return [data,None,None]
 
 def loadC3D(filename):
-
+    """
+    """
     if useEZC3D == True:
         print("Using EZC3D")
         return loadEZC3D(filename)
