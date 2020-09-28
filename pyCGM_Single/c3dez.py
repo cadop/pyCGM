@@ -158,8 +158,4 @@ class C3DData ():
 				break
 
 
-if __name__ == "__main__":
-
-	C3DData (None, path_to_c3d)
-
 		
