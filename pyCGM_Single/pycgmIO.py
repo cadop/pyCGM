@@ -180,7 +180,7 @@ def splitVskDataDict(vsk):
         is a list holding the corresponding values.
 
     """
-    if pyver == 2: return vsk.keys(),np.asarray(vsk.values())70.07070.070.0.0
+    if pyver == 2: return vsk.keys(),np.asarray(vsk.values())
     if pyver == 3: return list(vsk.keys()),np.asarray(list(vsk.values()))
 
 def markerKeys():
@@ -200,7 +200,23 @@ def loadEZC3D(filename):
     return [data,None,None]
 
 def loadC3D(filename):
-    """
+    """Open and load a C3D file
+
+    Arguments
+    ---------
+    filename : str
+        File name of the C3D file to be loaded
+ 
+    Returns
+    -------
+    [data, dataunlabeled, markers] : array
+        `data` is a list of dict. Each dict represents one frame in 
+        the trial. Keys in the dictionaries are marker names, and 
+        values are a numpy array with the associated xyz coordinate:
+        [x, y, z]. `dataunlabeled` contains a list of dictionaries
+        of the same form as in `data`, but for unlabeled points. 
+        `markers` is a list of marker names. 
+    
     """
     if useEZC3D == True:
         print("Using EZC3D")
@@ -233,6 +249,24 @@ def loadC3D(filename):
     return [data,dataunlabeled,markers]
 
 def loadCSV(filename):
+    """Open and load a CSV file
+
+    Arguments
+    ---------
+    filename : str
+        File name of the CSV file to be loaded
+ 
+    Returns
+    -------
+    [motionData, unlabeledMotionData, labels] : array
+        `motionData` is a list of dict. Each dict represents one frame in 
+        the trial. Keys in the dictionaries are marker names, and 
+        values are a numpy array with the associated xyz coordinate:
+        [x, y, z]. `unlabeledMotionData` contains a list of dictionaries
+        of the same form as in `motionData`, but for unlabeled points. 
+        `labels` is a list of marker names. 
+    
+    """
     if filename == '':
         self.returnedData.emit(None)
     import numpy as np
