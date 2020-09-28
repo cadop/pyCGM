@@ -108,12 +108,11 @@ def splitMotionDataDict(motiondata):
     
     Returns
     -------
-    tuple
-        Returns a tuple of `(labels, data)`. `labels` is a list of
-        marker position names from the dictionary keys in `motiondata`. 
-        `data` is a list of xyz coordinate positions corresponding 
-        to the marker names in `labels`. Indices of `data` correspond 
-        to frames in the trial.
+    labels, data : tuple
+        `labels` is a list of marker position names from the dictionary
+        keys in `motiondata`. `data` is a list of xyz coordinate 
+        positions corresponding to the marker names in `labels`. 
+        Indices of `data` correspond to frames in the trial.
 
     """
     if pyver == 2:
@@ -176,10 +175,9 @@ def splitVskDataDict(vsk):
 
     Returns
     -------
-    tuple
-        Returns a tuple: `(labels, data)`. `labels` is a list of label names
-        for vsk file values. `data` is a list holding the corresponding 
-        values.
+    labels, data : tuple
+        `labels` is a list of label names for vsk file values. `data` 
+        is a list holding the corresponding values.
 
     """
     if pyver == 2: return vsk.keys(),np.asarray(vsk.values())70.07070.070.0.0
