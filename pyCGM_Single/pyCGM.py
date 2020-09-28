@@ -48,7 +48,7 @@ def pelvisJointCenter(frame):
     ---------- 
     frame : dict 
         Dictionaries of marker lists.
-            { [], [], [] }
+            { [], [], [], ...}
     
     Returns
     -------
@@ -62,7 +62,9 @@ def pelvisJointCenter(frame):
 
     Example
     -------
-    >>> import numpy as np
+    >>> import numpy as np 
+    >>> from math import *
+
     >>> frame = {'RASI': np.array([ 395.36532593,  428.09790039, 1036.82763672]), 
     ...          'LASI': np.array([ 183.18504333,  422.78927612, 1033.07299805]),
     ...          'RPSI': np.array([ 341.41815186,  246.72117615, 1055.99145508]), 
@@ -182,7 +184,9 @@ def hipJointCenter(frame,pel_origin,pel_x,pel_y,pel_z,vsk=None):
     
     Example
     -------
-    >>> import numpy as np
+    >>> import numpy as np 
+    >>> from math import *
+
     >>> frame = None
 
     >>> vsk = {'MeanLegLength': 940.0, 'R_AsisToTrocanterMeasure': 72.512, 'L_AsisToTrocanterMeasure': 72.512,
@@ -300,7 +304,9 @@ def hipAxisCenter(l_hip_jc,r_hip_jc,pelvis_axis):
 
     Example
     -------
-    >>> import numpy as np
+    >>> import numpy as np 
+    >>> from math import *
+
     >>> r_hip_jc = [182.57097863, 339.43231855, 935.529000126]
     >>> l_hip_jc = [308.38050472, 322.80342417, 937.98979061]
     >>> pelvis_axis = [np.array([251.60830688, 391.74131775, 1032.89349365]),
@@ -354,7 +360,7 @@ def kneeJointCenter(frame,hip_JC,delta,vsk=None):
     hip_JC : array
         An array of ankle_JC containing the x,y,z axes marker positions of the knee joint center. 
     delta : float
-        Get from subject measurement file
+        The length from marker to joint center, retrieved from subject measurement file
     vsk : dict, optional
         Dictionary of various attributes of the skeleton.
             { [], [], [], ... }
@@ -377,7 +383,9 @@ def kneeJointCenter(frame,hip_JC,delta,vsk=None):
 
     Example
     -------
-    >>> import numpy as np
+    >>> import numpy as np 
+    >>> from math import *
+
     >>> vsk = { 'RightKneeWidth' : 105.0, 'LeftKneeWidth' : 105.0 }
     >>> frame = { 'RTHI': np.array([426.50338745, 262.65310669, 673.66247559]),
     ...           'LTHI': np.array([51.93867874, 320.01849365, 723.03186035]),
@@ -519,7 +527,7 @@ def ankleJointCenter(frame,knee_JC,delta,vsk=None):
     knee_JC : array
         An array of knee_JC each x,y,z position.
     delta : float
-        delta = 0.0
+        The length from marker to joint center, retrieved from subject measurement file
     vsk : dict, optional
         Dictionary of various attributes of the skeleton.
             { [], [], [], ... }
@@ -538,7 +546,9 @@ def ankleJointCenter(frame,knee_JC,delta,vsk=None):
 
     Example
     -------
-    >>> import numpy as np
+    >>> import numpy as np 
+    >>> from math import *
+
     >>> vsk = { 'RightAnkleWidth' : 70.0, 'LeftAnkleWidth' : 70.0, 
     ...         'RightTibialTorsion': 0.0, 'LeftTibialTorsion' : 0.0}
     >>> frame = { 'RTIB': np.array([433.97537231, 211.93408203, 273.3008728]),
@@ -721,7 +731,7 @@ def footJointCenter(frame,vsk,ankle_JC,knee_JC,delta):
     ---------- 
     frame : dict 
         Dictionaries of marker lists.
-            { [], [], [] }
+            { [], [], [], ... }
     vsk : dict
         Dictionary of various attributes of the skeleton.
             { [], [], [], ... }
@@ -757,7 +767,9 @@ def footJointCenter(frame,vsk,ankle_JC,knee_JC,delta):
 
     Example
     -------
-    >>> import numpy as np
+    >>> import numpy as np 
+    >>> from math import *
+
     >>> vsk = { 'RightStaticRotOff' : 0.015683497632642047, 'LeftStaticRotOff': 0.009402910292403012,
     ...         'RightStaticPlantFlex' : 0.2702417907002758, 'LeftStaticPlantFlex': 0.20251085737834015}
     >>> frame = { 'RHEE': np.array([374.01257324, 181.57929993, 49.50960922]),
@@ -999,7 +1011,9 @@ def headJC(frame,vsk=None):
     
     Example
     -------
-    >>> import numpy as np
+    >>> import numpy as np 
+    >>> from math import *
+
     >>> vsk = { 'HeadOffset': 0.2571990469310653 }
     >>> frame = {'RFHD': np.array([325.82983398, 402.55450439, 1722.49816895]),
     ...          'LFHD': np.array([184.55158997, 409.68713379, 1721.34289551]),
@@ -1101,7 +1115,9 @@ def thoraxJC(frame):
     
     Example
     -------
-    >>> import numpy as np
+    >>> import numpy as np 
+    >>> from math import *
+
     >>> frame = {'C7': np.array([256.78051758, 371.28042603, 1459.70300293]),
     ...          'T10': np.array([228.64323425, 192.32041931, 1279.6418457]),
     ...          'CLAV': np.array([256.78051758, 371.28042603, 1459.70300293]),
@@ -1199,7 +1215,9 @@ def findwandmarker(frame,thorax):
     
     Example
     -------
-    >>> import numpy as np
+    >>> import numpy as np 
+    >>> from math import *
+
     >>> frame = {'RSHO': np.array([428.88496562, 270.552948, 1500.73010254]),
     ...          'LSHO': np.array([68.24668121, 269.01049805, 1510.1072998])}
     >>> thorax = [[[256.23991128535846, 365.30496976939753, 1459.662169500559],
@@ -1288,7 +1306,9 @@ def findshoulderJC(frame,thorax,wand,vsk=None):
     
     Example
     -------
-    >>> import numpy as np
+    >>> import numpy as np 
+    >>> from math import *
+
     >>> vsk = { 'RightShoulderOffset' : 40.0, 'LeftShoulderOffset' : 40.0 }
     >>> frame = {'RSHO': np.array([428.88496562, 270.552948, 1500.73010254]),
     ...          'LSHO': np.array([68.24668121, 269.01049805, 1510.1072998])}
@@ -1374,7 +1394,9 @@ def shoulderAxisCalc(frame,thorax,shoulderJC,wand):
 
     Example
     -------
-    >>> import numpy as np
+    >>> import numpy as np 
+    >>> from math import *
+
     >>> frame = None
     >>> thorax = [[[256.23991128535846, 365.30496976939753, 1459.662169500559],
     ...          [257.1435863244796, 364.21960599061947, 1459.5889787129829],
@@ -1504,7 +1526,9 @@ def elbowJointCenter(frame,thorax,shoulderJC,wand,vsk=None):
     
     Example
     -------
-    >>> import numpy as np
+    >>> import numpy as np 
+    >>> from math import *
+
     >>> frame = {'RSHO': np.array([428.88496562, 270.552948, 1500.73010254]),
     ...          'LSHO': np.array([68.24668121, 269.01049805, 1510.1072998]),
     ...          'RELB': np.array([658.90338135, 326.07580566, 1285.28515625]),
@@ -1803,7 +1827,9 @@ def wristJointCenter(frame,shoulderJC,wand,elbowJC):
     
     Example
     -------
-    >>> import numpy as np
+    >>> import numpy as np 
+    >>> from math import *
+
     >>> frame = {'RSHO': np.array([428.88496562, 270.552948, 1500.73010254]),
     ...          'LSHO': np.array([68.24668121, 269.01049805, 1510.1072998]),
     ...          'RELB': np.array([658.90338135, 326.07580566, 1285.28515625]),
@@ -1956,7 +1982,9 @@ def handJointCenter(frame,elbowJC,wristJC,vsk=None):
     
     Example
     -------
-    >>> import  numpy as np
+    >>> import numpy as np 
+    >>> from math import *
+
     >>> frame = {'RWRA': np.array([776.51898193,495.68103027, 1108.38464355]),
     ...          'RWRB': np.array([830.9072876, 436.75341797, 1119.11901855]),
     ...          'LWRA': np.array([-249.28146362, 525.32977295, 1117.09057617]),
@@ -2082,7 +2110,7 @@ def findJointC(a, b, c, delta):
     a,b,c : array 
         Three markers x,y,z position of a, b, c. 
     delta : float
-        The length from marker to joint center.
+        The length from marker to joint center, retrieved from subject measurement file.
     
     Returns
     -------
@@ -2092,7 +2120,9 @@ def findJointC(a, b, c, delta):
 
     Example
     -------
-    >>> import numpy as np
+    >>> import numpy as np 
+    >>> from math import *
+
     >>> a = [468.14532471, 325.09780884, 673.12591553]
     >>> b = [355.90861996, 365.38260964, 940.6974861]
     >>> c = [452.35180664, 329.0609436, 524.77893066]
@@ -2160,7 +2190,9 @@ def cross(a, b):
 
     Example
     -------
-    >>> import numpy as np
+    >>> import numpy as np 
+    >>> from math import *
+
     >>> a = [6.25286248, 7.91367254, 18.63620527]
     >>> b = [3.49290439, 4.42038315, 19.23948238]
 
@@ -2182,11 +2214,13 @@ def getPelangle(axisP,axisD):
     
     Parameters
     ----------
-    axisP, axisD : array
-        Each axis show the unit vector of axis.
+    axisP : array
+        Shows the unit vector of axisP.
            axisP = [[axisP-x axis x,y,z position],
                     [axisP-y axis x,y,z position],
                     [axisP-z axis x,y,z position]]  
+    axisD : array
+        Shows the unit vector of axisD.
            axisD = [[axisD-x axis x,y,z position],
                     [axisD-y axis x,y,z position],
                     [axisD-z axis x,y,z position]]
@@ -2198,7 +2232,9 @@ def getPelangle(axisP,axisD):
     
     Example
     -------
-    >>> import numpy as np            
+    >>> import numpy as np 
+    >>> from math import *
+
     >>> axisP = [[ 0.0464229, 0.99648672, 0.06970743],
     ...        [ 0.99734011, -0.04231089, -0.05935067],
     ...       [-0.05619277,  0.07227725, -0.99580037]]
@@ -2237,11 +2273,13 @@ def getHeadangle(axisP,axisD):
     
     Parameters
     ----------
-    axisP, axisD : array
-        Each axis show the unit vector of axis.
+    axisP : array
+        Shows the unit vector of axisP.
            axisP = [[axisP-x axis x,y,z position],
                     [axisP-y axis x,y,z position],
                     [axisP-z axis x,y,z position]]  
+    axisD : array
+        Shows the unit vector of axisD.
            axisD = [[axisD-x axis x,y,z position],
                     [axisD-y axis x,y,z position],
                     [axisD-z axis x,y,z position]]
@@ -2253,7 +2291,9 @@ def getHeadangle(axisP,axisD):
     
     Example
     -------
-    >>> import numpy as np            
+    >>> import numpy as np 
+    >>> from math import *
+
     >>> axisP = [[ 0.0464229, 0.99648672, 0.06970743],
     ...        [ 0.99734011, -0.04231089, -0.05935067],
     ...       [-0.05619277,  0.07227725, -0.99580037]]
@@ -2322,11 +2362,13 @@ def getangle_sho(axisP,axisD):
     
     Parameters
     ----------
-    axisP, axisD : array
-        each axis show the unit vector of axis.
+    axisP : array
+        Shows the unit vector of axisP.
            axisP = [[axisP-x axis x,y,z position],
                     [axisP-y axis x,y,z position],
                     [axisP-z axis x,y,z position]]  
+    axisD : array
+        Shows the unit vector of axisD.
            axisD = [[axisD-x axis x,y,z position],
                     [axisD-y axis x,y,z position],
                     [axisD-z axis x,y,z position]]
@@ -2338,7 +2380,9 @@ def getangle_sho(axisP,axisD):
     
     Example
     -------
-    >>> import numpy as np            
+    >>> import numpy as np 
+    >>> from math import *
+
     >>> axisP = [[ 0.0464229, 0.99648672, 0.06970743],
     ...        [ 0.99734011, -0.04231089, -0.05935067],
     ...       [-0.05619277,  0.07227725, -0.99580037]]
@@ -2372,11 +2416,13 @@ def getangle_spi(axisP,axisD):
     
     Parameters
     ----------
-    axisP, axisD : array
-        each axis show the unit vector of axis.
+    axisP : array
+        Shows the unit vector of axisP.
            axisP = [[axisP-x axis x,y,z position],
                     [axisP-y axis x,y,z position],
-                    [axisP-z axis x,y,z position]]
+                    [axisP-z axis x,y,z position]]  
+    axisD : array
+        Shows the unit vector of axisD.
            axisD = [[axisD-x axis x,y,z position],
                     [axisD-y axis x,y,z position],
                     [axisD-z axis x,y,z position]]
@@ -2388,7 +2434,9 @@ def getangle_spi(axisP,axisD):
     
     Example
     -------
-    >>> import numpy as np
+    >>> import numpy as np 
+    >>> from math import *
+
     >>> axisP = [[ 0.0464229,   0.99648672,  0.06970743],
     ...        [ 0.99734011, -0.04231089, -0.05935067],
     ...        [-0.05619277,  0.07227725, -0.99580037]]
@@ -2420,11 +2468,13 @@ def getangle(axisP,axisD):
     
     Parameters
     ----------
-    axisP, axisD : array
-        Each axis show the unit vector of axis.
+    axisP : array
+        Shows the unit vector of axisD.
             axisP = [[axisP-x axis x,y,z position],
                     [axisP-y axis x,y,z position],
                     [axisP-z axis x,y,z position]]
+    axisD : array
+        Shows the unit vector of axisD.
             axisD = [[axisD-x axis x,y,z position],
                     [axisD-y axis x,y,z position],
                     [axisD-z axis x,y,z position]]
@@ -2436,7 +2486,9 @@ def getangle(axisP,axisD):
     
     Example
     -------
-    >>> import numpy as np
+    >>> import numpy as np 
+    >>> from math import *
+
     >>> axisP = [[ 0.0464229,   0.99648672,  0.06970743],
     ...         [ 0.99734011, -0.04231089, -0.05935067],
     ...         [-0.05619277,  0.07227725, -0.99580037]]
@@ -2474,19 +2526,94 @@ def getangle(axisP,axisD):
     
     return angle
        
-def norm2d(v): 
+def norm2d(v):
+    """2D Vector normalization function
+    
+    This function calculates the normalization of a 3-dimensional vector.
+
+    Parameters
+    ----------
+    v : array
+        A 3-dimensional vector.
+            [ x, y, z ]
+
+    Returns
+    -------
+    float 
+        The normalization of the vector as a float.
+
+    Example
+    -------
+    >>> import numpy as np 
+    >>> from math import *
+               
+    >>> v = [105.141121037153, 101.890788777524, 326.7710280245359]
+
+    >>> norm2d(v)  #doctest: +NORMALIZE_WHITESPACE
+    358.07218954683884
+    """ 
     try:
         return sqrt((v[0]*v[0]+v[1]*v[1]+v[2]*v[2]))
     except:
         return np.nan   
 
 def norm3d(v): 
+    """3D Vector normalization function
+    
+    This function calculates the normalization of a 3-dimensional vector.
+
+    Parameters
+    ----------
+    v : array
+        A 3-dimensional vector.
+            [ x, y, z ]
+
+    Returns
+    -------
+    array 
+        The normalization of the vector returned as a float in an array.
+
+    Example
+    -------
+    >>> import numpy as np 
+    >>> from math import *
+               
+    >>> v = [125.44928201, 143.94301493, 213.49204956]
+
+    >>> norm3d(v)  #doctest: +NORMALIZE_WHITESPACE
+    array(286.4192192)
+    """ 
     try:
         return np.asarray(sqrt((v[0]*v[0]+v[1]*v[1]+v[2]*v[2])))
     except:
         return np.nan
         
 def normDiv(v):
+    """Normalized divison function
+    
+    This function calculates the normalization division of a 3-dimensional vector.
+
+    Parameters
+    ----------
+    v : array
+        A 3-dimensional vector.
+            [ x, y, z ]
+
+    Returns
+    -------
+    array 
+        The divison normalization of the vector returned as a float in an array.
+
+    Example
+    -------
+    >>> import numpy as np 
+    >>> from math import *
+               
+    >>> v = [1.44928201, 1.94301493, 2.49204956]
+
+    >>> normDiv(v)  #doctest: +NORMALIZE_WHITESPACE
+    [0.11991375545853512, 0.16076527243190078, 0.20619245907039865]
+    """ 
     try:
         vec = sqrt((v[0]*v[0]+v[1]*v[1]+v[2]*v[2]))
         v = [v[0]/vec,v[1]/vec,v[2]/vec]
@@ -2520,8 +2647,7 @@ def rotmat(x=0,y=0,z=0):
 
     
 def JointAngleCalc(frame,vsk):
-    """
-    Calculates the Joint angles of plugingait and stores the data in array
+    """Calculates the Joint angles of plugingait and stores the data in array
     
     Stores
         RPel_angle = []
