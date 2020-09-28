@@ -199,7 +199,7 @@ def Calc(start,end,data,vsk):
 
     Returns
     -------
-    tuple
+    angles, jcs : tuple
         Returns a tuple of `angles` and `jcs`. `angles` is an array 
         where each index of the returned array is a list of joint angle 
         values corresponding to a frame in the trial. `jcs` is an array
@@ -224,12 +224,12 @@ def calcFrames(data,vsk):
         as a 2 element array of [labels, data], where labels is a list of
         marker names and data is list of corresponding xyz coordinates. 
     vsk : dict or array
-        Dictionary containing vsk file values, or array of labels and 
-        data: [labels, data]. 
+        Dictionary containing vsk file values, or array of `labels` and 
+        `data`: `[labels, data]`. 
  
     Returns
     -------
-    tuple
+    angles, joints : tuple
         Returns a tuple of `angles` and `joints`. `angles` is an array 
         where each index of the returned array is a list of joint angle 
         values corresponding to a frame in the trial. `joints` is an array
