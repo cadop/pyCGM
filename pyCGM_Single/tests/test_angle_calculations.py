@@ -2,6 +2,8 @@ import unittest
 import pyCGM_Single.pyCGM as pyCGM
 import numpy as np
 
+rounding_precision = 8
+
 class TestCalculations(unittest.TestCase):
 
     def test_getangle_sho(self):
@@ -14,7 +16,7 @@ class TestCalculations(unittest.TestCase):
         expected = [-9.42569150165887, 130.86647058885387, -170.3887751198432]
 
         result = pyCGM.getangle_sho(axisP, axisD)
-        self.assertEqual(np.around(result, decimals=8).all(), np.around(expected, decimals=8).all())
+        np.testing.assert_almost_equal(result, expected, rounding_precision)
 
     def test_getangle_spi(self):
         axisP = [[0.13232935635315357104, 0.98562945782504129966, -0.10499292030749529658],
@@ -26,7 +28,7 @@ class TestCalculations(unittest.TestCase):
         expected = [-6.4797057790916615, -2.893068979100172, -4.638276625836626]
 
         result = pyCGM.getangle_spi(axisP, axisD)
-        self.assertEqual(np.around(result, decimals=8).all(), np.around(expected, decimals=8).all())
+        np.testing.assert_almost_equal(result, expected, rounding_precision)
 
     def test_getangle(self):
         axisP = [[1, 0, 0], [0, 1, 0], [0, 0, 1]]
@@ -36,4 +38,4 @@ class TestCalculations(unittest.TestCase):
         expected = [-0.30849491450945404, -6.121292793370006, 7.5714311021517124]
 
         result = pyCGM.getangle(axisP, axisD)
-        self.assertEqual(np.around(result, decimals=8).all(), np.around(expected, decimals=8).all())
+        np.testing.assert_almost_equal(result, expected, rounding_precision)
