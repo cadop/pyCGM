@@ -38,7 +38,7 @@ def pelvisJointCenter(frame):
     
     Markers used: RASI,LASI,RPSI,LPSI
     Other landmarks used: origin, sacrum
-    VSK values used: None
+    Subject Measurement values used: None
 
     Pelvis X_axis: Computed with a Gram-Schmidt orthogonalization procedure(ref. Kadaba 1990) and then normalized.
     Pelvis Y_axis: LASI-RASI x,y,z positions, then normalized.
@@ -64,6 +64,7 @@ def pelvisJointCenter(frame):
     -------
     >>> import numpy as np 
     >>> from math import *
+    >>> from pyCGM import *
 
     >>> frame = {'RASI': np.array([ 395.36532593,  428.09790039, 1036.82763672]), 
     ...          'LASI': np.array([ 183.18504333,  422.78927612, 1033.07299805]),
@@ -158,7 +159,7 @@ def hipJointCenter(frame,pel_origin,pel_x,pel_y,pel_z,vsk=None):
     Calculates the pelvis joint center and axis and returns both.
     
     Other landmarks used: origin, sacrum
-    VSK values used: MeanLegLength, R_AsisToTrocanterMeasure, InterAsisDistance, L_AsisToTrocanterMeasure
+    Subject Measurement values used: MeanLegLength, R_AsisToTrocanterMeasure, InterAsisDistance, L_AsisToTrocanterMeasure
 
     Hip Joint Center: Computed using Hip Joint Center Calculation (ref. Davis_1991)
 
@@ -186,9 +187,9 @@ def hipJointCenter(frame,pel_origin,pel_x,pel_y,pel_z,vsk=None):
     -------
     >>> import numpy as np 
     >>> from math import *
+    >>> from pyCGM import *
 
     >>> frame = None
-
     >>> vsk = {'MeanLegLength': 940.0, 'R_AsisToTrocanterMeasure': 72.512, 'L_AsisToTrocanterMeasure': 72.512,
     ...        'InterAsisDistance': 215.908996582031}
 
@@ -306,6 +307,7 @@ def hipAxisCenter(l_hip_jc,r_hip_jc,pelvis_axis):
     -------
     >>> import numpy as np 
     >>> from math import *
+    >>> from pyCGM import *
 
     >>> r_hip_jc = [182.57097863, 339.43231855, 935.529000126]
     >>> l_hip_jc = [308.38050472, 322.80342417, 937.98979061]
@@ -348,7 +350,7 @@ def kneeJointCenter(frame,hip_JC,delta,vsk=None):
     Calculates the knee joint axis and returns the knee origin and axis
 
     Markers used: RTHI, LTHI, RKNE, LKNE, hip_JC
-    VSK values used: RightKneeWidth, LeftKneeWidth
+    Subject Measurement values used: RightKneeWidth, LeftKneeWidth
 
     Knee joint center: Computed using Knee Axis Calculation(ref. Clinical Gait Analysis hand book, Baker2013)
     
@@ -385,6 +387,7 @@ def kneeJointCenter(frame,hip_JC,delta,vsk=None):
     -------
     >>> import numpy as np 
     >>> from math import *
+    >>> from pyCGM import *
 
     >>> vsk = { 'RightKneeWidth' : 105.0, 'LeftKneeWidth' : 105.0 }
     >>> frame = { 'RTHI': np.array([426.50338745, 262.65310669, 673.66247559]),
@@ -515,7 +518,7 @@ def ankleJointCenter(frame,knee_JC,delta,vsk=None):
     Calculates the ankle joint axis and returns the ankle origin and axis
     
     Markers used: tib_R, tib_L, ank_R, ank_L, knee_JC
-    VSK values used: RightKneeWidth, LeftKneeWidth
+    Subject Measurement values used: RightKneeWidth, LeftKneeWidth
 
     Ankle Axis: Computed using Ankle Axis Calculation(ref. Clinical Gait Analysis hand book, Baker2013).
     
@@ -548,6 +551,7 @@ def ankleJointCenter(frame,knee_JC,delta,vsk=None):
     -------
     >>> import numpy as np 
     >>> from math import *
+    >>> from pyCGM import *
 
     >>> vsk = { 'RightAnkleWidth' : 70.0, 'LeftAnkleWidth' : 70.0, 
     ...         'RightTibialTorsion': 0.0, 'LeftTibialTorsion' : 0.0}
@@ -725,7 +729,7 @@ def footJointCenter(frame,vsk,ankle_JC,knee_JC,delta):
 
     Markers used: RTOE,LTOE
     Other landmarks used: ANKLE_FLEXION_AXIS
-    VSK values used: RightStaticRotOff, RightStaticPlantFlex, LeftStaticRotOff, LeftStaticPlantFlex
+    Subject Measurement values used: RightStaticRotOff, RightStaticPlantFlex, LeftStaticRotOff, LeftStaticPlantFlex
         
     Parameters
     ---------- 
@@ -740,7 +744,7 @@ def footJointCenter(frame,vsk,ankle_JC,knee_JC,delta):
     knee_JC : array
         An array of ankle_JC containing the x,y,z axes marker positions of the knee joint center. 
     delta
-        delta = 0.0
+        The length from marker to joint center, retrieved from subject measurement file.
         
     Returns
     -------
@@ -769,6 +773,7 @@ def footJointCenter(frame,vsk,ankle_JC,knee_JC,delta):
     -------
     >>> import numpy as np 
     >>> from math import *
+    >>> from pyCGM import *
 
     >>> vsk = { 'RightStaticRotOff' : 0.015683497632642047, 'LeftStaticRotOff': 0.009402910292403012,
     ...         'RightStaticPlantFlex' : 0.2702417907002758, 'LeftStaticPlantFlex': 0.20251085737834015}
@@ -989,7 +994,7 @@ def headJC(frame,vsk=None):
     Calculates the head joint center and returns the head joint center and axis.
     
     Markers used: LFHD, RFHD, LBHD, RBHD
-    VSK values used: HeadOffset
+    Subject Measurement values used: HeadOffset
 
     Parameters
     ----------
@@ -1013,6 +1018,7 @@ def headJC(frame,vsk=None):
     -------
     >>> import numpy as np 
     >>> from math import *
+    >>> from pyCGM import *
 
     >>> vsk = { 'HeadOffset': 0.2571990469310653 }
     >>> frame = {'RFHD': np.array([325.82983398, 402.55450439, 1722.49816895]),
@@ -1117,6 +1123,7 @@ def thoraxJC(frame):
     -------
     >>> import numpy as np 
     >>> from math import *
+    >>> from pyCGM import *
 
     >>> frame = {'C7': np.array([256.78051758, 371.28042603, 1459.70300293]),
     ...          'T10': np.array([228.64323425, 192.32041931, 1279.6418457]),
@@ -1215,8 +1222,9 @@ def findwandmarker(frame,thorax):
     
     Example
     -------
-    >>> import numpy as np 
+    >>> import numpy as np
     >>> from math import *
+    >>> from pyCGM import *
 
     >>> frame = {'RSHO': np.array([428.88496562, 270.552948, 1500.73010254]),
     ...          'LSHO': np.array([68.24668121, 269.01049805, 1510.1072998])}
@@ -1275,7 +1283,7 @@ def findshoulderJC(frame,thorax,wand,vsk=None):
     Calculate each shoulder joint center and returns it.
 
     Markers used: RSHO, LSHO
-    VSK values used: RightShoulderOffset, LeftShoulderOffset
+    Subject Measurement values used: RightShoulderOffset, LeftShoulderOffset
 
     Parameters
     ----------
@@ -1308,6 +1316,7 @@ def findshoulderJC(frame,thorax,wand,vsk=None):
     -------
     >>> import numpy as np 
     >>> from math import *
+    >>> from pyCGM import *
 
     >>> vsk = { 'RightShoulderOffset' : 40.0, 'LeftShoulderOffset' : 40.0 }
     >>> frame = {'RSHO': np.array([428.88496562, 270.552948, 1500.73010254]),
@@ -1381,7 +1390,7 @@ def shoulderAxisCalc(frame,thorax,shoulderJC,wand):
     
     Returns
     ------- 
-    array
+    [shoulderJC,axis] : array
         Returns the Shoulder joint center and axis in three array
             shoulder_JC = [[[[R_shoulder x axis, x,y,z position],
                         [R_shoulder y axis, x,y,z position],
@@ -1396,6 +1405,7 @@ def shoulderAxisCalc(frame,thorax,shoulderJC,wand):
     -------
     >>> import numpy as np 
     >>> from math import *
+    >>> from pyCGM import *
 
     >>> frame = None
     >>> thorax = [[[256.23991128535846, 365.30496976939753, 1459.662169500559],
@@ -1483,7 +1493,7 @@ def elbowJointCenter(frame,thorax,shoulderJC,wand,vsk=None):
     Calculate each elbow joint axis and returns it.
 
     Markers used: RSHO, LSHO, RELB, LELB, RWRA ,RWRB, LWRA, LWRB
-    VSK values used: RightElbowWidth, LeftElbowWidth
+    Subject Measurement values used: RightElbowWidth, LeftElbowWidth
 
     Parameters
     ---------- 
@@ -1511,7 +1521,7 @@ def elbowJointCenter(frame,thorax,shoulderJC,wand,vsk=None):
     
     Returns
     -------
-    array 
+    [origin,axis,wrist_O] : array 
         Returns the Shoulder joint center and axis in three array.
                 elbow_JC = [[R_elbow_JC_x, R_elbow_JC_y, R_elbow_JC_z],
                             [L_elbow_JC_x,L_elbow_JC_y,L_elbow_JC_z]
@@ -1528,6 +1538,7 @@ def elbowJointCenter(frame,thorax,shoulderJC,wand,vsk=None):
     -------
     >>> import numpy as np 
     >>> from math import *
+    >>> from pyCGM import *
 
     >>> frame = {'RSHO': np.array([428.88496562, 270.552948, 1500.73010254]),
     ...          'LSHO': np.array([68.24668121, 269.01049805, 1510.1072998]),
@@ -1815,7 +1826,8 @@ def wristJointCenter(frame,shoulderJC,wand,elbowJC):
     
     Returns
     --------
-    array Returns the Shoulder joint center and axis in three array
+    [origin, axis] : array 
+        Returns the Shoulder joint center and axis in three array
             wrist_JC = [[R_wrist_JC_x, R_wrist_JC_y, R_wrist_JC_z],
                         [L_wrist_JC_x,L_wrist_JC_y,L_wrist_JC_z],
                         [[[R_wrist x axis, x,y,z position],
@@ -1829,6 +1841,7 @@ def wristJointCenter(frame,shoulderJC,wand,elbowJC):
     -------
     >>> import numpy as np 
     >>> from math import *
+    >>> from pyCGM import *
 
     >>> frame = {'RSHO': np.array([428.88496562, 270.552948, 1500.73010254]),
     ...          'LSHO': np.array([68.24668121, 269.01049805, 1510.1072998]),
@@ -1934,7 +1947,7 @@ def handJointCenter(frame,elbowJC,wristJC,vsk=None):
     Calculate each Hand joint axis and returns it.
 
     Markers used: RWRA, RWRB, LWRA, LWRB, RFIN, LFIN
-    VSK values used: RightHandThickness, LeftHandThickness
+    Subject Measurement values used: RightHandThickness, LeftHandThickness
 
     Parameters
     ---------- 
@@ -1969,7 +1982,7 @@ def handJointCenter(frame,elbowJC,wristJC,vsk=None):
     
     Returns
     ------- 
-    array
+    [origin, axis] : array
         Returns the hand joint center and axis in three array
             hand_JC = [[R_hand_JC_x, R_hand_JC_y, R_hand_JC_z],
                         [L_hand_JC_x,L_hand_JC_y,L_hand_JC_z],
@@ -1984,6 +1997,7 @@ def handJointCenter(frame,elbowJC,wristJC,vsk=None):
     -------
     >>> import numpy as np 
     >>> from math import *
+    >>> from pyCGM import *
 
     >>> frame = {'RWRA': np.array([776.51898193,495.68103027, 1108.38464355]),
     ...          'RWRB': np.array([830.9072876, 436.75341797, 1119.11901855]),
@@ -2121,7 +2135,8 @@ def findJointC(a, b, c, delta):
     Example
     -------
     >>> import numpy as np 
-    >>> from math import *
+    >>> import math
+    >>> from pyCGM import *
 
     >>> a = [468.14532471, 325.09780884, 673.12591553]
     >>> b = [355.90861996, 365.38260964, 940.6974861]
@@ -2190,9 +2205,6 @@ def cross(a, b):
 
     Example
     -------
-    >>> import numpy as np 
-    >>> from math import *
-
     >>> a = [6.25286248, 7.91367254, 18.63620527]
     >>> b = [3.49290439, 4.42038315, 19.23948238]
 
@@ -2234,6 +2246,7 @@ def getPelangle(axisP,axisD):
     -------
     >>> import numpy as np 
     >>> from math import *
+    >>> from pyCGM import *
 
     >>> axisP = [[ 0.0464229, 0.99648672, 0.06970743],
     ...        [ 0.99734011, -0.04231089, -0.05935067],
@@ -2623,6 +2636,37 @@ def normDiv(v):
     return [v[0]/vec,v[1]/vec,v[2]/vec]
 
 def matrixmult (A, B):
+    """Matrix multiplication function
+    
+    This function returns the product of a matrix multiplication given two matrices. 
+    
+    Let the dimension of the matrix A be: m by n, 
+    let the dimension of the matrix B be: p by q, 
+    multiplication will only possible if n = p,
+    creating a matrix of m by q size.
+
+    Parameters
+    ----------
+    A : array
+        First matrix, in a 2D array format.
+    B : array
+        Second matrix, in a 2D array format.
+
+    Returns
+    -------
+    C : array 
+        The product of the matrix multiplication.
+
+    Example
+    -------              
+    >>> A = [[11,12,13],[14,15,16]]
+    >>> B = [[1,2],[3,4],[5,6]]
+
+    >>> matrixmult(A, B)  #doctest: +NORMALIZE_WHITESPACE
+    [[112, 148], 
+    [139, 184]]
+    """ 
+
     C = [[0 for row in range(len(A))] for col in range(len(B[0]))]
     for i in range(len(A)):
         for j in range(len(B[0])):
@@ -2631,6 +2675,48 @@ def matrixmult (A, B):
     return C
     
 def rotmat(x=0,y=0,z=0):
+    """Rotation Matrix function
+    
+    This function creates and returns a rotation matrix.
+
+    Parameters
+    ----------
+    x,y,z : float, optional
+        Angle, which will be converted to radians, in
+        each respective axis to describe the rotations. 
+        The default is 0 for each unspecified angle.
+    
+    Returns
+    -------
+    Rxyz : array 
+        The product of the matrix multiplication.
+
+    Example
+    -------
+    >>> import numpy as np
+    >>> import math
+
+    >>> x = 0.5
+    >>> y = 0.3
+    >>> z = 0.8
+
+    >>> rotmat(x,y,z) #doctest: +NORMALIZE_WHITESPACE
+    [[0.9998888175929077, -0.0139619889490318, 0.00523596383141958], 
+    [0.01400733607248772, 0.9998638128275725, -0.008726415877184502], 
+    [-0.005113412638268541, 0.008798787558312074, 0.9999482158335473]]
+
+    >>> x = 0.5
+    [[1.0, 0.0, 0.0], 
+    [0.0, 0.9999619230641713, -0.008726535498373935], 
+    [0.0, 0.008726535498373935, 0.9999619230641713]]
+
+    >>> x = 1
+    >>> y = 1
+    >>> rotmat(x,y) #doctest: +NORMALIZE_WHITESPACE
+    [[0.9998476951563913, 0.0, 0.01745240643728351], 
+    [0.00030458649045213493, 0.9998476951563913, -0.017449748351250485], 
+    [-0.017449748351250485, 0.01745240643728351, 0.9996954135095479]]
+    """ 
     x = math.radians(x)
     y = math.radians(y)
     z = math.radians(z)
@@ -2647,8 +2733,8 @@ def rotmat(x=0,y=0,z=0):
 
     
 def JointAngleCalc(frame,vsk):
-    """Calculates the Joint angles of plugingait and stores the data in array
-    
+    """ Joint Angle Calculation function
+    Calculates the Joint angles of plugingait and stores the data in array
     Stores
         RPel_angle = []
         LPel_angle = []
@@ -2680,6 +2766,24 @@ def JointAngleCalc(frame,vsk):
                                                     [[L_Xaxis_x,L_Xaxis_y,L_Xaxis_z],
                                                     [L_Yaxis_x,L_Yaxis_y,L_Yaxis_z],
                                                     [L_Zaxis_x,L_Zaxis_y,L_Zaxis_z]]]]
+    
+    Markers used: RHEE. LHEE, LFHD, RFHD, LBHD, RBHD, C7, CLAV, STRN, T10
+    Subject Measurement value used: GCS
+
+    Parameters
+    ----------
+    frame : dict 
+        Dictionaries of marker lists.
+            { [], [], [], ... }      
+    vsk : dict, optional
+        Dictionary of various attributes of the skeleton.
+            { [], [], [], ... }
+    
+    Returns
+    -------
+    r, jc : tuple 
+        Returns r, the result of all the joint calculations, 
+        and jc, a dictionary for joint centers.
     """
     
     # THIS IS FOOT PROGRESS ANGLE
