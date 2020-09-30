@@ -84,14 +84,14 @@ def createMotionDataDict(labels,data):
              {marker1_name : [x1, y1, z1], marker2_name: [x2, y2, z2], ...}]
 
     """
-    motiondata = []
-    for frame in data:
-        mydict={}
-        for label,xyz in zip(labels,frame):
-            l=str(label.rstrip())
-            mydict[l] = xyz
-        motiondata.append(mydict)
-    return motiondata
+	motiondata = []
+	for frame in data:
+		mydict={}
+		for label,xyz in zip(labels,frame):
+			l=str(label.rstrip())
+			mydict[l] = xyz
+		motiondata.append(mydict)
+	return motiondata
 
 def splitMotionDataDict(motiondata):
     """Splits an array of motion capture data into separate labels and data
@@ -158,10 +158,10 @@ def createVskDataDict(labels,data):
     >>> createVskDataDict(labels, data)
     {'MeanLegLength':940.0, 'LeftKneeWidth':105.0, 'RightAnkleWidth':70.0} 
     """
-    vsk={}
-    for key,data in zip(labels,data):
-        vsk[key]=data
-    return vsk
+	vsk={}
+	for key,data in zip(labels,data):
+		vsk[key]=data
+	return vsk
 
 def splitVskDataDict(vsk):
     """Splits a dictionary of vsk file values into labels and data arrays
