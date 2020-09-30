@@ -59,31 +59,31 @@ SA=EJA
 EA=SA+72*3
 
 def createMotionDataDict(labels,data):
-    """Creates an array of motion capture data given labels and data
+	"""Creates an array of motion capture data given labels and data
 
-    Arguments
-    ---------
-    labels : array
-        List of marker position names. Example:
-        ['LFHD', 'RFHD', 'LBHD', ...]
-    data : array
-        List of xyz coordinate positions corresponding to the marker
-        names in `labels`. Indices of `data` correspond to frames in the trial.
-        Example for two frames of trial: 
-            [[[x1, y1, z1], [x2, y2, z2], ...]], 
-             [[x1, y1, z1], [x2, y2, z2], ...]]]
+	Arguments
+	---------
+	labels : array
+		List of marker position names. Example:
+		['LFHD', 'RFHD', 'LBHD', ...]
+	data : array
+		List of xyz coordinate positions corresponding to the marker
+		names in `labels`. Indices of `data` correspond to frames in the trial.
+		Example for two frames of trial: 
+		    [[[x1, y1, z1], [x2, y2, z2], ...]], 
+		     [[x1, y1, z1], [x2, y2, z2], ...]]]
 
-    Returns
-    -------
-    motiondata : array
-        List of dict. Indices of `motiondata` correspond to frames
-        in the trial. Keys in the dictionary are marker names and 
-        values are xyz coordinates of the corresponding marker.
-        Example for two frames of trial:
-            [{marker1_name : [x1, y1, z1], marker2_name: [x2, y2, z2], ...}
-             {marker1_name : [x1, y1, z1], marker2_name: [x2, y2, z2], ...}]
+	Returns
+	-------
+	motiondata : array
+		List of dict. Indices of `motiondata` correspond to frames
+		in the trial. Keys in the dictionary are marker names and 
+		values are xyz coordinates of the corresponding marker.
+		Example for two frames of trial:
+		    [{marker1_name : [x1, y1, z1], marker2_name: [x2, y2, z2], ...}
+		     {marker1_name : [x1, y1, z1], marker2_name: [x2, y2, z2], ...}]
 
-    """
+	"""
 	motiondata = []
 	for frame in data:
 		mydict={}
@@ -133,31 +133,33 @@ def splitMotionDataDict(motiondata):
         return labels,data
 
 def createVskDataDict(labels,data):
-    """Creates a dictionary of vsk file values from labels and data
+	"""Creates a dictionary of vsk file values from labels and data
 
-    Arguments
-    ---------
-    labels : array
-        list of label names for vsk file values. Example:
-            ['MeanLegLength', 'LeftKneeWidth', 'RightAnkleWidth', ...]
-    data : array
-        list of vsk file values corresponding to label names in `labels`.
-        Example: [940.0, 105.0, 70.0, ...]
+	Arguments
+	---------
+	labels : array
+		list of label names for vsk file values. Example:
+	    	['MeanLegLength', 'LeftKneeWidth', 'RightAnkleWidth', ...]
+	data : array
+		list of vsk file values corresponding to label names in `labels`.
+		Example: [940.0, 105.0, 70.0, ...]
 
-    Returns
-    -------
-    dict
-        dictionary of vsk file values. Dictionary keys correspond to 
-        names in `labels` and dictionary values correspond to values in 
-        `data`.
-    
-    Examples
-    --------
-    >>> labels = ['MeanLegLength', 'LeftKneeWidth', 'RightAnkleWidth']
-    >>> data = [940.0, 105.0, 70.0]
-    >>> createVskDataDict(labels, data)
-    {'MeanLegLength':940.0, 'LeftKneeWidth':105.0, 'RightAnkleWidth':70.0} 
-    """
+	Returns
+	-------
+	dict
+		dictionary of vsk file values. Dictionary keys correspond to 
+		names in `labels` and dictionary values correspond to values in 
+		`data`.
+
+	Examples
+	--------
+	>>> labels = ['MeanLegLength', 'LeftKneeWidth', 'RightAnkleWidth']
+	>>> data = [940.0, 105.0, 70.0]
+	>>> res = createVskDataDict(labels, data)
+	>>> res == {'MeanLegLength':940.0, 'LeftKneeWidth':105.0, 'RightAnkleWidth':70.0}
+	True
+
+	"""
 	vsk={}
 	for key,data in zip(labels,data):
 		vsk[key]=data
