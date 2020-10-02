@@ -64,14 +64,10 @@ def createMotionDataDict(labels,data):
 	Arguments
 	---------
 	labels : array
-		List of marker position names. Example:
-		['LFHD', 'RFHD', 'LBHD', ...]
+		List of marker position names. 
 	data : array
-		List of xyz coordinate positions corresponding to the marker
-		names in `labels`. Indices of `data` correspond to frames in the trial.
-		Example for two frames of trial: 
-		    [[[x1, y1, z1], [x2, y2, z2], ...]], 
-		     [[x1, y1, z1], [x2, y2, z2], ...]]]
+		List of xyz coordinates corresponding to the marker names in `labels`. 
+		Indices of `data` correspond to frames in the trial.
 
 	Returns
 	-------
@@ -79,9 +75,29 @@ def createMotionDataDict(labels,data):
 		List of dict. Indices of `motiondata` correspond to frames
 		in the trial. Keys in the dictionary are marker names and 
 		values are xyz coordinates of the corresponding marker.
-		Example for two frames of trial:
-		    [{marker1_name : [x1, y1, z1], marker2_name: [x2, y2, z2], ...}
-		     {marker1_name : [x1, y1, z1], marker2_name: [x2, y2, z2], ...}]
+    
+	Examples
+	--------
+	This example uses a loop and numpy.array_equal to test the equality
+	of individual dictionary elements since python does not guarantee 
+	the order in which dictionary elements are printed. 
+
+	>>> from numpy import array, array_equal #used to compare numpy arrays
+	>>> labels = ['LFHD', 'RFHD', 'LBHD']
+	>>> data = [[array([184.55160796, 409.68716101, 1721.34289625]), 
+	...          array([325.82985131, 402.55452959, 1722.49816649]), 
+	...          array([197.8621642 , 251.28892152, 1696.90197756])]]
+	>>> result = createMotionDataDict(labels, data)
+	>>> expected = [{'RFHD': array([325.82985131, 402.55452959, 1722.49816649]), 
+	...              'LBHD': array([197.8621642 , 251.28892152, 1696.90197756]),
+	...              'LFHD': array([184.55160796, 409.68716101, 1721.34289625])}]
+	>>> flag = True #False if any values are not equal
+	>>> for i in range(len(result)):
+	...     for key in result[i]:
+	...         if (not array_equal(result[i][key], expected[i][key])):
+	...             flag = False
+	>>> flag
+	True
 
 	"""
 	motiondata = []
@@ -102,10 +118,7 @@ def splitMotionDataDict(motiondata):
         List of dict. Indices of `motiondata` correspond to frames
         in the trial. Keys in the dictionary are marker names and 
         values are xyz coordinates of the corresponding marker.
-        Example for two frames of trial:
-            [{marker1_name : [x1, y1, z1], marker2_name: [x2, y2, z2], ...}
-             {marker1_name : [x1, y1, z1], marker2_name: [x2, y2, z2], ...}]
-    
+
     Returns
     -------
     labels, data : tuple
@@ -114,6 +127,20 @@ def splitMotionDataDict(motiondata):
         positions corresponding to the marker names in `labels`. 
         Indices of `data` correspond to frames in the trial.
 
+    Examples
+    --------
+    >>> from numpy import array
+    >>> motiondata = [{'RFHD': array([325.82985131, 402.55452959, 1722.49816649]), 
+    ...                'LFHD': array([184.55160796, 409.68716101, 1721.34289625]),
+    ...                'LBHD': array([197.8621642 , 251.28892152, 1696.90197756])}]
+    >>> labels, data = splitMotionDataDict(motiondata)
+    >>> labels
+    ['RFHD', 'LFHD', 'LBHD']
+    >>> data
+    array([[[ 325.82985131,  402.55452959, 1722.49816649],
+            [ 184.55160796,  409.68716101, 1721.34289625],
+            [ 197.8621642 ,  251.28892152, 1696.90197756]]])
+    
     """
     if pyver == 2:
         labels=motiondata[0].keys()
@@ -139,20 +166,22 @@ def createVskDataDict(labels,data):
 	---------
 	labels : array
 		list of label names for vsk file values. Example:
-	    	['MeanLegLength', 'LeftKneeWidth', 'RightAnkleWidth', ...]
 	data : array
 		list of vsk file values corresponding to label names in `labels`.
-		Example: [940.0, 105.0, 70.0, ...]
 
 	Returns
 	-------
-	dict
+	vsk : dict
 		dictionary of vsk file values. Dictionary keys correspond to 
 		names in `labels` and dictionary values correspond to values in 
 		`data`.
 
 	Examples
 	--------
+	This example tests for dictionary equality through python instead of 
+	doctest since python does not guarantee the order in which dictionary 
+	elements are printed.
+
 	>>> labels = ['MeanLegLength', 'LeftKneeWidth', 'RightAnkleWidth']
 	>>> data = [940.0, 105.0, 70.0]
 	>>> res = createVskDataDict(labels, data)
@@ -167,6 +196,10 @@ def createVskDataDict(labels,data):
 
 def splitVskDataDict(vsk):
     """Splits a dictionary of vsk file values into labels and data arrays
+   
+    The order of the returned values may vary depending on the version of 
+    python being used, but indices of `labels` will still correspond to 
+    indices of `data`, regardless of the python version. See Examples.
     
     Arguments
     ---------
@@ -179,13 +212,48 @@ def splitVskDataDict(vsk):
     -------
     labels, data : tuple
         `labels` is a list of label names for vsk file values. `data` 
-        is a list holding the corresponding values.
+        is a numpy array holding the corresponding values.
+
+    Examples
+    --------
+    >>> from numpy import array, array_equal #used to compare numpy arrays
+    >>> import sys
+    >>> pyver = sys.version_info[0]
+    >>> vsk = {'MeanLegLength':940.0, 'LeftKneeWidth':105.0, 'RightAnkleWidth':70.0}
+    >>> labels, data = splitVskDataDict(vsk)
+
+    >>> py2labels = ['RightAnkleWidth', 'LeftKneeWidth', 'MeanLegLength']
+    >>> py2data = array([ 70., 105., 940.])
+    >>> py3labels = ['MeanLegLength', 'LeftKneeWidth', 'RightAnkleWidth']
+    >>> py3data = array([940., 105.,  70.])
+
+    >>> if (pyver == 2): 
+    ...     labels == py2labels and array_equal(data, py2data)
+    ... elif (pyver == 3):
+    ...     labels == py3labels and array_equal(data, py3data)
+    True
 
     """
     if pyver == 2: return vsk.keys(),np.asarray(vsk.values())
     if pyver == 3: return list(vsk.keys()),np.asarray(list(vsk.values()))
 
 def markerKeys():
+    """A list of marker names
+
+    Returns
+    -------
+    marker_keys : array
+        List of marker names.
+
+    Examples
+    --------
+    >>> markerKeys() #doctest: +NORMALIZE_WHITESPACE
+    ['RASI', 'LASI', 'RPSI', 'LPSI', 'RTHI', 'LTHI', 'RKNE', 'LKNE', 'RTIB',
+     'LTIB', 'RANK', 'LANK', 'RTOE', 'LTOE', 'LFHD', 'RFHD', 'LBHD', 'RBHD', 
+     'RHEE', 'LHEE', 'CLAV', 'C7', 'STRN', 'T10', 'RSHO', 'LSHO', 'RELB', 'LELB', 
+     'RWRA', 'RWRB', 'LWRA', 'LWRB', 'RFIN', 'LFIN']
+
+    """
     marker_keys = ['RASI','LASI','RPSI','LPSI','RTHI','LTHI','RKNE','LKNE','RTIB',
                'LTIB','RANK','LANK','RTOE','LTOE','LFHD','RFHD','LBHD','RBHD',
                'RHEE','LHEE','CLAV','C7','STRN','T10','RSHO','LSHO','RELB','LELB',
@@ -202,7 +270,12 @@ def loadEZC3D(filename):
     return [data,None,None]
 
 def loadC3D(filename):
-    """Open and load a C3D file
+    """Open and load a C3D file of motion capture data
+
+    Keys in the returned data dictionaries are marker names, and 
+    the corresponding values are a numpy array with the associated
+    value.
+        array([x, y, z])
 
     Arguments
     ---------
@@ -213,12 +286,35 @@ def loadC3D(filename):
     -------
     [data, dataunlabeled, markers] : array
         `data` is a list of dict. Each dict represents one frame in 
-        the trial. Keys in the dictionaries are marker names, and 
-        values are a numpy array with the associated xyz coordinate:
-        [x, y, z]. `dataunlabeled` contains a list of dictionaries
+        the trial. `dataunlabeled` contains a list of dictionaries
         of the same form as in `data`, but for unlabeled points. 
         `markers` is a list of marker names. 
-    
+
+    Examples
+    --------
+    The file RoboStatic.c3d in SampleData is used to test the output
+
+    >>> import os 
+    >>> pycgm_dir = os.path.dirname(os.path.dirname(__file__))
+    >>> filename = pycgm_dir + '/SampleData/Sample_2/RoboStatic.c3d' 
+    >>> result = loadC3D(filename)
+    >>> data = result[0]
+    >>> dataunlabeled = result[1]
+    >>> markers = result[2]
+
+    Testing for some values from data
+    >>> data[0]['RHNO'] #doctest: +NORMALIZE_WHITESPACE
+    array([-259.45016479, -844.99560547, 1464.26330566])
+    >>> data[0]['C7'] #doctest: +NORMALIZE_WHITESPACE
+    array([-2.20681717e+02, -1.07236075e+00, 1.45551550e+03])
+
+    #There is no unlabeled data in frame 0
+    >>> dataunlabeled[0] 
+    {}
+ 
+    >>> markers
+    ['LFHD', 'RFHD', 'LBHD', ...]
+
     """
     if useEZC3D == True:
         print("Using EZC3D")
@@ -251,7 +347,12 @@ def loadC3D(filename):
     return [data,dataunlabeled,markers]
 
 def loadCSV(filename):
-    """Open and load a CSV file
+    """Open and load a CSV file of motion capture data
+
+    Keys in the returned data dictionaries are marker names, and 
+    the corresponding values are a numpy array with the associated
+    value.
+        array([x, y, z])
 
     Arguments
     ---------
@@ -262,12 +363,35 @@ def loadCSV(filename):
     -------
     [motionData, unlabeledMotionData, labels] : array
         `motionData` is a list of dict. Each dict represents one frame in 
-        the trial. Keys in the dictionaries are marker names, and 
-        values are a numpy array with the associated xyz coordinate:
-        [x, y, z]. `unlabeledMotionData` contains a list of dictionaries
+        the trial. `unlabeledMotionData` contains a list of dictionaries
         of the same form as in `motionData`, but for unlabeled points. 
-        `labels` is a list of marker names. 
-    
+        `labels` is a list of marker names.  
+
+    Examples
+    --------
+    RoboResults.csv in SampleData is used to test the output
+
+    >>> import os 
+    >>> pycgm_dir = os.path.dirname(os.path.dirname(__file__))
+    >>> filename = pycgm_dir + '/SampleData/Sample_2/RoboResults.csv' 
+    >>> result = loadCSV(filename)
+    >>> motionData = result[0]
+    >>> unlabeledMotionData = result[1]
+    >>> labels = result[2]
+
+    Testing for some values from data
+    >>> motionData[0]['RHNO'] #doctest: +NORMALIZE_WHITESPACE
+    array([-772.184937, -312.352295, 589.815308])
+    >>> motionData[0]['C7'] #doctest: +NORMALIZE_WHITESPACE 
+    array([-1010.098999, 3.508968, 1336.794434])
+
+    #There is no unlabeled data in frame 0
+    >>> unlabeledMotionData[0] 
+    {}
+ 
+    >>> labels
+    ['LFHD', 'RFHD', 'LBHD', ...]
+
     """
     if filename == '':
         self.returnedData.emit(None)
@@ -359,7 +483,52 @@ def loadCSV(filename):
     return [motionData,unlabeledMotionData,labels]
 
 def loadData(filename,rawData=True):
-        
+        """Loads motion capture data from a csv or c3d file
+
+        Either a csv or c3d file of motion capture data can be used.
+        `loadCSV` or `loadC3D` will be called accordingly.
+
+        Arguments
+        ---------
+        filename : str
+                Path of the csv or c3d file to be loaded
+
+        Returns
+        -------
+        data : array
+                `data` is a list of dict. Each dict represents one frame in 
+                the trial.
+
+        Examples
+        --------
+        RoboResults.csv and RoboResults.c3d in SampleData are used to 
+        test the output.
+
+        >>> import os
+        >>> import sys
+        >>> pycgm_dir = os.path.dirname(os.path.dirname(__file__))
+
+        >>> csvFile = pycgm_dir + '/SampleData/Sample_2/RoboResults.csv' 
+        >>> c3dFile = pycgm_dir + '/SampleData/Sample_2/RoboStatic.c3d'
+
+        >>> sys.stdout.write("path"); csvData = loadData(csvFile)
+        path...RoboResults.csv
+        >>> sys.stdout.write("path"); c3dData = loadData(c3dFile)
+        path...RoboStatic.c3d
+
+        Testing for some values from the loaded csv file:
+        >>> csvData[0]['RHNO'] #doctest: +NORMALIZE_WHITESPACE
+        array([-772.184937, -312.352295, 589.815308])
+        >>> csvData[0]['C7'] #doctest: +NORMALIZE_WHITESPACE 
+        array([-1010.098999, 3.508968, 1336.794434])
+
+        Testing for some values from the loaded c3d file:
+        >>> c3dData[0]['RHNO'] #doctest: +NORMALIZE_WHITESPACE
+        array([-259.45016479, -844.99560547, 1464.26330566])
+        >>> c3dData[0]['C7'] #doctest: +NORMALIZE_WHITESPACE
+        array([-2.20681717e+02, -1.07236075e+00, 1.45551550e+03])    
+
+        """        
         print(filename)
         if str(filename).endswith('.c3d'):
                 
