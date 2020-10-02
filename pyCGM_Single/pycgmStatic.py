@@ -8,6 +8,53 @@ import numpy as np
 from math import *
 
 def rotmat(x=0,y=0,z=0):
+    """Rotation Matrix function
+    
+    This function creates and returns a rotation matrix.
+
+    Parameters
+    ----------
+    x,y,z : float, optional
+        Angle, which will be converted to radians, in
+        each respective axis to describe the rotations. 
+        The default is 0 for each unspecified angle.
+    
+    Returns
+    -------
+    Rxyz : array 
+        The product of the matrix multiplication.
+
+    Example
+    -------
+    >>> import numpy as np
+    >>> from math import *
+
+    >>> rotmat() #doctest: +NORMALIZE_WHITESPACE
+    [[1.0, 0.0, 0.0], 
+    [0.0, 1.0, 0.0], 
+    [0.0, 0.0, 1.0]]
+
+    >>> x = 0.5
+    >>> y = 0.3
+    >>> z = 0.8
+    >>> rotmat(x,y,z) #doctest: +NORMALIZE_WHITESPACE
+    [[0.9998888175929077, -0.0139619889490318, 0.00523596383141958], 
+    [0.01400733607248772, 0.9998638128275725, -0.008726415877184502], 
+    [-0.005113412638268541, 0.008798787558312074, 0.9999482158335473]]
+
+    >>> x = 0.5
+    >>> rotmat(x) #doctest: +NORMALIZE_WHITESPACE
+    [[1.0, 0.0, 0.0], 
+    [0.0, 0.9999619230641713, -0.008726535498373935], 
+    [0.0, 0.008726535498373935, 0.9999619230641713]]
+
+    >>> x = 1
+    >>> y = 1
+    >>> rotmat(x,y) #doctest: +NORMALIZE_WHITESPACE
+    [[0.9998476951563913, 0.0, 0.01745240643728351], 
+    [0.00030458649045213493, 0.9998476951563913, -0.017449748351250485], 
+    [-0.017449748351250485, 0.01745240643728351, 0.9996954135095479]]
+    """
     x = radians(x)
     y = radians(y)
     z = radians(z)
@@ -24,12 +71,65 @@ def rotmat(x=0,y=0,z=0):
     return Rxyz
     
 def getDist(p0, p1):
+    """Get Distance function
+    
+    This function calculates the distance between two 3-D positions.
+
+    Parameters
+    ----------
+    p0 : array
+        Position of first x,y,z coordinate.
+            [ x, y, z ]
+    p1 : array
+        Position of second x,y,z coordinate.
+            [ x, y, z ]
+    Returns
+    -------
+    float 
+        The distance between positions p0 and p1. 
+
+    Example
+    -------
+    >>> from math import *
+    >>> import numpy as np
+
+    >>> p0 = [0,1,2]
+    >>> p1 = [1,2,3]
+    >>> getDist(p0,p1)
+    1.7320508075688772
+
+    >>> p0 = np.array([991.44611381, 741.95103792, 321.35500969])
+    >>> p1 = np.array([117.08710839, 142.23917057, 481.95268411])
+    >>> getDist(p0,p1)
+    1072.3570334681392
+    """
     return sqrt((p0[0] - p1[0])**2 + (p0[1] - p1[1])**2 + (p0[2] - p1[2])**2)
     
 def getStatic(motionData,vsk,flat_foot=False,GCS=None):
-    """
-    Calculate the static offset angle values and return the values in radians
+    """ Get Static Offset function
     
+    Calculate the static offset angle values and return the values in radians
+
+    Parameters
+    ----------
+    motionData : dict
+        Dictionary of marker lists.
+            { [], [], [], ... }
+    vsk : dict, optional
+        Dictionary of various attributes of the skeleton.
+            { [], [], [], ... }
+    flat_foot : boolean, optional
+        A boolean indicating of the feet are flat or not.
+        The default value is False.
+    GCS : array, optional
+        An array containing the Global Coordinate System.
+        If not provided, the default will be set to: [[1, 0, 0], [0, 1, 0], [0, 0, 1]].
+    
+    Returns
+    -------
+    calSM : dict
+        Dictionary containing various marker lists of offsets.
+            { [], [], [], ... }
     """
     static_offset = []
     head_offset = []
