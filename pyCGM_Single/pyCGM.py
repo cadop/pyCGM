@@ -723,7 +723,7 @@ def footJointCenter(frame,vsk,ankle_JC,knee_JC,delta):
     if foot flat is checked, make the reference markers instead of HEE marker which height is as same as TOE marker's height.
     elif foot flat is not checked, use the HEE marker for making Z axis.
 
-    Markers used: RTOE,LTOE
+    Markers used: RTOE, LTOE
     Other landmarks used: ANKLE_FLEXION_AXIS
     Subject Measurement values used: RightStaticRotOff, RightStaticPlantFlex, LeftStaticRotOff, LeftStaticPlantFlex
         
@@ -768,7 +768,7 @@ def footJointCenter(frame,vsk,ankle_JC,knee_JC,delta):
     Example
     -------
     >>> import numpy as np 
-    >>> from math import *
+    >>> import math
     >>> from .pyCGM import *
 
     >>> vsk = { 'RightStaticRotOff' : 0.015683497632642047, 'LeftStaticRotOff': 0.009402910292403012,

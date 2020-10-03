@@ -321,8 +321,7 @@ def IADcalculation(frame):
     Example
     -------
     >>> import numpy as np
-    >>> from .pyCGM import *
-    Using...
+    >>> from .pycgmStatic import *
 
     >>> frame = { 'LASI': np.array([ 183.18504333,  422.78927612, 1033.07299805]),
     ...           'RASI': np.array([ 395.36532593,  428.09790039, 1036.82763672])}
@@ -475,7 +474,7 @@ def staticCalculation(frame,ankle_JC,knee_JC,flat_foot,vsk=None):
     -------
     >>> import numpy as np
     >>> from math import *
-    >>> from .pyCGM import *
+    >>> from .pycgmStatic import *
 
     >>> frame = {'RTOE': np.array([427.95211792, 437.99603271,  41.77342987]),
     ...          'LTOE': np.array([175.78988647, 379.49987793,  42.61193085]),
@@ -599,7 +598,7 @@ def pelvisJointCenter(frame):
     -------
     >>> import numpy as np 
     >>> from math import *
-    >>> from .pyCGM import *
+    >>> from .pycgmStatic import *
 
     >>> frame = {'RASI': np.array([ 395.36532593,  428.09790039, 1036.82763672]), 
     ...          'LASI': np.array([ 183.18504333,  422.78927612, 1033.07299805]),
@@ -727,7 +726,7 @@ def hipJointCenter(frame,pel_origin,pel_x,pel_y,pel_z,vsk=None):
     -------
     >>> import numpy as np 
     >>> from math import *
-    >>> from .pyCGM import *
+    >>> from .pycgmStatic import *
 
     >>> frame = None
     >>> vsk = {'MeanLegLength': 940.0, 'R_AsisToTrocanterMeasure': 72.512,
@@ -848,7 +847,7 @@ def hipAxisCenter(l_hip_jc,r_hip_jc,pelvis_axis):
     -------
     >>> import numpy as np 
     >>> from math import *
-    >>> from .pyCGM import *
+    >>> from .pycgmStatic import *
 
     >>> r_hip_jc = [182.57097863, 339.43231855, 935.529000126]
     >>> l_hip_jc = [308.38050472, 322.80342417, 937.98979061]
@@ -928,7 +927,7 @@ def kneeJointCenter(frame,hip_JC,delta,vsk=None):
     -------
     >>> import numpy as np 
     >>> from math import *
-    >>> from .pyCGM import *
+    >>> from .pycgmStatic import *
 
     >>> vsk = { 'RightKneeWidth' : 105.0, 'LeftKneeWidth' : 105.0 }
     >>> frame = { 'RTHI': np.array([426.50338745, 262.65310669, 673.66247559]),
@@ -1089,7 +1088,7 @@ def ankleJointCenter(frame,knee_JC,delta,vsk=None):
     -------
     >>> import numpy as np 
     >>> from math import *
-    >>> from .pyCGM import *
+    >>> from .pycgmStatic import *
 
     >>> vsk = { 'RightAnkleWidth' : 70.0, 'LeftAnkleWidth' : 70.0, 
     ...         'RightTibialTorsion': 0.0, 'LeftTibialTorsion' : 0.0}
@@ -1249,10 +1248,7 @@ def ankleJointCenter(frame,knee_JC,delta,vsk=None):
     return [R,L,axis]
     
 def footJointCenter(frame,static_info,ankle_JC,knee_JC,delta): 
-    
-    """
-
-    Calculate the foot joint center and axis function.
+    """Calculate the foot joint center and axis function.
     
     Takes in a dictionary of xyz positions and marker names.
     and takes the ankle axis and knee axis.
@@ -1268,72 +1264,86 @@ def footJointCenter(frame,static_info,ankle_JC,knee_JC,delta):
     if foot flat is checked, make the reference markers instead of HEE marker which height is as same as TOE marker's height.
     elif foot flat is not checked, use the HEE marker for making Z axis.
 
-    -------------------------------------------------------------------
+    Markers used: RTOE,LTOE,RHEE, LHEE
+    Other landmarks used: ANKLE_FLEXION_AXIS
+    Subject Measurement values used: RightStaticRotOff, RightStaticPlantFlex, LeftStaticRotOff, LeftStaticPlantFlex
         
-    INPUT: dictionaries of marker lists.  
-            { [], [], [] }
-            An array of ankle_JC,knee_JC each x,y,z position.
-           delta = 0
-           static_info = [[R_plantar_static_angle, R_static_rotation_angle, 0], # Right Static information
-                          [L_plantar_static_angle, L_static_rotation_angle, 0]] # Left Static information
+    Parameters
+    ---------- 
+    frame : dict 
+        Dictionaries of marker lists.
+            { [], [], [], ... }
+    static_info : array
+        An array containing offset angles.
+    ankle_JC : array
+        An array of ankle_JC containing the x,y,z axes marker positions of the ankle joint center. 
+    knee_JC : array
+        An array of ankle_JC containing the x,y,z axes marker positions of the knee joint center. 
+    delta
+        The length from marker to joint center, retrieved from subject measurement file.
         
-    OUTPUT: Returns the footJointCenter and foot axis. and save the static offset angle in a global variable.
-          return = [[foot axis_center x,y,z position],
+    Returns
+    -------
+    array
+        Returns the footJointCenter and foot axis. and save the static offset angle in a global variable.
+            return = [[foot axis_center x,y,z position],
                     [array([[footaxis_center x,y,z position],
                             [foot x_axis x,y,z position]]),
                     array([[footaxis_center x,y,z position],
-                           [foot y_axis x,y,z position]])
+                            [foot y_axis x,y,z position]])
                     array([[footaxis_center x,y,z position],
                             [foot z_axis x,y,z position]])]]        
-         
-    MODIFIES:   Axis changes following to the static info.
-        
-                you can set the static_info by the button. and this will calculate the offset angles 
-                the first setting, the foot axis show foot uncorrected anatomical reference axis(Z_axis point to the AJC from TOE)
-        
-                if press the static_info button so if static_info is not None,
-                and then the static offsets angles are applied to the reference axis.
-                the reference axis is Z axis point to HEE from TOE
+            
+    Modifies
+    --------   
+    Axis changes following to the static info.
 
-    --------------------------------------------------------------------
+    you can set the static_info by the button. and this will calculate the offset angles 
+    the first setting, the foot axis show foot uncorrected anatomical reference axis(Z_axis point to the AJC from TOE)
 
-    EXAMPLE:
-            i = 1
-            frame = { 'RHEE': [374.01257324, 181.57929993, 49.50960922],
-                      'LHEE': [105.30126953, 180.2130127, 47.15660858],
-                      'RTOE': [442.81997681, 381.62280273, 42.66047668 
-                      'LTOE': [39.43652725, 382.44522095, 41.78911591],...}
-            static_info : [[0.03482194, 0.14879424, 0],
-                           [0.01139704, 0.02142806, 0]]
-            knee_JC: [array([364.17774614, 292.17051722, 515.19181496]),
-                    array([143.55478579, 279.90370346, 524.78408753]),
-                    array([[[364.64959153, 293.06758353, 515.18513093],
-                            [363.29019771, 292.60656648, 515.04309095],
-                            [364.04724541, 292.24216264, 516.18067112]],
-                           [[143.65611282, 280.88685896, 524.63197541],
-                            [142.56434499, 280.01777943, 524.86163553],
-                            [143.64837987, 280.04650381, 525.76940383]]])]
-            ankle_JC: [array([393.76181608, 247.67829633, 87.73775041]),
-                        array([98.74901939, 219.46930221, 80.6306816]),
-                        [[array([394.4817575, 248.37201348, 87.715368]),
-                        array([393.07114384, 248.39110006, 87.61575574]),
-                        array([393.69314056, 247.78157916, 88.73002876])],
-                        [array([98.47494966, 220.42553803, 80.52821783]),
-                        array([97.79246671, 219.20927275, 80.76255901]),
-                        array([98.84848169, 219.60345781, 81.61663775])]]]
-            delta: 0
+    if press the static_info button so if static_info is not None,
+    and then the static offsets angles are applied to the reference axis.
+    the reference axis is Z axis point to HEE from TOE
 
-            footJointCenter(frame,static_info,ankle_JC,knee_JC,delta,vsk=None)
+    Example
+    -------
+    >>> import numpy as np 
+    >>> import math
+    >>> from .pycgmStatic import *
 
-            >>> [array([442.81997681, 381.62280273, 42.66047668]),
-                array([39.43652725, 382.44522095, 41.78911591]),
-                [[[442.88815408948221, 381.7646059422284, 43.648020966284719],
-                  [441.87135392672275, 381.93856951438391, 42.680625439845173],
-                  [442.51100028681969, 380.68462194642137, 42.816522573058428]],
-                 [[39.507852120747259, 382.67891585204035, 42.75880629687082],
-                  [38.49231838166678, 385.14765969549836, 41.930278614215709],
-                  [39.758058544512153, 381.51956226668784, 41.98854919067994]]]]
-                  
+    >>> frame = { 'RHEE': np.array([374.01257324, 181.57929993, 49.50960922]),
+    ...           'LHEE': np.array([105.30126953, 180.2130127, 47.15660858]),
+    ...           'RTOE': np.array([442.81997681, 381.62280273, 42.66047668]),
+    ...           'LTOE': np.array([39.43652725, 382.44522095, 41.78911591])}
+	>>> static_info = [[0.03482194, 0.14879424, 0],
+	...               [0.01139704, 0.02142806, 0]]
+    >>> knee_JC = [np.array([364.17774614, 292.17051722, 515.19181496]),
+    ...           np.array([143.55478579, 279.90370346, 524.78408753]),
+    ...           np.array([[[364.64959153, 293.06758353, 515.18513093],
+    ...           [363.29019771, 292.60656648, 515.04309095],
+    ...           [364.04724541, 292.24216264, 516.18067112]],
+    ...           [[143.65611282, 280.88685896, 524.63197541],
+    ...           [142.56434499, 280.01777943, 524.86163553],
+    ...           [143.64837987, 280.04650381, 525.76940383]]])]
+    >>> ankle_JC = [np.array([393.76181608, 247.67829633, 87.73775041]),
+    ...            np.array([98.74901939, 219.46930221, 80.6306816]),
+    ...            [[np.array([394.4817575, 248.37201348, 87.715368]),
+    ...            np.array([393.07114384, 248.39110006, 87.61575574]),
+    ...            np.array([393.69314056, 247.78157916, 88.73002876])],
+    ...            [np.array([98.47494966, 220.42553803, 80.52821783]),
+    ...            np.array([97.79246671, 219.20927275, 80.76255901]),
+    ...            np.array([98.84848169, 219.60345781, 81.61663775])]]]
+    >>> delta = 0
+
+    >>> footJointCenter(frame,static_info,ankle_JC,knee_JC,delta) #doctest: +NORMALIZE_WHITESPACE
+    [array([442.81997681, 381.62280273,  42.66047668]), 
+    array([ 39.43652725, 382.44522095,  41.78911591]), 
+    [[[442.8881541019797, 381.76460597063306, 43.64802095637665], 
+    [441.8951544719817, 382.00308978750826, 42.669717729400254], 
+    [442.44573691372943, 380.70886969370156, 42.81754642629671]], 
+    [[39.50785213469834, 382.6789158082651, 42.758806311129774], 
+    [38.49231839306207, 382.1476596590978, 41.93027862687884], 
+    [39.75805857864893, 381.5195622702605, 41.98854914023047]]]]          
     """
 
       #REQUIRED MARKERS: 
@@ -1512,40 +1522,44 @@ def footJointCenter(frame,static_info,ankle_JC,knee_JC,delta):
     return [R,L,foot_axis]
 
 def headJC(frame):
-    """
-
-    Calculate the head joint axis function.
+    """Calculate the head joint axis function.
 
     Takes in a dictionary of x,y,z positions and marker names.
     Calculates the head joint center and returns the head joint center and axis.
-    -------------------------------------------------------------------------
-
-    INPUT:  dictionaries of marker lists.  
-            { [], [], [] }
     
-    OUTPUT: Returns the Head joint center and axis in three array
-            head_JC = [[[head x axis x,y,z position],
-                        [head y axis x,y,z position],
-                        [head z axis x,y,z position]],
-                        [head x,y,z position]]
-    
-    MODIFIES: -
-    ---------------------------------------------------------------------------
-    
-    EXAMPLE:
-            i = 1
-            frame = {'RFHD': [325.82983398, 402.55450439, 1722.49816895],
-                     'LFHD': [184.55158997, 409.68713379, 1721.34289551],
-                     'RBHD': [304.39898682, 242.91339111, 1694.97497559],
-                     'LBHD': [197.8621521, 251.28889465, 1696.90197754], ...}
-            
-            headJC(frame,vsk=None)
+    Markers used: LFHD, RFHD, LBHD, RBHD
 
-            >>> [[[255.21590217746564, 407.10741939149585, 1722.0817317995723],
-                [254.19105385179665, 406.146809183757, 1721.9176771191715],
-                [255.18370553356357, 405.959746549898, 1722.9074499262838]],
-                [255.19071197509766, 406.12081909179687, 1721.9205322265625]]
+    Parameters
+    ----------
+    frame : dict 
+        Dictionaries of marker lists.
+            { [], [], [], ...}
+    
+    Returns
+    -------
+    array
+        Returns the Head joint center and axis in three array 
+                head_JC = [[[head x axis x,y,z position],
+                            [head y axis x,y,z position],
+                            [head z axis x,y,z position]],
+                            [head x,y,z position]]
+    
+    Example
+    -------
+    >>> import numpy as np 
+    >>> from math import *
+    >>> from .pycgmStatic import *
 
+    >>> frame = {'RFHD': np.array([325.82983398, 402.55450439, 1722.49816895]),
+    ...          'LFHD': np.array([184.55158997, 409.68713379, 1721.34289551]),
+    ...          'RBHD': np.array([304.39898682, 242.91339111, 1694.97497559]),
+    ...          'LBHD': np.array([197.8621521, 251.28889465, 1696.90197754])}
+    
+    >>> headJC(frame) #doctest: +NORMALIZE_WHITESPACE
+    [[[255.21590217735476, 407.10741938969863, 1722.081731803014], 
+    [254.19105385169885, 406.1468091819513, 1721.917677122581], 
+    [255.1837055334396, 405.9597465480975, 1722.9074499297205]], 
+    [255.190711975, 406.12081909, 1721.92053223]]
     """
     
     #Get the marker positions used for joint calculation
@@ -1596,68 +1610,60 @@ def headJC(frame):
     return [head_axis,origin]
     
 def uncorrect_footaxis(frame,ankle_JC): 
-    """
-
-    Calculate the anatomical uncorrect foot joint center and axis function.
+    """Calculate the anatomical uncorrect foot joint center and axis function.
 
     Takes in a dictionary of xyz positions and marker names.
     and takes the ankle axis.
     Calculate the anatomical uncorrect foot axis.
-    ------------------------------------------------------------------
-        
-    INPUT: dictionaries with each marker's list
-            {[],[],[]}
-           An array of ankle_JC each x,y,z position.
-           delta = 0
-           
-    OUTPUT: Returns the incorrect footJointCenter and foot axis. This will be used for calculating static offset angle in static calibration.
-          return = [[foot axis_center x,y,z position],
-                    [array([[footaxis_center x,y,z position],
-                            [foot x_axis x,y,z position]]),
-                    array([[footaxis_center x,y,z position],
-                           [foot y_axis x,y,z position]])
-                    array([[footaxis_center x,y,z position],
-                            [foot z_axis x,y,z position]])]]        
-         
-    MODIFIES:   -
     
-    -----------------------------------------------------------------------
+    Markers used: RTOE, LTOE
 
-    EXAMPLE:
-            i = 1
-            frame = { 'RHEE': [374.01257324, 181.57929993, 49.50960922],
-                      'LHEE': [105.30126953, 180.2130127, 47.15660858],
-                      'RTOE': [442.81997681, 381.62280273, 42.66047668 
-                      'LTOE': [39.43652725, 382.44522095, 41.78911591],...}
-            knee_JC: [array([364.17774614, 292.17051722, 515.19181496]),
-                    array([143.55478579, 279.90370346, 524.78408753]),
-                    array([[[364.64959153, 293.06758353, 515.18513093],
-                            [363.29019771, 292.60656648, 515.04309095],
-                            [364.04724541, 292.24216264, 516.18067112]],
-                           [[143.65611282, 280.88685896, 524.63197541],
-                            [142.56434499, 280.01777943, 524.86163553],
-                            [143.64837987, 280.04650381, 525.76940383]]])]
-            ankle_JC: [array([393.76181608, 247.67829633, 87.73775041]),
-                        array([98.74901939, 219.46930221, 80.6306816]),
-                        [[array([394.4817575, 248.37201348, 87.715368]),
-                        array([393.07114384, 248.39110006, 87.61575574]),
-                        array([393.69314056, 247.78157916, 88.73002876])],
-                        [array([98.47494966, 220.42553803, 80.52821783]),
-                        array([97.79246671, 219.20927275, 80.76255901]),
-                        array([98.84848169, 219.60345781, 81.61663775])]]]
-            delta: 0
+    Parameters
+    ----------
+    frame : array
+        Dictionaries of marker lists.
+            { [], [], [], ... }
+    ankle_JC : array
+        An array of ankle_JC each x,y,z position.
+           
+    Returns
+    -------
+    array
+        Returns the incorrect footJointCenter and foot axis. 
+        This will be used for calculating static offset angle in static calibration.
+            return = [[foot axis_center x,y,z position],
+                        [array([[footaxis_center x,y,z position],
+                                [foot x_axis x,y,z position]]),
+                        array([[footaxis_center x,y,z position],
+                            [foot y_axis x,y,z position]])
+                        array([[footaxis_center x,y,z position],
+                                [foot z_axis x,y,z position]])]]        
 
-            uncorrect_footaxis(frame,ankle_JC,knee_JC,delta,vsk=None)
+    Example
+    -------
+    >>> import numpy as np
+    >>> from math import *
+    >>> from .pycgmStatic import *
 
-            >>> [array([ 442.82369995, 381.62716675, 42.66253662]),
-                array([39.44643402, 382.45663452, 41.79634857]),
-                [[[442.94168992364411, 381.90478836486795, 43.615953950635053],
-                  [441.88641674118907, 381.97543028972524, 42.677120510218828],
-                  [442.49570825816676, 380.73182394028481, 42.963838306964107]],
-                 [[39.510624781365145, 382.71005900587886, 42.761571642881954],
-                  [38.505931260238086, 382.14860120518563, 41.939771139933704],
-                  [39.780101674942053, 381.5396331546591, 42.014922106201844]]]]
-            
+    >>> frame = { 'RTOE': [442.81997681, 381.62280273, 42.66047668], 
+    ...           'LTOE': [39.43652725, 382.44522095, 41.78911591]}
+    >>> ankle_JC = [np.array([393.76181608, 247.67829633, 87.73775041]),
+    ...            np.array([98.74901939, 219.46930221, 80.6306816]),
+    ...            [[np.array([394.4817575, 248.37201348, 87.715368]),
+    ...            np.array([393.07114384, 248.39110006, 87.61575574]),
+    ...            np.array([393.69314056, 247.78157916, 88.73002876])],
+    ...            [np.array([98.47494966, 220.42553803, 80.52821783]),
+    ...            np.array([97.79246671, 219.20927275, 80.76255901]),
+    ...            np.array([98.84848169, 219.60345781, 81.61663775])]]]
+
+    >>> uncorrect_footaxis(frame,ankle_JC) #doctest: +NORMALIZE_WHITESPACE
+    [[442.81997681, 381.62280273, 42.66047668], [39.43652725, 382.44522095, 41.78911591], 
+    [[[442.93807347143536, 381.9004064170881, 43.61388602098261], 
+    [441.8826859955307, 381.97104076201816, 42.675180494728565], 
+    [442.4920452505714, 380.7274444408379, 42.96179781493669]], 
+    [[39.5007163595276, 382.6986218018195, 42.75434529543913], 
+    [38.49604412802928, 382.13712948064426, 41.9325423503742], 
+    [39.77025057178957, 381.52823258867403, 42.00765901715825]]]]          
     """
 
     #REQUIRED MARKERS: 
@@ -1737,57 +1743,69 @@ def uncorrect_footaxis(frame,ankle_JC):
     return [R,L,foot_axis]
         
 def rotaxis_footflat(frame,ankle_JC,vsk=None): 
-    """
-
-    Calculate the anatomical correct foot joint center and axis function which is for foot flat
+    """Calculate the anatomical correct foot joint center and axis function which is for foot flat
 
     Takes in a dictionary of xyz positions and marker names.
     and takes the ankle axis.
     Calculate the anatomical correct foot axis for foot flat.
-    ------------------------------------------------------------------
-        
-    INPUT:  dictionaries of marker lists.  
-            { [], [], [] }
-            An array of ankle_JC each x,y,z position.
-           
-    OUTPUT: Returns the footJointCenter and correct foot axis for foot flat.
-        return = [[foot axis_center x,y,z position],
-                    [array([[footaxis_center x,y,z position],
-                            [foot x_axis x,y,z position]]),
-                    array([[footaxis_center x,y,z position],
-                            [foot y_axis x,y,z position]])
-                    array([[footaxis_center x,y,z position],
-                            [foot z_axis x,y,z position]])]]        
+
+    Markers used: RTOE, LTOE, RHEE, LHEE
+
+    Parameters
+    ----------
+    frame : array
+        Dictionaries of marker lists.
+            { [], [], [], ... }
+    ankle_JC : array
+        An array of ankle_JC each x,y,z position.
+    vsk : dict, optional
+        A dictionary containing subject measurements from a VSK file.
+            { [], [], [], ... }
+
+    Returns
+    -------
+    array
+        Returns the footJointCenter and correct foot axis for foot flat.
+            return = [[foot axis_center x,y,z position],
+                        [array([[footaxis_center x,y,z position],
+                                [foot x_axis x,y,z position]]),
+                        array([[footaxis_center x,y,z position],
+                                [foot y_axis x,y,z position]])
+                        array([[footaxis_center x,y,z position],
+                                [foot z_axis x,y,z position]])]]        
          
-    MODIFIES:   If the subject wears shoe, Soledelta is applied. then axes are changed following Soledelta.
-    --------------------------------------------------------------------
+    Modifies
+    --------
+    If the subject wears shoe, Soledelta is applied. then axes are changed following Soledelta.
 
-    EXAMPLE:
-            i = 1
-            frame = { 'RHEE': [374.01257324, 181.57929993, 49.50960922],
-                      'LHEE': [105.30126953, 180.2130127, 47.15660858],
-                      'RTOE': [442.81997681, 381.62280273, 42.66047668 
-                      'LTOE': [39.43652725, 382.44522095, 41.78911591],...}
-            ankle_JC: [array([393.76181608, 247.67829633, 87.73775041]),
-                        array([98.74901939, 219.46930221, 80.6306816]),
-                        [[array([394.4817575, 248.37201348, 87.715368]),
-                        array([393.07114384, 248.39110006, 87.61575574]),
-                        array([393.69314056, 247.78157916, 88.73002876])],
-                        [array([98.47494966, 220.42553803, 80.52821783]),
-                        array([97.79246671, 219.20927275, 80.76255901]),
-                        array([98.84848169, 219.60345781, 81.61663775])]]]
+    Example
+    -------
+    >>> import numpy as np
+    >>> from math import *
+    >>> from .pycgmStatic import *
 
-            rotaxis_footflat(frame,ankle_JC,vsk=vsk)
+    >>> frame = { 'RHEE': [374.01257324, 181.57929993, 49.50960922],
+    ...            'LHEE': [105.30126953, 180.2130127, 47.15660858],
+    ...            'RTOE': [442.81997681, 381.62280273, 42.66047668], 
+    ...            'LTOE': [39.43652725, 382.44522095, 41.78911591]}
+    >>> ankle_JC = [np.array([393.76181608, 247.67829633, 87.73775041]),
+    ...            np.array([98.74901939, 219.46930221, 80.6306816]),
+    ...            [[np.array([394.4817575, 248.37201348, 87.715368]),
+    ...            np.array([393.07114384, 248.39110006, 87.61575574]),
+    ...           np.array([393.69314056, 247.78157916, 88.73002876])],
+    ...            [np.array([98.47494966, 220.42553803, 80.52821783]),
+    ...            np.array([97.79246671, 219.20927275, 80.76255901]),
+    ...            np.array([98.84848169, 219.60345781, 81.61663775])]]]
+    >>> vsk = { 'RightSoleDelta': 0.45, 'LeftSoleDelta': 0.45}
 
-            >>> [array([ 442.82369995, 381.62716675, 42.66253662]),
-                array([39.44643402, 382.45663452, 41.79634857]),
-                [[[442.72018980280649, 381.69679347734973, 43.654724994212465],
-                  [441.88371054797568, 381.94639670245357, 42.542070202169803],
-                  [442.49857601931785, 380.68205069444491, 42.69494146887434]],
-                 [[39.565351048740091, 382.52172872176396, 42.787116700858256],
-                  [38.503083776720146, 382.15274258408243, 41.929540189406254],
-                  [39.75619046909209, 381.50615441360623, 41.821617275560818]]]]
-                        
+    >>> rotaxis_footflat(frame,ankle_JC,vsk) #doctest: +NORMALIZE_WHITESPACE
+    [[442.81997681, 381.62280273, 42.66047668], [39.43652725, 382.44522095, 41.78911591], 
+    [[[442.3066624145523, 381.79936347939446, 43.50031870871696], 
+    [442.0258012807823, 381.8959690932132, 42.11764579767976], 
+    [442.49471758996486, 380.6771778361958, 42.66047668]], 
+    [[39.145651793491794, 382.3504861046246, 42.74117514023352], 
+    [38.53126992280069, 382.1503888801284, 41.48320216050979], 
+    [39.74620553524633, 381.49437955436827, 41.78911591]]]]                    
     """
     #Get Global Values
     
