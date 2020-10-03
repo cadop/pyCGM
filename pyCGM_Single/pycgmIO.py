@@ -64,33 +64,42 @@ def createMotionDataDict(labels,data):
 	Arguments
 	---------
 	labels : array
-		List of marker position names. 
+	    List of marker position names. 
 	data : array
-		List of xyz coordinates corresponding to the marker names in `labels`. 
-		Indices of `data` correspond to frames in the trial.
+	    List of xyz coordinates corresponding to the marker names in `labels`. 
+	    Indices of `data` correspond to frames in the trial.
 
 	Returns
 	-------
 	motiondata : array
-		List of dict. Indices of `motiondata` correspond to frames
-		in the trial. Keys in the dictionary are marker names and 
-		values are xyz coordinates of the corresponding marker.
+	    List of dict. Indices of `motiondata` correspond to frames
+	    in the trial. Keys in the dictionary are marker names and 
+	    values are xyz coordinates of the corresponding marker.
     
 	Examples
 	--------
 	This example uses a loop and numpy.array_equal to test the equality
 	of individual dictionary elements since python does not guarantee 
-	the order in which dictionary elements are printed. 
+	the order of dictionary elements. 
 
-	>>> from numpy import array, array_equal #used to compare numpy arrays
+	Example for three markers and two frames of trial.
+	>>> from .pyCGM import *
+	>>> from numpy import array, array_equal
 	>>> labels = ['LFHD', 'RFHD', 'LBHD']
 	>>> data = [[array([184.55160796, 409.68716101, 1721.34289625]), 
 	...          array([325.82985131, 402.55452959, 1722.49816649]), 
-	...          array([197.8621642 , 251.28892152, 1696.90197756])]]
+	...          array([197.8621642 , 251.28892152, 1696.90197756])],
+	...         [array([185.55160796, 408.68716101, 1722.34289625]), 
+	...          array([326.82985131, 403.55452959, 1723.49816649]), 
+	...          array([198.8621642 , 252.28892152, 1697.90197756])]]
 	>>> result = createMotionDataDict(labels, data)
 	>>> expected = [{'RFHD': array([325.82985131, 402.55452959, 1722.49816649]), 
 	...              'LBHD': array([197.8621642 , 251.28892152, 1696.90197756]),
-	...              'LFHD': array([184.55160796, 409.68716101, 1721.34289625])}]
+	...              'LFHD': array([184.55160796, 409.68716101, 1721.34289625])},
+	...             {'RFHD': array([326.82985131, 403.55452959, 1723.49816649]), 
+	...              'LBHD': array([198.8621642 , 252.28892152, 1697.90197756]),
+	...              'LFHD': array([185.55160796, 408.68716101, 1722.34289625])}]
+
 	>>> flag = True #False if any values are not equal
 	>>> for i in range(len(result)):
 	...     for key in result[i]:
@@ -129,17 +138,24 @@ def splitMotionDataDict(motiondata):
 
     Examples
     --------
+    Example for three markers and two frames of trial.
     >>> from numpy import array
     >>> motiondata = [{'RFHD': array([325.82985131, 402.55452959, 1722.49816649]), 
     ...                'LFHD': array([184.55160796, 409.68716101, 1721.34289625]),
-    ...                'LBHD': array([197.8621642 , 251.28892152, 1696.90197756])}]
+    ...                'LBHD': array([197.8621642 , 251.28892152, 1696.90197756])},
+    ...               {'RFHD': array([326.82985131, 403.55452959, 1723.49816649]), 
+    ...                'LFHD': array([185.55160796, 408.68716101, 1722.34289625]),
+    ...                'LBHD': array([198.8621642 , 252.28892152, 1697.90197756])}]
     >>> labels, data = splitMotionDataDict(motiondata)
     >>> labels
     ['RFHD', 'LFHD', 'LBHD']
-    >>> data
+    >>> data #doctest: +NORMALIZE_WHITESPACE
     array([[[ 325.82985131,  402.55452959, 1722.49816649],
             [ 184.55160796,  409.68716101, 1721.34289625],
-            [ 197.8621642 ,  251.28892152, 1696.90197756]]])
+            [ 197.8621642 ,  251.28892152, 1696.90197756]],
+           [[ 326.82985131,  403.55452959, 1723.49816649],
+            [ 185.55160796,  408.68716101, 1722.34289625],
+            [ 198.8621642 ,  252.28892152, 1697.90197756]]])
     
     """
     if pyver == 2:
@@ -165,16 +181,16 @@ def createVskDataDict(labels,data):
 	Arguments
 	---------
 	labels : array
-		list of label names for vsk file values. Example:
+	    list of label names for vsk file values. Example:
 	data : array
-		list of vsk file values corresponding to label names in `labels`.
+	    list of vsk file values corresponding to label names in `labels`.
 
 	Returns
 	-------
 	vsk : dict
-		dictionary of vsk file values. Dictionary keys correspond to 
-		names in `labels` and dictionary values correspond to values in 
-		`data`.
+	    dictionary of vsk file values. Dictionary keys correspond to 
+	    names in `labels` and dictionary values correspond to values in 
+	    `data`.
 
 	Examples
 	--------
@@ -274,8 +290,7 @@ def loadC3D(filename):
 
     Keys in the returned data dictionaries are marker names, and 
     the corresponding values are a numpy array with the associated
-    value.
-        array([x, y, z])
+    value. data[marker] = array([x, y, z])
 
     Arguments
     ---------
@@ -404,6 +419,47 @@ def loadCSV(filename):
     delimiter=','
 
     def rowToDict(row,labels):
+        """Convert a row and labels to a dictionary.
+
+        Arguments
+        ---------
+        row : array
+            List of marker data.
+        labels : array
+            List of marker names.
+
+        Returns
+        -------
+        dic, unlabeleddic : tuple
+            `dic` is a dictionary where keys are marker names and values
+            are the corresponding marker value. `unlabeleddic` holds
+            all unlabeled marker values in the same format as `dic`.
+
+        Examples
+        --------
+        This example uses a loop and numpy.array_equal to test the equality
+        of individual dictionary elements since python does not guarantee 
+        the order of dictionary elements. 
+
+        >>> from numpy import array, array_equal
+        >>> row = ['-1003.583618', '81.007614', '1522.236938', 
+        ...        '-1022.270447', '-47.190071', '1519.680420', 
+        ...        '-833.953979', '40.892181', '1550.325562']
+        >>> labels = ['LFHD', 'RFHD', 'LBHD']
+        >>> dict, unlabeleddict = rowToDict(row, labels)
+        >>> expectedDict = {'LFHD': array([-1003.583618, 81.007614, 1522.236938]), 
+        ...                 'RFHD': array([-1022.270447, -47.190071, 1519.68042]), 
+        ...                 'LBHD': array([-833.953979, 40.892181, 1550.325562])}
+        >>> unlabeleddict #No unlabeled values are expected for this example
+        {}
+        >>> flag = True #False if any values are not equal
+        >>> for marker in dict:
+        ...     if (not array_equal(dict[marker], expectedDict[marker])):
+        ...         flag = False
+        >>> flag
+        True
+
+        """
         dic={}
         unlabeleddic={}
         if pyver == 2: row=zip(row[0::3],row[1::3],row[2::3])
@@ -544,11 +600,48 @@ def loadData(filename,rawData=True):
                 return loadCSV(filename)[0]		
 
 def dataAsArray(data):
-    """
-    convert a dictionary of markers with xyz data as an array 
-    to an array of dictionaries 
+    """Converts a dictionary of markers with xyz data to an array
+    of dictionaries. 
 
-    Assumes all markers have the same length of data
+    Assumes all markers have the same length of data.
+
+    Arguments
+    ---------
+    data : dict
+        Dictionary of marker data. Keys are marker names. Values are 
+        arrays of 3 elements, each of which is an array of x, y, and z
+        coordinate values respectively.
+
+    Returns
+    -------
+    dataArray : array
+        List of dictionaries.
+
+    Examples
+    --------
+    This example uses a loop and numpy.array_equal to test the equality
+    of individual dictionary elements since python does not guarantee 
+    the order of dictionary elements. 
+
+    Example for motion capture data for 3 markers, each with xyz data for 
+    one frame of trial.
+    >>> from numpy import array, array_equal
+    >>> data = {'RFHD': [array([325.82985131]), array([402.55452959]), array([1722.49816649])], 
+    ...         'LFHD': [array([184.55160796]), array([409.68716101]), array([1721.34289625])],
+    ...         'LBHD': [array([197.8621642]) , array([251.28892152]), array([1696.90197756])]}
+    >>> result = dataAsArray(data)
+    >>> expected = [{'RFHD': array([325.82985131, 402.55452959, 1722.49816649]), 
+    ...              'LFHD': array([184.55160796, 409.68716101, 1721.34289625]), 
+    ...              'LBHD': array([197.8621642, 251.28892152, 1696.90197756])}]
+
+    >>> flag = True #False if any values are not equal
+    >>> for i in range(len(result)):
+    ...     for key in result[i]:
+    ...         if (not array_equal(result[i][key], expected[i][key])):
+    ...             flag = False
+    >>> flag
+    True
+
     """
     names = list(data.keys())
     dataArray = []
@@ -580,7 +673,6 @@ def dataAsDict(data,npArray=False):
     
     takes an option npArray flag, when set to true, will return a numpy array
     for each key instead of a list
-    
     """
     dataDict = {}
     
@@ -602,23 +694,41 @@ def writeKinetics(CoM_output,kinetics):
     np.save(CoM_output,kinetics)
         
 def writeResult(data,filename,**kargs):
-        """
-        Writes the result of the calculation into a csv file 
-        @param data Motion Data as a matrix of frames as rows
-        @param filename Name to save the csv
-        @param kargs
-                delimiter Delimiter for the csv. By default it's using ','
-                angles True or false to save angles. Or a list of angles to save
-                axis True of false to save axis. Or a list of axis to save
+        """Writes the result of the calculation into a csv file 
+        
+        Arguments
+        ---------
+        data : array_like
+            Motion capture data as a matrix of frames as rows.
+            Each row is a numpy array of length 273.
+            Indices 0-56 correspond to the values for angles.  
+            Indices 57-272 correspond to the values for axes.
+        filename : str
+            Full path of the csv to be saved. Do not include '.csv'. 
+        **kargs : dict
+            Dictionary of keyword arguments as follows.
+            delimiter : str, optional
+                String to be used as the delimiter for the csv file. The
+                default delimiter is ','.
+            angles : bool or array, optional
+                True or false to save angles, or a list of angles to save.
+                True by default.
+            axis : bool or array, optional
+                True or false to save axis, or a list of axis to save.
+                True by default.
+                
         Examples
-        #save angles and axis
-        writeResultNumPy(result,"outputfile0.csv")
-        #save 'R Hip' angles 'L Foot' and all the axis
-        writeResultNumPy(result,"outputfile1.csv",angles=['R Hip','L Foot'])
-        #save only axis "R ANKZ","L ANKO","L ANKX"
-        writeResultNumPy(result,"outputfile4.csv",angles=False,axis=["R ANKZ","L ANKO","L ANKX"])
-        #save only angles
-        writeResultNumPy(result,"outputfile6.csv",axis=False)
+        --------
+        This example saves nine angle values corresponding to the Pelvis,
+        R Hip, and L Hip for one frame of trial.
+
+        >>> from numpy import array
+        >>> import os
+        >>> import tempfile
+        >>> data = [array([-0.308494914509454, -6.12129279337001, 7.57143110215171,
+        ...                 2.91422292971666, -6.86706898044634, -18.8210007096431,  
+        ...                -2.86020455047534, -5.34565091894179, -1.80256196863341])]
+
         """
         labelsAngs =['Pelvis','R Hip','L Hip','R Knee','L Knee','R Ankle',
                                 'L Ankle','R Foot','L Foot',
@@ -733,6 +843,50 @@ def smKeys():
     return keys
         
 def loadVSK(filename,dict=True):
+        """Open and load a vsk file
+  
+        Arguments
+        ---------
+        filename : str
+            Path to the vsk file to be loaded
+        dict : bool, optional
+            Returns loaded vsk file values as a dictionary if False. 
+            Otherwise, return as an array.
+ 
+        Returns
+        -------
+        [vsk_keys, vsk_data] : array
+            `vsk_keys` is a list of labels. `vsk_data` is a list of values
+            corresponding to the labels in `vsk_keys`. 
+
+        Examples
+        --------
+        RoboSM.vsk in SampleData is used to test the output
+
+        >>> import os 
+        >>> pycgm_dir = os.path.dirname(os.path.dirname(__file__))
+        >>> filename = pycgm_dir + '/SampleData/Sample_2/RoboSM.vsk' 
+
+        >>> result = loadVSK(filename)
+        >>> vsk_keys = result[0]
+        >>> vsk_data = result[1]
+        >>> vsk_keys
+        ['Bodymass', 'Height', 'InterAsisDistance',...]
+        >>> vsk_data
+        [72.0, 1730.0, 281.118011474609,...]
+
+        Return as a dictionary.
+        >>> result = loadVSK(filename, False)
+        >>> type(result)
+        <...'dict'>
+ 
+        Testing for some dictionary values
+        >>> result['Bodymass']
+        72.0
+        >>> result['RightStaticPlantFlex']
+        0.17637075483799
+
+        """
         #Check if the filename is valid
         #if not, return None
         if filename == '':
@@ -766,6 +920,45 @@ def loadVSK(filename,dict=True):
 
 
 def splitDataDict(motionData):       
+    """Splits an array of motion capture data into separate labels and data
+
+    Arguments
+    ---------
+    motionData : array
+        List of dict. Indices of `motionData` correspond to frames
+        in the trial. Keys in the dictionary are marker names and 
+        values are xyz coordinates of the corresponding marker.
+
+    Returns
+    -------
+    labels, data : tuple
+        `labels` is a list of marker position names from the dictionary
+        keys in `motiondata`. `data` is a list of xyz coordinate 
+        positions corresponding to the marker names in `labels`. 
+        Indices of `data` correspond to frames in the trial.
+
+    Examples
+    --------
+    Example for three markers and two frames of trial.
+    >>> from numpy import array
+    >>> motionData = [{'RFHD': array([325.82985131, 402.55452959, 1722.49816649]), 
+    ...                'LFHD': array([184.55160796, 409.68716101, 1721.34289625]),
+    ...                'LBHD': array([197.8621642 , 251.28892152, 1696.90197756])}, 
+    ...               {'RFHD': array([326.82985131, 403.55452959, 1723.49816649]), 
+    ...                'LFHD': array([185.55160796, 408.68716101, 1722.34289625]),
+    ...                'LBHD': array([198.8621642 , 252.28892152, 1697.90197756])}]
+    >>> values, labels = splitDataDict(motionData)
+    >>> labels
+    ['RFHD', 'LFHD', 'LBHD']
+    >>> values #doctest: +NORMALIZE_WHITESPACE
+    [array([[ 325.82985131,  402.55452959, 1722.49816649],
+            [ 184.55160796,  409.68716101, 1721.34289625],
+            [ 197.8621642 ,  251.28892152, 1696.90197756]]), 
+     array([[ 326.82985131,  403.55452959, 1723.49816649],
+            [ 185.55160796,  408.68716101, 1722.34289625],
+            [ 198.8621642 ,  252.28892152, 1697.90197756]])]
+
+    """ 
     if pyver == 2:
         labels = motionData[0].keys()
         values = []
@@ -783,6 +976,52 @@ def splitDataDict(motionData):
         return values,labels
 
 def combineDataDict(values,labels):
+    """Converts two lists of values and labels to a dictionary
+
+    Arguments
+    ---------
+    values : array
+        Array of motion data values. Indices of `values` correspond to
+        frames in the trial. Each element is an array of xyz values. 
+        array([x, y, z])
+    labels : array
+        List of marker names.
+  
+    Returns
+    -------
+    data : array
+        Array of dictionaries of motion capture data. Keys are marker 
+        names and values are arrays of xyz values. [x, y, z]. Array
+        indices correspond to frames of the trial.
+   
+    Examples
+    --------
+    Example for three markers and two frames of trial.
+    >>> from numpy import array_equal
+    >>> labels = ['RFHD', 'LFHD', 'LBHD']
+    >>> values = [[[ 325.82985131,  402.55452959, 1722.49816649],
+    ...            [ 184.55160796,  409.68716101, 1721.34289625],
+    ...            [ 197.8621642 ,  251.28892152, 1696.90197756]],
+    ...           [[ 326.82985131,  403.55452959, 1723.49816649],
+    ...            [ 185.55160796,  408.68716101, 1722.34289625],
+    ...            [ 198.8621642 ,  252.28892152, 1697.90197756]]]
+    >>> result = combineDataDict(values, labels)
+    >>> expected = [{'RFHD': [325.82985131, 402.55452959, 1722.49816649], 
+    ...              'LFHD': [184.55160796, 409.68716101, 1721.34289625], 
+    ...              'LBHD': [197.8621642, 251.28892152, 1696.90197756]}, 
+    ...              {'RFHD': [326.82985131, 403.55452959, 1723.49816649], 
+    ...              'LFHD': [185.55160796, 408.68716101, 1722.34289625], 
+    ...              'LBHD': [198.8621642, 252.28892152, 1697.90197756]}]
+
+    >>> flag = True #False if any values are not equal
+    >>> for i in range(len(result)):
+    ...     for key in result[i]:
+    ...         if (not array_equal(result[i][key], expected[i][key])):
+    ...             flag = False
+    >>> flag
+    True
+
+    """
     data = []
     tmp_dict = {}
     for i in range (len(values)):
@@ -800,4 +1039,4 @@ def make_sure_path_exists(path):
     except OSError as exception:
         if exception.errno != errno.EEXIST:
             raise
-            
+
