@@ -1910,60 +1910,62 @@ def rotaxis_footflat(frame,ankle_JC,vsk=None):
     return [R,L,foot_axis]
     
 def rotaxis_nonfootflat(frame,ankle_JC): 
-    
-    """
-
-    Calculate the anatomical correct foot joint center and axis function which is for non foot flat
+    """Calculate the anatomical correct foot joint center and axis function which is for non foot flat
 
     Takes in a dictionary of xyz positions and marker names
     and takes the ankle axis and.
     Calculate the anatomical correct foot axis for non-foot flat.
-    ------------------------------------------------------------------
+
+    Markers used: RTOE, LTOE, RHEE, LHEE
         
-    INPUT: dictionaries of marker lists.  
-            { [], [], [] }
-            An array of ankle_JC each x,y,z position.
+    Parameters
+    ----------
+    frame : array
+        Dictionaries of marker lists.
+            { [], [], [], ... }
+    ankle_JC : array
+        An array of ankle_JC each x,y,z position.
            
-    OUTPUT: Returns the footJointCenter and correct foot axis for non foot flat. 
-          return = [[foot axis_center x,y,z position],
-                    [array([[footaxis_center x,y,z position],
-                            [foot x_axis x,y,z position]]),
-                    array([[footaxis_center x,y,z position],
-                           [foot y_axis x,y,z position]])
-                    array([[footaxis_center x,y,z position],
-                            [foot z_axis x,y,z position]])]]        
+    Returns
+    -------
+    array
+        Returns the footJointCenter and correct foot axis for non foot flat. 
+            return = [[foot axis_center x,y,z position],
+                        [array([[footaxis_center x,y,z position],
+                                [foot x_axis x,y,z position]]),
+                        array([[footaxis_center x,y,z position],
+                            [foot y_axis x,y,z position]])
+                        array([[footaxis_center x,y,z position],
+                                [foot z_axis x,y,z position]])]]        
          
-    MODIFIES:   -
-    --------------------------------------------------------------------
+    Example
+    -------
+    >>> import numpy as np
+    >>> from math import *
+    >>> from .pycgmStatic import *
 
-    EXAMPLE:
-            i = 1
-            frame = { 'RHEE': [374.01257324, 181.57929993, 49.50960922],
-                      'LHEE': [105.30126953, 180.2130127, 47.15660858],
-                      'RTOE': [442.81997681, 381.62280273, 42.66047668 
-                      'LTOE': [39.43652725, 382.44522095, 41.78911591],...}
-            ankle_JC: [array([393.76181608, 247.67829633, 87.73775041]),
-                        array([98.74901939, 219.46930221, 80.6306816]),
-                        [[array([394.4817575, 248.37201348, 87.715368]),
-                        array([393.07114384, 248.39110006, 87.61575574]),
-                        array([393.69314056, 247.78157916, 88.73002876])],
-                        [array([98.47494966, 220.42553803, 80.52821783]),
-                        array([97.79246671, 219.20927275, 80.76255901]),
-                        array([98.84848169, 219.60345781, 81.61663775])]]]
+    >>> frame = { 'RHEE': [374.01257324, 181.57929993, 49.50960922],
+    ...            'LHEE': [105.30126953, 180.2130127, 47.15660858],
+    ...            'RTOE': [442.81997681, 381.62280273, 42.66047668], 
+    ...            'LTOE': [39.43652725, 382.44522095, 41.78911591]}
+    >>> ankle_JC = [np.array([393.76181608, 247.67829633, 87.73775041]),
+    ...            np.array([98.74901939, 219.46930221, 80.6306816]),
+    ...            [[np.array([394.4817575, 248.37201348, 87.715368]),
+    ...            np.array([393.07114384, 248.39110006, 87.61575574]),
+    ...            np.array([393.69314056, 247.78157916, 88.73002876])],
+    ...            [np.array([98.47494966, 220.42553803, 80.52821783]),
+    ...            np.array([97.79246671, 219.20927275, 80.76255901]),
+    ...            np.array([98.84848169, 219.60345781, 81.61663775])]]]
 
-
-            rotaxis_nonfootflat(frame,ankle_JC)
-
-            >>> [array([442.82369995, 381.62716675, 42.66253662]),
-                 array([39.44643402, 382.45663452, 41.79634857]),
-                 [[[442.69448539145668, 381.67161710474886, 43.653156509520521],
-                   [441.88695723776266, 381.94941021535283, 42.525890228337367],
-                   [442.4984051826429, 380.68155408232815, 42.66253662109375]],
-                  [[39.571989586986426, 382.4975524174377, 42.787590986951152],
-                   [38.503976892322832, 382.1494927199455, 41.928403387518372]
-                   [39.756289407364967, 381.50585082392843, 41.796348571777344]]]]
-
-                        
+    >>> rotaxis_nonfootflat(frame,ankle_JC) #doctest: +NORMALIZE_WHITESPACE
+    [[442.81997681, 381.62280273, 42.66047668], 
+    [39.43652725, 382.44522095, 41.78911591], 
+    [[[442.7165113523399, 381.69236201737243, 43.65267444486919], 
+    [441.8799703634302, 381.9420070935171, 42.5400754560908], 
+    [442.49488793064796, 380.6776730670162, 42.6928362329905]], 
+    [[39.55544557956173, 382.5102476283598, 42.77988831675936], 
+    [38.4931191575064, 382.14149803538857, 41.92228333153211], 
+    [39.746106968185536, 381.49468219632325, 41.81434438293743]]]]                      
     """
     
     #REQUIRED MARKERS: 
@@ -2034,9 +2036,7 @@ def rotaxis_nonfootflat(frame,ankle_JC):
     return [R,L,foot_axis]
  
 def getankleangle(axisP,axisD):
-    """
-    
-    Static angle calculation function.
+    """Static angle calculation function.
     
     This function takes in two axis and returns three angles.
     and It use inverse Euler rotation matrix in YXZ order.
@@ -2044,33 +2044,39 @@ def getankleangle(axisP,axisD):
     
     As we use arc sin we have to care about if the angle is in area between -pi/2 to pi/2
     but in case of calculate static offset angle it is in boundry under pi/2, it doesn't matter.
-    ------------------------------------------------------
     
-    INPUT: each axis show the unit vector of axis.
-            axisP = [[axisP-x axis x,y,z position],
+    Parameters
+    ----------
+    axisP : array
+        Shows the unit vector of axisP.
+           axisP = [[axisP-x axis x,y,z position],
                     [axisP-y axis x,y,z position],
-                    [axisP-z axis x,y,z position]]
-            axisD = [[axisD-x axis x,y,z position],
+                    [axisP-z axis x,y,z position]]  
+    axisD : array
+        Shows the unit vector of axisD.
+           axisD = [[axisD-x axis x,y,z position],
                     [axisD-y axis x,y,z position],
                     [axisD-z axis x,y,z position]]
-    OUTPUT: these angles are show on degree.
+    Returns
+    -------
+    angle : array
+        These angles are show on degree.
             angle = [gamma,beta,alpha]
-    MODIFIES:
-    ------------------------------------------------------
     
-    EXAMPLE:
-            INPUT:
-            
-            axisP: [[ 0.0464229   0.99648672  0.06970743]
-                    [ 0.99734011 -0.04231089 -0.05935067]
-                    [-0.05619277  0.07227725 -0.99580037]]
-            axisD: [[-0.18067218 -0.98329158 -0.02225371]
-                    [ 0.71383942 -0.1155303  -0.69071415]
-                    [ 0.67660243 -0.1406784   0.7227854 ]]
-                    
-            OUTPUT:
-            angle: [-17.197765362603256, 9.4320410147265115, 0.93765726704562813]
-            
+    Example
+    -------
+    >>> import numpy as np
+    >>> from .pycgmStatic import *
+
+    >>> axisP = [[ 0.59327576, 0.10572786, 0.15773334],
+    ...         [-0.13176004, -0.10067464, -0.90325703],
+    ...         [0.9399765, -0.04907387, 0.75029827]]
+    >>> axisD = [[0.16701015, 0.69080381, -0.37358145],
+    ...         [0.1433922, -0.3923507, 0.94383974],
+    ...         [-0.15507695, -0.5313784, -0.60119402]]
+
+    >>> getankleangle(axisP,axisD) #doctest: +NORMALIZE_WHITESPACE
+    [0.47919762836810054, 0.990199212558328, 1.5169546072970044]        
     """
     # make inverse matrix of axisP
     axisPi = np.linalg.inv(axisP)
@@ -2091,26 +2097,36 @@ def getankleangle(axisP,axisD):
     return angle
         
 def findJointC(a, b, c, delta): 
-    """
+    """Calculate the Joint Center function.
     
-    Calculate the Joint Center function.
     This function is based on physical markers, a,b,c and joint center which will be calulcated in this function are all in the same plane.
-    ----------------------------------------------
-    INPUT: three marker x,y,z position of a, b, c. 
-            and delta which is the length from marker to joint center.
+
+    Parameters
+    ----------
+    a,b,c : array 
+        Three markers x,y,z position of a, b, c. 
+    delta : float
+        The length from marker to joint center, retrieved from subject measurement file.
     
-    OUTPUT: Joint C x,y,z position
-            [joint C x position, joint C y position, joint C z position]
+    Returns
+    -------
+    mr : array
+        Joint C x,y,z position
+            return = [joint C x position, joint C y position, joint C z position]
+
+    Example
+    -------
+    >>> import numpy as np 
+    >>> from math import *
+    >>> from .pycgmStatic import *
+
+    >>> a = [775.40887891, 788.64742014, 514.4063264]
+    >>> b = [424.5706403, 46.17046141, 305.73130661]
+    >>> c = [618.98284978, 848.86492206, 133.51848843]
+    >>> delta = 42.5
     
-    MODIFIES: -
-    
-    ----------------------------------------------
-    EXAMPLE: INPUT: a = [468.14532471, 325.09780884, 673.12591553]
-                    b = [355.90861996, 365.38260964, 940.6974861]
-                    c = [452.35180664, 329.0609436, 524.77893066]
-                    delta = 59.5
-             OUTPUT: c+r = [396.26807934, 347.78080454, 518.62778789]
-             
+    >>> findJointC(a,b,c,delta) #doctest: +NORMALIZE_WHITESPACE
+    array([599.66684491, 843.26056826,  96.07876121])  
     """
     # make the two vector using 3 markers, which is on the same plane.
     v1 = (a[0]-c[0],a[1]-c[1],a[2]-c[2])
@@ -2156,19 +2172,97 @@ def findJointC(a, b, c, delta):
 
     return mr
  
-def norm2d(v): 
+def norm2d(v):
+    """2D Vector normalization function
+    
+    This function calculates the normalization of a 3-dimensional vector.
+
+    Parameters
+    ----------
+    v : array
+        A 3-dimensional vector.
+            [ x, y, z ]
+
+    Returns
+    -------
+    float 
+        The normalization of the vector as a float.
+
+    Example
+    -------
+    >>> import numpy as np 
+    >>> from math import *
+    >>> from .pycgmStatic import *
+
+    >>> v = [50.00882192, 96.36735079, 264.84675407]
+
+    >>> norm2d(v)  #doctest: +NORMALIZE_WHITESPACE
+    286.23653105347023
+    """ 
     try:
         return sqrt((v[0]*v[0]+v[1]*v[1]+v[2]*v[2]))
     except:
         return np.nan   
 
 def norm3d(v): 
+    """3D Vector normalization function
+    
+    This function calculates the normalization of a 3-dimensional vector.
+
+    Parameters
+    ----------
+    v : array
+        A 3-dimensional vector.
+            [ x, y, z ]
+
+    Returns
+    -------
+    array 
+        The normalization of the vector returned as a float in an array.
+
+    Example
+    -------
+    >>> import numpy as np 
+    >>> from math import *
+    >>> from .pycgmStatic import *
+
+    >>> v = [124.9784377, 368.642446, 18.42836272]
+
+    >>> norm3d(v)  #doctest: +NORMALIZE_WHITESPACE
+    array(389.68765369)
+    """ 
     try:
         return np.asarray(sqrt((v[0]*v[0]+v[1]*v[1]+v[2]*v[2])))
     except:
         return np.nan
         
 def normDiv(v):
+    """Normalized divison function
+    
+    This function calculates the normalization division of a 3-dimensional vector.
+
+    Parameters
+    ----------
+    v : array
+        A 3-dimensional vector.
+            [ x, y, z ]
+
+    Returns
+    -------
+    array 
+        The divison normalization of the vector returned as a float in an array.
+
+    Example
+    -------
+    >>> import numpy as np 
+    >>> from math import *
+    >>> from .pycgmStatic import *
+
+    >>> v = [1.44928201, 1.94301493, 2.49204956]
+
+    >>> normDiv(v)  #doctest: +NORMALIZE_WHITESPACE
+    [0.11991375545853512, 0.16076527243190078, 0.20619245907039865]
+    """
     try:
         vec = sqrt((v[0]*v[0]+v[1]*v[1]+v[2]*v[2]))
         v = [v[0]/vec,v[1]/vec,v[2]/vec]
@@ -2178,6 +2272,38 @@ def normDiv(v):
     return [v[0]/vec,v[1]/vec,v[2]/vec]
 
 def matrixmult (A, B):
+    """Matrix multiplication function
+    
+    This function returns the product of a matrix multiplication given two matrices. 
+    
+    Let the dimension of the matrix A be: m by n, 
+    let the dimension of the matrix B be: p by q, 
+    multiplication will only possible if n = p,
+    creating a matrix of m by q size.
+
+    Parameters
+    ----------
+    A : array
+        First matrix, in a 2D array format.
+    B : array
+        Second matrix, in a 2D array format.
+
+    Returns
+    -------
+    C : array 
+        The product of the matrix multiplication.
+
+    Example
+    -------
+    >>> from .pycgmStatic import *
+
+    >>> A = [[11,12,13],[14,15,16]]
+    >>> B = [[1,2],[3,4],[5,6]]
+
+    >>> matrixmult(A, B)  #doctest: +NORMALIZE_WHITESPACE
+    [[112, 148], 
+    [139, 184]]
+    """
     C = [[0 for row in range(len(A))] for col in range(len(B[0]))]
     for i in range(len(A)):
         for j in range(len(B[0])):
@@ -2186,6 +2312,32 @@ def matrixmult (A, B):
     return C
  
 def cross(a, b):
+    """Cross Product function
+    
+    Given vectors a and b, calculate the cross product.
+    
+    Parameters
+    ----------
+    a : array
+        First vector x,y,z positions.
+    b : array 
+        Second vector x,y,z positions.
+    
+    Returns
+    -------
+    c : array
+        The cross product of vector a and vector b.
+
+    Example
+    -------
+    >>> from .pycgmStatic import *
+    
+    >>> a = [12.83416835, 61.24792127, 99.59610493]
+    >>> b = [14.79756689, 61.71925415, 95.44488778]
+
+    >>> cross(a, b) #doctest: +NORMALIZE_WHITESPACE
+    [-301.19634015131214, 248.82426676975592, -114.20491366874262]     
+    """
     c = [a[1]*b[2] - a[2]*b[1],
         a[2]*b[0] - a[0]*b[2],
         a[0]*b[1] - a[1]*b[0]]

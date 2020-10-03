@@ -2113,6 +2113,7 @@ def handJointCenter(frame,elbowJC,wristJC,vsk=None):
         
 def findJointC(a, b, c, delta): 
     """Calculate the Joint Center function.
+    
     This function is based on physical markers, a,b,c and joint center which will be calulcated in this function are all in the same plane.
 
     Parameters
@@ -2183,7 +2184,7 @@ def findJointC(a, b, c, delta):
     return mr
 
 def cross(a, b):
-    """Calculate the cross product function
+    """Cross Product function
     
     Given vectors a and b, calculate the cross product.
     
@@ -2201,6 +2202,8 @@ def cross(a, b):
 
     Example
     -------
+    >>> from .pyCGM import *
+
     >>> a = [6.25286248, 7.91367254, 18.63620527]
     >>> b = [3.49290439, 4.42038315, 19.23948238]
 
@@ -2302,6 +2305,7 @@ def getHeadangle(axisP,axisD):
     -------
     >>> import numpy as np 
     >>> from math import *
+    >>> from .pyCGM import *
 
     >>> axisP = [[ 0.0464229, 0.99648672, 0.06970743],
     ...        [ 0.99734011, -0.04231089, -0.05935067],
@@ -2391,6 +2395,7 @@ def getangle_sho(axisP,axisD):
     -------
     >>> import numpy as np 
     >>> from math import *
+    >>> from .pyCGM import *
 
     >>> axisP = [[ 0.0464229, 0.99648672, 0.06970743],
     ...        [ 0.99734011, -0.04231089, -0.05935067],
@@ -2445,6 +2450,7 @@ def getangle_spi(axisP,axisD):
     -------
     >>> import numpy as np 
     >>> from math import *
+    >>> from .pyCGM import *
 
     >>> axisP = [[ 0.0464229,   0.99648672,  0.06970743],
     ...        [ 0.99734011, -0.04231089, -0.05935067],
@@ -2497,6 +2503,7 @@ def getangle(axisP,axisD):
     -------
     >>> import numpy as np 
     >>> from math import *
+    >>> from .pyCGM import *
 
     >>> axisP = [[ 0.0464229,   0.99648672,  0.06970743],
     ...         [ 0.99734011, -0.04231089, -0.05935067],
@@ -2555,7 +2562,8 @@ def norm2d(v):
     -------
     >>> import numpy as np 
     >>> from math import *
-               
+    >>> from .pyCGM import *
+
     >>> v = [105.141121037153, 101.890788777524, 326.7710280245359]
 
     >>> norm2d(v)  #doctest: +NORMALIZE_WHITESPACE
@@ -2586,7 +2594,8 @@ def norm3d(v):
     -------
     >>> import numpy as np 
     >>> from math import *
-               
+    >>> from .pyCGM import *
+
     >>> v = [125.44928201, 143.94301493, 213.49204956]
 
     >>> norm3d(v)  #doctest: +NORMALIZE_WHITESPACE
@@ -2617,6 +2626,7 @@ def normDiv(v):
     -------
     >>> import numpy as np 
     >>> from math import *
+    >>> from .pyCGM import * 
                
     >>> v = [1.44928201, 1.94301493, 2.49204956]
 
@@ -2654,7 +2664,9 @@ def matrixmult (A, B):
         The product of the matrix multiplication.
 
     Example
-    -------              
+    -------
+    >>> from .pyCGM import *
+
     >>> A = [[11,12,13],[14,15,16]]
     >>> B = [[1,2],[3,4],[5,6]]
 
@@ -2691,6 +2703,7 @@ def rotmat(x=0,y=0,z=0):
     -------
     >>> import numpy as np
     >>> import math
+    >>> from .pyCGM import *
 
     >>> x = 0.5
     >>> y = 0.3
