@@ -153,9 +153,6 @@ def hipJointCenter(frame,pel_origin,pel_x,pel_y,pel_z,vsk=None):
 
     Takes in a dictionary of x,y,z positions and marker names, as well as an index.
     Calculates the hip joint center and returns the hip joint center.
-
-    Takes in a dictionary of x,y,z positions and marker names, as well as an index
-    Calculates the pelvis joint center and axis and returns both.
     
     Other landmarks used: origin, sacrum
     Subject Measurement values used: MeanLegLength, R_AsisToTrocanterMeasure, InterAsisDistance, L_AsisToTrocanterMeasure
@@ -173,7 +170,7 @@ def hipJointCenter(frame,pel_origin,pel_x,pel_y,pel_z,vsk=None):
     pel_x, pel_y, pel_z : int
         Respective axes of the pelvis.
     vsk : dict, optional
-        Dictionary of various attributes of the skeleton.
+        A dictionary containing subject measurements from a VSK file.
             { [], [], [], ... }
 
     Returns
@@ -189,8 +186,8 @@ def hipJointCenter(frame,pel_origin,pel_x,pel_y,pel_z,vsk=None):
     >>> from .pyCGM import *
 
     >>> frame = None
-    >>> vsk = {'MeanLegLength': 940.0, 'R_AsisToTrocanterMeasure': 72.512, 'L_AsisToTrocanterMeasure': 72.512,
-    ...        'InterAsisDistance': 215.908996582031}
+    >>> vsk = {'MeanLegLength': 940.0, 'R_AsisToTrocanterMeasure': 72.512,
+    ...        'L_AsisToTrocanterMeasure': 72.512, 'InterAsisDistance': 215.908996582031}
 
     >>> pel_origin = [ 251.60830688, 391.74131775, 1032.89349365]
     >>> pel_x = [251.74063624, 392.72694721, 1032.78850073]
@@ -359,11 +356,11 @@ def kneeJointCenter(frame,hip_JC,delta,vsk=None):
         dictionaries of marker lists.
             { [], [], [] }
     hip_JC : array
-        An array of ankle_JC containing the x,y,z axes marker positions of the knee joint center. 
+        An array of hip_JC containing the x,y,z axes marker positions of the hip joint center. 
     delta : float
-        The length from marker to joint center, retrieved from subject measurement file
+        The length from marker to joint center, retrieved from subject measurement file.
     vsk : dict, optional
-        Dictionary of various attributes of the skeleton.
+        A dictionary containing subject measurements from a VSK file.
             { [], [], [], ... }
 
     Returns
@@ -531,7 +528,7 @@ def ankleJointCenter(frame,knee_JC,delta,vsk=None):
     delta : float
         The length from marker to joint center, retrieved from subject measurement file
     vsk : dict, optional
-        Dictionary of various attributes of the skeleton.
+        A dictionary containing subject measurements from a VSK file.
             { [], [], [], ... }
 
     Returns
@@ -549,7 +546,7 @@ def ankleJointCenter(frame,knee_JC,delta,vsk=None):
     Example
     -------
     >>> import numpy as np 
-    >>> from math import *
+    >>> import math
     >>> from .pyCGM import *
 
     >>> vsk = { 'RightAnkleWidth' : 70.0, 'LeftAnkleWidth' : 70.0, 
@@ -736,7 +733,7 @@ def footJointCenter(frame,vsk,ankle_JC,knee_JC,delta):
         Dictionaries of marker lists.
             { [], [], [], ... }
     vsk : dict
-        Dictionary of various attributes of the skeleton.
+        A dictionary containing subject measurements from a VSK file.
             { [], [], [], ... }
     ankle_JC : array
         An array of ankle_JC containing the x,y,z axes marker positions of the ankle joint center. 
@@ -1001,7 +998,7 @@ def headJC(frame,vsk=None):
         Dictionaries of marker lists.
             { [], [], [], ...}
     vsk : dict, optional
-        Dictionary of various attributes of the skeleton.
+        A dictionary containing subject measurements from a VSK file.
             { [], [], [], ... }
     
     Returns
@@ -1301,7 +1298,7 @@ def findshoulderJC(frame,thorax,wand,vsk=None):
                 wand = [[R wand x,y,z, position],
                         [L wand x,y,z position]]
     vsk : dict, optional
-        Dictionary of various attributes of the skeleton.
+        A dictionary containing subject measurements from a VSK file.
             { [], [], [], ... }
 
     Returns
@@ -1515,7 +1512,7 @@ def elbowJointCenter(frame,thorax,shoulderJC,wand,vsk=None):
             wand = [[R wand x,y,z, position],
                     [L wand x,y,z position]]
     vsk : dict, optional
-        Dictionary of various attributes of the skeleton.
+        A dictionary containing subject measurements from a VSK file.
             { [], [], [], ... }
     
     Returns
@@ -1976,7 +1973,7 @@ def handJointCenter(frame,elbowJC,wristJC,vsk=None):
                         [L_wrist y axis, x,y,z position],
                         [L_wrist z axis, x,y,z position]]]]
     vsk : dict, optional
-        Dictionary of various attributes of the skeleton.
+        A dictionary containing subject measurements from a VSK file.
             { [], [], [], ... }
     
     Returns
@@ -2776,7 +2773,7 @@ def JointAngleCalc(frame,vsk):
         Dictionaries of marker lists.
             { [], [], [], ... }      
     vsk : dict, optional
-        Dictionary of various attributes of the skeleton.
+        A dictionary containing subject measurements from a VSK file.
             { [], [], [], ... }
     
     Returns
