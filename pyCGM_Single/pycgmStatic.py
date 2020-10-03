@@ -263,6 +263,36 @@ def getStatic(motionData,vsk,flat_foot=False,GCS=None):
     return calSM
 
 def average(list):
+    """Average Calculation function
+    
+    Calculates the average of the values in a given list or array.
+
+    Parameters
+    ----------
+    list : array_like
+        List or array of values.
+    
+    Returns
+    -------
+    float 
+        The mean of the list.
+
+    Example
+    -------
+    >>> import numpy as np
+    
+    >>> list = [1,2,3,4,5]
+    >>> average(list)
+    3.0
+
+    >>> list = np.array([1,2,3,4,5])
+    >>> average(list)
+    3.0
+
+    >>> list = np.array([93.81607046, 248.95632028, 782.61762769])
+    >>> average(list)
+    375.13000614333333
+    """
     i =0
     total = 0.0
     while(i <len(list)):
@@ -271,6 +301,35 @@ def average(list):
     return total / len(list)    
 
 def IADcalculation(frame):
+    """Inter ASIS Distance (IAD) Calculation function
+    
+    Calculates the Inter ASIS Distance from a given frame.
+
+    Markers used: RASI, LASI
+
+    Parameters
+    ----------
+    frame : dict 
+        Dictionaries of marker lists.
+            { [], [], [], ...}
+
+    Returns
+    -------
+    IAD : float
+        The mean of the list.
+
+    Example
+    -------
+    >>> import numpy as np
+    >>> from .pyCGM import *
+    Using...
+
+    >>> frame = { 'LASI': np.array([ 183.18504333,  422.78927612, 1033.07299805]),
+    ...           'RASI': np.array([ 395.36532593,  428.09790039, 1036.82763672])}
+    
+    >>> IADcalculation(frame) #doctest: +NORMALIZE_WHITESPACE
+    212.27988865504463
+    """
     RASI = frame['RASI']
     LASI = frame['LASI']
     IAD = np.sqrt((RASI[0]-LASI[0])*(RASI[0]-LASI[0])+(RASI[1]-LASI[1])*(RASI[1]-LASI[1])+(RASI[2]-LASI[2])*(RASI[2]-LASI[2]))
@@ -278,7 +337,39 @@ def IADcalculation(frame):
     return IAD
     
 def staticCalculationHead(frame,head):
+    """Static Head Calculation function
     
+    This function calculates the x,y,z axes of the head,
+    and then calculates the offset of the head using the headoffCalc function.
+
+    Parameters
+    ----------
+    frame : dict 
+        Dictionaries of marker lists.
+            { [], [], [], ...}
+    head : array
+        An array containing the head axis and head origin.
+            [headAxis, headOrigin]
+
+    Returns
+    -------
+    offset : float
+        The head offset angle for static calibration.
+
+    Example
+    -------
+    >>> import numpy as np
+    >>> from .pycgmStatic import headoffCalc
+
+    >>> frame = None
+    >>> head = [[[100.33272997128863, 83.39303060995121, 1484.078302933558], 
+    ...        [98.9655145897623, 83.57884461044797, 1483.7681493301013], 
+    ...        [99.34535520789223, 82.64077714742746, 1484.7559501904173]], 
+    ...        [99.58366584777832, 82.79330825805664, 1483.7968139648438]]
+    
+    >>> staticCalculationHead(frame,head) #doctest: +NORMALIZE_WHITESPACE
+    0.2854660638234306
+    """
     headAxis = head[0]
     headOrigin = head[1]
     x_axis = [headAxis[0][0]-headOrigin[0],headAxis[0][1]-headOrigin[1],headAxis[0][2]-headOrigin[2]]

@@ -38,7 +38,6 @@ def pelvisJointCenter(frame):
     
     Markers used: RASI,LASI,RPSI,LPSI
     Other landmarks used: origin, sacrum
-    Subject Measurement values used: None
 
     Pelvis X_axis: Computed with a Gram-Schmidt orthogonalization procedure(ref. Kadaba 1990) and then normalized.
     Pelvis Y_axis: LASI-RASI x,y,z positions, then normalized.
