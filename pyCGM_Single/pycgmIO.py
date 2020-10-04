@@ -421,6 +421,8 @@ def loadCSV(filename):
     def rowToDict(row,labels):
         """Convert a row and labels to a dictionary.
 
+        This function is only in scope from within `loadCSV`.
+
         Arguments
         ---------
         row : array
@@ -481,6 +483,27 @@ def loadCSV(filename):
         return dic,unlabeleddic
 
     def split_line(line):
+        """Split a line in a csv file into an array
+
+        This function is only in scope from within `loadCSV`.
+
+        Arguments
+        ---------
+        line : str
+            String form of the line to be split
+
+        Returns
+        -------
+        array
+            Array form of `line`, split on the predefined delimiter ','.
+
+        Examples
+        --------
+        >>> line = '-772.184937, -312.352295, 589.815308'
+        >>> split_line(line)
+        ['-772.184937', ' -312.352295', ' 589.815308']
+
+        """
         if pyver == 2: line = asbytes(line).strip(asbytes('\r\n'))
         elif pyver == 3: line = line.strip('\r\n')
         if line:
@@ -489,6 +512,65 @@ def loadCSV(filename):
             return []
 
     def parseTrajectories(fh,framesNumber):
+        r"""Converts rows of motion capture data into a dictionary
+
+        This function is only in scope from within `loadCSV`.
+
+        Arguments
+        ---------
+        fh : list iterator object
+            Iterator for rows of motion capture data. The first 3 rows
+            in `fh` contain the frequency, labels, and field headers 
+            respectively. All elements of the rows in `fh` are strings.
+            See Examples.
+        framesNumber : int
+            Number of rows iterated over in `fh`.
+
+        Returns
+        -------
+        labels, rows, rowsUnlabeled, freq : tuple
+            `labels` is a list of marker names.
+            `rows` is a list of dict of motion capture data.
+            `rowsUnlabeled` is of the same type as `rows`, but for
+            unlabeled data.
+            `freq` is the frequency in Hz.
+
+        Examples
+        --------
+        This example uses a loop and numpy.array_equal to test the equality
+        of individual dictionary elements since python does not guarantee 
+        the order of dictionary elements. 
+
+        Example for 2 markers, LFHD and RFHD, and one frame of trial. 
+        >>> from numpy import array, array_equal
+
+        # Rows will hold frequency, headers, fields, and one row of data
+        >>> rows = [None, None, None, None] 
+        >>> rows[0] = '240.000000,Hz\n'
+        >>> rows[1] = ',LFHD,,,RFHD\n'
+        >>> rows[2] = 'Field #,X,Y,Z,X,Y,Z\n'
+        >>> rows[3] = '1,-1003.583618,81.007614,1522.236938,-1022.270447,-47.190071,1519.680420\n'
+        >>> fh = iter(rows)
+        >>> framesNumber = 1 #Indicates one row of data
+        >>> labels, rows, rowsUnlabeled, freq = parseTrajectories(fh, framesNumber)
+        >>> labels
+        ['LFHD', 'RFHD']
+        >>> expectedRows = [{'LFHD': array([-1003.583618,  81.007614, 1522.236938]), 
+        ...                  'RFHD': array([-1022.270447, -47.190071, 1519.68042 ])}]
+
+        >>> flag = True #False if any values are not equal
+        >>> for i in range(len(expectedRows)):
+        ...     for key in rows[i]:
+        ...         if (not array_equal(rows[i][key], expectedRows[i][key])):
+        ...             flag = False
+        >>> flag
+        True
+        >>> rowsUnlabeled
+        [{}]
+        >>> freq
+        240.0
+
+        """
         delimiter=','
         if pyver == 2:
             freq=np.float64(split_line(fh.next())[0])
@@ -516,7 +598,8 @@ def loadCSV(filename):
             elements,unlabeled_elements=rowToDict(row,labels)
             rows.append(elements)
             rowsUnlabeled.append(unlabeled_elements)
-
+        print(len(rows))
+        print(rows[0])
         return labels,rows,rowsUnlabeled,freq
 
     ###############################################
@@ -688,8 +771,16 @@ def dataAsDict(data,npArray=False):
         return dataDict
 
 def writeKinetics(CoM_output,kinetics):
-    """
-    temp function to write kinetics data.  Just uses numpy.save
+    """Uses numpy.save to write kinetics data
+
+    Arguments
+    ---------
+    CoM_output : file, str, or Path
+        Full path of the file to be saved to or a file object 
+        or a filename.
+    kinetics : array_like
+        Array data to be saved.
+
     """
     np.save(CoM_output,kinetics)
         
@@ -829,6 +920,14 @@ def writeResult(data,filename,**kargs):
         #np.savez_compressed(filename,dataFilter)
 
 def smKeys():
+    """A list of segment labels
+ 
+    Returns
+    -------
+    keys : array
+        List of segment labels.
+
+    """
     keys = ['Bodymass', 'Height', 'HeadOffset', 'InterAsisDistance', 'LeftAnkleWidth', 'LeftAsisTrocanterDistance',
             'LeftClavicleLength',
             'LeftElbowWidth', 'LeftFemurLength', 'LeftFootLength', 'LeftHandLength', 'LeftHandThickness',
@@ -1034,9 +1133,22 @@ def combineDataDict(values,labels):
         
 
 def make_sure_path_exists(path):
+    """Creates a file path
+    
+    Parameters
+    ----------
+    path : str
+        String of the full file path of the directory to be created.
+
+    Raises
+    ------
+    Exception
+        Raised if the path was unable to be created for any reason 
+        other than the directory already existing.
+
+    """
     try:
         os.makedirs(path)
     except OSError as exception:
         if exception.errno != errno.EEXIST:
             raise
-
