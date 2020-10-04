@@ -19,31 +19,219 @@ else:
 #helper functions useful for dealing with frames of data, i.e. 1d arrays of (x,y,z)
 #coordinate. Also in Utilities but need to clean everything up somewhat!         
 def f(p, x):
+    """
+    Parameters
+    ----------
+    p : array
+    x : int or float
+        Scaling factor for the first variable in p.
+    Returns
+    -------
+    int or float
+        Returns the first value in p scaled by x, aded by the second value in p.
+
+    Example
+    -------
+    >>> from .pycgmKinetics import *
+    >>> import numpy as np
+    
+    >>> p = [1, 2]
+    >>> x = 10
+    >>> f(p, x) #doctest: +NORMALIZE_WHITESPACE
+    12
+
+    >>> p = np.array([5.16312215, 8.79307163])
+    >>> x = 2.0
+    >>> f(p, x) #doctest: +NORMALIZE_WHITESPACE
+    19.11931593
+    """
     return (p[0] * x) + p[1]
 
 def dot(v,w):
+    """Calculate the Dot Product function.
+    
+    Parameters
+    ----------
+    v : array
+        First 3D vector.
+    w : array
+        Second 3D vector.
+
+    Returns
+    -------
+    int or float
+        The quotient of the dot product of vectors v and w.
+
+    Example
+    -------
+    >>> from .pycgmKinetics import *
+    >>> import numpy as np
+    
+    >>> v = [1, 2, 3]
+    >>> w = [4, 5, 6]
+    >>> dot(v,w) #doctest: +NORMALIZE_WHITESPACE
+    32
+
+    >>> v = np.array([6.56643344, 6.23972959, 2.83918231])
+    >>> w = np.array([5.53732499, 7.61560881, 6.2563037])
+    >>> dot(v,w) #doctest: +NORMALIZE_WHITESPACE
+    101.6426024111329
+    """
     x,y,z = v
     X,Y,Z = w
     return x*X + y*Y + z*Z
   
 def length(v):
+    """Calculate Length of a 3D Vector function.
+    
+    Parameters
+    ----------
+    v : array
+        A 3D vector.
+
+    Returns
+    -------
+    float
+        Returns the length of a 3D vector.
+
+    Example
+    -------
+    >>> from .pycgmKinetics import *
+    >>> import numpy as np
+    
+    >>> v = [1,2,3]
+    >>> length(v) #doctest: +NORMALIZE_WHITESPACE
+    3.7416573867739413
+
+    >>> v = np.array([6.56643344, 6.23972959, 2.83918231])
+    >>> length(v) #doctest: +NORMALIZE_WHITESPACE
+    9.49279883215107
+    """
     x,y,z = v
     return np.sqrt(x*x + y*y + z*z)
   
 def vector(b,e):
+    """Calculate Length of a 3D Vector function.
+    
+    Parameters
+    ----------
+    v : array
+        A 3D vector.
+
+    Returns
+    -------
+    float
+        Returns the length of a 3D vector.
+
+    Example
+    -------
+    >>> from .pycgmKinetics import *
+    >>> import numpy as np
+    
+    >>> v = [1,2,3]
+    >>> length(v) #doctest: +NORMALIZE_WHITESPACE
+    3.7416573867739413
+
+    >>> v = np.array([6.56643344, 6.23972959, 2.83918231])
+    >>> length(v) #doctest: +NORMALIZE_WHITESPACE
+    9.49279883215107
+    """
     x,y,z = b
     X,Y,Z = e
     return (X-x, Y-y, Z-z)
   
 def unit(v):
+    """Create Unit Vector function.
+    
+    Parameters
+    ----------
+    v : array
+        A 3D vector.
+
+    Returns
+    -------
+    tuple
+        Returns the unit vector of a given vector.
+
+    Example
+    -------
+    >>> from .pycgmKinetics import *
+    >>> import numpy as np
+    
+    >>> v = [1,2,3]
+    >>> unit(v) #doctest: +NORMALIZE_WHITESPACE
+    (0.2672612419124244, 0.5345224838248488, 0.8017837257372732)
+
+    >>> v = np.array([6.56643344, 6.23972959, 2.83918231])
+    >>> unit(v) #doctest: +NORMALIZE_WHITESPACE
+    (0.6917278619410124, 0.6573118950826935, 0.2990880097852701)
+    """
     x,y,z = v
     mag = length(v)
     return (x/mag, y/mag, z/mag)
   
 def distance(p0,p1):
+    """Calculate Distance function.
+    
+    Parameters
+    ----------
+    p0 : array
+        First x,y,z coordinate point.
+    p1 : array
+        Second x,y,z coordinate point.
+        
+    Returns
+    -------
+    float
+        Returns distance between points p0 and p1.
+
+    Example
+    -------
+    >>> from .pycgmKinetics import *
+    >>> import numpy as np
+    
+    >>> p0 = [1,2,3]
+    >>> p1 = [4,5,6]
+    >>> distance(p0,p1) #doctest: +NORMALIZE_WHITESPACE
+    5.196152422706632
+
+    >>> p0 = np.array([6.56643344, 6.23972959, 2.83918231])
+    >>> p1 = np.array([1.25539445, 4.44290559, 0.80470151])
+    >>> distance(p0,p1) #doctest: +NORMALIZE_WHITESPACE
+    5.9644634097163225
+    """
     return length(vector(p0,p1))
   
 def scale(v,sc):
+    """Create Scaled Vector function.
+    
+    Parameters
+    ----------
+    v : array
+        A 3D vector.
+    sc : int or float
+        The scaling factor.
+
+    Returns
+    -------
+    tuple
+        Returns the given vector scaled by scaling factor.
+
+    Example
+    -------
+    >>> from .pycgmKinetics import *
+    >>> import numpy as np
+    
+    >>> v = [1,2,3]
+    >>> sc = 2
+    >>> scale(v, sc) #doctest: +NORMALIZE_WHITESPACE
+    (2, 4, 6)
+
+    >>> v = np.array([0.5664332, 0.23972959, 0.83918231])
+    >>> sc = 10.0
+    >>> scale(v, sc) #doctest: +NORMALIZE_WHITESPACE
+    (5.664332, 2.3972959, 8.3918231)
+    """
     x,y,z = v
     return (x * sc, y * sc, z * sc)
   
