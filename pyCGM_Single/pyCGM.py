@@ -2776,9 +2776,6 @@ def JointAngleCalc(frame,vsk):
                                                     [[L_Xaxis_x,L_Xaxis_y,L_Xaxis_z],
                                                     [L_Yaxis_x,L_Yaxis_y,L_Yaxis_z],
                                                     [L_Zaxis_x,L_Zaxis_y,L_Zaxis_z]]]]
-    
-    Markers used: RHEE. LHEE, LFHD, RFHD, LBHD, RBHD, C7, CLAV, STRN, T10
-    Subject Measurement value used: GCS
 
     Parameters
     ----------
@@ -2794,6 +2791,76 @@ def JointAngleCalc(frame,vsk):
     r, jc : tuple 
         Returns r, the result of all the joint calculations, 
         and jc, a dictionary for joint centers.
+    
+    Example
+    -------
+    >>> import numpy as np
+    >>> from math import *
+    >>> from .pyCGM import *
+
+    >>> frame = {'RHEE': np.array([406.46331787, 227.56491089,  48.75952911]),
+    ...          'LHEE': np.array([223.59848022, 173.42980957,  47.92973328]),
+    ...          'LFHD': np.array([ 215.65290833,  504.09768677, 1708.64672852]),
+    ...          'RFHD': np.array([ 355.96652222,  490.96444702, 1716.28930664]),
+    ...          'C7': np.array([ 300.2315979 ,  299.10223389, 1541.15466309]),
+    ...          'CLAV': np.array([ 292.21005249,  430.9024353 , 1453.13269043]),
+    ...          'STRN': np.array([ 284.38815308,  468.17385864, 1287.41027832]),
+    ...          'T10': np.array([ 297.43554688,  241.68287659, 1287.3963623 ]),
+    ...          'RASI': np.array([ 395.36532593,  428.09790039, 1036.82763672]),
+    ...          'LASI': np.array([ 183.18504333,  422.78927612, 1033.07299805]),
+    ...          'RPSI': np.array([ 341.41815186,  246.72117615, 1055.99145508]),
+    ...          'LPSI': np.array([ 255.79994202,  241.42199707, 1057.30065918]),
+    ...          'RTHI': np.array([468.2088623 , 324.88284302, 673.06201172]),
+    ...          'LTHI': np.array([118.77147675, 330.31378174, 721.89941406]),
+    ...          'RKNE': np.array([452.37783813, 328.95404053, 524.75134277]),
+    ...          'LKNE': np.array([164.73233032, 304.34173584, 530.01013184]),
+    ...          'RTIB': np.array([468.57275391, 275.22836304, 270.88543701]),
+    ...          'LTIB': np.array([145.16470337, 249.51509094, 361.56170654]),
+    ...          'RANK': np.array([448.15231323, 275.1399231 ,  90.81516266]),
+    ...          'LANK': np.array([173.92085266, 207.3531189 ,  85.71491241]),
+    ...          'RTOE': np.array([427.95211792, 437.99603271,  41.77342987]),
+    ...          'LTOE': np.array([175.78988647, 379.49987793,  42.61193085]),
+    ...          'LBHD': np.array([ 223.61843872,  344.22528076, 1692.7590332 ]),
+    ...          'RBHD': np.array([ 329.41702271,  330.91534424, 1695.7479248 ]),
+    ...          'RSHO': np.array([ 488.01470947,  359.1736145 , 1486.29650879]),
+    ...          'LSHO': np.array([ 107.51920319,  304.35604858, 1502.00415039]),
+    ...          'RELB': np.array([658.90338135, 326.07580566, 1285.28515625]),
+    ...          'LELB': np.array([-156.32162476, 335.2593313, 1287.39916992]),
+    ...          'RWRA': np.array([776.51898193,495.68103027, 1108.38464355]),
+    ...          'RWRB': np.array([830.9072876, 436.75341797, 1119.11901855]),
+    ...          'LWRA': np.array([-249.28146362, 525.32977295, 1117.09057617]),
+    ...          'LWRB': np.array([-311.77532959, 477.22512817, 1125.1619873]),
+    ...          'RFIN': np.array([863.71374512, 524.4475708, 1074.54248047]),
+    ...          'LFIN': np.array([-326.65890503, 558.34338379, 1091.04284668])}
+    >>> vsk = {'GCS': [[1,0,0], [0,1,0], [0,0,1]], 'MeanLegLength': 940.0,
+    ... 'R_AsisToTrocanterMeasure': 72.512, 'L_AsisToTrocanterMeasure': 72.512,
+    ... 'InterAsisDistance': 215.908996582031, 'RightKneeWidth': 105.0, 'LeftKneeWidth': 105.0,
+    ... 'RightAnkleWidth': 70.0, 'LeftAnkleWidth': 70.0, 'RightTibialTorsion': 0.0,
+    ... 'LeftTibialTorsion': 0.0, 'RightStaticRotOff': 0.015683497632642047,
+    ... 'LeftStaticRotOff': 0.009402910292403012, 'RightStaticPlantFlex': 0.2702417907002758,
+    ... 'LeftStaticPlantFlex': 0.20251085737834015, 'HeadOffset': 0.2571990469310653,
+    ... 'RightShoulderOffset': 40.0, 'LeftShoulderOffset': 40.0, 'RightElbowWidth': 74.0, 'LeftElbowWidth': 74.0,
+    ... 'RightWristWidth': 55.0, 'LeftWristWidth': 55.0,'RightHandThickness': 34.0, 'LeftHandThickness': 34.0}
+    
+    >>> results = JointAngleCalc(frame, vsk)[1]
+
+    >>> results['Pelvis'] #doctest: +NORMALIZE_WHITESPACE
+    array([ 289.27518463,  425.44358826, 1034.95031739])
+
+    >>> results['Thorax'] #doctest: +NORMALIZE_WHITESPACE
+    [292.5820207274371, 423.91992927884246, 1453.4586494685875]
+
+    >>> results['Head'] #doctest: +NORMALIZE_WHITESPACE
+    [285.80971527500003, 497.531066895, 1712.46801758]
+
+    >>> results['RHand'] #doctest: +NORMALIZE_WHITESPACE
+    array([ 859.74577056,  517.28426777, 1051.98273163])
+
+    >>> results['LFoot'] #doctest: +NORMALIZE_WHITESPACE
+    array([175.78988647, 379.49987793,  42.61193085])
+
+    >>> results['RKnee'] #doctest: +NORMALIZE_WHITESPACE
+    array([396.26807933, 347.78080454, 518.62778789])
     """
     
     # THIS IS FOOT PROGRESS ANGLE
