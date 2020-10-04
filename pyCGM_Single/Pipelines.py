@@ -102,8 +102,30 @@ def filt(data, cutoff, Fs):
 
 
 def prep(trajs):
-    frames=[]
+    """Prepare frames function
+
+    Parameters
+    ----------
+    trajs : dict
+
+    Returns
+    -------
+    frames : array
+
+    Example
+    -------
+    >>> from .Pipelines import *
+    >>> import numpy as np
     
+    >>> trajs = {'trajOne': [[217.19961548, -82.35484314, 332.2684021 ],
+    ...                  [[257.19961548, -32.35484314, 382.2684021 ]]]}
+
+    >>> prep(trajs) #doctest: +NORMALIZE_WHITESPACE
+    [{'trajOne': [[217.19961548, -82.35484314, 332.2684021], 
+    [[257.19961548, -32.35484314, 382.2684021]]]}, 
+    {'trajOne': [[[257.19961548, -32.35484314, 382.2684021]]]}]
+    """
+    frames=[]
     if pyver == 2:
         for i in range(len(trajs[trajs.keys()[0]])):
             temp={}
@@ -161,6 +183,27 @@ def clearMarker(data,name):
     return data
     
 def filtering(Data):
+    """Filter function
+
+
+    Parameters
+    ----------
+    Data : dict 
+        Dictionaries of marker lists.
+            { [], [], [], ...}
+    
+    Returns
+    -------
+    data : dict
+    
+    Example
+    -------
+    >>> import numpy as np 
+    >>> from .Pipelines import *
+
+    >>> Data = {'LTIL': np.array([-268.1545105 ,  327.53512573,   30.17036057]), 
+    ... 'RFOP': np.array([ -38.4509964 , -148.6839447 ,   59.21961594])}
+    """
     data = Data.copy()
     
     if pyver == 2:
