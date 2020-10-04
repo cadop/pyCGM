@@ -121,6 +121,41 @@ def prep(trajs):
     return frames
 
 def clearMarker(data,name):
+    """Clear Markers function
+
+    Clears the markers in a given dictionary for a given name.
+
+    Parameters
+    ----------
+    data : dict 
+        Dictionaries of marker lists.
+            { [], [], [], ...}
+    name : str
+        Name for the specific marker to be cleared in data.
+    
+    Returns
+    -------
+    data : dict
+        Returns the original data dictionary with the cleared marker.
+    
+    Example
+    -------
+    >>> import numpy as np 
+    >>> from .Pipelines import *
+
+    >>> data = [{'LTIL': np.array([-268.1545105 ,  327.53512573,   30.17036057]), 
+    ... 'RFOP': np.array([ -38.4509964 , -148.6839447 ,   59.21961594])},
+    ...
+    ... {'LTIL': np.array([-273.1545105 ,  324.53512573,   36.17036057]),
+    ... 'RFOP': np.array([ -38.4509964 , -148.6839447 ,   59.21961594])}]
+    >>> name = 'LTIL'
+    
+    >>> clearMarker(data, name) #doctest: +NORMALIZE_WHITESPACE
+    [{'LTIL': array([nan, nan, nan]), 
+    'RFOP': array([ -38.4509964 , -148.6839447 ,   59.21961594])}, 
+    {'LTIL': array([nan, nan, nan]), 
+    'RFOP': array([ -38.4509964 , -148.6839447 ,   59.21961594])}]
+    """
     for i in range(len(data)):
         data[i][name] = np.array([np.nan,np.nan,np.nan])
     return data

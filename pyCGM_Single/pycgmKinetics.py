@@ -358,6 +358,7 @@ def findL5_Pelvis(frame):
     -------
     midHip, L5 : tuple
         Returns the x,y,z marker positions of the midHip and L5.
+        
     Example
     -------
     >>> from .pycgmKinetics import *
@@ -409,6 +410,7 @@ def findL5_Thorax(frame):
     L5 : array
         Returns the x,y,z marker positions of the L5.
             (midHip, L5)
+
     Example
     -------
     >>> from .pycgmKinetics import *
