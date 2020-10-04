@@ -5,7 +5,7 @@ from parameterized import parameterized
 
 rounding_precision = 8
 
-class TestCalculations(unittest.TestCase):
+class TestPycgmAngle(unittest.TestCase):
 
     @parameterized.expand([
         [[[0.09010104879445179904, 0.99590937599884910014, 0.00680557152145411237],
