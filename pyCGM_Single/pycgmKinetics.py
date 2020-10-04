@@ -111,17 +111,19 @@ def length(v):
     return np.sqrt(x*x + y*y + z*z)
   
 def vector(b,e):
-    """Calculate Length of a 3D Vector function.
+    """Vector Subtraction function.
     
     Parameters
     ----------
     v : array
-        A 3D vector.
+        First 3D vector.
+    e : array
+        Second 3D vector.
 
     Returns
     -------
-    float
-        Returns the length of a 3D vector.
+    tuple
+        Returns the vector of e - v.
 
     Example
     -------
@@ -129,12 +131,14 @@ def vector(b,e):
     >>> import numpy as np
     
     >>> v = [1,2,3]
-    >>> length(v) #doctest: +NORMALIZE_WHITESPACE
-    3.7416573867739413
+    >>> e = [4,5,6]
+    >>> vector(v, e) #doctest: +NORMALIZE_WHITESPACE
+    (3, 3, 3)
 
-    >>> v = np.array([6.56643344, 6.23972959, 2.83918231])
-    >>> length(v) #doctest: +NORMALIZE_WHITESPACE
-    9.49279883215107
+    >>> v = np.array([5.10897693, 6.18161923, 9.44221215])
+    >>> e = np.array([3.68040209, 9.92542233, 5.38362424])
+    >>> vector(v, e) #doctest: +NORMALIZE_WHITESPACE
+    (-1.42857484, 3.7438031, -4.05858791)
     """
     x,y,z = b
     X,Y,Z = e
@@ -236,11 +240,79 @@ def scale(v,sc):
     return (x * sc, y * sc, z * sc)
   
 def add(v,w):
+    """Vector Addition function.
+    
+    Parameters
+    ----------
+    v : array
+        First 3D vector.
+    w : array
+        Second 3D vector.
+
+    Returns
+    -------
+    tuple
+        Returns the sum of the two given vectors.
+
+    Example
+    -------
+    >>> from .pycgmKinetics import *
+    >>> import numpy as np
+    
+    >>> v = [1, 2, 3]
+    >>> w = [4, 5, 6]
+    >>> add(v, w) #doctest: +NORMALIZE_WHITESPACE
+    (5, 7, 9)
+
+    >>> v = np.array([3.98527165, 5.52526792, 4.34518370])
+    >>> w = np.array([5.82147992, 7.87348922, 2.61204120])
+    >>> add(v, w) #doctest: +NORMALIZE_WHITESPACE
+    (9.80675157, 13.39875714, 6.9572249)
+    """
     x,y,z = v
     X,Y,Z = w
     return (x+X, y+Y, z+Z)
 
 def pnt2line(pnt, start, end):
+    """Calculate Point-Line Distance function
+    
+    This function calculates the distance from a given point, pnt, to a line. 
+    The line is represented by two other points, start and end.
+
+    Parameters
+    ----------
+    pnt : array
+        An x,y,z point on the same plane.
+    start : array
+        First x,y,z point on the line.
+    end : array
+        Second x,y,z point on the line.
+
+    Returns
+    -------
+    dist, nearest, pnt : tuple
+        Returns dist, the closest distance from the point to the line,
+        Returns nearest, the closest point on the line from the given pnt,
+        Returns pnt, the original given pnt.
+        All of these are returned in a single tuple.
+
+    Example
+    -------
+    >>> from .pycgmKinetics import *
+    >>> import numpy as np
+    
+    >>> pnt = [1, 2, 3]
+    >>> start = [4, 5, 6]
+    >>> end = [7, 8, 9]
+    >>> pnt2line(pnt, start, end) #doctest: +NORMALIZE_WHITESPACE
+    (5.196152422706632, (4.0, 5.0, 6.0), [1, 2, 3])
+
+    >>> pnt = np.array([9.82004519, 6.7344815, 0.94587439])
+    >>> start = np.array([3.89481034, 4.02115225, 4.3075406])
+    >>> end = np.array([7.56622188, 3.58992166, 8.2749309])
+    >>> pnt2line(pnt, start, end) #doctest: +NORMALIZE_WHITESPACE
+    (7.210090049627704, (4.799617258586222, 3.914876934065786, 5.285290479865516), array([9.82004519, 6.7344815 , 0.94587439]))
+    """
     lineVec = vector(start, end)
 
     pntVec = vector(start, pnt)
@@ -272,6 +344,38 @@ def pnt2line(pnt, start, end):
 
 
 def findL5_Pelvis(frame):
+    """Calculate L5 Markers Given Pelvis function
+    
+    Markers used: LHip, RHip, Pelvis_axis
+
+    Parameters
+    ----------
+    frame : dict 
+        Dictionaries of marker lists.
+            { [], [], [], ... }
+
+    Returns
+    -------
+    midHip, L5 : tuple
+        Returns the x,y,z marker positions of the midHip and L5.
+    Example
+    -------
+    >>> from .pycgmKinetics import *
+    >>> import numpy as np
+
+    >>> Pelvis_axis = [np.array([251.60830688, 391.74131775, 1032.89349365]),
+    ...                np.array([[251.74063624, 392.72694721, 1032.78850073],
+    ...                    [250.61711554, 391.87232862, 1032.8741063],
+    ...                    [251.60295336, 391.84795134, 1033.88777762]]),
+    ...                np.array([231.57849121, 210.25262451, 1052.24969482])]
+    >>> LHip = np.array([308.38050472, 322.80342417, 937.98979061])
+    >>> RHip = np.array([182.57097863, 339.43231855, 935.529000126])
+    >>> frame = { 'Pelvis_axis': Pelvis_axis, 'RHip': RHip, 'LHip': LHip}
+    
+    >>> findL5_Pelvis(frame) #doctest: +NORMALIZE_WHITESPACE
+    (array([245.47574167, 331.11787136, 936.75939537]), 
+    array([ 271.52716019,  371.69050709, 1043.80997977]))
+    """
     #The L5 position is estimated as (LHJC + RHJC)/2 + 
     #(0.0, 0.0, 0.828) * Length(LHJC - RHJC), where the value 0.828 
     #is a ratio of the distance from the hip joint centre level to the 
@@ -290,6 +394,38 @@ def findL5_Pelvis(frame):
     return midHip, L5#midHip + ([0.0, 0.0, zOffset])   
 
 def findL5_Thorax(frame):
+    """Calculate L5 Markers Given Thorax function
+    
+    Markers used: C7, RHip, LHip, Thorax_axis
+
+    Parameters
+    ----------
+    frame : dict 
+        Dictionaries of marker lists.
+            { [], [], [], ... }
+
+    Returns
+    -------
+    L5 : array
+        Returns the x,y,z marker positions of the L5.
+            (midHip, L5)
+    Example
+    -------
+    >>> from .pycgmKinetics import *
+    >>> import numpy as np
+
+    >>> Thorax_axis = [[[256.3454633226447, 365.7223958512035, 1461.920891187948], 
+    ...               [257.26637166499415, 364.69602499862503, 1462.2347234647593], 
+    ...               [256.1842731803127, 364.4328898435265, 1461.363045336319]], 
+    ...               [256.2729542797522, 364.79605748807074, 1462.2905392309394]]
+    >>> C7 = np.array([256.78051758, 371.28042603, 1459.70300293])
+    >>> LHip = np.array([308.38050472, 322.80342417, 937.98979061])
+    >>> RHip = np.array([182.57097863, 339.43231855, 935.529000126])
+    >>> frame = { 'C7': C7, 'RHip': RHip, 'LHip': LHip, 'Thorax_axis': Thorax_axis}
+    
+    >>> findL5_Thorax(frame) #doctest: +NORMALIZE_WHITESPACE
+    array([ 265.16356015,  359.12462014, 1049.065471  ])
+    """
     C7_ = frame['C7']
     x_axis,y_axis,z_axis = frame['Thorax_axis'][0] 
     norm_dir_y = np.array(unit(y_axis))
