@@ -277,6 +277,19 @@ def markerKeys():
     return marker_keys
 
 def loadEZC3D(filename):
+    """Use c3dez to load c3d file
+
+    Arguments
+    ---------
+    filename : str
+        Path to the c3d file to be loaded.
+
+    Returns
+    -------
+    [data, None, None] : array
+        `data` is the array representation of the loaded c3d file.
+
+    """
     #Relative import mod for python 2 and 3
     try: from . import c3dez
     except: import c3dez
@@ -598,8 +611,6 @@ def loadCSV(filename):
             elements,unlabeled_elements=rowToDict(row,labels)
             rows.append(elements)
             rowsUnlabeled.append(unlabeled_elements)
-        print(len(rows))
-        print(rows[0])
         return labels,rows,rowsUnlabeled,freq
 
     ###############################################
@@ -750,12 +761,51 @@ def dataAsArray(data):
     return dataArray
 
 def dataAsDict(data,npArray=False):
-    """
-    convert the frame by frame based data to a dictionary of keys 
-    with all motion data as an array per key
+    """Converts the frame by frame based data to a dictionary of keys 
+    with all motion data as an array per key.
+
+    Arguments
+    ---------
+    data : array
+        List of dict. Indices of `data` correspond to frames
+        in the trial. Keys in the dictionary are marker names and 
+        values are xyz coordinates of the corresponding marker.
+    npArray : bool, optional
+        False by default. If set to true, the function will return
+        a numpy array for each key instead of a list.
     
-    takes an option npArray flag, when set to true, will return a numpy array
-    for each key instead of a list
+    Returns
+    -------
+    dataDict : dict
+        Dictionary of the motion capture data from `data`.
+
+    Examples
+    --------
+    This example uses a loop and numpy.array_equal to test the equality
+    of individual dictionary elements since python does not guarantee 
+    the order of dictionary elements.
+ 
+    >>> from numpy import array, array_equal
+    >>> data = [{'RFHD': array([325.82985131, 402.55452959, 1722.49816649]), 
+    ...          'LFHD': array([184.55160796, 409.68716101, 1721.34289625]),
+    ...          'LBHD': array([197.8621642 , 251.28892152, 1696.90197756])}, 
+    ...         {'RFHD': array([326.82985131, 403.55452959, 1723.49816649]), 
+    ...          'LFHD': array([185.55160796, 408.68716101, 1722.34289625]),
+    ...          'LBHD': array([198.8621642 , 252.28892152, 1697.90197756])}]
+    >>> result = dataAsDict(data, True) #return as numpy array
+    >>> expected = {'RFHD': array([[ 325.82985131,  402.55452959, 1722.49816649],
+    ...                            [ 326.82985131,  403.55452959, 1723.49816649]]), 
+    ...             'LFHD': array([[ 184.55160796,  409.68716101, 1721.34289625],
+    ...                            [ 185.55160796,  408.68716101, 1722.34289625]]), 
+    ...             'LBHD': array([[ 197.8621642 ,  251.28892152, 1696.90197756],
+    ...                            [ 198.8621642 ,  252.28892152, 1697.90197756]])}
+    >>> flag = True #False if any values are not equal
+    >>> for marker in result:
+    ...     if (not array_equal(result[marker], expected[marker])):
+    ...         flag = False
+    >>> flag
+    True
+
     """
     dataDict = {}
     
