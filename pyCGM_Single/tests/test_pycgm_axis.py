@@ -1034,4 +1034,3 @@ class TestAxisUtils(TestCase):
         result = pyCGM.JointAngleCalc(frame, vsk)
         np.testing.assert_almost_equal(result[0], expected[0], rounding_precision)
         np.testing.assert_equal(result[1], expected[1])
-
