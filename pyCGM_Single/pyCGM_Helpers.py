@@ -18,7 +18,6 @@ def getfilenames(x=1):
     -------
     >>> from .pyCGM_Helpers import getfilenames
     >>> import os
-    
     # Default is x = 1.
     >>> getfilenames() #doctest: +NORMALIZE_WHITESPACE
     ('SampleData/59993_Frame/59993_Frame_Dynamic.c3d', 
@@ -26,7 +25,6 @@ def getfilenames(x=1):
     'SampleData/59993_Frame/59993_Frame_SM.vsk', 
     'SampleData/59993_Frame/pycgm_results.csv', 
     'SampleData/59993_Frame/CoM')
-
     >>> x = 2
     >>> getfilenames(x) #doctest: +NORMALIZE_WHITESPACE
     ('SampleData/ROM/Sample_Dynamic.c3d', 
@@ -34,7 +32,6 @@ def getfilenames(x=1):
     'SampleData/ROM/Sample_SM.vsk', 
     'SampleData/ROM/pycgm_results.csv', 
     'SampleData/ROM/CoM')
-
     >>> x = 3
     >>> getfilenames(x) #doctest: +NORMALIZE_WHITESPACE
     ('SampleData/Sample_2/RoboWalk.c3d', 

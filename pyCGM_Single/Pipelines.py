@@ -116,10 +116,8 @@ def prep(trajs):
     -------
     >>> from .Pipelines import *
     >>> import numpy as np
-    
     >>> trajs = {'trajOne': [[217.19961548, -82.35484314, 332.2684021 ],
     ...                  [[257.19961548, -32.35484314, 382.2684021 ]]]}
-
     >>> prep(trajs) #doctest: +NORMALIZE_WHITESPACE
     [{'trajOne': [[217.19961548, -82.35484314, 332.2684021], 
     [[257.19961548, -32.35484314, 382.2684021]]]}, 
@@ -164,14 +162,12 @@ def clearMarker(data,name):
     -------
     >>> import numpy as np 
     >>> from .Pipelines import *
-
     >>> data = [{'LTIL': np.array([-268.1545105 ,  327.53512573,   30.17036057]), 
     ... 'RFOP': np.array([ -38.4509964 , -148.6839447 ,   59.21961594])},
     ...
     ... {'LTIL': np.array([-273.1545105 ,  324.53512573,   36.17036057]),
     ... 'RFOP': np.array([ -38.4509964 , -148.6839447 ,   59.21961594])}]
     >>> name = 'LTIL'
-    
     >>> clearMarker(data, name) #doctest: +NORMALIZE_WHITESPACE
     [{'LTIL': array([nan, nan, nan]), 
     'RFOP': array([ -38.4509964 , -148.6839447 ,   59.21961594])}, 
@@ -200,7 +196,6 @@ def filtering(Data):
     -------
     >>> import numpy as np 
     >>> from .Pipelines import *
-
     >>> Data = {'LTIL': np.array([-268.1545105 ,  327.53512573,   30.17036057]), 
     ... 'RFOP': np.array([ -38.4509964 , -148.6839447 ,   59.21961594])}
     """

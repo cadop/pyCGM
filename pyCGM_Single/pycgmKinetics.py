@@ -22,7 +22,8 @@ def f(p, x):
     """
     Parameters
     ----------
-    p : array
+    p : list
+        A that has a length of at least 2.
     x : int or float
         Scaling factor for the first variable in p.
     Returns
@@ -34,7 +35,6 @@ def f(p, x):
     -------
     >>> from .pycgmKinetics import *
     >>> import numpy as np
-    
     >>> p = [1, 2]
     >>> x = 10
     >>> f(p, x) #doctest: +NORMALIZE_WHITESPACE
@@ -66,7 +66,6 @@ def dot(v,w):
     -------
     >>> from .pycgmKinetics import *
     >>> import numpy as np
-    
     >>> v = [1, 2, 3]
     >>> w = [4, 5, 6]
     >>> dot(v,w) #doctest: +NORMALIZE_WHITESPACE
@@ -98,7 +97,6 @@ def length(v):
     -------
     >>> from .pycgmKinetics import *
     >>> import numpy as np
-    
     >>> v = [1,2,3]
     >>> length(v) #doctest: +NORMALIZE_WHITESPACE
     3.7416573867739413
@@ -129,7 +127,6 @@ def vector(b,e):
     -------
     >>> from .pycgmKinetics import *
     >>> import numpy as np
-    
     >>> v = [1,2,3]
     >>> e = [4,5,6]
     >>> vector(v, e) #doctest: +NORMALIZE_WHITESPACE
@@ -149,8 +146,8 @@ def unit(v):
     
     Parameters
     ----------
-    v : array
-        A 3D vector.
+    v : list
+        A 3-element list.
 
     Returns
     -------
@@ -161,7 +158,6 @@ def unit(v):
     -------
     >>> from .pycgmKinetics import *
     >>> import numpy as np
-    
     >>> v = [1,2,3]
     >>> unit(v) #doctest: +NORMALIZE_WHITESPACE
     (0.2672612419124244, 0.5345224838248488, 0.8017837257372732)
@@ -179,9 +175,9 @@ def distance(p0,p1):
     
     Parameters
     ----------
-    p0 : array
+    p0 : list
         First x,y,z coordinate point.
-    p1 : array
+    p1 : list
         Second x,y,z coordinate point.
         
     Returns
@@ -193,7 +189,6 @@ def distance(p0,p1):
     -------
     >>> from .pycgmKinetics import *
     >>> import numpy as np
-    
     >>> p0 = [1,2,3]
     >>> p1 = [4,5,6]
     >>> distance(p0,p1) #doctest: +NORMALIZE_WHITESPACE
@@ -211,8 +206,8 @@ def scale(v,sc):
     
     Parameters
     ----------
-    v : array
-        A 3D vector.
+    v : list
+        A 3-element list.
     sc : int or float
         The scaling factor.
 
@@ -225,7 +220,6 @@ def scale(v,sc):
     -------
     >>> from .pycgmKinetics import *
     >>> import numpy as np
-    
     >>> v = [1,2,3]
     >>> sc = 2
     >>> scale(v, sc) #doctest: +NORMALIZE_WHITESPACE
@@ -258,7 +252,6 @@ def add(v,w):
     -------
     >>> from .pycgmKinetics import *
     >>> import numpy as np
-    
     >>> v = [1, 2, 3]
     >>> w = [4, 5, 6]
     >>> add(v, w) #doctest: +NORMALIZE_WHITESPACE
@@ -281,11 +274,11 @@ def pnt2line(pnt, start, end):
 
     Parameters
     ----------
-    pnt : array
+    pnt : list
         An x,y,z point on the same plane.
-    start : array
+    start : list
         First x,y,z point on the line.
-    end : array
+    end : list
         Second x,y,z point on the line.
 
     Returns
@@ -300,7 +293,6 @@ def pnt2line(pnt, start, end):
     -------
     >>> from .pycgmKinetics import *
     >>> import numpy as np
-    
     >>> pnt = [1, 2, 3]
     >>> start = [4, 5, 6]
     >>> end = [7, 8, 9]
@@ -311,7 +303,8 @@ def pnt2line(pnt, start, end):
     >>> start = np.array([3.89481034, 4.02115225, 4.3075406])
     >>> end = np.array([7.56622188, 3.58992166, 8.2749309])
     >>> pnt2line(pnt, start, end) #doctest: +NORMALIZE_WHITESPACE
-    (7.210090049627704, (4.799617258586222, 3.914876934065786, 5.285290479865516), array([9.82004519, 6.7344815 , 0.94587439]))
+    (7.210090049627704, (4.799617258586222, 3.914876934065786, 5.285290479865516), 
+    array([9.82004519, 6.7344815 , 0.94587439]))
     """
     lineVec = vector(start, end)
 
@@ -363,7 +356,6 @@ def findL5_Pelvis(frame):
     -------
     >>> from .pycgmKinetics import *
     >>> import numpy as np
-
     >>> Pelvis_axis = [np.array([251.60830688, 391.74131775, 1032.89349365]),
     ...                np.array([[251.74063624, 392.72694721, 1032.78850073],
     ...                    [250.61711554, 391.87232862, 1032.8741063],
@@ -372,7 +364,6 @@ def findL5_Pelvis(frame):
     >>> LHip = np.array([308.38050472, 322.80342417, 937.98979061])
     >>> RHip = np.array([182.57097863, 339.43231855, 935.529000126])
     >>> frame = { 'Pelvis_axis': Pelvis_axis, 'RHip': RHip, 'LHip': LHip}
-    
     >>> findL5_Pelvis(frame) #doctest: +NORMALIZE_WHITESPACE
     (array([245.47574167, 331.11787136, 936.75939537]), 
     array([ 271.52716019,  371.69050709, 1043.80997977]))
@@ -415,7 +406,6 @@ def findL5_Thorax(frame):
     -------
     >>> from .pycgmKinetics import *
     >>> import numpy as np
-
     >>> Thorax_axis = [[[256.3454633226447, 365.7223958512035, 1461.920891187948], 
     ...               [257.26637166499415, 364.69602499862503, 1462.2347234647593], 
     ...               [256.1842731803127, 364.4328898435265, 1461.363045336319]], 
@@ -424,7 +414,6 @@ def findL5_Thorax(frame):
     >>> LHip = np.array([308.38050472, 322.80342417, 937.98979061])
     >>> RHip = np.array([182.57097863, 339.43231855, 935.529000126])
     >>> frame = { 'C7': C7, 'RHip': RHip, 'LHip': LHip, 'Thorax_axis': Thorax_axis}
-    
     >>> findL5_Thorax(frame) #doctest: +NORMALIZE_WHITESPACE
     array([ 265.16356015,  359.12462014, 1049.065471  ])
     """

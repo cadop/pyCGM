@@ -28,7 +28,6 @@ def rotmat(x=0,y=0,z=0):
     -------
     >>> import numpy as np
     >>> from math import *
-
     >>> rotmat() #doctest: +NORMALIZE_WHITESPACE
     [[1.0, 0.0, 0.0], 
     [0.0, 1.0, 0.0], 
@@ -92,7 +91,6 @@ def getDist(p0, p1):
     -------
     >>> from math import *
     >>> import numpy as np
-
     >>> p0 = [0,1,2]
     >>> p1 = [1,2,3]
     >>> getDist(p0,p1)
@@ -280,12 +278,7 @@ def average(list):
     Example
     -------
     >>> import numpy as np
-    
     >>> list = [1,2,3,4,5]
-    >>> average(list)
-    3.0
-
-    >>> list = np.array([1,2,3,4,5])
     >>> average(list)
     3.0
 
@@ -322,7 +315,6 @@ def IADcalculation(frame):
     -------
     >>> import numpy as np
     >>> from .pycgmStatic import *
-
     >>> frame = { 'LASI': np.array([ 183.18504333,  422.78927612, 1033.07299805]),
     ...           'RASI': np.array([ 395.36532593,  428.09790039, 1036.82763672])}
     
@@ -359,13 +351,11 @@ def staticCalculationHead(frame,head):
     -------
     >>> import numpy as np
     >>> from .pycgmStatic import headoffCalc
-
     >>> frame = None
     >>> head = [[[100.33272997128863, 83.39303060995121, 1484.078302933558], 
     ...        [98.9655145897623, 83.57884461044797, 1483.7681493301013], 
     ...        [99.34535520789223, 82.64077714742746, 1484.7559501904173]], 
     ...        [99.58366584777832, 82.79330825805664, 1483.7968139648438]]
-    
     >>> staticCalculationHead(frame,head) #doctest: +NORMALIZE_WHITESPACE
     0.2854660638234306
     """
@@ -409,14 +399,12 @@ def headoffCalc(axisP, axisD):
     Example
     -------
     >>> import numpy as np 
-
     >>> axisP = [[0.96027586, 0.81188464, 0.8210366],
     ...         [0.24275408, 0.72003003, 0.37957337],
     ...         [0.98315477, 0.20884389, 0.68137521]]
     >>> axisD = [[0.21449582, 0.24790518, 0.94419932],
     ...         [0.79794437, 0.45267577, 0.91257356],
     ...         [0.17107064, 0.67114988, 0.85129037]]
-
     >>> headoffCalc(axisP,axisD)  #doctest: +NORMALIZE_WHITESPACE
     0.9491663598124584
     """
@@ -498,7 +486,6 @@ def staticCalculation(frame,ankle_JC,knee_JC,flat_foot,vsk=None):
     ...           [143.64837987, 280.04650381, 525.76940383]]])]
     >>> flat_foot = True      
     >>> vsk = { 'RightSoleDelta': 0.4532,'LeftSoleDelta': 0.4532 }
-
     >>> staticCalculation(frame,ankle_JC,knee_JC,flat_foot,vsk) #doctest: +NORMALIZE_WHITESPACE
     [[-0.08036967555099936, 0.23192796307180616, -0.6667218141134416], 
     [-0.6746661289791377, 0.21812578433574112, -0.30207992990550053]]
@@ -599,12 +586,10 @@ def pelvisJointCenter(frame):
     >>> import numpy as np 
     >>> from math import *
     >>> from .pycgmStatic import *
-
     >>> frame = {'RASI': np.array([ 395.36532593,  428.09790039, 1036.82763672]), 
     ...          'LASI': np.array([ 183.18504333,  422.78927612, 1033.07299805]),
     ...          'RPSI': np.array([ 341.41815186,  246.72117615, 1055.99145508]), 
     ...          'LPSI': np.array([ 255.79994202,  241.42199707, 1057.30065918]) }
-
     >>> pelvisJointCenter(frame) #doctest: +NORMALIZE_WHITESPACE
     [array([ 289.27518463,  425.44358826, 1034.95031739]), 
     array([[ 289.25243803,  426.43632163, 1034.8321521 ],
@@ -615,14 +600,12 @@ def pelvisJointCenter(frame):
     >>> frame = {'RASI': np.array([ 395.36532593,  428.09790039, 1036.82763672]), 
     ...          'LASI': np.array([ 183.18504333,  422.78927612, 1033.07299805]),
     ...          'SACR': np.array([ 294.60904694,  242.07158661, 1049.64605713]) }
-    
     >>> pelvisJointCenter(frame) #doctest: +NORMALIZE_WHITESPACE
     [array([ 289.27518463,  425.44358826, 1034.95031739]), 
     array([[ 289.25166321,  426.44012508, 1034.87056085],
     [ 288.27565385,  425.41858059, 1034.93263018],
     [ 289.25556415,  425.52289134, 1035.94697483]]), 
     array([ 294.60904694,  242.07158661, 1049.64605713])]
-
     """
     
 
@@ -727,20 +710,16 @@ def hipJointCenter(frame,pel_origin,pel_x,pel_y,pel_z,vsk=None):
     >>> import numpy as np 
     >>> from math import *
     >>> from .pycgmStatic import *
-
     >>> frame = None
     >>> vsk = {'MeanLegLength': 940.0, 'R_AsisToTrocanterMeasure': 72.512,
     ...        'L_AsisToTrocanterMeasure': 72.512, 'InterAsisDistance': 215.908996582031}
-
     >>> pel_origin = [ 251.60830688, 391.74131775, 1032.89349365]
     >>> pel_x = [251.74063624, 392.72694721, 1032.78850073]
     >>> pel_y = [250.61711554, 391.87232862, 1032.8741063]
     >>> pel_z = [251.60295336, 391.84795134, 1033.88777762]
-    
     >>> hipJointCenter(frame,pel_origin,pel_x,pel_y,pel_z,vsk) #doctest: +NORMALIZE_WHITESPACE
     array([[182.57097799, 339.43231799, 935.52900136],
     [308.38050352, 322.80342433, 937.98979092]])
-
     """
     #Get Global Values
     
@@ -836,19 +815,15 @@ def hipAxisCenter(l_hip_jc,r_hip_jc,pelvis_axis):
     array
         Returns the hip Axis Center and hip Axis.
             return = [[hipaxis_center x,y,z position],
-                    [array([[hipaxis_center x,y,z position],
-                            [hip x_axis x,y,z position]]),
-                        array([[hipaxis_center x,y,z position],
-                            [hip y_axis x,y,z position]])
-                        array([[hipaxis_center x,y,z position],
-                            [hip z_axis x,y,z position]])]]","   
+                      [array([[hipaxis_center x,y,z position], [hip x_axis x,y,z position]]),
+                       array([[hipaxis_center x,y,z position], [hip y_axis x,y,z position]])
+                       array([[hipaxis_center x,y,z position], [hip z_axis x,y,z position]])]]   
 
     Example
     -------
     >>> import numpy as np 
     >>> from math import *
     >>> from .pycgmStatic import *
-
     >>> r_hip_jc = [182.57097863, 339.43231855, 935.529000126]
     >>> l_hip_jc = [308.38050472, 322.80342417, 937.98979061]
     >>> pelvis_axis = [np.array([251.60830688, 391.74131775, 1032.89349365]),
@@ -856,7 +831,6 @@ def hipAxisCenter(l_hip_jc,r_hip_jc,pelvis_axis):
     ...                    [250.61711554, 391.87232862, 1032.8741063],
     ...                    [251.60295336, 391.84795134, 1033.88777762]]),
     ...                np.array([231.57849121, 210.25262451, 1052.24969482])]
-    
     >>> hipAxisCenter(l_hip_jc,r_hip_jc,pelvis_axis) #doctest: +NORMALIZE_WHITESPACE
     [[245.475741675, 331.11787136, 936.759395368], 
     [[245.608071035, 332.10350081999997, 936.6544024479999], 
@@ -928,7 +902,6 @@ def kneeJointCenter(frame,hip_JC,delta,vsk=None):
     >>> import numpy as np 
     >>> from math import *
     >>> from .pycgmStatic import *
-
     >>> vsk = { 'RightKneeWidth' : 105.0, 'LeftKneeWidth' : 105.0 }
     >>> frame = { 'RTHI': np.array([426.50338745, 262.65310669, 673.66247559]),
     ...           'LTHI': np.array([51.93867874, 320.01849365, 723.03186035]),
@@ -937,7 +910,6 @@ def kneeJointCenter(frame,hip_JC,delta,vsk=None):
     >>> hip_JC = [[182.57097863, 339.43231855, 935.52900126],
     ...         [309.38050472, 32280342417, 937.98979061]]
     >>> delta = 0
-
     >>> kneeJointCenter(frame,hip_JC,delta,vsk) #doctest: +NORMALIZE_WHITESPACE
     [array([413.21007973, 266.22558784, 464.66088466]), 
     array([143.55478579, 279.90370346, 524.78408753]), 
@@ -1089,7 +1061,6 @@ def ankleJointCenter(frame,knee_JC,delta,vsk=None):
     >>> import numpy as np 
     >>> from math import *
     >>> from .pycgmStatic import *
-
     >>> vsk = { 'RightAnkleWidth' : 70.0, 'LeftAnkleWidth' : 70.0, 
     ...         'RightTibialTorsion': 0.0, 'LeftTibialTorsion' : 0.0}
     >>> frame = { 'RTIB': np.array([433.97537231, 211.93408203, 273.3008728]),
@@ -1105,7 +1076,6 @@ def ankleJointCenter(frame,knee_JC,delta,vsk=None):
     ...           [142.56434499, 280.01777943, 524.86163553],
     ...            [143.64837987, 280.04650381, 525.76940383]]])]
     >>> delta = 0
-    
     >>> ankleJointCenter(frame,knee_JC,delta,vsk) #doctest: +NORMALIZE_WHITESPACE
     [array([393.76181609, 247.67829633,  87.73775041]), 
     array([ 98.74901939, 219.46930221,  80.63068161]), 
@@ -1310,7 +1280,6 @@ def footJointCenter(frame,static_info,ankle_JC,knee_JC,delta):
     >>> import numpy as np 
     >>> import math
     >>> from .pycgmStatic import *
-
     >>> frame = { 'RHEE': np.array([374.01257324, 181.57929993, 49.50960922]),
     ...           'LHEE': np.array([105.30126953, 180.2130127, 47.15660858]),
     ...           'RTOE': np.array([442.81997681, 381.62280273, 42.66047668]),
@@ -1334,7 +1303,6 @@ def footJointCenter(frame,static_info,ankle_JC,knee_JC,delta):
     ...            np.array([97.79246671, 219.20927275, 80.76255901]),
     ...            np.array([98.84848169, 219.60345781, 81.61663775])]]]
     >>> delta = 0
-
     >>> footJointCenter(frame,static_info,ankle_JC,knee_JC,delta) #doctest: +NORMALIZE_WHITESPACE
     [array([442.81997681, 381.62280273,  42.66047668]), 
     array([ 39.43652725, 382.44522095,  41.78911591]), 
@@ -1549,12 +1517,10 @@ def headJC(frame):
     >>> import numpy as np 
     >>> from math import *
     >>> from .pycgmStatic import *
-
     >>> frame = {'RFHD': np.array([325.82983398, 402.55450439, 1722.49816895]),
     ...          'LFHD': np.array([184.55158997, 409.68713379, 1721.34289551]),
     ...          'RBHD': np.array([304.39898682, 242.91339111, 1694.97497559]),
     ...          'LBHD': np.array([197.8621521, 251.28889465, 1696.90197754])}
-    
     >>> headJC(frame) #doctest: +NORMALIZE_WHITESPACE
     [[[255.21590217735476, 407.10741938969863, 1722.081731803014], 
     [254.19105385169885, 406.1468091819513, 1721.917677122581], 
@@ -1644,7 +1610,6 @@ def uncorrect_footaxis(frame,ankle_JC):
     >>> import numpy as np
     >>> from math import *
     >>> from .pycgmStatic import *
-
     >>> frame = { 'RTOE': [442.81997681, 381.62280273, 42.66047668], 
     ...           'LTOE': [39.43652725, 382.44522095, 41.78911591]}
     >>> ankle_JC = [np.array([393.76181608, 247.67829633, 87.73775041]),
@@ -1655,7 +1620,6 @@ def uncorrect_footaxis(frame,ankle_JC):
     ...            [np.array([98.47494966, 220.42553803, 80.52821783]),
     ...            np.array([97.79246671, 219.20927275, 80.76255901]),
     ...            np.array([98.84848169, 219.60345781, 81.61663775])]]]
-
     >>> uncorrect_footaxis(frame,ankle_JC) #doctest: +NORMALIZE_WHITESPACE
     [[442.81997681, 381.62280273, 42.66047668], [39.43652725, 382.44522095, 41.78911591], 
     [[[442.93807347143536, 381.9004064170881, 43.61388602098261], 
@@ -1783,7 +1747,6 @@ def rotaxis_footflat(frame,ankle_JC,vsk=None):
     >>> import numpy as np
     >>> from math import *
     >>> from .pycgmStatic import *
-
     >>> frame = { 'RHEE': [374.01257324, 181.57929993, 49.50960922],
     ...            'LHEE': [105.30126953, 180.2130127, 47.15660858],
     ...            'RTOE': [442.81997681, 381.62280273, 42.66047668], 
@@ -1797,7 +1760,6 @@ def rotaxis_footflat(frame,ankle_JC,vsk=None):
     ...            np.array([97.79246671, 219.20927275, 80.76255901]),
     ...            np.array([98.84848169, 219.60345781, 81.61663775])]]]
     >>> vsk = { 'RightSoleDelta': 0.45, 'LeftSoleDelta': 0.45}
-
     >>> rotaxis_footflat(frame,ankle_JC,vsk) #doctest: +NORMALIZE_WHITESPACE
     [[442.81997681, 381.62280273, 42.66047668], [39.43652725, 382.44522095, 41.78911591], 
     [[[442.3066624145523, 381.79936347939446, 43.50031870871696], 
@@ -1936,14 +1898,12 @@ def rotaxis_nonfootflat(frame,ankle_JC):
                         array([[footaxis_center x,y,z position],
                             [foot y_axis x,y,z position]])
                         array([[footaxis_center x,y,z position],
-                                [foot z_axis x,y,z position]])]]        
-         
+                                [foot z_axis x,y,z position]])]]         
     Example
     -------
     >>> import numpy as np
     >>> from math import *
     >>> from .pycgmStatic import *
-
     >>> frame = { 'RHEE': [374.01257324, 181.57929993, 49.50960922],
     ...            'LHEE': [105.30126953, 180.2130127, 47.15660858],
     ...            'RTOE': [442.81997681, 381.62280273, 42.66047668], 
@@ -1956,7 +1916,6 @@ def rotaxis_nonfootflat(frame,ankle_JC):
     ...            [np.array([98.47494966, 220.42553803, 80.52821783]),
     ...            np.array([97.79246671, 219.20927275, 80.76255901]),
     ...            np.array([98.84848169, 219.60345781, 81.61663775])]]]
-
     >>> rotaxis_nonfootflat(frame,ankle_JC) #doctest: +NORMALIZE_WHITESPACE
     [[442.81997681, 381.62280273, 42.66047668], 
     [39.43652725, 382.44522095, 41.78911591], 
@@ -2067,14 +2026,12 @@ def getankleangle(axisP,axisD):
     -------
     >>> import numpy as np
     >>> from .pycgmStatic import *
-
     >>> axisP = [[ 0.59327576, 0.10572786, 0.15773334],
     ...         [-0.13176004, -0.10067464, -0.90325703],
     ...         [0.9399765, -0.04907387, 0.75029827]]
     >>> axisD = [[0.16701015, 0.69080381, -0.37358145],
     ...         [0.1433922, -0.3923507, 0.94383974],
     ...         [-0.15507695, -0.5313784, -0.60119402]]
-
     >>> getankleangle(axisP,axisD) #doctest: +NORMALIZE_WHITESPACE
     [0.47919762836810054, 0.990199212558328, 1.5169546072970044]        
     """
@@ -2119,12 +2076,10 @@ def findJointC(a, b, c, delta):
     >>> import numpy as np 
     >>> from math import *
     >>> from .pycgmStatic import *
-
     >>> a = [775.40887891, 788.64742014, 514.4063264]
     >>> b = [424.5706403, 46.17046141, 305.73130661]
     >>> c = [618.98284978, 848.86492206, 133.51848843]
     >>> delta = 42.5
-    
     >>> findJointC(a,b,c,delta) #doctest: +NORMALIZE_WHITESPACE
     array([599.66684491, 843.26056826,  96.07876121])  
     """
@@ -2193,9 +2148,7 @@ def norm2d(v):
     >>> import numpy as np 
     >>> from math import *
     >>> from .pycgmStatic import *
-
     >>> v = [50.00882192, 96.36735079, 264.84675407]
-
     >>> norm2d(v)  #doctest: +NORMALIZE_WHITESPACE
     286.23653105347023
     """ 
@@ -2225,9 +2178,7 @@ def norm3d(v):
     >>> import numpy as np 
     >>> from math import *
     >>> from .pycgmStatic import *
-
     >>> v = [124.9784377, 368.642446, 18.42836272]
-
     >>> norm3d(v)  #doctest: +NORMALIZE_WHITESPACE
     array(389.68765369)
     """ 
@@ -2257,9 +2208,7 @@ def normDiv(v):
     >>> import numpy as np 
     >>> from math import *
     >>> from .pycgmStatic import *
-
     >>> v = [1.44928201, 1.94301493, 2.49204956]
-
     >>> normDiv(v)  #doctest: +NORMALIZE_WHITESPACE
     [0.11991375545853512, 0.16076527243190078, 0.20619245907039865]
     """
@@ -2296,10 +2245,8 @@ def matrixmult (A, B):
     Example
     -------
     >>> from .pycgmStatic import *
-
     >>> A = [[11,12,13],[14,15,16]]
     >>> B = [[1,2],[3,4],[5,6]]
-
     >>> matrixmult(A, B)  #doctest: +NORMALIZE_WHITESPACE
     [[112, 148], 
     [139, 184]]
@@ -2331,10 +2278,8 @@ def cross(a, b):
     Example
     -------
     >>> from .pycgmStatic import *
-    
     >>> a = [12.83416835, 61.24792127, 99.59610493]
     >>> b = [14.79756689, 61.71925415, 95.44488778]
-
     >>> cross(a, b) #doctest: +NORMALIZE_WHITESPACE
     [-301.19634015131214, 248.82426676975592, -114.20491366874262]     
     """
