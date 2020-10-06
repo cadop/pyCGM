@@ -128,6 +128,26 @@ def getStatic(motionData,vsk,flat_foot=False,GCS=None):
     calSM : dict
         Dictionary containing various marker lists of offsets.
             { [], [], [], ... }
+    
+    Example
+    -------
+    >>> from .pycgmIO import loadC3D, loadVSK
+    Using...
+    >>> from .pycgmStatic import getStatic
+    >>> import os
+    >>> pycgm_dir = os.path.dirname(os.path.dirname(__file__))
+    >>> c3dFile = pycgm_dir + '/SampleData/ROM/Sample_Static.c3d'
+    >>> vskFile = pycgm_dir + '/SampleData/ROM/Sample_SM.vsk' 
+    >>> result = loadC3D(c3dFile)
+    >>> data = result[0]
+    >>> vskData = loadVSK(vskFile, False)
+    >>> result = getStatic(data,vskData,flat_foot=False)
+    >>> result['Bodymass'] #doctest: +NORMALIZE_WHITESPACE
+    75.0
+    >>> result['RightKneeWidth'] #doctest: +NORMALIZE_WHITESPACE
+    105.0
+    >>> result['LeftTibialTorsion'] #doctest: +NORMALIZE_WHITESPACE
+    0.0
     """
     static_offset = []
     head_offset = []

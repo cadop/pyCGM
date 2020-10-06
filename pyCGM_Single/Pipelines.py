@@ -164,7 +164,6 @@ def clearMarker(data,name):
     >>> from .Pipelines import *
     >>> data = [{'LTIL': np.array([-268.1545105 ,  327.53512573,   30.17036057]), 
     ... 'RFOP': np.array([ -38.4509964 , -148.6839447 ,   59.21961594])},
-    ...
     ... {'LTIL': np.array([-273.1545105 ,  324.53512573,   36.17036057]),
     ... 'RFOP': np.array([ -38.4509964 , -148.6839447 ,   59.21961594])}]
     >>> name = 'LTIL'
@@ -181,7 +180,6 @@ def clearMarker(data,name):
 def filtering(Data):
     """Filter function
 
-
     Parameters
     ----------
     Data : dict 
@@ -196,8 +194,21 @@ def filtering(Data):
     -------
     >>> import numpy as np 
     >>> from .Pipelines import *
-    >>> Data = {'LTIL': np.array([-268.1545105 ,  327.53512573,   30.17036057]), 
-    ... 'RFOP': np.array([ -38.4509964 , -148.6839447 ,   59.21961594])}
+    >>> from .pyCGM_Helpers import getfilenames
+    >>> from .pycgmIO import loadData,dataAsDict
+    Using...
+    >>> dynamic_trial,static_trial,vsk_file,outputfile,CoM_output = getfilenames(x=2)
+    >>> motionData = loadData(dynamic_trial)
+    Sample...
+    >>> motionDataDict = dataAsDict(motionData,npArray=True)
+    >>> filtering(motionDataDict)['HEDO'] #doctest: +NORMALIZE_WHITESPACE
+    array([[ 250.34095219,  207.52056544, 1612.1177957 ],
+           [ 250.3693486 ,  207.63396643, 1612.14030924],
+           [ 250.39784291,  207.74607438, 1612.16076916],
+           ...,
+           [ 278.45835242,  292.56967662, 1612.41087668],
+           [ 278.06911338,  293.22769152, 1612.49060244],
+           [ 277.6663783 ,  293.88056206, 1612.55739277]])
     """
     data = Data.copy()
     
