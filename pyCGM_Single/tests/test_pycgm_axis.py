@@ -18,8 +18,8 @@ class TestUpperBodyAxis(unittest.TestCase):
                     [255.19071197509766, 406.1208190917969, 1721.9205322265625]]
 
         result = pyCGM.headJC(frame, vsk)
-        np.testing.assert_allclose(result[0], expected[0], rounding_precision)
-        np.testing.assert_allclose(result[1], expected[1], rounding_precision)
+        np.testing.assert_almost_equal(result[0], expected[0], rounding_precision)
+        np.testing.assert_almost_equal(result[1], expected[1], rounding_precision)
 
     def testThoraxJC(self):
         frame = {'C7': np.array([251.22619629, 229.75683594, 1533.77624512]),
@@ -32,8 +32,8 @@ class TestUpperBodyAxis(unittest.TestCase):
                     [256.149810236564, 364.3090603933987, 1459.6553639290375]]
 
         result = pyCGM.thoraxJC(frame)
-        np.testing.assert_allclose(result[0], expected[0], rounding_precision)
-        np.testing.assert_allclose(result[1], expected[1], rounding_precision)
+        np.testing.assert_almost_equal(result[0], expected[0], rounding_precision)
+        np.testing.assert_almost_equal(result[1], expected[1], rounding_precision)
 
     def testFindShoulderJC(self):
         frame = {'RSHO': np.array([428.88476562, 270.552948, 1500.73010254]),
@@ -45,12 +45,12 @@ class TestUpperBodyAxis(unittest.TestCase):
         wand = [[255.92550222678443, 364.3226950497605, 1460.6297868417887],
                 [256.42380097331767, 364.27770361353487, 1460.6165849382387]]
         vsk = {'RightShoulderOffset': 40.0, 'LeftShoulderOffset': 40.0}
-        expected = [np.array([ 429.66951995,  275.06718615, 1453.95397813]),
+        expected = [np.array([429.66951995,  275.06718615, 1453.95397813]),
                     np.array([64.51952734,  274.93442161, 1463.6313334])]
 
         result = pyCGM.findshoulderJC(frame, thorax, wand, vsk)
-        self.assertEqual(result[0].all(), expected[0].all())
-        self.assertEqual(result[1].all(), expected[1].all())
+        np.testing.assert_almost_equal(result[0], expected[0], rounding_precision)
+        np.testing.assert_almost_equal(result[1], expected[1], rounding_precision)
 
     def testShoulderAxisCalc(self):
         frame = {'RSHO': np.array([428.88476562, 270.552948, 1500.73010254]),
@@ -59,12 +59,12 @@ class TestUpperBodyAxis(unittest.TestCase):
                    [257.1435863244796, 364.21960599061947, 1459.588978712983],
                    [256.0843053658035, 364.32180498523223, 1458.6575930699294]],
                   [256.149810236564, 364.3090603933987, 1459.6553639290375]]
-        shoulderJC = [np.array([ 429.66951995,  275.06718615, 1453.95397813]),
-                      np.array([  64.51952734,  274.93442161, 1463.6313334 ])]
+        shoulderJC = [np.array([429.66951995, 275.06718615, 1453.95397813]),
+                      np.array([64.51952734, 274.93442161, 1463.6313334 ])]
         wand = [[255.92550222678443, 364.3226950497605, 1460.6297868417887],
                 [256.42380097331767, 364.27770361353487, 1460.6165849382387]]
-        expected = [[np.array([ 429.66951995,  275.06718615, 1453.95397813]),
-                     np.array([  64.51952734,  274.93442161, 1463.6313334 ])],
+        expected = [[np.array([429.66951995, 275.06718615, 1453.95397813]),
+                     np.array([64.51952734, 274.93442161, 1463.6313334 ])],
                     [[[430.12731330596756, 275.9513661907463, 1454.0469882869343],
                       [429.6862168456729, 275.1632337671314, 1452.9587414419757],
                       [428.78061812142147, 275.5243518770602, 1453.9831850281803]],
@@ -73,18 +73,18 @@ class TestUpperBodyAxis(unittest.TestCase):
                       [65.42564601518438, 275.3570272042577, 1463.6125331307376]]]]
 
         result = pyCGM.shoulderAxisCalc(frame, thorax, shoulderJC, wand)
-        np.testing.assert_allclose(result[0], expected[0], rounding_precision)
-        np.testing.assert_allclose(result[1], expected[1], rounding_precision)
+        np.testing.assert_almost_equal(result[0], expected[0], rounding_precision)
+        np.testing.assert_almost_equal(result[1], expected[1], rounding_precision)
 
     def testElbowJointCenter(self):
-        frame = {'RSHO': np.array([ 428.88476562,  270.552948  , 1500.73010254]),
+        frame = {'RSHO': np.array([428.88476562, 270.552948, 1500.73010254]),
                  'LSHO': np.array([68.24668121, 269.01049805, 1510.1072998]),
                  'RELB': np.array([658.90338135, 326.07580566, 1285.28515625]),
                  'LELB': np.array([-156.32162476, 335.2583313, 1287.39916992]),
-                 'RWRA': np.array([ 776.51898193,  495.68103027, 1108.38464355]),
-                 'RWRB': np.array([ 830.9072876 ,  436.75341797, 1119.11901855]),
-                 'LWRA': np.array([-249.28146362,  525.32977295, 1117.09057617]),
-                 'LWRB': np.array([-311.77532959,  477.22512817, 1125.1619873 ])}
+                 'RWRA': np.array([ 776.51898193, 495.68103027, 1108.38464355]),
+                 'RWRB': np.array([ 830.9072876 , 436.75341797, 1119.11901855]),
+                 'LWRA': np.array([-249.28146362, 525.32977295, 1117.09057617]),
+                 'LWRB': np.array([-311.77532959, 477.22512817, 1125.1619873 ])}
         thorax = [[[256.23991128535846, 365.30496976939753, 1459.662169500559],
                 [257.1435863244796, 364.21960599061947, 1459.588978712983],
                 [256.0843053658035, 364.32180498523223, 1458.6575930699294]],
@@ -107,9 +107,9 @@ class TestUpperBodyAxis(unittest.TestCase):
                      [-272.4594189740742, 485.801522109477, 1091.3666238350822]]]
 
         result = pyCGM.elbowJointCenter(frame, thorax, shoulderJC, wand, vsk)
-        np.testing.assert_allclose(result[0], expected[0], rounding_precision)
-        np.testing.assert_allclose(result[1], expected[1], rounding_precision)
-        np.testing.assert_allclose(result[2], expected[2], rounding_precision)
+        np.testing.assert_almost_equal(result[0], expected[0], rounding_precision)
+        np.testing.assert_almost_equal(result[1], expected[1], rounding_precision)
+        np.testing.assert_almost_equal(result[2], expected[2], rounding_precision)
 
     def testWristJointCenter(self):
         frame = {'RWRA': np.array([ 776.51898193,  495.68103027, 1108.38464355]),
@@ -122,12 +122,13 @@ class TestUpperBodyAxis(unittest.TestCase):
                       np.array([64.51952734, 274.93442161, 1463.6313334])]
         wand = [[255.92550222678443, 364.3226950497605, 1460.6297868417887],
                 [256.42380097331767, 364.27770361353487, 1460.6165849382387]]
-        elbowJC = [[np.array([633.66707587, 304.95542115, 1256.07799541]),
-                    np.array([-129.16952218, 316.8671644, 1258.06440717])],
+        elbowJC = [[np.array([633.667075873457, 304.955421154148, 1256.077995412865]),
+                    np.array([-129.169522182155, 316.867164398512, 1258.064407167222])],
                    [[[633.8107013869995, 303.96579004975194, 1256.07658506845],
                      [634.3524799178464, 305.0538658933253, 1256.799473014224],
                      [632.9532180390149, 304.85083190737765, 1256.770431750491]],
                     [[-129.32391792749496, 315.8807291324946, 1258.008662931836],
+                     [-128.45117135279028, 316.79382333592827, 1257.3726028780698],
                      [-128.49119037560908, 316.72030884193634, 1258.7843373067021]]],
                    [[793.3281430325068, 451.2913478825204, 1084.4325513020426],
                     [-272.4594189740742, 485.801522109477, 1091.3666238350822]]]
@@ -141,8 +142,8 @@ class TestUpperBodyAxis(unittest.TestCase):
                       [-271.9425644638384, 485.1921666233502, 1091.967911874857]]]]
 
         result = pyCGM.wristJointCenter(frame, shoulderJC, wand, elbowJC)
-        np.testing.assert_allclose(result[0], expected[0], rounding_precision)
-        np.testing.assert_allclose(result[1], expected[1], rounding_precision)
+        np.testing.assert_almost_equal(result[0], expected[0], rounding_precision)
+        np.testing.assert_almost_equal(result[1], expected[1], rounding_precision)
 
     def testHandJointCenter(self):
         frame = {'RWRA': np.array([ 776.51898193,  495.68103027, 1108.38464355]),
@@ -180,8 +181,8 @@ class TestUpperBodyAxis(unittest.TestCase):
                       [-323.938374013488, 551.1305800350597, 1068.2925901317217]]]]
 
         result = pyCGM.handJointCenter(frame, elbowJC, wristJC, vsk)
-        np.testing.assert_allclose(result[0], expected[0], rounding_precision)
-        np.testing.assert_allclose(result[1], expected[1], rounding_precision)
+        np.testing.assert_almost_equal(result[0], expected[0], rounding_precision)
+        np.testing.assert_almost_equal(result[1], expected[1], rounding_precision)
 
 class TestLowerBodyAxis(unittest.TestCase):
 
@@ -197,21 +198,23 @@ class TestLowerBodyAxis(unittest.TestCase):
                     np.array([231.57849121, 210.25262451, 1052.24969482])]
 
         result = pyCGM.pelvisJointCenter(frame)
-        self.assertEqual(result[0].all(), expected[0].all())
-        self.assertEqual(result[1].all(), expected[1].all())
-        self.assertEqual(result[2].all(), expected[2].all())
+        np.testing.assert_almost_equal(result[0], expected[0], rounding_precision)
+        np.testing.assert_almost_equal(result[1], expected[1], rounding_precision)
+        np.testing.assert_almost_equal(result[2], expected[2], rounding_precision)
 
     def testHipJointCenter(self):
-        pel_origin = [251.60830688, 391.74131775, 1032.89349365]
-        pel_x = [251.74063624, 392.72694721, 1032.78850073]
-        pel_y = [250.61711554, 391.87232862, 1032.8741063]
-        pel_z = [251.60295336, 391.84795134, 1033.88777762]
+        pel_origin = [251.608306884766, 391.741317749023, 1032.893493652344]
+        pel_x = [251.740636241119, 392.726947206848, 1032.788500732036]
+        pel_y = [250.617115540376, 391.872328624646, 1032.874106304030]
+        pel_z = [251.602953357582, 391.847951338178, 1033.887777624562]
         vsk = {'MeanLegLength': 940.0, 'R_AsisToTrocanterMeasure': 72.512,
                'L_AsisToTrocanterMeasure': 72.512, 'InterAsisDistance': 215.908996582031}
-        expected = [[182.57097863, 339.43231855, 935.52900126], [308.38050472, 322.80342417, 937.98979061]]
+        expected = [[182.57097863, 339.43231855, 935.52900126],
+                    [308.38050472, 322.80342417, 937.98979061]]
 
         result = pyCGM.hipJointCenter(None, pel_origin, pel_x, pel_y, pel_z, vsk)
-        np.testing.assert_allclose(result, expected, rounding_precision)
+        np.testing.assert_almost_equal(result[0], expected[0], rounding_precision)
+        np.testing.assert_almost_equal(result[1], expected[1], rounding_precision)
 
     def testHipAxisCenter(self):
         l_hip_jc = [182.57097863, 339.43231855, 935.52900126]
@@ -227,8 +230,8 @@ class TestLowerBodyAxis(unittest.TestCase):
                    [245.47038814489719, 331.22450494659665, 937.7536799036861]]]
 
         result = pyCGM.hipAxisCenter(l_hip_jc, r_hip_jc, pelvis_axis)
-        np.testing.assert_allclose(result[0], expected[0], rounding_precision)
-        np.testing.assert_allclose(result[1], expected[1], rounding_precision)
+        np.testing.assert_almost_equal(result[0], expected[0], rounding_precision)
+        np.testing.assert_almost_equal(result[1], expected[1], rounding_precision)
 
     def testKneeJointCenter(self):
         frame = {'RTHI': np.array([426.50338745, 262.65310669, 673.66247559]),
@@ -248,9 +251,9 @@ class TestLowerBodyAxis(unittest.TestCase):
                                [143.64837987, 280.04650381, 525.76940383]]])]
 
         result = pyCGM.kneeJointCenter(frame, hip_JC, delta, vsk)
-        self.assertEqual(result[0].all(), expected[0].all())
-        self.assertEqual(result[1].all(), expected[1].all())
-        self.assertEqual(result[2].all(), expected[2].all())
+        np.testing.assert_almost_equal(result[0], expected[0], rounding_precision)
+        np.testing.assert_almost_equal(result[1], expected[1], rounding_precision)
+        np.testing.assert_almost_equal(result[2], expected[2], rounding_precision)
 
     def testAnkleJointCenter(self):
         frame = {'RTIB': np.array([433.97537231, 211.93408203, 273.3008728 ]),
@@ -278,9 +281,9 @@ class TestLowerBodyAxis(unittest.TestCase):
                       np.array([98.84848169, 219.60345781, 81.61663775])]]]
 
         result = pyCGM.ankleJointCenter(frame, knee_JC, delta, vsk)
-        self.assertEqual(result[0].all(), expected[0].all())
-        self.assertEqual(result[1].all(), expected[1].all())
-        np.testing.assert_allclose(result[2], expected[2], rounding_precision)
+        np.testing.assert_almost_equal(result[0], expected[0], rounding_precision)
+        np.testing.assert_almost_equal(result[1], expected[1], rounding_precision)
+        np.testing.assert_almost_equal(result[2], expected[2], rounding_precision)
 
     def testFootJointCenter(self):
         frame = {'RTOE': np.array([442.81997681, 381.62280273, 42.66047668]),
@@ -314,6 +317,6 @@ class TestLowerBodyAxis(unittest.TestCase):
                       [39.74166341694723, 381.493150197213, 41.81040458481808]]]]
 
         result = pyCGM.footJointCenter(frame, vsk, ankle_JC, knee_JC, delta)
-        self.assertEqual(result[0].all(), expected[0].all())
-        self.assertEqual(result[1].all(), expected[1].all())
-        np.testing.assert_allclose(result[2], expected[2], rounding_precision)
+        np.testing.assert_almost_equal(result[0], expected[0], rounding_precision)
+        np.testing.assert_almost_equal(result[1], expected[1], rounding_precision)
+        np.testing.assert_almost_equal(result[2], expected[2], rounding_precision)
