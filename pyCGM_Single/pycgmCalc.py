@@ -121,10 +121,10 @@ def calcAngles(data,**kargs):
     >>> import numpy as np
     >>> from .pycgmIO import loadC3D, loadVSK
     >>> from .pycgmStatic import getStatic
-    >>> import os 
-    >>> pycgm_dir = os.path.dirname(os.path.dirname(__file__))
-    >>> c3dFile = pycgm_dir + '/SampleData/ROM/Sample_Static.c3d'
-    >>> vskFile = pycgm_dir + '/SampleData/ROM/Sample_SM.vsk' 
+    >>> from .pyCGM_Helpers import getfilenames
+    >>> filenames = getfilenames(x=2)
+    >>> c3dFile = filenames[1]
+    >>> vskFile = filenames[2] 
     >>> result = loadC3D(c3dFile)
     >>> data = result[0]
     >>> vskData = loadVSK(vskFile, False)
@@ -271,10 +271,10 @@ def Calc(start,end,data,vsk):
     >>> import numpy as np
     >>> from .pycgmIO import loadC3D, loadVSK
     >>> from .pycgmStatic import getStatic
-    >>> import os 
-    >>> pycgm_dir = os.path.dirname(os.path.dirname(__file__))
-    >>> c3dFile = pycgm_dir + '/SampleData/ROM/Sample_Static.c3d'
-    >>> vskFile = pycgm_dir + '/SampleData/ROM/Sample_SM.vsk' 
+    >>> from .pyCGM_Helpers import getfilenames
+    >>> filenames = getfilenames(x=2)
+    >>> c3dFile = filenames[1]
+    >>> vskFile = filenames[2] 
     >>> result = loadC3D(c3dFile)
     >>> data = result[0]
     >>> vskData = loadVSK(vskFile, False)
@@ -336,10 +336,10 @@ def calcFrames(data,vsk):
     >>> import numpy as np
     >>> from .pycgmIO import loadC3D, loadVSK
     >>> from .pycgmStatic import getStatic
-    >>> import os 
-    >>> pycgm_dir = os.path.dirname(os.path.dirname(__file__))
-    >>> c3dFile = pycgm_dir + '/SampleData/ROM/Sample_Static.c3d'
-    >>> vskFile = pycgm_dir + '/SampleData/ROM/Sample_SM.vsk' 
+    >>> from .pyCGM_Helpers import getfilenames
+    >>> filenames = getfilenames(x=2)
+    >>> c3dFile = filenames[1]
+    >>> vskFile = filenames[2]
     >>> result = loadC3D(c3dFile)
     >>> data = result[0]
     >>> vskData = loadVSK(vskFile, False)
