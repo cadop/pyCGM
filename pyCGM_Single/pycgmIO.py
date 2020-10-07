@@ -336,7 +336,7 @@ def loadC3D(filename):
     >>> data[0]['C7'] #doctest: +NORMALIZE_WHITESPACE
     array([-2.20681717e+02, -1.07236075e+00, 1.45551550e+03])
 
-    #There is no unlabeled data in frame 0
+    There is no unlabeled data in frame 0
     >>> dataunlabeled[0] 
     {}
  

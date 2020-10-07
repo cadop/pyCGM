@@ -1,10 +1,7 @@
 """This file is used for calculating cluster transformations to apply
 in the case of a missing marker.
 
-It is used in:
-pycgmStatic.py - lines 105-115
-pycgmCalc.py - lines 132-133
-pycgmCalc.py - lines 142-181
+It is currently imported directly in pycgmClusters.py and Pipelines.py.
 
 """
 
@@ -48,6 +45,33 @@ def printMat(M):
         
         
 def getMarkerLocation(Pm,C):
+    """Finds the missing marker in the world frame
+    
+    Arguments
+    ---------
+    Pm : array
+        Location of the missing marker in the cluster frame. List or 
+        numpy array of 3 elements.
+    C : array
+        C is of the form [origin, x_dir, y_dir].
+
+    Returns
+    -------
+    Pw : array
+        Location of the missing marker in the world frame. List of 
+        3 elements.
+
+    Examples
+    --------
+    >>> from numpy import array
+    >>> Pm = [-205.14696889756505, 258.35355899445926, 3.279423067505604]
+    >>> C = [array([ 325.82983398,  402.55450439, 1722.49816895]),
+    ...      array([ 304.39898682,  242.91339111, 1694.97497559]),
+    ...      array([ 197.8621521 ,  251.28889465, 1696.90197754])]
+    >>> getMarkerLocation(Pm, C)
+    [187.23396416308137, 407.9168810836259, 1720.7195283672238]
+
+    """
     #Pm is the location of the missing marker in the cluster frame
     # C = [origin,x_dir,y_dir] 
     # create Tw_c is the cluster frame in the world frame
@@ -64,7 +88,7 @@ def getMarkerLocation(Pm,C):
     z_vec = np.cross(x_hat,y_hat)
     z_hat = normalize(z_vec)
     
-    #Define the transfomration matrix of the cluster in world space, World to Cluster
+    #Define the transformation matrix of the cluster in world space, World to Cluster
     Tw_c =np.matrix([[x_hat[0],y_hat[0],z_hat[0],origin[0]],
                      [x_hat[1],y_hat[1],z_hat[1],origin[1]],
                      [x_hat[2],y_hat[2],z_hat[2],origin[2]],
@@ -87,6 +111,33 @@ def getMarkerLocation(Pm,C):
        
         
 def getStaticTransform(p,C):
+    """Find the location of the missing marker in the cluster frame
+
+    Parameters
+    ----------
+    p : array
+        Location of the target marker. List or numpy array of 3 elements.
+    C : array
+        C is of the form [origin, x_dir, y_dir]. Each of the elements in 
+        C is a numpy array of 3 elements.
+
+    Returns
+    -------
+    Pm : array
+        Location of the missing marker in the cluster frame. List of 
+        3 elements.
+
+    Examples
+    --------
+    >>> from numpy import array
+    >>> p = [173.67716164, 325.44079612, 1728.47894043]
+    >>> C = [array([314.17024414, 326.98319891, 1731.38964711]), 
+    ...      array([302.76412032, 168.80114852, 1688.1522896 ]), 
+    ...      array([193.62636014, 171.28945512, 1689.54191939])]
+    >>> getStaticTransform(p, C)
+    [-205.14696889845703, 258.3535589971144, 3.279423068084043]
+
+    """
     #p = target marker
     #C = [origin,x_dir,y_dir]
     
