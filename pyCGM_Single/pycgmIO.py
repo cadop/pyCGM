@@ -239,9 +239,9 @@ def splitVskDataDict(vsk):
     >>> labels, data = splitVskDataDict(vsk)
 
     >>> py2labels = ['RightAnkleWidth', 'LeftKneeWidth', 'MeanLegLength']
-    >>> py2data = array([ 70., 105., 940.])
+    >>> py2data = array([ 70.0, 105.0, 940.0])
     >>> py3labels = ['MeanLegLength', 'LeftKneeWidth', 'RightAnkleWidth']
-    >>> py3data = array([940., 105.,  70.])
+    >>> py3data = array([940.0, 105.0,  70.0])
 
     >>> if (pyver == 2): 
     ...     labels == py2labels and array_equal(data, py2data)
@@ -254,7 +254,7 @@ def splitVskDataDict(vsk):
     if pyver == 3: return list(vsk.keys()),np.asarray(list(vsk.values()))
 
 def markerKeys():
-    """A list of marker names
+    """A list of marker names.
 
     Returns
     -------
@@ -320,11 +320,11 @@ def loadC3D(filename):
 
     Examples
     --------
-    The file RoboStatic.c3d in SampleData is used to test the output
+    The file RoboStatic.c3d in SampleData is used to test the output.
 
-    >>> import os 
-    >>> pycgm_dir = os.path.dirname(os.path.dirname(__file__))
-    >>> filename = pycgm_dir + '/SampleData/Sample_2/RoboStatic.c3d' 
+    >>> import os
+    >>> from .pyCGM_Helpers import getfilenames
+    >>> filename = getfilenames(x=3)[1]
     >>> result = loadC3D(filename)
     >>> data = result[0]
     >>> dataunlabeled = result[1]
@@ -379,8 +379,7 @@ def loadCSV(filename):
 
     Keys in the returned data dictionaries are marker names, and 
     the corresponding values are a numpy array with the associated
-    value.
-        array([x, y, z])
+    value. array([x, y, z])
 
     Arguments
     ---------
@@ -397,11 +396,10 @@ def loadCSV(filename):
 
     Examples
     --------
-    RoboResults.csv in SampleData is used to test the output
+    RoboResults.csv in SampleData is used to test the output.
 
     >>> import os 
-    >>> pycgm_dir = os.path.dirname(os.path.dirname(__file__))
-    >>> filename = pycgm_dir + '/SampleData/Sample_2/RoboResults.csv' 
+    >>> filename = 'SampleData/Sample_2/RoboResults.csv' 
     >>> result = loadCSV(filename)
     >>> motionData = result[0]
     >>> unlabeledMotionData = result[1]
@@ -641,13 +639,13 @@ def loadData(filename,rawData=True):
         Arguments
         ---------
         filename : str
-                Path of the csv or c3d file to be loaded
+            Path of the csv or c3d file to be loaded
 
         Returns
         -------
         data : array
-                `data` is a list of dict. Each dict represents one frame in 
-                the trial.
+            `data` is a list of dict. Each dict represents one frame in 
+            the trial.
 
         Examples
         --------
@@ -656,23 +654,21 @@ def loadData(filename,rawData=True):
 
         >>> import os
         >>> import sys
-        >>> pycgm_dir = os.path.dirname(os.path.dirname(__file__))
+        >>> csvFile = 'SampleData/Sample_2/RoboResults.csv' 
+        >>> c3dFile = 'SampleData/Sample_2/RoboStatic.c3d'
 
-        >>> csvFile = pycgm_dir + '/SampleData/Sample_2/RoboResults.csv' 
-        >>> c3dFile = pycgm_dir + '/SampleData/Sample_2/RoboStatic.c3d'
+        >>> csvData = loadData(csvFile)
+        SampleData/Sample_2/RoboResults.csv
+        >>> c3dData = loadData(c3dFile)
+        SampleData/Sample_2/RoboStatic.c3d
 
-        >>> sys.stdout.write("path"); csvData = loadData(csvFile)
-        path...RoboResults.csv
-        >>> sys.stdout.write("path"); c3dData = loadData(c3dFile)
-        path...RoboStatic.c3d
-
-        Testing for some values from the loaded csv file:
+        Testing for some values from the loaded csv file.
         >>> csvData[0]['RHNO'] #doctest: +NORMALIZE_WHITESPACE
         array([-772.184937, -312.352295, 589.815308])
         >>> csvData[0]['C7'] #doctest: +NORMALIZE_WHITESPACE 
         array([-1010.098999, 3.508968, 1336.794434])
 
-        Testing for some values from the loaded c3d file:
+        Testing for some values from the loaded c3d file.
         >>> c3dData[0]['RHNO'] #doctest: +NORMALIZE_WHITESPACE
         array([-259.45016479, -844.99560547, 1464.26330566])
         >>> c3dData[0]['C7'] #doctest: +NORMALIZE_WHITESPACE
@@ -835,7 +831,12 @@ def writeKinetics(CoM_output,kinetics):
     np.save(CoM_output,kinetics)
         
 def writeResult(data,filename,**kargs):
-        """Writes the result of the calculation into a csv file 
+        """Writes the result of the calculation into a csv file.
+ 
+        Lines 0-6 of the output csv are headers. Lines 7 and onwards
+        are angle or axis calculations for each frame. For example,
+        line 7 of the csv is output for frame 0 of the motion capture.
+        The first element of each row of ouput is the frame number. 
         
         Arguments
         ---------
@@ -844,6 +845,7 @@ def writeResult(data,filename,**kargs):
             Each row is a numpy array of length 273.
             Indices 0-56 correspond to the values for angles.  
             Indices 57-272 correspond to the values for axes.
+            See Examples.
         filename : str
             Full path of the csv to be saved. Do not include '.csv'. 
         **kargs : dict
@@ -860,15 +862,42 @@ def writeResult(data,filename,**kargs):
                 
         Examples
         --------
-        This example saves nine angle values corresponding to the Pelvis,
-        R Hip, and L Hip for one frame of trial.
-
-        >>> from numpy import array
+        >>> from numpy import array, nan, zeros
         >>> import os
-        >>> import tempfile
-        >>> data = [array([-0.308494914509454, -6.12129279337001, 7.57143110215171,
-        ...                 2.91422292971666, -6.86706898044634, -18.8210007096431,  
-        ...                -2.86020455047534, -5.34565091894179, -1.80256196863341])]
+        >>> from tempfile import TemporaryDirectory
+       
+        Prepare a frame of data to write to csv. This example writes joint angle values
+        for the first joint, the pelvis, and axis values for the pelvis origin, PELO.
+
+        >>> frame = zeros(273)
+        >>> angles = array([-0.308494914509454, -6.12129279337001, 7.57143110215171])
+        >>> for i in range(len(angles)):
+        ...     frame[i] = angles[i]
+        >>> axis = array([-934.314880371094, -4.44443511962891, 852.837829589844])
+        >>> for i in range(len(axis)):
+        ...     frame[i+57] = axis[i]
+        >>> data = [frame]
+        >>> tmpdir = TemporaryDirectory()
+        >>> outfile = os.path.join(tmpdir.name, 'output')
+
+        Writing angles only.
+        >>> writeResult(data, outfile, angles=True, axis=False)
+        >>> with open(outfile + '.csv') as file:
+        ...     lines = file.readlines()
+        >>> result = lines[7].strip().split(',') 
+        >>> result #doctest: +NORMALIZE_WHITESPACE
+        ['0.000000000000000', 
+         '-0.308494914509454', '-6.121292793370010', '7.571431102151710',...]
+
+        Writing axis only.
+        >>> writeResult(data, outfile, angles=False, axis=True) 
+        (1, 273)...
+        >>> with open(outfile + '.csv') as file:
+        ...     lines = file.readlines()
+        >>> result = lines[7].strip().split(',') 
+        >>> result #doctest: +NORMALIZE_WHITESPACE
+        ['0.000000000000000', 
+         '-934.314880371093977', '-4.444435119628910', '852.837829589843977',...]
 
         """
         labelsAngs =['Pelvis','R Hip','L Hip','R Knee','L Knee','R Ankle',
@@ -1013,8 +1042,10 @@ def loadVSK(filename,dict=True):
         RoboSM.vsk in SampleData is used to test the output
 
         >>> import os 
-        >>> pycgm_dir = os.path.dirname(os.path.dirname(__file__))
-        >>> filename = pycgm_dir + '/SampleData/Sample_2/RoboSM.vsk' 
+        >>> from .pyCGM_Helpers import getfilenames
+        >>> filename = getfilenames(x=3)[2]
+        >>> filename
+        'SampleData/Sample_2/RoboSM.vsk'
 
         >>> result = loadVSK(filename)
         >>> vsk_keys = result[0]
@@ -1131,8 +1162,7 @@ def combineDataDict(values,labels):
     ---------
     values : array
         Array of motion data values. Indices of `values` correspond to
-        frames in the trial. Each element is an array of xyz values. 
-        array([x, y, z])
+        frames in the trial. Each element is an array of xyz coordinates. 
     labels : array
         List of marker names.
   
