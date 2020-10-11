@@ -134,7 +134,6 @@ def getStatic(motionData,vsk,flat_foot=False,GCS=None):
     Example
     -------
     >>> from .pycgmIO import loadC3D, loadVSK
-    Using...
     >>> from .pycgmStatic import *
     >>> import os
     >>> from .pyCGM_Helpers import getfilenames

@@ -197,7 +197,6 @@ def filtering(Data):
     >>> from .Pipelines import filtering, filt
     >>> from .pyCGM_Helpers import getfilenames
     >>> from .pycgmIO import loadData, dataAsDict
-    Using...
     >>> motionData = loadData(getfilenames(x=2)[0])
     Sample...
     >>> motionDataDict = dataAsDict(motionData,npArray=True)
