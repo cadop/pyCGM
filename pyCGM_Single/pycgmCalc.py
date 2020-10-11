@@ -118,7 +118,7 @@ def calcAngles(data,**kargs):
     and subject measurement values from Sample_SM.vsk in 
     /SampleData/ROM/. 
 
-    >>> import numpy as np
+    >>> from numpy import around
     >>> from .pycgmIO import loadC3D, loadVSK
     >>> from .pycgmStatic import getStatic
     >>> from .pyCGM_Helpers import getfilenames
@@ -132,10 +132,10 @@ def calcAngles(data,**kargs):
     
     Example of default behavior.
     >>> result = calcAngles(data, vsk=vsk)
-    >>> result[0] #Array of joint angles
-    array([[[-4.56460461e-01, -5.76277607e+00,  4.80620732e+00],...]]])
+    >>> around(result[0], 8) #Array of joint angles
+    array([[[ -0.45646046,  -5.76277607,   4.80620732],...]]])
 
-    >>> result[1] #Array of axis values
+    >>> around(result[1], 8) #Array of axis values
     array([[[[ 246.152565  ,  353.26243591, 1031.71362305],
              [ 246.23714526,  354.25388362, 1031.61423686],
              [ 245.15617986,  353.34579827, 1031.69727175],
@@ -143,15 +143,15 @@ def calcAngles(data,**kargs):
 
     Example of returning as a tuple.
     >>> kinematics, joint_centers = calcAngles(data, start=None, end=None, vsk=vsk, splitAnglesAxis=False, formatData=False,returnjoints=True)
-    >>> kinematics[0][0]
-    -0.4564604610935918
-    >>> joint_centers[0]['Pelvis'] #doctest: +NORMALIZE_WHITESPACE
+    >>> around(kinematics[0][0], 8)
+    -0.45646046
+    >>> around(joint_centers[0]['Pelvis'], 8) #doctest: +NORMALIZE_WHITESPACE
     array([ 246.152565 , 353.26243591, 1031.71362305])
     
     Example without returning joints.
     >>> kinematics = calcAngles(data, vsk=vsk, splitAnglesAxis=False, formatData=False,returnjoints=False)
-    >>> kinematics[0][0]
-    -0.4564604610935918
+    >>> around(kinematics[0][0], 8)
+    -0.45646046
 
     """
 
@@ -268,7 +268,7 @@ def Calc(start,end,data,vsk):
     and subject measurement values from Sample_SM.vsk in 
     /SampleData/ROM/. 
 
-    >>> import numpy as np
+    >>> from numpy import around
     >>> from .pycgmIO import loadC3D, loadVSK
     >>> from .pycgmStatic import getStatic
     >>> from .pyCGM_Helpers import getfilenames
@@ -287,16 +287,16 @@ def Calc(start,end,data,vsk):
     >>> end = 3
     >>> angles, jcs = Calc(start, end, data, vsk)
 
-    >>> angles[0][0] #Frame 0
-    -0.4564604610935918
-    >>> angles[1][0] #Frame 1
-    -0.4578992725998458
-    >>> angles[2][0] #Frame 2
-    -0.4560890215524313
+    >>> around(angles[0][0], 8) #Frame 0
+    -0.45646046
+    >>> around(angles[1][0], 8) #Frame 1
+    -0.45789927
+    >>> around(angles[2][0], 8) #Frame 2
+    -0.45608902
 
-    >>> jcs[0]['Pelvis'] #doctest: +NORMALIZE_WHITESPACE
+    >>> around(jcs[0]['Pelvis'], 8) #doctest: +NORMALIZE_WHITESPACE
     array([ 246.152565 , 353.26243591, 1031.71362305])
-    >>> jcs[1]['Pelvis'] #doctest: +NORMALIZE_WHITESPACE
+    >>> around(jcs[1]['Pelvis'], 8) #doctest: +NORMALIZE_WHITESPACE
     array([ 246.16200256, 353.27105713, 1031.71856689])
     
     """
@@ -333,7 +333,7 @@ def calcFrames(data,vsk):
     and subject measurement values from Sample_SM.vsk in 
     /SampleData/ROM/. 
 
-    >>> import numpy as np
+    >>> from numpy import around
     >>> from .pycgmIO import loadC3D, loadVSK
     >>> from .pycgmStatic import getStatic
     >>> from .pyCGM_Helpers import getfilenames
@@ -346,9 +346,9 @@ def calcFrames(data,vsk):
     >>> vsk = getStatic(data,vskData,flat_foot=False)
 
     >>> angles, joints = calcFrames(data, vsk)
-    >>> angles[0][0]
-    -0.4564604610935918
-    >>> joints[0]['Pelvis'] #doctest: +NORMALIZE_WHITESPACE
+    >>> around(angles[0][0], 8)
+    -0.45646046
+    >>> around(joints[0]['Pelvis'], 8) #doctest: +NORMALIZE_WHITESPACE
     array([ 246.152565 , 353.26243591, 1031.71362305])
 
     """

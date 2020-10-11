@@ -23,9 +23,9 @@ def normalize(v):
 
     Examples
     --------
-    >>> import numpy as np
+    >>> from numpy import array, around
     >>> v = np.array([1.0, 2.0, 3.0])
-    >>> normalize(v)
+    >>> around(normalize(v), 8)
     array([0.26726124, 0.53452248, 0.80178373])
     
     >>> v = np.array([0, 0, 0])
@@ -63,13 +63,13 @@ def getMarkerLocation(Pm,C):
 
     Examples
     --------
-    >>> from numpy import array
+    >>> from numpy import array, around
     >>> Pm = [-205.14696889756505, 258.35355899445926, 3.279423067505604]
     >>> C = [array([ 325.82983398,  402.55450439, 1722.49816895]),
     ...      array([ 304.39898682,  242.91339111, 1694.97497559]),
     ...      array([ 197.8621521 ,  251.28889465, 1696.90197754])]
-    >>> getMarkerLocation(Pm, C)
-    [187.23396416308137, 407.9168810836259, 1720.7195283672238]
+    >>> around(getMarkerLocation(Pm, C), 8) #doctest: +NORMALIZE_WHITESPACE
+    array([ 187.23396416, 407.91688108, 1720.71952837])
 
     """
     #Pm is the location of the missing marker in the cluster frame
@@ -129,13 +129,13 @@ def getStaticTransform(p,C):
 
     Examples
     --------
-    >>> from numpy import array
+    >>> from numpy import array, around
     >>> p = [173.67716164, 325.44079612, 1728.47894043]
     >>> C = [array([314.17024414, 326.98319891, 1731.38964711]), 
     ...      array([302.76412032, 168.80114852, 1688.1522896 ]), 
     ...      array([193.62636014, 171.28945512, 1689.54191939])]
-    >>> getStaticTransform(p, C)
-    [-205.14696889845703, 258.3535589971144, 3.279423068084043]
+    >>> around(getStaticTransform(p, C), 8) #doctest: +NORMALIZE_WHITESPACE
+    array([-205.1469689 , 258.353559 , 3.27942307])
 
     """
     #p = target marker
