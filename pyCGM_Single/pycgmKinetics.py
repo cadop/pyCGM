@@ -52,10 +52,10 @@ def dot(v,w):
     
     Parameters
     ----------
-    v : array
-        First 3D vector.
-    w : array
-        Second 3D vector.
+    v : list
+        First 3-element list.
+    w : list
+        Second 3-element list.
 
     Returns
     -------
@@ -85,8 +85,8 @@ def length(v):
     
     Parameters
     ----------
-    v : array
-        A 3D vector.
+    v : list
+        A 3-element list.
 
     Returns
     -------
@@ -113,9 +113,9 @@ def vector(b,e):
     
     Parameters
     ----------
-    v : array
+    v : list
         First 3D vector.
-    e : array
+    e : list
         Second 3D vector.
 
     Returns
@@ -238,10 +238,10 @@ def add(v,w):
     
     Parameters
     ----------
-    v : array
-        First 3D vector.
-    w : array
-        Second 3D vector.
+    v : list
+        First 3-element list.
+    w : list
+        Second 3-element list.
 
     Returns
     -------

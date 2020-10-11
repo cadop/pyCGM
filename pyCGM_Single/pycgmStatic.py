@@ -287,7 +287,7 @@ def average(list):
 
     Parameters
     ----------
-    list : array_like
+    list : list
         List or array of values.
     
     Returns
@@ -469,7 +469,7 @@ def staticCalculation(frame,ankle_JC,knee_JC,flat_foot,vsk=None):
             
     Returns
     ------- 
-    angle : array
+    angle : list
         An offset angle.
             [[Right Flexion angle, Right Abduction angle, Right Rotation angle],
             [Left Flexion angle, Left Abduction angle, Left Rotation angle]]
@@ -2038,8 +2038,8 @@ def getankleangle(axisP,axisD):
                     [axisD-z axis x,y,z position]]
     Returns
     -------
-    angle : array
-        These angles are show on degree.
+    angle : list
+        These angles are shown in degrees.
             angle = [gamma,beta,alpha]
     
     Example
@@ -2080,14 +2080,14 @@ def findJointC(a, b, c, delta):
 
     Parameters
     ----------
-    a,b,c : array 
+    a,b,c : list 
         Three markers x,y,z position of a, b, c. 
     delta : float
         The length from marker to joint center, retrieved from subject measurement file.
     
     Returns
     -------
-    mr : array
+    mr : list
         Joint C x,y,z position
             return = [joint C x position, joint C y position, joint C z position]
 
@@ -2154,9 +2154,8 @@ def norm2d(v):
 
     Parameters
     ----------
-    v : array
-        A 3-dimensional vector.
-            [ x, y, z ]
+    v : list
+        A 3-element list.
 
     Returns
     -------
@@ -2185,8 +2184,7 @@ def norm3d(v):
     Parameters
     ----------
     v : array
-        A 3-dimensional vector.
-            [ x, y, z ]
+        A 3-element list.
 
     Returns
     -------
@@ -2214,9 +2212,8 @@ def normDiv(v):
 
     Parameters
     ----------
-    v : array
-        A 3-dimensional vector.
-            [ x, y, z ]
+    v : list
+        A 3-element list.
 
     Returns
     -------
@@ -2252,14 +2249,14 @@ def matrixmult (A, B):
 
     Parameters
     ----------
-    A : array
+    A : list
         First matrix, in a 2D array format.
-    B : array
+    B : list
         Second matrix, in a 2D array format.
 
     Returns
     -------
-    C : array 
+    C : list 
         The product of the matrix multiplication.
 
     Example
@@ -2285,14 +2282,14 @@ def cross(a, b):
     
     Parameters
     ----------
-    a : array
-        First vector x,y,z positions.
-    b : array 
-        Second vector x,y,z positions.
+    a : list
+        First 3D vector.
+    b : list 
+        Second 3D vector.
     
     Returns
     -------
-    c : array
+    c : list
         The cross product of vector a and vector b.
 
     Example

@@ -107,10 +107,12 @@ def prep(trajs):
     Parameters
     ----------
     trajs : dict
-
+        A dictionary containing lists.
+        
     Returns
     -------
-    frames : array
+    frames : list
+        Returns a list with multiple dictionaries. 
 
     Example
     -------

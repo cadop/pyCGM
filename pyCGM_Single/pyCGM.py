@@ -1796,7 +1796,7 @@ def wristJointCenter(frame,shoulderJC,wand,elbowJC):
     --------
     [origin, axis] : array 
         Returns the Shoulder joint center and axis in three array
-            wrist_JC = [[R_wrist_JC_x, R_wrist_JC_y, R_wrist_JC_z],
+            return = [[R_wrist_JC_x, R_wrist_JC_y, R_wrist_JC_z],
                         [L_wrist_JC_x,L_wrist_JC_y,L_wrist_JC_z],
                         [[[R_wrist x axis, x,y,z position],
                         [R_wrist y axis, x,y,z position],
@@ -2086,7 +2086,7 @@ def findJointC(a, b, c, delta):
 
     Parameters
     ----------
-    a,b,c : array 
+    a,b,c : list 
         Three markers x,y,z position of a, b, c. 
     delta : float
         The length from marker to joint center, retrieved from subject measurement file.
@@ -2156,14 +2156,14 @@ def cross(a, b):
     
     Parameters
     ----------
-    a : array
-        First vector x,y,z positions.
-    b : array 
-        Second vector x,y,z positions.
+    a : list
+        First 3D vector.
+    b : list 
+        Second 3D vector.
     
     Returns
     -------
-    c : array
+    c : list
         The cross product of vector a and vector b.
 
     Example
@@ -2201,8 +2201,8 @@ def getPelangle(axisP,axisD):
                     [axisD-z axis x,y,z position]]
     Returns
     -------
-    angle : array
-        These angles are show on degree.
+    angle : list
+        These angles are shown in degrees.
             angle = [gamma,beta,alpha]
     
     Example
@@ -2259,8 +2259,8 @@ def getHeadangle(axisP,axisD):
                     [axisD-z axis x,y,z position]]
     Returns
     -------
-    angle : array
-        These angles are show on degree.
+    angle : list
+        These angles are shown in degrees.
             angle = [gamma,beta,alpha]
     
     Example
@@ -2348,7 +2348,7 @@ def getangle_sho(axisP,axisD):
     Returns
     -------
     angle : array
-        These angles are show on degree.
+        These angles are shown in degrees.
             angle = [gamma,beta,alpha]
     
     Example
@@ -2400,8 +2400,8 @@ def getangle_spi(axisP,axisD):
                     [axisD-z axis x,y,z position]]
     Return
     ------
-    angle : array
-        These angles are show on degree.
+    angle : list
+        These angles are shown in degrees.
             angle = [gamma,beta,alpha]
     
     Example
@@ -2451,8 +2451,8 @@ def getangle(axisP,axisD):
                     [axisD-z axis x,y,z position]]
     Returns
     -------
-    angle : array
-        These angles are show on degree.
+    angle : list
+        These angles are shown in degrees.
             angle = [gamma,beta,alpha]
     
     Example
@@ -2503,9 +2503,8 @@ def norm2d(v):
 
     Parameters
     ----------
-    v : array
-        A 3-dimensional vector.
-            [ x, y, z ]
+    v : list
+        A 3D vector.
 
     Returns
     -------
@@ -2533,13 +2532,12 @@ def norm3d(v):
 
     Parameters
     ----------
-    v : array
-        A 3-dimensional vector.
-            [ x, y, z ]
+    v : list
+        A 3D vector.
 
     Returns
     -------
-    array 
+    list 
         The normalization of the vector returned as a float in an array.
 
     Example
@@ -2563,9 +2561,8 @@ def normDiv(v):
 
     Parameters
     ----------
-    v : array
-        A 3-dimensional vector.
-            [ x, y, z ]
+    v : list
+        A 3D vector.
 
     Returns
     -------
@@ -2601,14 +2598,14 @@ def matrixmult (A, B):
 
     Parameters
     ----------
-    A : array
+    A : list
         First matrix, in a 2D array format.
-    B : array
+    B : list
         Second matrix, in a 2D array format.
 
     Returns
     -------
-    C : array 
+    C : list 
         The product of the matrix multiplication.
 
     Example
@@ -2642,7 +2639,7 @@ def rotmat(x=0,y=0,z=0):
     
     Returns
     -------
-    Rxyz : array 
+    Rxyz : list 
         The product of the matrix multiplication.
 
     Example
@@ -2743,10 +2740,11 @@ def JointAngleCalc(frame,vsk):
     >>> from .pyCGM import *
     >>> from .pycgmIO import loadC3D, loadVSK
     >>> from .pycgmStatic import getStatic
+    >>> from .pyCGM_Helpers import getfilenames
     >>> import os
-    >>> pycgm_dir = os.path.dirname(os.path.dirname(__file__))
-    >>> c3dFile = pycgm_dir + '/SampleData/ROM/Sample_Static.c3d'
-    >>> vskFile = pycgm_dir + '/SampleData/ROM/Sample_SM.vsk' 
+    >>> fileNames=getfilenames(2)
+    >>> c3dFile = fileNames[1]
+    >>> vskFile = fileNames[2]
     >>> result = loadC3D(c3dFile)
     >>> data = result[0]
     >>> frame = result[0][0]
