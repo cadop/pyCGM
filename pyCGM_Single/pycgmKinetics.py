@@ -33,7 +33,7 @@ def f(p, x):
 
     Example
     -------
-    >>> from .pycgmKinetics import *
+    >>> from .pycgmKinetics import f
     >>> import numpy as np
     >>> p = [1, 2]
     >>> x = 10
@@ -64,7 +64,7 @@ def dot(v,w):
 
     Example
     -------
-    >>> from .pycgmKinetics import *
+    >>> from .pycgmKinetics import dot
     >>> import numpy as np
     >>> v = [1, 2, 3]
     >>> w = [4, 5, 6]
@@ -95,7 +95,7 @@ def length(v):
 
     Example
     -------
-    >>> from .pycgmKinetics import *
+    >>> from .pycgmKinetics import length
     >>> import numpy as np
     >>> v = [1,2,3]
     >>> length(v) #doctest: +NORMALIZE_WHITESPACE
@@ -125,7 +125,7 @@ def vector(b,e):
 
     Example
     -------
-    >>> from .pycgmKinetics import *
+    >>> from .pycgmKinetics import vector
     >>> import numpy as np
     >>> v = [1,2,3]
     >>> e = [4,5,6]
@@ -156,7 +156,7 @@ def unit(v):
 
     Example
     -------
-    >>> from .pycgmKinetics import *
+    >>> from .pycgmKinetics import unit, length
     >>> import numpy as np
     >>> v = [1,2,3]
     >>> unit(v) #doctest: +NORMALIZE_WHITESPACE
@@ -187,7 +187,7 @@ def distance(p0,p1):
 
     Example
     -------
-    >>> from .pycgmKinetics import *
+    >>> from .pycgmKinetics import distance, length, vector
     >>> import numpy as np
     >>> p0 = [1,2,3]
     >>> p1 = [4,5,6]
@@ -218,7 +218,7 @@ def scale(v,sc):
 
     Example
     -------
-    >>> from .pycgmKinetics import *
+    >>> from .pycgmKinetics import scale
     >>> import numpy as np
     >>> v = [1,2,3]
     >>> sc = 2
@@ -250,7 +250,7 @@ def add(v,w):
 
     Example
     -------
-    >>> from .pycgmKinetics import *
+    >>> from .pycgmKinetics import add
     >>> import numpy as np
     >>> v = [1, 2, 3]
     >>> w = [4, 5, 6]
@@ -354,7 +354,7 @@ def findL5_Pelvis(frame):
         
     Example
     -------
-    >>> from .pycgmKinetics import *
+    >>> from .pycgmKinetics import findL5_Pelvis, unit, distance
     >>> import numpy as np
     >>> Pelvis_axis = [np.array([251.60830688, 391.74131775, 1032.89349365]),
     ...                np.array([[251.74063624, 392.72694721, 1032.78850073],
@@ -404,7 +404,7 @@ def findL5_Thorax(frame):
 
     Example
     -------
-    >>> from .pycgmKinetics import *
+    >>> from .pycgmKinetics import findL5_Thorax, distance, unit
     >>> import numpy as np
     >>> Thorax_axis = [[[256.3454633226447, 365.7223958512035, 1461.920891187948], 
     ...               [257.26637166499415, 364.69602499862503, 1462.2347234647593], 

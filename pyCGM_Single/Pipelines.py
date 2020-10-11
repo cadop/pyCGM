@@ -107,8 +107,8 @@ def prep(trajs):
     Parameters
     ----------
     trajs : dict
-        A dictionary containing lists.
-        
+        A dictionary containing arrays.
+
     Returns
     -------
     frames : list
@@ -116,14 +116,13 @@ def prep(trajs):
 
     Example
     -------
-    >>> from .Pipelines import *
+    >>> from .Pipelines import prep
     >>> import numpy as np
-    >>> trajs = {'trajOne': [[217.19961548, -82.35484314, 332.2684021 ],
-    ...                  [[257.19961548, -32.35484314, 382.2684021 ]]]}
+    >>> trajs = {'trajOne': np.array([[217.19961548, -82.35484314, 332.2684021 ],
+    ...                               [257.19961548, -32.35484314, 382.2684021 ]])}
     >>> prep(trajs) #doctest: +NORMALIZE_WHITESPACE
-    [{'trajOne': [[217.19961548, -82.35484314, 332.2684021], 
-    [[257.19961548, -32.35484314, 382.2684021]]]}, 
-    {'trajOne': [[[257.19961548, -32.35484314, 382.2684021]]]}]
+    [{'trajOne': array([217.19961548, -82.35484314, 332.2684021 ])}, 
+    {'trajOne': array([257.19961548, -32.35484314, 382.2684021 ])}]
     """
     frames=[]
     if pyver == 2:
@@ -163,7 +162,7 @@ def clearMarker(data,name):
     Example
     -------
     >>> import numpy as np 
-    >>> from .Pipelines import *
+    >>> from .Pipelines import clearMarker
     >>> data = [{'LTIL': np.array([-268.1545105 ,  327.53512573,   30.17036057]), 
     ... 'RFOP': np.array([ -38.4509964 , -148.6839447 ,   59.21961594])},
     ... {'LTIL': np.array([-273.1545105 ,  324.53512573,   36.17036057]),
@@ -195,12 +194,11 @@ def filtering(Data):
     Example
     -------
     >>> import numpy as np 
-    >>> from .Pipelines import *
+    >>> from .Pipelines import filtering, filt
     >>> from .pyCGM_Helpers import getfilenames
-    >>> from .pycgmIO import loadData,dataAsDict
+    >>> from .pycgmIO import loadData, dataAsDict
     Using...
-    >>> dynamic_trial,static_trial,vsk_file,outputfile,CoM_output = getfilenames(x=2)
-    >>> motionData = loadData(dynamic_trial)
+    >>> motionData = loadData(getfilenames(x=2)[0])
     Sample...
     >>> motionDataDict = dataAsDict(motionData,npArray=True)
     >>> filtering(motionDataDict)['HEDO'] #doctest: +NORMALIZE_WHITESPACE
