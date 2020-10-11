@@ -2189,21 +2189,16 @@ def getPelangle(axisP,axisD):
     
     Parameters
     ----------
-    axisP : array
-        Shows the unit vector of axisP.
-           axisP = [[axisP-x axis x,y,z position],
-                    [axisP-y axis x,y,z position],
-                    [axisP-z axis x,y,z position]]  
-    axisD : array
-        Shows the unit vector of axisD.
-           axisD = [[axisD-x axis x,y,z position],
-                    [axisD-y axis x,y,z position],
-                    [axisD-z axis x,y,z position]]
+    axisP : list
+        Shows the unit vector of axisP, the position of the proximal axis.
+    axisD : list
+        Shows the unit vector of axisD, the position of the distal axis.
+        
     Returns
     -------
     angle : list
         These angles are shown in degrees.
-            angle = [gamma,beta,alpha]
+            angle = [gamma, beta, alpha]
     
     Example
     -------
@@ -2247,21 +2242,16 @@ def getHeadangle(axisP,axisD):
     
     Parameters
     ----------
-    axisP : array
-        Shows the unit vector of axisP.
-           axisP = [[axisP-x axis x,y,z position],
-                    [axisP-y axis x,y,z position],
-                    [axisP-z axis x,y,z position]]  
-    axisD : array
-        Shows the unit vector of axisD.
-           axisD = [[axisD-x axis x,y,z position],
-                    [axisD-y axis x,y,z position],
-                    [axisD-z axis x,y,z position]]
+    axisP : list
+        Shows the unit vector of axisP, the position of the proximal axis.
+    axisD : list
+        Shows the unit vector of axisD, the position of the distal axis.
+        
     Returns
     -------
     angle : list
         These angles are shown in degrees.
-            angle = [gamma,beta,alpha]
+            angle = [gamma, beta, alpha]
     
     Example
     -------
@@ -2335,21 +2325,16 @@ def getangle_sho(axisP,axisD):
     
     Parameters
     ----------
-    axisP : array
-        Shows the unit vector of axisP.
-           axisP = [[axisP-x axis x,y,z position],
-                    [axisP-y axis x,y,z position],
-                    [axisP-z axis x,y,z position]]  
-    axisD : array
-        Shows the unit vector of axisD.
-           axisD = [[axisD-x axis x,y,z position],
-                    [axisD-y axis x,y,z position],
-                    [axisD-z axis x,y,z position]]
+    axisP : list
+        Shows the unit vector of axisP, the position of the proximal axis.
+    axisD : list
+        Shows the unit vector of axisD, the position of the distal axis.
+        
     Returns
     -------
-    angle : array
+    angle : list
         These angles are shown in degrees.
-            angle = [gamma,beta,alpha]
+            angle = [gamma, beta, alpha]
     
     Example
     -------
@@ -2388,21 +2373,16 @@ def getangle_spi(axisP,axisD):
     
     Parameters
     ----------
-    axisP : array
-        Shows the unit vector of axisP.
-           axisP = [[axisP-x axis x,y,z position],
-                    [axisP-y axis x,y,z position],
-                    [axisP-z axis x,y,z position]]  
-    axisD : array
-        Shows the unit vector of axisD.
-           axisD = [[axisD-x axis x,y,z position],
-                    [axisD-y axis x,y,z position],
-                    [axisD-z axis x,y,z position]]
-    Return
-    ------
+    axisP : list
+        Shows the unit vector of axisP, the position of the proximal axis.
+    axisD : list
+        Shows the unit vector of axisD, the position of the distal axis.
+        
+    Returns
+    -------
     angle : list
         These angles are shown in degrees.
-            angle = [gamma,beta,alpha]
+            angle = [gamma, beta, alpha]
     
     Example
     -------
@@ -2439,21 +2419,16 @@ def getangle(axisP,axisD):
     
     Parameters
     ----------
-    axisP : array
-        Shows the unit vector of axisD.
-            axisP = [[axisP-x axis x,y,z position],
-                    [axisP-y axis x,y,z position],
-                    [axisP-z axis x,y,z position]]
-    axisD : array
-        Shows the unit vector of axisD.
-            axisD = [[axisD-x axis x,y,z position],
-                    [axisD-y axis x,y,z position],
-                    [axisD-z axis x,y,z position]]
+    axisP : list
+        Shows the unit vector of axisP, the position of the proximal axis.
+    axisD : list
+        Shows the unit vector of axisD, the position of the distal axis.
+        
     Returns
     -------
     angle : list
         These angles are shown in degrees.
-            angle = [gamma,beta,alpha]
+            angle = [gamma, beta, alpha]
     
     Example
     -------

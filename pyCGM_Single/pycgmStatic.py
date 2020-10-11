@@ -404,16 +404,11 @@ def headoffCalc(axisP, axisD):
 
     Parameters
     ----------
-    axisP : array
-        Shows the unit vector of axisP.
-           axisP = [[axisP-x axis x,y,z position],
-                    [axisP-y axis x,y,z position],
-                    [axisP-z axis x,y,z position]]  
-    axisD : array
-        Shows the unit vector of axisD.
-           axisD = [[axisD-x axis x,y,z position],
-                    [axisD-y axis x,y,z position],
-                    [axisD-z axis x,y,z position]]
+    axisP : list
+        Shows the unit vector of axisP, the position of the proximal axis.
+    axisD : list
+        Shows the unit vector of axisD, the position of the distal axis.
+
     Returns
     -------
     angle : float
@@ -486,8 +481,7 @@ def staticCalculation(frame,ankle_JC,knee_JC,flat_foot,vsk=None):
     -------
     >>> import numpy as np
     >>> from math import *
-    >>> from .pycgmStatic import *
-
+    >>> from .pycgmStatic import staticCalculation, rotaxis_nonfootflat, getankleangle
     >>> frame = {'RTOE': np.array([427.95211792, 437.99603271,  41.77342987]),
     ...          'LTOE': np.array([175.78988647, 379.49987793,  42.61193085]),
     ...          'RHEE': np.array([406.46331787, 227.56491089,  48.75952911]),
@@ -2030,21 +2024,16 @@ def getankleangle(axisP,axisD):
     
     Parameters
     ----------
-    axisP : array
-        Shows the unit vector of axisP.
-           axisP = [[axisP-x axis x,y,z position],
-                    [axisP-y axis x,y,z position],
-                    [axisP-z axis x,y,z position]]  
-    axisD : array
-        Shows the unit vector of axisD.
-           axisD = [[axisD-x axis x,y,z position],
-                    [axisD-y axis x,y,z position],
-                    [axisD-z axis x,y,z position]]
+    axisP : list
+        Shows the unit vector of axisP, the position of the proximal axis.
+    axisD : list
+        Shows the unit vector of axisD, the position of the distal axis.
+        
     Returns
     -------
     angle : list
         These angles are shown in degrees.
-            angle = [gamma,beta,alpha]
+            angle = [gamma, beta, alpha]
     
     Example
     -------
