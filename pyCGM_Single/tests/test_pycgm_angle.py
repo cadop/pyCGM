@@ -46,7 +46,7 @@ class TestPycgmAngle(unittest.TestCase):
           [0.68540404438920177199, 0.09844473917718232769, 0.72147760135931093828],
           [-0.71385783444225126004, -0.10458924677044478813, 0.69243633762630452111]],
          [-9.42569150165887, 130.86647058885387, -170.3887751198432]],
-        #Tests for index 0, 90 degrees to -90 degrees
+        #Tests for the x angle, 90 degrees to -90 degrees
         testcase_a,
         [[[0, 0, sqrt3div2], coor_000, coor_000],
          [coor_000, coor_000, coor_001],
@@ -63,7 +63,7 @@ class TestPycgmAngle(unittest.TestCase):
          [coor_000, coor_000, coor_001],
          [-60.0, 0.0, 0.0]],
         testcase_d,
-        #Tests for index 1, 180 degrees to -150 degrees
+        #Tests for the y angle, 180 degrees to -150 degrees
         [[coor_000, coor_000, coor_neg010],
          [coor_000, coor_000, coor_010],
          [0.0, 180.0, 0.0]],
@@ -107,7 +107,7 @@ class TestPycgmAngle(unittest.TestCase):
         [[coor_000, [0, yCoor30Degree, 0], coor_neg010],
          [coor_000, coor_000, coor_010],
          [0.0, -150.0, 0.0]],
-        # Tests for index 2, 90 degrees to -90 degrees
+        # Tests for the z angle, 90 degrees to -90 degrees
         [[coor_010, coor_000, coor_000],
          [coor_neg010, coor_000, coor_000],
          [0.0, 0.0, 180.0]],
@@ -157,6 +157,9 @@ class TestPycgmAngle(unittest.TestCase):
         result = pyCGM.getangle_sho(axisP, axisD)
         np.testing.assert_almost_equal(result, expected, rounding_precision)
 
+        result_nparray = pyCGM.getangle_sho(np.array(axisP), np.array(axisD))
+        np.testing.assert_almost_equal(result_nparray, expected, rounding_precision)
+
     @parameterized.expand([
         [[coor_000, coor_000, coor_000],
          [coor_000, coor_000, coor_000],
@@ -169,7 +172,7 @@ class TestPycgmAngle(unittest.TestCase):
           [0.99377608791559168822, -0.08945440277921079542, -0.06638521605464120512],
           [-0.06550487076049194002, 0.01274459183355247660, -0.99777085910818641423]],
          [-6.4797057790916615, -2.893068979100172, -4.638276625836626]],
-        # Tests for index 0, 90 degrees to -90 degrees
+        # Tests for the x angle, 90 degrees to -90 degrees
         [[coor_000, coor_000, coor_100],
          [coor_neg100, coor_000, coor_000],
          [90.0, 0.0, 0.0]],
@@ -194,7 +197,7 @@ class TestPycgmAngle(unittest.TestCase):
         [[coor_000, coor_000, coor_010],
          [coor_010, coor_000, coor_000],
          [-90.0, 0.0, 0.0]],
-        # Tests for index 1
+        # Tests for the y angle, 90 degrees to -90 degrees
         [[coor_neg100, coor_000, coor_000],
          [coor_000, coor_100, coor_000],
         [0.0, 90.0, 0.0]],
@@ -219,7 +222,7 @@ class TestPycgmAngle(unittest.TestCase):
         [[coor_010, coor_000, coor_000],
          [coor_000, coor_010, coor_000],
          [0.0, -90.0, 0.0]],
-        # Tests for index 2, 90 degrees to -90 degrees
+        # Tests for the z angle, 90 degrees to -90 degrees
         [[coor_000, coor_000, coor_100],
          [coor_000, coor_100, coor_000],
          [0.0, 0.0, 90.0]],
@@ -248,6 +251,9 @@ class TestPycgmAngle(unittest.TestCase):
         result = pyCGM.getangle_spi(axisP, axisD)
         np.testing.assert_almost_equal(result, expected, rounding_precision)
 
+        result_nparray = pyCGM.getangle_spi(np.array(axisP), np.array(axisD))
+        np.testing.assert_almost_equal(result_nparray, expected, rounding_precision)
+
     @parameterized.expand([
         [[coor_000, coor_000, coor_000],
          [coor_000, coor_000, coor_000],
@@ -258,7 +264,7 @@ class TestPycgmAngle(unittest.TestCase):
           [-0.99119134439010281312, 0.13101087562301927391, -0.01938734831355759524],
           [-0.00535352718324588749, 0.10663358915485332545, 0.99428397221845443709]],
          [-0.30849491450945404, -6.121292793370006, 7.5714311021517124]],
-        # Tests for index 0, 180 degrees to -150 degrees
+        # Tests for the x angle, 180 degrees to -150 degrees
         [[coor_000, coor_000, coor_neg100],
          [coor_000, coor_000, coor_100],
          [180.0, 0.0, 0.0]],
@@ -296,7 +302,7 @@ class TestPycgmAngle(unittest.TestCase):
         [[[0, -yCoor30Degree, 0], coor_000, coor_neg010],
          [coor_000, coor_000, coor_010],
          [-150.0, 0.0, 0.0]],
-        # Tests for index 1, 90 degrees to -90 degrees
+        # Tests for the y angle, 90 degrees to -90 degrees
         testcase_e,
         [[coor_000, coor_010, coor_000],
          [coor_000, coor_000, [0, -sqrt3div2, 0]],
@@ -319,7 +325,7 @@ class TestPycgmAngle(unittest.TestCase):
         [[coor_000, coor_001, coor_000],
          [coor_000, coor_000, coor_001],
          [0.0, -90.0, 0.0]],
-        # Tests for index 2, 180 degrees to -150 degrees
+        # Tests for the z angle, 180 degrees to -150 degrees
         [[coor_000, coor_100, coor_000],
          [coor_neg100, coor_000, coor_000],
          [0.0, 0.0, 180.0]],
@@ -368,3 +374,6 @@ class TestPycgmAngle(unittest.TestCase):
     def test_getangle(self, axisP, axisD, expected):
         result = pyCGM.getangle(axisP, axisD)
         np.testing.assert_almost_equal(result, expected, rounding_precision)
+
+        result_nparray = pyCGM.getangle(np.array(axisP), np.array(axisD))
+        np.testing.assert_almost_equal(result_nparray, expected, rounding_precision)
