@@ -300,7 +300,7 @@ def dataAsDict(data,npArray=False):
         for key in dataDict:
             dataDict[key] = np.array(dataDict[key])
         
-        return dataDict
+    return dataDict
 
 def writeKinetics(CoM_output,kinetics):
     """
