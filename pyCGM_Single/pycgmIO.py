@@ -817,7 +817,7 @@ def dataAsDict(data,npArray=False):
         return dataDict
 
 def writeKinetics(CoM_output,kinetics):
-    """Uses numpy.save to write kinetics data
+    """Uses numpy.save to write kinetics data as an .npy file.
 
     Arguments
     ---------
@@ -826,6 +826,22 @@ def writeKinetics(CoM_output,kinetics):
         or a filename.
     kinetics : array_like
         Array data to be saved.
+
+    Examples
+    --------
+    >>> from tempfile import TemporaryDirectory
+    >>> from numpy import load
+    >>> tmpdir = TemporaryDirectory()
+    >>> CoM_output = os.path.join(tmpdir.name, 'CoM')
+    >>> kinetics = [[246.57466721, 313.55662383, 1026.56323492],
+    ...             [246.59137623, 313.6216639, 1026.56440096],
+    ...             [246.60850798, 313.6856272, 1026.56531282]]
+    >>> writeKinetics(CoM_output, kinetics)
+    >>> load(CoM_output + '.npy') #doctest: +NORMALIZE_WHITESPACE
+    array([[ 246.57466721, 313.55662383, 1026.56323492],
+           [ 246.59137623, 313.6216639 , 1026.56440096],
+           [ 246.60850798, 313.6856272 , 1026.56531282]])
+
 
     """
     np.save(CoM_output,kinetics)
@@ -1225,6 +1241,16 @@ def make_sure_path_exists(path):
     Exception
         Raised if the path was unable to be created for any reason 
         other than the directory already existing.
+
+    Examples
+    --------
+    >>> import os
+    >>> from tempfile import TemporaryDirectory
+    >>> tmpdir = TemporaryDirectory()
+    >>> newDirectory = os.path.join(tmpdir.name, 'newDirectory')
+    >>> make_sure_path_exists(newDirectory)
+    >>> os.path.isdir(newDirectory)
+    True
 
     """
     try:
