@@ -42,7 +42,7 @@ def f(p, x):
 
     >>> p = np.array([5.16312215, 8.79307163])
     >>> x = 2.0
-    >>> f(p, x) #doctest: +NORMALIZE_WHITESPACE
+    >>> np.around(f(p, x),8) #doctest: +NORMALIZE_WHITESPACE
     19.11931593
     """
     return (p[0] * x) + p[1]
@@ -73,8 +73,8 @@ def dot(v,w):
 
     >>> v = np.array([6.56643344, 6.23972959, 2.83918231])
     >>> w = np.array([5.53732499, 7.61560881, 6.2563037])
-    >>> dot(v,w) #doctest: +NORMALIZE_WHITESPACE
-    101.6426024111329
+    >>> np.around(dot(v,w),8) #doctest: +NORMALIZE_WHITESPACE
+    101.64260241
     """
     x,y,z = v
     X,Y,Z = w
@@ -98,12 +98,12 @@ def length(v):
     >>> from .pycgmKinetics import length
     >>> import numpy as np
     >>> v = [1,2,3]
-    >>> length(v) #doctest: +NORMALIZE_WHITESPACE
-    3.7416573867739413
+    >>> np.around(length(v),8) #doctest: +NORMALIZE_WHITESPACE
+    3.74165739
 
     >>> v = np.array([6.56643344, 6.23972959, 2.83918231])
-    >>> length(v) #doctest: +NORMALIZE_WHITESPACE
-    9.49279883215107
+    >>> np.around(length(v),8) #doctest: +NORMALIZE_WHITESPACE
+    9.49279883
     """
     x,y,z = v
     return np.sqrt(x*x + y*y + z*z)
@@ -159,12 +159,12 @@ def unit(v):
     >>> from .pycgmKinetics import unit, length
     >>> import numpy as np
     >>> v = [1,2,3]
-    >>> unit(v) #doctest: +NORMALIZE_WHITESPACE
-    (0.2672612419124244, 0.5345224838248488, 0.8017837257372732)
+    >>> np.around(unit(v),8) #doctest: +NORMALIZE_WHITESPACE
+    array([0.26726124, 0.53452248, 0.80178373])
 
     >>> v = np.array([6.56643344, 6.23972959, 2.83918231])
-    >>> unit(v) #doctest: +NORMALIZE_WHITESPACE
-    (0.6917278619410124, 0.6573118950826935, 0.2990880097852701)
+    >>> np.around(unit(v),8) #doctest: +NORMALIZE_WHITESPACE
+    array([0.69172786, 0.6573119 , 0.29908801])
     """
     x,y,z = v
     mag = length(v)
@@ -191,13 +191,13 @@ def distance(p0,p1):
     >>> import numpy as np
     >>> p0 = [1,2,3]
     >>> p1 = [4,5,6]
-    >>> distance(p0,p1) #doctest: +NORMALIZE_WHITESPACE
-    5.196152422706632
+    >>> np.around(distance(p0,p1),8) #doctest: +NORMALIZE_WHITESPACE
+    5.19615242
 
     >>> p0 = np.array([6.56643344, 6.23972959, 2.83918231])
     >>> p1 = np.array([1.25539445, 4.44290559, 0.80470151])
-    >>> distance(p0,p1) #doctest: +NORMALIZE_WHITESPACE
-    5.9644634097163225
+    >>> np.around(distance(p0,p1),8) #doctest: +NORMALIZE_WHITESPACE
+    5.96446341
     """
     return length(vector(p0,p1))
   
@@ -296,15 +296,16 @@ def pnt2line(pnt, start, end):
     >>> pnt = [1, 2, 3]
     >>> start = [4, 5, 6]
     >>> end = [7, 8, 9]
-    >>> pnt2line(pnt, start, end) #doctest: +NORMALIZE_WHITESPACE
-    (5.196152422706632, (4.0, 5.0, 6.0), [1, 2, 3])
+    >>> [np.around(arr,8) for arr in pnt2line(pnt, start, end)] #doctest: +NORMALIZE_WHITESPACE
+    [5.19615242, array([4., 5., 6.]), array([1, 2, 3])]
 
     >>> pnt = np.array([9.82004519, 6.7344815, 0.94587439])
     >>> start = np.array([3.89481034, 4.02115225, 4.3075406])
     >>> end = np.array([7.56622188, 3.58992166, 8.2749309])
-    >>> pnt2line(pnt, start, end) #doctest: +NORMALIZE_WHITESPACE
-    (7.210090049627704, (4.799617258586222, 3.914876934065786, 5.285290479865516), 
-    array([9.82004519, 6.7344815 , 0.94587439]))
+    >>> [np.around(arr,8) for arr in pnt2line(pnt, start, end)] #doctest: +NORMALIZE_WHITESPACE
+    [7.21009005, 
+    array([4.79961726, 3.91487693, 5.28529048]), 
+    array([9.82004519, 6.7344815 , 0.94587439])]
     """
     lineVec = vector(start, end)
 
@@ -364,9 +365,9 @@ def findL5_Pelvis(frame):
     >>> LHip = np.array([308.38050472, 322.80342417, 937.98979061])
     >>> RHip = np.array([182.57097863, 339.43231855, 935.529000126])
     >>> frame = { 'Pelvis_axis': Pelvis_axis, 'RHip': RHip, 'LHip': LHip}
-    >>> findL5_Pelvis(frame) #doctest: +NORMALIZE_WHITESPACE
-    (array([245.47574167, 331.11787136, 936.75939537]), 
-    array([ 271.52716019,  371.69050709, 1043.80997977]))
+    >>> np.around(findL5_Pelvis(frame),8) #doctest: +NORMALIZE_WHITESPACE
+    array([[ 245.47574168,  331.11787136,  936.75939537],
+           [ 271.52716019,  371.69050709, 1043.80997977]])
     """
     #The L5 position is estimated as (LHJC + RHJC)/2 + 
     #(0.0, 0.0, 0.828) * Length(LHJC - RHJC), where the value 0.828 
@@ -414,7 +415,7 @@ def findL5_Thorax(frame):
     >>> LHip = np.array([308.38050472, 322.80342417, 937.98979061])
     >>> RHip = np.array([182.57097863, 339.43231855, 935.529000126])
     >>> frame = { 'C7': C7, 'RHip': RHip, 'LHip': LHip, 'Thorax_axis': Thorax_axis}
-    >>> findL5_Thorax(frame) #doctest: +NORMALIZE_WHITESPACE
+    >>> np.around(findL5_Thorax(frame),8) #doctest: +NORMALIZE_WHITESPACE
     array([ 265.16356015,  359.12462014, 1049.065471  ])
     """
     C7_ = frame['C7']
