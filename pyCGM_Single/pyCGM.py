@@ -2423,7 +2423,7 @@ def getangle(axisP,axisD):
     ...         [ 0.71383942, -0.1155303,  -0.69071415],
     ...         [ 0.67660243, -0.1406784,   0.7227854 ]]
     >>> np.around(getangle(axisP,axisD),8) #doctest: +NORMALIZE_WHITESPACE
-    [-175.6518348318989, -39.63221919951575, 100.26684770068714]    
+    array([-175.65183483,  -39.6322192 ,  100.2668477 ])
     """
     # this is the angle calculation which order is Y-X-Z
     
