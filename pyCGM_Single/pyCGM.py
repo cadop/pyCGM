@@ -185,9 +185,9 @@ def hipJointCenter(frame,pel_origin,pel_x,pel_y,pel_z,vsk=None):
     >>> pel_x = [251.74063624, 392.72694721, 1032.78850073]
     >>> pel_y = [250.61711554, 391.87232862, 1032.8741063]
     >>> pel_z = [251.60295336, 391.84795134, 1033.88777762]
-    >>> hipJointCenter(frame,pel_origin,pel_x,pel_y,pel_z,vsk) #doctest: +NORMALIZE_WHITESPACE
+    >>> hipJointCenter(frame,pel_origin,pel_x,pel_y,pel_z,vsk)
     array([[182.57097799, 339.43231799, 935.52900136],
-    [308.38050352, 322.80342433, 937.98979092]])
+           [308.38050352, 322.80342433, 937.98979092]])
 
     """
     #Get Global Values
@@ -1198,9 +1198,8 @@ def findwandmarker(frame,thorax):
     ...          [257.1435863244796, 364.21960599061947, 1459.5889787129829],
     ...          [256.08430536580352, 354.32180498523223, 1458.6575930699294]],
     ...          [256.14981023656401, 364.30906039339868, 1459.6553639290375]]
-    >>> [np.around(arr,8) for arr in findwandmarker(frame,thorax)] #doctest: +NORMALIZE_WHITESPACE
-    [array([ 255.92550246,  364.32269503, 1460.6297869 ]), 
-    array([ 256.42380097,  364.27770361, 1460.61658494])]
+    >>> [np.around(arr,8) for arr in findwandmarker(frame,thorax)]
+    [array([ 255.92550246,  364.32269503, 1460.6297869 ]), array([ 256.42380097,  364.27770361, 1460.61658494])]
     """
     thorax_origin = thorax[1]
 
@@ -1290,9 +1289,8 @@ def findshoulderJC(frame,thorax,wand,vsk=None):
     ...        [256.14981023656401, 364.30906039339868, 1459.6553639290375]]
     >>> wand = [[255.92550222678443, 364.32269504976051, 1460.6297868417887],
     ...        [256.42380097331767, 364.27770361353487, 1460.6165849382387]]
-    >>> findshoulderJC(frame,thorax,wand,vsk) #doctest: +NORMALIZE_WHITESPACE
-    [array([ 429.66971693,  275.06718208, 1453.95397769]), 
-    array([  64.51952733,  274.93442161, 1463.63133339])]
+    >>> findshoulderJC(frame,thorax,wand,vsk)
+    [array([ 429.66971693,  275.06718208, 1453.95397769]), array([  64.51952733,  274.93442161, 1463.63133339])]
     """
   
     thorax_origin = thorax[1]
@@ -2091,8 +2089,8 @@ def findJointC(a, b, c, delta):
     >>> b = [355.90861996, 365.38260964, 940.6974861]
     >>> c = [452.35180664, 329.0609436, 524.77893066]
     >>> delta = 59.5 
-    >>> findJointC(a,b,c,delta) #doctest: +NORMALIZE_WHITESPACE
-    array([396.25286248, 347.91367254, 518.63620527])      
+    >>> findJointC(a,b,c,delta)
+    array([396.25286248, 347.91367254, 518.63620527])
     """
     # make the two vector using 3 markers, which is on the same plane.
     v1 = (a[0]-c[0],a[1]-c[1],a[2]-c[2])
@@ -2157,8 +2155,8 @@ def cross(a, b):
     >>> from .pyCGM import cross
     >>> a = [6.25286248, 7.91367254, 18.63620527]
     >>> b = [3.49290439, 4.42038315, 19.23948238]
-    >>> np.around(cross(a, b),8) #doctest: +NORMALIZE_WHITESPACE
-    array([ 6.98757956e+01, -5.52073543e+01, -1.65361000e-03])     
+    >>> np.around(cross(a, b),8)
+    array([ 6.98757956e+01, -5.52073543e+01, -1.65361000e-03])
     """
     c = [a[1]*b[2] - a[2]*b[1],
         a[2]*b[0] - a[0]*b[2],
@@ -2196,7 +2194,7 @@ def getPelangle(axisP,axisD):
     >>> axisD = [[-0.18067218, -0.98329158, -0.02225371],
     ...        [ 0.71383942, -0.1155303, -0.69071415],
     ...        [ 0.67660243, -0.1406784, 0.7227854 ]]
-    >>> np.around(getPelangle(axisP,axisD),8)  #doctest: +NORMALIZE_WHITESPACE
+    >>> np.around(getPelangle(axisP,axisD),8)
     array([-175.65183483,   39.63221918,  -10.2668477 ])
     """
     # this is the angle calculation which order is Y-X-Z
@@ -2248,7 +2246,7 @@ def getHeadangle(axisP,axisD):
     >>> axisD = [[-0.18067218, -0.98329158, -0.02225371],
     ...        [ 0.71383942, -0.1155303, -0.69071415],
     ...        [ 0.67660243, -0.1406784, 0.7227854 ]]
-    >>> np.around(getHeadangle(axisP,axisD),8)  #doctest: +NORMALIZE_WHITESPACE
+    >>> np.around(getHeadangle(axisP,axisD),8)
     array([ 184.34816517,  -39.63221894, -190.2668477 ])
     """
     # this is the angle calculation which order is Y-X-Z
@@ -2330,7 +2328,7 @@ def getangle_sho(axisP,axisD):
     >>> axisD = [[-0.18067218, -0.98329158, -0.02225371],
     ...        [ 0.71383942, -0.1155303, -0.69071415],
     ...        [ 0.67660243, -0.1406784, 0.7227854 ]]
-    >>> np.around(getangle_sho(axisP,axisD),8)  #doctest: +NORMALIZE_WHITESPACE
+    >>> np.around(getangle_sho(axisP,axisD),8)
     array([  -3.3474503 , -140.28662977,  172.50982168])
     """
     
@@ -2377,8 +2375,8 @@ def getangle_spi(axisP,axisD):
     >>> axisD = [[-0.18067218, -0.98329158,-0.02225371],
     ...        [ 0.71383942, -0.1155303,  -0.69071415],
     ...        [ 0.67660243, -0.1406784,   0.7227854 ]]    
-    >>> np.around(getangle_spi(axisP,axisD),8) #doctest: +NORMALIZE_WHITESPACE
-    array([ 2.8891964 ,  9.7438295 , 39.74341087])    
+    >>> np.around(getangle_spi(axisP,axisD),8)
+    array([ 2.8891964 ,  9.7438295 , 39.74341087])
     """
     # this angle calculation is for spine angle.
     
@@ -2422,7 +2420,7 @@ def getangle(axisP,axisD):
     >>> axisD = [[-0.18067218, -0.98329158, -0.02225371],
     ...         [ 0.71383942, -0.1155303,  -0.69071415],
     ...         [ 0.67660243, -0.1406784,   0.7227854 ]]
-    >>> np.around(getangle(axisP,axisD),8) #doctest: +NORMALIZE_WHITESPACE
+    >>> np.around(getangle(axisP,axisD),8)
     array([-175.65183483,  -39.6322192 ,  100.2668477 ])
     """
     # this is the angle calculation which order is Y-X-Z
@@ -2472,7 +2470,7 @@ def norm2d(v):
     >>> import numpy as np 
     >>> from .pyCGM import norm2d
     >>> v = [105.141121037153, 101.890788777524, 326.7710280245359]
-    >>> np.around(norm2d(v),8)  #doctest: +NORMALIZE_WHITESPACE
+    >>> np.around(norm2d(v),8)
     358.07218955
     """ 
     try:
@@ -2499,7 +2497,7 @@ def norm3d(v):
     -------
     >>> from .pyCGM import norm3d
     >>> v = [125.44928201, 143.94301493, 213.49204956]
-    >>> norm3d(v)  #doctest: +NORMALIZE_WHITESPACE
+    >>> norm3d(v)
     array(286.4192192)
     """ 
     try:
@@ -2527,7 +2525,7 @@ def normDiv(v):
     >>> import numpy as np 
     >>> from .pyCGM import normDiv       
     >>> v = [1.44928201, 1.94301493, 2.49204956]
-    >>> np.around(normDiv(v),8)  #doctest: +NORMALIZE_WHITESPACE
+    >>> np.around(normDiv(v),8)
     array([0.11991376, 0.16076527, 0.20619246])
     """ 
     try:
@@ -2565,9 +2563,8 @@ def matrixmult (A, B):
     >>> from .pyCGM import matrixmult
     >>> A = [[11,12,13],[14,15,16]]
     >>> B = [[1,2],[3,4],[5,6]]
-    >>> matrixmult(A, B)  #doctest: +NORMALIZE_WHITESPACE
-    [[112, 148], 
-    [139, 184]]
+    >>> matrixmult(A, B)
+    [[112, 148], [139, 184]]
     """ 
 
     C = [[0 for row in range(len(A))] for col in range(len(B[0]))]
@@ -2601,20 +2598,20 @@ def rotmat(x=0,y=0,z=0):
     >>> x = 0.5
     >>> y = 0.3
     >>> z = 0.8
-    >>> np.around(rotmat(x,y,z),8) #doctest: +NORMALIZE_WHITESPACE
+    >>> np.around(rotmat(x,y,z),8)
     array([[ 0.99988882, -0.01396199,  0.00523596],
            [ 0.01400734,  0.99986381, -0.00872642],
            [-0.00511341,  0.00879879,  0.99994822]])
 
     >>> x = 0.5
-    >>> np.around(rotmat(x),8) #doctest: +NORMALIZE_WHITESPACE
+    >>> np.around(rotmat(x),8)
     array([[ 1.        ,  0.        ,  0.        ],
            [ 0.        ,  0.99996192, -0.00872654],
            [ 0.        ,  0.00872654,  0.99996192]])
 
     >>> x = 1
     >>> y = 1
-    >>> np.around(rotmat(x,y),8) #doctest: +NORMALIZE_WHITESPACE
+    >>> np.around(rotmat(x,y),8)
     array([[ 9.9984770e-01,  0.0000000e+00,  1.7452410e-02],
            [ 3.0459000e-04,  9.9984770e-01, -1.7449750e-02],
            [-1.7449750e-02,  1.7452410e-02,  9.9969541e-01]])
@@ -2701,13 +2698,13 @@ def JointAngleCalc(frame,vsk):
     >>> vskData = loadVSK(vskFile, False)
     >>> vsk = getStatic(data,vskData,flat_foot=False)
     >>> results = JointAngleCalc(frame, vsk)[1]
-    >>> np.around(results['Pelvis'],8) #doctest: +NORMALIZE_WHITESPACE
+    >>> np.around(results['Pelvis'],8)
     array([ 246.152565  ,  353.26243591, 1031.71362305])
-    >>> np.around(results['Thorax'],8) #doctest: +NORMALIZE_WHITESPACE
+    >>> np.around(results['Thorax'],8)
     array([ 250.56159618,  303.23273922, 1461.17230698])
-    >>> np.around(results['Head'],8) #doctest: +NORMALIZE_WHITESPACE
+    >>> np.around(results['Head'],8)
     array([ 244.89547729,  325.05789185, 1730.1619873 ])
-    >>> np.around(results['RHand'],8) #doctest: +NORMALIZE_WHITESPACE
+    >>> np.around(results['RHand'],8)
     array([ 770.93339376,  591.04557736, 1079.04817118])
     """
     
