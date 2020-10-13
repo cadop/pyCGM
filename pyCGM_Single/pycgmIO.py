@@ -809,7 +809,7 @@ def dataAsDict(data,npArray=False):
         for key in dataDict:
             dataDict[key] = np.array(dataDict[key])
         
-        return dataDict
+    return dataDict
 
 def writeKinetics(CoM_output,kinetics):
     """Uses numpy.save to write kinetics data as an .npy file.
@@ -1253,3 +1253,7 @@ def make_sure_path_exists(path):
     except OSError as exception:
         if exception.errno != errno.EEXIST:
             raise
+<<<<<<< HEAD
+=======
+            
+>>>>>>> bug-fix
