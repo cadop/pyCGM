@@ -83,7 +83,6 @@ def createMotionDataDict(labels,data):
 	the order of dictionary elements. 
 
 	Example for three markers and two frames of trial.
-	>>> from .pyCGM import *
 	>>> from numpy import array, array_equal
 	>>> labels = ['LFHD', 'RFHD', 'LBHD']
 	>>> data = [[array([184.55160796, 409.68716101, 1721.34289625]), 
@@ -322,7 +321,6 @@ def loadC3D(filename):
     --------
     The file RoboStatic.c3d in SampleData is used to test the output.
 
-    >>> import os
     >>> from .pyCGM_Helpers import getfilenames
     >>> filename = getfilenames(x=3)[1]
     >>> result = loadC3D(filename)
@@ -398,7 +396,6 @@ def loadCSV(filename):
     --------
     RoboResults.csv in SampleData is used to test the output.
 
-    >>> import os 
     >>> filename = 'SampleData/Sample_2/RoboResults.csv' 
     >>> result = loadCSV(filename)
     >>> motionData = result[0]
@@ -652,8 +649,6 @@ def loadData(filename,rawData=True):
         RoboResults.csv and RoboResults.c3d in SampleData are used to 
         test the output.
 
-        >>> import os
-        >>> import sys
         >>> csvFile = 'SampleData/Sample_2/RoboResults.csv' 
         >>> c3dFile = 'SampleData/Sample_2/RoboStatic.c3d'
 
@@ -831,6 +826,7 @@ def writeKinetics(CoM_output,kinetics):
     --------
     >>> from tempfile import TemporaryDirectory
     >>> from numpy import load
+    >>> import os
     >>> tmpdir = TemporaryDirectory()
     >>> CoM_output = os.path.join(tmpdir.name, 'CoM')
     >>> kinetics = [[246.57466721, 313.55662383, 1026.56323492],
@@ -878,7 +874,7 @@ def writeResult(data,filename,**kargs):
                 
         Examples
         --------
-        >>> from numpy import array, nan, zeros
+        >>> from numpy import array, zeros
         >>> import os
         >>> from tempfile import TemporaryDirectory
        
@@ -1057,7 +1053,6 @@ def loadVSK(filename,dict=True):
         --------
         RoboSM.vsk in SampleData is used to test the output
 
-        >>> import os 
         >>> from .pyCGM_Helpers import getfilenames
         >>> filename = getfilenames(x=3)[2]
         >>> filename
