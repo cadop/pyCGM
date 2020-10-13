@@ -11,6 +11,8 @@ Welcome to pycgm's documentation!
    :caption: Contents:
       
    install.rst
+   API.rst
+
 
 
 Indices and tables

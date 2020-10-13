@@ -12,6 +12,13 @@ set BUILDDIR=build
 
 if "%1" == "" goto help
 
+if "%1" == "clean" (
+	for /d %%i in (%BUILDDIR%\*) do rmdir /q /s %%i
+	del /q /s %BUILDDIR%\*
+    del /q /s source\generated
+	goto end
+)
+
 %SPHINXBUILD% >NUL 2>NUL
 if errorlevel 9009 (
 	echo.
