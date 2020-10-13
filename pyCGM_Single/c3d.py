@@ -21,7 +21,10 @@
 '''A Python library for reading and writing C3D files.'''
 
 import array
-import cStringIO
+try:
+    import cStringIO
+except:
+    print("Could not import cStringIO, this is expected on python 3")
 import numpy as np
 import operator
 import struct
