@@ -17,8 +17,7 @@ def getfilenames(x=1):
     Example
     -------
     >>> from .pyCGM_Helpers import getfilenames
-    >>> import os
-    # Default is x = 1.
+    >>> import os 
     >>> getfilenames() #doctest: +NORMALIZE_WHITESPACE
     ('SampleData/59993_Frame/59993_Frame_Dynamic.c3d', 
     'SampleData/59993_Frame/59993_Frame_Static.c3d', 

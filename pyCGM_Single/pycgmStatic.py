@@ -37,23 +37,23 @@ def rotmat(x=0,y=0,z=0):
     >>> x = 0.5
     >>> y = 0.3
     >>> z = 0.8
-    >>> rotmat(x,y,z) #doctest: +NORMALIZE_WHITESPACE
-    [[0.9998888175929077, -0.0139619889490318, 0.00523596383141958], 
-    [0.01400733607248772, 0.9998638128275725, -0.008726415877184502], 
-    [-0.005113412638268541, 0.008798787558312074, 0.9999482158335473]]
+    >>> np.around(rotmat(x,y,z),8) #doctest: +NORMALIZE_WHITESPACE
+    array([[ 0.99988882, -0.01396199,  0.00523596],
+           [ 0.01400734,  0.99986381, -0.00872642],
+           [-0.00511341,  0.00879879,  0.99994822]])
 
     >>> x = 0.5
-    >>> rotmat(x) #doctest: +NORMALIZE_WHITESPACE
-    [[1.0, 0.0, 0.0], 
-    [0.0, 0.9999619230641713, -0.008726535498373935], 
-    [0.0, 0.008726535498373935, 0.9999619230641713]]
+    >>> np.around(rotmat(x),decimals=8) #doctest: +NORMALIZE_WHITESPACE
+    array([[ 1.        ,  0.        ,  0.        ],
+           [ 0.        ,  0.99996192, -0.00872654],
+           [ 0.        ,  0.00872654,  0.99996192]])
 
     >>> x = 1
     >>> y = 1
-    >>> rotmat(x,y) #doctest: +NORMALIZE_WHITESPACE
-    [[0.9998476951563913, 0.0, 0.01745240643728351], 
-    [0.00030458649045213493, 0.9998476951563913, -0.017449748351250485], 
-    [-0.017449748351250485, 0.01745240643728351, 0.9996954135095479]]
+    >>> np.around(rotmat(x,y),8) #doctest: +NORMALIZE_WHITESPACE
+    array([[ 9.9984770e-01,  0.0000000e+00,  1.7452410e-02],
+           [ 3.0459000e-04,  9.9984770e-01, -1.7449750e-02],
+           [-1.7449750e-02,  1.7452410e-02,  9.9969541e-01]])
     """
     x = radians(x)
     y = radians(y)
@@ -95,13 +95,13 @@ def getDist(p0, p1):
     >>> from .pycgmStatic import getDist
     >>> p0 = [0,1,2]
     >>> p1 = [1,2,3]
-    >>> getDist(p0,p1)
-    1.7320508075688772
+    >>> np.around(getDist(p0,p1),8)
+    1.73205081
 
     >>> p0 = np.array([991.44611381, 741.95103792, 321.35500969])
     >>> p1 = np.array([117.08710839, 142.23917057, 481.95268411])
-    >>> getDist(p0,p1)
-    1072.3570334681392
+    >>> np.around(getDist(p0,p1),8)
+    1072.35703347
     """
     return sqrt((p0[0] - p1[0])**2 + (p0[1] - p1[1])**2 + (p0[2] - p1[2])**2)
     
@@ -134,6 +134,7 @@ def getStatic(motionData,vsk,flat_foot=False,GCS=None):
     Example
     -------
     >>> from .pycgmIO import loadC3D, loadVSK
+    Using...
     >>> from .pycgmStatic import *
     >>> import os
     >>> from .pyCGM_Helpers import getfilenames
@@ -306,8 +307,8 @@ def average(list):
     3.0
 
     >>> list = np.array([93.81607046, 248.95632028, 782.61762769])
-    >>> average(list)
-    375.13000614333333
+    >>> np.around(average(list),8)
+    375.13000614
     """
     i =0
     total = 0.0
@@ -340,9 +341,8 @@ def IADcalculation(frame):
     >>> from .pycgmStatic import IADcalculation
     >>> frame = { 'LASI': np.array([ 183.18504333,  422.78927612, 1033.07299805]),
     ...           'RASI': np.array([ 395.36532593,  428.09790039, 1036.82763672])}
-    
-    >>> IADcalculation(frame) #doctest: +NORMALIZE_WHITESPACE
-    212.27988865504463
+    >>> np.around(IADcalculation(frame),8) #doctest: +NORMALIZE_WHITESPACE
+    212.27988866
     """
     RASI = frame['RASI']
     LASI = frame['LASI']
@@ -379,8 +379,8 @@ def staticCalculationHead(frame,head):
     ...        [98.9655145897623, 83.57884461044797, 1483.7681493301013], 
     ...        [99.34535520789223, 82.64077714742746, 1484.7559501904173]], 
     ...        [99.58366584777832, 82.79330825805664, 1483.7968139648438]]
-    >>> staticCalculationHead(frame,head) #doctest: +NORMALIZE_WHITESPACE
-    0.2854660638234306
+    >>> np.around(staticCalculationHead(frame,head),8) #doctest: +NORMALIZE_WHITESPACE
+    0.28546606
     """
     headAxis = head[0]
     headOrigin = head[1]
@@ -424,8 +424,8 @@ def headoffCalc(axisP, axisD):
     >>> axisD = [[0.21449582, 0.24790518, 0.94419932],
     ...         [0.79794437, 0.45267577, 0.91257356],
     ...         [0.17107064, 0.67114988, 0.85129037]]
-    >>> headoffCalc(axisP,axisD)  #doctest: +NORMALIZE_WHITESPACE
-    0.9491663598124584
+    >>> np.around(headoffCalc(axisP,axisD),8)  #doctest: +NORMALIZE_WHITESPACE
+    0.94916636
     """
     axisPi = np.linalg.inv(axisP)
     
@@ -504,14 +504,14 @@ def staticCalculation(frame,ankle_JC,knee_JC,flat_foot,vsk=None):
     ...           [143.64837987, 280.04650381, 525.76940383]]])]
     >>> flat_foot = True      
     >>> vsk = { 'RightSoleDelta': 0.4532,'LeftSoleDelta': 0.4532 }
-    >>> staticCalculation(frame,ankle_JC,knee_JC,flat_foot,vsk) #doctest: +NORMALIZE_WHITESPACE
-    [[-0.08036967555099936, 0.23192796307180616, -0.6667218141134416], 
-    [-0.6746661289791377, 0.21812578433574112, -0.30207992990550053]]
+    >>> np.around(staticCalculation(frame,ankle_JC,knee_JC,flat_foot,vsk),8) #doctest: +NORMALIZE_WHITESPACE
+    array([[-0.08036968,  0.23192796, -0.66672181],
+           [-0.67466613,  0.21812578, -0.30207993]])
 
     >>> flat_foot = False # Using the same variables and switching the flat_foot flag. 
-    >>> staticCalculation(frame,ankle_JC,knee_JC,flat_foot,vsk) #doctest: +NORMALIZE_WHITESPACE
-    [[-0.07971345653314088, 0.19881323085644315, -0.1531931279289741], 
-    [-0.6747048267696274, 0.18594096448383096, 0.12287455351187096]]
+    >>> np.around(staticCalculation(frame,ankle_JC,knee_JC,flat_foot,vsk),8) #doctest: +NORMALIZE_WHITESPACE
+    array([[-0.07971346,  0.19881323, -0.15319313],
+           [-0.67470483,  0.18594096,  0.12287455]])
     """
     
     # Get the each axis from the function.
@@ -849,11 +849,11 @@ def hipAxisCenter(l_hip_jc,r_hip_jc,pelvis_axis):
     ...                    [250.61711554, 391.87232862, 1032.8741063],
     ...                    [251.60295336, 391.84795134, 1033.88777762]]),
     ...                np.array([231.57849121, 210.25262451, 1052.24969482])]
-    >>> hipAxisCenter(l_hip_jc,r_hip_jc,pelvis_axis) #doctest: +NORMALIZE_WHITESPACE
-    [[245.475741675, 331.11787136, 936.759395368], 
-    [[245.608071035, 332.10350081999997, 936.6544024479999], 
-    [244.484550335, 331.24888223, 936.740008018], 
-    [245.470388155, 331.22450495, 937.753679338]]]
+    >>> [np.around(arr,8) for arr in hipAxisCenter(l_hip_jc,r_hip_jc,pelvis_axis)] #doctest: +NORMALIZE_WHITESPACE
+    [array([245.47574168, 331.11787136, 936.75939537]), 
+    array([[245.60807104, 332.10350082, 936.65440245],
+           [244.48455034, 331.24888223, 936.74000802],
+           [245.47038816, 331.22450495, 937.75367934]])]
     """
     
     # Get shared hip axis, it is inbetween the two hip joint centers
@@ -1321,16 +1321,17 @@ def footJointCenter(frame,static_info,ankle_JC,knee_JC,delta):
     ...            np.array([97.79246671, 219.20927275, 80.76255901]),
     ...            np.array([98.84848169, 219.60345781, 81.61663775])]]]
     >>> delta = 0
-    >>> footJointCenter(frame,static_info,ankle_JC,knee_JC,delta) #doctest: +NORMALIZE_WHITESPACE
+    >>> [np.around(arr,8) for arr in footJointCenter(frame,static_info,ankle_JC,knee_JC,delta)] #doctest: +NORMALIZE_WHITESPACE
     [array([442.81997681, 381.62280273,  42.66047668]), 
     array([ 39.43652725, 382.44522095,  41.78911591]), 
-    [[[442.8881541019797, 381.76460597063306, 43.64802095637665], 
-    [441.8951544719817, 382.00308978750826, 42.669717729400254], 
-    [442.44573691372943, 380.70886969370156, 42.81754642629671]], 
-    [[39.50785213469834, 382.6789158082651, 42.758806311129774], 
-    [38.49231839306207, 382.1476596590978, 41.93027862687884], 
-    [39.75805857864893, 381.5195622702605, 41.98854914023047]]]]          
+    array([[[442.8881541 , 381.76460597,  43.64802096],
+            [441.89515447, 382.00308979,  42.66971773],
+            [442.44573691, 380.70886969,  42.81754643]],
+           [[ 39.50785213, 382.67891581,  42.75880631],
+            [ 38.49231839, 382.14765966,  41.93027863],
+            [ 39.75805858, 381.51956227,  41.98854914]]])]         
     """
+    import math
 
       #REQUIRED MARKERS: 
       # RTOE
@@ -1539,11 +1540,11 @@ def headJC(frame):
     ...          'LFHD': np.array([184.55158997, 409.68713379, 1721.34289551]),
     ...          'RBHD': np.array([304.39898682, 242.91339111, 1694.97497559]),
     ...          'LBHD': np.array([197.8621521, 251.28889465, 1696.90197754])}
-    >>> headJC(frame) #doctest: +NORMALIZE_WHITESPACE
-    [[[255.21590217735476, 407.10741938969863, 1722.081731803014], 
-    [254.19105385169885, 406.1468091819513, 1721.917677122581], 
-    [255.1837055334396, 405.9597465480975, 1722.9074499297205]], 
-    [255.190711975, 406.12081909, 1721.92053223]]
+    >>> [np.around(arr,8) for arr in headJC(frame)] #doctest: +NORMALIZE_WHITESPACE
+    [array([[ 255.21590218,  407.10741939, 1722.0817318 ],
+           [ 254.19105385,  406.14680918, 1721.91767712],
+           [ 255.18370553,  405.95974655, 1722.90744993]]), 
+    array([  255.19071198,  406.12081909, 1721.92053223])]
     """
     
     #Get the marker positions used for joint calculation
@@ -1638,14 +1639,15 @@ def uncorrect_footaxis(frame,ankle_JC):
     ...            [np.array([98.47494966, 220.42553803, 80.52821783]),
     ...            np.array([97.79246671, 219.20927275, 80.76255901]),
     ...            np.array([98.84848169, 219.60345781, 81.61663775])]]]
-    >>> uncorrect_footaxis(frame,ankle_JC) #doctest: +NORMALIZE_WHITESPACE
-    [[442.81997681, 381.62280273, 42.66047668], [39.43652725, 382.44522095, 41.78911591], 
-    [[[442.93807347143536, 381.9004064170881, 43.61388602098261], 
-    [441.8826859955307, 381.97104076201816, 42.675180494728565], 
-    [442.4920452505714, 380.7274444408379, 42.96179781493669]], 
-    [[39.5007163595276, 382.6986218018195, 42.75434529543913], 
-    [38.49604412802928, 382.13712948064426, 41.9325423503742], 
-    [39.77025057178957, 381.52823258867403, 42.00765901715825]]]]          
+    >>> [np.around(arr,8) for arr in uncorrect_footaxis(frame,ankle_JC)] #doctest: +NORMALIZE_WHITESPACE
+    [array([442.81997681, 381.62280273,  42.66047668]), 
+    array([ 39.43652725, 382.44522095,  41.78911591]), 
+    array([[[442.93807347, 381.90040642,  43.61388602],
+            [441.882686  , 381.97104076,  42.67518049],
+            [442.49204525, 380.72744444,  42.96179781]],
+           [[ 39.50071636, 382.6986218 ,  42.7543453 ],
+            [ 38.49604413, 382.13712948,  41.93254235],
+            [ 39.77025057, 381.52823259,  42.00765902]]])]       
     """
 
     #REQUIRED MARKERS: 
@@ -1778,14 +1780,15 @@ def rotaxis_footflat(frame,ankle_JC,vsk=None):
     ...            np.array([97.79246671, 219.20927275, 80.76255901]),
     ...            np.array([98.84848169, 219.60345781, 81.61663775])]]]
     >>> vsk = { 'RightSoleDelta': 0.45, 'LeftSoleDelta': 0.45}
-    >>> rotaxis_footflat(frame,ankle_JC,vsk) #doctest: +NORMALIZE_WHITESPACE
-    [[442.81997681, 381.62280273, 42.66047668], [39.43652725, 382.44522095, 41.78911591], 
-    [[[442.3066624145523, 381.79936347939446, 43.50031870871696], 
-    [442.0258012807823, 381.8959690932132, 42.11764579767976], 
-    [442.49471758996486, 380.6771778361958, 42.66047668]], 
-    [[39.145651793491794, 382.3504861046246, 42.74117514023352], 
-    [38.53126992280069, 382.1503888801284, 41.48320216050979], 
-    [39.74620553524633, 381.49437955436827, 41.78911591]]]]                    
+    >>> [np.around(arr,8) for arr in rotaxis_footflat(frame,ankle_JC,vsk)] #doctest: +NORMALIZE_WHITESPACE
+    [array([442.81997681, 381.62280273,  42.66047668]), 
+    array([ 39.43652725, 382.44522095,  41.78911591]), 
+    array([[[442.30666241, 381.79936348,  43.50031871],
+            [442.02580128, 381.89596909,  42.1176458 ],
+            [442.49471759, 380.67717784,  42.66047668]],
+           [[ 39.14565179, 382.3504861 ,  42.74117514],
+            [ 38.53126992, 382.15038888,  41.48320216],
+            [ 39.74620554, 381.49437955,  41.78911591]]])]                 
     """
     #Get Global Values
     
@@ -1916,7 +1919,8 @@ def rotaxis_nonfootflat(frame,ankle_JC):
                         array([[footaxis_center x,y,z position],
                             [foot y_axis x,y,z position]])
                         array([[footaxis_center x,y,z position],
-                                [foot z_axis x,y,z position]])]]         
+                                [foot z_axis x,y,z position]])]]     
+
     Example
     -------
     >>> import numpy as np
@@ -1934,15 +1938,15 @@ def rotaxis_nonfootflat(frame,ankle_JC):
     ...            [np.array([98.47494966, 220.42553803, 80.52821783]),
     ...            np.array([97.79246671, 219.20927275, 80.76255901]),
     ...            np.array([98.84848169, 219.60345781, 81.61663775])]]]
-    >>> rotaxis_nonfootflat(frame,ankle_JC) #doctest: +NORMALIZE_WHITESPACE
-    [[442.81997681, 381.62280273, 42.66047668], 
-    [39.43652725, 382.44522095, 41.78911591], 
-    [[[442.7165113523399, 381.69236201737243, 43.65267444486919], 
-    [441.8799703634302, 381.9420070935171, 42.5400754560908], 
-    [442.49488793064796, 380.6776730670162, 42.6928362329905]], 
-    [[39.55544557956173, 382.5102476283598, 42.77988831675936], 
-    [38.4931191575064, 382.14149803538857, 41.92228333153211], 
-    [39.746106968185536, 381.49468219632325, 41.81434438293743]]]]                      
+    >>> [np.around(arr,8) for arr in rotaxis_nonfootflat(frame,ankle_JC)] #doctest: +NORMALIZE_WHITESPACE
+    [array([442.81997681, 381.62280273,  42.66047668]), 
+    array([ 39.43652725, 382.44522095,  41.78911591]), 
+    array([[[442.71651135, 381.69236202,  43.65267444],
+            [441.87997036, 381.94200709,  42.54007546],
+            [442.49488793, 380.67767307,  42.69283623]],
+           [[ 39.55544558, 382.51024763,  42.77988832],
+            [ 38.49311916, 382.14149804,  41.92228333],
+            [ 39.74610697, 381.4946822 ,  41.81434438]]])]                   
     """
     
     #REQUIRED MARKERS: 
@@ -2045,8 +2049,8 @@ def getankleangle(axisP,axisD):
     >>> axisD = [[0.16701015, 0.69080381, -0.37358145],
     ...         [0.1433922, -0.3923507, 0.94383974],
     ...         [-0.15507695, -0.5313784, -0.60119402]]
-    >>> getankleangle(axisP,axisD) #doctest: +NORMALIZE_WHITESPACE
-    [0.47919762836810054, 0.990199212558328, 1.5169546072970044]        
+    >>> np.around(getankleangle(axisP,axisD),8) #doctest: +NORMALIZE_WHITESPACE
+    array([0.47919763, 0.99019921, 1.51695461])        
     """
     # make inverse matrix of axisP
     axisPi = np.linalg.inv(axisP)
@@ -2093,7 +2097,7 @@ def findJointC(a, b, c, delta):
     >>> b = [424.5706403, 46.17046141, 305.73130661]
     >>> c = [618.98284978, 848.86492206, 133.51848843]
     >>> delta = 42.5
-    >>> findJointC(a,b,c,delta) #doctest: +NORMALIZE_WHITESPACE
+    >>> np.around(findJointC(a,b,c,delta),8) #doctest: +NORMALIZE_WHITESPACE
     array([599.66684491, 843.26056826,  96.07876121])  
     """
     # make the two vector using 3 markers, which is on the same plane.
@@ -2161,8 +2165,8 @@ def norm2d(v):
     >>> from math import *
     >>> from .pycgmStatic import norm2d
     >>> v = [50.00882192, 96.36735079, 264.84675407]
-    >>> norm2d(v)  #doctest: +NORMALIZE_WHITESPACE
-    286.23653105347023
+    >>> np.around(norm2d(v),8)  #doctest: +NORMALIZE_WHITESPACE
+    286.23653105
     """ 
     try:
         return sqrt((v[0]*v[0]+v[1]*v[1]+v[2]*v[2]))
@@ -2210,8 +2214,8 @@ def normDiv(v):
 
     Returns
     -------
-    array 
-        The divison normalization of the vector returned as a float in an array.
+    list 
+        The divison normalization of the vector returned as a float in a list.
 
     Example
     -------
@@ -2219,8 +2223,8 @@ def normDiv(v):
     >>> from math import *
     >>> from .pycgmStatic import normDiv
     >>> v = [1.44928201, 1.94301493, 2.49204956]
-    >>> normDiv(v)  #doctest: +NORMALIZE_WHITESPACE
-    [0.11991375545853512, 0.16076527243190078, 0.20619245907039865]
+    >>> np.around(normDiv(v),8)  #doctest: +NORMALIZE_WHITESPACE
+    array([0.11991376, 0.16076527, 0.20619246])
     """
     try:
         vec = sqrt((v[0]*v[0]+v[1]*v[1]+v[2]*v[2]))
@@ -2290,8 +2294,8 @@ def cross(a, b):
     >>> from .pycgmStatic import cross
     >>> a = [12.83416835, 61.24792127, 99.59610493]
     >>> b = [14.79756689, 61.71925415, 95.44488778]
-    >>> cross(a, b) #doctest: +NORMALIZE_WHITESPACE
-    [-301.19634015131214, 248.82426676975592, -114.20491366874262]     
+    >>> np.around(cross(a, b),8) #doctest: +NORMALIZE_WHITESPACE
+     array([-301.19634015,  248.82426677, -114.20491367])   
     """
     c = [a[1]*b[2] - a[2]*b[1],
         a[2]*b[0] - a[0]*b[2],
