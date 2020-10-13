@@ -198,7 +198,7 @@ def filtering(Data):
     >>> from .pyCGM_Helpers import getfilenames
     >>> from .pycgmIO import loadData, dataAsDict
     >>> motionData = loadData(getfilenames(x=2)[0])
-    Sample...
+    SampleData/ROM/Sample_Dynamic.c3d
     >>> motionDataDict = dataAsDict(motionData,npArray=True)
     >>> filtering(motionDataDict)['HEDO'] #doctest: +NORMALIZE_WHITESPACE
     array([[ 250.34095219,  207.52056544, 1612.1177957 ],
