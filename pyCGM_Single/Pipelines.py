@@ -116,8 +116,8 @@ def prep(trajs):
 
     Example
     -------
-    >>> from .Pipelines import prep
     >>> import numpy as np
+    >>> from .Pipelines import prep
     >>> trajs = {'trajOne': np.array([[217.19961548, -82.35484314, 332.2684021 ],
     ...                               [257.19961548, -32.35484314, 382.2684021 ]])}
     >>> prep(trajs) #doctest: +NORMALIZE_WHITESPACE
@@ -194,7 +194,7 @@ def filtering(Data):
     Example
     -------
     >>> import numpy as np 
-    >>> from .Pipelines import filtering, filt
+    >>> from .Pipelines import filtering
     >>> from .pyCGM_Helpers import getfilenames
     >>> from .pycgmIO import loadData, dataAsDict
     >>> motionData = loadData(getfilenames(x=2)[0])

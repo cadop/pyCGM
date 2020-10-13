@@ -33,8 +33,8 @@ def f(p, x):
 
     Example
     -------
-    >>> from .pycgmKinetics import f
     >>> import numpy as np
+    >>> from .pycgmKinetics import f
     >>> p = [1, 2]
     >>> x = 10
     >>> f(p, x) #doctest: +NORMALIZE_WHITESPACE
@@ -64,8 +64,8 @@ def dot(v,w):
 
     Example
     -------
-    >>> from .pycgmKinetics import dot
     >>> import numpy as np
+    >>> from .pycgmKinetics import dot
     >>> v = [1, 2, 3]
     >>> w = [4, 5, 6]
     >>> dot(v,w) #doctest: +NORMALIZE_WHITESPACE
@@ -95,8 +95,8 @@ def length(v):
 
     Example
     -------
-    >>> from .pycgmKinetics import length
     >>> import numpy as np
+    >>> from .pycgmKinetics import length
     >>> v = [1,2,3]
     >>> np.around(length(v),8) #doctest: +NORMALIZE_WHITESPACE
     3.74165739
@@ -125,8 +125,8 @@ def vector(b,e):
 
     Example
     -------
-    >>> from .pycgmKinetics import vector
     >>> import numpy as np
+    >>> from .pycgmKinetics import vector
     >>> v = [1,2,3]
     >>> e = [4,5,6]
     >>> vector(v, e) #doctest: +NORMALIZE_WHITESPACE
@@ -156,8 +156,8 @@ def unit(v):
 
     Example
     -------
-    >>> from .pycgmKinetics import unit, length
     >>> import numpy as np
+    >>> from .pycgmKinetics import unit
     >>> v = [1,2,3]
     >>> np.around(unit(v),8) #doctest: +NORMALIZE_WHITESPACE
     array([0.26726124, 0.53452248, 0.80178373])
@@ -187,8 +187,8 @@ def distance(p0,p1):
 
     Example
     -------
-    >>> from .pycgmKinetics import distance, length, vector
     >>> import numpy as np
+    >>> from .pycgmKinetics import distance
     >>> p0 = [1,2,3]
     >>> p1 = [4,5,6]
     >>> np.around(distance(p0,p1),8) #doctest: +NORMALIZE_WHITESPACE
@@ -218,8 +218,8 @@ def scale(v,sc):
 
     Example
     -------
-    >>> from .pycgmKinetics import scale
     >>> import numpy as np
+    >>> from .pycgmKinetics import scale
     >>> v = [1,2,3]
     >>> sc = 2
     >>> scale(v, sc) #doctest: +NORMALIZE_WHITESPACE
@@ -250,8 +250,8 @@ def add(v,w):
 
     Example
     -------
-    >>> from .pycgmKinetics import add
     >>> import numpy as np
+    >>> from .pycgmKinetics import add
     >>> v = [1, 2, 3]
     >>> w = [4, 5, 6]
     >>> add(v, w) #doctest: +NORMALIZE_WHITESPACE
@@ -291,8 +291,8 @@ def pnt2line(pnt, start, end):
 
     Example
     -------
-    >>> from .pycgmKinetics import *
     >>> import numpy as np
+    >>> from .pycgmKinetics import pnt2line
     >>> pnt = [1, 2, 3]
     >>> start = [4, 5, 6]
     >>> end = [7, 8, 9]
@@ -355,8 +355,8 @@ def findL5_Pelvis(frame):
         
     Example
     -------
-    >>> from .pycgmKinetics import findL5_Pelvis, unit, distance
     >>> import numpy as np
+    >>> from .pycgmKinetics import findL5_Pelvis
     >>> Pelvis_axis = [np.array([251.60830688, 391.74131775, 1032.89349365]),
     ...                np.array([[251.74063624, 392.72694721, 1032.78850073],
     ...                    [250.61711554, 391.87232862, 1032.8741063],
@@ -405,7 +405,7 @@ def findL5_Thorax(frame):
 
     Example
     -------
-    >>> from .pycgmKinetics import findL5_Thorax, distance, unit
+    >>> from .pycgmKinetics import findL5_Thorax
     >>> import numpy as np
     >>> Thorax_axis = [[[256.3454633226447, 365.7223958512035, 1461.920891187948], 
     ...               [257.26637166499415, 364.69602499862503, 1462.2347234647593], 

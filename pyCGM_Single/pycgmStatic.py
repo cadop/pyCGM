@@ -27,8 +27,7 @@ def rotmat(x=0,y=0,z=0):
     Example
     -------
     >>> import numpy as np
-    >>> from math import *
-    >>> from .pycgmStatic import rotmat, matrixmult
+    >>> from .pycgmStatic import rotmat
     >>> rotmat() #doctest: +NORMALIZE_WHITESPACE
     [[1.0, 0.0, 0.0], 
     [0.0, 1.0, 0.0], 
@@ -90,7 +89,6 @@ def getDist(p0, p1):
 
     Example
     -------
-    >>> from math import *
     >>> import numpy as np
     >>> from .pycgmStatic import getDist
     >>> p0 = [0,1,2]
@@ -134,7 +132,7 @@ def getStatic(motionData,vsk,flat_foot=False,GCS=None):
     Example
     -------
     >>> from .pycgmIO import loadC3D, loadVSK
-    >>> from .pycgmStatic import *
+    >>> from .pycgmStatic import getStatic
     >>> import os
     >>> from .pyCGM_Helpers import getfilenames
     >>> fileNames=getfilenames(2)
@@ -372,7 +370,7 @@ def staticCalculationHead(frame,head):
     Example
     -------
     >>> import numpy as np
-    >>> from .pycgmStatic import staticCalculationHead, headoffCalc
+    >>> from .pycgmStatic import staticCalculationHead
     >>> frame = None
     >>> head = [[[100.33272997128863, 83.39303060995121, 1484.078302933558], 
     ...        [98.9655145897623, 83.57884461044797, 1483.7681493301013], 
@@ -416,7 +414,7 @@ def headoffCalc(axisP, axisD):
     Example
     -------
     >>> import numpy as np 
-    >>> from .pycgmStatic import headoffCalc, matrixmult
+    >>> from .pycgmStatic import headoffCalc
     >>> axisP = [[0.96027586, 0.81188464, 0.8210366],
     ...         [0.24275408, 0.72003003, 0.37957337],
     ...         [0.98315477, 0.20884389, 0.68137521]]
@@ -479,8 +477,7 @@ def staticCalculation(frame,ankle_JC,knee_JC,flat_foot,vsk=None):
     Example
     -------
     >>> import numpy as np
-    >>> from math import *
-    >>> from .pycgmStatic import staticCalculation, rotaxis_nonfootflat, getankleangle
+    >>> from .pycgmStatic import staticCalculation
     >>> frame = {'RTOE': np.array([427.95211792, 437.99603271,  41.77342987]),
     ...          'LTOE': np.array([175.78988647, 379.49987793,  42.61193085]),
     ...          'RHEE': np.array([406.46331787, 227.56491089,  48.75952911]),
@@ -601,8 +598,7 @@ def pelvisJointCenter(frame):
     Example
     -------
     >>> import numpy as np 
-    >>> from math import *
-    >>> from .pycgmStatic import pelvisJointCenter, norm3d, cross
+    >>> from .pycgmStatic import pelvisJointCenter
     >>> frame = {'RASI': np.array([ 395.36532593,  428.09790039, 1036.82763672]), 
     ...          'LASI': np.array([ 183.18504333,  422.78927612, 1033.07299805]),
     ...          'RPSI': np.array([ 341.41815186,  246.72117615, 1055.99145508]), 
@@ -725,7 +721,6 @@ def hipJointCenter(frame,pel_origin,pel_x,pel_y,pel_z,vsk=None):
     Example
     -------
     >>> import numpy as np 
-    >>> from math import *
     >>> from .pycgmStatic import hipJointCenter
     >>> frame = None
     >>> vsk = {'MeanLegLength': 940.0, 'R_AsisToTrocanterMeasure': 72.512,
@@ -839,7 +834,6 @@ def hipAxisCenter(l_hip_jc,r_hip_jc,pelvis_axis):
     Example
     -------
     >>> import numpy as np 
-    >>> from math import *
     >>> from .pycgmStatic import hipAxisCenter
     >>> r_hip_jc = [182.57097863, 339.43231855, 935.529000126]
     >>> l_hip_jc = [308.38050472, 322.80342417, 937.98979061]
@@ -917,8 +911,7 @@ def kneeJointCenter(frame,hip_JC,delta,vsk=None):
     Example
     -------
     >>> import numpy as np 
-    >>> from math import *
-    >>> from .pycgmStatic import kneeJointCenter, findJointC, cross, norm3d
+    >>> from .pycgmStatic import kneeJointCenter
     >>> vsk = { 'RightKneeWidth' : 105.0, 'LeftKneeWidth' : 105.0 }
     >>> frame = { 'RTHI': np.array([426.50338745, 262.65310669, 673.66247559]),
     ...           'LTHI': np.array([51.93867874, 320.01849365, 723.03186035]),
@@ -1076,8 +1069,7 @@ def ankleJointCenter(frame,knee_JC,delta,vsk=None):
     Example
     -------
     >>> import numpy as np 
-    >>> from math import *
-    >>> from .pycgmStatic import ankleJointCenter, cross, norm2d
+    >>> from .pycgmStatic import ankleJointCenter
     >>> vsk = { 'RightAnkleWidth' : 70.0, 'LeftAnkleWidth' : 70.0, 
     ...         'RightTibialTorsion': 0.0, 'LeftTibialTorsion' : 0.0}
     >>> frame = { 'RTIB': np.array([433.97537231, 211.93408203, 273.3008728]),
@@ -1295,8 +1287,7 @@ def footJointCenter(frame,static_info,ankle_JC,knee_JC,delta):
     Example
     -------
     >>> import numpy as np 
-    >>> import math
-    >>> from .pycgmStatic import footJointCenter, cross, norm2d
+    >>> from .pycgmStatic import footJointCenter
     >>> frame = { 'RHEE': np.array([374.01257324, 181.57929993, 49.50960922]),
     ...           'LHEE': np.array([105.30126953, 180.2130127, 47.15660858]),
     ...           'RTOE': np.array([442.81997681, 381.62280273, 42.66047668]),
@@ -1533,8 +1524,7 @@ def headJC(frame):
     Example
     -------
     >>> import numpy as np 
-    >>> from math import *
-    >>> from .pycgmStatic import headJC, cross, norm2d
+    >>> from .pycgmStatic import headJC
     >>> frame = {'RFHD': np.array([325.82983398, 402.55450439, 1722.49816895]),
     ...          'LFHD': np.array([184.55158997, 409.68713379, 1721.34289551]),
     ...          'RBHD': np.array([304.39898682, 242.91339111, 1694.97497559]),
@@ -1626,8 +1616,7 @@ def uncorrect_footaxis(frame,ankle_JC):
     Example
     -------
     >>> import numpy as np
-    >>> from math import *
-    >>> from .pycgmStatic import uncorrect_footaxis, cross, norm2d
+    >>> from .pycgmStatic import uncorrect_footaxis
     >>> frame = { 'RTOE': [442.81997681, 381.62280273, 42.66047668], 
     ...           'LTOE': [39.43652725, 382.44522095, 41.78911591]}
     >>> ankle_JC = [np.array([393.76181608, 247.67829633, 87.73775041]),
@@ -1764,8 +1753,7 @@ def rotaxis_footflat(frame,ankle_JC,vsk=None):
     Example
     -------
     >>> import numpy as np
-    >>> from math import *
-    >>> from .pycgmStatic import rotaxis_footflat, norm3d, cross
+    >>> from .pycgmStatic import rotaxis_footflat
     >>> frame = { 'RHEE': [374.01257324, 181.57929993, 49.50960922],
     ...            'LHEE': [105.30126953, 180.2130127, 47.15660858],
     ...            'RTOE': [442.81997681, 381.62280273, 42.66047668], 
@@ -1923,8 +1911,7 @@ def rotaxis_nonfootflat(frame,ankle_JC):
     Example
     -------
     >>> import numpy as np
-    >>> from math import *
-    >>> from .pycgmStatic import rotaxis_nonfootflat, cross, norm3d
+    >>> from .pycgmStatic import rotaxis_nonfootflat
     >>> frame = { 'RHEE': [374.01257324, 181.57929993, 49.50960922],
     ...            'LHEE': [105.30126953, 180.2130127, 47.15660858],
     ...            'RTOE': [442.81997681, 381.62280273, 42.66047668], 
@@ -2041,7 +2028,7 @@ def getankleangle(axisP,axisD):
     Example
     -------
     >>> import numpy as np
-    >>> from .pycgmStatic import getankleangle, matrixmult
+    >>> from .pycgmStatic import getankleangle
     >>> axisP = [[ 0.59327576, 0.10572786, 0.15773334],
     ...         [-0.13176004, -0.10067464, -0.90325703],
     ...         [0.9399765, -0.04907387, 0.75029827]]
@@ -2090,8 +2077,7 @@ def findJointC(a, b, c, delta):
     Example
     -------
     >>> import numpy as np 
-    >>> from math import *
-    >>> from .pycgmStatic import findJointC, norm2d
+    >>> from .pycgmStatic import findJointC
     >>> a = [775.40887891, 788.64742014, 514.4063264]
     >>> b = [424.5706403, 46.17046141, 305.73130661]
     >>> c = [618.98284978, 848.86492206, 133.51848843]
@@ -2161,7 +2147,6 @@ def norm2d(v):
     Example
     -------
     >>> import numpy as np 
-    >>> from math import *
     >>> from .pycgmStatic import norm2d
     >>> v = [50.00882192, 96.36735079, 264.84675407]
     >>> np.around(norm2d(v),8)  #doctest: +NORMALIZE_WHITESPACE
@@ -2190,7 +2175,6 @@ def norm3d(v):
     Example
     -------
     >>> import numpy as np 
-    >>> from math import *
     >>> from .pycgmStatic import norm3d
     >>> v = [124.9784377, 368.642446, 18.42836272]
     >>> norm3d(v)  #doctest: +NORMALIZE_WHITESPACE
@@ -2219,7 +2203,6 @@ def normDiv(v):
     Example
     -------
     >>> import numpy as np 
-    >>> from math import *
     >>> from .pycgmStatic import normDiv
     >>> v = [1.44928201, 1.94301493, 2.49204956]
     >>> np.around(normDiv(v),8)  #doctest: +NORMALIZE_WHITESPACE

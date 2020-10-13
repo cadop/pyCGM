@@ -62,8 +62,7 @@ def pelvisJointCenter(frame):
     Example
     -------
     >>> import numpy as np 
-    >>> from math import *
-    >>> from .pyCGM import norm3d, cross, pelvisJointCenter
+    >>> from .pyCGM import pelvisJointCenter
     >>> frame = {'RASI': np.array([ 395.36532593,  428.09790039, 1036.82763672]), 
     ...          'LASI': np.array([ 183.18504333,  422.78927612, 1033.07299805]),
     ...          'RPSI': np.array([ 341.41815186,  246.72117615, 1055.99145508]), 
@@ -178,7 +177,6 @@ def hipJointCenter(frame,pel_origin,pel_x,pel_y,pel_z,vsk=None):
     Example
     -------
     >>> import numpy as np 
-    >>> from math import *
     >>> from .pyCGM import hipJointCenter
     >>> frame = None
     >>> vsk = {'MeanLegLength': 940.0, 'R_AsisToTrocanterMeasure': 72.512,
@@ -295,7 +293,6 @@ def hipAxisCenter(l_hip_jc,r_hip_jc,pelvis_axis):
     Example
     -------
     >>> import numpy as np 
-    >>> from math import *
     >>> from .pyCGM import hipAxisCenter
     >>> r_hip_jc = [182.57097863, 339.43231855, 935.529000126]
     >>> l_hip_jc = [308.38050472, 322.80342417, 937.98979061]
@@ -373,8 +370,7 @@ def kneeJointCenter(frame,hip_JC,delta,vsk=None):
     Example
     -------
     >>> import numpy as np 
-    >>> from math import *
-    >>> from .pyCGM import kneeJointCenter, norm3d
+    >>> from .pyCGM import kneeJointCenter
     >>> vsk = { 'RightKneeWidth' : 105.0, 'LeftKneeWidth' : 105.0 }
     >>> frame = { 'RTHI': np.array([426.50338745, 262.65310669, 673.66247559]),
     ...           'LTHI': np.array([51.93867874, 320.01849365, 723.03186035]),
@@ -535,8 +531,7 @@ def ankleJointCenter(frame,knee_JC,delta,vsk=None):
     Example
     -------
     >>> import numpy as np 
-    >>> import math
-    >>> from .pyCGM import ankleJointCenter, findJointC, cross, norm2d
+    >>> from .pyCGM import ankleJointCenter
     >>> vsk = { 'RightAnkleWidth' : 70.0, 'LeftAnkleWidth' : 70.0, 
     ...         'RightTibialTorsion': 0.0, 'LeftTibialTorsion' : 0.0}
     >>> frame = { 'RTIB': np.array([433.97537231, 211.93408203, 273.3008728]),
@@ -755,7 +750,6 @@ def footJointCenter(frame,vsk,ankle_JC,knee_JC,delta):
     Example
     -------
     >>> import numpy as np 
-    >>> import math
     >>> from .pyCGM import footJointCenter
     >>> vsk = { 'RightStaticRotOff' : 0.015683497632642047, 'LeftStaticRotOff': 0.009402910292403012,
     ...         'RightStaticPlantFlex' : 0.2702417907002758, 'LeftStaticPlantFlex': 0.20251085737834015}
@@ -997,8 +991,7 @@ def headJC(frame,vsk=None):
     Example
     -------
     >>> import numpy as np 
-    >>> from math import *
-    >>> from .pyCGM import headJC, norm2d, cross
+    >>> from .pyCGM import headJC
     >>> vsk = { 'HeadOffset': 0.2571990469310653 }
     >>> frame = {'RFHD': np.array([325.82983398, 402.55450439, 1722.49816895]),
     ...          'LFHD': np.array([184.55158997, 409.68713379, 1721.34289551]),
@@ -1100,8 +1093,7 @@ def thoraxJC(frame):
     Example
     -------
     >>> import numpy as np 
-    >>> from math import *
-    >>> from .pyCGM import thoraxJC, norm2d, cross
+    >>> from .pyCGM import thoraxJC
     >>> frame = {'C7': np.array([256.78051758, 371.28042603, 1459.70300293]),
     ...          'T10': np.array([228.64323425, 192.32041931, 1279.6418457]),
     ...          'CLAV': np.array([256.78051758, 371.28042603, 1459.70300293]),
@@ -1199,8 +1191,7 @@ def findwandmarker(frame,thorax):
     Example
     -------
     >>> import numpy as np
-    >>> from math import *
-    >>> from .pyCGM import findwandmarker, norm3d, cross
+    >>> from .pyCGM import findwandmarker
     >>> frame = {'RSHO': np.array([428.88496562, 270.552948, 1500.73010254]),
     ...          'LSHO': np.array([68.24668121, 269.01049805, 1510.1072998])}
     >>> thorax = [[[256.23991128535846, 365.30496976939753, 1459.662169500559],
@@ -1289,8 +1280,7 @@ def findshoulderJC(frame,thorax,wand,vsk=None):
     Example
     -------
     >>> import numpy as np 
-    >>> from math import *
-    >>> from .pyCGM import findshoulderJC, findJointC
+    >>> from .pyCGM import findshoulderJC
     >>> vsk = { 'RightShoulderOffset' : 40.0, 'LeftShoulderOffset' : 40.0 }
     >>> frame = {'RSHO': np.array([428.88496562, 270.552948, 1500.73010254]),
     ...          'LSHO': np.array([68.24668121, 269.01049805, 1510.1072998])}
@@ -1376,7 +1366,6 @@ def shoulderAxisCalc(frame,thorax,shoulderJC,wand):
     Example
     -------
     >>> import numpy as np 
-    >>> from math import *
     >>> from .pyCGM import shoulderAxisCalc
     >>> frame = None
     >>> thorax = [[[256.23991128535846, 365.30496976939753, 1459.662169500559],
@@ -1507,8 +1496,7 @@ def elbowJointCenter(frame,thorax,shoulderJC,wand,vsk=None):
     Example
     -------
     >>> import numpy as np 
-    >>> from math import *
-    >>> from .pyCGM import elbowJointCenter, cross, norm2d
+    >>> from .pyCGM import elbowJointCenter
     >>> frame = {'RSHO': np.array([428.88496562, 270.552948, 1500.73010254]),
     ...          'LSHO': np.array([68.24668121, 269.01049805, 1510.1072998]),
     ...          'RELB': np.array([658.90338135, 326.07580566, 1285.28515625]),
@@ -1808,8 +1796,7 @@ def wristJointCenter(frame,shoulderJC,wand,elbowJC):
     Example
     -------
     >>> import numpy as np 
-    >>> from math import *
-    >>> from .pyCGM import wristJointCenter, norm3d, cross
+    >>> from .pyCGM import wristJointCenter
     >>> frame = {'RSHO': np.array([428.88496562, 270.552948, 1500.73010254]),
     ...          'LSHO': np.array([68.24668121, 269.01049805, 1510.1072998]),
     ...          'RELB': np.array([658.90338135, 326.07580566, 1285.28515625]),
@@ -1962,8 +1949,7 @@ def handJointCenter(frame,elbowJC,wristJC,vsk=None):
     Example
     -------
     >>> import numpy as np 
-    >>> from math import *
-    >>> from .pyCGM import handJointCenter, cross, norm2d
+    >>> from .pyCGM import handJointCenter
     >>> frame = {'RWRA': np.array([776.51898193,495.68103027, 1108.38464355]),
     ...          'RWRB': np.array([830.9072876, 436.75341797, 1119.11901855]),
     ...          'LWRA': np.array([-249.28146362, 525.32977295, 1117.09057617]),
@@ -2100,8 +2086,7 @@ def findJointC(a, b, c, delta):
     Example
     -------
     >>> import numpy as np 
-    >>> import math
-    >>> from .pyCGM import findJointC, norm2d
+    >>> from .pyCGM import findJointC
     >>> a = [468.14532471, 325.09780884, 673.12591553]
     >>> b = [355.90861996, 365.38260964, 940.6974861]
     >>> c = [452.35180664, 329.0609436, 524.77893066]
@@ -2168,6 +2153,7 @@ def cross(a, b):
 
     Example
     -------
+    >>> import numpy as np
     >>> from .pyCGM import cross
     >>> a = [6.25286248, 7.91367254, 18.63620527]
     >>> b = [3.49290439, 4.42038315, 19.23948238]
@@ -2203,7 +2189,6 @@ def getPelangle(axisP,axisD):
     Example
     -------
     >>> import numpy as np 
-    >>> from math import *
     >>> from .pyCGM import getPelangle
     >>> axisP = [[ 0.0464229, 0.99648672, 0.06970743],
     ...        [ 0.99734011, -0.04231089, -0.05935067],
@@ -2256,7 +2241,6 @@ def getHeadangle(axisP,axisD):
     Example
     -------
     >>> import numpy as np 
-    >>> from math import *
     >>> from .pyCGM import getHeadangle
     >>> axisP = [[ 0.0464229, 0.99648672, 0.06970743],
     ...        [ 0.99734011, -0.04231089, -0.05935067],
@@ -2339,7 +2323,6 @@ def getangle_sho(axisP,axisD):
     Example
     -------
     >>> import numpy as np 
-    >>> from math import *
     >>> from .pyCGM import getangle_sho
     >>> axisP = [[ 0.0464229, 0.99648672, 0.06970743],
     ...        [ 0.99734011, -0.04231089, -0.05935067],
@@ -2387,7 +2370,6 @@ def getangle_spi(axisP,axisD):
     Example
     -------
     >>> import numpy as np 
-    >>> from math import *
     >>> from .pyCGM import getangle_spi
     >>> axisP = [[ 0.0464229,   0.99648672,  0.06970743],
     ...        [ 0.99734011, -0.04231089, -0.05935067],
@@ -2433,7 +2415,6 @@ def getangle(axisP,axisD):
     Example
     -------
     >>> import numpy as np 
-    >>> from math import *
     >>> from .pyCGM import getangle
     >>> axisP = [[ 0.0464229,   0.99648672,  0.06970743],
     ...         [ 0.99734011, -0.04231089, -0.05935067],
@@ -2441,7 +2422,7 @@ def getangle(axisP,axisD):
     >>> axisD = [[-0.18067218, -0.98329158, -0.02225371],
     ...         [ 0.71383942, -0.1155303,  -0.69071415],
     ...         [ 0.67660243, -0.1406784,   0.7227854 ]]
-    >>> getangle(axisP,axisD) #doctest: +NORMALIZE_WHITESPACE
+    >>> np.around(getangle(axisP,axisD),8) #doctest: +NORMALIZE_WHITESPACE
     [-175.6518348318989, -39.63221919951575, 100.26684770068714]    
     """
     # this is the angle calculation which order is Y-X-Z
@@ -2489,7 +2470,6 @@ def norm2d(v):
     Example
     -------
     >>> import numpy as np 
-    >>> from math import *
     >>> from .pyCGM import norm2d
     >>> v = [105.141121037153, 101.890788777524, 326.7710280245359]
     >>> np.around(norm2d(v),8)  #doctest: +NORMALIZE_WHITESPACE
@@ -2517,8 +2497,6 @@ def norm3d(v):
 
     Example
     -------
-    >>> import numpy as np 
-    >>> from math import *
     >>> from .pyCGM import norm3d
     >>> v = [125.44928201, 143.94301493, 213.49204956]
     >>> norm3d(v)  #doctest: +NORMALIZE_WHITESPACE
@@ -2547,7 +2525,6 @@ def normDiv(v):
     Example
     -------
     >>> import numpy as np 
-    >>> from math import *
     >>> from .pyCGM import normDiv       
     >>> v = [1.44928201, 1.94301493, 2.49204956]
     >>> np.around(normDiv(v),8)  #doctest: +NORMALIZE_WHITESPACE
@@ -2620,8 +2597,7 @@ def rotmat(x=0,y=0,z=0):
     Example
     -------
     >>> import numpy as np
-    >>> import math
-    >>> from .pyCGM import rotmat, matrixmult
+    >>> from .pyCGM import rotmat
     >>> x = 0.5
     >>> y = 0.3
     >>> z = 0.8
@@ -2711,8 +2687,7 @@ def JointAngleCalc(frame,vsk):
     Example
     -------
     >>> import numpy as np
-    >>> from math import *
-    >>> from .pyCGM import *
+    >>> from .pyCGM import JointAngleCalc
     >>> from .pycgmIO import loadC3D, loadVSK
     >>> from .pycgmStatic import getStatic
     >>> from .pyCGM_Helpers import getfilenames
