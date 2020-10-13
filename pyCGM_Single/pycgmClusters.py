@@ -1,4 +1,6 @@
 
+# flake8: noqa # Ignore this file for now
+
 def calcFramesClusters(data,vsk):   
     """
     Calculates frames using cluster information for gap filling.  

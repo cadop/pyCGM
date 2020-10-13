@@ -22,7 +22,7 @@ setuptools.setup(
         "Operating System :: OS Independent",
     ],
     python_requires='>=3',
-    install_requires=['numpy>=1.15'],
+    install_requires=['numpy>=1.15','scipy'],
     package_data={
         "": ["SampleData/ROM/*.c3d","SampleData/ROM/*.vsk"], # TODO Need to fix
     },
