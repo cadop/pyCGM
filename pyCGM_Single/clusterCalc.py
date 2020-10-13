@@ -40,6 +40,24 @@ def normalize(v):
 
 #Print matrix
 def printMat(M):
+	"""Prints a matrix.
+
+	Arguments
+	---------
+	M : array_like
+	    Input matrix.
+
+	Examples
+	--------
+	>>> M = [[1, 2, 3],
+	...      [4, 5, 6],
+	...      [7, 8, 9]]
+	>>> printMat(M)
+	[1, 2, 3]
+	[4, 5, 6]
+	[7, 8, 9]
+
+	"""
 	for row in M:
 		print(row)
         
