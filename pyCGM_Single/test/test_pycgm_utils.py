@@ -32,7 +32,7 @@ class TestUpperBodyAxis(unittest.TestCase):
         expected = 22505.812344655435
 
         result = pyCGM.norm2d(v)
-        self.assertEqual(result, expected)
+        np.testing.assert_almost_equal(result, expected, rounding_precision)
 
     def testNorm3d(self):
         v = [-212.5847168, 28.09841919, -4.15808105]
@@ -46,7 +46,7 @@ class TestUpperBodyAxis(unittest.TestCase):
         expected = [0.11991375545853512, 0.16076527243190078, 0.20619245907039865]
 
         result = pyCGM.normDiv(v)
-        self.assertEqual(result, expected)
+        np.testing.assert_almost_equal(result, expected, rounding_precision)
 
     def testMatrixmult(self):
         A = [[1, 0, 0], [0, 1.0, -0.0], [0, 0.0, 1.0]]
@@ -54,7 +54,7 @@ class TestUpperBodyAxis(unittest.TestCase):
         expected = [[1.0, 0, 0.0], [0.0, 1.0, 0.0], [0.0, 0.0, 1.0]]
 
         result = pyCGM.matrixmult(A, B)
-        self.assertEqual(result, expected)
+        np.testing.assert_almost_equal(result, expected, rounding_precision)
 
     def testRotmat(self):
         x = 0.0
@@ -65,4 +65,4 @@ class TestUpperBodyAxis(unittest.TestCase):
                     [0.0, 0.0, 1.0]]
 
         result = pyCGM.rotmat(x, y, z)
-        self.assertEqual(result, expected)
+        np.testing.assert_almost_equal(result, expected, rounding_precision)
