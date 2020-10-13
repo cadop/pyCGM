@@ -30,9 +30,10 @@
 
 import sys
 import getopt
-import pycgmStatic
-import pycgmIO
-import pycgmCalc
+# Relative imports 
+from . import pycgmStatic
+from . import pycgmIO
+from . import pycgmCalc
 
 def main(argv):
     """
