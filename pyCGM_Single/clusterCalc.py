@@ -42,8 +42,8 @@ def normalize(v):
 def printMat(M):
 	"""Prints a matrix.
 
-	Arguments
-	---------
+	Parameters
+	----------
 	M : array_like
 	    Input matrix.
 
@@ -65,8 +65,8 @@ def printMat(M):
 def getMarkerLocation(Pm,C):
     """Finds the missing marker in the world frame
     
-    Arguments
-    ---------
+    Parameters
+    ----------
     Pm : array
         Location of the missing marker in the cluster frame. List or 
         numpy array of 3 elements.

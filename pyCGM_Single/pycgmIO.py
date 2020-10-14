@@ -61,8 +61,8 @@ EA=SA+72*3
 def createMotionDataDict(labels,data):
 	"""Creates an array of motion capture data given labels and data
 
-	Arguments
-	---------
+	Parameters
+	----------
 	labels : array
 	    List of marker position names. 
 	data : array
@@ -120,8 +120,8 @@ def createMotionDataDict(labels,data):
 def splitMotionDataDict(motiondata):
     """Splits an array of motion capture data into separate labels and data
 
-    Arguments
-    ---------
+    Parameters
+    ----------
     motiondata : array
         List of dict. Indices of `motiondata` correspond to frames
         in the trial. Keys in the dictionary are marker names and 
@@ -177,8 +177,8 @@ def splitMotionDataDict(motiondata):
 def createVskDataDict(labels,data):
 	"""Creates a dictionary of vsk file values from labels and data
 
-	Arguments
-	---------
+	Parameters
+	----------
 	labels : array
 	    list of label names for vsk file values. Example:
 	data : array
@@ -216,8 +216,8 @@ def splitVskDataDict(vsk):
     python being used, but indices of `labels` will still correspond to 
     indices of `data`, regardless of the python version. See Examples.
     
-    Arguments
-    ---------
+    Parameters
+    ----------
     vsk : dict
         dictionary of vsk file values. Dictionary keys correspond to 
         names in `labels` and dictionary values correspond to values in 
@@ -278,8 +278,8 @@ def markerKeys():
 def loadEZC3D(filename):
     """Use c3dez to load c3d file
 
-    Arguments
-    ---------
+    Parameters
+    ----------
     filename : str
         Path to the c3d file to be loaded.
 
@@ -304,8 +304,8 @@ def loadC3D(filename):
     the corresponding values are a numpy array with the associated
     value. data[marker] = array([x, y, z])
 
-    Arguments
-    ---------
+    Parameters
+    ----------
     filename : str
         File name of the C3D file to be loaded
  
@@ -379,8 +379,8 @@ def loadCSV(filename):
     the corresponding values are a numpy array with the associated
     value. array([x, y, z])
 
-    Arguments
-    ---------
+    Parameters
+    ----------
     filename : str
         File name of the CSV file to be loaded
  
@@ -431,8 +431,8 @@ def loadCSV(filename):
 
         This function is only in scope from within `loadCSV`.
 
-        Arguments
-        ---------
+        Parameters
+        ----------
         row : array
             List of marker data.
         labels : array
@@ -495,8 +495,8 @@ def loadCSV(filename):
 
         This function is only in scope from within `loadCSV`.
 
-        Arguments
-        ---------
+        Parameters
+        ----------
         line : str
             String form of the line to be split
 
@@ -524,8 +524,8 @@ def loadCSV(filename):
 
         This function is only in scope from within `loadCSV`.
 
-        Arguments
-        ---------
+        Parameters
+        ----------
         fh : list iterator object
             Iterator for rows of motion capture data. The first 3 rows
             in `fh` contain the frequency, labels, and field headers 
@@ -633,8 +633,8 @@ def loadData(filename,rawData=True):
         Either a csv or c3d file of motion capture data can be used.
         `loadCSV` or `loadC3D` will be called accordingly.
 
-        Arguments
-        ---------
+        Parameters
+        ----------
         filename : str
             Path of the csv or c3d file to be loaded
 
@@ -690,8 +690,8 @@ def dataAsArray(data):
 
     Assumes all markers have the same length of data.
 
-    Arguments
-    ---------
+    Parameters
+    ----------
     data : dict
         Dictionary of marker data. Keys are marker names. Values are 
         arrays of 3 elements, each of which is an array of x, y, and z
@@ -755,8 +755,8 @@ def dataAsDict(data,npArray=False):
     """Converts the frame by frame based data to a dictionary of keys 
     with all motion data as an array per key.
 
-    Arguments
-    ---------
+    Parameters
+    ----------
     data : array
         List of dict. Indices of `data` correspond to frames
         in the trial. Keys in the dictionary are marker names and 
@@ -814,8 +814,8 @@ def dataAsDict(data,npArray=False):
 def writeKinetics(CoM_output,kinetics):
     """Uses numpy.save to write kinetics data as an .npy file.
 
-    Arguments
-    ---------
+    Parameters
+    ----------
     CoM_output : file, str, or Path
         Full path of the file to be saved to or a file object 
         or a filename.
@@ -850,8 +850,8 @@ def writeResult(data,filename,**kargs):
         line 7 of the csv is output for frame 0 of the motion capture.
         The first element of each row of ouput is the frame number. 
         
-        Arguments
-        ---------
+        Parameters
+        ----------
         data : array_like
             Motion capture data as a matrix of frames as rows.
             Each row is a numpy array of length 273.
@@ -1035,8 +1035,8 @@ def smKeys():
 def loadVSK(filename,dict=True):
         """Open and load a vsk file
   
-        Arguments
-        ---------
+        Parameters
+        ----------
         filename : str
             Path to the vsk file to be loaded
         dict : bool, optional
@@ -1113,8 +1113,8 @@ def loadVSK(filename,dict=True):
 def splitDataDict(motionData):       
     """Splits an array of motion capture data into separate labels and data
 
-    Arguments
-    ---------
+    Parameters
+    ----------
     motionData : array
         List of dict. Indices of `motionData` correspond to frames
         in the trial. Keys in the dictionary are marker names and 
@@ -1169,8 +1169,8 @@ def splitDataDict(motionData):
 def combineDataDict(values,labels):
     """Converts two lists of values and labels to a dictionary
 
-    Arguments
-    ---------
+    Parameters
+    ----------
     values : array
         Array of motion data values. Indices of `values` correspond to
         frames in the trial. Each element is an array of xyz coordinates. 
