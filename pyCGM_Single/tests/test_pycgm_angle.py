@@ -390,3 +390,18 @@ class TestPycgmAngle(unittest.TestCase):
 
         result_nparray = pyCGM.getHeadangle(np.array(axisP), np.array(axisD))
         np.testing.assert_almost_equal(result_nparray, expected, rounding_precision)
+
+    def test_getPelAngle(self):
+        axisP = [[0.0464229, 0.99648672, 0.06970743],
+                 [0.99734011, -0.04231089, -0.05935067],
+                 [-0.05619277, 0.07227725, -0.99580037]]
+        axisD = [[-0.18067218, -0.98329158, -0.02225371],
+                 [0.71383942, -0.1155303, -0.69071415],
+                 [0.67660243, -0.1406784, 0.7227854]]
+        expected = np.array([-175.65183483, 39.63221918, -10.2668477])
+
+        result = pyCGM.getPelangle(axisP, axisD)
+        np.testing.assert_almost_equal(result, expected, rounding_precision)
+
+        result_nparray = pyCGM.getPelangle(np.array(axisP), np.array(axisD))
+        np.testing.assert_almost_equal(result_nparray, expected, rounding_precision)
