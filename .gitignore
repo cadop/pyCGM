@@ -1,2 +1,4 @@
 
 *.pyc
+.vscode/settings.json
+real.pypirc
