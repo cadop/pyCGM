@@ -114,8 +114,8 @@ def prep(trajs):
     frames : list
         Returns a list with multiple dictionaries. 
 
-    Example
-    -------
+    Examples
+    --------
     >>> import numpy as np
     >>> from .Pipelines import prep
     >>> trajs = {'trajOne': np.array([[217.19961548, -82.35484314, 332.2684021 ],
@@ -159,8 +159,8 @@ def clearMarker(data,name):
     data : dict
         Returns the original data dictionary with the cleared marker.
     
-    Example
-    -------
+    Examples
+    --------
     >>> import numpy as np 
     >>> from .Pipelines import clearMarker
     >>> data = [{'LTIL': np.array([-268.1545105 ,  327.53512573,   30.17036057]), 
@@ -191,8 +191,8 @@ def filtering(Data):
     -------
     data : dict
     
-    Example
-    -------
+    Examples
+    --------
     >>> import numpy as np 
     >>> from .Pipelines import filtering
     >>> from .pyCGM_Helpers import getfilenames

@@ -24,8 +24,8 @@ def rotmat(x=0,y=0,z=0):
     Rxyz : array 
         The product of the matrix multiplication.
 
-    Example
-    -------
+    Examples
+    --------
     >>> import numpy as np
     >>> from .pycgmStatic import rotmat
     >>> rotmat() #doctest: +NORMALIZE_WHITESPACE
@@ -87,8 +87,8 @@ def getDist(p0, p1):
     float 
         The distance between positions p0 and p1. 
 
-    Example
-    -------
+    Examples
+    --------
     >>> import numpy as np
     >>> from .pycgmStatic import getDist
     >>> p0 = [0,1,2]
@@ -129,8 +129,8 @@ def getStatic(motionData,vsk,flat_foot=False,GCS=None):
         Dictionary containing various marker lists of offsets.
             { [], [], [], ... }
     
-    Example
-    -------
+    Examples
+    --------
     >>> from .pycgmIO import loadC3D, loadVSK
     >>> from .pycgmStatic import getStatic
     >>> import os
@@ -295,8 +295,8 @@ def average(list):
     float 
         The mean of the list.
 
-    Example
-    -------
+    Examples
+    --------
     >>> import numpy as np
     >>> from .pycgmStatic import average
     >>> list = [1,2,3,4,5]
@@ -332,8 +332,8 @@ def IADcalculation(frame):
     IAD : float
         The mean of the list.
 
-    Example
-    -------
+    Examples
+    --------
     >>> import numpy as np
     >>> from .pycgmStatic import IADcalculation
     >>> frame = { 'LASI': np.array([ 183.18504333,  422.78927612, 1033.07299805]),
@@ -367,8 +367,8 @@ def staticCalculationHead(frame,head):
     offset : float
         The head offset angle for static calibration.
 
-    Example
-    -------
+    Examples
+    --------
     >>> import numpy as np
     >>> from .pycgmStatic import staticCalculationHead
     >>> frame = None
@@ -411,8 +411,8 @@ def headoffCalc(axisP, axisD):
     angle : float
         The beta angle of the head offset.
     
-    Example
-    -------
+    Examples
+    --------
     >>> import numpy as np 
     >>> from .pycgmStatic import headoffCalc
     >>> axisP = [[0.96027586, 0.81188464, 0.8210366],
@@ -474,8 +474,8 @@ def staticCalculation(frame,ankle_JC,knee_JC,flat_foot,vsk=None):
     --------
     The correct axis changes following to the foot flat option. 
     
-    Example
-    -------
+    Examples
+    --------
     >>> import numpy as np
     >>> from .pycgmStatic import staticCalculation
     >>> frame = {'RTOE': np.array([427.95211792, 437.99603271,  41.77342987]),
@@ -595,8 +595,8 @@ def pelvisJointCenter(frame):
                        [pelvis z_axis x,y,z position]],
                        [sacrum x,y,z position]]    
 
-    Example
-    -------
+    Examples
+    --------
     >>> import numpy as np 
     >>> from .pycgmStatic import pelvisJointCenter
     >>> frame = {'RASI': np.array([ 395.36532593,  428.09790039, 1036.82763672]), 
@@ -718,8 +718,8 @@ def hipJointCenter(frame,pel_origin,pel_x,pel_y,pel_z,vsk=None):
         Returns the hip joint center in two array.
             hip_JC = [[L_hipJC x,y,z position], [R_hipJC x,y,z position]]
     
-    Example
-    -------
+    Examples
+    --------
     >>> import numpy as np 
     >>> from .pycgmStatic import hipJointCenter
     >>> frame = None
@@ -831,8 +831,8 @@ def hipAxisCenter(l_hip_jc,r_hip_jc,pelvis_axis):
                        array([[hipaxis_center x,y,z position], [hip y_axis x,y,z position]])
                        array([[hipaxis_center x,y,z position], [hip z_axis x,y,z position]])]]   
 
-    Example
-    -------
+    Examples
+    --------
     >>> import numpy as np 
     >>> from .pycgmStatic import hipAxisCenter
     >>> r_hip_jc = [182.57097863, 339.43231855, 935.529000126]
@@ -908,8 +908,8 @@ def kneeJointCenter(frame,hip_JC,delta,vsk=None):
     --------
     delta is changed suitably to knee.
 
-    Example
-    -------
+    Examples
+    --------
     >>> import numpy as np 
     >>> from .pycgmStatic import kneeJointCenter
     >>> vsk = { 'RightKneeWidth' : 105.0, 'LeftKneeWidth' : 105.0 }
@@ -1066,8 +1066,8 @@ def ankleJointCenter(frame,knee_JC,delta,vsk=None):
                         array([[ankleaxis_center x,y,z position],
                             [ankle z_axis x,y,z position]])]]                               
 
-    Example
-    -------
+    Examples
+    --------
     >>> import numpy as np 
     >>> from .pycgmStatic import ankleJointCenter
     >>> vsk = { 'RightAnkleWidth' : 70.0, 'LeftAnkleWidth' : 70.0, 
@@ -1284,8 +1284,8 @@ def footJointCenter(frame,static_info,ankle_JC,knee_JC,delta):
     and then the static offsets angles are applied to the reference axis.
     the reference axis is Z axis point to HEE from TOE
 
-    Example
-    -------
+    Examples
+    --------
     >>> import numpy as np 
     >>> from .pycgmStatic import footJointCenter
     >>> frame = { 'RHEE': np.array([374.01257324, 181.57929993, 49.50960922]),
@@ -1521,8 +1521,8 @@ def headJC(frame):
                             [head z axis x,y,z position]],
                             [head x,y,z position]]
     
-    Example
-    -------
+    Examples
+    --------
     >>> import numpy as np 
     >>> from .pycgmStatic import headJC
     >>> frame = {'RFHD': np.array([325.82983398, 402.55450439, 1722.49816895]),
@@ -1613,8 +1613,8 @@ def uncorrect_footaxis(frame,ankle_JC):
                         array([[footaxis_center x,y,z position],
                                 [foot z_axis x,y,z position]])]]        
 
-    Example
-    -------
+    Examples
+    --------
     >>> import numpy as np
     >>> from .pycgmStatic import uncorrect_footaxis
     >>> frame = { 'RTOE': [442.81997681, 381.62280273, 42.66047668], 
@@ -1750,8 +1750,8 @@ def rotaxis_footflat(frame,ankle_JC,vsk=None):
     --------
     If the subject wears shoe, Soledelta is applied. then axes are changed following Soledelta.
 
-    Example
-    -------
+    Examples
+    --------
     >>> import numpy as np
     >>> from .pycgmStatic import rotaxis_footflat
     >>> frame = { 'RHEE': [374.01257324, 181.57929993, 49.50960922],
@@ -1908,8 +1908,8 @@ def rotaxis_nonfootflat(frame,ankle_JC):
                         array([[footaxis_center x,y,z position],
                                 [foot z_axis x,y,z position]])]]     
 
-    Example
-    -------
+    Examples
+    --------
     >>> import numpy as np
     >>> from .pycgmStatic import rotaxis_nonfootflat
     >>> frame = { 'RHEE': [374.01257324, 181.57929993, 49.50960922],
@@ -2025,8 +2025,8 @@ def getankleangle(axisP,axisD):
         These angles are shown in degrees.
             angle = [gamma, beta, alpha]
     
-    Example
-    -------
+    Examples
+    --------
     >>> import numpy as np
     >>> from .pycgmStatic import getankleangle
     >>> axisP = [[ 0.59327576, 0.10572786, 0.15773334],
@@ -2074,8 +2074,8 @@ def findJointC(a, b, c, delta):
         Joint C x,y,z position
             return = [joint C x position, joint C y position, joint C z position]
 
-    Example
-    -------
+    Examples
+    --------
     >>> import numpy as np 
     >>> from .pycgmStatic import findJointC
     >>> a = [775.40887891, 788.64742014, 514.4063264]
@@ -2144,8 +2144,8 @@ def norm2d(v):
     float 
         The normalization of the vector as a float.
 
-    Example
-    -------
+    Examples
+    --------
     >>> import numpy as np 
     >>> from .pycgmStatic import norm2d
     >>> v = [50.00882192, 96.36735079, 264.84675407]
@@ -2172,8 +2172,8 @@ def norm3d(v):
     array 
         The normalization of the vector returned as a float in an array.
 
-    Example
-    -------
+    Examples
+    --------
     >>> import numpy as np 
     >>> from .pycgmStatic import norm3d
     >>> v = [124.9784377, 368.642446, 18.42836272]
@@ -2200,8 +2200,8 @@ def normDiv(v):
     list 
         The divison normalization of the vector returned as a float in a list.
 
-    Example
-    -------
+    Examples
+    --------
     >>> import numpy as np 
     >>> from .pycgmStatic import normDiv
     >>> v = [1.44928201, 1.94301493, 2.49204956]
@@ -2238,8 +2238,8 @@ def matrixmult (A, B):
     C : list 
         The product of the matrix multiplication.
 
-    Example
-    -------
+    Examples
+    --------
     >>> from .pycgmStatic import matrixmult
     >>> A = [[11,12,13],[14,15,16]]
     >>> B = [[1,2],[3,4],[5,6]]
@@ -2270,8 +2270,8 @@ def cross(a, b):
     c : list
         The cross product of vector a and vector b.
 
-    Example
-    -------
+    Examples
+    --------
     >>> from .pycgmStatic import cross
     >>> a = [12.83416835, 61.24792127, 99.59610493]
     >>> b = [14.79756689, 61.71925415, 95.44488778]

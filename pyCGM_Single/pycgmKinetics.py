@@ -31,8 +31,8 @@ def f(p, x):
     int or float
         Returns the first value in p scaled by x, aded by the second value in p.
 
-    Example
-    -------
+    Examples
+    --------
     >>> import numpy as np
     >>> from .pycgmKinetics import f
     >>> p = [1, 2]
@@ -62,8 +62,8 @@ def dot(v,w):
     int or float
         The quotient of the dot product of vectors v and w.
 
-    Example
-    -------
+    Examples
+    --------
     >>> import numpy as np
     >>> from .pycgmKinetics import dot
     >>> v = [1, 2, 3]
@@ -93,8 +93,8 @@ def length(v):
     float
         Returns the length of a 3D vector.
 
-    Example
-    -------
+    Examples
+    --------
     >>> import numpy as np
     >>> from .pycgmKinetics import length
     >>> v = [1,2,3]
@@ -123,8 +123,8 @@ def vector(b,e):
     tuple
         Returns the vector of e - v.
 
-    Example
-    -------
+    Examples
+    --------
     >>> import numpy as np
     >>> from .pycgmKinetics import vector
     >>> v = [1,2,3]
@@ -154,8 +154,8 @@ def unit(v):
     tuple
         Returns the unit vector of a given vector.
 
-    Example
-    -------
+    Examples
+    --------
     >>> import numpy as np
     >>> from .pycgmKinetics import unit
     >>> v = [1,2,3]
@@ -185,8 +185,8 @@ def distance(p0,p1):
     float
         Returns distance between points p0 and p1.
 
-    Example
-    -------
+    Examples
+    --------
     >>> import numpy as np
     >>> from .pycgmKinetics import distance
     >>> p0 = [1,2,3]
@@ -216,8 +216,8 @@ def scale(v,sc):
     tuple
         Returns the given vector scaled by scaling factor.
 
-    Example
-    -------
+    Examples
+    --------
     >>> import numpy as np
     >>> from .pycgmKinetics import scale
     >>> v = [1,2,3]
@@ -248,8 +248,8 @@ def add(v,w):
     tuple
         Returns the sum of the two given vectors.
 
-    Example
-    -------
+    Examples
+    --------
     >>> import numpy as np
     >>> from .pycgmKinetics import add
     >>> v = [1, 2, 3]
@@ -289,8 +289,8 @@ def pnt2line(pnt, start, end):
         Returns pnt, the original given pnt.
         All of these are returned in a single tuple.
 
-    Example
-    -------
+    Examples
+    --------
     >>> import numpy as np
     >>> from .pycgmKinetics import pnt2line
     >>> pnt = [1, 2, 3]
@@ -353,8 +353,8 @@ def findL5_Pelvis(frame):
     midHip, L5 : tuple
         Returns the x,y,z marker positions of the midHip and L5.
         
-    Example
-    -------
+    Examples
+    --------
     >>> import numpy as np
     >>> from .pycgmKinetics import findL5_Pelvis
     >>> Pelvis_axis = [np.array([251.60830688, 391.74131775, 1032.89349365]),
@@ -403,8 +403,8 @@ def findL5_Thorax(frame):
         Returns the x,y,z marker positions of the L5.
             (midHip, L5)
 
-    Example
-    -------
+    Examples
+    --------
     >>> from .pycgmKinetics import findL5_Thorax
     >>> import numpy as np
     >>> Thorax_axis = [[[256.3454633226447, 365.7223958512035, 1461.920891187948], 
