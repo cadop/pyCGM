@@ -7,7 +7,7 @@ with open("README.md", "r",encoding="utf8") as fh:
     long_description = fh.read()
 
 setuptools.setup(
-    name="pyCGM", 
+    name="pycgm", 
     version= __version__,
     author="", # Many
     author_email="cadop@umich.edu",
