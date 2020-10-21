@@ -47,20 +47,16 @@ def pelvisJointCenter(frame):
     ---------- 
     frame : dict 
         Dictionaries of marker lists.
-            { [], [], [], ...}
     
     Returns
     -------
     pelvis : array
-        Returns the origin and pelvis axis also sacrum. 
-            pelvis = [[origin x,y,z position],
-                      [[pelvis x_axis x,y,z position],
-                       [pelvis y_axis x,y,z position],
-                       [pelvis z_axis x,y,z position]],
-                       [sacrum x,y,z position]]    
+        Returns an array that contains the pelvis origin in a 1x3 array of xyz values, 
+        which is then followed by a 4x1x3 array composed of the pelvis x, y, z 
+        axis components, and the sacrum x,y,z position.   
 
-    Example
-    -------
+    Examples
+    --------
     >>> import numpy as np 
     >>> from .pyCGM import pelvisJointCenter
     >>> frame = {'RASI': np.array([ 395.36532593,  428.09790039, 1036.82763672]), 
@@ -158,7 +154,6 @@ def hipJointCenter(frame,pel_origin,pel_x,pel_y,pel_z,vsk=None):
     ----------
     frame : dict
         Dictionaries of marker lists.
-            { [], [], [], ... }
     pel_origin : array
         An array of pel_origin, pel_x, pel_y, pel_z each x,y,z position.
             [(),(),()]
@@ -166,16 +161,15 @@ def hipJointCenter(frame,pel_origin,pel_x,pel_y,pel_z,vsk=None):
         Respective axes of the pelvis.
     vsk : dict, optional
         A dictionary containing subject measurements from a VSK file.
-            { [], [], [], ... }
 
     Returns
     -------
     hip_JC : array
-        Returns the hip joint center in two array.
-            hip_JC = [[L_hipJC x,y,z position], [R_hipJC x,y,z position]]
+        Returns a 2x3 array that contains the left hip joint center, a 1x3 array containing the x,y,z components
+        followed by the right hip joint center, another 1x3 array containing the x,y,z components.
     
-    Example
-    -------
+    Examples
+    --------
     >>> import numpy as np 
     >>> from .pyCGM import hipJointCenter
     >>> frame = None
@@ -280,18 +274,15 @@ def hipAxisCenter(l_hip_jc,r_hip_jc,pelvis_axis):
        
     Returns
     -------
-    array
-        Returns the hip Axis Center and hip Axis.
-            return = [[hipaxis_center x,y,z position],
-                    [array([[hipaxis_center x,y,z position],
-                            [hip x_axis x,y,z position]]),
-                        array([[hipaxis_center x,y,z position],
-                            [hip y_axis x,y,z position]])
-                        array([[hipaxis_center x,y,z position],
-                            [hip z_axis x,y,z position]])]]","   
+    hipaxis_center, axis : array
+        Returns an array that contains the hip axis center in a 1x3 array of xyz values, 
+        which is then followed by a 3x2x3 array composed of the hip axis center x, y, and z 
+        axis components. The xyz axis components are 2x3 arrays consisting of the axis center  
+        in the first dimension and the direction of the axis in the second dimension.  
 
-    Example
-    -------
+
+    Examples
+    --------
     >>> import numpy as np 
     >>> from .pyCGM import hipAxisCenter
     >>> r_hip_jc = [182.57097863, 339.43231855, 935.529000126]
@@ -342,33 +333,27 @@ def kneeJointCenter(frame,hip_JC,delta,vsk=None):
     ----------
     frame : dict 
         dictionaries of marker lists.
-            { [], [], [] }
     hip_JC : array
         An array of hip_JC containing the x,y,z axes marker positions of the hip joint center. 
     delta : float
         The length from marker to joint center, retrieved from subject measurement file.
     vsk : dict, optional
         A dictionary containing subject measurements from a VSK file.
-            { [], [], [], ... }
 
     Returns
     -------
-    array
-        Returns the Knee Axis Center and Knee Axis.
-            return = [[kneeaxis_center x,y,z position],
-                    [array([[kneeaxis_center x,y,z position],
-                            [knee x_axis x,y,z position]]),
-                    array([[kneeaxis_center x,y,z position],
-                            [knee y_axis x,y,z position]])
-                    array([[kneeaxis_center x,y,z position],
-                            [knee z_axis x,y,z position]])]]                               
+    R, L, axis : array
+        Returns an array that contains the knee axis center in a 1x3 array of xyz values, 
+        which is then followed by a 2x3x3 array composed of the knee axis center x, y, and z 
+        axis components. The xyz axis components are 2x3 arrays consisting of the axis center 
+        in the first dimension and the direction of the axis in the second dimension.                                 
         
     Modifies
     --------
     delta is changed suitably to knee.
 
-    Example
-    -------
+    Examples
+    --------
     >>> import numpy as np 
     >>> from .pyCGM import kneeJointCenter
     >>> vsk = { 'RightKneeWidth' : 105.0, 'LeftKneeWidth' : 105.0 }
@@ -507,29 +492,23 @@ def ankleJointCenter(frame,knee_JC,delta,vsk=None):
     ----------
     frame : dict 
         dictionaries of marker lists.
-            { [], [], [] }
     knee_JC : array
         An array of knee_JC each x,y,z position.
     delta : float
         The length from marker to joint center, retrieved from subject measurement file
     vsk : dict, optional
         A dictionary containing subject measurements from a VSK file.
-            { [], [], [], ... }
 
     Returns
     -------
     array
-        Returns the Ankle Axis Center and Ankle Axis.
-            return = [[ankle axis_center x,y,z position],
-                    [array([[ankleaxis_center x,y,z position],
-                            [ankle x_axis x,y,z position]]),
-                        array([[ankleaxis_center x,y,z position],
-                            [ankle y_axis x,y,z position]])
-                        array([[ankleaxis_center x,y,z position],
-                            [ankle z_axis x,y,z position]])]]                               
+        Returns an array that contains the ankle axis origin in a 1x3 array of xyz values, 
+        which is then followed by a 3x2x3 array composed of the ankle origin, x, y, and z 
+        axis components. The xyz axis components are 2x3 arrays consisting of the origin 
+        in the first dimension and the direction of the axis in the second dimension.                         
 
-    Example
-    -------
+    Examples
+    --------
     >>> import numpy as np 
     >>> from .pyCGM import ankleJointCenter
     >>> vsk = { 'RightAnkleWidth' : 70.0, 'LeftAnkleWidth' : 70.0, 
@@ -713,10 +692,8 @@ def footJointCenter(frame,vsk,ankle_JC,knee_JC,delta):
     ---------- 
     frame : dict 
         Dictionaries of marker lists.
-            { [], [], [], ... }
     vsk : dict
         A dictionary containing subject measurements from a VSK file.
-            { [], [], [], ... }
     ankle_JC : array
         An array of ankle_JC containing the x,y,z axes marker positions of the ankle joint center. 
     knee_JC : array
@@ -727,14 +704,11 @@ def footJointCenter(frame,vsk,ankle_JC,knee_JC,delta):
     Returns
     -------
     array
-        Returns the footJointCenter and foot axis. and save the static offset angle in a global variable.
-            return = [[foot axis_center x,y,z position],
-                    [array([[footaxis_center x,y,z position],
-                            [foot x_axis x,y,z position]]),
-                    array([[footaxis_center x,y,z position],
-                            [foot y_axis x,y,z position]])
-                    array([[footaxis_center x,y,z position],
-                            [foot z_axis x,y,z position]])]]        
+        Returns an array that contains the foot axis center in a 1x3 array of xyz values, 
+        which is then followed by a 2x3x3 array composed of the foot axis center x, y, and z 
+        axis components. The xyz axis components are 2x3 arrays consisting of the axis center 
+        in the first dimension and the direction of the axis in the second dimension.   
+        This function also saves the static offset angle in a global variable. 
             
     Modifies
     --------   
@@ -747,7 +721,7 @@ def footJointCenter(frame,vsk,ankle_JC,knee_JC,delta):
     and then the static offsets angles are applied to the reference axis.
     the reference axis is Z axis point to HEE from TOE
 
-    Example
+    Examples
     -------
     >>> import numpy as np 
     >>> from .pyCGM import footJointCenter
@@ -974,21 +948,17 @@ def headJC(frame,vsk=None):
     ----------
     frame : dict 
         Dictionaries of marker lists.
-            { [], [], [], ...}
     vsk : dict, optional
         A dictionary containing subject measurements from a VSK file.
-            { [], [], [], ... }
     
     Returns
     -------
     array
-        Returns the Head joint center and axis in three array 
-                head_JC = [[[head x axis x,y,z position],
-                            [head y axis x,y,z position],
-                            [head z axis x,y,z position]],
-                            [head x,y,z position]]
+        Returns an array containing a 1x3x3 array containing the x, y, z axis 
+        components of the head joint center, and a 1x3 array containing the head origin x,y,z position.
+        
     
-    Example
+    Examples
     -------
     >>> import numpy as np 
     >>> from .pyCGM import headJC
@@ -1076,21 +1046,15 @@ def thoraxJC(frame):
     ----------
     frame : dict 
         Dictionaries of marker lists.
-            { [], [], [], ...}
     
     Returns
     -------
     array
-        Returns the Head joint center and axis in three array
-            thorax_JC = [[R_thorax x,y,z position], [L_thorax x,y,z position],
-                        [[R_thorax x axis x,y,z position],
-                        [R_thorax y axis x,y,z position],
-                        [R_thorax z axis x,y,z position],
-                        [L_thorax x axis x,y,z position],
-                        [L_thorax y axis x,y,z position],
-                        [L_thorax z axis x,y,z position]]]
+        Returns an array which contains a 2x3 array representing the right thorax joint center (1x3)
+        and the left thorax joint center (1x3), which is then followed by a 6x3 array representing the
+        right thorax x, y, z axis components (3x3) followed by the the left thorax x, y, z axis components (3x3).
     
-    Example
+    Examples
     -------
     >>> import numpy as np 
     >>> from .pyCGM import thoraxJC
@@ -1172,23 +1136,18 @@ def findwandmarker(frame,thorax):
     ----------  
     frame : dict 
         Dictionaries of marker lists.
-            { [], [], [], ...}
     thorax : array
         The x,y,z position of the thorax.
-            thorax = [[R_thorax joint center x,y,z position],
-                        [L_thorax_joint center x,y,z position],
-                        [[R_thorax x axis x,y,z position],
-                        [R_thorax,y axis x,y,z position],
-                        [R_thorax z axis x,y,z position]]]
 
     Returns
     ------- 
     wand : array
         Returns wand marker position for calculating knee joint center later.
-            wand = [[R wand marker x,y,z position],
-                    [L wand marker x,y,z position]]
+        The wand marker position is returned as a 2x3 array containing the 
+        right wand marker x,y,z positions (1x3) followed by the left 
+        wand marker x,y,z positions (1x3).
     
-    Example
+    Examples
     -------
     >>> import numpy as np
     >>> from .pyCGM import findwandmarker
@@ -1253,30 +1212,21 @@ def findshoulderJC(frame,thorax,wand,vsk=None):
     ----------
     frame : dict 
         Dictionaries of marker lists.
-            { [], [], [], ... }
     thorax : array
         Array containing several x,y,z markers for the thorax.
-            thorax = [[R_thorax joint center x,y,z position],
-                        [L_thorax_joint center x,y,z position],
-                        [[R_thorax x axis x,y,z position],
-                        [R_thorax,y axis x,y,z position],
-                        [R_thorax z axis x,y,z position]]]
     wand : array
         Array containing two x,y,z markers for wand.
-                wand = [[R wand x,y,z, position],
-                        [L wand x,y,z position]]
     vsk : dict, optional
         A dictionary containing subject measurements from a VSK file.
-            { [], [], [], ... }
 
     Returns
     -------
-    array
-        Returns the Shoulder joint center in two array.
-            head_JC = [[R_shoulderJC_x, R_shoulderJC_y, R_shoulderJC_z],
-                        [L_shoulderJC_x,L_shoulderJC_y,L_shoulderJC_z]]
+    Sho_JC : array
+        Returns a 2x3 array representing the right shoulder joint 
+        center x, y, z, marker positions (1x3) followed by the left 
+        shoulder joint center x, y, z, marker positions (1x3).
     
-    Example
+    Examples
     -------
     >>> import numpy as np 
     >>> from .pyCGM import findshoulderJC
@@ -1331,7 +1281,6 @@ def shoulderAxisCalc(frame,thorax,shoulderJC,wand):
     ----------
     frame : dict 
         Dictionaries of marker lists.
-            { [], [], [], ... }
     thorax : array
         The x,y,z position of the thorax.
             thorax = [[R_thorax joint center x,y,z position],
@@ -1361,7 +1310,7 @@ def shoulderAxisCalc(frame,thorax,shoulderJC,wand):
                         [R_shoulderJC_x, R_shoulderJC_y, R_shoulderJC_z],
                         [L_shoulderJC_x,L_shoulderJC_y,L_shoulderJC_z]]
 
-    Example
+    Examples
     -------
     >>> import numpy as np 
     >>> from .pyCGM import shoulderAxisCalc
@@ -1456,43 +1405,28 @@ def elbowJointCenter(frame,thorax,shoulderJC,wand,vsk=None):
     ---------- 
     frame 
         Dictionaries of marker lists.  
-            { [], [], [], ... }
     thorax : array
         The x,y,z position of the thorax.
-            thorax = [[R_thorax joint center x,y,z position],
-                        [L_thorax_joint center x,y,z position],
-                        [[R_thorax x axis x,y,z position],
-                        [R_thorax,y axis x,y,z position],
-                        [R_thorax z axis x,y,z position]]]
     shoulderJC : array
         The x,y,z position of the shoulder joint center.
-            shoulderJC = [[R shoulder joint center x,y,z position],
-                        [L shoulder joint center x,y,z position]]
     wand : array
         The x,y,z position of the wand.
-            wand = [[R wand x,y,z, position],
-                    [L wand x,y,z position]]
     vsk : dict, optional
         A dictionary containing subject measurements from a VSK file.
-            { [], [], [], ... }
     
     Returns
     -------
-    [origin,axis,wrist_O] : array 
-        Returns the Shoulder joint center and axis in three array.
-                elbow_JC = [[R_elbow_JC_x, R_elbow_JC_y, R_elbow_JC_z],
-                            [L_elbow_JC_x,L_elbow_JC_y,L_elbow_JC_z]
-                            [[[R_elbow x axis, x,y,z position],
-                            [R_elbow y axis, x,y,z position],
-                            [R_elbow z axis, x,y,z position]],
-                            [[L_elbow x axis, x,y,z position],
-                            [L_elbow y axis, x,y,z position],
-                            [L_elbow z axis, x,y,z position]]],
-                            [R_wrist_JC_x, R_wrist_JC_y, R_wrist_JC_z],
-                            [L_wrist_JC_x,L_wrist_JC_y,L_wrist_JC_z]]
-    
-    Example
-    -------
+    origin, axis, wrist_O : array 
+        Returns an array containing a 2x3 array containing the right 
+        elbow x, y, z marker positions (1x3), and the left elbow x, y, 
+        z marker positions (1x3), which is followed by a 2x3x3 array containing 
+        right elbow x, y, z axis components (1x3x3) followed by the left x, y, z axis 
+        components (1x3x3) which is then followed by the right wrist joint center 
+        x, y, z marker positions (1x3), and the left wrist joint center x, y, z marker positions (1x3).
+
+
+    Examples
+    --------
     >>> import numpy as np 
     >>> from .pyCGM import elbowJointCenter
     >>> frame = {'RSHO': np.array([428.88496562, 270.552948, 1500.73010254]),
@@ -1756,31 +1690,16 @@ def wristJointCenter(frame,shoulderJC,wand,elbowJC):
     ----------
     frame : dict
         Dictionaries of marker lists.  
-            { [], [], [], ... }
     shoulderJC : array
         The x,y,z position of the shoulder joint center.
-            shoulderJC = [[R shoulder joint center x,y,z position],
-                        [L shoulder joint center x,y,z position]]
     elbowJC : array
         The x,y,z position of the elbow joint center.
-            elbowJC = [[R_elbow_JC_x, R_elbow_JC_y, R_elbow_JC_z],
-                        [L_elbow_JC_x,L_elbow_JC_y,L_elbow_JC_z]
-                        [[[R_elbow x axis, x,y,z position],
-                        [R_elbow y axis, x,y,z position],
-                        [R_elbow z axis, x,y,z position]],
-                        [[L_elbow x axis, x,y,z position],
-                        [L_elbow y axis, x,y,z position],
-                        [L_elbow z axis, x,y,z position]]],
-                        [R_wrist_JC_x, R_wrist_JC_y, R_wrist_JC_z],
-                        [L_wrist_JC_x,L_wrist_JC_y,L_wrist_JC_z]]
     wand : array
         The x,y,z position of the wand.
-            wand = [[R wand x,y,z, position],
-                    [L wand x,y,z position]]
     
     Returns
     --------
-    [origin, axis] : array 
+    origin, axis : array 
         Returns the Shoulder joint center and axis in three array
             return = [[R_wrist_JC_x, R_wrist_JC_y, R_wrist_JC_z],
                         [L_wrist_JC_x,L_wrist_JC_y,L_wrist_JC_z],
@@ -1791,7 +1710,7 @@ def wristJointCenter(frame,shoulderJC,wand,elbowJC):
                         [L_wrist y axis, x,y,z position],
                         [L_wrist z axis, x,y,z position]]]]
     
-    Example
+    Examples
     -------
     >>> import numpy as np 
     >>> from .pyCGM import wristJointCenter
@@ -1944,7 +1863,7 @@ def handJointCenter(frame,elbowJC,wristJC,vsk=None):
                         [L_hand y axis, x,y,z position],
                         [L_hand z axis, x,y,z position]]]]
     
-    Example
+    Examples
     -------
     >>> import numpy as np 
     >>> from .pyCGM import handJointCenter
@@ -2081,7 +2000,7 @@ def findJointC(a, b, c, delta):
         Joint C x,y,z position
             return = [joint C x position, joint C y position, joint C z position]
 
-    Example
+    Examples
     -------
     >>> import numpy as np 
     >>> from .pyCGM import findJointC
@@ -2149,7 +2068,7 @@ def cross(a, b):
     c : list
         The cross product of vector a and vector b.
 
-    Example
+    Examples
     -------
     >>> import numpy as np
     >>> from .pyCGM import cross
@@ -2184,7 +2103,7 @@ def getPelangle(axisP,axisD):
         These angles are shown in degrees.
             angle = [gamma, beta, alpha]
     
-    Example
+    Examples
     -------
     >>> import numpy as np 
     >>> from .pyCGM import getPelangle
@@ -2236,7 +2155,7 @@ def getHeadangle(axisP,axisD):
         These angles are shown in degrees.
             angle = [gamma, beta, alpha]
     
-    Example
+    Examples
     -------
     >>> import numpy as np 
     >>> from .pyCGM import getHeadangle
@@ -2318,7 +2237,7 @@ def getangle_sho(axisP,axisD):
         These angles are shown in degrees.
             angle = [gamma, beta, alpha]
     
-    Example
+    Examples
     -------
     >>> import numpy as np 
     >>> from .pyCGM import getangle_sho
@@ -2365,7 +2284,7 @@ def getangle_spi(axisP,axisD):
         These angles are shown in degrees.
             angle = [gamma, beta, alpha]
     
-    Example
+    Examples
     -------
     >>> import numpy as np 
     >>> from .pyCGM import getangle_spi
@@ -2410,7 +2329,7 @@ def getangle(axisP,axisD):
         These angles are shown in degrees.
             angle = [gamma, beta, alpha]
     
-    Example
+    Examples
     -------
     >>> import numpy as np 
     >>> from .pyCGM import getangle
@@ -2465,7 +2384,7 @@ def norm2d(v):
     float 
         The normalization of the vector as a float.
 
-    Example
+    Examples
     -------
     >>> import numpy as np 
     >>> from .pyCGM import norm2d
@@ -2493,7 +2412,7 @@ def norm3d(v):
     list 
         The normalization of the vector returned as a float in an array.
 
-    Example
+    Examples
     -------
     >>> from .pyCGM import norm3d
     >>> v = [125.44928201, 143.94301493, 213.49204956]
@@ -2520,7 +2439,7 @@ def normDiv(v):
     array 
         The divison normalization of the vector returned as a float in an array.
 
-    Example
+    Examples
     -------
     >>> import numpy as np 
     >>> from .pyCGM import normDiv       
@@ -2558,7 +2477,7 @@ def matrixmult (A, B):
     C : list 
         The product of the matrix multiplication.
 
-    Example
+    Examples
     -------
     >>> from .pyCGM import matrixmult
     >>> A = [[11,12,13],[14,15,16]]
@@ -2591,7 +2510,7 @@ def rotmat(x=0,y=0,z=0):
     Rxyz : list 
         The product of the matrix multiplication.
 
-    Example
+    Examples
     -------
     >>> import numpy as np
     >>> from .pyCGM import rotmat
@@ -2681,7 +2600,7 @@ def JointAngleCalc(frame,vsk):
         Returns r, the result of all the joint calculations, 
         and jc, a dictionary for joint centers.
     
-    Example
+    Examples
     -------
     >>> import numpy as np
     >>> from .pyCGM import JointAngleCalc
