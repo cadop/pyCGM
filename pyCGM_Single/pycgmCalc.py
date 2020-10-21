@@ -49,8 +49,7 @@ def calcKinetics(data, Bodymass):
 
     See Also
     --------
-    pycgmKinetics.getKinetics : equivalent function; see for details.
-
+    pyCGM_Single.pycgmKinetics.getKinetics : equivalent function; see for details.
     """
     r = getKinetics(data, Bodymass)
     return r
@@ -100,17 +99,17 @@ def calcAngles(data,**kargs):
     Returns
     -------
     r, jcs : array_like
-        'r' is a list of joint angle values for each frame.
-        'jcs' is a list of dictionaries, each of which holds joint 
+        `r` is a list of joint angle values for each frame.
+        `jcs` is a list of dictionaries, each of which holds joint 
         center locations for each frame. Returned only if returnjoints
         is True.
 
     Raises
     ------
     Exception
-        If `start` is given and is negative
-        If `start` is larger than `end`
-        If `end` is larger than the length of `data`
+        If `start` is given and is negative.
+        If `start` is larger than `end`.
+        If `end` is larger than the length of `data`.
     
     Examples
     --------
@@ -131,10 +130,10 @@ def calcAngles(data,**kargs):
     >>> vsk = getStatic(data,vskData,flat_foot=False)
     
     Example of default behavior.
+
     >>> result = calcAngles(data, vsk=vsk)
     >>> around(result[0], 8) #Array of joint angles
     array([[[ -0.45646046,  -5.76277607,   4.80620732],...]]])
-
     >>> around(result[1], 8) #Array of axis values
     array([[[[ 246.152565  ,  353.26243591, 1031.71362305],
              [ 246.23714526,  354.25388362, 1031.61423686],
@@ -142,6 +141,7 @@ def calcAngles(data,**kargs):
              [ 246.14463861,  353.36284583, 1032.70853763]],...]]]])
 
     Example of returning as a tuple.
+
     >>> kinematics, joint_centers = calcAngles(data, start=None, end=None, vsk=vsk, splitAnglesAxis=False, formatData=False,returnjoints=True)
     >>> around(kinematics[0][0], 8)
     -0.45646046
@@ -149,10 +149,10 @@ def calcAngles(data,**kargs):
     array([ 246.152565 , 353.26243591, 1031.71362305])
     
     Example without returning joints.
+
     >>> kinematics = calcAngles(data, vsk=vsk, splitAnglesAxis=False, formatData=False,returnjoints=False)
     >>> around(kinematics[0][0], 8)
     -0.45646046
-
     """
 
     start=0
@@ -249,16 +249,16 @@ def Calc(start,end,data,vsk):
         List of xyz coordinates of marker positions in a frame. Each 
         coordinate is a dict where the key is the marker name and the 
         value is a 3 element array of its xyz coordinate. Can also pass
-        as an array of [labels, data], where labels is a list of
+        as an array of `[labels, data]`, where labels is a list of
         marker names and data is list of corresponding xyz coordinates. 
     vsk : dict or array
         Dictionary containing subject measurement values, or array of 
-        labels and data [labels, data]. 
+        labels and data `[labels, data]`. 
 
     Returns
     -------
     angles, jcs : tuple
-        `angles` is an array of the joint angle values. 'jcs' is an array
+        `angles` is an array of the joint angle values. `jcs` is an array
         of joint center locations. Indices correspond to frames in the 
         trial.
 
@@ -286,7 +286,6 @@ def Calc(start,end,data,vsk):
     >>> start = 0
     >>> end = 3
     >>> angles, jcs = Calc(start, end, data, vsk)
-
     >>> around(angles[0][0], 8) #Frame 0
     -0.45646046
     >>> around(angles[1][0], 8) #Frame 1
@@ -298,7 +297,6 @@ def Calc(start,end,data,vsk):
     array([ 246.152565 , 353.26243591, 1031.71362305])
     >>> around(jcs[1]['Pelvis'], 8) #doctest: +NORMALIZE_WHITESPACE
     array([ 246.16200256, 353.27105713, 1031.71856689])
-    
     """
     d=data[start:end]
     angles,jcs=calcFrames(d,vsk)
@@ -314,8 +312,8 @@ def calcFrames(data,vsk):
         List of xyz coordinates of marker positions in a frame. Each 
         coordinate is a dict where the key is the marker name and the 
         value is a 3 element array of its xyz coordinate. Can also pass
-        as a 2 element array of [labels, data], where labels is a list of
-        marker names and data is list of corresponding xyz coordinates. 
+        as a 2 element array of `[labels, data]`, where `labels` is a list of
+        marker names and `data` is list of corresponding xyz coordinates. 
     vsk : dict or array
         Dictionary containing subject measurement values, or array of labels 
         and data `[labels, data]`. 
@@ -323,7 +321,7 @@ def calcFrames(data,vsk):
     Returns
     -------
     angles, joints : tuple
-        `angles` is an array of the joint angle values. 'joints' is an array
+        `angles` is an array of the joint angle values. `joints` is an array
         of joint center locations. Indices correspond to frames in the 
         trial.
     
@@ -344,13 +342,11 @@ def calcFrames(data,vsk):
     >>> data = result[0]
     >>> vskData = loadVSK(vskFile, False)
     >>> vsk = getStatic(data,vskData,flat_foot=False)
-
     >>> angles, joints = calcFrames(data, vsk)
     >>> around(angles[0][0], 8)
     -0.45646046
     >>> around(joints[0]['Pelvis'], 8) #doctest: +NORMALIZE_WHITESPACE
     array([ 246.152565 , 353.26243591, 1031.71362305])
-
     """
     angles=[]
     joints=[] #added this here for normal data
