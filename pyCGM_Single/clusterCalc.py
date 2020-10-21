@@ -196,6 +196,22 @@ def getStaticTransform(p,C):
     return Pm
 
 def targetName():
+    """Creates an empty list of marker names.
+
+    Returns
+    -------
+    target_names : array
+        Empty list of marker names.
+
+    Examples
+    --------
+    >>> targetName() #doctest: +NORMALIZE_WHITESPACE
+    ['C7', 'T10', 'CLAV', 'STRN', 'RBAK', 'LPSI', 'RPSI', 
+     'RASI', 'LASI', 'SACR', 'LKNE', 'LKNE', 'RKNE', 'RKNE', 
+     'LANK', 'RANK', 'LHEE', 'RHEE', 'LTOE', 'RTOE', 'LTHI', 
+     'RTHI', 'LTIB', 'RTIB', 'RBHD', 'RFHD', 'LBHD', 'LFHD', 
+     'RELB', 'LELB']
+    """
     target_names =('C7,T10,CLAV,STRN,RBAK,LPSI,RPSI,RASI,LASI,SACR,'
                     'LKNE,LKNE,RKNE,RKNE,LANK,RANK,LHEE,RHEE,LTOE,RTOE,'
                     'LTHI,RTHI,LTIB,RTIB,'
@@ -205,6 +221,26 @@ def targetName():
     return target_names.split(',')
 
 def target_dict():
+    """Creates a dictionary of marker to segment.
+
+    Returns
+    -------
+    targetDict : dict
+        Dict of marker to segment.
+
+    Examples
+    --------
+    >>> result = target_dict()
+    >>> expected = {'LFHD': 'Head', 'LBHD': 'Head', 'RFHD': 'Head', 'RBHD': 'Head', 
+    ...             'C7': 'Trunk', 'T10': 'Trunk', 'CLAV': 'Trunk', 'STRN': 'Trunk', 
+    ...             'RBAK': 'Trunk', 'LPSI': 'Pelvis', 'RPSI': 'Pelvis', 'RASI': 'Pelvis', 
+    ...             'LASI': 'Pelvis', 'SACR': 'Pelvis', 'LKNE': 'LThigh', 'RKNE': 'RThigh', 
+    ...             'LANK': 'LShin', 'RANK': 'RShin', 'LHEE': 'LFoot', 'LTOE': 'LFoot', 
+    ...             'RHEE': 'RFoot', 'RTOE': 'RFoot', 'LTHI': 'LThigh', 'RTHI': 'RThigh', 
+    ...             'LTIB': 'LShin', 'RTIB': 'RShin', 'RELB': 'RHum', 'LELB': 'LHum'}
+    >>> result == expected
+    True
+    """
     targetDict = {}
     targetDict['LFHD'] = 'Head'
     targetDict['LBHD'] = 'Head'
@@ -238,6 +274,30 @@ def target_dict():
     return targetDict
 
 def segment_dict():
+    """Creates a dictionary of segments to marker names.
+
+    Returns
+    -------
+    segmentDict : dict
+        Dictionary of segments to marker names.
+
+    Examples
+    --------
+    >>> result = segment_dict()
+    >>> expected = {'Head': ['RFHD', 'RBHD', 'LFHD', 'LBHD', 'REAR', 'LEAR'],  
+    ...             'Trunk': ['C7', 'STRN', 'CLAV', 'T10', 'RBAK', 'RSHO', 'LSHO'], 
+    ...             'Pelvis': ['SACR', 'RPSI', 'LPSI', 'LASI', 'RASI'], 
+    ...             'RThigh': ['RTHI', 'RTH2', 'RTH3', 'RTH4'], 
+    ...             'LThigh': ['LTHI', 'LTH2', 'LTH3', 'LTH4'], 
+    ...             'RShin': ['RTIB', 'RSH2', 'RSH3', 'RSH4'], 
+    ...             'LShin': ['LTIB', 'LSH2', 'LSH3', 'LSH4'], 
+    ...             'RFoot': ['RLFT1', 'RFT2', 'RMFT3', 'RLUP'], 
+    ...             'LFoot': ['LLFT1', 'LFT2', 'LMFT3', 'LLUP'], 
+    ...             'RHum': ['RMELB', 'RSHO', 'RUPA'], 
+    ...             'LHum': ['LMELB', 'LSHO', 'LUPA']}
+    >>> result == expected
+    True
+    """
     segmentDict = {}
     segmentDict['Head'] = ['RFHD','RBHD','LFHD','LBHD','REAR','LEAR'] 
     segmentDict['Trunk'] = ['C7','STRN','CLAV','T10','RBAK','RSHO','LSHO']
