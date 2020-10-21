@@ -32,9 +32,10 @@ import os
 # Temporary try/except to deal with relative import issue
 # This file should eventually be rewritten anyway
 try:
-    import pycgmStatic
-    import pycgmIO
-    import pycgmCalc
+
+    import pyCGM_Single.pycgmStatic as pycgmStatic
+    import pyCGM_Single.pycgmIO as pycgmIO
+    import pyCGM_Single.pycgmCalc as pycgmCalc
 except:
     pass
 
@@ -43,11 +44,11 @@ def getfilenames():
     os.chdir( scriptdir )
     os.chdir( ".." ) #relative to github
     os.chdir( "./SampleData/59993_Frame/" ) #Directory from github
-    dir = os.getcwd()
-    dynamic_trial = dir+'\\'+'59993_Frame_Dynamic.c3d' 
-    static_trial = dir+'\\'+'59993_Frame_Static.c3d' 
-    vsk_file = dir+'\\'+'59993_Frame_SM.vsk'     
-    outputfile = dir+'\\'+'pycgm_results.csv'
+    dir = os.getcwd() + os.sep
+    dynamic_trial = dir+'59993_Frame_Dynamic.c3d' 
+    static_trial = dir+'59993_Frame_Static.c3d' 
+    vsk_file = dir+'59993_Frame_SM.vsk'     
+    outputfile = dir+'pycgm_results.csv'
     os.chdir( scriptdir )
     
     return dynamic_trial,static_trial,vsk_file,outputfile
