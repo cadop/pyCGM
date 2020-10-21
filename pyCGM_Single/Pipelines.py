@@ -15,28 +15,25 @@ else:
     print("Using python 3")
 
 def butterFilter(data, cutoff, Fs):
-    '''
+    """Applies a fourth order Butterworth filter.
+
     Fourth order Butterworth filter to be used in filt() and filter_mask_nans() 
     functions, which are in Utilities. Filter is applied forward and backwards 
     with the filtfilt() function -- see Notes for more details.
     
     Parameters
     ----------
-    data: 1darray 
+    data : 1darray or list
         Data to be filtered.
-        
-    cutoff: int
+    cutoff : int
         Desired cutoff frequency.
-        
-    Fs: int
+    Fs : int
         Sampling frequency signal was acquired at.
-    
     
     Returns
     -------
-    Out: 1darray
-        Filtered signal. 
-    
+    1darray
+        1D numpy array of the signal after applying the filter. 
     
     Notes
     -----
@@ -50,7 +47,21 @@ def butterFilter(data, cutoff, Fs):
     correction factor to the cuttoff frequency to compensate. Correction
     factor C = square root of 2 to the power of 1/n - 1, where n is equal to
     the number of passes. 
-    '''
+
+    Examples
+    --------
+    >>> data = [-1003.58361816, -1003.50396729, -1003.42358398, -1003.3425293,
+    ...         -1003.26068115, -1003.17810059, -1003.09484863, -1003.01080322,
+    ...         -1002.92608643, -1002.84063721, -1002.75445557, -1002.6675415,
+    ...         -1002.57995605, -1002.49157715, -1002.40252686, -1002.31274414]
+    >>> cutoff = 20
+    >>> Fs = 120
+    >>> butterFilter(data, cutoff, Fs)
+    array([-1003.58359202, -1003.50390817, -1003.42363665, -1003.34252947,
+           -1003.26066539, -1003.17811173, -1003.09483484, -1003.01081474,
+           -1002.92608178, -1002.8406421 , -1002.7544567 , -1002.66753023,
+           -1002.57993488, -1002.49164743, -1002.40251014, -1002.31267097])
+    """
     
     #calculate correction factor for number of passes
     C = (2**0.25-1)**0.25
@@ -62,34 +73,69 @@ def butterFilter(data, cutoff, Fs):
 
 
 def filt(data, cutoff, Fs): 
-    '''
+    """Applies a Butterworth filter.
+
     Filt applies standard Butterworth filter to signals.
-    Useful when filtering (x,y,z) timeseries 
+    Useful when filtering (x,y,z) timeseries.
     
     Parameters
     ----------
-    data: ndarray 
-        Signals to be filtered.
-        
-    cutoff: int
+    data : ndarray 
+        Numpy array of signals to be filtered.
+    cutoff : int
         Desired cutoff frequency.
-        
-    Fs: int
-        Sampling frequency at which signal was acquired. 
-        
-    axis: int
-        Axis of array to filter (e.g. axis = 0 will filter each column).
-        
+    Fs : int
+        Sampling frequency at which signal was acquired.       
     
     Returns
     -------
-    Out: ndarray
+    filtered : ndarray
         Filtered data.
-        
-    Todo
-    ----
-    Add axis option 
-    '''
+
+    To Do
+    -----
+    Add option to take in axis of the array to filter. E.g. axis = 0
+    will filter each column.
+
+    Examples
+    --------
+    >>> from numpy import array
+    >>> data = array([[-1003.58361816, 81.00761414, 1522.23693848],
+    ...               [-1003.50396729, 81.02921295, 1522.18493652],
+    ...               [-1003.42358398, 81.05059814, 1522.13598633],
+    ...               [-1003.3425293,  81.07178497, 1522.09020996],
+    ...               [-1003.26068115, 81.09275818, 1522.04760742],
+    ...               [-1003.17810059, 81.11352539, 1522.00805664],
+    ...               [-1003.09484863, 81.13407898, 1521.97167969],
+    ...               [-1003.01080322, 81.1544342,  1521.93835449],
+    ...               [-1002.92608643, 81.17457581, 1521.90820312],
+    ...               [-1002.84063721, 81.19451141, 1521.88122559],
+    ...               [-1002.75445557, 81.21424103, 1521.8572998 ],
+    ...               [-1002.6675415,  81.23376465, 1521.83654785],
+    ...               [-1002.57995605, 81.25308228, 1521.81884766],
+    ...               [-1002.49157715, 81.27219391, 1521.80419922],
+    ...               [-1002.40252686, 81.29109955, 1521.79284668],
+    ...               [-1002.31274414, 81.30980682, 1521.78442383]])
+    >>> cutoff = 20
+    >>> Fs = 120
+    >>> filt(data, cutoff, Fs) #doctest: +NORMALIZE_WHITESPACE
+    array([[-1003.58359202, 81.00761957, 1522.2369362 ],
+           [-1003.50390817, 81.02919582, 1522.18514327],
+           [-1003.42363665, 81.05060565, 1522.135889  ],
+           [-1003.34252947, 81.07178881, 1522.0901444 ],
+           [-1003.26066539, 81.09275628, 1522.04763945],
+           [-1003.17811173, 81.11352192, 1522.00810375],
+           [-1003.09483484, 81.13408185, 1521.97164458],
+           [-1003.01081474, 81.15443324, 1521.93835939],
+           [-1002.92608178, 81.17457741, 1521.90820438],
+           [-1002.8406421 , 81.19451144, 1521.88119076],
+           [-1002.7544567 , 81.21423685, 1521.85735721],
+           [-1002.66753023, 81.23376495, 1521.83657557],
+           [-1002.57993488, 81.25309204, 1521.81874533],
+           [-1002.49164743, 81.27219203, 1521.80416229],
+           [-1002.40251014, 81.29107514, 1521.79304586],
+           [-1002.31267097, 81.30982637, 1521.78437862]])
+    """
     #empty array to populate
     filtered = np.empty([len(data), np.shape(data)[1]])
     
@@ -140,6 +186,51 @@ def filtering(Data):
     
     
 def transform_from_static(data,static,key,useables,s):
+    """Use static data for gap filling.
+
+    Uses data from static and clusters to fill estimate
+    missing marker values. Only used for markers missing 
+    from frames in the start of the trial.
+
+    Parameters
+    ----------
+    data : array
+        Array of dictionaries of marker data.
+    static : array
+        Array of static marker data.
+    key : str
+        String representing the missing marker.
+    useables : array
+        Array of other markers in the same cluster as the missing marker.
+    s : int
+        Frame number that the marker data is missing for.
+
+    Returns
+    -------
+    array
+        Location of the missing marker in the world frame. List of 
+        3 elements.
+
+    Examples
+    --------
+    >>> from .pyCGM_Helpers import getfilenames
+    >>> from .Pipelines import clearMarker
+    >>> from numpy import around
+    >>> from .pycgmIO import loadData, dataAsDict
+    >>> dynamic_trial,static_trial,_,_,_ = getfilenames(x=3)
+    >>> motionData = loadData(dynamic_trial)
+    SampleData/Sample_2/RoboWalk.c3d
+    >>> motionData = clearMarker(motionData, 'LFHD') #clear LFHD to test gap filling
+    >>> staticData = loadData(static_trial)
+    SampleData/Sample_2/RoboStatic.c3d
+    >>> data = dataAsDict(motionData,npArray=True)
+    >>> static = dataAsDict(staticData,npArray=True)
+    >>> key = 'LFHD'
+    >>> useables = ['RFHD', 'RBHD', 'LBHD'] #Other markers in the cluster
+    >>> s = 1
+    >>> around(transform_from_static(data,static,key,useables,s), 8) #doctest: +NORMALIZE_WHITESPACE
+    array([-1007.73577975, 71.30567599, 1522.60563455])
+    """
     p = np.mean(static[key],axis=0)
     C = np.mean(static[useables[0]],axis=0),np.mean(static[useables[1]],axis=0),np.mean(static[useables[2]],axis=0)
     
@@ -155,6 +246,47 @@ def transform_from_static(data,static,key,useables,s):
 
 
 def transform_from_mov(data,key,clust,last_time,i):
+    """Use motion data for gap filling.
+
+    Uses previous positions of markers to estimate locations
+    of missing markers.
+
+    Parameters
+    ----------
+    data : array
+        Array of dictionaries of marker data.
+    key : str
+        String representing the missing marker.
+    clust : array
+        Array of other markers in the same cluster as the missing marker.
+    last_time : int
+        Frame number of the last frame that the marker is not missing.
+    i : int
+        Frame number that the marker data is missing for.
+
+    Returns
+    -------
+    array
+        Location of the missing marker in the world frame. List of 
+        3 elements.
+
+    Examples
+    --------
+    >>> from .pyCGM_Helpers import getfilenames
+    >>> from numpy import array, nan, around
+    >>> from .pycgmIO import loadData, dataAsDict
+    >>> dynamic_trial,static_trial,_,_,_ = getfilenames(x=3)
+    >>> motionData = loadData(dynamic_trial)
+    SampleData/Sample_2/RoboWalk.c3d
+    >>> motionData[2]['LFHD'] = array([nan, nan, nan]) #clear one frame to test gap filling
+    >>> data = dataAsDict(motionData,npArray=True)
+    >>> key = 'LFHD'
+    >>> clust = ['RFHD', 'RBHD', 'LBHD'] #Other markers in the cluster
+    >>> last_time = 1
+    >>> i = 2
+    >>> around(transform_from_mov(data,key,clust,last_time,i), 8) #doctest: +NORMALIZE_WHITESPACE
+    array([-1003.42302695, 81.04948743, 1522.13413529])
+    """
     p = data[key][last_time]
     C = data[clust[0]][last_time],data[clust[1]][last_time],data[clust[2]][last_time] 
     Pm = getStaticTransform(p,C)
@@ -164,6 +296,48 @@ def transform_from_mov(data,key,clust,last_time,i):
 
 
 def segmentFinder(key,data,targetDict,segmentDict,j,missings):
+    """Find markers in the same cluster as `key`.
+
+    Parameters
+    ----------
+    key : str
+        String representing the missing marker.
+    data : array
+        Array of dictionaries of marker data.
+    targetDict : dict
+        Dict of marker to segment.
+    segmentDict : dict
+        Dictionary of segments to marker names.
+    j : int
+        Frame number that the marker data is missing for.
+    missings : dict
+        Dicionary of marker to list representing which other frames
+        the marker is missing for.
+    
+    Returns
+    -------
+    useables : array
+        List of marker names in the same cluster as the marker `key`.
+
+    Examples
+    --------
+    >>> from .pyCGM_Helpers import getfilenames
+    >>> from numpy import array, nan
+    >>> from .pycgmIO import loadData, dataAsDict
+    >>> from .clusterCalc import target_dict, segment_dict
+    >>> dynamic_trial,static_trial,_,_,_ = getfilenames(x=3)
+    >>> motionData = loadData(dynamic_trial)
+    SampleData/Sample_2/RoboWalk.c3d
+    >>> motionData[2]['LFHD'] = array([nan, nan, nan]) #clear one frame to test gap filling
+    >>> data = dataAsDict(motionData)
+    >>> key = 'LFHD'
+    >>> targetDict = target_dict()
+    >>> segmentDict = segment_dict()
+    >>> j = 2
+    >>> missings = {'LFHD': []} #Indicates that LFHD is not missing for any other frame
+    >>> segmentFinder(key, data, targetDict, segmentDict, j, missings)
+    ['RFHD', 'RBHD', 'LBHD']
+    """
     segment = targetDict[key]
     useables=[]
     for mrker in segmentDict[segment]:
@@ -182,6 +356,49 @@ def segmentFinder(key,data,targetDict,segmentDict,j,missings):
                         
 
 def rigid_fill(Data,static):
+    """Fills gaps in motion capture data.
+
+    Estimates marker positions from previous marker positions
+    or static data to fill in gaps in `Data`.
+
+    Parameters
+    ----------
+    Data : array
+        Array of dictionaries of marker data.
+    static : dict
+        Dictionary of marker data corresponding to a static trial.
+
+    Returns
+    -------
+    data : array
+        Array of dictionaries of marker data after gap filling is done.
+
+    Examples
+    --------
+    >>> from .pyCGM_Helpers import getfilenames
+    >>> from .pyCGM import pelvisJointCenter
+    >>> from numpy import array, nan, around
+    >>> from .pycgmIO import loadData, dataAsDict
+    >>> dynamic_trial,static_trial,_,_,_ = getfilenames(x=3)
+    >>> motionData = loadData(dynamic_trial)
+    SampleData/Sample_2/RoboWalk.c3d
+    >>> staticData = loadData(static_trial)
+    SampleData/Sample_2/RoboStatic.c3d
+
+    Sacrum must be calculated for this file using ``pyCGM.pelvisJointCenter``.
+
+    >>> for frame in motionData:
+    ...     frame['SACR'] = pelvisJointCenter(frame)[2]
+
+    Testing gap filling.
+
+    >>> Data = dataAsDict(motionData,npArray=True)
+    >>> Data['LFHD'][2] = array([nan, nan, nan]) #clear one frame to test gap filling
+    >>> static = dataAsDict(staticData,npArray=True)
+    >>> data = rigid_fill(Data, static)
+    >>> around(data['LFHD'][2], 8) #doctest: +NORMALIZE_WHITESPACE
+    array([-1003.42302695, 81.04948743, 1522.13413529])
+    """
     data = Data.copy()
     missingMarkerName=targetName()
     targetDict = target_dict()
