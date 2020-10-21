@@ -32,12 +32,13 @@ import os
 # Temporary try/except to deal with relative import issue
 # This file should eventually be rewritten anyway
 try:
-
+    import pycgmStatic
+    import pycgmIO
+    import pycgmCalc
+except:
     import pyCGM_Single.pycgmStatic as pycgmStatic
     import pyCGM_Single.pycgmIO as pycgmIO
     import pyCGM_Single.pycgmCalc as pycgmCalc
-except:
-    pass
 
 def getfilenames():
     scriptdir = os.path.dirname(os.path.abspath(__file__))
