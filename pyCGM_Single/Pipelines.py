@@ -102,8 +102,29 @@ def filt(data, cutoff, Fs):
 
 
 def prep(trajs):
+    """Prepare frames function
+
+    Parameters
+    ----------
+    trajs : dict
+        A dictionary containing arrays.
+
+    Returns
+    -------
+    frames : list
+        Returns a list with multiple dictionaries. 
+
+    Examples
+    --------
+    >>> import numpy as np
+    >>> from .Pipelines import prep
+    >>> trajs = {'trajOne': np.array([[217.19961548, -82.35484314, 332.2684021 ],
+    ...                               [257.19961548, -32.35484314, 382.2684021 ]])}
+    >>> prep(trajs) #doctest: +NORMALIZE_WHITESPACE
+    [{'trajOne': array([217.19961548, -82.35484314, 332.2684021 ])}, 
+    {'trajOne': array([257.19961548, -32.35484314, 382.2684021 ])}]
+    """
     frames=[]
-    
     if pyver == 2:
         for i in range(len(trajs[trajs.keys()[0]])):
             temp={}
@@ -121,11 +142,73 @@ def prep(trajs):
     return frames
 
 def clearMarker(data,name):
+    """Clear Markers function
+
+    Clears the markers in a given dictionary for a given name.
+
+    Parameters
+    ----------
+    data : dict 
+        Dictionaries of marker lists.
+            { [], [], [], ...}
+    name : str
+        Name for the specific marker to be cleared in data.
+    
+    Returns
+    -------
+    data : dict
+        Returns the original data dictionary with the cleared marker.
+    
+    Examples
+    --------
+    >>> import numpy as np 
+    >>> from .Pipelines import clearMarker
+    >>> data = [{'LTIL': np.array([-268.1545105 ,  327.53512573,   30.17036057]), 
+    ... 'RFOP': np.array([ -38.4509964 , -148.6839447 ,   59.21961594])},
+    ... {'LTIL': np.array([-273.1545105 ,  324.53512573,   36.17036057]),
+    ... 'RFOP': np.array([ -38.4509964 , -148.6839447 ,   59.21961594])}]
+    >>> name = 'LTIL'
+    >>> clearMarker(data, name) #doctest: +NORMALIZE_WHITESPACE
+    [{'LTIL': array([nan, nan, nan]), 
+    'RFOP': array([ -38.4509964 , -148.6839447 ,   59.21961594])}, 
+    {'LTIL': array([nan, nan, nan]), 
+    'RFOP': array([ -38.4509964 , -148.6839447 ,   59.21961594])}]
+    """
     for i in range(len(data)):
         data[i][name] = np.array([np.nan,np.nan,np.nan])
     return data
     
 def filtering(Data):
+    """Filter function
+
+    Parameters
+    ----------
+    Data : dict 
+        Dictionaries of marker lists.
+            { [], [], [], ...}
+    
+    Returns
+    -------
+    data : dict
+    
+    Examples
+    --------
+    >>> import numpy as np 
+    >>> from .Pipelines import filtering
+    >>> from .pyCGM_Helpers import getfilenames
+    >>> from .pycgmIO import loadData, dataAsDict
+    >>> motionData = loadData(getfilenames(x=2)[0])
+    SampleData/ROM/Sample_Dynamic.c3d
+    >>> motionDataDict = dataAsDict(motionData,npArray=True)
+    >>> filtering(motionDataDict)['HEDO'] #doctest: +NORMALIZE_WHITESPACE
+    array([[ 250.34095219,  207.52056544, 1612.1177957 ],
+           [ 250.3693486 ,  207.63396643, 1612.14030924],
+           [ 250.39784291,  207.74607438, 1612.16076916],
+           ...,
+           [ 278.45835242,  292.56967662, 1612.41087668],
+           [ 278.06911338,  293.22769152, 1612.49060244],
+           [ 277.6663783 ,  293.88056206, 1612.55739277]])
+    """
     data = Data.copy()
     
     if pyver == 2:
