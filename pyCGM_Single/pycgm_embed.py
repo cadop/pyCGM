@@ -36,18 +36,20 @@ try:
     import pycgmIO
     import pycgmCalc
 except:
-    pass
+    import pyCGM_Single.pycgmStatic as pycgmStatic
+    import pyCGM_Single.pycgmIO as pycgmIO
+    import pyCGM_Single.pycgmCalc as pycgmCalc
 
 def getfilenames():
     scriptdir = os.path.dirname(os.path.abspath(__file__))
     os.chdir( scriptdir )
     os.chdir( ".." ) #relative to github
     os.chdir( "./SampleData/59993_Frame/" ) #Directory from github
-    dir = os.getcwd()
-    dynamic_trial = dir+'\\'+'59993_Frame_Dynamic.c3d' 
-    static_trial = dir+'\\'+'59993_Frame_Static.c3d' 
-    vsk_file = dir+'\\'+'59993_Frame_SM.vsk'     
-    outputfile = dir+'\\'+'pycgm_results.csv'
+    dir = os.getcwd() + os.sep
+    dynamic_trial = dir+'59993_Frame_Dynamic.c3d' 
+    static_trial = dir+'59993_Frame_Static.c3d' 
+    vsk_file = dir+'59993_Frame_SM.vsk'     
+    outputfile = dir+'pycgm_results.csv'
     os.chdir( scriptdir )
     
     return dynamic_trial,static_trial,vsk_file,outputfile
