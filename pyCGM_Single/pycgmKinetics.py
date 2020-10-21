@@ -120,33 +120,30 @@ def findL5_Thorax(frame):
     return L5
    
 def getKinetics(data, Bodymass):
-    '''
+    """Estimate center of mass values in the global coordinate system.
+
     Estimates whole body CoM in global coordinate system using PiG scaling 
     factors for determining individual segment CoM. 
     
-    
     Parameters
     -----------
-    data: list of dicts
-        Joint centres in the global coordinate system. List indices correspond 
+    data : array
+        Array of joint centres in the global coordinate system. List indices correspond 
         to each frame of trial. Dict keys correspond to name of each joint centre,
         dict values are arrays ([],[],[]) of x,y,z coordinates for each joint 
-        centre
-    
-    Bodymass: float
+        centre.
+    Bodymass : float
         Total bodymass (kg) of subject
     
-    
+    Returns
+    -------
+    CoM_coords : 3D numpy array
+        CoM trajectory in the global coordinate system. 
+
     Notes
     -----
     The PiG scaling factors are taken from Dempster -- they are available at:
     http://www.c-motion.com/download/IORGaitFiles/pigmanualver1.pdf
-    
-    
-    Returns
-    -------
-    CoM: 3D numpy array
-        CoM trajectory in the global coordinate system 
     
         
     Todo 
@@ -157,7 +154,26 @@ def getKinetics(data, Bodymass):
     
     Figure out weird offset 
     
-    '''
+    Examples
+    --------
+    >>> from .pyCGM_Helpers import getfilenames
+    >>> from .pycgmIO import loadData, loadVSK
+    >>> from .pycgmStatic import getStatic
+    >>> from .pycgmCalc import calcAngles
+    >>> from numpy import around
+    >>> dynamic_trial,static_trial,vsk_file,_,_ = getfilenames(x=3)
+    >>> motionData  = loadData(dynamic_trial)
+    SampleData/Sample_2/RoboWalk.c3d
+    >>> staticData = loadData(static_trial)
+    SampleData/Sample_2/RoboStatic.c3d
+    >>> vsk = loadVSK(vsk_file,dict=False)
+    >>> calSM = getStatic(staticData,vsk,flat_foot=False)
+    >>> _,joint_centers=calcAngles(motionData,start=None,end=None,vsk=calSM,
+    ...                            splitAnglesAxis=False,formatData=False,returnjoints=True)
+    >>> CoM_coords = getKinetics(joint_centers, calSM['Bodymass'])
+    >>> around(CoM_coords[0], 8) #doctest: +NORMALIZE_WHITESPACE
+    array([-942.7636386 , -3.58139618, 865.32990601])
+    """
     
     #get PiG scaling table
     #PiG_xls =  pd.read_excel(os.path.dirname(os.path.abspath(__file__)) +
