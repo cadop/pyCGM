@@ -501,7 +501,7 @@ def ankleJointCenter(frame,knee_JC,delta,vsk=None):
 
     Returns
     -------
-    array
+    R, L, axis : array
         Returns an array that contains the ankle axis origin in a 1x3 array of xyz values, 
         which is then followed by a 3x2x3 array composed of the ankle origin, x, y, and z 
         axis components. The xyz axis components are 2x3 arrays consisting of the origin 
@@ -703,7 +703,7 @@ def footJointCenter(frame,vsk,ankle_JC,knee_JC,delta):
         
     Returns
     -------
-    array
+    R, L, foot_axis : array
         Returns an array that contains the foot axis center in a 1x3 array of xyz values, 
         which is then followed by a 2x3x3 array composed of the foot axis center x, y, and z 
         axis components. The xyz axis components are 2x3 arrays consisting of the axis center 
@@ -953,9 +953,10 @@ def headJC(frame,vsk=None):
     
     Returns
     -------
-    array
+    head_axis, origin : array
         Returns an array containing a 1x3x3 array containing the x, y, z axis 
-        components of the head joint center, and a 1x3 array containing the head origin x,y,z position.
+        components of the head joint center, and a 1x3 array containing the 
+        head origin x, y, z position.
         
     
     Examples
@@ -1049,7 +1050,7 @@ def thoraxJC(frame):
     
     Returns
     -------
-    array
+    thorax_axis, origin : array
         Returns an array which contains a 2x3 array representing the right thorax joint center (1x3)
         and the left thorax joint center (1x3), which is then followed by a 6x3 array representing the
         right thorax x, y, z axis components (3x3) followed by the the left thorax x, y, z axis components (3x3).
@@ -1299,7 +1300,7 @@ def shoulderAxisCalc(frame,thorax,shoulderJC,wand):
     
     Returns
     ------- 
-    [shoulderJC,axis] : array
+    shoulderJC, axis : array
         Returns the Shoulder joint center and axis in three array
             shoulder_JC = [[[[R_shoulder x axis, x,y,z position],
                         [R_shoulder y axis, x,y,z position],
@@ -1833,7 +1834,7 @@ def handJointCenter(frame,elbowJC,wristJC,vsk=None):
     
     Returns
     ------- 
-    [origin, axis] : array
+    origin, axis : array
         Returns an array containing an array representing the right hand joint center 
         x, y, z marker positions (1x3), followed by an array containing the 
         left hand joint center x, y, z marker positions (1x3), followed by a 2x3x3 array 
@@ -1974,7 +1975,7 @@ def findJointC(a, b, c, delta):
     Returns
     -------
     mr : array
-        Joint C x,y,z position in a 1x3 array.
+        Returns the Joint C x, y, z positions in a 1x3 array.
 
     Examples
     --------

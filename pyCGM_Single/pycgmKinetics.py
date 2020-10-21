@@ -39,7 +39,6 @@ def f(p, x):
     >>> x = 10
     >>> f(p, x)
     12
-
     >>> p = np.array([5.16312215, 8.79307163])
     >>> x = 2.0
     >>> np.around(f(p, x),8)
@@ -70,7 +69,6 @@ def dot(v,w):
     >>> w = [4, 5, 6]
     >>> dot(v,w)
     32
-
     >>> v = np.array([6.56643344, 6.23972959, 2.83918231])
     >>> w = np.array([5.53732499, 7.61560881, 6.2563037])
     >>> np.around(dot(v,w),8)
@@ -100,7 +98,6 @@ def length(v):
     >>> v = [1,2,3]
     >>> np.around(length(v),8)
     3.74165739
-
     >>> v = np.array([6.56643344, 6.23972959, 2.83918231])
     >>> np.around(length(v),8)
     9.49279883
@@ -131,7 +128,6 @@ def vector(b,e):
     >>> e = [4,5,6]
     >>> vector(v, e)
     (3, 3, 3)
-
     >>> v = np.array([5.10897693, 6.18161923, 9.44221215])
     >>> e = np.array([3.68040209, 9.92542233, 5.38362424])
     >>> vector(v, e)
@@ -161,7 +157,6 @@ def unit(v):
     >>> v = [1,2,3]
     >>> np.around(unit(v),8)
     array([0.26726124, 0.53452248, 0.80178373])
-
     >>> v = np.array([6.56643344, 6.23972959, 2.83918231])
     >>> np.around(unit(v),8)
     array([0.69172786, 0.6573119 , 0.29908801])
@@ -193,7 +188,6 @@ def distance(p0,p1):
     >>> p1 = [4,5,6]
     >>> np.around(distance(p0,p1),8)
     5.19615242
-
     >>> p0 = np.array([6.56643344, 6.23972959, 2.83918231])
     >>> p1 = np.array([1.25539445, 4.44290559, 0.80470151])
     >>> np.around(distance(p0,p1),8)
@@ -224,7 +218,6 @@ def scale(v,sc):
     >>> sc = 2
     >>> scale(v, sc)
     (2, 4, 6)
-
     >>> v = np.array([0.5664332, 0.23972959, 0.83918231])
     >>> sc = 10.0
     >>> scale(v, sc)
@@ -256,7 +249,6 @@ def add(v,w):
     >>> w = [4, 5, 6]
     >>> add(v, w)
     (5, 7, 9)
-
     >>> v = np.array([3.98527165, 5.52526792, 4.34518370])
     >>> w = np.array([5.82147992, 7.87348922, 2.61204120])
     >>> add(v, w)
@@ -285,8 +277,8 @@ def pnt2line(pnt, start, end):
     -------
     dist, nearest, pnt : tuple
         Returns dist, the closest distance from the point to the line,
-        Returns nearest, the closest point on the line from the given pnt,
-        Returns pnt, the original given pnt.
+        Returns nearest, the closest point on the line from the given pnt as a 1x3 array,
+        Returns pnt, the original given pnt as a 1x3 array.
         All of these are returned in a single tuple.
 
     Examples
@@ -298,7 +290,6 @@ def pnt2line(pnt, start, end):
     >>> end = [7, 8, 9]
     >>> [np.around(arr,8) for arr in pnt2line(pnt, start, end)]
     [5.19615242, array([4., 5., 6.]), array([1, 2, 3])]
-
     >>> pnt = np.array([9.82004519, 6.7344815, 0.94587439])
     >>> start = np.array([3.89481034, 4.02115225, 4.3075406])
     >>> end = np.array([7.56622188, 3.58992166, 8.2749309])
@@ -351,7 +342,7 @@ def findL5_Pelvis(frame):
     Returns
     -------
     midHip, L5 : tuple
-        Returns the x,y,z marker positions of the midHip and L5.
+        Returns the x,y,z marker positions of the midHip (1x3 array) and L5 (1x3 array) in a tuple.
         
     Examples
     --------
@@ -395,13 +386,11 @@ def findL5_Thorax(frame):
     ----------
     frame : dict 
         Dictionaries of marker lists.
-            { [], [], [], ... }
 
     Returns
     -------
     L5 : array
-        Returns the x,y,z marker positions of the L5.
-            (midHip, L5)
+        Returns the x,y,z marker positions of the L5 in a 1x3 array.
 
     Examples
     --------

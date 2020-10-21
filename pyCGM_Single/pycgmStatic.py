@@ -32,7 +32,6 @@ def rotmat(x=0,y=0,z=0):
     [[1.0, 0.0, 0.0], 
     [0.0, 1.0, 0.0], 
     [0.0, 0.0, 1.0]]
-
     >>> x = 0.5
     >>> y = 0.3
     >>> z = 0.8
@@ -40,13 +39,11 @@ def rotmat(x=0,y=0,z=0):
     array([[ 0.99988882, -0.01396199,  0.00523596],
            [ 0.01400734,  0.99986381, -0.00872642],
            [-0.00511341,  0.00879879,  0.99994822]])
-
     >>> x = 0.5
     >>> np.around(rotmat(x),decimals=8)
     array([[ 1.        ,  0.        ,  0.        ],
            [ 0.        ,  0.99996192, -0.00872654],
            [ 0.        ,  0.00872654,  0.99996192]])
-
     >>> x = 1
     >>> y = 1
     >>> np.around(rotmat(x,y),8)
@@ -78,10 +75,8 @@ def getDist(p0, p1):
     ----------
     p0 : array
         Position of first x,y,z coordinate.
-            [ x, y, z ]
     p1 : array
         Position of second x,y,z coordinate.
-            [ x, y, z ]
     Returns
     -------
     float 
@@ -95,7 +90,6 @@ def getDist(p0, p1):
     >>> p1 = [1,2,3]
     >>> np.around(getDist(p0,p1),8)
     1.73205081
-
     >>> p0 = np.array([991.44611381, 741.95103792, 321.35500969])
     >>> p1 = np.array([117.08710839, 142.23917057, 481.95268411])
     >>> np.around(getDist(p0,p1),8)
@@ -112,10 +106,8 @@ def getStatic(motionData,vsk,flat_foot=False,GCS=None):
     ----------
     motionData : dict
         Dictionary of marker lists.
-            { [], [], [], ... }
     vsk : dict, optional
         Dictionary of various attributes of the skeleton.
-            { [], [], [], ... }
     flat_foot : boolean, optional
         A boolean indicating if the feet are flat or not.
         The default value is False.
@@ -127,7 +119,6 @@ def getStatic(motionData,vsk,flat_foot=False,GCS=None):
     -------
     calSM : dict
         Dictionary containing various marker lists of offsets.
-            { [], [], [], ... }
     
     Examples
     --------
@@ -302,7 +293,6 @@ def average(list):
     >>> list = [1,2,3,4,5]
     >>> average(list)
     3.0
-
     >>> list = np.array([93.81607046, 248.95632028, 782.61762769])
     >>> np.around(average(list),8)
     375.13000614
@@ -325,7 +315,6 @@ def IADcalculation(frame):
     ----------
     frame : dict 
         Dictionaries of marker lists.
-            { [], [], [], ...}
 
     Returns
     -------
@@ -357,10 +346,8 @@ def staticCalculationHead(frame,head):
     ----------
     frame : dict 
         Dictionaries of marker lists.
-            { [], [], [], ...}
     head : array
         An array containing the head axis and head origin.
-            [headAxis, headOrigin]
 
     Returns
     -------
@@ -452,7 +439,6 @@ def staticCalculation(frame,ankle_JC,knee_JC,flat_foot,vsk=None):
     ----------
     frame : dict 
         Dictionaries of marker lists.
-            { [], [], [], ... }
     ankle_JC : array
         An array containing the x,y,z axes marker positions of the ankle joint center. 
     knee_JC : array
@@ -461,15 +447,14 @@ def staticCalculation(frame,ankle_JC,knee_JC,flat_foot,vsk=None):
         A boolean indicating if the feet are flat or not.
     vsk : dict, optional
         A dictionary containing subject measurements from a VSK file.
-            { [], [], [], ... }
             
     Returns
     ------- 
     angle : list
-        An offset angle.
-            [[Right Flexion angle, Right Abduction angle, Right Rotation angle],
-            [Left Flexion angle, Left Abduction angle, Left Rotation angle]]
-     
+        Returns the offset angle represented by a 2x3x3 array. 
+        The array contains the right flexion, abduction, rotation angles (1x3x3)
+        followed by the left flexion, abduction, rotation angles (1x3x3).
+
     Modifies
     --------
     The correct axis changes following to the foot flat option. 
@@ -503,7 +488,6 @@ def staticCalculation(frame,ankle_JC,knee_JC,flat_foot,vsk=None):
     >>> np.around(staticCalculation(frame,ankle_JC,knee_JC,flat_foot,vsk),8)
     array([[-0.08036968,  0.23192796, -0.66672181],
            [-0.67466613,  0.21812578, -0.30207993]])
-
     >>> flat_foot = False # Using the same variables and switching the flat_foot flag. 
     >>> np.around(staticCalculation(frame,ankle_JC,knee_JC,flat_foot,vsk),8)
     array([[-0.07971346,  0.19881323, -0.15319313],
@@ -583,17 +567,13 @@ def pelvisJointCenter(frame):
     ---------- 
     frame : dict 
         Dictionaries of marker lists.
-            { [], [], [], ...}
     
     Returns
     -------
     pelvis : array
-        Returns the origin and pelvis axis also sacrum. 
-            Pelvis = [[origin x,y,z position],
-                      [[pelvis x_axis x,y,z position],
-                       [pelvis y_axis x,y,z position],
-                       [pelvis z_axis x,y,z position]],
-                       [sacrum x,y,z position]]    
+        Returns an array that contains the pelvis origin in a 1x3 array of xyz values, 
+        which is then followed by a 4x1x3 array composed of the pelvis x, y, z 
+        axis components, and the sacrum x,y,z position.   
 
     Examples
     --------
@@ -609,7 +589,6 @@ def pelvisJointCenter(frame):
     [ 288.27565385,  425.41858059, 1034.93263018],
     [ 289.25467091,  425.56129577, 1035.94315379]]), 
     array([ 298.60904694,  244.07158661, 1056.64605713])]  
-
     >>> frame = {'RASI': np.array([ 395.36532593,  428.09790039, 1036.82763672]), 
     ...          'LASI': np.array([ 183.18504333,  422.78927612, 1033.07299805]),
     ...          'SACR': np.array([ 294.60904694,  242.07158661, 1049.64605713]) }
@@ -702,22 +681,19 @@ def hipJointCenter(frame,pel_origin,pel_x,pel_y,pel_z,vsk=None):
     ----------
     frame : dict
         Dictionaries of marker lists.
-            { [], [], [], ... }
     pel_origin : array
         An array of pel_origin, pel_x, pel_y, pel_z each x,y,z position.
-            [(),(),()]
     pel_x, pel_y, pel_z : int
         Respective axes of the pelvis.
     vsk : dict, optional
         A dictionary containing subject measurements from a VSK file.
-            { [], [], [], ... }
 
     Returns
     -------
     hip_JC : array
-        Returns the hip joint center in two array.
-            hip_JC = [[L_hipJC x,y,z position], [R_hipJC x,y,z position]]
-    
+        Returns an array containing the left hip joint center x, y, z marker positions (1x3), 
+        followed by the right hip joint center x, y, z marker positions (1x3).
+
     Examples
     --------
     >>> import numpy as np 
@@ -824,12 +800,11 @@ def hipAxisCenter(l_hip_jc,r_hip_jc,pelvis_axis):
        
     Returns
     -------
-    array
-        Returns the hip Axis Center and hip Axis.
-            return = [[hipaxis_center x,y,z position],
-                      [array([[hipaxis_center x,y,z position], [hip x_axis x,y,z position]]),
-                       array([[hipaxis_center x,y,z position], [hip y_axis x,y,z position]])
-                       array([[hipaxis_center x,y,z position], [hip z_axis x,y,z position]])]]   
+    hipaxis_center, axis : array
+        Returns an array that contains the hip axis center in a 1x3 array of xyz values, 
+        which is then followed by a 3x2x3 array composed of the hip axis center x, y, and z 
+        axis components. The xyz axis components are 2x3 arrays consisting of the axis center  
+        in the first dimension and the direction of the axis in the second dimension.  
 
     Examples
     --------
@@ -883,26 +858,20 @@ def kneeJointCenter(frame,hip_JC,delta,vsk=None):
     ----------
     frame : dict 
         dictionaries of marker lists.
-            { [], [], [] }
     hip_JC : array
         An array of hip_JC containing the x,y,z axes marker positions of the hip joint center. 
     delta : float
         The length from marker to joint center, retrieved from subject measurement file.
     vsk : dict, optional
         A dictionary containing subject measurements from a VSK file.
-            { [], [], [], ... }
 
     Returns
     -------
-    array
-        Returns the Knee Axis Center and Knee Axis.
-            return = [[kneeaxis_center x,y,z position],
-                    [array([[kneeaxis_center x,y,z position],
-                            [knee x_axis x,y,z position]]),
-                    array([[kneeaxis_center x,y,z position],
-                            [knee y_axis x,y,z position]])
-                    array([[kneeaxis_center x,y,z position],
-                            [knee z_axis x,y,z position]])]]                               
+    R, L, axis : array
+        Returns an array that contains the knee axis center in a 1x3 array of xyz values, 
+        which is then followed by a 2x3x3 array composed of the knee axis center x, y, and z 
+        axis components. The xyz axis components are 2x3 arrays consisting of the axis center 
+        in the first dimension and the direction of the axis in the second dimension.                                    
         
     Modifies
     --------
@@ -1045,26 +1014,20 @@ def ankleJointCenter(frame,knee_JC,delta,vsk=None):
     ----------
     frame : dict 
         dictionaries of marker lists.
-            { [], [], [] }
     knee_JC : array
         An array of knee_JC each x,y,z position.
     delta : float
         The length from marker to joint center, retrieved from subject measurement file.
     vsk : dict, optional
         A dictionary containing subject measurements from a VSK file.
-            { [], [], [], ... }
 
     Returns
     -------
-    array
-        Returns the Ankle Axis Center and Ankle Axis.
-            return = [[ankle axis_center x,y,z position],
-                    [array([[ankleaxis_center x,y,z position],
-                            [ankle x_axis x,y,z position]]),
-                        array([[ankleaxis_center x,y,z position],
-                            [ankle y_axis x,y,z position]])
-                        array([[ankleaxis_center x,y,z position],
-                            [ankle z_axis x,y,z position]])]]                               
+    R, L, axis : array
+        Returns an array that contains the ankle axis origin in a 1x3 array of xyz values, 
+        which is then followed by a 3x2x3 array composed of the ankle origin, x, y, and z 
+        axis components. The xyz axis components are 2x3 arrays consisting of the origin 
+        in the first dimension and the direction of the axis in the second dimension.                            
 
     Examples
     --------
@@ -1251,7 +1214,6 @@ def footJointCenter(frame,static_info,ankle_JC,knee_JC,delta):
     ---------- 
     frame : dict 
         Dictionaries of marker lists.
-            { [], [], [], ... }
     static_info : array
         An array containing offset angles.
     ankle_JC : array
@@ -1263,15 +1225,12 @@ def footJointCenter(frame,static_info,ankle_JC,knee_JC,delta):
         
     Returns
     -------
-    array
-        Returns the footJointCenter and foot axis. and save the static offset angle in a global variable.
-            return = [[foot axis_center x,y,z position],
-                    [array([[footaxis_center x,y,z position],
-                            [foot x_axis x,y,z position]]),
-                    array([[footaxis_center x,y,z position],
-                            [foot y_axis x,y,z position]])
-                    array([[footaxis_center x,y,z position],
-                            [foot z_axis x,y,z position]])]]        
+    R, L, foot_axis : array
+        Returns an array that contains the foot axis center in a 1x3 array of xyz values, 
+        which is then followed by a 2x3x3 array composed of the foot axis center x, y, and z 
+        axis components. The xyz axis components are 2x3 arrays consisting of the axis center 
+        in the first dimension and the direction of the axis in the second dimension.   
+        This function also saves the static offset angle in a global variable.     
             
     Modifies
     --------   
@@ -1510,16 +1469,13 @@ def headJC(frame):
     ----------
     frame : dict 
         Dictionaries of marker lists.
-            { [], [], [], ...}
     
     Returns
     -------
-    array
-        Returns the Head joint center and axis in three array 
-                head_JC = [[[head x axis x,y,z position],
-                            [head y axis x,y,z position],
-                            [head z axis x,y,z position]],
-                            [head x,y,z position]]
+    head_axis, origin : array
+        Returns an array containing a 1x3x3 array containing the x, y, z axis 
+        components of the head joint center, and a 1x3 array containing the 
+        head origin x, y, z position.
     
     Examples
     --------
@@ -1596,22 +1552,17 @@ def uncorrect_footaxis(frame,ankle_JC):
     ----------
     frame : array
         Dictionaries of marker lists.
-            { [], [], [], ... }
     ankle_JC : array
         An array of ankle_JC each x,y,z position.
            
     Returns
     -------
-    array
-        Returns the incorrect footJointCenter and foot axis. 
-        This will be used for calculating static offset angle in static calibration.
-            return = [[foot axis_center x,y,z position],
-                        [array([[footaxis_center x,y,z position],
-                                [foot x_axis x,y,z position]]),
-                        array([[footaxis_center x,y,z position],
-                            [foot y_axis x,y,z position]])
-                        array([[footaxis_center x,y,z position],
-                                [foot z_axis x,y,z position]])]]        
+    R, L, foot_axis : array     
+        Returns an array representing the incorrect foot joint center, the array contains a 1x3 array 
+        representing the foot axis origin x, y, z positions, which is followed by a 3x2x3 array
+        containing the foot axis center in the first dimension and the direction of the 
+        axis in the second dimension. This will be used for calculating static offset angle 
+        in static calibration.
 
     Examples
     --------
@@ -1727,24 +1678,18 @@ def rotaxis_footflat(frame,ankle_JC,vsk=None):
     ----------
     frame : array
         Dictionaries of marker lists.
-            { [], [], [], ... }
     ankle_JC : array
         An array of ankle_JC each x,y,z position.
     vsk : dict, optional
         A dictionary containing subject measurements from a VSK file.
-            { [], [], [], ... }
 
     Returns
     -------
-    array
-        Returns the footJointCenter and correct foot axis for foot flat.
-            return = [[foot axis_center x,y,z position],
-                        [array([[footaxis_center x,y,z position],
-                                [foot x_axis x,y,z position]]),
-                        array([[footaxis_center x,y,z position],
-                                [foot y_axis x,y,z position]])
-                        array([[footaxis_center x,y,z position],
-                                [foot z_axis x,y,z position]])]]        
+    R, L, foot_axis: array
+        Returns an array representing the correct foot joint center for flat feet, the array contains a 1x3 array 
+        representing the foot axis origin x, y, z positions, which is followed by a 3x2x3 array
+        containing the foot axis center in the first dimension and the direction of the 
+        axis in the second dimension.        
          
     Modifies
     --------
@@ -1892,21 +1837,16 @@ def rotaxis_nonfootflat(frame,ankle_JC):
     ----------
     frame : array
         Dictionaries of marker lists.
-            { [], [], [], ... }
     ankle_JC : array
         An array of ankle_JC each x,y,z position.
            
     Returns
     -------
     array
-        Returns the footJointCenter and correct foot axis for non foot flat. 
-            return = [[foot axis_center x,y,z position],
-                        [array([[footaxis_center x,y,z position],
-                                [foot x_axis x,y,z position]]),
-                        array([[footaxis_center x,y,z position],
-                            [foot y_axis x,y,z position]])
-                        array([[footaxis_center x,y,z position],
-                                [foot z_axis x,y,z position]])]]     
+        Returns an array representing the correct foot joint center for non-flat feet, the array contains a 1x3 array 
+        representing the foot axis origin x, y, z positions, which is followed by a 3x2x3 array
+        containing the foot axis center in the first dimension and the direction of the 
+        axis in the second dimension.     
 
     Examples
     --------
@@ -2022,8 +1962,7 @@ def getankleangle(axisP,axisD):
     Returns
     -------
     angle : list
-        These angles are shown in degrees.
-            angle = [gamma, beta, alpha]
+        Returns the gamma, beta, alpha angles in degrees in a 1x3 corresponding list. 
     
     Examples
     --------
@@ -2071,8 +2010,7 @@ def findJointC(a, b, c, delta):
     Returns
     -------
     mr : list
-        Joint C x,y,z position
-            return = [joint C x position, joint C y position, joint C z position]
+        Returns the Joint C x, y, z positions in a 1x3 array.
 
     Examples
     --------
