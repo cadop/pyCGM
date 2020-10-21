@@ -722,7 +722,7 @@ def footJointCenter(frame,vsk,ankle_JC,knee_JC,delta):
     the reference axis is Z axis point to HEE from TOE
 
     Examples
-    -------
+    --------
     >>> import numpy as np 
     >>> from .pyCGM import footJointCenter
     >>> vsk = { 'RightStaticRotOff' : 0.015683497632642047, 'LeftStaticRotOff': 0.009402910292403012,
@@ -959,7 +959,7 @@ def headJC(frame,vsk=None):
         
     
     Examples
-    -------
+    --------
     >>> import numpy as np 
     >>> from .pyCGM import headJC
     >>> vsk = { 'HeadOffset': 0.2571990469310653 }
@@ -1055,7 +1055,7 @@ def thoraxJC(frame):
         right thorax x, y, z axis components (3x3) followed by the the left thorax x, y, z axis components (3x3).
     
     Examples
-    -------
+    --------
     >>> import numpy as np 
     >>> from .pyCGM import thoraxJC
     >>> frame = {'C7': np.array([256.78051758, 371.28042603, 1459.70300293]),
@@ -1148,7 +1148,7 @@ def findwandmarker(frame,thorax):
         wand marker x,y,z positions (1x3).
     
     Examples
-    -------
+    --------
     >>> import numpy as np
     >>> from .pyCGM import findwandmarker
     >>> frame = {'RSHO': np.array([428.88496562, 270.552948, 1500.73010254]),
@@ -1227,7 +1227,7 @@ def findshoulderJC(frame,thorax,wand,vsk=None):
         shoulder joint center x, y, z, marker positions (1x3).
     
     Examples
-    -------
+    --------
     >>> import numpy as np 
     >>> from .pyCGM import findshoulderJC
     >>> vsk = { 'RightShoulderOffset' : 40.0, 'LeftShoulderOffset' : 40.0 }
@@ -1311,7 +1311,7 @@ def shoulderAxisCalc(frame,thorax,shoulderJC,wand):
                         [L_shoulderJC_x,L_shoulderJC_y,L_shoulderJC_z]]
 
     Examples
-    -------
+    --------
     >>> import numpy as np 
     >>> from .pyCGM import shoulderAxisCalc
     >>> frame = None
@@ -1709,9 +1709,10 @@ def wristJointCenter(frame,shoulderJC,wand,elbowJC):
                         [[L_wrist x axis, x,y,z position],
                         [L_wrist y axis, x,y,z position],
                         [L_wrist z axis, x,y,z position]]]]
+        
     
     Examples
-    -------
+    --------
     >>> import numpy as np 
     >>> from .pyCGM import wristJointCenter
     >>> frame = {'RSHO': np.array([428.88496562, 270.552948, 1500.73010254]),
@@ -1823,48 +1824,24 @@ def handJointCenter(frame,elbowJC,wristJC,vsk=None):
     ---------- 
     frame 
         Dictionaries of marker lists.  
-            { [], [], [], ...}
     elbowJC : array
         The x,y,z position of the elbow joint center.
-            elbowJC = [[R_elbow_JC_x, R_elbow_JC_y, R_elbow_JC_z],
-                        [L_elbow_JC_x,L_elbow_JC_y,L_elbow_JC_z]
-                        [[[R_elbow x axis, x,y,z position],
-                        [R_elbow y axis, x,y,z position],
-                        [R_elbow z axis, x,y,z position]],
-                        [[L_elbow x axis, x,y,z position],
-                        [L_elbow y axis, x,y,z position],
-                        [L_elbow z axis, x,y,z position]]],
-                        [R_wrist_JC_x, R_wrist_JC_y, R_wrist_JC_z],
-                        [L_wrist_JC_x,L_wrist_JC_y,L_wrist_JC_z]]
     wristJC : array
         The x,y,z position of the wrist joint center.
-            wrist_JC = [[R_wrist_JC_x, R_wrist_JC_y, R_wrist_JC_z],
-                        [L_wrist_JC_x,L_wrist_JC_y,L_wrist_JC_z],
-                        [[[R_wrist x axis, x,y,z position],
-                        [R_wrist y axis, x,y,z position],
-                        [R_wrist z axis, x,y,z position]],
-                        [[L_wrist x axis, x,y,z position],
-                        [L_wrist y axis, x,y,z position],
-                        [L_wrist z axis, x,y,z position]]]]
     vsk : dict, optional
         A dictionary containing subject measurements from a VSK file.
-            { [], [], [], ... }
     
     Returns
     ------- 
     [origin, axis] : array
-        Returns the hand joint center and axis in three array
-            hand_JC = [[R_hand_JC_x, R_hand_JC_y, R_hand_JC_z],
-                        [L_hand_JC_x,L_hand_JC_y,L_hand_JC_z],
-                        [[[R_hand x axis, x,y,z position],
-                        [R_hand y axis, x,y,z position],
-                        [R_hand z axis, x,y,z position]],
-                        [[L_hand x axis, x,y,z position],
-                        [L_hand y axis, x,y,z position],
-                        [L_hand z axis, x,y,z position]]]]
+        Returns an array containing an array representing the right hand joint center 
+        x, y, z marker positions (1x3), followed by an array containing the 
+        left hand joint center x, y, z marker positions (1x3), followed by a 2x3x3 array 
+        containing the right hand joint center x, y, z axis components (1x3x3),
+        followed by the left hand joint center x, y, z axis components (1x3x3).
     
     Examples
-    -------
+    --------
     >>> import numpy as np 
     >>> from .pyCGM import handJointCenter
     >>> frame = {'RWRA': np.array([776.51898193,495.68103027, 1108.38464355]),
@@ -1997,11 +1974,10 @@ def findJointC(a, b, c, delta):
     Returns
     -------
     mr : array
-        Joint C x,y,z position
-            return = [joint C x position, joint C y position, joint C z position]
+        Joint C x,y,z position in a 1x3 array.
 
     Examples
-    -------
+    --------
     >>> import numpy as np 
     >>> from .pyCGM import findJointC
     >>> a = [468.14532471, 325.09780884, 673.12591553]
@@ -2069,7 +2045,7 @@ def cross(a, b):
         The cross product of vector a and vector b.
 
     Examples
-    -------
+    --------
     >>> import numpy as np
     >>> from .pyCGM import cross
     >>> a = [6.25286248, 7.91367254, 18.63620527]
@@ -2100,8 +2076,7 @@ def getPelangle(axisP,axisD):
     Returns
     -------
     angle : list
-        These angles are shown in degrees.
-            angle = [gamma, beta, alpha]
+        Returns the gamma, beta, alpha angles in degrees in a 1x3 corresponding list. 
     
     Examples
     -------
@@ -2152,11 +2127,10 @@ def getHeadangle(axisP,axisD):
     Returns
     -------
     angle : list
-        These angles are shown in degrees.
-            angle = [gamma, beta, alpha]
+        Returns the gamma, beta, alpha angles in degrees in a 1x3 corresponding list.  
     
     Examples
-    -------
+    --------
     >>> import numpy as np 
     >>> from .pyCGM import getHeadangle
     >>> axisP = [[ 0.0464229, 0.99648672, 0.06970743],
@@ -2234,11 +2208,10 @@ def getangle_sho(axisP,axisD):
     Returns
     -------
     angle : list
-        These angles are shown in degrees.
-            angle = [gamma, beta, alpha]
+        Returns the gamma, beta, alpha angles in degrees in a 1x3 corresponding list. 
     
     Examples
-    -------
+    --------
     >>> import numpy as np 
     >>> from .pyCGM import getangle_sho
     >>> axisP = [[ 0.0464229, 0.99648672, 0.06970743],
@@ -2281,11 +2254,10 @@ def getangle_spi(axisP,axisD):
     Returns
     -------
     angle : list
-        These angles are shown in degrees.
-            angle = [gamma, beta, alpha]
+        Returns the gamma, beta, alpha angles in degrees in a 1x3 corresponding list. 
     
     Examples
-    -------
+    --------
     >>> import numpy as np 
     >>> from .pyCGM import getangle_spi
     >>> axisP = [[ 0.0464229,   0.99648672,  0.06970743],
@@ -2326,11 +2298,10 @@ def getangle(axisP,axisD):
     Returns
     -------
     angle : list
-        These angles are shown in degrees.
-            angle = [gamma, beta, alpha]
+        Returns the gamma, beta, alpha angles in degrees in a 1x3 corresponding list. 
     
     Examples
-    -------
+    --------
     >>> import numpy as np 
     >>> from .pyCGM import getangle
     >>> axisP = [[ 0.0464229,   0.99648672,  0.06970743],
@@ -2385,7 +2356,7 @@ def norm2d(v):
         The normalization of the vector as a float.
 
     Examples
-    -------
+    --------
     >>> import numpy as np 
     >>> from .pyCGM import norm2d
     >>> v = [105.141121037153, 101.890788777524, 326.7710280245359]
@@ -2413,7 +2384,7 @@ def norm3d(v):
         The normalization of the vector returned as a float in an array.
 
     Examples
-    -------
+    --------
     >>> from .pyCGM import norm3d
     >>> v = [125.44928201, 143.94301493, 213.49204956]
     >>> norm3d(v)
@@ -2440,7 +2411,7 @@ def normDiv(v):
         The divison normalization of the vector returned as a float in an array.
 
     Examples
-    -------
+    --------
     >>> import numpy as np 
     >>> from .pyCGM import normDiv       
     >>> v = [1.44928201, 1.94301493, 2.49204956]
@@ -2478,7 +2449,7 @@ def matrixmult (A, B):
         The product of the matrix multiplication.
 
     Examples
-    -------
+    --------
     >>> from .pyCGM import matrixmult
     >>> A = [[11,12,13],[14,15,16]]
     >>> B = [[1,2],[3,4],[5,6]]
@@ -2507,11 +2478,11 @@ def rotmat(x=0,y=0,z=0):
     
     Returns
     -------
-    Rxyz : list 
+    Rxyz : list
         The product of the matrix multiplication.
 
     Examples
-    -------
+    --------
     >>> import numpy as np
     >>> from .pyCGM import rotmat
     >>> x = 0.5
@@ -2521,13 +2492,11 @@ def rotmat(x=0,y=0,z=0):
     array([[ 0.99988882, -0.01396199,  0.00523596],
            [ 0.01400734,  0.99986381, -0.00872642],
            [-0.00511341,  0.00879879,  0.99994822]])
-
     >>> x = 0.5
     >>> np.around(rotmat(x),8)
     array([[ 1.        ,  0.        ,  0.        ],
            [ 0.        ,  0.99996192, -0.00872654],
            [ 0.        ,  0.00872654,  0.99996192]])
-
     >>> x = 1
     >>> y = 1
     >>> np.around(rotmat(x,y),8)
@@ -2588,20 +2557,18 @@ def JointAngleCalc(frame,vsk):
     Parameters
     ----------
     frame : dict 
-        Dictionaries of marker lists.
-            { [], [], [], ... }      
+        Dictionaries of marker lists.  
     vsk : dict, optional
         A dictionary containing subject measurements from a VSK file.
-            { [], [], [], ... }
     
     Returns
     -------
     r, jc : tuple 
-        Returns r, the result of all the joint calculations, 
-        and jc, a dictionary for joint centers.
+        Returns a tuple containing an array that holds the result of all the joint calculations, 
+        followed by a dictionary for joint center marker positions.
     
     Examples
-    -------
+    --------
     >>> import numpy as np
     >>> from .pyCGM import JointAngleCalc
     >>> from .pycgmIO import loadC3D, loadVSK
