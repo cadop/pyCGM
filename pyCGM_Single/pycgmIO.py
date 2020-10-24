@@ -327,8 +327,8 @@ def loadC3D(filename):
     >>> around(data[0]['C7'], 8) #doctest: +NORMALIZE_WHITESPACE
     array([ -29.57296562, -9.34280109, 1300.86730957])
     >>> dataunlabeled[4] #doctest: +NORMALIZE_WHITESPACE  
-    {'*113': array([-164.86621094,  171.65745544, 1278.03063965]), 
-     '*114': array([ 177.22021484, -221.97573853, 1263.32885742])} 
+    {'*113': array([-172.66630554,  167.2040863 , 1273.71594238]), 
+     '*114': array([ 169.18231201, -227.13475037, 1264.34912109])}
     >>> markers
     ['LFHD', 'RFHD', 'LBHD', ...]
 
@@ -365,6 +365,7 @@ def loadC3D(filename):
         data.append(mydict)
         dataunlabeled.append(mydictunlabeled)
         mydict = {}
+        mydictunlabeled = {}
     return [data,dataunlabeled,markers]
 
 def loadCSV(filename):
