@@ -389,9 +389,9 @@ def loadCSV(filename):
 
     Examples
     --------
-    Sample_Static.csv in SampleData is used to test the output.
+    RoboResults.csv in SampleData is used to test the output.
 
-    >>> filename = 'SampleData/ROM/Sample_Static.csv' 
+    >>> filename = 'SampleData/Sample_2/RoboResults.csv' 
     >>> result = loadCSV(filename)
     >>> motionData = result[0]
     >>> unlabeledMotionData = result[1]
@@ -400,14 +400,15 @@ def loadCSV(filename):
     Testing for some values from data.
 
     >>> motionData[0]['RHNO'] #doctest: +NORMALIZE_WHITESPACE
-    array([ 811.9591064, 677.3413696, 1055.390991 ])
+    array([-772.184937, -312.352295, 589.815308])
     >>> motionData[0]['C7'] #doctest: +NORMALIZE_WHITESPACE 
-    array([ 250.765976, 165.616333, 1528.094116])
-    >>> unlabeledMotionData[0] #doctest: +NORMALIZE_WHITESPACE
-    {'*111': array([ 692.8970947, 423.9462585, 1240.289063 ]), 
-     '*112': array([-225.5265198, 405.5791321, 1214.458618 ]), 
-     '*113': array([ -82.65164185, 232.3781891 , 1361.853638 ]), 
-     '*114': array([ 568.5736694, 260.4929504, 1361.799805 ])}	
+    array([-1010.098999, 3.508968, 1336.794434])
+
+    There is no unlabeled data in frame 0.
+
+    >>> unlabeledMotionData[0] 
+    {}
+
     >>> labels
     ['LFHD', 'RFHD', 'LBHD', ...]
     """
