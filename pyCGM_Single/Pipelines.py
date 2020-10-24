@@ -253,6 +253,8 @@ def transform_from_static(data,static,key,useables,s):
     >>> dynamic_trial,static_trial,_,_,_ = getfilenames(x=3)
     >>> motionData = loadData(dynamic_trial)
     SampleData/Sample_2/RoboWalk.c3d
+    >>> motionData[1]['LFHD'] #doctest: +NORMALIZE_WHITESPACE
+    array([-1003.50396729, 81.02921295, 1522.18493652])
     >>> motionData = clearMarker(motionData, 'LFHD') #clear LFHD to test gap filling
     >>> staticData = loadData(static_trial)
     SampleData/Sample_2/RoboStatic.c3d
@@ -311,6 +313,8 @@ def transform_from_mov(data,key,clust,last_time,i):
     >>> dynamic_trial,static_trial,_,_,_ = getfilenames(x=3)
     >>> motionData = loadData(dynamic_trial)
     SampleData/Sample_2/RoboWalk.c3d
+    >>> motionData[2]['LFHD'] #doctest: +NORMALIZE_WHITESPACE
+    array([-1003.42358398, 81.05059814, 1522.13598633])
     >>> motionData[2]['LFHD'] = array([nan, nan, nan]) #clear one frame to test gap filling
     >>> data = dataAsDict(motionData,npArray=True)
     >>> key = 'LFHD'
