@@ -365,7 +365,7 @@ def loadC3D(filename):
         data.append(mydict)
         dataunlabeled.append(mydictunlabeled)
         mydict = {}
-        mydictunlabeled = {}
+        mydictunlabeled ={}
     return [data,dataunlabeled,markers]
 
 def loadCSV(filename):

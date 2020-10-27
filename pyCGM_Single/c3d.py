@@ -719,8 +719,8 @@ class Reader(Manager):
     You can iterate over the frames in the file by calling `read_frames()` after
     construction:
 
-    >>> r = c3d.Reader(open('capture.c3d', 'rb'))
-    >>> for frame_no, points, analog in r.read_frames():
+    >>> r = c3d.Reader(open('capture.c3d', 'rb')) #doctest: +SKIP
+    >>> for frame_no, points, analog in r.read_frames(): #doctest: +SKIP
     ...     print('{0.shape} points in this frame'.format(points))
     '''
 
@@ -898,10 +898,10 @@ class Reader(Manager):
 class Writer(Manager):
     '''This class manages the task of writing metadata and frames to a C3D file.
 
-    >>> r = c3d.Reader(open('data.c3d', 'rb'))
-    >>> frames = smooth_frames(r.read_frames())
-    >>> w = c3d.Writer(open('smoothed.c3d', 'wb'))
-    >>> w.write_from_reader(frames, r)
+    >>> r = c3d.Reader(open('data.c3d', 'rb')) #doctest: +SKIP
+    >>> frames = smooth_frames(r.read_frames()) #doctest: +SKIP
+    >>> w = c3d.Writer(open('smoothed.c3d', 'wb')) #doctest: +SKIP
+    >>> w.write_from_reader(frames, r) #doctest: +SKIP
     '''
 
     def __init__(self, handle):
