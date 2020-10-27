@@ -1,22 +1,59 @@
 import unittest
 import pyCGM_Single.pyCGM as pyCGM
 import numpy as np
+from parameterized import parameterized
 
 rounding_precision = 8
 
 class TestUpperBodyAxis(unittest.TestCase):
 
-    def testHeadJC(self):
-        frame = {'LFHD': np.array([184.55158997, 409.68713379, 1721.34289551]),
-                 'RFHD': np.array([325.82983398, 402.55450439, 1722.49816895]),
-                 'LBHD': np.array([197.8621521 , 251.28889465, 1696.90197754]),
-                 'RBHD': np.array([304.39898682, 242.91339111, 1694.97497559])}
-        vsk = {'HeadOffset': 0.2571990469310653}
-        expected = [[[255.21685582510975, 407.11593887758056, 1721.8253843887082],
-                     [254.19105385179665, 406.146809183757, 1721.9176771191715],
-                     [255.19034370229795, 406.2160090443217, 1722.9159912851449]],
-                    [255.19071197509766, 406.1208190917969, 1721.9205322265625]]
-
+    @parameterized.expand([[{'LFHD': np.array([184.55158997, 409.68713379, 1721.34289551]),
+                             'RFHD': np.array([325.82983398, 402.55450439, 1722.49816895]),
+                             'LBHD': np.array([197.8621521 , 251.28889465, 1696.90197754]),
+                             'RBHD': np.array([304.39898682, 242.91339111, 1694.97497559])},
+                            {'HeadOffset': 0.2571990469310653},
+                            [[[255.21685582510975, 407.11593887758056, 1721.8253843887082],
+                              [254.19105385179665, 406.146809183757, 1721.9176771191715],
+                              [255.19034370229795, 406.2160090443217, 1722.9159912851449]],
+                             [255.19071197509766, 406.1208190917969, 1721.9205322265625]]],
+                           [{'LFHD': np.array([3, 2, 0]),
+                             'RFHD': np.array([2, 2, 0]),
+                             'LBHD': np.array([3, 1, 0]),
+                             'RBHD': np.array([2, 1, 0])},
+                            {'HeadOffset': 0.0},
+                            [[[2.5, 3, 0],
+                              [3.5, 2, 0],
+                              [2.5, 2, -1]],
+                             [2.5, 2, 0]]],
+                           [{'LFHD': np.array([2, 1, 1]),
+                             'RFHD': np.array([1, 1, 1]),
+                             'LBHD': np.array([2, 2, 1]),
+                             'RBHD': np.array([1, 2, 1])},
+                            {'HeadOffset': 0.0},
+                            [[[1.5, 0, 1],
+                              [2.5, 1, 1],
+                              [1.5, 1, 2]],
+                             [1.5, 1, 1]]],
+                           [{'LFHD': np.array([2, 1, 1]),
+                             'RFHD': np.array([-5, 1, 1]),
+                             'LBHD': np.array([2, 2, 1]),
+                             'RBHD': np.array([-5, 2, 1])},
+                            {'HeadOffset': 0.0},
+                            [[[-1.5, 0, 1],
+                              [-0.5, 1, 1],
+                              [-1.5, 1, 2]],
+                             [-1.5, 1, 1]]],
+                           [{'LFHD': np.array([-1, 1, 0]),
+                             'RFHD': np.array([1, 1, 0]),
+                             'LBHD': np.array([-1, -1, 0]),
+                             'RBHD': np.array([1, -1, 0])},
+                            {'HeadOffset': 0.0},
+                            [[[0, 2, 0],
+                              [-1, 1, 0],
+                              [0, 1, 1]],
+                             [0, 0, 0]]],
+    ])
+    def testHeadJC(self, frame, vsk, expected):
         result = pyCGM.headJC(frame, vsk)
         np.testing.assert_almost_equal(result[0], expected[0], rounding_precision)
         np.testing.assert_almost_equal(result[1], expected[1], rounding_precision)
