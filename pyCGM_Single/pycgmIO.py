@@ -142,6 +142,7 @@ def loadC3D(filename):
         data.append(mydict)
         dataunlabeled.append(mydictunlabeled)
         mydict = {}
+        mydictunlabeled ={}
     return [data,dataunlabeled,markers]
 
 def loadCSV(filename):
@@ -300,7 +301,7 @@ def dataAsDict(data,npArray=False):
         for key in dataDict:
             dataDict[key] = np.array(dataDict[key])
         
-        return dataDict
+    return dataDict
 
 def writeKinetics(CoM_output,kinetics):
     """
