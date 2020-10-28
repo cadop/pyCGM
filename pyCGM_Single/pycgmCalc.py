@@ -272,7 +272,7 @@ def Calc(start,end,data,vsk):
     >>> from .pycgmIO import loadC3D, loadVSK
     >>> from .pycgmStatic import getStatic
     >>> from .pyCGM_Helpers import getfilenames
-    >>> filenames = getfilenames(x=2)
+    >>> filenames = getfilenames(x=2) #x=2 loads sample data from Sample_Data/ROM
     >>> c3dFile = filenames[1]
     >>> vskFile = filenames[2] 
     >>> result = loadC3D(c3dFile)
