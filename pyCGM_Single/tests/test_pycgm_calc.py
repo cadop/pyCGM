@@ -15,7 +15,6 @@ class TestPycgmCalc(unittest.TestCase):
 
     def test_calcKinetics(self):
         # Single frame tests
-
         pass
 
     def test_calcAngles(self):
