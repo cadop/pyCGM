@@ -5,7 +5,6 @@ import pyCGM_Single.pycgmIO as pycgmIO
 import pyCGM_Single.pycgmStatic as pycgmStatic
 import pyCGM_Single.pyCGM_Helpers as pyCGM_Helpers
 import numpy as np
-from parameterized import parameterized
 
 rounding_precision = 8
 np.set_printoptions(precision=rounding_precision, threshold=sys.maxsize, suppress=True)
