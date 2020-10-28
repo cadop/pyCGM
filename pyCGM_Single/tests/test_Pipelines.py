@@ -4,7 +4,7 @@ from pyCGM_Single.pyCGM_Helpers import getfilenames
 import pyCGM_Single.Pipelines as Pipelines
 import os
 import pprint
-class TestCSVOutput(unittest.TestCase):
+class TestPipelines(unittest.TestCase):
     rounding_precision = 8
 
     def test_butterFilter(self):
