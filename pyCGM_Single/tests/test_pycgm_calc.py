@@ -60,7 +60,13 @@ class TestPycgmCalc(unittest.TestCase):
         np.testing.assert_almost_equal(frame1.round(rounding_precision)[0], doc_expected_result, rounding_precision)
 
     def test_Calc(self):
-        pass
+        start, end = 0, 3
+        angles, joints = pycgmCalc.Calc(start, end, self.c3d_data, self.vsk)
+
+        # Angle examples from docstring
+        expected_angles = [-0.45646046, -0.45789927, -0.45608902]
+        result_angles = [np.around(angles[x][0], 8) for x in range(0, 3)]
+        np.testing.assert_almost_equal(result_angles, expected_angles, rounding_precision)
 
     def test_calcFrames(self):
         angles, joints = pycgmCalc.calcFrames(self.c3d_data, self.vsk)
