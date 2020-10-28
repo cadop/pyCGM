@@ -7,7 +7,7 @@ import pyCGM_Single.pyCGM_Helpers as pyCGM_Helpers
 import numpy as np
 
 rounding_precision = 8
-np.set_printoptions(precision=rounding_precision, threshold=sys.maxsize, suppress=True)
+#np.set_printoptions(precision=rounding_precision, threshold=sys.maxsize, suppress=True)
 
 
 class TestPycgmCalc(unittest.TestCase):
@@ -49,11 +49,14 @@ class TestPycgmCalc(unittest.TestCase):
                                           [  9.85050913,  15.46090162, 126.03268251],
                                           [  6.67871519, 17.79096147 , 123.74619493]])
 
-        # filepath = "pyCGM_Single\\tests\\test_calcAngles_log.txt"
-        # with open(filepath, "w") as f:
-        #     f.write(str(joint_angle_vals[0].round(rounding_precision)))
+        log_output = False
+        if log_output:
+            file_path = "pyCGM_Single\\tests\\test_calcAngles_log.txt"
+            with open(file_path, "w") as f:
+                f.write(str(joint_angle_vals[0].round(rounding_precision)))
 
-        np.testing.assert_almost_equal(joint_angle_vals[0][0], doc_expected_result, rounding_precision)
+        frame1 = joint_angle_vals[0]
+        np.testing.assert_almost_equal(frame1.round(8)[0], doc_expected_result, rounding_precision)
 
     def test_Calc(self):
         pass
