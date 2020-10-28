@@ -33,13 +33,13 @@ class TestPycgmAngle(unittest.TestCase):
         result_int_list = pyCGM.getangle_sho(axisP_ints, axisD)
         np.testing.assert_almost_equal(result_int_list, expected, rounding_precision)
 
-        result_int_nparray = pyCGM.getangle_sho(np.array(axisP_ints), np.array(axisD))
+        result_int_nparray = pyCGM.getangle_sho(np.array(axisP_ints, dtype='int'), np.array(axisD, dtype='int'))
         np.testing.assert_almost_equal(result_int_nparray, expected, rounding_precision)
 
         result_float_list = pyCGM.getangle_sho(axisP_floats, axisD)
         np.testing.assert_almost_equal(result_float_list, expected, rounding_precision)
 
-        result_float_nparray = pyCGM.getangle_sho(np.array(axisP_floats), np.array(axisD))
+        result_float_nparray = pyCGM.getangle_sho(np.array(axisP_floats, dtype='float'), np.array(axisD, dtype='float'))
         np.testing.assert_almost_equal(result_float_nparray, expected, rounding_precision)
 
     @parameterized.expand([
@@ -68,13 +68,13 @@ class TestPycgmAngle(unittest.TestCase):
         result_int_list = pyCGM.getangle_spi(axisP_ints, axisD)
         np.testing.assert_almost_equal(result_int_list, expected, rounding_precision)
 
-        result_int_nparray = pyCGM.getangle_spi(np.array(axisP_ints), np.array(axisD))
+        result_int_nparray = pyCGM.getangle_spi(np.array(axisP_ints, dtype='int'), np.array(axisD, dtype='int'))
         np.testing.assert_almost_equal(result_int_nparray, expected, rounding_precision)
 
         result_float_list = pyCGM.getangle_spi(axisP_floats, axisD)
         np.testing.assert_almost_equal(result_float_list, expected, rounding_precision)
 
-        result_float_nparray = pyCGM.getangle_spi(np.array(axisP_floats), np.array(axisD))
+        result_float_nparray = pyCGM.getangle_spi(np.array(axisP_floats, dtype='float'), np.array(axisD, dtype='float'))
         np.testing.assert_almost_equal(result_float_nparray, expected, rounding_precision)
 
     @parameterized.expand([
@@ -103,13 +103,13 @@ class TestPycgmAngle(unittest.TestCase):
         result_int_list = pyCGM.getangle(axisP_ints, axisD)
         np.testing.assert_almost_equal(result_int_list, expected, rounding_precision)
 
-        result_int_nparray = pyCGM.getangle(np.array(axisP_ints), np.array(axisD))
+        result_int_nparray = pyCGM.getangle(np.array(axisP_ints, dtype='int'), np.array(axisD, dtype='int'))
         np.testing.assert_almost_equal(result_int_nparray, expected, rounding_precision)
 
         result_float_list = pyCGM.getangle(axisP_floats, axisD)
         np.testing.assert_almost_equal(result_float_list, expected, rounding_precision)
 
-        result_float_nparray = pyCGM.getangle(np.array(axisP_floats), np.array(axisD))
+        result_float_nparray = pyCGM.getangle(np.array(axisP_floats, dtype='float'), np.array(axisD, dtype='float'))
         np.testing.assert_almost_equal(result_float_nparray, expected, rounding_precision)
 
     @parameterized.expand([
@@ -138,13 +138,13 @@ class TestPycgmAngle(unittest.TestCase):
         result_int_list = pyCGM.getHeadangle(axisP_ints, axisD)
         np.testing.assert_almost_equal(result_int_list, expected, rounding_precision)
 
-        result_int_nparray = pyCGM.getHeadangle(np.array(axisP_ints), np.array(axisD))
+        result_int_nparray = pyCGM.getHeadangle(np.array(axisP_ints, dtype='int'), np.array(axisD, dtype='int'))
         np.testing.assert_almost_equal(result_int_nparray, expected, rounding_precision)
 
         result_float_list = pyCGM.getHeadangle(axisP_floats, axisD)
         np.testing.assert_almost_equal(result_float_list, expected, rounding_precision)
 
-        result_float_nparray = pyCGM.getHeadangle(np.array(axisP_floats), np.array(axisD))
+        result_float_nparray = pyCGM.getHeadangle(np.array(axisP_floats, dtype='float'), np.array(axisD, dtype='float'))
         np.testing.assert_almost_equal(result_float_nparray, expected, rounding_precision)
 
     @parameterized.expand([
@@ -173,11 +173,11 @@ class TestPycgmAngle(unittest.TestCase):
         result_int_list = pyCGM.getPelangle(axisP_ints, axisD)
         np.testing.assert_almost_equal(result_int_list, expected, rounding_precision)
 
-        result_int_nparray = pyCGM.getPelangle(np.array(axisP_ints), np.array(axisD))
+        result_int_nparray = pyCGM.getPelangle(np.array(axisP_ints, dtype='int'), np.array(axisD, dtype='int'))
         np.testing.assert_almost_equal(result_int_nparray, expected, rounding_precision)
 
         result_float_list = pyCGM.getPelangle(axisP_floats, axisD)
         np.testing.assert_almost_equal(result_float_list, expected, rounding_precision)
 
-        result_float_nparray = pyCGM.getPelangle(np.array(axisP_floats), np.array(axisD))
+        result_float_nparray = pyCGM.getPelangle(np.array(axisP_floats, dtype='float'), np.array(axisD, dtype='float'))
         np.testing.assert_almost_equal(result_float_nparray, expected, rounding_precision)
