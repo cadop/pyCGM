@@ -29,7 +29,7 @@ class TestPycgmCalc(unittest.TestCase):
         else:
             joint_angle_vals = result
 
-        # Docstring example
+        # Joint angles example
         doc_expected_result =   np.array([[ -0.45646046,  -5.76277607,   4.80620732],
                                           [  3.03831198,  -7.02211832, -17.40722232],
                                           [ -3.00351427,  -4.5429072 ,  -1.7375533 ],
@@ -63,20 +63,26 @@ class TestPycgmCalc(unittest.TestCase):
         start, end = 0, 3
         angles, joints = pycgmCalc.Calc(start, end, self.c3d_data, self.vsk)
 
-        # Angle examples from docstring
+        # Angle examples
         expected_angles = [-0.45646046, -0.45789927, -0.45608902]
-        result_angles = [np.around(angles[x][0], 8) for x in range(0, 3)]
+        result_angles = [np.around(angles[x][0], rounding_precision) for x in range(0, 3)]
         np.testing.assert_almost_equal(result_angles, expected_angles, rounding_precision)
+
+        # Joint examples
+        expected_joints = [np.array([246.152565  , 353.26243591, 1031.71362305]),
+                           np.array([246.16200256, 353.27105713, 1031.71856689])]
+        result_joints = [np.around(joints[x]['Pelvis'], rounding_precision) for x in range(0, 2)]
+        np.testing.assert_almost_equal(result_joints, expected_joints, rounding_precision)
 
     def test_calcFrames(self):
         angles, joints = pycgmCalc.calcFrames(self.c3d_data, self.vsk)
 
-        # First example from docstring
+        # First example
         expected_angle = -0.45646046  # TODO find a more appropriate name for this and second example
         result_angle = np.around(angles[0][0], rounding_precision)
         np.testing.assert_almost_equal(result_angle, expected_angle, rounding_precision)
 
-        # Second example from docstring
+        # Second example
         expected_joint_pelvis = np.array([246.152565, 353.26243591, 1031.71362305])
         result_joint_pelvis = np.around(joints[0]['Pelvis'], rounding_precision)
         np.testing.assert_almost_equal(result_joint_pelvis, expected_joint_pelvis, rounding_precision)
