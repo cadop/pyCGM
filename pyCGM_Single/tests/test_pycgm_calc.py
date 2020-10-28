@@ -18,8 +18,9 @@ class TestPycgmCalc(unittest.TestCase):
     vsk_data = pycgmIO.loadVSK(vsk_file, False)
     vsk = pycgmStatic.getStatic(c3d_data, vsk_data, flat_foot=False)
 
-    def test_calcKinetics(self):
-        pass
+    # Function is equivalent to pycgmKinetics.getKinetics() - would be duplicate test
+    # def test_calcKinetics(self):
+    #     pass
 
     def test_calcAngles(self):
         result = pycgmCalc.calcAngles(self.c3d_data, vsk=self.vsk)
@@ -56,13 +57,23 @@ class TestPycgmCalc(unittest.TestCase):
                 f.write(str(joint_angle_vals[0].round(rounding_precision)))
 
         frame1 = joint_angle_vals[0]
-        np.testing.assert_almost_equal(frame1.round(8)[0], doc_expected_result, rounding_precision)
+        np.testing.assert_almost_equal(frame1.round(rounding_precision)[0], doc_expected_result, rounding_precision)
 
     def test_Calc(self):
         pass
 
     def test_calcFrames(self):
-        pass
+        angles, joints = pycgmCalc.calcFrames(self.c3d_data, self.vsk)
+
+        # First example from docstring
+        expected_angle = -0.45646046  # TODO find a more appropriate name for this and second example
+        result_angle = np.around(angles[0][0], rounding_precision)
+        np.testing.assert_almost_equal(result_angle, expected_angle, rounding_precision)
+
+        # Second example from docstring
+        expected_joint_pelvis = np.array([246.152565, 353.26243591, 1031.71362305])
+        result_joint_pelvis = np.around(joints[0]['Pelvis'], rounding_precision)
+        np.testing.assert_almost_equal(result_joint_pelvis, expected_joint_pelvis, rounding_precision)
 
 
 if __name__ == "__main__":
