@@ -13,6 +13,10 @@ class TestCSVOutput(unittest.TestCase):
     rounding_precision = 8
     tmpdir = TemporaryDirectory()
     cwd = os.getcwd()
+    if (cwd.split(os.sep)[-1]=="pyCGM_Single"):
+        parent = os.path.dirname(cwd)
+        os.chdir(parent)
+    cwd = os.getcwd()
     sampleDataDir = os.path.join(cwd, "SampleData")
 
     def loadFiles(self, x):
