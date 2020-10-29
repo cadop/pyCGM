@@ -2,6 +2,8 @@ import unittest
 import numpy as np
 from pyCGM_Single.pyCGM_Helpers import getfilenames
 from pyCGM_Single.pycgmIO import loadData, dataAsDict
+from pyCGM_Single.clusterCalc import target_dict, segment_dict
+from pyCGM_Single.pyCGM import pelvisJointCenter
 import pyCGM_Single.Pipelines as Pipelines
 import os
 
@@ -13,13 +15,16 @@ class TestPipelines(unittest.TestCase):
         os.chdir(parent)
     cwd = os.getcwd()
 
-    def loadDataDicts(self, x):
+    def loadDataDicts(self, x, calcSacrum = False):
         cur_dir = self.cwd
         dynamic_trial, static_trial,_,_,_ = getfilenames(x)
         dynamic_trial = os.path.join(cur_dir, dynamic_trial)
         static_trial = os.path.join(cur_dir, static_trial)
         motionData = loadData(dynamic_trial)
         staticData = loadData(static_trial)
+        if (calcSacrum):
+            for frame in motionData:
+                frame['SACR'] = pelvisJointCenter(frame)[2]
         data = dataAsDict(motionData, npArray=True)
         static = dataAsDict(staticData, npArray=True)
         return data, static
@@ -299,9 +304,10 @@ class TestPipelines(unittest.TestCase):
                            [714.4191660275219, -8.268045936969543, 1550.088229312965],
                            [-1002.750909308156, 81.20689050873727, 1521.8463616672468],
                            [-991.7315609567293, 82.91868701883672, 1526.597213251877]]
-        expectedLastTimeResults = [[np.nan, np.nan, np.nan],[-991.7393505887787, 82.93448317847992, 1526.6200219105137]]
+        expectedLastTimeResults = [[np.nan, np.nan, np.nan], #nan if data[last_time] is a cleared marker
+                                   [-991.7393505887787, 82.93448317847992, 1526.6200219105137]]
 
-        #Standard case
+        #Normal case
         for i in range(len(frameNumTests)):
             result = Pipelines.transform_from_mov(data,key,clust,3,frameNumTests[i])
             expectedResult = expectedFrameNumResults[i]
@@ -332,6 +338,75 @@ class TestPipelines(unittest.TestCase):
         #test that the key must exist:
         with self.assertRaises(KeyError):
                 Pipelines.transform_from_mov(data,'InvalidKey',clust,0,10)
+
+    def test_segmentFinder(self):
+        data,_ = self.loadDataDicts(3)
+        key = 'LFHD'
+        targetDict = target_dict()
+        segmentDict = segment_dict()
+        j = 10
+
+        missingsTests = [
+            {}, #Normal cases, no other missing markers
+            {'LFHD':[]}, 
+            {'RFHD':[j]}, #tests to ensure we dont reconstruct based on missing markers
+            {'LBHD':[j], 'RFHD':[j]},
+            {'LBHD':[j], 'RFHD':[j], 'RBHD':[j]}
+        ]
+        expectedMissingsResults = [
+            ['RFHD', 'RBHD', 'LBHD'],
+            ['RFHD', 'RBHD', 'LBHD'],
+            ['RBHD', 'LBHD'],
+            ['RBHD'],
+            []
+        ]
+
+        keyTests = ['LFHD', 'C7', 'RPSI', 'LKNE']
+        expectedKeyResults = [
+            ['RFHD', 'RBHD', 'LBHD'],
+            ['STRN', 'CLAV', 'T10', 'RBAK', 'RSHO', 'LSHO'],
+            ['LPSI', 'LASI', 'RASI'],
+            ['LTHI']
+        ]
+
+        for i in range(len(missingsTests)):
+            result = Pipelines.segmentFinder(key,data,targetDict,segmentDict,j,missingsTests[i])
+            self.assertEqual(result, expectedMissingsResults[i])
+
+        for i in range(len(keyTests)):
+            result = Pipelines.segmentFinder(keyTests[i],data,targetDict,segmentDict,j,missingsTests[0])
+            self.assertEqual(result, expectedKeyResults[i])
+
+        #test that the key must exist:
+        with self.assertRaises(KeyError):
+            Pipelines.segmentFinder('InvalidKey',data,targetDict,segmentDict,j,missingsTests[0])
+
+    def test_rigid_fill(self):
+        #Test that the marker SACR must exist:
+        with self.assertRaises(KeyError):
+            data,static = self.loadDataDicts(3)
+            Pipelines.rigid_fill(data, static)
+
+        data,static = self.loadDataDicts(3, True) #True indicates we calculate SACR before testing
+        key = 'LFHD' #clear from LFHD to test gap filling
+        framesToClear = [1, 10, 12, 15, 100, -1]
+        for frameNum in framesToClear:
+            data[key][frameNum] = np.array([np.nan, np.nan, np.nan])
+        
+        result = Pipelines.rigid_fill(data, static)
+        expectedResults = [
+            [-1007.73577975, 71.30567599, 1522.60563455],
+            [-1002.75400789, 81.21320267, 1521.8559697 ],
+            [-1002.57942155, 81.2521139, 1521.81737938],
+            [-1002.31227389, 81.30886597, 1521.78327027],
+            [-991.70150174, 82.79915329, 1526.67335699],
+            [ 714.9015343, -9.04757279, 1550.23346378]
+        ]
+        index = 0
+        for frameNum in framesToClear:
+            np.testing.assert_almost_equal(result[key][frameNum], expectedResults[index], self.rounding_precision)
+            index += 1
+
 
         
 
