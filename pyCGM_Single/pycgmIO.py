@@ -817,7 +817,7 @@ def writeKinetics(CoM_output,kinetics):
     --------
     >>> import sys
     >>> if sys.version_info.major == 2:
-    ...     from backports import tempfil as bptempfile
+    ...     from backports import tempfile as bptempfile
     ...     from bptempfile import TemporaryDirectory
     ... else:
     ...     from tempfile import TemporaryDirectory
@@ -873,7 +873,7 @@ def writeResult(data,filename,**kargs):
         >>> import os
         >>> import sys
         >>> if sys.version_info.major == 2:
-        ...     from backports import tempfil as bptempfile
+        ...     from backports import tempfile as bptempfile
         ...     from bptempfile import TemporaryDirectory
         ... else:
         ...     from tempfile import TemporaryDirectory
@@ -1254,7 +1254,7 @@ def make_sure_path_exists(path):
     >>> import os
     >>> import sys
     >>> if sys.version_info.major == 2:
-    ...     from backports import tempfil as bptempfile
+    ...     from backports import tempfile as bptempfile
     ...     from bptempfile import TemporaryDirectory
     ... else:
     ...     from tempfile import TemporaryDirectory
