@@ -1,2 +1,8 @@
 
 *.pyc
+/pyCGM_Single/tests/test_pycgm_angle.py
+/pyCGM_Single/tests/test_calcAngles_log.txt
+/pyCGM_Single/tests/test_Calc_log1.txt
+/pyCGM_Single/tests/test_Calc_log2.txt
+/pyCGM_Single/tests/test_calcFrames_log1.txt
+/pyCGM_Single/tests/test_calcFrames_log2.txt
