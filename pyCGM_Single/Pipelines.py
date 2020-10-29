@@ -168,11 +168,11 @@ def clearMarker(data,name):
     ... {'LTIL': np.array([-273.1545105 ,  324.53512573,   36.17036057]),
     ... 'RFOP': np.array([ -38.4509964 , -148.6839447 ,   59.21961594])}]
     >>> name = 'LTIL'
-    >>> clearMarker(data, name) #doctest: +NORMALIZE_WHITESPACE
-    [{'LTIL': array([nan, nan, nan]), 
-    'RFOP': array([ -38.4509964 , -148.6839447 ,   59.21961594])}, 
-    {'LTIL': array([nan, nan, nan]), 
-    'RFOP': array([ -38.4509964 , -148.6839447 ,   59.21961594])}]
+    >>> clearMarker(data, name) == [{'LTIL': array([nan, nan, nan]),
+    ... 'RFOP': array([ -38.4509964 , -148.6839447 ,   59.21961594])},
+    ... {'LTIL': array([nan, nan, nan]),
+    ... 'RFOP': array([ -38.4509964 , -148.6839447 ,   59.21961594])}]
+    True
     """
     for i in range(len(data)):
         data[i][name] = np.array([np.nan,np.nan,np.nan])
