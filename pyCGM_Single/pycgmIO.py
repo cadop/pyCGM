@@ -815,6 +815,8 @@ def writeKinetics(CoM_output,kinetics):
 
     Examples
     --------
+    >>> import sys
+    >>> if sys.version_info.major == 2: from backports import tempfile
     >>> from tempfile import TemporaryDirectory
     >>> from numpy import load
     >>> import os
@@ -866,6 +868,8 @@ def writeResult(data,filename,**kargs):
         --------
         >>> from numpy import array, zeros
         >>> import os
+        >>> import sys
+        >>> if sys.version_info.major == 2: from backports import tempfile
         >>> from tempfile import TemporaryDirectory
        
         Prepare a frame of data to write to csv. This example writes joint angle values
