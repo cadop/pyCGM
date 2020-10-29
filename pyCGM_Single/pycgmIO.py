@@ -1242,6 +1242,8 @@ def make_sure_path_exists(path):
     Examples
     --------
     >>> import os
+    >>> import sys
+    >>> if sys.version_info.major == 2: from backports import tempfile
     >>> from tempfile import TemporaryDirectory
     >>> tmpdir = TemporaryDirectory()
     >>> newDirectory = os.path.join(tmpdir.name, 'newDirectory')
