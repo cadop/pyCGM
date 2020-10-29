@@ -1,11 +1,28 @@
 import unittest
 import numpy as np
 from pyCGM_Single.pyCGM_Helpers import getfilenames
+from pyCGM_Single.pycgmIO import loadData, dataAsDict
 import pyCGM_Single.Pipelines as Pipelines
 import os
-import pprint
+
 class TestPipelines(unittest.TestCase):
     rounding_precision = 8
+    cwd = os.getcwd()
+    if(cwd.split(os.sep)[-1]=="pyCGM_Single"):
+        parent = os.path.dirname(cwd)
+        os.chdir(parent)
+    cwd = os.getcwd()
+
+    def loadDataDicts(self, x):
+        cur_dir = self.cwd
+        dynamic_trial, static_trial,_,_,_ = getfilenames(x)
+        dynamic_trial = os.path.join(cur_dir, dynamic_trial)
+        static_trial = os.path.join(cur_dir, static_trial)
+        motionData = loadData(dynamic_trial)
+        staticData = loadData(static_trial)
+        data = dataAsDict(motionData, npArray=True)
+        static = dataAsDict(staticData, npArray=True)
+        return data, static
 
     def test_butterFilter(self):
         tests = [[-1003.58361816, -1003.50396729, -1003.42358398, -1003.3425293,
@@ -231,6 +248,92 @@ class TestPipelines(unittest.TestCase):
                 for j in range(len(result[key])):
                     np.testing.assert_almost_equal(result[key][j], expectedResult[key][j], self.rounding_precision)
 
+
+    def test_transform_from_static(self):
+        data,static = self.loadDataDicts(3)
+        key = 'LFHD'
+        useables = ['RFHD', 'RBHD', 'LBHD']
+        frameNumTests = [0, 1, 2, -1, 10, 100]
+        expectedResults = [[-1007.8145678233541, 71.28465078977477, 1522.6626006179151],
+                    [-1007.7357797476452, 71.30567599088612, 1522.6056345492811],
+                    [-1007.6561772477821, 71.32644261551039, 1522.5516787767372],
+                    [710.8111428914814, -18.282265916438064, 1549.7284035675332],
+                    [-1006.9916284913861, 71.48482387826286, 1522.2367625952083],
+                    [-995.8183141045178, 73.11905329024174, 1526.9072499889455]]
+
+        for i in range(len(frameNumTests)):
+            result = Pipelines.transform_from_static(data,static,key,useables,frameNumTests[i])
+            expectedResult = expectedResults[i]
+            for j in range(len(result)):
+                np.testing.assert_almost_equal(result[j], expectedResult[j], self.rounding_precision)
+        
+        #useables must be at least of length 3:
+        useablesExceptionTests = [
+              ['RFHD', 'RFHD', 'RFHD'],
+              [],
+              ['RFHD'],
+        ]
+        with self.assertRaises(Exception):
+            for test in useablesExceptionTests:
+                Pipelines.transform_from_static(data,static,key,test,frameNumTests[0])
+
+        #test that frameNum must be in range:
+        with self.assertRaises(IndexError):
+                Pipelines.transform_from_static(data,static,key,useables,6000)
+
+        #test that the key must exist:
+        with self.assertRaises(KeyError):
+                Pipelines.transform_from_static(data,static,'InvalidKey',useables,frameNumTests[0])
+
+    def test_transform_from_mov(self):
+        data,_ = self.loadDataDicts(3)
+        key = 'LFHD'
+        clust = ['RFHD', 'RBHD', 'LBHD']
+        frameNumTests = [0, 1, 2, -1, 10, 100]
+        for frame in frameNumTests:
+            data[key][frame] = np.array([np.nan, np.nan, np.nan])
+        lastTimeTests = [0, 20]
+        expectedFrameNumResults = [[-1003.5853191302489, 81.01088363383448, 1522.2423219324983],
+                           [-1003.5051421962658, 81.03139890186682, 1522.1885615624824],
+                           [-1003.4242027260506, 81.05167282762505, 1522.1377603754775],
+                           [714.4191660275219, -8.268045936969543, 1550.088229312965],
+                           [-1002.750909308156, 81.20689050873727, 1521.8463616672468],
+                           [-991.7315609567293, 82.91868701883672, 1526.597213251877]]
+        expectedLastTimeResults = [[np.nan, np.nan, np.nan],[-991.7393505887787, 82.93448317847992, 1526.6200219105137]]
+
+        #Standard case
+        for i in range(len(frameNumTests)):
+            result = Pipelines.transform_from_mov(data,key,clust,3,frameNumTests[i])
+            expectedResult = expectedFrameNumResults[i]
+            for j in range(len(result)):
+                np.testing.assert_almost_equal(result[j], expectedResult[j], self.rounding_precision)
+
+        #Testing last_time
+        for i in range(len(lastTimeTests)):
+            result = Pipelines.transform_from_mov(data,key,clust,lastTimeTests[i],100)
+            expectedResult = expectedLastTimeResults[i]
+            for j in range(len(result)):
+                np.testing.assert_almost_equal(result[j], expectedResult[j], self.rounding_precision)
+
+        #clust must be at least of length 3:
+        clustExceptionTests = [
+              ['RFHD', 'RFHD', 'RFHD'],
+              [],
+              ['RFHD'],
+        ]
+        with self.assertRaises(Exception):
+            for test in clustExceptionTests:
+                Pipelines.transform_from_mov(data,key,test,0,10)
+
+        #test that frameNum must be in range:
+        with self.assertRaises(Exception):
+                Pipelines.transform_from_mov(data,key,clust,0,6100)
+
+        #test that the key must exist:
+        with self.assertRaises(KeyError):
+                Pipelines.transform_from_mov(data,'InvalidKey',clust,0,10)
+
+        
 
 
 
