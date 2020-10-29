@@ -816,8 +816,11 @@ def writeKinetics(CoM_output,kinetics):
     Examples
     --------
     >>> import sys
-    >>> if sys.version_info.major == 2: from backports import tempfile
-    >>> from tempfile import TemporaryDirectory
+    >>> if sys.version_info.major == 2:
+    ...     from backports import tempfil as bptempfile
+    ...     from bptempfile import TemporaryDirectory
+    ... else:
+    ...     from tempfile import TemporaryDirectory
     >>> from numpy import load
     >>> import os
     >>> tmpdir = TemporaryDirectory()
@@ -869,8 +872,11 @@ def writeResult(data,filename,**kargs):
         >>> from numpy import array, zeros
         >>> import os
         >>> import sys
-        >>> if sys.version_info.major == 2: from backports import tempfile
-        >>> from tempfile import TemporaryDirectory
+        >>> if sys.version_info.major == 2:
+        ...     from backports import tempfil as bptempfile
+        ...     from bptempfile import TemporaryDirectory
+        ... else:
+        ...     from tempfile import TemporaryDirectory
        
         Prepare a frame of data to write to csv. This example writes joint angle values
         for the first joint, the pelvis, and axis values for the pelvis origin, PELO.
@@ -1247,8 +1253,11 @@ def make_sure_path_exists(path):
     --------
     >>> import os
     >>> import sys
-    >>> if sys.version_info.major == 2: from backports import tempfile
-    >>> from tempfile import TemporaryDirectory
+    >>> if sys.version_info.major == 2:
+    ...     from backports import tempfil as bptempfile
+    ...     from bptempfile import TemporaryDirectory
+    ... else:
+    ...     from tempfile import TemporaryDirectory
     >>> tmpdir = TemporaryDirectory()
     >>> newDirectory = os.path.join(tmpdir.name, 'newDirectory')
     >>> make_sure_path_exists(newDirectory)
