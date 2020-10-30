@@ -7,15 +7,17 @@ import os
 rounding_precision = 8
 
 class TestKinetics(TestCase):
-    """
-    This test provides coverage for the functions in pycgmKinetics.py,
-    the testing covers the following cases: lists, numpy arrays, floats, negative numbers.
-    
-    Each index in the accuracyTest list matches each index in the accuracyResults list.
-
-    Exceptions involving strings, missing values, and fewer than required element lists are also tested.
-    """
     def test_f(self):
+        """
+        This test provides coverage of the f function in pycgmKinetics.py,
+        defined as f(p, x), where p is a list of at least 2 elements and x 
+        is a int or float.
+
+        Only the first two elements of p is used, all excess elements are ignored in the calculation.
+
+        Each index in accuracyTests is used in f and the result is then 
+        checked to be equal with the same index in accuracyResults.
+        """
         accuracyTests=[
             ([0,0],0),
             ([1,2],10),
@@ -47,8 +49,10 @@ class TestKinetics(TestCase):
             expected = accuracyResults[i]
             np.testing.assert_almost_equal(result, expected, rounding_precision)
 
-        self.assertFalse(pycgmKinetics.f([1,2], 2) == 10)
+        # f([1,2], 2) should result in 4, test to make sure it does not calculate anything else.
+        self.assertFalse(pycgmKinetics.f([1,2], 2) != 4)
         
+        # Test the following exceptions to make sure that they do raise errors when used in f. 
         exceptionTests=[([1],2), ([],2), ([1,2]), (2), ([]), ([1,2], "a"), (["a","b"], "c")]
         for e in exceptionTests:
             with self.assertRaises(Exception):
