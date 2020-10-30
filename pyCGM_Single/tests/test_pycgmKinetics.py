@@ -1,4 +1,4 @@
-from unittest import mock, TestCase
+from unittest import TestCase
 import pytest
 import pyCGM_Single.pycgmKinetics as pycgmKinetics
 import numpy as np
@@ -7,15 +7,15 @@ import os
 rounding_precision = 8
 
 class TestKinetics(TestCase):
-    def test_f(self):
-        """
-        This test provides coverage for the function f in pycgmKinetics.py,
-        the testing covers the following cases: lists, numpy arrays, floats, negative numbers.
-        
-        Each index in the accuracyTest list matches each index in the accuracyResults list.
+    """
+    This test provides coverage for the functions in pycgmKinetics.py,
+    the testing covers the following cases: lists, numpy arrays, floats, negative numbers.
+    
+    Each index in the accuracyTest list matches each index in the accuracyResults list.
 
-        Exceptions involving strings, less than 2 element lists and missing a int are also tested.
-        """
+    Exceptions involving strings, missing values, and fewer than required element lists are also tested.
+    """
+    def test_f(self):
         accuracyTests=[
             ([0,0],0),
             ([1,2],10),
@@ -384,6 +384,9 @@ class TestKinetics(TestCase):
                 pycgmKinetics.pnt2line(e[0],e[1],e[2])
     
     def test_findL5_Pelvis(self):
+        """
+        This function tests 3 different frames.
+        """
         accuracyTests=[]
         frame={}
         frame['Pelvis_axis'] = [np.array([151.60830688, 291.74131775, 832.89349365]), np.array([[251.74063624, 392.72694721, 1032.78850073], [250.61711554, 391.87232862, 1032.8741063], [251.60295336, 391.84795134, 1033.88777762]]), np.array([231.57849121, 210.25262451, 1052.24969482])]
@@ -415,6 +418,9 @@ class TestKinetics(TestCase):
                 np.testing.assert_almost_equal(result[j], expected[j])
     
     def test_findL5_Thorax(self):
+        """
+        This function tests 3 different frames.
+        """
         accuracyTests=[]
         frame={}
         frame['Thorax_axis'] = [[[256.3454633226447, 365.7223958512035, 1461.920891187948], [257.26637166499415, 364.69602499862503, 1462.2347234647593], [256.1842731803127, 364.4328898435265, 1461.363045336319]], [256.2729542797522, 364.79605748807074, 1462.2905392309394]]
@@ -449,40 +455,40 @@ class TestKinetics(TestCase):
                 np.testing.assert_almost_equal(result[j], expected[j])
     
     def test_getKinetics(self):
+        """
+        Using helper functions to obtain joint_centers,
+        The function test_getKinetics then does testing by using 5 different bodymasses and the same joint_center.
+        """
         from pyCGM_Single.pyCGM_Helpers import getfilenames
         from pyCGM_Single.pycgmIO import loadData, loadVSK
         from pyCGM_Single.pycgmStatic import getStatic
         from pyCGM_Single.pycgmCalc import calcAngles
 
-        cwd = os.getcwd()
-        if (cwd.split(os.sep)[-1]=="pyCGM_Single"):
-            parent = os.path.dirname(cwd)
-            os.chdir(parent)
-        cwd = os.getcwd()
-        sampleDataDir = os.path.join(cwd, "SampleData/ROM/") 
-        
-        dynamic_trial = sampleDataDir + "Sample_Dynamic.c3d"
-        static_trial =  sampleDataDir + "Sample_Static.c3d"
-        vsk_file = sampleDataDir + "Sample_SM.vsk"
+        cwd = os.getcwd() + os.sep
 
         dynamic_trial,static_trial,vsk_file,_,_ = getfilenames(2)
-        motionData  = loadData(cwd+"/"+dynamic_trial)
-        staticData = loadData(cwd+"/"+static_trial)
-        vsk = loadVSK(cwd+"/"+vsk_file,dict=False)
+        motionData  = loadData(cwd+dynamic_trial)
+        staticData = loadData(cwd+static_trial)
+        vsk = loadVSK(cwd+vsk_file,dict=False)
 
         calSM = getStatic(staticData,vsk,flat_foot=False)
         _,joint_centers=calcAngles(motionData,start=None,end=None,vsk=calSM, splitAnglesAxis=False,formatData=False,returnjoints=True)
-        
-        CoM_coords = pycgmKinetics.getKinetics(joint_centers, calSM['Bodymass'])
 
         accuracyTests=[]
-        accuracyTests.append((joint_centers,calSM['Bodymass']))
+        calSM['Bodymass']=5.0
+        for i in range(5):
+            accuracyTests.append((joint_centers,calSM['Bodymass']))
+            calSM['Bodymass']+=35.75
         
         accuracyResults=[
-            ([228.5241582, 320.87776246, 998.59374786]),
+            ([ 246.57466721,  313.55662383, 1026.56323492]),
+            ([ 246.59137623,  313.6216639 , 1026.56440096]),
+            ([ 246.60850798,  313.6856272 , 1026.56531282]),
+            ([ 246.6260863 ,  313.74845693, 1026.56594554]),
+            ([ 246.64410308,  313.81017167, 1026.5663452 ]),
         ]
-        for i in range(len(accuracyTests)):
+        for i in range(len(accuracyResults)):
             result = [np.around(arr,rounding_precision) for arr in pycgmKinetics.getKinetics(accuracyTests[i][0],accuracyTests[i][1])]
             expected = list(accuracyResults[i])
-            for j in range(len(result)):
-                np.testing.assert_almost_equal(result[j][0], expected[j])
+            np.testing.assert_almost_equal(result[i],accuracyResults[i], rounding_precision)
+
