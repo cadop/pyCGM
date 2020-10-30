@@ -815,16 +815,17 @@ def writeKinetics(CoM_output,kinetics):
 
     Examples
     --------
-    >>> import sys
-    >>> if sys.version_info.major == 2:
-    ...     from backports import tempfile
-    ...     from tempfile import TemporaryDirectory
+    >>> import tempfile
+    >>> pyver = sys.version_info.major
+    >>> if pyver == 2:
+    ...     tmpdirName = tempfile.mkdtemp()
     ... else:
-    ...     from tempfile import TemporaryDirectory
+    ...     tmpdir = tempfile.TemporaryDirectory()
+    ...     tmpdirName = tmpdir.name
     >>> from numpy import load
     >>> import os
-    >>> tmpdir = TemporaryDirectory()
-    >>> CoM_output = os.path.join(tmpdir.name, 'CoM')
+    >>> from shutil import rmtree
+    >>> CoM_output = os.path.join(tmpdirName, 'CoM')
     >>> kinetics = [[246.57466721, 313.55662383, 1026.56323492],
     ...             [246.59137623, 313.6216639, 1026.56440096],
     ...             [246.60850798, 313.6856272, 1026.56531282]]
@@ -833,6 +834,7 @@ def writeKinetics(CoM_output,kinetics):
     array([[ 246.57466721, 313.55662383, 1026.56323492],
            [ 246.59137623, 313.6216639 , 1026.56440096],
            [ 246.60850798, 313.6856272 , 1026.56531282]])
+    >>> rmtree(tmpdirName)
     """
     np.save(CoM_output,kinetics)
         
@@ -871,13 +873,15 @@ def writeResult(data,filename,**kargs):
         --------
         >>> from numpy import array, zeros
         >>> import os
-        >>> import sys
-        >>> if sys.version_info.major == 2:
-        ...     from backports import tempfile
-        ...     from tempfile import TemporaryDirectory
+        >>> from shutil import rmtree
+        >>> import tempfile
+        >>> pyver = sys.version_info.major
+        >>> if pyver == 2:
+        ...     tmpdirName = tempfile.mkdtemp()
         ... else:
-        ...     from tempfile import TemporaryDirectory
-       
+        ...     tmpdir = tempfile.TemporaryDirectory()
+        ...     tmpdirName = tmpdir.name
+
         Prepare a frame of data to write to csv. This example writes joint angle values
         for the first joint, the pelvis, and axis values for the pelvis origin, PELO.
 
@@ -1252,17 +1256,19 @@ def make_sure_path_exists(path):
     Examples
     --------
     >>> import os
-    >>> import sys
-    >>> if sys.version_info.major == 2:
-    ...     from backports import tempfile
-    ...     from tempfile import TemporaryDirectory
+    >>> from shutil import rmtree
+    >>> import tempfile
+    >>> pyver = sys.version_info.major
+    >>> if pyver == 2:
+    ...     tmpdirName = tempfile.mkdtemp()
     ... else:
-    ...     from tempfile import TemporaryDirectory
-    >>> tmpdir = TemporaryDirectory()
-    >>> newDirectory = os.path.join(tmpdir.name, 'newDirectory')
+    ...     tmpdir = tempfile.TemporaryDirectory()
+    ...     tmpdirName = tmpdir.name
+    >>> newDirectory = os.path.join(tmpdirName, 'newDirectory')
     >>> make_sure_path_exists(newDirectory)
     >>> os.path.isdir(newDirectory)
     True
+    >>> rmtree(tmpdirName)
     """
     try:
         os.makedirs(path)
