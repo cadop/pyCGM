@@ -14,7 +14,7 @@ else:
 requires = ">=2, <3" if vers == 2 else ">=3"
 
 setuptools.setup(
-    name="pycgm", 
+    name="pycgm",
     version= __version__,
     author="", # Many
     author_email="cadop@umich.edu",
