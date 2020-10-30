@@ -53,9 +53,9 @@ def butterFilter(data, cutoff, Fs):
     First, we create a sin wave and add noise to it.
 
     >>> from numpy import arange, around, pi, random, shape, sin
-    >>> Fs = 360
+    >>> Fs = 360.0
     >>> t = 1
-    >>> x = arange(0,t,1/Fs)
+    >>> x = arange(0,2,1/Fs)
     >>> f = 10
     >>> y = sin(2*pi*f*x)
     >>> around(y, 8)
