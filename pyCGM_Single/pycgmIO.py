@@ -884,6 +884,7 @@ def writeResult(data,filename,**kargs):
 
         Prepare a frame of data to write to csv. This example writes joint angle values
         for the first joint, the pelvis, and axis values for the pelvis origin, PELO.
+
         >>> frame = zeros(273)
         >>> angles = array([-0.308494914509454, -6.12129279337001, 7.57143110215171])
         >>> for i in range(len(angles)):
@@ -893,7 +894,9 @@ def writeResult(data,filename,**kargs):
         ...     frame[i+57] = axis[i]
         >>> data = [frame]
         >>> outfile = os.path.join(tmpdirName, 'output')
+
         Writing angles only.
+
         >>> writeResult(data, outfile, angles=True, axis=False)
         >>> with open(outfile + '.csv') as file:
         ...     lines = file.readlines()
@@ -901,7 +904,9 @@ def writeResult(data,filename,**kargs):
         >>> result #doctest: +NORMALIZE_WHITESPACE
         ['0.000000000000000',
          '-0.308494914509454', '-6.121292793370010', '7.571431102151710',...]
+
         Writing axis only.
+
         >>> writeResult(data, outfile, angles=False, axis=True)
         (1, 273)...
         >>> with open(outfile + '.csv') as file:
