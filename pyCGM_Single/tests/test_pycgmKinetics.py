@@ -16,8 +16,10 @@ class TestKinetics(TestCase):
         Only the first two elements of p is used, all excess elements are ignored in the calculation.
 
         Each index in accuracyTests is used in f and the result is then 
-        checked to be equal with the same index in accuracyResults.
+        checked to be equal with the same index in accuracyResults using
+        8 decimal point precision comparison on equality.
         """
+        # Test the following cases: lists, numpy arrays, excessive elements, negative numbers, floats
         accuracyTests=[
             ([0,0],0),
             ([1,2],10),
