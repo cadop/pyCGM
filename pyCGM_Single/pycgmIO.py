@@ -893,7 +893,7 @@ def writeResult(data,filename,**kargs):
         >>> for i in range(len(axis)):
         ...     frame[i+57] = axis[i]
         >>> data = [frame]
-        >>> outfile = os.path.join(tmpdir.name, 'output')
+        >>> outfile = os.path.join(tmpdirName, 'output')
 
         Writing angles only.
 
