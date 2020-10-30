@@ -1,4 +1,5 @@
 import unittest
+from unittest.mock import patch, call
 import pyCGM_Single.pyCGM as pyCGM
 import numpy as np
 from parameterized import parameterized
@@ -10,6 +11,7 @@ class TestUpperBodyAxis(unittest.TestCase):
     rand_coor = [np.random.randint(0, 10), np.random.randint(0, 10), np.random.randint(0, 10)]
 
     @parameterized.expand([
+        # Test from running sample data
         [{'LFHD': np.array([184.55158997, 409.68713379, 1721.34289551]), 'RFHD': np.array([325.82983398, 402.55450439, 1722.49816895]), 'LBHD': np.array([197.8621521 , 251.28889465, 1696.90197754]), 'RBHD': np.array([304.39898682, 242.91339111, 1694.97497559])},
          {'HeadOffset': 0.2571990469310653},
          [[[255.21685582510975, 407.11593887758056, 1721.8253843887082], [254.19105385179665, 406.146809183757, 1721.9176771191715], [255.19034370229795, 406.2160090443217, 1722.9159912851449]], [255.19071197509766, 406.1208190917969, 1721.9205322265625]]],
@@ -17,11 +19,11 @@ class TestUpperBodyAxis(unittest.TestCase):
         [{'LFHD': np.array([1, 1, 0]), 'RFHD': np.array([0, 1, 0]), 'LBHD': np.array([1, 0, 0]), 'RBHD': np.array([0, 0, 0])},
          {'HeadOffset': 0.0},
          [[[0.5, 2, 0], [1.5, 1, 0], [0.5, 1, -1]], [0.5, 1, 0]]],
-        # Setting the markers so there's no variance in the x-dimension, resulting in np.nan
+        # Setting the markers so there's no variance in the x-dimension
         [{'LFHD': np.array([0, 1, 0]), 'RFHD': np.array([0, 1, 0]), 'LBHD': np.array([0, 0, 0]), 'RBHD': np.array([0, 0, 0])},
          {'HeadOffset': 0.0},
          [[nan_3d, nan_3d, nan_3d], [0, 1, 0]]],
-        # Setting the markers so there's no variance in the y-dimension, resulting in np.nan
+        # Setting the markers so there's no variance in the y-dimension
         [{'LFHD': np.array([1, 0, 0]), 'RFHD': np.array([0, 0, 0]), 'LBHD': np.array([1, 0, 0]), 'RBHD': np.array([0, 0, 0])},
          {'HeadOffset': 0.0},
          [[nan_3d, nan_3d, nan_3d], [0.5, 0, 0]]],
@@ -55,15 +57,16 @@ class TestUpperBodyAxis(unittest.TestCase):
         np.testing.assert_almost_equal(result[1], expected[1], rounding_precision)
 
     @parameterized.expand([
+        # Test from running sample data
         [{'C7': np.array([251.22619629, 229.75683594, 1533.77624512]), 'T10': np.array([228.64323425, 192.32041931, 1279.6418457]), 'CLAV': np.array([256.78051758, 371.28042603, 1459.70300293]), 'STRN': np.array([251.67492676, 414.10391235, 1292.08508301])},
         [[[256.23991128535846, 365.30496976939753, 1459.662169500559], [257.1435863244796, 364.21960599061947, 1459.588978712983], [256.0843053658035, 364.32180498523223, 1458.6575930699294]], [256.149810236564, 364.3090603933987, 1459.6553639290375]]],
         # Basic test with a variance of 1 in the x and y dimensions of the markers
         [{'C7': np.array([1, 1, 0]), 'T10': np.array([0, 1, 0]), 'CLAV': np.array([1, 0, 0]), 'STRN': np.array([0, 0, 0])},
          [[[1, 6, 0], [1, 7, 1], [0, 7, 0]], [1, 7, 0]]],
-        # Setting the markers so there's no variance in the x-dimension, resulting in np.nan
+        # Setting the markers so there's no variance in the x-dimension
         [{'C7': np.array([0, 1, 0]), 'T10': np.array([0, 1, 0]), 'CLAV': np.array([0, 0, 0]), 'STRN': np.array([0, 0, 0])},
          [[nan_3d, nan_3d, nan_3d], nan_3d]],
-        # Setting the markers so there's no variance in the y-dimension, resulting in np.nan
+        # Setting the markers so there's no variance in the y-dimension
         [{'C7': np.array([1, 0, 0]), 'T10': np.array([0, 0, 0]), 'CLAV': np.array([1, 0, 0]), 'STRN': np.array([0, 0, 0])},
          [[nan_3d, nan_3d, nan_3d], nan_3d]],
         # Setting each marker in a different xy quadrant
@@ -87,50 +90,151 @@ class TestUpperBodyAxis(unittest.TestCase):
         np.testing.assert_almost_equal(result[1], expected[1], rounding_precision)
 
     @parameterized.expand([
-        [{'RSHO': np.array([428.88476562, 270.552948, 1500.73010254]),
-          'LSHO': np.array([68.24668121, 269.01049805, 1510.1072998])},
-         [[[256.23991128535846, 365.30496976939753, 1459.662169500559],
-           [257.1435863244796, 364.21960599061947, 1459.588978712983],
-           [256.0843053658035, 364.32180498523223, 1458.6575930699294]],
-          [256.149810236564, 364.3090603933987, 1459.6553639290375]],
-         [[255.92550222678443, 364.3226950497605, 1460.6297868417887],
-          [256.42380097331767, 364.27770361353487, 1460.6165849382387]],
+        # Test from running sample data
+        [{'RSHO': np.array([428.88476562, 270.552948, 1500.73010254]), 'LSHO': np.array([68.24668121, 269.01049805, 1510.1072998])},
+         [[[256.23991128535846, 365.30496976939753, 1459.662169500559], [257.1435863244796, 364.21960599061947, 1459.588978712983], [256.0843053658035, 364.32180498523223, 1458.6575930699294]], [256.149810236564, 364.3090603933987, 1459.6553639290375]],
+         [[255.92550222678443, 364.3226950497605, 1460.6297868417887], [256.42380097331767, 364.27770361353487, 1460.6165849382387]],
          {'RightShoulderOffset': 40.0, 'LeftShoulderOffset': 40.0},
-         [np.array([429.66951995,  275.06718615, 1453.95397813]),
-          np.array([64.51952734,  274.93442161, 1463.6313334])]],
+         [[255.92550222678443, 364.3226950497605, 1460.6297868417887], [256.149810236564, 364.3090603933987, 1459.6553639290375], np.array([ 428.88476562,  270.552948  , 1500.73010254]), 47.0],
+         [[256.42380097331767, 364.27770361353487, 1460.6165849382387], [256.149810236564, 364.3090603933987, 1459.6553639290375], np.array([68.24668121, 269.01049805, 1510.1072998]), 47.0]],
+        # Basic test with zeros for all params
+        [{'RSHO': np.array([0, 0, 0]), 'LSHO': np.array([0, 0, 0])},
+         [[rand_coor, rand_coor, rand_coor], [0, 0, 0]],
+         [[0, 0, 0], [0, 0, 0]],
+         {'RightShoulderOffset': 0.0, 'LeftShoulderOffset': 0.0},
+         [[0, 0, 0], [0, 0, 0], np.array([0, 0, 0]), 7.0],
+         [[0, 0, 0], [0, 0, 0], np.array([0, 0, 0]), 7.0]],
+        # Testing when values are added to RSHO and LSHO
+        [{'RSHO': np.array([2, -1, 3]), 'LSHO': np.array([-3, 1, 2])},
+         [[rand_coor, rand_coor, rand_coor], [0, 0, 0]],
+         [[0, 0, 0], [0, 0, 0]],
+         {'RightShoulderOffset': 0.0, 'LeftShoulderOffset': 0.0},
+         [[0, 0, 0], [0, 0, 0], np.array([2, -1, 3]), 7.0],
+         [[0, 0, 0], [0, 0, 0], np.array([-3, 1, 2]), 7.0]],
+        # Testing when a value is added to thorax_origin
+        [{'RSHO': np.array([0, 0, 0]), 'LSHO': np.array([0, 0, 0])},
+         [[rand_coor, rand_coor, rand_coor], [5, -2, 7]],
+         [[0, 0, 0], [0, 0, 0]],
+         {'RightShoulderOffset': 0.0, 'LeftShoulderOffset': 0.0},
+         [[0, 0, 0], [5, -2, 7], np.array([0, 0, 0]), 7.0],
+         [[0, 0, 0], [5, -2, 7], np.array([0, 0, 0]), 7.0]],
+        # Testing when a value is added to wand
+        [{'RSHO': np.array([0, 0, 0]), 'LSHO': np.array([0, 0, 0])},
+         [[rand_coor, rand_coor, rand_coor], [0, 0, 0]],
+         [[2, 6, -4], [-3, 5, 2]],
+         {'RightShoulderOffset': 0.0, 'LeftShoulderOffset': 0.0},
+         [[2, 6, -4], [0, 0, 0], np.array([0, 0, 0]), 7.0],
+         [[-3, 5, 2], [0, 0, 0], np.array([0, 0, 0]), 7.0]],
+        # Testing when values are added to RightShoulderOffset and LeftShoulderOffset
+        [{'RSHO': np.array([0, 0, 0]), 'LSHO': np.array([0, 0, 0])},
+         [[rand_coor, rand_coor, rand_coor], [0, 0, 0]],
+         [[0, 0, 0], [0, 0, 0]],
+         {'RightShoulderOffset': 20.0, 'LeftShoulderOffset': -20.0},
+         [[0, 0, 0], [0, 0, 0], np.array([0, 0, 0]), 27.0],
+         [[0, 0, 0], [0, 0, 0], np.array([0, 0, 0]), -13.0]],
+        # Adding when values are added to all params
+        [{'RSHO': np.array([3, -5, 2]), 'LSHO': np.array([-7, 3 , 9])},
+         [[rand_coor, rand_coor, rand_coor], [-1, -9, -5]],
+         [[-7, -1, 5], [5, -9, 2]],
+         {'RightShoulderOffset': -6.0, 'LeftShoulderOffset': 42.0},
+         [[-7, -1, 5], [-1, -9, -5], np.array([3, -5, 2]), 1.0],
+         [[5, -9, 2], [-1, -9, -5], np.array([-7, 3 , 9]), 49.0]]
     ])
-    def testFindShoulderJC(self, frame, thorax, wand, vsk, expected):
-        print('actual test')
-        result = pyCGM.findshoulderJC(frame, thorax, wand, vsk)
+    def testFindShoulderJC(self, frame, thorax, wand, vsk, expected_call_right, expected_call_left):
+        rand_coor = [np.random.randint(0, 10), np.random.randint(0, 10), np.random.randint(0, 10)]
+        with patch.object(pyCGM, 'findJointC', return_value=rand_coor) as mock_findJointC:
+            result = pyCGM.findshoulderJC(frame, thorax, wand, vsk)
+
+        # Asserting that there were only 2 calls to findJointC
+        self.assertEqual(mock_findJointC.call_count, 2)
+
+        # Asserting that the correct params were sent in the 1st (right) call to findJointC
+        np.testing.assert_almost_equal(expected_call_right[0], mock_findJointC.call_args_list[0][0][0], rounding_precision)
+        np.testing.assert_almost_equal(expected_call_right[1], mock_findJointC.call_args_list[0][0][1], rounding_precision)
+        np.testing.assert_almost_equal(expected_call_right[2], mock_findJointC.call_args_list[0][0][2], rounding_precision)
+        np.testing.assert_almost_equal(expected_call_right[3], mock_findJointC.call_args_list[0][0][3], rounding_precision)
+
+        # Asserting that the correct params were sent in the 2nd (left) call to findJointC
+        np.testing.assert_almost_equal(expected_call_left[0], mock_findJointC.call_args_list[1][0][0], rounding_precision)
+        np.testing.assert_almost_equal(expected_call_left[1], mock_findJointC.call_args_list[1][0][1], rounding_precision)
+        np.testing.assert_almost_equal(expected_call_left[2], mock_findJointC.call_args_list[1][0][2], rounding_precision)
+        np.testing.assert_almost_equal(expected_call_left[3], mock_findJointC.call_args_list[1][0][3], rounding_precision)
+
+        # Asserting that findShoulderJC returned the correct result given the return value given by mocked findJointC
+        np.testing.assert_almost_equal(result[0], rand_coor, rounding_precision)
+        np.testing.assert_almost_equal(result[1], rand_coor, rounding_precision)
+
+    @parameterized.expand([
+        # Test from running sample data
+        [[[[256.23991128535846, 365.30496976939753, 1459.662169500559], [257.1435863244796, 364.21960599061947, 1459.588978712983], [256.0843053658035, 364.32180498523223, 1458.6575930699294]],  [256.149810236564, 364.3090603933987, 1459.6553639290375]],
+         [np.array([429.66951995, 275.06718615, 1453.95397813]), np.array([64.51952734, 274.93442161, 1463.6313334 ])],
+         [[255.92550222678443, 364.3226950497605, 1460.6297868417887], [256.42380097331767, 364.27770361353487, 1460.6165849382387]],
+         [[np.array([429.66951995, 275.06718615, 1453.95397813]), np.array([64.51952734, 274.93442161, 1463.6313334 ])],
+          [[[430.12731330596756, 275.9513661907463, 1454.0469882869343], [429.6862168456729, 275.1632337671314, 1452.9587414419757],  [428.78061812142147, 275.5243518770602, 1453.9831850281803]],
+           [[64.10400324869988, 275.83192826468195, 1463.7790545425955],  [64.59882848203122, 274.80838068265837, 1464.620183745389],  [65.42564601518438, 275.3570272042577, 1463.6125331307376]]]]],
+        # Test with zeros for all params
+        [[[rand_coor, rand_coor, rand_coor], [0, 0, 0]],
+         [np.array([0, 0, 0]),  np.array([0, 0, 0])],
+         [[0, 0, 0], [0, 0, 0]],
+         [[np.array([0, 0, 0]), np.array([0, 0, 0])],
+          [[nan_3d, nan_3d, nan_3d],
+           [nan_3d, nan_3d, nan_3d]]]],
+        # Testing when adding values in thorax but zeros for all other params
+        [[[rand_coor, rand_coor, rand_coor], [8, 2, -6]],
+         [np.array([0, 0, 0]), np.array([0, 0, 0])],
+         [[0, 0, 0], [0, 0, 0]],
+         [[np.array([0, 0, 0]), np.array([0, 0, 0])],
+          [[nan_3d, nan_3d, [0.78446454, 0.19611614, -0.58834841]],
+           [nan_3d, nan_3d, [0.78446454, 0.19611614, -0.58834841]]]]],
+        # Testing when adding values in shoulderJC but zeros for all other params
+        [[[rand_coor, rand_coor, rand_coor], [0, 0, 0]],
+         [np.array([1, 5, -3]), np.array([0, -9, 2])],
+         [[0, 0, 0], [0, 0, 0]],
+         [[np.array([1, 5, -3]), np.array([0, -9, 2])],
+          [[nan_3d, nan_3d, [0.830969149054, 4.154845745271, -2.4929074471]],
+           [nan_3d, nan_3d, [0.0, -8.02381293981, 1.783069542181]]]]],
+        # Testing when adding values in wand but zeros for all other params
+        [[[rand_coor, rand_coor, rand_coor], [0, 0, 0]],
+         [np.array([0, 0, 0]), np.array([0, 0, 0])],
+         [[1, 0, -7], [-3, 5, 3]],
+         [[np.array([0, 0, 0]), np.array([0, 0, 0])],
+          [[nan_3d, nan_3d, nan_3d],
+           [nan_3d, nan_3d, nan_3d]]]],
+        # Testing when adding values to thorax and shoulderJC
+        [[[rand_coor, rand_coor, rand_coor], [8, 2, -6]],
+         [np.array([1, 5, -3]), np.array([0, -9, 2])],
+         [[0, 0, 0], [0, 0, 0]],
+         [[np.array([1, 5, -3]), np.array([0, -9, 2])],
+          [[[0.50428457, 4.62821343, -3.78488277], [1.15140320, 5.85290468, -3.49963055], [1.85518611, 4.63349167, -3.36650833]],
+           [[-0.5611251741, -9.179560055, 1.191979749], [-0.65430149, -8.305871473, 2.3001252440], [0.5069794004, -8.302903324, 1.493020599]]]]],
+        # Testing when adding values to thorax and wand
+        [[[rand_coor, rand_coor, rand_coor], [8, 2, -6]],
+         [np.array([0, 0, 0]), np.array([0, 0, 0])],
+         [[1, 0, -7], [-3, 5, 3]],
+         [[np.array([0, 0, 0]), np.array([0, 0, 0])],
+          [[[-0.269430125, 0.96225044, -0.03849001], [0.55859, 0.18871284, 0.80769095], [0.78446454, 0.19611614, -0.58834841]],
+           [[-0.6130824329, 0.10218040549, -0.7833831087], [-0.09351638899, 0.9752423423, 0.20039226212], [0.7844645405, 0.19611613513, -0.5883484054]]]]],
+        # Testing when adding values to shoulderJC and wand
+        [[[rand_coor, rand_coor, rand_coor], [0, 0, 0]],
+         [np.array([1, 5, -3]), np.array([0, -9, 2])],
+         [[1, 0, -7], [-3, 5, 3]],
+         [[np.array([1, 5, -3]), np.array([0, -9, 2])],
+          [[[1.98367400, 4.88758011, -2.85947514], [0.93824211, 5.52256679, -2.14964131], [0.83096915, 4.15484575, -2.49290745]],
+           [[-0.80094836, -9.12988352, 1.41552417], [-0.59873343, -8.82624991, 2.78187543], [0.0, -8.02381294, 1.78306954]]]]],
+        # Testing when adding values to thorax, shoulderJC and wand
+        [[[rand_coor, rand_coor, rand_coor], [8, 2, -6]],
+         [np.array([1, 5, -3]), np.array([0, -9, 2])],
+         [[1, 0, -7], [-3, 5, 3]],
+         [[np.array([1, 5, -3]), np.array([0, -9, 2])],
+          [[[0.93321781, 5.62330046, -3.77912558], [1.51400083, 5.69077360, -2.49143833], [1.85518611, 4.63349167, -3.36650833]],
+           [[-0.64460664, -9.08385127, 1.24009787], [-0.57223612, -8.287942994, 2.40684228], [0.50697940, -8.30290332, 1.4930206]]]]]])
+    def testShoulderAxisCalc(self, thorax, shoulderJC, wand, expected):
+        result = pyCGM.shoulderAxisCalc(None, thorax, shoulderJC, wand)
         np.testing.assert_almost_equal(result[0], expected[0], rounding_precision)
         np.testing.assert_almost_equal(result[1], expected[1], rounding_precision)
 
     @parameterized.expand([
-        [{'RSHO': np.array([428.88476562, 270.552948, 1500.73010254]),
-          'LSHO': np.array([68.24668121, 269.01049805, 1510.1072998])},
-         [[[256.23991128535846, 365.30496976939753, 1459.662169500559],
-           [257.1435863244796, 364.21960599061947, 1459.588978712983],
-           [256.0843053658035, 364.32180498523223, 1458.6575930699294]],
-          [256.149810236564, 364.3090603933987, 1459.6553639290375]],
-         [np.array([429.66951995, 275.06718615, 1453.95397813]),
-          np.array([64.51952734, 274.93442161, 1463.6313334 ])],
-         [[255.92550222678443, 364.3226950497605, 1460.6297868417887],
-          [256.42380097331767, 364.27770361353487, 1460.6165849382387]],
-         [[np.array([429.66951995, 275.06718615, 1453.95397813]),
-           np.array([64.51952734, 274.93442161, 1463.6313334 ])],
-          [[[430.12731330596756, 275.9513661907463, 1454.0469882869343],
-            [429.6862168456729, 275.1632337671314, 1452.9587414419757],
-            [428.78061812142147, 275.5243518770602, 1453.9831850281803]],
-           [[64.10400324869988, 275.83192826468195, 1463.7790545425955],
-            [64.59882848203122, 274.80838068265837, 1464.620183745389],
-            [65.42564601518438, 275.3570272042577, 1463.6125331307376]]]]]
-    ])
-    def testShoulderAxisCalc(self, frame, thorax, shoulderJC, wand, expected):
-        result = pyCGM.shoulderAxisCalc(frame, thorax, shoulderJC, wand)
-        np.testing.assert_almost_equal(result[0], expected[0], rounding_precision)
-        np.testing.assert_almost_equal(result[1], expected[1], rounding_precision)
-
-    @parameterized.expand([
+        # Test from running sample data
         [{'RSHO': np.array([428.88476562, 270.552948, 1500.73010254]),
           'LSHO': np.array([68.24668121, 269.01049805, 1510.1072998]),
           'RELB': np.array([658.90338135, 326.07580566, 1285.28515625]),
@@ -157,8 +261,18 @@ class TestUpperBodyAxis(unittest.TestCase):
             [-128.45117135279028, 316.79382333592827, 1257.3726028780698],
             [-128.49119037560908, 316.72030884193634, 1258.7843373067021]]],
           [[793.3281430325068, 451.2913478825204, 1084.4325513020426],
-           [-272.4594189740742, 485.801522109477, 1091.3666238350822]]]
-         ]
+           [-272.4594189740742, 485.801522109477, 1091.3666238350822]]]],
+
+        # Testing when
+        #[{'RSHO': np.array([0, 0, 0]), 'LSHO': np.array([0, 0, 0]), 'RELB': np.array([0, 0, 0]), 'LELB': np.array([0, 0, 0]),
+         # 'RWRA': np.array([0, 0, 0]), 'RWRB': np.array([0, 0, 0]), 'LWRA': np.array([0, 0, 0]), 'LWRB': np.array([0, 0, 0])},
+         #[[[0, 0, 0], [0, 0, 0], [0, 0, 0]], [0, 0, 0]],
+         #[np.array([0, 0, 0]), np.array([0, 0, 0])],
+         #[[0, 0, 0], [0, 0, 0]],
+         #{'RightElbowWidth': 0.0, 'LeftElbowWidth': 0.0, 'RightWristWidth': 0.0, 'LeftWristWidth': 0.0},
+         #[[np.array([0, 0, 0]), np.array([0, 0, 0])],
+          #[[[0, 0, 0], [0, 0, 0], [0, 0, 0]], [[0, 0, 0], [0, 0, 0], [0, 0, 0]]],
+          #[[0, 0, 0], [0, 0, 0]]]],
     ])
     def testElbowJointCenter(self, frame, thorax, shoulderJC, wand, vsk, expected):
         result = pyCGM.elbowJointCenter(frame, thorax, shoulderJC, wand, vsk)
@@ -167,41 +281,77 @@ class TestUpperBodyAxis(unittest.TestCase):
         np.testing.assert_almost_equal(result[2], expected[2], rounding_precision)
 
     @parameterized.expand([
-        [{'RWRA': np.array([ 776.51898193,  495.68103027, 1108.38464355]),
-          'RWRB': np.array([ 830.9072876 ,  436.75341797, 1119.11901855]),
-          'LWRA': np.array([-249.28146362, 525.32977295, 1117.09057617]),
-          'LWRB': np.array([-311.77532959, 477.22512817, 1125.1619873]),
-          'RFIN': np.array([863.71374512, 524.4475708, 1074.54248047]),
-          'LFIN': np.array([-326.65890503, 558.34338379, 1091.04284668])},
-         [np.array([429.66951995, 275.06718615, 1453.95397813]),
-          np.array([64.51952734, 274.93442161, 1463.6313334])],
-         [[255.92550222678443, 364.3226950497605, 1460.6297868417887],
-          [256.42380097331767, 364.27770361353487, 1460.6165849382387]],
-         [[np.array([633.667075873457, 304.955421154148, 1256.077995412865]),
-           np.array([-129.169522182155, 316.867164398512, 1258.064407167222])],
-          [[[633.8107013869995, 303.96579004975194, 1256.07658506845],
-            [634.3524799178464, 305.0538658933253, 1256.799473014224],
-            [632.9532180390149, 304.85083190737765, 1256.770431750491]],
-           [[-129.32391792749496, 315.8807291324946, 1258.008662931836],
-            [-128.45117135279028, 316.79382333592827, 1257.3726028780698],
-            [-128.49119037560908, 316.72030884193634, 1258.7843373067021]]],
-          [[793.3281430325068, 451.2913478825204, 1084.4325513020426],
-           [-272.4594189740742, 485.801522109477, 1091.3666238350822]]],
-         [[[793.3281430325068, 451.2913478825204, 1084.4325513020426],
-           [-272.4594189740742, 485.801522109477, 1091.3666238350822]],
-          [[[793.771337279616, 450.4487918719012, 1084.1264823093322],
-            [794.013547076896, 451.3897926216976, 1085.154028903402],
-            [792.7503886251119, 450.761812234714, 1085.053672741407]],
-           [[-272.92507281675125, 485.0120241803687, 1090.9667994752267],
-            [-271.74106814470946, 485.7281810468936, 1090.6748195459295],
-            [-271.9425644638384, 485.1921666233502, 1091.967911874857]]]]]
-    ])
-    def testWristJointCenter(self, frame, shoulderJC, wand, elbowJC, expected):
-        result = pyCGM.wristJointCenter(frame, shoulderJC, wand, elbowJC)
+        # Test from running sample data
+        [[[np.array([633.667075873457, 304.955421154148, 1256.077995412865]), np.array([-129.169522182155, 316.867164398512, 1258.064407167222])],
+          [[[633.8107013869995, 303.96579004975194, 1256.07658506845], [634.3524799178464, 305.0538658933253, 1256.799473014224],  [632.9532180390149, 304.85083190737765, 1256.770431750491]],
+           [[-129.32391792749496, 315.8807291324946, 1258.008662931836], [-128.45117135279028, 316.79382333592827, 1257.3726028780698],  [-128.49119037560908, 316.72030884193634, 1258.7843373067021]]],
+          [[793.3281430325068, 451.2913478825204, 1084.4325513020426],  [-272.4594189740742, 485.801522109477, 1091.3666238350822]]],
+         [[[793.3281430325068, 451.2913478825204, 1084.4325513020426], [-272.4594189740742, 485.801522109477, 1091.3666238350822]],
+          [[[793.771337279616, 450.4487918719012, 1084.1264823093322], [794.013547076896, 451.3897926216976, 1085.154028903402], [792.7503886251119, 450.761812234714, 1085.053672741407]],
+           [[-272.92507281675125, 485.0120241803687, 1090.9667994752267], [-271.74106814470946, 485.7281810468936, 1090.6748195459295], [-271.9425644638384, 485.1921666233502, 1091.967911874857]]]]],
+        # Test with zeros for all params
+        [[[np.array([0, 0, 0]), np.array([0, 0, 0])],
+          [[[0, 0, 0], [0, 0, 0], [0, 0, 0]], [[0, 0, 0], [0, 0, 0], [0, 0, 0]]],
+          [[0, 0, 0], [0, 0, 0]]],
+         [[[0, 0, 0], [0, 0, 0]],
+          [[nan_3d, nan_3d, nan_3d],
+           [nan_3d, nan_3d, nan_3d]]]],
+        # Testing when adding values in elbowJC[0]
+        [[[np.array([9, -5, 7]), np.array([-1, 6, 4])],
+          [[[0, 0, 0], [0, 0, 0], [0, 0, 0]], [[0, 0, 0], [0, 0, 0], [0, 0, 0]]],
+          [[0, 0, 0], [0, 0, 0]]],
+         [[[0, 0, 0], [0, 0, 0]],
+          [[nan_3d, [-0.7228974 ,  0.40160966, -0.56225353], nan_3d],
+           [nan_3d, [0.13736056, -0.82416338, -0.54944226], nan_3d]]]],
+        # Testing when adding values in elbowJC[1]
+        [[[np.array([0, 0, 0]),  np.array([0, 0, 0])],
+          [[[-3, -9, 6], [4, -5, 5], [-9, 7, 0]], [[4, -1, 0], [3, -5, 1], [0, -9, 7]]],
+          [[0, 0, 0], [0, 0, 0]]],
+         [[[0, 0, 0], [0, 0, 0]],
+          [[nan_3d, [0.49236596, -0.61545745,  0.61545745], nan_3d],
+           [nan_3d, [0.50709255, -0.84515425, 0.16903085], nan_3d]]]],
+        # Testing when adding values in elbowJC[2]
+        [[[np.array([0, 0, 0]), np.array([0, 0, 0])],
+          [[[0, 0, 0], [0, 0, 0], [0, 0, 0]], [[0, 0, 0], [0, 0, 0], [0, 0, 0]]],
+          [[6, -1, 5], [7, 6, 0]]],
+         [[[6, -1, 5], [7, 6, 0]],
+          [[nan_3d, nan_3d, nan_3d],
+           [nan_3d, nan_3d, nan_3d]]]],
+        # Testing when adding values in elbowJC[0] and elbowJC[1]
+        [[[np.array([9, -5, 7]), np.array([-1, 6, 4])],
+          [[[-3, -9, 6], [4, -5, 5], [-9, 7, 0]], [[4, -1, 0], [3, -5, 1], [0, -9, 7]]],
+          [[0, 0, 0], [0, 0, 0]]],
+         [[[0, 0, 0], [0, 0, 0]],
+          [[[-0.31403715, 0.53386315, 0.78509287], [-0.92847669, 0, -0.37139068], [-0.1982718, -0.84557089, 0.49567949]],
+           [[-0.81649658, -0.40824829, 0.40824829], [0.33104236, -0.91036648, -0.24828177], [0.47301616, -0.06757374, 0.87845859]]]]],
+        # Testing when adding values in elbowJC[0] and elbowJC[2]
+        [[[np.array([9, -5, 7]), np.array([-1, 6, 4])],
+          [[[0, 0, 0], [0, 0, 0], [0, 0, 0]], [[0, 0, 0], [0, 0, 0], [0, 0, 0]]],
+          [[6, -1, 5], [7, 6, 0]]],
+         [[[6, -1, 5], [7, 6, 0]],
+          [[[ 5.35300336, -1.10783277, 5.75482941], [5.2771026, -0.59839034, 4.43774647], [5.75748257, -1.90944036, 4.66220787]],
+           [[6.60350884, 6.46257302, -0.79298232], [7.13736056, 5.17583662, -0.54944226], [6.09229584, 5.67322650, 0.26323421]]]]],
+        # Testing when adding values in elbowJC[1] and elbowJC[2]
+        [[[np.array([0, 0, 0]), np.array([0, 0, 0])],
+          [[[-3, -9, 6], [4, -5, 5], [-9, 7, 0]], [[4, -1, 0], [3, -5, 1], [0, -9, 7]]],
+          [[6, -1, 5], [7, 6, 0]]],
+         [[[6, -1, 5], [7, 6, 0]],
+          [[[ 6.58321184, -1.29160592, 4.2418246], [6.49236596, -1.61545745, 5.61545745], [5.35390426, -1.73224184, 4.78463475]],
+           [[7.11153264, 5.86987859, -0.985205], [7.50709255, 5.15484575, 0.16903085], [6.14535527, 5.48155743, -0.02827869]]]]],
+        # Testing when adding values in elbowJC
+        [[[np.array([9, -5, 7]), np.array([-1, 6, 4])],
+          [[[-3, -9, 6], [4, -5, 5], [-9, 7, 0]], [[4, -1, 0], [3, -5, 1], [0, -9, 7]]],
+          [[6, -1, 5], [7, 6, 0]]],
+         [[[6, -1, 5], [7, 6, 0]],
+          [[[5.63485163, -0.81742581, 5.91287093], [ 5.07152331, -1, 4.62860932], [5.93219365, -1.98319208, 5.16951588]],
+           [[6.55425751, 6.08104409, -0.89148499], [7.33104236, 5.08963352, -0.24828177], [6.16830018, 5.59421098, 0.37896]]]]]])
+    def testWristJointCenter(self, elbowJC, expected):
+        result = pyCGM.wristJointCenter(None, None, None, elbowJC)
         np.testing.assert_almost_equal(result[0], expected[0], rounding_precision)
         np.testing.assert_almost_equal(result[1], expected[1], rounding_precision)
 
     @parameterized.expand([
+        # Test from running sample data
         [{'RWRA': np.array([ 776.51898193,  495.68103027, 1108.38464355]),
           'RWRB': np.array([ 830.9072876 ,  436.75341797, 1119.11901855]),
           'RFIN': np.array([ 863.71374512,  524.4475708 , 1074.54248047]),
@@ -234,7 +384,16 @@ class TestUpperBodyAxis(unittest.TestCase):
             [859.1355641971873, 516.6167307529585, 1052.300218811959]],
            [[-324.61994077156373, 552.1589330842497, 1068.9839343010813],
             [-325.3329318534787, 551.2929248618385, 1068.1227296356121],
-            [-323.938374013488, 551.1305800350597, 1068.2925901317217]]]]]
+            [-323.938374013488, 551.1305800350597, 1068.2925901317217]]]]],
+
+        # Test from running sample data
+        #[{'RWRA': np.array([0, 0, 0]), 'RWRB': np.array([0, 0, 0]), 'RFIN': np.array([0, 0, 0]),
+         # 'LWRA': np.array([0, 0, 0]), 'LWRB': np.array([0, 0, 0]), 'LFIN': np.array([0, 0, 0])},
+         #[[np.array([0, 0, 0]), np.array([0, 0, 0])], [[[0, 0, 0], [0, 0, 0], [0, 0, 0]],
+          # [[0, 0, 0], [0, 0, 0], [0, 0, 0]]], [[0, 0, 0], [0, 0, 0]]],
+         #[[[0, 0, 0], [0, 0, 0]], [[[0, 0, 0], [0, 0, 0], [0, 0, 0]], [[0, 0, 0], [0, 0, 0], [0, 0, 0]]]],
+         #{'RightHandThickness': 0.0, 'LeftHandThickness': 0.0},
+         #[[np.array([0, 0, 0]), np.array([0, 0, 0])], [[[0, 0, 0], [0, 0, 0], [0, 0, 0]], [[0, 0, 0], [0, 0, 0], [0, 0, 0]]]]],
     ])
     def testHandJointCenter(self, frame, elbowJC, wristJC, vsk, expected):
         result = pyCGM.handJointCenter(frame, elbowJC, wristJC, vsk)
@@ -242,16 +401,54 @@ class TestUpperBodyAxis(unittest.TestCase):
         np.testing.assert_almost_equal(result[1], expected[1], rounding_precision)
 
 class TestLowerBodyAxis(unittest.TestCase):
+    nan_3d = [np.nan, np.nan, np.nan]
+    rand_int = np.random.randint(0, 10)
+    rand_coor = [np.random.randint(0, 10), np.random.randint(0, 10), np.random.randint(0, 10)]
 
     @parameterized.expand([
-        [{'RASI': np.array([357.90066528, 377.69210815, 1034.97253418]),
-          'LASI': np.array([145.31594849, 405.79052734, 1030.81445312]),
-          'RPSI': np.array([274.00466919, 205.64402771, 1051.76452637]),
-          'LPSI': np.array([189.15231323, 214.86122131, 1052.73486328])},
+        # Test from running sample data
+        [{'RASI': np.array([357.90066528, 377.69210815, 1034.97253418]), 'LASI': np.array([145.31594849, 405.79052734, 1030.81445312]),
+          'RPSI': np.array([274.00466919, 205.64402771, 1051.76452637]), 'LPSI': np.array([189.15231323, 214.86122131, 1052.73486328])},
          [np.array([251.60830688, 391.74131775, 1032.89349365]),
           np.array([[251.74063624, 392.72694721, 1032.78850073], [250.61711554, 391.87232862, 1032.8741063], [251.60295336, 391.84795134, 1033.88777762]]),
-          np.array([231.57849121, 210.25262451, 1052.24969482])]]
-    ])
+          np.array([231.57849121, 210.25262451, 1052.24969482])]],
+        # Test with zeros for all params
+        [{'SACR': np.array([0, 0, 0]), 'RASI': np.array([0, 0, 0]), 'LASI': np.array([0, 0, 0]),
+          'RPSI': np.array([0, 0, 0]), 'LPSI': np.array([0, 0, 0])},
+         [np.array([0, 0, 0]), np.array([nan_3d, nan_3d, nan_3d]), np.array([0, 0, 0])]],
+        # Testing when adding values to frame['RASI'] and frame['LASI']
+        [{'RASI': np.array([-6, 6, 3]), 'LASI': np.array([-7, -9, 1]), 'RPSI': np.array([0, 0, 0]), 'LPSI': np.array([0, 0, 0])},
+         [np.array([-6.5, -1.5,  2.0]),
+          np.array([[-7.44458106, -1.48072284, 2.32771179], [-6.56593805, -2.48907071, 1.86812391], [-6.17841206, -1.64617634, 2.93552855]]),
+          np.array([0, 0, 0])]],
+        # Testing when adding values to frame['RPSI'] and frame['LPSI']
+        [{'RASI': np.array([0, 0, 0]), 'LASI': np.array([0, 0, 0]), 'RPSI': np.array([1, 0, -4]), 'LPSI': np.array([7, -2, 2])},
+         [np.array([0, 0, 0]), np.array([nan_3d, nan_3d, nan_3d]), np.array([4., -1.0, -1.0])]],
+        # Testing when adding values to frame['SACR']
+        [{'SACR': np.array([-4, 8, -5]), 'RASI': np.array([0, 0, 0]), 'LASI': np.array([0, 0, 0]),
+          'RPSI': np.array([0, 0, 0]), 'LPSI': np.array([0, 0, 0])},
+         [np.array([0, 0, 0]), np.array([nan_3d, nan_3d, nan_3d]), np.array([-4,  8, -5,])]],
+        # Testing when adding values to frame['RASI'], frame['LASI'], frame['RPSI'] and frame['LPSI']
+        [{'RASI': np.array([-6, 6, 3]), 'LASI': np.array([-7, -9, 1]), 'RPSI': np.array([1, 0, -4]), 'LPSI': np.array([7, -2, 2])},
+         [np.array([-6.5, -1.5,  2.0]),
+          np.array([[-7.45825845, -1.47407957, 2.28472598], [-6.56593805, -2.48907071, 1.86812391], [-6.22180416, -1.64514566, 2.9494945]]),
+          np.array([4.0, -1.0, -1.0])]],
+        # Testing when adding values to frame['SACR'], frame['RASI'] and frame['LASI']
+        [{'SACR': np.array([-4, 8, -5]), 'RASI': np.array([-6, 6, 3]), 'LASI': np.array([-7, -9, 1]),
+          'RPSI': np.array([0, 0, 0]), 'LPSI': np.array([0, 0, 0])},
+         [np.array([-6.5, -1.5,  2.0]),
+          np.array([[-6.72928306, -1.61360872, 2.96670695], [-6.56593805, -2.48907071, 1.86812391], [-5.52887619, -1.59397972, 2.21928602]]),
+          np.array([-4, 8, -5])]],
+        # Testing when adding values to frame['SACR'], frame['RPSI'] and frame['LPSI']
+        [{'SACR': np.array([-4, 8, -5]), 'RASI': np.array([0, 0, 0]), 'LASI': np.array([0, 0, 0]),
+          'RPSI': np.array([1, 0, -4]), 'LPSI': np.array([7, -2, 2])},
+         [np.array([0, 0, 0]), np.array([nan_3d, nan_3d, nan_3d]), np.array([-4,  8, -5])]],
+        # Testing when adding values to frame['SACR'], frame['RASI'], frame['LASI'], frame['RPSI'] and frame['LPSI']
+        [{'SACR': np.array([-4, 8, -5]), 'RASI': np.array([-6, 6, 3]), 'LASI': np.array([-7, -9, 1]),
+          'RPSI': np.array([1, 0, -4]), 'LPSI': np.array([7, -2, 2])},
+         [np.array([-6.5, -1.5,  2.0]),
+          np.array([[-6.72928306, -1.61360872, 2.96670695], [-6.56593805, -2.48907071, 1.86812391], [-5.52887619, -1.59397972,  2.21928602]]),
+          np.array([-4,  8, -5])]]])
     def testPelvisJointCenter(self, frame, expected):
         result = pyCGM.pelvisJointCenter(frame)
         np.testing.assert_almost_equal(result[0], expected[0], rounding_precision)
@@ -259,35 +456,107 @@ class TestLowerBodyAxis(unittest.TestCase):
         np.testing.assert_almost_equal(result[2], expected[2], rounding_precision)
 
     @parameterized.expand([
-        [[251.608306884766, 391.741317749023, 1032.893493652344],
-         [251.740636241119, 392.726947206848, 1032.788500732036],
-         [250.617115540376, 391.872328624646, 1032.874106304030],
-         [251.602953357582, 391.847951338178, 1033.887777624562],
+        # Test from running sample data
+        [[251.608306884766, 391.741317749023, 1032.893493652344], [251.740636241119, 392.726947206848, 1032.788500732036], [250.617115540376, 391.872328624646, 1032.874106304030], [251.602953357582, 391.847951338178, 1033.887777624562],
          {'MeanLegLength': 940.0, 'R_AsisToTrocanterMeasure': 72.512, 'L_AsisToTrocanterMeasure': 72.512, 'InterAsisDistance': 215.908996582031},
-         [[182.57097863, 339.43231855, 935.52900126], [308.38050472, 322.80342417, 937.98979061]]]
-    ])
+         [[182.57097863, 339.43231855, 935.52900126], [308.38050472, 322.80342417, 937.98979061]]],
+        # Basic test with zeros for all params
+        [[0, 0, 0], [0, 0, 0], [0, 0, 0], [0, 0, 0],
+         {'MeanLegLength': 0.0, 'R_AsisToTrocanterMeasure': 0.0, 'L_AsisToTrocanterMeasure': 0.0, 'InterAsisDistance': 0.0},
+         [[0, 0, 0], [0, 0, 0]]],
+        # Testing when values are added to pel_origin
+        [[1, 0, -3], [0, 0, 0], [0, 0, 0], [0, 0, 0],
+         {'MeanLegLength': 0.0, 'R_AsisToTrocanterMeasure': 0.0, 'L_AsisToTrocanterMeasure': 0.0, 'InterAsisDistance': 0.0},
+         [[-6.1387721, 0, 18.4163163], [8.53165418, 0, -25.59496255]]],
+        # Testing when values are added to pel_x
+        [[0, 0, 0], [-5, -3, -6], [0, 0, 0], [0, 0, 0],
+         {'MeanLegLength': 0.0, 'R_AsisToTrocanterMeasure': 0.0, 'L_AsisToTrocanterMeasure': 0.0, 'InterAsisDistance': 0.0},
+         [[54.02442793, 32.41465676, 64.82931352], [54.02442793, 32.41465676, 64.82931352]]],
+        # Testing when values are added to pel_y
+        [[0, 0, 0], [0, 0, 0], [4, -1, 2], [0, 0, 0],
+         {'MeanLegLength': 0.0, 'R_AsisToTrocanterMeasure': 0.0, 'L_AsisToTrocanterMeasure': 0.0, 'InterAsisDistance': 0.0},
+         [[29.34085257, -7.33521314, 14.67042628], [-29.34085257,   7.33521314, -14.67042628]]],
+        # Testing when values are added to pel_z
+        [[0, 0, 0], [0, 0, 0], [0, 0, 0], [3, 8, 2],
+         {'MeanLegLength': 0.0, 'R_AsisToTrocanterMeasure': 0.0, 'L_AsisToTrocanterMeasure': 0.0, 'InterAsisDistance': 0.0},
+         [[31.82533363, 84.86755635, 21.21688909], [31.82533363, 84.86755635, 21.21688909]]],
+        # Test when values are added to pel_x, pel_y, and pel_z
+        [[0, 0, 0], [-5, -3, -6], [4, -1, 2], [3, 8, 2],
+         {'MeanLegLength': 0.0, 'R_AsisToTrocanterMeasure': 0.0, 'L_AsisToTrocanterMeasure': 0.0, 'InterAsisDistance': 0.0},
+         [[115.19061413, 109.94699997, 100.71662889], [56.508909  , 124.61742625,  71.37577632]]],
+        # Test when values are added to pel_origin, pel_x, pel_y, and pel_z
+        [[1, 0, -3], [-5, -3, -6], [4, -1, 2], [3, 8, 2],
+         {'MeanLegLength': 0.0, 'R_AsisToTrocanterMeasure': 0.0, 'L_AsisToTrocanterMeasure': 0.0, 'InterAsisDistance': 0.0},
+         [[109.05184203, 109.94699997, 119.13294518], [65.04056318, 124.61742625,  45.78081377]]],
+        # Test when values are added to pel_origin, pel_x, pel_y, pel_z, and vsk[MeanLegLength]
+        [[1, 0, -3], [-5, -3, -6], [4, -1, 2], [3, 8, 2],
+         {'MeanLegLength': 15.0, 'R_AsisToTrocanterMeasure': 0.0, 'L_AsisToTrocanterMeasure': 0.0, 'InterAsisDistance': 0.0},
+         [[100.88576753,  97.85280235, 106.39612748], [61.83654463, 110.86920998,  41.31408931]]],
+        # Test when values are added to pel_origin, pel_x, pel_y, pel_z, and vsk[R_AsisToTrocanterMeasure]
+        [[1, 0, -3], [-5, -3, -6], [4, -1, 2], [3, 8, 2],
+         {'MeanLegLength': 0.0, 'R_AsisToTrocanterMeasure': -24.0, 'L_AsisToTrocanterMeasure': 0.0, 'InterAsisDistance': 0.0},
+         [[109.05184203, 109.94699997, 119.13294518], [-57.09307697, 115.44008189,  14.36512267]]],
+        # Test when values are added to pel_origin, pel_x, pel_y, pel_z, and vsk[L_AsisToTrocanterMeasure]
+        [[1, 0, -3], [-5, -3, -6], [4, -1, 2], [3, 8, 2],
+         {'MeanLegLength': 0.0, 'R_AsisToTrocanterMeasure': 0.0, 'L_AsisToTrocanterMeasure': 0-7.0, 'InterAsisDistance': 0.0},
+         [[73.42953032, 107.27027453, 109.97003528], [65.04056318, 124.61742625,  45.78081377]]],
+        # Test when values are added to pel_origin, pel_x, pel_y, pel_z, and vsk[InterAsisDistance]
+        [[1, 0, -3], [-5, -3, -6], [4, -1, 2], [3, 8, 2],
+         {'MeanLegLength': 0.0, 'R_AsisToTrocanterMeasure': 0.0, 'L_AsisToTrocanterMeasure': 0.0, 'InterAsisDistance': 11.0},
+         [[125.55184203, 104.44699997, 146.63294518], [48.54056318, 130.11742625,  18.28081377]]],
+        # Test when values are added to pel_origin, pel_x, pel_y, pel_z, and all values in vsk
+        [[1, 0, -3], [-5, -3, -6], [4, -1, 2], [3, 8, 2],
+         {'MeanLegLength': 15.0, 'R_AsisToTrocanterMeasure': -24.0, 'L_AsisToTrocanterMeasure': -7.0, 'InterAsisDistance': 11.0},
+         [[81.76345582,  89.67607691, 124.73321758], [-76.79709552, 107.19186562, -17.60160178]]]])
     def testHipJointCenter(self, pel_origin, pel_x, pel_y, pel_z, vsk, expected):
         result = pyCGM.hipJointCenter(None, pel_origin, pel_x, pel_y, pel_z, vsk)
         np.testing.assert_almost_equal(result[0], expected[0], rounding_precision)
         np.testing.assert_almost_equal(result[1], expected[1], rounding_precision)
 
     @parameterized.expand([
-        [[182.57097863, 339.43231855, 935.52900126],
-         [308.38050472, 322.80342417, 937.98979061],
-         [np.array([251.60830688, 391.74131775, 1032.89349365]),
-          np.array([[251.74063624, 392.72694721, 1032.78850073], [250.61711554, 391.87232862, 1032.8741063], [251.60295336, 391.84795134, 1033.88777762]]),
-          np.array([231.57849121, 210.25262451, 1052.24969482])],
-         [[245.47574167208043, 331.1178713574418, 936.7593959314677],
-          [[245.60807102843359, 332.10350081526684, 936.6544030111602],
-           [244.48455032769033, 331.2488822330648, 936.7400085831541],
-           [245.47038814489719, 331.22450494659665, 937.7536799036861]]]]
-    ])
+        # Test from running sample data
+        [[182.57097863, 339.43231855, 935.52900126], [308.38050472, 322.80342417, 937.98979061],
+         [np.array([251.60830688, 391.74131775, 1032.89349365]), np.array([[251.74063624, 392.72694721, 1032.78850073], [250.61711554, 391.87232862, 1032.8741063], [251.60295336, 391.84795134, 1033.88777762]]), np.array([231.57849121, 210.25262451, 1052.24969482])],
+         [[245.47574167208043, 331.1178713574418, 936.7593959314677], [[245.60807102843359, 332.10350081526684, 936.6544030111602], [244.48455032769033, 331.2488822330648, 936.7400085831541], [245.47038814489719, 331.22450494659665, 937.7536799036861]]]],
+        # Basic test with zeros for all params
+        [[0, 0, 0], [0, 0, 0],
+         [np.array([0, 0, 0]), np.array([[0, 0, 0], [0, 0, 0], [0, 0, 0]]), np.array(rand_coor)],
+         [[0, 0, 0], [[0, 0, 0], [0, 0, 0], [0, 0, 0]]]],
+        # Testing when values are added to l_hip_jc
+        [[1, -3, 2], [0, 0, 0],
+         [np.array([0, 0, 0]), np.array([[0, 0, 0], [0, 0, 0], [0, 0, 0]]), np.array(rand_coor)],
+         [[0.5, -1.5, 1], [[0.5, -1.5, 1], [0.5, -1.5, 1], [0.5, -1.5, 1]]]],
+        # Testing when values are added to r_hip_jc
+        [[0, 0, 0], [-8, 1, 4],
+         [np.array([0, 0, 0]), np.array([[0, 0, 0], [0, 0, 0], [0, 0, 0]]), np.array(rand_coor)],
+         [[-4, 0.5, 2], [[-4, 0.5, 2], [-4, 0.5, 2], [-4, 0.5, 2]]]],
+        # Testing when values are added to l_hip_jc and r_hip_jc
+        [[8, -3, 7], [5, -2, -1],
+         [np.array([0, 0, 0]), np.array([[0, 0, 0], [0, 0, 0], [0, 0, 0]]), np.array(rand_coor)],
+         [[6.5, -2.5, 3], [[6.5, -2.5, 3], [6.5, -2.5, 3], [6.5, -2.5, 3]]]],
+        # Testing when values are added to pelvis_axis[0]
+        [[0, 0, 0], [0, 0, 0],
+         [np.array([1, -3, 6]), np.array([[0, 0, 0], [0, 0, 0], [0, 0, 0]]), np.array(rand_coor)],
+         [[0, 0, 0], [[-1, 3, -6], [-1, 3, -6], [-1, 3, -6]]]],
+        # Testing when values are added to pelvis_axis[1]
+        [[0, 0, 0], [0, 0, 0],
+         [np.array([0, 0, 0]), np.array([[1, 0, 5], [-2, -7, -3], [9, -2, 7]]), np.array(rand_coor)],
+         [[0, 0, 0], [[1, 0, 5], [-2, -7, -3], [9, -2, 7]]]],
+        # Testing when values are added to pelvis_axis[0] and pelvis_axis[1]
+        [[0, 0, 0], [0, 0, 0],
+         [np.array([-3, 0, 5]), np.array([[-4, 5, -2], [0, 0, 0], [8, 5, -1]]), np.array(rand_coor)],
+         [[0, 0, 0], [[-1, 5, -7], [3, 0, -5], [11, 5, -6]]]],
+        # Testing when values are added to all params
+        [[-5, 3, 8], [-3, -7, -1],
+         [np.array([6, 3, 9]), np.array([[5, 4, -2], [0, 0, 0], [7, 2, 3]]), np.array(rand_coor)],
+         [[-4, -2, 3.5], [[-5, -1, -7.5], [-10, -5, -5.5], [-3, -3, -2.5]]]]])
     def testHipAxisCenter(self, l_hip_jc, r_hip_jc, pelvis_axis, expected):
         result = pyCGM.hipAxisCenter(l_hip_jc, r_hip_jc, pelvis_axis)
         np.testing.assert_almost_equal(result[0], expected[0], rounding_precision)
         np.testing.assert_almost_equal(result[1], expected[1], rounding_precision)
 
     @parameterized.expand([
+        # Test from running sample data
         [{'RTHI': np.array([426.50338745, 262.65310669, 673.66247559]),
           'LTHI': np.array([51.93867874, 320.01849365, 723.03186035]),
           'RKNE': np.array([416.98687744, 266.22558594, 524.04089355]),
@@ -298,7 +567,14 @@ class TestLowerBodyAxis(unittest.TestCase):
          [np.array([364.17774614, 292.17051722, 515.19181496]),
           np.array([143.55478579, 279.90370346, 524.78408753]),
           np.array([[[364.61959153, 293.06758353, 515.18513093], [363.29019771, 292.60656648, 515.04309095], [364.04724541, 292.24216264, 516.18067112]],
-                    [[143.65611282, 280.88685896, 524.63197541], [142.56434499, 280.01777943, 524.86163553], [143.64837987, 280.04650381, 525.76940383]]])]]
+                    [[143.65611282, 280.88685896, 524.63197541], [142.56434499, 280.01777943, 524.86163553], [143.64837987, 280.04650381, 525.76940383]]])]],
+
+        # Testing when
+        #[{'RTHI': np.array([0, 0, 0]), 'LTHI': np.array([0, 0, 0]), 'RKNE': np.array([0, 0, 0]), 'LKNE': np.array([0, 0, 0])},
+         #[[0, 0, 0], [0, 0, 0]],
+         #0,
+         #{'RightKneeWidth': 0.0, 'LeftKneeWidth': 0.0},
+         #[np.array([0, 0, 0]), np.array([0, 0, 0]), np.array([[[0, 0, 0], [0, 0, 0], [0, 0, 0]], [[0, 0, 0], [0, 0, 0], [0, 0, 0]]])]],
     ])
     def testKneeJointCenter(self, frame, hip_JC, delta, vsk, expected):
         result = pyCGM.kneeJointCenter(frame, hip_JC, delta, vsk)
@@ -307,6 +583,7 @@ class TestLowerBodyAxis(unittest.TestCase):
         np.testing.assert_almost_equal(result[2], expected[2], rounding_precision)
 
     @parameterized.expand([
+        # Test from running sample data
         [{'RTIB': np.array([433.97537231, 211.93408203, 273.3008728 ]),
           'LTIB': np.array([50.04016495, 235.90718079, 364.32226562]),
           'RANK': np.array([422.77005005, 217.74053955, 92.86152649]),
@@ -326,7 +603,15 @@ class TestLowerBodyAxis(unittest.TestCase):
             np.array([393.69314056, 247.78157916, 88.73002876])],
            [np.array([98.47494966, 220.42553803, 80.52821783]),
             np.array([97.79246671, 219.20927275, 80.76255901]),
-            np.array([98.84848169, 219.60345781, 81.61663775])]]]]
+            np.array([98.84848169, 219.60345781, 81.61663775])]]]],
+
+        # Testing when
+        #[{'RTIB': np.array([0, 0, 0]), 'LTIB': np.array([0, 0, 0]), 'RANK': np.array([0, 0, 0]), 'LANK': np.array([0, 0, 0])},
+         #[np.array([0, 0, 0]), np.array([0, 0, 0]), np.array([[[0, 0, 0], [0, 0, 0], [0, 0, 0]], [[0, 0, 0], [0, 0, 0], [0, 0, 0]]])],
+         #0,
+         #{'RightAnkleWidth': 0.0, 'LeftAnkleWidth': 0.0, 'RightTibialTorsion': 0.0, 'LeftTibialTorsion': 0.0},
+         #[np.array([0, 0, 0]), np.array([0, 0, 0]), [[np.array([0, 0, 0]), np.array([0, 0, 0]), np.array([0, 0, 0])],
+          # [np.array([0, 0, 0]), np.array([0, 0, 0]), np.array([0, 0, 0])]]]],
     ])
     def testAnkleJointCenter(self, frame, knee_JC, delta, vsk, expected):
         result = pyCGM.ankleJointCenter(frame, knee_JC, delta, vsk)
@@ -335,29 +620,98 @@ class TestLowerBodyAxis(unittest.TestCase):
         np.testing.assert_almost_equal(result[2], expected[2], rounding_precision)
 
     @parameterized.expand([
-        [{'RTOE': np.array([442.81997681, 381.62280273, 42.66047668]),
-          'LTOE': np.array([39.43652725, 382.44522095, 41.78911591])},
+        # Test from running sample data
+        [{'RTOE': np.array([442.81997681, 381.62280273, 42.66047668]), 'LTOE': np.array([39.43652725, 382.44522095, 41.78911591])},
          {'RightStaticRotOff': 0.015683497632642047, 'RightStaticPlantFlex': 0.2702417907002757, 'LeftStaticRotOff': 0.009402910292403022, 'LeftStaticPlantFlex': 0.20251085737834015},
-         [np.array([393.76181608, 247.67829633, 87.73775041]),
-          np.array([98.74901939, 219.46930221, 80.6306816]),
+         [np.array([393.76181608, 247.67829633, 87.73775041]), np.array([98.74901939, 219.46930221, 80.6306816]),
           [[np.array([394.48171575, 248.37201348, 87.715368]), np.array([393.07114384, 248.39110006, 87.61575574]), np.array([393.69314056, 247.78157916, 88.73002876])],
            [np.array([98.47494966, 220.42553803, 80.52821783]), np.array([97.79246671, 219.20927275, 80.76255901]), np.array([98.84848169, 219.60345781, 81.61663775])]]],
-         [np.array([364.17774614, 292.17051722, 515.19181496]),
-          np.array([143.55478579, 279.90370346, 524.78408753]),
-          np.array([[[364.61959153, 293.06758353, 515.18513093], [363.29019771, 292.60656648, 515.04309095], [364.04724541, 292.24216264, 516.18067112]],
-                    [[143.65611282, 280.88685896, 524.63197541], [142.56434499, 280.01777943, 524.86163553], [143.64837987, 280.04650381, 525.76940383]]])],
-         0,
-         [np.array([442.81997681, 381.62280273, 42.66047668]),
-          np.array([39.43652725, 382.44522095, 41.78911591]),
-          [[[442.8462412676692, 381.6513024007671, 43.65972537588915],
-            [441.8773505621594, 381.95630350196393, 42.67574106247485],
-            [442.48716163075153, 380.68048378251575, 42.69610043598381]],
-           [[39.566526257915626, 382.50901000467115, 42.778575967950964],
-            [38.493133283871245, 382.1460684058263, 41.932348504971834],
-            [39.74166341694723, 381.493150197213, 41.81040458481808]]]]]
-    ])
-    def testFootJointCenter(self, frame, vsk, ankle_JC, knee_JC, delta, expected):
-        result = pyCGM.footJointCenter(frame, vsk, ankle_JC, knee_JC, delta)
+         [np.array([442.81997681, 381.62280273, 42.66047668]), np.array([39.43652725, 382.44522095, 41.78911591]),
+          [[[442.8462412676692, 381.6513024007671, 43.65972537588915], [441.8773505621594, 381.95630350196393, 42.67574106247485], [442.48716163075153, 380.68048378251575, 42.69610043598381]],
+           [[39.566526257915626, 382.50901000467115, 42.778575967950964], [38.493133283871245, 382.1460684058263, 41.932348504971834], [39.74166341694723, 381.493150197213, 41.81040458481808]]]]],
+        # Test with zeros for all params
+        [{'RTOE': np.array([0, 0, 0]), 'LTOE': np.array([0, 0, 0])},
+         {'RightStaticRotOff': 0.0, 'RightStaticPlantFlex': 0.0, 'LeftStaticRotOff': 0.0, 'LeftStaticPlantFlex': 0.0},
+         [np.array([0, 0, 0]), np.array([0, 0, 0]),
+          [[np.array(rand_coor), np.array([0, 0, 0]), np.array(rand_coor)],
+           [np.array(rand_coor), np.array([0, 0, 0]), np.array(rand_coor)]]],
+         [np.array([0, 0, 0]), np.array([0, 0, 0]),
+          [[nan_3d, nan_3d, nan_3d],
+           [nan_3d, nan_3d, nan_3d]]]],
+        # Testing when adding values in frame['RTOE'] and frame['LTOE']
+        [{'RTOE': np.array([4, 0, -3]), 'LTOE': np.array([-1, 7, 2])},
+         {'RightStaticRotOff': 0.0, 'RightStaticPlantFlex': 0.0, 'LeftStaticRotOff': 0.0, 'LeftStaticPlantFlex': 0.0},
+         [np.array([0, 0, 0]), np.array([0, 0, 0]),
+          [[np.array(rand_coor), np.array([0, 0, 0]), np.array(rand_coor)],
+           [np.array(rand_coor), np.array([0, 0, 0]), np.array(rand_coor)]]],
+         [np.array([4, 0, -3]), np.array([-1, 7, 2]),
+          [[nan_3d, nan_3d, nan_3d],
+           [nan_3d, nan_3d, nan_3d]]]],
+        # Testing when adding values in vsk
+        [{'RTOE': np.array([0, 0, 0]), 'LTOE': np.array([0, 0, 0])},
+         {'RightStaticRotOff': -12.0, 'RightStaticPlantFlex': 20.0, 'LeftStaticRotOff': 34.0, 'LeftStaticPlantFlex': -70.0},
+         [np.array([0, 0, 0]), np.array([0, 0, 0]),
+          [[np.array(rand_coor), np.array([0, 0, 0]), np.array(rand_coor)],
+           [np.array(rand_coor), np.array([0, 0, 0]), np.array(rand_coor)]]],
+         [np.array([0, 0, 0]), np.array([0, 0, 0]),
+          [[nan_3d, nan_3d, nan_3d],
+           [nan_3d, nan_3d, nan_3d]]]],
+        # Testing when adding values to ankle_JC[0] and ankle_JC[1]
+        [{'RTOE': np.array([0, 0, 0]), 'LTOE': np.array([0, 0, 0])},
+         {'RightStaticRotOff': 0.0, 'RightStaticPlantFlex': 0.0, 'LeftStaticRotOff': 0.0, 'LeftStaticPlantFlex': 0.0},
+         [np.array([-3, 5, 2]), np.array([2, 3, 9]),
+          [[np.array(rand_coor), np.array([0, 0, 0]), np.array(rand_coor)],
+           [np.array(rand_coor), np.array([0, 0, 0]), np.array(rand_coor)]]],
+         [np.array([0, 0, 0]), np.array([0, 0, 0]),
+          [[nan_3d, nan_3d, nan_3d],
+           [nan_3d, nan_3d, nan_3d]]]],
+        # Testing when adding values to ankle_JC[2]
+        [{'RTOE': np.array([0, 0, 0]), 'LTOE': np.array([0, 0, 0])},
+         {'RightStaticRotOff': 0.0, 'RightStaticPlantFlex': 0.0, 'LeftStaticRotOff': 0.0, 'LeftStaticPlantFlex': 0.0},
+         [np.array([0, 0, 0]), np.array([0, 0, 0]),
+          [[np.array(rand_coor), np.array([-1, 0, 2]), np.array(rand_coor)],
+           [np.array(rand_coor), np.array([9, 3, -4]), np.array(rand_coor)]]],
+         [np.array([0, 0, 0]), np.array([0, 0, 0]),
+          [[nan_3d, nan_3d, nan_3d],
+           [nan_3d, nan_3d, nan_3d]]]],
+        # Testing when adding values to ankle_JC
+        [{'RTOE': np.array([0, 0, 0]), 'LTOE': np.array([0, 0, 0])},
+         {'RightStaticRotOff': 0.0, 'RightStaticPlantFlex': 0.0, 'LeftStaticRotOff': 0.0, 'LeftStaticPlantFlex': 0.0},
+         [np.array([-3, 5, 2]), np.array([2, 3, 9]),
+          [[np.array(rand_coor), np.array([-1, 0, 2]), np.array(rand_coor)],
+           [np.array(rand_coor), np.array([9, 3, -4]), np.array(rand_coor)]]],
+         [np.array([0, 0, 0]), np.array([0, 0, 0]),
+          [[[-0.84215192, -0.33686077, -0.42107596], [-0.23224564, -0.47815279,  0.8470135 ], [-0.48666426,  0.81110711,  0.32444284]],
+           [[0.39230172, -0.89525264, 0.21123939], [0.89640737, 0.32059014, -0.30606502], [0.20628425, 0.30942637, 0.92827912]]]]],
+        # Testing when adding values in frame and vsk
+        [{'RTOE': np.array([4, 0, -3]), 'LTOE': np.array([-1, 7, 2])},
+         {'RightStaticRotOff': -12.0, 'RightStaticPlantFlex': 20.0, 'LeftStaticRotOff': 34.0,'LeftStaticPlantFlex': -70.0},
+         [np.array([0, 0, 0]), np.array([0, 0, 0]),
+          [[np.array(rand_coor), np.array([0, 0, 0]), np.array(rand_coor)],
+           [np.array(rand_coor), np.array([0, 0, 0]), np.array(rand_coor)]]],
+         [np.array([4, 0, -3]), np.array([-1, 7, 2]),
+          [[nan_3d, nan_3d, nan_3d],
+           [nan_3d, nan_3d, nan_3d]]]],
+        # Testing when adding values in frame and thoraxJC
+        [{'RTOE': np.array([4, 0, -3]), 'LTOE': np.array([-1, 7, 2])},
+         {'RightStaticRotOff': 0.0, 'RightStaticPlantFlex': 0.0, 'LeftStaticRotOff': 0.0, 'LeftStaticPlantFlex': 0.0},
+         [np.array([-3, 5, 2]), np.array([2, 3, 9]),
+          [[np.array(rand_coor), np.array([-1, 0, 2]), np.array(rand_coor)],
+           [np.array(rand_coor), np.array([9, 3, -4]), np.array(rand_coor)]]],
+         [np.array([4, 0, -3]), np.array([-1, 7, 2]),
+          [[[3.31958618, -0.27216553, -3.68041382], [3.79484752, -0.82060994, -2.46660354], [3.29647353,  0.50251891, -2.49748109]],
+           [[-1.49065338, 6.16966351, 1.73580203], [-0.20147784, 6.69287609, 1.48227684], [-0.65125708, 6.53500945, 2.81373347]]]]],
+        # Testing when adding values in frame, vsk and thoraxJC
+        [{'RTOE': np.array([4, 0, -3]), 'LTOE': np.array([-1, 7, 2])},
+         {'RightStaticRotOff': -12.0, 'RightStaticPlantFlex': 20.0, 'LeftStaticRotOff': 34.0, 'LeftStaticPlantFlex': -70.0},
+         [np.array([-3, 5, 2]), np.array([2, 3, 9]),
+          [[np.array(rand_coor), np.array([-1, 0, 2]), np.array(rand_coor)],
+           [np.array(rand_coor), np.array([9, 3, -4]), np.array(rand_coor)]]],
+         [np.array([4, 0, -3]), np.array([-1, 7, 2]),
+          [[[3.08005417, 0.34770638, -2.81889243], [4.00614173, -0.44911697, -2.10654814], [4.3919974, 0.82303962, -2.58897224]],
+           [[-1.58062909, 6.83398388, 1.20293758], [-1.59355918, 7.75640754, 2.27483654], [-0.44272327, 7.63268181, 1.46226738]]]]]])
+    def testFootJointCenter(self, frame, vsk, ankle_JC, expected):
+        result = pyCGM.footJointCenter(frame, vsk, ankle_JC, None, None)
         np.testing.assert_almost_equal(result[0], expected[0], rounding_precision)
         np.testing.assert_almost_equal(result[1], expected[1], rounding_precision)
         np.testing.assert_almost_equal(result[2], expected[2], rounding_precision)
@@ -365,6 +719,7 @@ class TestLowerBodyAxis(unittest.TestCase):
 class TestAxisUtils(unittest.TestCase):
 
     @parameterized.expand([
+        # Test from running sample data
         [[426.50338745, 262.65310669, 673.66247559],
          [308.38050472, 322.80342417, 937.98979061],
          [416.98687744, 266.22558594, 524.04089355],
@@ -376,6 +731,7 @@ class TestAxisUtils(unittest.TestCase):
         np.testing.assert_almost_equal(result, expected, rounding_precision)
 
     def testJointAngleCalc(self):
+        # Test from running sample data
         frame = {'LFHD': np.array([ 184.5515899658203,  409.6871337890625, 1721.3428955078125]),
                  'RFHD': np.array([ 325.829833984375  ,  402.55450439453125, 1722.4981689453125 ]),
                  'LBHD': np.array([ 197.86215209960938,  251.2888946533203 , 1696.9019775390625 ]),
