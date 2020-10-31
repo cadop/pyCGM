@@ -7,8 +7,9 @@ rounding_precision = 8
 
 class TestPycgmAngle(unittest.TestCase):
 
-    @parameterized.expand(
-        [[0, 0, 0, [0, 0, 0]],
+    '''
+    def test_getangle_sho(self, xRot, yRot, zRot, expected):
+        testcases = [[0, 0, 0, [0, 0, 0]],
          # X rotations
          [90, 0, 0, [0, 90, 0]], [30, 0, 0, [0, 30, 0]], [-30, 0, 0, [0, -30, 0]], [120, 0, 0, [0, 120, 0]], [-120, 0, 0, [0, -120, 0]], [180, 0, 0, [0, 180, 0]],
          # Y rotations
@@ -16,14 +17,16 @@ class TestPycgmAngle(unittest.TestCase):
          #Z rotations
          [0, 0, 90, [0, 0, 90]], [0, 0, 30, [0, 0, 30]], [0, 0, -30, [0, 0, -30]], [0, 0, 120, [0, 0, 120]], [0, 0, -120, [0, 0, -120]], [0, 0, 180, [0, 0, 180]],
          # Multiple Rotations
-         [150, 30, 0, [30, 150, 0]], [45, 0, 60, [0, 45, 60]], [0, 90, 120, [90, 0, 120]], [135, 45, 90, [45, 135, 90]]])
-    def test_getangle_sho(self, xRot, yRot, zRot, expected):
-        axisP = pyCGM.rotmat(xRot, yRot, zRot)
-        axisD = pyCGM.rotmat(0, 0, 0)
-        result = pyCGM.getangle_sho(axisP, axisD)
-        np.testing.assert_almost_equal(result, expected, rounding_precision)
+         [150, 30, 0, [30, 150, 0]], [45, 0, 60, [0, 45, 60]], [0, 90, 120, [90, 0, 120]], [135, 45, 90, [45, 135, 90]]]
+        for testcase in testcases:
+            axisP = pyCGM.rotmat(testcase[0], testcase[1], testcase[2])
+            axisD = pyCGM.rotmat(0, 0, 0)
+            result = pyCGM.getangle_sho(axisP, axisD)
+            np.testing.assert_almost_equal(result, testcase[3], rounding_precision)
+            '''
 
     def test_getangle_sho_datatypes(self):
+        print('a')
         axisD = pyCGM.rotmat(0, 0, 0)
         axisP_floats = pyCGM.rotmat(90, 0, 90)
         axisP_ints = [[int(y) for y in x] for x in axisP_floats]
