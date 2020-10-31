@@ -2,7 +2,7 @@ import unittest
 import pyCGM_Single.pyCGM as pyCGM
 import numpy as np
 
-rounding_precision = 8
+rounding_precision = 6
 
 class TestPycgmAngle(unittest.TestCase):
 
