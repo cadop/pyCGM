@@ -1,7 +1,6 @@
 import unittest
 import pyCGM_Single.pyCGM as pyCGM
 import numpy as np
-from parameterized import parameterized
 
 rounding_precision = 8
 
