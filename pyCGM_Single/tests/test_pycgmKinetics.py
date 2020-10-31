@@ -15,9 +15,9 @@ class TestKinetics(TestCase):
 
         Only the first two elements of p is used, all excess elements are ignored in the calculation.
 
-        Each index in accuracyTests is used in f and the result is then 
-        checked to be equal with the same index in accuracyResults using
-        8 decimal point precision comparison on equality.
+        Each index in accuracyTests is used as parameters for the function f 
+        and the result is then checked to be equal with the same index in 
+        accuracyResults using 8 decimal point precision comparison.
         """
         # Test the following cases: lists, numpy arrays, excessive elements, negative numbers, floats
         accuracyTests=[
@@ -47,20 +47,30 @@ class TestKinetics(TestCase):
             -3.35920975
         ]
         for i in range(len(accuracyTests)):
+            # Call f(p, x) with the variable given from each accuracyTests index.
             result = pycgmKinetics.f(accuracyTests[i][0],accuracyTests[i][1])
             expected = accuracyResults[i]
             np.testing.assert_almost_equal(result, expected, rounding_precision)
 
-        # f([1,2], 2) should result in 4, test to make sure it does not calculate anything else.
+        # f([1,2], 2) should result in 4, test to make sure it does not result as anything else.
         self.assertFalse(pycgmKinetics.f([1,2], 2) != 4)
         
-        # Test the following exceptions to make sure that they do raise errors when used in f. 
+        # Test the following exceptions to make sure that they do appropriately raise errors when used as parameters for f.
         exceptionTests=[([1],2), ([],2), ([1,2]), (2), ([]), ([1,2], "a"), (["a","b"], "c")]
         for e in exceptionTests:
             with self.assertRaises(Exception):
                 pycgmKinetics.f(e[0],e[1])
 
     def test_dot(self):
+        """
+        This test provides coverage of the dot function in pycgmKinetics.py,
+        defined as dot(v, w), where v and w are 3-element lists.
+
+        Each index in accuracyTests is used as parameters for the function dot 
+        and the result is then checked to be equal with the same index in 
+        accuracyResults using 8 decimal point precision comparison.
+        """
+        # Test the following cases: lists, numpy arrays, list and numpy array, negatives, and floats.
         accuracyTests=[
             ([0,0,0],[3,4,5]),
             ([1,2,3],[4,5,6]),
@@ -71,7 +81,8 @@ class TestKinetics(TestCase):
             ([366.87249488, 972.25566446, 519.54469762], [318.87916021, 624.44837115, 173.28031049]),
             ([143.73405485, 253.65432719, 497.53480618], [607.58442024, -836.1222914, 747.91240563]),
             ([918.86076151, 92.04884656, 568.38140393], [-186.24219938, -724.27298992, -155.58515366]),
-            ([467.7365042, -788.74773579, 500.33205429], [649.06495926, 310.14934252, 853.05203014])
+            ([467.7365042, -788.74773579, 500.33205429], [649.06495926, 310.14934252, 853.05203014]),
+            ([27.7365042, -78.74773579, 31.33205429], np.array([69.06495926, 30.14934252, 53.05203014]))
         ]
         accuracyResults=[
             0,
@@ -83,21 +94,34 @@ class TestKinetics(TestCase):
             814138.32560191,
             247356.98888589,
             -326230.85053223,
-            485771.05802978
+            485771.05802978,
+            1203.65716212
         ]
         for i in range(len(accuracyTests)):
+            # Call dot(v, w) with the variable given from each accuracyTests index.
             result = pycgmKinetics.dot(accuracyTests[i][0],accuracyTests[i][1])
             expected = accuracyResults[i]
             np.testing.assert_almost_equal(result, expected, rounding_precision)
         
+        # dot((0,0,0],[3,4,5]) should result in 0, test to make sure it does not result as anything else.
         self.assertFalse(pycgmKinetics.dot([0,0,0],[3,4,5]) != 0)
 
+        # Test the following exceptions to make sure that they do appropriately raise errors when used as parameters for dot. 
         exceptionTests=[([]), ([1,2,3],[4,5]), ([],[]), ([1,2],[4,5,6]), ([1,2,"c"],[4,5,6]), (["a","b","c"], ["e","f","g"])]
         for e in exceptionTests:
             with self.assertRaises(Exception):
                 pycgmKinetics.dot(e[0],e[1])
 
     def test_length(self):
+        """
+        This test provides coverage of the length function in pycgmKinetics.py,
+        defined as length(v), where v is a 3-element list.
+
+        Each index in accuracyTests is used as parameters for the function length 
+        and the result is then checked to be equal with the same index in 
+        accuracyResults using 8 decimal point precision comparison.
+        """
+        # Test the following cases: lists, floats, numpy arrays, and negatives
         accuracyTests=[
             ([0,0,0]),
             ([1,2,3]),
@@ -131,18 +155,30 @@ class TestKinetics(TestCase):
             1448.86085361
         ]
         for i in range(len(accuracyTests)):
+            # Call length(v) with the variable given from each accuracyTests index.
             result = pycgmKinetics.length(accuracyTests[i])
             expected = accuracyResults[i]
             np.testing.assert_almost_equal(result, expected, rounding_precision)
         
+        # length([0,0,0]) should result in 0.0, test to make sure it does not result as anything else.
         self.assertFalse(pycgmKinetics.length([0,0,0]) != 0.0)
 
+        # Test the following exceptions to make sure that they do appropriately raise errors when used as parameters for length.
         exceptionTests=[([]), ([1]), ([1,2]), ([1,2,"c"]), (["a","b",3])]
         for e in exceptionTests:
             with self.assertRaises(Exception):
                 pycgmKinetics.length(e[0])
     
     def test_vector(self):
+        """
+        This test provides coverage of the vector function in pycgmKinetics.py,
+        defined as vector(b, e), where b and e are 3-element lists.
+
+        Each index in accuracyTests is used as parameters for the function vector 
+        and the result is then checked to be equal with the same index in 
+        accuracyResults using 8 decimal point precision comparison.
+        """
+        # Test the following cases: lists, numpy arrays, negatives, and floats 
         accuracyTests=[
             ([0,0,0],[1,2,3]),
             ([1,2,3],[1,2,3]),
@@ -176,18 +212,30 @@ class TestKinetics(TestCase):
             ([-1195.38091292, -129.93199046, -1764.57722301])
         ]
         for i in range(len(accuracyTests)):
+            # Call vector(b, e) with the variables given from each accuracyTests index.
             result = pycgmKinetics.vector(accuracyTests[i][0],accuracyTests[i][1])
             expected = accuracyResults[i]
             np.testing.assert_almost_equal(result, expected, rounding_precision)
-
+        
+        # vector([1,2,3],[4,5,6]) should result in (3,3,3), test to make sure it does not result as anything else.
         self.assertFalse(pycgmKinetics.vector([1,2,3],[4,5,6]) != (3,3,3))
 
+        # Test the following exceptions to make sure that they do appropriately raise errors when used as parameters for vector.
         exceptionTests=[([]), ([],[]), ([1,2,3],[4,5]), ([1,2],[4,5,6]), (["a",2,3],[4,5,6])]
         for e in exceptionTests:
             with self.assertRaises(Exception):
                 pycgmKinetics.vector(e[0],e[1])
 
     def test_unit(self):
+        """
+        This test provides coverage of the unit function in pycgmKinetics.py,
+        defined as unit(v), where v is a 3-element list.
+
+        Each index in accuracyTests is used as parameters for the function unit 
+        and the result is then checked to be equal with the same index in 
+        accuracyResults using 8 decimal point precision comparison.
+        """
+        # Test the following cases: lists, numpy arrays, floats, and negatives 
         accuracyTests=[
             ([1,1,1]),
             ([1,2,3]),
@@ -221,16 +269,27 @@ class TestKinetics(TestCase):
             ([0.49043839, 0.68456211, 0.53930038])
         ]
         for i in range(len(accuracyTests)):
+            # Call unit(v) with the v given from each accuracyTests index.
             result = pycgmKinetics.unit(accuracyTests[i])
             expected = accuracyResults[i]
             np.testing.assert_almost_equal(result, expected, rounding_precision)
 
+        # Test the following exceptions to make sure that they do appropriately raise errors when used as parameters for unit.
         exceptionTests=[([]), ([1]), ([1,2]), ([1,2,"c"]), (["a","b",3])]
         for e in exceptionTests:
             with self.assertRaises(Exception):
                 pycgmKinetics.unit(e[0])
         
     def test_distance(self):
+        """
+        This test provides coverage of the distance function in pycgmKinetics.py,
+        defined as distance(p0, p1), where p0 and p1 are 3-element lists describing x, y, z points.
+
+        Each index in accuracyTests is used as parameters for the function distance 
+        and the result is then checked to be equal with the same index in 
+        accuracyResults using 8 decimal point precision comparison.
+        """
+        # Test the following cases: lists, numpy arrays, negatives, and floats.
         accuracyTests=[
             ([0,0,0],[1,2,3]),
             ([1,2,3],[1,2,3]),
@@ -264,18 +323,30 @@ class TestKinetics(TestCase):
             (2135.31042827)
         ]
         for i in range(len(accuracyTests)):
+            # Call distance(p0, p1) with the variables given from each accuracyTests index.
             result = pycgmKinetics.distance(accuracyTests[i][0],accuracyTests[i][1])
             expected = accuracyResults[i]
             np.testing.assert_almost_equal(result, expected, rounding_precision)
-
+        
+        # distance([1,2,3],[1,2,3]) should result in (0), test to make sure it does not result as anything else.
         self.assertFalse(pycgmKinetics.distance([1,2,3],[1,2,3]) != (0))
 
+        # Test the following exceptions to make sure that they do appropriately raise errors when used as parameters for distance.
         exceptionTests=[([]), ([],[]), ([1,2,3],[4,5]), ([1,2],[4,5,6]), (["a",2,3],[4,5,6])]
         for e in exceptionTests:
             with self.assertRaises(Exception):
                 pycgmKinetics.vector(e[0],e[1])
         
     def test_scale(self):
+        """
+        This test provides coverage of the scale function in pycgmKinetics.py,
+        defined as scale(v, sc), where v is a 3-element list and sc is a int or float.
+
+        Each index in accuracyTests is used as parameters for the function scale 
+        and the result is then checked to be equal with the same index in 
+        accuracyResults using 8 decimal point precision comparison.
+        """
+        # Test the following cases: lists, numpy arrays, negatives, and floats 
         accuracyTests=[
             ([1,2,3],0),
             ([1,2,3],2),
@@ -305,17 +376,30 @@ class TestKinetics(TestCase):
             ([ 1.21422155, -2.54446061,  4.4739275 ])
         ]
         for i in range(len(accuracyTests)):
+            # Call scale(v, sc) with the variables given from each accuracyTests index.
             result = pycgmKinetics.scale(accuracyTests[i][0],accuracyTests[i][1])
             expected = accuracyResults[i]
             np.testing.assert_almost_equal(result, expected, rounding_precision)
         
+        # scale([1,2,3],0) should result in (0, 0, 0), test to make sure it does not result as anything else.
         self.assertFalse(pycgmKinetics.scale([1,2,3],0) != (0, 0, 0))
+
+        # Test the following exceptions to make sure that they do appropriately raise errors when used as parameters for scale.
         exceptionTests=[([],4), ([1,2,3]), (4), ([1,2],4)]
         for e in exceptionTests:
             with self.assertRaises(Exception):
                 pycgmKinetics.scale(e[0],e[1])
     
     def test_add(self):
+        """
+        This test provides coverage of the add function in pycgmKinetics.py,
+        defined as add(v, w), where v and w are 3-element lists.
+
+        Each index in accuracyTests is used as parameters for the function scale 
+        and the result is then checked to be equal with the same index in 
+        accuracyResults using 8 decimal point precision comparison.
+        """
+        # Test the following cases: lists, numpy arrays, negatives, and floats 
         accuracyTests=[
             ([0,0,0],[1,2,3]),
             ([1,2,3],[1,2,3]),
@@ -349,18 +433,30 @@ class TestKinetics(TestCase):
             ([100.41734628, 317.77531862, 144.99131189])
         ]
         for i in range(len(accuracyTests)):
+            # Call add(v, w) with the variables given from each accuracyTests index.
             result = pycgmKinetics.add(accuracyTests[i][0],accuracyTests[i][1])
             expected = accuracyResults[i]
             np.testing.assert_almost_equal(result, expected, rounding_precision)
-
+        
+        # add([1,2,3],[0,0,0]) should result in (1, 2, 3), test to make sure it does not result as anything else.
         self.assertFalse(pycgmKinetics.add([1,2,3],[0,0,0]) != (1,2,3))
 
+        # Test the following exceptions to make sure that they do appropriately raise errors when used as parameters for add.
         exceptionTests=[([]), ([],[]), ([1,2,3],[4,5]), ([1,2],[4,5,6]), (["a",2,3],[4,5,6])]
         for e in exceptionTests:
             with self.assertRaises(Exception):
                 pycgmKinetics.add(e[0],e[1])
     
     def test_pnt2line(self):
+        """
+        This test provides coverage of the pnt2line function in pycgmKinetics.py,
+        defined as pnt2line(pnt, start, end), where pnt, start, and end are 3-element lists.
+
+        Each index in accuracyTests is used as parameters for the function pnt2line 
+        and the result is then checked to be equal with the same index in 
+        accuracyResults using 8 decimal point precision comparison.
+        """
+        # Test the following cases: lists, numpy arrays, list and numpy array, negatives, and floats 
         accuracyTests=[
             ([1,2,3],[4,5,6],[0,0,0]),
             (np.array([1.1,-2.24,31.32]), np.array([4,5.3,-6]), np.array([2.14,12.52,13.2])),
@@ -378,12 +474,15 @@ class TestKinetics(TestCase):
             ([613.34788275, ([773.4310945, 253.4296727, 455.422787 ]), ([ 660.9555661,  329.6765685, -142.6836347])])
         ]
         for i in range(len(accuracyTests)):
+            # Call pnt2line(pnt, start, end) with variables given from each index inaccuracyTests and round 
+            # each variable in the 3-element returned list with a rounding precision of 8.
             pnt, start, end = accuracyTests[i]
             result = [np.around(arr,rounding_precision) for arr in pycgmKinetics.pnt2line(pnt, start, end)]
             expected = list(accuracyResults[i])
             for j in range(len(result)):
                 np.testing.assert_almost_equal(result[j], expected[j])
-
+        
+        # Test the following exceptions to make sure that they do appropriately raise errors when used as parameters for pnt2line.
         exceptionTests=[([]), ([],[]), ([],[],[]), ([1,2],[1,2],[1,2]), (["a",2,3],[4,5,6],[7,8,9])]
         for e in exceptionTests:
             with self.assertRaises(Exception):
@@ -391,8 +490,14 @@ class TestKinetics(TestCase):
     
     def test_findL5_Pelvis(self):
         """
-        This function tests 3 different frames.
+        This test provides coverage of the findL5_Pelvis function in pycgmKinetics.py,
+        defined as findL5_Pelvis(frame), where frame contains the markers: LHip, RHip, and Pelvis_axis.
+
+        Each index in accuracyTests is used as parameters for the function findL5_Pelvis 
+        and the result is then checked to be equal with the same index in 
+        accuracyResults using 8 decimal point precision comparison.
         """
+        # Test 3 different frames that contain different markers for LHip, RHip, and Pelvis_axis.
         accuracyTests=[]
         frame={}
         frame['Pelvis_axis'] = [np.array([151.60830688, 291.74131775, 832.89349365]), np.array([[251.74063624, 392.72694721, 1032.78850073], [250.61711554, 391.87232862, 1032.8741063], [251.60295336, 391.84795134, 1033.88777762]]), np.array([231.57849121, 210.25262451, 1052.24969482])]
@@ -418,6 +523,7 @@ class TestKinetics(TestCase):
             ([[-13.7237354, 126.4764288,  18.3367891],[ 627.8602897, 1671.5048695, 1130.4333341]])
         ]
         for i in range(len(accuracyTests)):
+            # Call findL5_Pelvis(frame) with each frame in accuracyTests and round each variable in the 3-element returned list.
             result = [np.around(arr,rounding_precision) for arr in pycgmKinetics.findL5_Pelvis(accuracyTests[i])]
             expected = list(accuracyResults[i])
             for j in range(len(result)):
@@ -425,10 +531,19 @@ class TestKinetics(TestCase):
     
     def test_findL5_Thorax(self):
         """
+        This test provides coverage of the findL5_Thorax function in pycgmKinetics.py,
+        defined as findL5_Thorax(frame), frame contains the markers: C7, RHip, LHip, Thorax_axis
+
+        Each index in accuracyTests is used as parameters for the function findL5_Thorax 
+        and the result is then checked to be equal with the same index in 
+        accuracyResults using 8 decimal point precision comparison.
+        """
+        # Test 3 different frames that contain different markers for C7, RHip, LHip, Thorax_axis.
+        """
         This function tests 3 different frames.
         """
         accuracyTests=[]
-        frame={}
+        frame=dict()
         frame['Thorax_axis'] = [[[256.3454633226447, 365.7223958512035, 1461.920891187948], [257.26637166499415, 364.69602499862503, 1462.2347234647593], [256.1842731803127, 364.4328898435265, 1461.363045336319]], [256.2729542797522, 364.79605748807074, 1462.2905392309394]]
         frame['C7'] = np.array([226.78051758, 311.28042603, 1259.70300293])
         frame['LHip'] = np.array([262.38020472, 242.80342417, 521.98979061])
@@ -455,6 +570,7 @@ class TestKinetics(TestCase):
             ([690.41775396, 713.36498782, 1139.36061258])
         ]
         for i in range(len(accuracyTests)):
+            # Call findL5_Thorax(frame) with each frame in accuracyTests and round each variable in the 3-element returned list.
             result = [np.around(arr,rounding_precision) for arr in pycgmKinetics.findL5_Thorax(accuracyTests[i])]
             expected = list(accuracyResults[i])
             for j in range(len(result)):
@@ -462,16 +578,24 @@ class TestKinetics(TestCase):
     
     def test_getKinetics(self):
         """
-        Using helper functions to obtain joint_centers,
-        The function test_getKinetics then does testing by using 5 different bodymasses and the same joint_center.
+        This test provides coverage of the getKinetics function in pycgmKinetics.py,
+        defined as getKinetics(data, Bodymass), where data is an array of joint centers 
+        and Bodymass is a float or int.
+
+        This test uses helper functions to obtain the data variable (aka joint_centers).
+
+        Each index in accuracyTests is used as parameters for the function getKinetics 
+        and the result is then checked to be equal with the same index in 
+        accuracyResults using 8 decimal point precision comparison.
         """
+        # Testing is done by using 5 different bodymasses and the same joint_center obtained from the helper functions.
         from pyCGM_Single.pyCGM_Helpers import getfilenames
         from pyCGM_Single.pycgmIO import loadData, loadVSK
         from pyCGM_Single.pycgmStatic import getStatic
         from pyCGM_Single.pycgmCalc import calcAngles
 
         cwd = os.getcwd() + os.sep
-
+        # Data is obtained from the sample files.
         dynamic_trial,static_trial,vsk_file,_,_ = getfilenames(2)
         motionData  = loadData(cwd+dynamic_trial)
         staticData = loadData(cwd+static_trial)
@@ -482,9 +606,10 @@ class TestKinetics(TestCase):
 
         accuracyTests=[]
         calSM['Bodymass']=5.0
+        # This creates five individual assertions to check, all with the same joint_centers but different bodymasses.
         for i in range(5):
             accuracyTests.append((joint_centers,calSM['Bodymass']))
-            calSM['Bodymass']+=35.75
+            calSM['Bodymass']+=35.75 #Increment the bodymass by a substantial amount each time.
         
         accuracyResults=[
             ([ 246.57466721,  313.55662383, 1026.56323492]),
@@ -494,7 +619,9 @@ class TestKinetics(TestCase):
             ([ 246.64410308,  313.81017167, 1026.5663452 ]),
         ]
         for i in range(len(accuracyResults)):
+            # Call getKinetics(joint_centers,bodymass) and round each variable in the 3-element returned list to the 8th decimal precision.
             result = [np.around(arr,rounding_precision) for arr in pycgmKinetics.getKinetics(accuracyTests[i][0],accuracyTests[i][1])]
-            expected = list(accuracyResults[i])
+
+            # Compare the result with the values in the expected results, within a rounding precision of 8.
             np.testing.assert_almost_equal(result[i],accuracyResults[i], rounding_precision)
 
