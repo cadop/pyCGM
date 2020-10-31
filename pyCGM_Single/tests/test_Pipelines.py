@@ -52,7 +52,7 @@ class TestPipelines(unittest.TestCase):
                                    -21.05573085, -53.81198321, -23.50929002, 47.94081346])]
         for i in range(len(tests)):
             data = tests[i]
-            numpyData = np.array(tests[i])
+            numpyData = np.array(tests[i]) #Tests to make sure that the input can also be a numpy array
             result = Pipelines.butterFilter(data, cutoff, Fs)
             numpyResult = Pipelines.butterFilter(numpyData, cutoff, Fs)
             expectedResult = expectedResults[i]
@@ -60,8 +60,7 @@ class TestPipelines(unittest.TestCase):
                 np.testing.assert_almost_equal(result[i], expectedResult[i], self.rounding_precision)
                 np.testing.assert_almost_equal(numpyResult[i], expectedResult[i], self.rounding_precision)
 
-        #Exception Tests
-        #Test that len(data) > 15
+        #Test that if len(data) < 15, an exception is raised
         dataLenTests = [[],
                         [0, 1, 2, 3], 
                         [0.1, 0.2, 0.3], 
@@ -70,11 +69,13 @@ class TestPipelines(unittest.TestCase):
             with self.assertRaises(Exception):
                 Pipelines.butterFilter(test, cutoff, Fs)
         
+        #Test that if data is not a numpy array, an exception is raised
         cutoffExceptionTests = [-10, 0, Fs/3]
         for test in cutoffExceptionTests:
             with self.assertRaises(Exception):
                 Pipelines.butterFilter(tests[0], test, Fs)
 
+        #Test invalid values for Fs, the sampling frequency
         FsExceptionTests = [-10, 0, 20, cutoff*3]
         for test in FsExceptionTests:
             with self.assertRaises(Exception):
@@ -117,13 +118,14 @@ class TestPipelines(unittest.TestCase):
         ]
 
         for i in range(len(tests)):
+            #Data must be a numpy array
             data = np.array(tests[i])
             result = Pipelines.filt(data, cutoff, Fs)
             expectedResult = expectedResults[i]
             for j in range(len(result)):
                 np.testing.assert_almost_equal(result[j], expectedResult[j], self.rounding_precision)
 
-        #Test that data must be a numpy array
+        #Test that if data is not a numpy array, an exception is raised
         with self.assertRaises(Exception):
             Pipelines.filt(tests[0], cutoff, Fs)
 
@@ -131,16 +133,18 @@ class TestPipelines(unittest.TestCase):
                         [[0.1], [0.2], [0.3]], 
                         [[0, 1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12, 13, 14]]]
 
-        #Test that len(data) > 15
+        #Test that if len(data) < 15, an exception is raised
         for test in dataLenTests:
             with self.assertRaises(TypeError):
                 Pipelines.filt(test, cutoff, Fs)
 
+        #Test invalid values for cutoff frequency
         cutoffExceptionTests = [-10, 0, Fs/3]
         for test in cutoffExceptionTests:
             with self.assertRaises(Exception):
                 Pipelines.butterFilter(tests[0], test, Fs)
 
+        #Test invalid values for Fs, the sampling frequency
         FsExceptionTests = [-10, 0, 20, cutoff*3]
         for test in FsExceptionTests:
             with self.assertRaises(Exception):
@@ -167,7 +171,7 @@ class TestPipelines(unittest.TestCase):
                 for key in result[j]:
                     np.testing.assert_equal(result[j][key], expectedResult[j][key])
 
-        #Test that data[key] must be a numpy array
+        #Test that if data[key] is not a numpy array, an exception is raised
         data = {'trajOne': [[217.19961548, -82.35484314, 332.2684021 ],
                             [257.19961548, -32.35484314, 382.2684021 ]]}
         with self.assertRaises(TypeError):
@@ -179,7 +183,7 @@ class TestPipelines(unittest.TestCase):
                    'RFOP': np.array([-38.4509964, -148.6839447 ,  59.21961594])},
                   {'LTIL': np.array([-273.1545105, 324.53512573,  36.17036057]),
                    'RFOP': np.array([-38.4509964, -148.6839447 ,  59.21961594])}], 'LTIL'),
-                ([{'LTIL': np.array([-268.1545105, 327.53512573, 30.17036057])}], 'RFOP'), #removing non-existent name
+                ([{'LTIL': np.array([-268.1545105, 327.53512573, 30.17036057])}], 'RFOP'), #removing non-existent marker
                 ([{'LTIL': [-268.1545105, 327.53512573, 30.17036057],
                    'RFOP': [-38.4509964, -148.6839447 , 59.21961594]},
                   {'LTIL': [-273.1545105, 324.53512573, 36.17036057],
@@ -191,7 +195,7 @@ class TestPipelines(unittest.TestCase):
                  {'LTIL': np.array([np.nan, np.nan, np.nan]), 
                   'RFOP': np.array([-38.4509964, -148.6839447, 59.21961594])}],
                 [{'LTIL': np.array([-268.1545105, 327.53512573, 30.17036057]),
-                  'RFOP': np.array([np.nan, np.nan, np.nan])}],
+                  'RFOP': np.array([np.nan, np.nan, np.nan])}], #removing a non-existent marker adds it as a key
                 [{'LTIL': np.array([np.nan, np.nan, np.nan]), 
                   'RFOP': np.array([-38.4509964, -148.6839447, 59.21961594])}, 
                  {'LTIL': np.array([np.nan, np.nan, np.nan]), 
@@ -238,13 +242,13 @@ class TestPipelines(unittest.TestCase):
                  [13.99950627, 14.99950627], [15.00091227, 16.00091227]]}
         ]
 
-        #Test that data must be a numpy array
+        #Test that if data is not a numpy array, an exception is raised
         with self.assertRaises(TypeError):
             Pipelines.filtering(tests[0])
 
         for i in range(len(tests)):
             data = tests[i]
-            #data[key] must be a numpy array
+            #Arrays in data[key] must be a numpy arrays, not lists
             for key in data:
                 data[key] = np.array(data[key])
             result = Pipelines.filtering(data)
@@ -255,7 +259,7 @@ class TestPipelines(unittest.TestCase):
 
 
     def test_transform_from_static(self):
-        data,static = self.loadDataDicts(3)
+        data,static = self.loadDataDicts(3) #Indicates that we use files from SampleData/Sample_2/ for testing
         key = 'LFHD'
         useables = ['RFHD', 'RBHD', 'LBHD']
         frameNumTests = [0, 1, 2, -1, 10, 100]
@@ -272,7 +276,7 @@ class TestPipelines(unittest.TestCase):
             for j in range(len(result)):
                 np.testing.assert_almost_equal(result[j], expectedResult[j], self.rounding_precision)
         
-        #useables must be at least of length 3:
+        #Test that if useables is not at least 3 unique markers, an exception is raised
         useablesExceptionTests = [
               ['RFHD', 'RFHD', 'RFHD'],
               [],
@@ -282,46 +286,46 @@ class TestPipelines(unittest.TestCase):
             for test in useablesExceptionTests:
                 Pipelines.transform_from_static(data,static,key,test,frameNumTests[0])
 
-        #test that frameNum must be in range:
+        #Test that frameNum must be in range:
         with self.assertRaises(IndexError):
-                Pipelines.transform_from_static(data,static,key,useables,6000)
+                Pipelines.transform_from_static(data,static,key,useables,6000) #6000 is out of range
 
-        #test that the key must exist:
+        #Test that the marker name must exist:
         with self.assertRaises(KeyError):
                 Pipelines.transform_from_static(data,static,'InvalidKey',useables,frameNumTests[0])
 
     def test_transform_from_mov(self):
-        data,_ = self.loadDataDicts(3)
+        data,_ = self.loadDataDicts(3) #Indicates that we use files from SampleData/Sample_2/ for testing
         key = 'LFHD'
-        clust = ['RFHD', 'RBHD', 'LBHD']
-        frameNumTests = [0, 1, 2, -1, 10, 100]
+        clust = ['RFHD', 'RBHD', 'LBHD'] #Markers in the same cluster as 'LFHD'
+        frameNumTests = [0, 1, 2, -1, 10, 100] #Frame numbers to be cleared to test gap filling
         for frame in frameNumTests:
             data[key][frame] = np.array([np.nan, np.nan, np.nan])
-        lastTimeTests = [0, 20]
+        lastTimeTests = [0, 20] #Frame numbers where the marker was last visible
         expectedFrameNumResults = [[-1003.5853191302489, 81.01088363383448, 1522.2423219324983],
                            [-1003.5051421962658, 81.03139890186682, 1522.1885615624824],
                            [-1003.4242027260506, 81.05167282762505, 1522.1377603754775],
                            [714.4191660275219, -8.268045936969543, 1550.088229312965],
                            [-1002.750909308156, 81.20689050873727, 1521.8463616672468],
                            [-991.7315609567293, 82.91868701883672, 1526.597213251877]]
-        expectedLastTimeResults = [[np.nan, np.nan, np.nan], #nan if data[last_time] is a cleared marker
+        expectedLastTimeResults = [[np.nan, np.nan, np.nan], #nan since data[last_time] is already cleared
                                    [-991.7393505887787, 82.93448317847992, 1526.6200219105137]]
 
-        #Normal case
+        #Testing for several missing frames
         for i in range(len(frameNumTests)):
             result = Pipelines.transform_from_mov(data,key,clust,3,frameNumTests[i])
             expectedResult = expectedFrameNumResults[i]
             for j in range(len(result)):
                 np.testing.assert_almost_equal(result[j], expectedResult[j], self.rounding_precision)
 
-        #Testing last_time
+        #Testing for different last visible times
         for i in range(len(lastTimeTests)):
             result = Pipelines.transform_from_mov(data,key,clust,lastTimeTests[i],100)
             expectedResult = expectedLastTimeResults[i]
             for j in range(len(result)):
                 np.testing.assert_almost_equal(result[j], expectedResult[j], self.rounding_precision)
 
-        #clust must be at least of length 3:
+        #Test that if clust is not at least 3 unique markers, an exception is raised
         clustExceptionTests = [
               ['RFHD', 'RFHD', 'RFHD'],
               [],
@@ -331,25 +335,27 @@ class TestPipelines(unittest.TestCase):
             for test in clustExceptionTests:
                 Pipelines.transform_from_mov(data,key,test,0,10)
 
-        #test that frameNum must be in range:
+        #Test that frameNum must be in range:
         with self.assertRaises(Exception):
                 Pipelines.transform_from_mov(data,key,clust,0,6100)
 
-        #test that the key must exist:
+        #Test that the marker name must exist:
         with self.assertRaises(KeyError):
                 Pipelines.transform_from_mov(data,'InvalidKey',clust,0,10)
 
     def test_segmentFinder(self):
-        data,_ = self.loadDataDicts(3)
+        data,_ = self.loadDataDicts(3) #Indicates that we use files from SampleData/Sample_2/ for testing
         key = 'LFHD'
         targetDict = target_dict()
         segmentDict = segment_dict()
         j = 10
 
         missingsTests = [
-            {}, #Normal cases, no other missing markers
-            {'LFHD':[]}, 
-            {'RFHD':[j]}, #tests to ensure we dont reconstruct based on missing markers
+            #Normal cases, no other missing markers
+            {}, 
+            {'LFHD':[]},
+            #tests to ensure we dont reconstruct based on missing markers 
+            {'RFHD':[j]}, 
             {'LBHD':[j], 'RFHD':[j]},
             {'LBHD':[j], 'RFHD':[j], 'RBHD':[j]}
         ]
@@ -361,6 +367,11 @@ class TestPipelines(unittest.TestCase):
             []
         ]
 
+        for i in range(len(missingsTests)):
+            result = Pipelines.segmentFinder(key,data,targetDict,segmentDict,j,missingsTests[i])
+            self.assertEqual(result, expectedMissingsResults[i])
+
+        #Tests for markers in different clusters
         keyTests = ['LFHD', 'C7', 'RPSI', 'LKNE']
         expectedKeyResults = [
             ['RFHD', 'RBHD', 'LBHD'],
@@ -369,22 +380,18 @@ class TestPipelines(unittest.TestCase):
             ['LTHI']
         ]
 
-        for i in range(len(missingsTests)):
-            result = Pipelines.segmentFinder(key,data,targetDict,segmentDict,j,missingsTests[i])
-            self.assertEqual(result, expectedMissingsResults[i])
-
         for i in range(len(keyTests)):
             result = Pipelines.segmentFinder(keyTests[i],data,targetDict,segmentDict,j,missingsTests[0])
             self.assertEqual(result, expectedKeyResults[i])
 
-        #test that the key must exist:
+        #Test that the marker name must exist:
         with self.assertRaises(KeyError):
             Pipelines.segmentFinder('InvalidKey',data,targetDict,segmentDict,j,missingsTests[0])
 
     def test_rigid_fill(self):
         #Test that the marker SACR must exist:
         with self.assertRaises(KeyError):
-            data,static = self.loadDataDicts(3)
+            data,static = self.loadDataDicts(3) #Indicates that we use files from SampleData/Sample_2/ for testing
             Pipelines.rigid_fill(data, static)
 
         data,static = self.loadDataDicts(3, True) #True indicates we calculate SACR before testing
