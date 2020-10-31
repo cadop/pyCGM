@@ -6,7 +6,7 @@ import os
 
 rounding_precision = 8
 
-class TestKinetics(TestCase):
+class Test_pycgmKinetics(TestCase):
     def test_f(self):
         """
         This test provides coverage of the f function in pycgmKinetics.py,
