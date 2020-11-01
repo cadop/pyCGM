@@ -408,9 +408,6 @@ class TestUpperBodyAxis(TestCase):
             np.testing.assert_almost_equal(result[1], testcase[4][1], rounding_precision)
 
 class TestLowerBodyAxis(TestCase):
-    nan_3d = [np.nan, np.nan, np.nan]
-    rand_int = np.random.randint(0, 10)
-    rand_coor = [np.random.randint(0, 10), np.random.randint(0, 10), np.random.randint(0, 10)]
 
     def testPelvisJointCenter(self):
         nan_3d = [np.nan, np.nan, np.nan]
