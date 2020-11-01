@@ -4,7 +4,7 @@ import pyCGM_Single.pyCGM as pyCGM
 import numpy as np
 from parameterized import parameterized
 
-rounding_precision = 8
+rounding_precision = 6
 
 class TestUpperBodyAxis(unittest.TestCase):
     nan_3d = [np.nan, np.nan, np.nan]
