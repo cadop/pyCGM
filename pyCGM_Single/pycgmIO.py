@@ -907,7 +907,7 @@ def writeResult(data,filename,**kargs):
 
         Writing axis only.
 
-        >>> writeResult(data, outfile, angles=False, axis=True)
+        >>> writeResult(data, outfile, angles=False, axis=True) 
         (1, 273)...
         >>> with open(outfile + '.csv') as file:
         ...     lines = file.readlines()

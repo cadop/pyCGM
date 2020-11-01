@@ -3,15 +3,15 @@ sys.path.append('./pyCGM_Single') # TODO update to pycgm when fixed
 from _about import __version__
 import setuptools
 
-vers = sys.version_info.major
-if vers == 2:
+pyver = sys.version_info.major
+if pyver == 2:
     with open("README.md", "r") as fh:
         long_description = fh.read()
 else:
     with open("README.md", "r",encoding="utf8") as fh:
         long_description = fh.read()
 
-requires = ">=2, <3" if vers == 2 else ">=3"
+requires = ">=2, <3" if pyver == 2 else ">=3"
 
 setuptools.setup(
     name="pycgm", 
