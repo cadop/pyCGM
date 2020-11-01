@@ -900,9 +900,9 @@ def writeResult(data,filename,**kargs):
         >>> writeResult(data, outfile, angles=True, axis=False)
         >>> with open(outfile + '.csv') as file:
         ...     lines = file.readlines()
-        >>> result = lines[7].strip().split(',')
+        >>> result = lines[7].strip().split(',') 
         >>> result #doctest: +NORMALIZE_WHITESPACE
-        ['0.000000000000000',
+        ['0.000000000000000', 
          '-0.308494914509454', '-6.121292793370010', '7.571431102151710',...]
 
         Writing axis only.
@@ -911,9 +911,9 @@ def writeResult(data,filename,**kargs):
         (1, 273)...
         >>> with open(outfile + '.csv') as file:
         ...     lines = file.readlines()
-        >>> result = lines[7].strip().split(',')
+        >>> result = lines[7].strip().split(',') 
         >>> result #doctest: +NORMALIZE_WHITESPACE
-        ['0.000000000000000',
+        ['0.000000000000000', 
          '-934.314880371093977', '-4.444435119628910', '852.837829589843977',...]
         >>> rmtree(tmpdirName)
         """
