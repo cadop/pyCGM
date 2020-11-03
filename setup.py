@@ -7,7 +7,7 @@ with open("README.md", "r",encoding="utf8") as fh:
     long_description = fh.read()
 
 setuptools.setup(
-    name="pyCGM", 
+    name="pycgm", 
     version= __version__,
     author="", # Many
     author_email="cadop@umich.edu",
@@ -22,9 +22,9 @@ setuptools.setup(
         "Operating System :: OS Independent",
     ],
     python_requires='>=3',
-    install_requires=['numpy>=1.15'],
+    install_requires=['numpy>=1.15','scipy'],
     package_data={
-        "": ["SampleData/ROM/*.c3d","SampleData/ROM/*.vsk"], # TODO Need to fix
+        "": ["SampleData/ROM/*.c3d","SampleData/ROM/*.vsk","segments.csv"], # TODO Need to fix
     },
     include_package_data=True,   
 )
