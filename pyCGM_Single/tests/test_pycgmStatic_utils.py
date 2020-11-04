@@ -1,3 +1,4 @@
+<<<<<<< HEAD
 import pytest
 import numpy as np
 import os
@@ -927,3 +928,12 @@ class TestPycgmStaticGetStatic():
         np.testing.assert_almost_equal(result['LeftStaticRotOff'], 0.0094029102924030206, rounding_precision)
         np.testing.assert_almost_equal(result['LeftStaticPlantFlex'], 0.20251085737834015, rounding_precision)
         np.testing.assert_almost_equal(result['HeadOffset'], 0.25719904693106527, rounding_precision)
+=======
+import unittest
+import pyCGM_Single.pycgmStatic as pyCGM
+import numpy as np
+
+rounding_precision = 6
+
+class TestPycgmStaticUtils(unittest.TestCase):
+>>>>>>> 9d9a211... Create test_pycgmStatic_utils.py
