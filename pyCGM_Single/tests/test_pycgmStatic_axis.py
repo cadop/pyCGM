@@ -295,3 +295,53 @@ class TestPycgmStaticAxis(unittest.TestCase):
         for testcase in testcases:
             result = pycgmStatic.findJointC(testcase[0], testcase[1], testcase[2], testcase[3])
             np.testing.assert_almost_equal(result, testcase[4], rounding_precision)
+
+    def testStaticCalculationHead(self):
+        testcases = [
+            [[[[244.87227957886893, 326.0240255639856, 1730.4189843948805],
+                   [243.89575702706503, 325.0366593474616, 1730.1515677531293],
+                   [244.89086730509763, 324.80072493605866, 1731.1283433097797]],
+                  [244.89547729492188, 325.0578918457031, 1730.1619873046875]], 0.25992807335420975],
+        ]
+        for testcase in testcases:
+            result = pycgmStatic.staticCalculationHead(None, testcase[0])
+            np.testing.assert_almost_equal(result, testcase[1], rounding_precision)
+
+    def testUncorrect_footaxis(self):
+        testcases = [
+            [{'RTOE': np.array([433.33508301, 354.97229004,  44.27765274]), 'LTOE': np.array([ 31.77310181, 331.23657227,  42.15322876])},
+             [np.array([397.45738291, 217.50712216, 87.83068433]), np.array([112.28082818, 175.83265027, 80.98477997]), [
+                 [np.array([398.14685839, 218.23110187, 87.8088449]), np.array([396.73749179, 218.18875543, 87.69979179]),
+                  np.array([397.37750585, 217.61309136, 88.82184031])],
+                 [np.array([111.92715492, 176.76246715, 80.88301651]), np.array([111.34886681, 175.49163538, 81.10789314]),
+                  np.array([112.36059802, 175.97103172, 81.97194123])]]],
+             [np.array([433.33508301, 354.97229004, 44.27765274]), np.array([31.77310181, 331.23657227, 42.15322876]),
+              [[[433.4256618315962, 355.25152027652007, 45.233595181827035],
+                [432.36890500826763, 355.2296456773885, 44.29402798451682],
+                [433.09363829389764, 354.0471962330562, 44.570749823731354]],
+               [[31.806110207058808, 331.49492345678016, 43.11871573923792],
+                [30.880216288550965, 330.81014854432254, 42.29786022762896],
+                [32.2221740692973, 330.36972887034574, 42.36983123198873]]]]]
+        ]
+        for testcase in testcases:
+            result = pycgmStatic.uncorrect_footaxis(testcase[0], testcase[1])
+            np.testing.assert_almost_equal(result[0], testcase[2][0], rounding_precision)
+            np.testing.assert_almost_equal(result[1], testcase[2][1], rounding_precision)
+            np.testing.assert_almost_equal(result[2], testcase[2][2], rounding_precision)
+
+    def testRotaxis_nonfootflat(self):
+        testcases = [
+            [{'RTOE': np.array([433.33508301, 354.97229004,  44.27765274]), 'LTOE': np.array([ 31.77310181, 331.23657227,  42.15322876]), 'RHEE': np.array([381.88534546, 148.47607422,  49.99120331]), 'LHEE': np.array([122.18766785, 138.55477905,  46.29433441])}, [np.array([397.45738291, 217.50712216,  87.83068433]), np.array([112.28082818, 175.83265027,  80.98477997]), [[np.array([398.14685839, 218.23110187,  87.8088449 ]), np.array([396.73749179, 218.18875543,  87.69979179]), np.array([397.37750585, 217.61309136,  88.82184031])], [np.array([111.92715492, 176.76246715,  80.88301651]), np.array([111.34886681, 175.49163538,  81.10789314]), np.array([112.36059802, 175.97103172,  81.97194123])]]],
+             [np.array([433.33508301, 354.97229004, 44.27765274]), np.array([31.77310181, 331.23657227, 42.15322876]),
+              [[[433.2103651914497, 355.03076948530014, 45.26812011533214],
+                [432.37277461595676, 355.2083164947686, 44.14254511237841],
+                [433.09340548455947, 354.0023046440309, 44.30449129818456]],
+               [[31.878278418984852, 331.30724434357205, 43.14516794016654],
+                [30.873906948094536, 330.8173225172055, 42.27844159782351],
+                [32.1978211099223, 330.33145619248916, 42.172681460633456]]]]],
+        ]
+        for testcase in testcases:
+            result = pycgmStatic.rotaxis_nonfootflat(testcase[0], testcase[1])
+            np.testing.assert_almost_equal(result[0], testcase[2][0], rounding_precision)
+            np.testing.assert_almost_equal(result[1], testcase[2][1], rounding_precision)
+            np.testing.assert_almost_equal(result[2], testcase[2][2], rounding_precision)
