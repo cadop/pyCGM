@@ -1,5 +1,5 @@
 import unittest
-import pyCGM_Single.pycgmStatic as pyCGM
+import pyCGM_Single.pycgmStatic as pycgmStatic
 import numpy as np
 
 rounding_precision = 8
@@ -53,7 +53,7 @@ class TestPycgmStaticAxis(unittest.TestCase):
               np.array([[-6.72928306, -1.61360872, 2.96670695], [-6.56593805, -2.48907071, 1.86812391], [-5.52887619, -1.59397972,  2.21928602]]),
               np.array([-4,  8, -5])]]]
         for testcase in testcases:
-            result = pyCGM.pelvisJointCenter(testcase[0])
+            result = pycgmStatic.pelvisJointCenter(testcase[0])
             np.testing.assert_almost_equal(result[0], testcase[1][0], rounding_precision)
             np.testing.assert_almost_equal(result[1], testcase[1][1], rounding_precision)
             np.testing.assert_almost_equal(result[2], testcase[1][2], rounding_precision)
@@ -113,7 +113,7 @@ class TestPycgmStaticAxis(unittest.TestCase):
              {'MeanLegLength': 15.0, 'R_AsisToTrocanterMeasure': -24.0, 'L_AsisToTrocanterMeasure': -7.0, 'InterAsisDistance': 11.0},
              [[81.76345582,  89.67607691, 124.73321758], [-76.79709552, 107.19186562, -17.60160178]]]]
         for testcase in testcases:
-            result = pyCGM.hipJointCenter(None, testcase[0], testcase[1], testcase[2], testcase[3], testcase[4])
+            result = pycgmStatic.hipJointCenter(None, testcase[0], testcase[1], testcase[2], testcase[3], testcase[4])
             np.testing.assert_almost_equal(result[0], testcase[5][0], rounding_precision)
             np.testing.assert_almost_equal(result[1], testcase[5][1], rounding_precision)
 
@@ -162,7 +162,7 @@ class TestPycgmStaticAxis(unittest.TestCase):
              [np.array([6, 3, 9]), np.array([[5, 4, -2], [0, 0, 0], [7, 2, 3]]), np.array(rand_coor)],
              [[-4, -2, 3.5], [[-5, -1, -7.5], [-10, -5, -5.5], [-3, -3, -2.5]]]]]
         for testcase in testcases:
-            result = pyCGM.hipAxisCenter(testcase[0], testcase[1], testcase[2])
+            result = pycgmStatic.hipAxisCenter(testcase[0], testcase[1], testcase[2])
             np.testing.assert_almost_equal(result[0], testcase[3][0], rounding_precision)
             np.testing.assert_almost_equal(result[1], testcase[3][1], rounding_precision)
 
@@ -191,7 +191,7 @@ class TestPycgmStaticAxis(unittest.TestCase):
             # [np.array([0, 0, 0]), np.array([0, 0, 0]), np.array([[[0, 0, 0], [0, 0, 0], [0, 0, 0]], [[0, 0, 0], [0, 0, 0], [0, 0, 0]]])]],
         ]
         for testcase in testcases:
-            result = pyCGM.kneeJointCenter(testcase[0], testcase[1], testcase[2], testcase[3])
+            result = pycgmStatic.kneeJointCenter(testcase[0], testcase[1], testcase[2], testcase[3])
             np.testing.assert_almost_equal(result[0], testcase[4][0], rounding_precision)
             np.testing.assert_almost_equal(result[1], testcase[4][1], rounding_precision)
             np.testing.assert_almost_equal(result[2], testcase[4][2], rounding_precision)
@@ -229,7 +229,7 @@ class TestPycgmStaticAxis(unittest.TestCase):
               # [np.array([0, 0, 0]), np.array([0, 0, 0]), np.array([0, 0, 0])]]]],
         ]
         for testcase in testcases:
-            result = pyCGM.ankleJointCenter(testcase[0], testcase[1], testcase[2], testcase[3])
+            result = pycgmStatic.ankleJointCenter(testcase[0], testcase[1], testcase[2], testcase[3])
             np.testing.assert_almost_equal(result[0], testcase[4][0], rounding_precision)
             np.testing.assert_almost_equal(result[1], testcase[4][1], rounding_precision)
             np.testing.assert_almost_equal(result[2], testcase[4][2], rounding_precision)
@@ -279,7 +279,7 @@ class TestPycgmStaticAxis(unittest.TestCase):
               'RBHD': np.array([0, 0, 1])},
              [[[0.5, 1.70710678, 2.70710678], [1.5, 1, 2], [0.5, 1.70710678, 1.29289322]], [0.5, 1, 2]]]]
         for testcase in testcases:
-            result = pyCGM.headJC(testcase[0])
+            result = pycgmStatic.headJC(testcase[0])
             np.testing.assert_almost_equal(result[0], testcase[1][0], rounding_precision)
             np.testing.assert_almost_equal(result[1], testcase[1][1], rounding_precision)
 
@@ -293,5 +293,5 @@ class TestPycgmStaticAxis(unittest.TestCase):
              [364.17774614, 292.17051722, 515.19181496]],
         ]
         for testcase in testcases:
-            result = pyCGM.findJointC(testcase[0], testcase[1], testcase[2], testcase[3])
+            result = pycgmStatic.findJointC(testcase[0], testcase[1], testcase[2], testcase[3])
             np.testing.assert_almost_equal(result, testcase[4], rounding_precision)
