@@ -3,15 +3,12 @@ sys.path.append('./pyCGM_Single') # TODO update to pycgm when fixed
 from _about import __version__
 import setuptools
 
-pyver = sys.version_info.major
-if pyver == 2:
+if sys.version_info.major == 2:
     with open("README.md", "r") as fh:
         long_description = fh.read()
 else:
     with open("README.md", "r",encoding="utf8") as fh:
         long_description = fh.read()
-
-requires = ">=2, <3" if pyver == 2 else ">=3"
 
 setuptools.setup(
     name="pycgm", 
@@ -28,7 +25,7 @@ setuptools.setup(
         "License :: OSI Approved :: MIT",
         "Operating System :: OS Independent",
     ],
-    python_requires=requires,
+    python_requires='>=2.7, !=3.0, !=3.1, !=3.2, !=3.3, !=3.4, !=3.5',
     install_requires=['numpy>=1.15','scipy'],
     package_data={
         "": ["SampleData/ROM/*.c3d","SampleData/ROM/*.vsk","segments.csv"], # TODO Need to fix
