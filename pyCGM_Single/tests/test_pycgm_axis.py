@@ -349,7 +349,7 @@ class TestUpperBodyAxis():
         np.testing.assert_almost_equal(result[0], expected[0], rounding_precision)
         np.testing.assert_almost_equal(result[1], expected[1], rounding_precision)
 
-    @pytest.mark.parametrize(["frame", "elbowJC", "wristJC", "vsk", "expected"], [
+    @pytest.mark.parametrize(["frame", "elbowJC", "wristJC", "vsk", "mockReturnVal", "expectedMockArgs", "expected"], [
         # Test from running sample data
         ({'RWRA': np.array([ 776.51898193,  495.68103027, 1108.38464355]),
           'RWRB': np.array([ 830.9072876 ,  436.75341797, 1119.11901855]),
@@ -376,6 +376,10 @@ class TestUpperBodyAxis():
             [-271.74106814470946, 485.7281810468936, 1090.6748195459295],
             [-271.9425644638384, 485.1921666233502, 1091.967911874857]]]],
          {'RightHandThickness': 34.0, 'LeftHandThickness': 34.0},
+         [[-324.53477798, 551.88744289, 1068.02526837], [859.80614366, 517.28239823, 1051.97278945]],
+         [[[-280.528396605, 501.27745056000003, 1121.126281735], [-272.4594189740742, 485.801522109477, 1091.3666238350822],
+           [-326.65890503, 558.34338379, 1091.04284668], 24.0], [[803.713134765, 466.21722411999997, 1113.75183105],
+            [793.3281430325068, 451.2913478825204, 1084.4325513020426], [863.71374512, 524.4475708, 1074.54248047], 24.0]],
          [[np.array([859.80614366, 517.28239823, 1051.97278944]),
            np.array([-324.53477798, 551.88744289, 1068.02526837])],
           [[[859.9567597867737, 517.5924123242138, 1052.9115152009197],
@@ -385,17 +389,31 @@ class TestUpperBodyAxis():
             [-325.3329318534787, 551.2929248618385, 1068.1227296356121],
             [-323.938374013488, 551.1305800350597, 1068.2925901317217]]]]),
 
-        # Test from running sample data
-        #({'RWRA': np.array([0, 0, 0]), 'RWRB': np.array([0, 0, 0]), 'RFIN': np.array([0, 0, 0]),
-         # 'LWRA': np.array([0, 0, 0]), 'LWRB': np.array([0, 0, 0]), 'LFIN': np.array([0, 0, 0])},
-         #[[np.array([0, 0, 0]), np.array([0, 0, 0])], [[[0, 0, 0], [0, 0, 0], [0, 0, 0]],
-          # [[0, 0, 0], [0, 0, 0], [0, 0, 0]]], [[0, 0, 0], [0, 0, 0]]],
-         #[[[0, 0, 0], [0, 0, 0]], [[[0, 0, 0], [0, 0, 0], [0, 0, 0]], [[0, 0, 0], [0, 0, 0], [0, 0, 0]]]],
-         #{'RightHandThickness': 0.0, 'LeftHandThickness': 0.0},
-         #[[np.array([0, 0, 0]), np.array([0, 0, 0])], [[[0, 0, 0], [0, 0, 0], [0, 0, 0]], [[0, 0, 0], [0, 0, 0], [0, 0, 0]]]]),
-    ])
-    def testHandJointCenter(self, frame, elbowJC, wristJC, vsk, expected):
-        result = pyCGM.handJointCenter(frame, elbowJC, wristJC, vsk)
+            ])
+    def testHandJointCenter(self, frame, elbowJC, wristJC, vsk, mockReturnVal, expectedMockArgs, expected):
+        with patch.object(pyCGM, 'findJointC', side_effect=mockReturnVal) as mock_findJointC:
+            result = pyCGM.handJointCenter(frame, elbowJC, wristJC, vsk)
+            #np.testing.assert_almost_equal(result[0], expected[0], rounding_precision)
+            #np.testing.assert_almost_equal(result[1], expected[1], rounding_precision)
+
+        # Asserting that there were only 2 calls to findJointC
+        np.testing.assert_equal(mock_findJointC.call_count, 2)
+
+        # Asserting that the correct params were sent in the 1st (right) call to findJointC
+        np.testing.assert_almost_equal(expectedMockArgs[0][0], mock_findJointC.call_args_list[0][0][0], rounding_precision)
+        np.testing.assert_almost_equal(expectedMockArgs[0][1], mock_findJointC.call_args_list[0][0][1], rounding_precision)
+        np.testing.assert_almost_equal(expectedMockArgs[0][2], mock_findJointC.call_args_list[0][0][2], rounding_precision)
+        np.testing.assert_almost_equal(expectedMockArgs[0][3], mock_findJointC.call_args_list[0][0][3], rounding_precision)
+
+        # Asserting that the correct params were sent in the 2nd (left) call to findJointC
+        np.testing.assert_almost_equal(expectedMockArgs[1][0], mock_findJointC.call_args_list[1][0][0], rounding_precision)
+        np.testing.assert_almost_equal(expectedMockArgs[1][1], mock_findJointC.call_args_list[1][0][1], rounding_precision)
+        np.testing.assert_almost_equal(expectedMockArgs[1][2], mock_findJointC.call_args_list[1][0][2], rounding_precision)
+        np.testing.assert_almost_equal(expectedMockArgs[1][3], mock_findJointC.call_args_list[1][0][3], rounding_precision)
+
+        # Asserting that findShoulderJC returned the correct result given the return value given by mocked findJointC
+        #np.testing.assert_almost_equal(result[0], expected[0], rounding_precision)
+        #np.testing.assert_almost_equal(result[1], expected[1], rounding_precision)
         np.testing.assert_almost_equal(result[0], expected[0], rounding_precision)
         np.testing.assert_almost_equal(result[1], expected[1], rounding_precision)
 
