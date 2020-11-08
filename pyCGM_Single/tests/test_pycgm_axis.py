@@ -232,7 +232,7 @@ class TestUpperBodyAxis():
         np.testing.assert_almost_equal(result[0], expected[0], rounding_precision)
         np.testing.assert_almost_equal(result[1], expected[1], rounding_precision)
 
-    @pytest.mark.parametrize(["frame", "thorax", "shoulderJC", "wand", "vsk", "expected"], [
+    @pytest.mark.parametrize(["frame", "thorax", "shoulderJC", "vsk", "mockReturnVal", "expectedMockArgs", "expected"], [
         # Test from running sample data
         ({'RSHO': np.array([428.88476562, 270.552948, 1500.73010254]),
           'LSHO': np.array([68.24668121, 269.01049805, 1510.1072998]),
@@ -242,15 +242,14 @@ class TestUpperBodyAxis():
           'RWRB': np.array([ 830.9072876 , 436.75341797, 1119.11901855]),
           'LWRA': np.array([-249.28146362, 525.32977295, 1117.09057617]),
           'LWRB': np.array([-311.77532959, 477.22512817, 1125.1619873 ])},
-         [[[256.23991128535846, 365.30496976939753, 1459.662169500559],
-           [257.1435863244796, 364.21960599061947, 1459.588978712983],
-           [256.0843053658035, 364.32180498523223, 1458.6575930699294]],
+         [[rand_coor, [257.1435863244796, 364.21960599061947, 1459.588978712983], rand_coor],
           [256.149810236564, 364.3090603933987, 1459.6553639290375]],
          [np.array([429.66951995, 275.06718615, 1453.95397813]),
           np.array([64.51952734, 274.93442161, 1463.6313334])],
-         [[255.92550222678443, 364.3226950497605, 1460.6297868417887],
-          [256.42380097331767, 364.27770361353487, 1460.6165849382387]],
          {'RightElbowWidth': 74.0, 'LeftElbowWidth': 74.0, 'RightWristWidth': 55.0, 'LeftWristWidth': 55.0},
+         [[633.66707588, 304.95542115, 1256.07799541], [-129.16952219, 316.8671644, 1258.06440717]],
+         [[[429.7839232523795, 96.8248244295684, 904.5644429627703], [429.66951995, 275.06718615, 1453.95397813], [658.90338135, 326.07580566, 1285.28515625], -44.0],
+          [[-409.6146956013004, 530.6280208729519, 1671.682014527917], [64.51952734, 274.93442161, 1463.6313334], [-156.32162476, 335.2583313, 1287.39916992], 44.0]],
          [[np.array([633.66707587, 304.95542115, 1256.07799541]),
            np.array([-129.16952218, 316.8671644, 1258.06440717])],
           [[[633.8107013869995, 303.96579004975194, 1256.07658506845],
@@ -262,19 +261,74 @@ class TestUpperBodyAxis():
           [[793.3281430325068, 451.2913478825204, 1084.4325513020426],
            [-272.4594189740742, 485.801522109477, 1091.3666238350822]]]),
 
-        # Testing when
-        #({'RSHO': np.array([0, 0, 0]), 'LSHO': np.array([0, 0, 0]), 'RELB': np.array([0, 0, 0]), 'LELB': np.array([0, 0, 0]),
-         # 'RWRA': np.array([0, 0, 0]), 'RWRB': np.array([0, 0, 0]), 'LWRA': np.array([0, 0, 0]), 'LWRB': np.array([0, 0, 0])},
-         #[[[0, 0, 0], [0, 0, 0], [0, 0, 0]], [0, 0, 0]],
-         #[np.array([0, 0, 0]), np.array([0, 0, 0])],
-         #[[0, 0, 0], [0, 0, 0]],
-         #{'RightElbowWidth': 0.0, 'LeftElbowWidth': 0.0, 'RightWristWidth': 0.0, 'LeftWristWidth': 0.0},
-         #[[np.array([0, 0, 0]), np.array([0, 0, 0])],
-          #[[[0, 0, 0], [0, 0, 0], [0, 0, 0]], [[0, 0, 0], [0, 0, 0], [0, 0, 0]]],
-          #[[0, 0, 0], [0, 0, 0]]]),
+        # Test with zeros for all params
+        ({'RSHO': np.array([0, 0, 0]),
+          'LSHO': np.array([0, 0, 0]),
+          'RELB': np.array([0, 0, 0]),
+          'LELB': np.array([0, 0, 0]),
+          'RWRA': np.array([0, 0, 0]),
+          'RWRB': np.array([0, 0, 0]),
+          'LWRA': np.array([0, 0, 0]),
+          'LWRB': np.array([0, 0, 0])},
+         [[rand_coor, [0, 0, 0], rand_coor], [0, 0, 0]],
+         [np.array([0, 0, 0]), np.array([0, 0, 0])],
+         {'RightElbowWidth': 0.0, 'LeftElbowWidth': 0.0, 'RightWristWidth': 0.0, 'LeftWristWidth': 0.0},
+         [[0, 0, 0], [0, 0, 0]],
+         [[nan_3d, [0, 0, 0], [0, 0, 0], -7.0],
+          [nan_3d, [0, 0, 0], [0, 0, 0], 7.0]],
+         [[np.array([0, 0, 0]), np.array([0, 0, 0])],
+          [[nan_3d, nan_3d, nan_3d],
+           [nan_3d, nan_3d, nan_3d]],
+          [nan_3d, nan_3d]]),
+
+        # Testing when values are added to frame
+        # Testing when values are added to thorax
+        # Testing when values are added to shoulderJC
+        # Testing when values are added to vsk
+        # Testing when values are added to mockReturnVal
+        # Testing when values are added to frame and thorax
+        # Testing when values are added to frame, thorax, and shoulderJC
+        # Testing when values are added to frame, thorax, shoulderJC, and vsk
+        # Testing when values are added to frame, thoras, shoulderJC, vsk and mockReturnVal
+        ({'RSHO': np.array([9, -7, -6]),
+          'LSHO': np.array([3, -8, 5]),
+          'RELB': np.array([-9, 1, -4]),
+          'LELB': np.array([-4, 1, -6]),
+          'RWRA': np.array([2, -3, 9]),
+          'RWRB': np.array([-4, -2, -7]),
+          'LWRA': np.array([-9, 1, -1]),
+          'LWRB': np.array([-3, -4, -9])},
+         [[rand_coor, [-9, 5, -5], rand_coor], [-5, -2, -3]],
+         [np.array([-2, -8, -3]), np.array([5, -3, 2])],
+         {'RightElbowWidth': -38.0, 'LeftElbowWidth': 6.0, 'RightWristWidth': 47.0, 'LeftWristWidth': -7.0},
+         [[5, 4, -4], [6, 3, 5]],
+         [[[-311.42865408643604, -195.76081109238007, 342.15327877363165], [-2, -8, -3], [-9, 1, -4], 12.0],
+          [[183.9753004933977, -292.7114070209339, -364.32791656553934], [5, -3, 2], [-4, 1, -6], 10.0]],
+         [[np.array([5, 4, -4]), np.array([6, 3, 5])],
+          [[[4.156741342815987, 4.506819397152288, -3.8209778344606247], [4.809375978699987, 4.029428853750657, -4.981221904092206], [4.4974292889675835, 3.138450209658714, -3.928204184138226]],
+           [[6.726856988207308, 2.5997910101837682, 5.558132316896694], [5.329224487433077, 2.760784472038086, 5.702022893446135], [5.852558043845103, 2.1153482630706173, 4.557674131535308]]],
+          [[17.14176226312361, -25.58951560761187, -7.246255574147096], [-5.726512929518925, 1.5474273567891164, -6.699526795132392]]]),
     ])
-    def testElbowJointCenter(self, frame, thorax, shoulderJC, wand, vsk, expected):
-        result = pyCGM.elbowJointCenter(frame, thorax, shoulderJC, wand, vsk)
+    def testElbowJointCenter(self, frame, thorax, shoulderJC, vsk, mockReturnVal, expectedMockArgs, expected):
+        with patch.object(pyCGM, 'findJointC', side_effect=mockReturnVal) as mock_findJointC:
+            result = pyCGM.elbowJointCenter(frame, thorax, shoulderJC, None, vsk)
+
+        # Asserting that there were only 2 calls to findJointC
+        np.testing.assert_equal(mock_findJointC.call_count, 2)
+
+        # Asserting that the correct params were sent in the 1st (right) call to findJointC
+        np.testing.assert_almost_equal(expectedMockArgs[0][0], mock_findJointC.call_args_list[0][0][0], rounding_precision)
+        np.testing.assert_almost_equal(expectedMockArgs[0][1], mock_findJointC.call_args_list[0][0][1], rounding_precision)
+        np.testing.assert_almost_equal(expectedMockArgs[0][2], mock_findJointC.call_args_list[0][0][2], rounding_precision)
+        np.testing.assert_almost_equal(expectedMockArgs[0][3], mock_findJointC.call_args_list[0][0][3], rounding_precision)
+
+        # Asserting that the correct params were sent in the 2nd (left) call to findJointC
+        np.testing.assert_almost_equal(expectedMockArgs[1][0], mock_findJointC.call_args_list[1][0][0], rounding_precision)
+        np.testing.assert_almost_equal(expectedMockArgs[1][1], mock_findJointC.call_args_list[1][0][1], rounding_precision)
+        np.testing.assert_almost_equal(expectedMockArgs[1][2], mock_findJointC.call_args_list[1][0][2], rounding_precision)
+        np.testing.assert_almost_equal(expectedMockArgs[1][3], mock_findJointC.call_args_list[1][0][3], rounding_precision)
+
+        # Asserting that findShoulderJC returned the correct result given the return value given by mocked findJointC
         np.testing.assert_almost_equal(result[0], expected[0], rounding_precision)
         np.testing.assert_almost_equal(result[1], expected[1], rounding_precision)
         np.testing.assert_almost_equal(result[2], expected[2], rounding_precision)
@@ -349,71 +403,96 @@ class TestUpperBodyAxis():
         np.testing.assert_almost_equal(result[0], expected[0], rounding_precision)
         np.testing.assert_almost_equal(result[1], expected[1], rounding_precision)
 
-    @pytest.mark.parametrize(["frame", "elbowJC", "wristJC", "vsk", "mockReturnVal", "expectedMockArgs", "expected"], [
+    @pytest.mark.parametrize(["frame", "wristJC", "vsk", "mockReturnVal", "expectedMockArgs", "expected"], [
         # Test from running sample data
-        ({'RWRA': np.array([ 776.51898193,  495.68103027, 1108.38464355]),
-          'RWRB': np.array([ 830.9072876 ,  436.75341797, 1119.11901855]),
-          'RFIN': np.array([ 863.71374512,  524.4475708 , 1074.54248047]),
-          'LWRA': np.array([-249.28146362,  525.32977295, 1117.09057617]),
-          'LWRB': np.array([-311.77532959,  477.22512817, 1125.1619873 ]),
-          'LFIN': np.array([-326.65890503,  558.34338379, 1091.04284668])},
-         [[np.array([633.66707587, 304.95542115, 1256.07799541]),
-           np.array([-129.16952218, 316.8671644, 1258.06440717])],
-          [[[633.8107013869995, 303.96579004975194, 1256.07658506845],
-            [634.3524799178464, 305.0538658933253, 1256.799473014224],
-            [632.9532180390149, 304.85083190737765, 1256.770431750491]],
-           [[-129.32391792749496, 315.8807291324946, 1258.008662931836],
-            [-128.45117135279028, 316.79382333592827, 1257.3726028780698],
-            [-128.49119037560908, 316.72030884193634, 1258.7843373067021]]],
-          [[793.3281430325068, 451.2913478825204, 1084.4325513020426],
-           [-272.4594189740742, 485.801522109477, 1091.3666238350822]]],
-         [[[793.3281430325068, 451.2913478825204, 1084.4325513020426],
-           [-272.4594189740742, 485.801522109477, 1091.3666238350822]],
-          [[[793.771337279616, 450.4487918719012, 1084.1264823093322],
-            [794.013547076896, 451.3897926216976, 1085.154028903402],
-            [792.7503886251119, 450.761812234714, 1085.053672741407]],
-           [[-272.92507281675125, 485.0120241803687, 1090.9667994752267],
-            [-271.74106814470946, 485.7281810468936, 1090.6748195459295],
-            [-271.9425644638384, 485.1921666233502, 1091.967911874857]]]],
+        ({'RWRA': np.array([ 776.51898193,  495.68103027, 1108.38464355]), 'RWRB': np.array([ 830.9072876 ,  436.75341797, 1119.11901855]), 'RFIN': np.array([ 863.71374512,  524.4475708 , 1074.54248047]),
+          'LWRA': np.array([-249.28146362,  525.32977295, 1117.09057617]), 'LWRB': np.array([-311.77532959,  477.22512817, 1125.1619873 ]), 'LFIN': np.array([-326.65890503,  558.34338379, 1091.04284668])},
+         [[[793.3281430325068, 451.2913478825204, 1084.4325513020426], [-272.4594189740742, 485.801522109477, 1091.3666238350822]], [[rand_coor, rand_coor, rand_coor], [rand_coor, rand_coor, rand_coor]]],
          {'RightHandThickness': 34.0, 'LeftHandThickness': 34.0},
          [[-324.53477798, 551.88744289, 1068.02526837], [859.80614366, 517.28239823, 1051.97278945]],
-         [[[-280.528396605, 501.27745056000003, 1121.126281735], [-272.4594189740742, 485.801522109477, 1091.3666238350822],
-           [-326.65890503, 558.34338379, 1091.04284668], 24.0], [[803.713134765, 466.21722411999997, 1113.75183105],
-            [793.3281430325068, 451.2913478825204, 1084.4325513020426], [863.71374512, 524.4475708, 1074.54248047], 24.0]],
-         [[np.array([859.80614366, 517.28239823, 1051.97278944]),
-           np.array([-324.53477798, 551.88744289, 1068.02526837])],
-          [[[859.9567597867737, 517.5924123242138, 1052.9115152009197],
-            [859.0797567344147, 517.9612045889317, 1051.8651606187454],
-            [859.1355641971873, 516.6167307529585, 1052.300218811959]],
-           [[-324.61994077156373, 552.1589330842497, 1068.9839343010813],
-            [-325.3329318534787, 551.2929248618385, 1068.1227296356121],
-            [-323.938374013488, 551.1305800350597, 1068.2925901317217]]]]),
-
-            ])
-    def testHandJointCenter(self, frame, elbowJC, wristJC, vsk, mockReturnVal, expectedMockArgs, expected):
+         [[[-280.528396605, 501.27745056000003, 1121.126281735], [-272.4594189740742, 485.801522109477, 1091.3666238350822], [-326.65890503, 558.34338379, 1091.04284668], 24.0],
+          [[803.713134765, 466.21722411999997, 1113.75183105], [793.3281430325068, 451.2913478825204, 1084.4325513020426], [863.71374512, 524.4475708, 1074.54248047], 24.0]],
+         [[np.array([859.80614366, 517.28239823, 1051.97278944]), np.array([-324.53477798, 551.88744289, 1068.02526837])],
+          [[[859.9567597867737, 517.5924123242138, 1052.9115152009197], [859.0797567344147, 517.9612045889317, 1051.8651606187454], [859.1355641971873, 516.6167307529585, 1052.300218811959]],
+           [[-324.61994077156373, 552.1589330842497, 1068.9839343010813], [-325.3329318534787, 551.2929248618385, 1068.1227296356121], [-323.938374013488, 551.1305800350597, 1068.2925901317217]]]]),
+        # Testing when values are added to wristJC
+        ({'RWRA': np.array([0, 0, 0]), 'RWRB': np.array([0, 0, 0]), 'RFIN': np.array([0, 0, 0]),
+          'LWRA': np.array([0, 0, 0]), 'LWRB': np.array([0, 0, 0]), 'LFIN': np.array([0, 0, 0])},
+         [[[0, 4, 3], [9, 0, -6]], [[rand_coor, rand_coor, rand_coor], [rand_coor, rand_coor, rand_coor]]],
+         {'RightHandThickness': 0.0, 'LeftHandThickness': 0.0},
+         [[0, 0, 0], [0, 0, 0]],
+         [[[0, 0, 0], [9, 0, -6], [0, 0, 0], 7.0], [[0, 0, 0], [0, 4, 3], [0, 0, 0], 7.0]],
+         [[np.array([0, 0, 0]), np.array([0, 0, 0])],
+          [[nan_3d, nan_3d, [0, 0.8, 0.6]], [nan_3d, nan_3d, [0.8320502943378436, 0.0, -0.554700196225229]]]]),
+        # Testing when values are added to wristJC, frame['RFIN'] and frame['LFIN']
+        ({'RWRA': np.array([0, 0, 0]), 'RWRB': np.array([0, 0, 0]), 'RFIN': np.array([1, -9, 6]),
+          'LWRA': np.array([0, 0, 0]), 'LWRB': np.array([0, 0, 0]), 'LFIN': np.array([-6, 3, 8])},
+         [[[0, 4, 3], [9, 0, -6]], [[rand_coor, rand_coor, rand_coor], [rand_coor, rand_coor, rand_coor]]],
+         {'RightHandThickness': 0.0, 'LeftHandThickness': 0.0},
+         [[0, 0, 0], [0, 0, 0]],
+         [[[0, 0, 0], [9, 0, -6], [-6, 3, 8], 7.0], [[0, 0, 0], [0, 4, 3], [1, -9, 6], 7.0]],
+         [[np.array([0, 0, 0]),  np.array([0, 0, 0])],
+          [[nan_3d, nan_3d, [0, 0.8, 0.6]], [nan_3d, nan_3d, [0.8320502943378436, 0.0, -0.554700196225229]]]]),
+        # Testing when values are added to wristJC, frame['RFIN'], frame['LFIN'], frame['RWRA'], and frame['LWRA']
+        ({'RWRA': np.array([4, 7, 6]), 'RWRB': np.array([0, 0, 0]), 'RFIN': np.array([1, -9, 6]),
+          'LWRA': np.array([-4, 5, 3]), 'LWRB': np.array([0, 0, 0]), 'LFIN': np.array([-6, 3, 8])},
+         [[[0, 4, 3], [9, 0, -6]], [[rand_coor, rand_coor, rand_coor], [rand_coor, rand_coor, rand_coor]]],
+         {'RightHandThickness': 0.0, 'LeftHandThickness': 0.0},
+         [[0, 0, 0], [0, 0, 0]],
+         [[[-2.0, 2.5, 1.5], [9, 0, -6], [-6, 3, 8], 7.0], [[2.0, 3.5, 3.0], [0, 4, 3], [1, -9, 6], 7.0]],
+         [[np.array([0, 0, 0]), np.array([0, 0, 0])],
+          [[[-0.1483404529302446, -0.5933618117209785, 0.7911490822946381], [0.9889363528682976, -0.08900427175814675, 0.11867236234419568], [0, 0.8, 0.6]],
+           [[0.5538487756217112, -0.05538487756217114, 0.8307731634325669], [-0.030722002451646625, -0.998465079678515, -0.04608300367746994], [0.8320502943378436, 0.0, -0.554700196225229]]]]),
+        # Testing when values are added to frame and wristJC
+        ({'RWRA': np.array([4, 7, 6]), 'RWRB': np.array([0, -5, 4]), 'RFIN': np.array([1, -9, 6]),
+          'LWRA': np.array([-4, 5, 3]), 'LWRB': np.array([-3, 2, -7]), 'LFIN': np.array([-6, 3, 8])},
+         [[[0, 4, 3], [9, 0, -6]], [[rand_coor, rand_coor, rand_coor], [rand_coor, rand_coor, rand_coor]]],
+         {'RightHandThickness': 0.0, 'LeftHandThickness': 0.0},
+         [[0, 0, 0], [0, 0, 0]],
+         [[[-3.5, 3.5, -2.0], [9, 0, -6], [-6, 3, 8], 7.0], [[2.0, 1.0, 5.0], [0, 4, 3], [1, -9, 6], 7.0]],
+         [[np.array([0, 0, 0]), np.array([0, 0, 0])],
+          [[[0.813733471206735, -0.3487429162314579, 0.4649905549752772], [0.5812381937190965, 0.48824008272404085, -0.650986776965388], [0.0, 0.8, 0.6]],
+           [[0.19988898139583083, -0.9328152465138774, 0.2998334720937463],  [-0.5174328002831333, -0.3603549859114678, -0.7761492004246999],  [0.8320502943378436, 0.0, -0.554700196225229]]]]),
+        # Testing when values are added to frame, wristJC, and vsk
+        ({'RWRA': np.array([4, 7, 6]), 'RWRB': np.array([0, -5, 4]), 'RFIN': np.array([1, -9, 6]),
+          'LWRA': np.array([-4, 5, 3]), 'LWRB': np.array([-3, 2, -7]), 'LFIN': np.array([-6, 3, 8])},
+         [[[0, 4, 3], [9, 0, -6]], [[rand_coor, rand_coor, rand_coor], [rand_coor, rand_coor, rand_coor]]],
+         {'RightHandThickness': 36.0, 'LeftHandThickness': -9.0},
+         [[0, 0, 0], [0, 0, 0]],
+         [[[-3.5, 3.5, -2.0], [9, 0, -6], [-6, 3, 8], 2.5], [[2.0, 1.0, 5.0], [0, 4, 3], [1, -9, 6], 25.0]],
+         [[np.array([0, 0, 0]), np.array([0, 0, 0])],
+          [[[0.813733471206735, -0.3487429162314579, 0.4649905549752772], [0.5812381937190965, 0.48824008272404085, -0.650986776965388], [0.0, 0.8, 0.6]],
+           [[0.19988898139583083, -0.9328152465138774, 0.2998334720937463], [-0.5174328002831333, -0.3603549859114678, -0.7761492004246999], [0.8320502943378436, 0.0, -0.554700196225229]]]]),
+        # Testing when values are added to frame, wristJC, vsk and mockReturnVal
+        ({'RWRA': np.array([4, 7, 6]), 'RWRB': np.array([0, -5, 4]), 'RFIN': np.array([1, -9, 6]),
+          'LWRA': np.array([-4, 5, 3]), 'LWRB': np.array([-3, 2, -7]), 'LFIN': np.array([-6, 3, 8])},
+         [[[0, 4, 3], [9, 0, -6]], [[rand_coor, rand_coor, rand_coor], [rand_coor, rand_coor, rand_coor]]],
+         {'RightHandThickness': 36.0, 'LeftHandThickness': -9.0},
+         [[-6, 4, -4], [2, 8, 1]],
+         [[[-3.5, 3.5, -2.0], [9, 0, -6], [-6, 3, 8], 2.5], [[2.0, 1.0, 5.0], [0, 4, 3], [1, -9, 6], 25.0]],
+         [[np.array([2, 8, 1]), np.array([-6, 4, -4])],
+          [[[2.911684611677104, 7.658118270621086, 1.227921152919276], [1.9534757894800765, 8.465242105199236, 1.8839599998785472], [1.5917517095361369, 7.183503419072274, 1.4082482904638631]],
+           [[-6.21615749183132, 3.059079153204844, -3.739339495144585], [-6.186838410896736, 3.777824759216273, -4.9569376001580645], [-5.04168515250009, 3.744449374000024, -4.127775312999988]]]])])
+    def testHandJointCenter(self, frame, wristJC, vsk, mockReturnVal, expectedMockArgs, expected):
         with patch.object(pyCGM, 'findJointC', side_effect=mockReturnVal) as mock_findJointC:
-            result = pyCGM.handJointCenter(frame, elbowJC, wristJC, vsk)
-            #np.testing.assert_almost_equal(result[0], expected[0], rounding_precision)
-            #np.testing.assert_almost_equal(result[1], expected[1], rounding_precision)
+            result = pyCGM.handJointCenter(frame, None, wristJC, vsk)
 
         # Asserting that there were only 2 calls to findJointC
         np.testing.assert_equal(mock_findJointC.call_count, 2)
 
-        # Asserting that the correct params were sent in the 1st (right) call to findJointC
+        # Asserting that the correct params were sent in the 1st (left) call to findJointC
         np.testing.assert_almost_equal(expectedMockArgs[0][0], mock_findJointC.call_args_list[0][0][0], rounding_precision)
         np.testing.assert_almost_equal(expectedMockArgs[0][1], mock_findJointC.call_args_list[0][0][1], rounding_precision)
         np.testing.assert_almost_equal(expectedMockArgs[0][2], mock_findJointC.call_args_list[0][0][2], rounding_precision)
         np.testing.assert_almost_equal(expectedMockArgs[0][3], mock_findJointC.call_args_list[0][0][3], rounding_precision)
 
-        # Asserting that the correct params were sent in the 2nd (left) call to findJointC
+        # Asserting that the correct params were sent in the 2nd (right) call to findJointC
         np.testing.assert_almost_equal(expectedMockArgs[1][0], mock_findJointC.call_args_list[1][0][0], rounding_precision)
         np.testing.assert_almost_equal(expectedMockArgs[1][1], mock_findJointC.call_args_list[1][0][1], rounding_precision)
         np.testing.assert_almost_equal(expectedMockArgs[1][2], mock_findJointC.call_args_list[1][0][2], rounding_precision)
         np.testing.assert_almost_equal(expectedMockArgs[1][3], mock_findJointC.call_args_list[1][0][3], rounding_precision)
 
         # Asserting that findShoulderJC returned the correct result given the return value given by mocked findJointC
-        #np.testing.assert_almost_equal(result[0], expected[0], rounding_precision)
-        #np.testing.assert_almost_equal(result[1], expected[1], rounding_precision)
         np.testing.assert_almost_equal(result[0], expected[0], rounding_precision)
         np.testing.assert_almost_equal(result[1], expected[1], rounding_precision)
 
