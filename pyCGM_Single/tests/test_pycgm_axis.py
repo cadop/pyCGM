@@ -6,6 +6,16 @@ import numpy as np
 rounding_precision = 6
 
 class TestUpperBodyAxis():
+    """
+    This class tests the upper body axis functions in pyCGM.py:
+    headJC
+    thoraxJC
+    findshoulderJC
+    shoulderAxisCalc
+    elbowJointCenter
+    wristJointCenter
+    handJointCenter
+    """
     nan_3d = [np.nan, np.nan, np.nan]
     rand_coor = [np.random.randint(0, 10), np.random.randint(0, 10), np.random.randint(0, 10)]
 
@@ -51,6 +61,14 @@ class TestUpperBodyAxis():
          {'HeadOffset': 0.5},
          [[[0.5, 1.87758256, 0.47942554], [1.5, 1, 0], [0.5, 1.47942554, -0.87758256]], [0.5, 1, 0]])])
     def testHeadJC(self, frame, vsk, expected):
+        """
+        This test provides coverage of the headJC function in pyCGM.py, defined as headJC(frame, vsk)
+
+        This test takes 3 parameters:
+        frame: dictionary of marker lists
+        vsk: dictionary containing subject measurements from a VSK file
+        expected: the expected result from calling headJC on frame and vsk
+        """
         result = pyCGM.headJC(frame, vsk)
         np.testing.assert_almost_equal(result[0], expected[0], rounding_precision)
         np.testing.assert_almost_equal(result[1], expected[1], rounding_precision)
@@ -84,62 +102,78 @@ class TestUpperBodyAxis():
         ({'C7': np.array([1, 1, 2]), 'T10': np.array([0, 1, 2]), 'CLAV': np.array([1, 0, 1]), 'STRN': np.array([0, 0, 1])},
          [[[1, 4.24264069, 5.24264069], [1, 4.24264069, 6.65685425], [0, 4.94974747, 5.94974747]], [1, 4.94974747, 5.94974747]])])
     def testThoraxJC(self, frame, expected):
+        """
+        This test provides coverage of the thoraxJC function in pyCGM.py, defined as thoraxJC(frame)
+
+        This test takes 2 parameters:
+        frame: dictionary of marker lists
+        expected: the expected result from calling thoraxJC on frame
+        """
         result = pyCGM.thoraxJC(frame)
         np.testing.assert_almost_equal(result[0], expected[0], rounding_precision)
         np.testing.assert_almost_equal(result[1], expected[1], rounding_precision)
 
-    @pytest.mark.parametrize(["frame", "thorax", "wand", "vsk", "expected_call_right", "expected_call_left"], [
+    @pytest.mark.parametrize(["frame", "thorax", "wand", "vsk", "expected_args"], [
         # Test from running sample data
         ({'RSHO': np.array([428.88476562, 270.552948, 1500.73010254]), 'LSHO': np.array([68.24668121, 269.01049805, 1510.1072998])},
          [[[256.23991128535846, 365.30496976939753, 1459.662169500559], [257.1435863244796, 364.21960599061947, 1459.588978712983], [256.0843053658035, 364.32180498523223, 1458.6575930699294]], [256.149810236564, 364.3090603933987, 1459.6553639290375]],
          [[255.92550222678443, 364.3226950497605, 1460.6297868417887], [256.42380097331767, 364.27770361353487, 1460.6165849382387]],
          {'RightShoulderOffset': 40.0, 'LeftShoulderOffset': 40.0},
-         [[255.92550222678443, 364.3226950497605, 1460.6297868417887], [256.149810236564, 364.3090603933987, 1459.6553639290375], np.array([ 428.88476562,  270.552948  , 1500.73010254]), 47.0],
-         [[256.42380097331767, 364.27770361353487, 1460.6165849382387], [256.149810236564, 364.3090603933987, 1459.6553639290375], np.array([68.24668121, 269.01049805, 1510.1072998]), 47.0]),
+         [[[255.92550222678443, 364.3226950497605, 1460.6297868417887], [256.149810236564, 364.3090603933987, 1459.6553639290375], np.array([ 428.88476562,  270.552948  , 1500.73010254]), 47.0],
+         [[256.42380097331767, 364.27770361353487, 1460.6165849382387], [256.149810236564, 364.3090603933987, 1459.6553639290375], np.array([68.24668121, 269.01049805, 1510.1072998]), 47.0]]),
         # Basic test with zeros for all params
         ({'RSHO': np.array([0, 0, 0]), 'LSHO': np.array([0, 0, 0])},
          [[rand_coor, rand_coor, rand_coor], [0, 0, 0]],
          [[0, 0, 0], [0, 0, 0]],
          {'RightShoulderOffset': 0.0, 'LeftShoulderOffset': 0.0},
-         [[0, 0, 0], [0, 0, 0], np.array([0, 0, 0]), 7.0],
-         [[0, 0, 0], [0, 0, 0], np.array([0, 0, 0]), 7.0]),
+         [[[0, 0, 0], [0, 0, 0], np.array([0, 0, 0]), 7.0],
+         [[0, 0, 0], [0, 0, 0], np.array([0, 0, 0]), 7.0]]),
         # Testing when values are added to RSHO and LSHO
         ({'RSHO': np.array([2, -1, 3]), 'LSHO': np.array([-3, 1, 2])},
          [[rand_coor, rand_coor, rand_coor], [0, 0, 0]],
          [[0, 0, 0], [0, 0, 0]],
          {'RightShoulderOffset': 0.0, 'LeftShoulderOffset': 0.0},
-         [[0, 0, 0], [0, 0, 0], np.array([2, -1, 3]), 7.0],
-         [[0, 0, 0], [0, 0, 0], np.array([-3, 1, 2]), 7.0]),
+         [[[0, 0, 0], [0, 0, 0], np.array([2, -1, 3]), 7.0],
+         [[0, 0, 0], [0, 0, 0], np.array([-3, 1, 2]), 7.0]]),
         # Testing when a value is added to thorax_origin
         ({'RSHO': np.array([0, 0, 0]), 'LSHO': np.array([0, 0, 0])},
          [[rand_coor, rand_coor, rand_coor], [5, -2, 7]],
          [[0, 0, 0], [0, 0, 0]],
          {'RightShoulderOffset': 0.0, 'LeftShoulderOffset': 0.0},
-         [[0, 0, 0], [5, -2, 7], np.array([0, 0, 0]), 7.0],
-         [[0, 0, 0], [5, -2, 7], np.array([0, 0, 0]), 7.0]),
+         [[[0, 0, 0], [5, -2, 7], np.array([0, 0, 0]), 7.0],
+         [[0, 0, 0], [5, -2, 7], np.array([0, 0, 0]), 7.0]]),
         # Testing when a value is added to wand
         ({'RSHO': np.array([0, 0, 0]), 'LSHO': np.array([0, 0, 0])},
          [[rand_coor, rand_coor, rand_coor], [0, 0, 0]],
          [[2, 6, -4], [-3, 5, 2]],
          {'RightShoulderOffset': 0.0, 'LeftShoulderOffset': 0.0},
-         [[2, 6, -4], [0, 0, 0], np.array([0, 0, 0]), 7.0],
-         [[-3, 5, 2], [0, 0, 0], np.array([0, 0, 0]), 7.0]),
+         [[[2, 6, -4], [0, 0, 0], np.array([0, 0, 0]), 7.0],
+         [[-3, 5, 2], [0, 0, 0], np.array([0, 0, 0]), 7.0]]),
         # Testing when values are added to RightShoulderOffset and LeftShoulderOffset
         ({'RSHO': np.array([0, 0, 0]), 'LSHO': np.array([0, 0, 0])},
          [[rand_coor, rand_coor, rand_coor], [0, 0, 0]],
          [[0, 0, 0], [0, 0, 0]],
          {'RightShoulderOffset': 20.0, 'LeftShoulderOffset': -20.0},
-         [[0, 0, 0], [0, 0, 0], np.array([0, 0, 0]), 27.0],
-         [[0, 0, 0], [0, 0, 0], np.array([0, 0, 0]), -13.0]),
+         [[[0, 0, 0], [0, 0, 0], np.array([0, 0, 0]), 27.0],
+         [[0, 0, 0], [0, 0, 0], np.array([0, 0, 0]), -13.0]]),
         # Adding when values are added to all params
         ({'RSHO': np.array([3, -5, 2]), 'LSHO': np.array([-7, 3 , 9])},
          [[rand_coor, rand_coor, rand_coor], [-1, -9, -5]],
          [[-7, -1, 5], [5, -9, 2]],
          {'RightShoulderOffset': -6.0, 'LeftShoulderOffset': 42.0},
-         [[-7, -1, 5], [-1, -9, -5], np.array([3, -5, 2]), 1.0],
-         [[5, -9, 2], [-1, -9, -5], np.array([-7, 3 , 9]), 49.0])
-    ])
-    def testFindShoulderJC(self, frame, thorax, wand, vsk, expected_call_right, expected_call_left):
+         [[[-7, -1, 5], [-1, -9, -5], np.array([3, -5, 2]), 1.0],
+         [[5, -9, 2], [-1, -9, -5], np.array([-7, 3 , 9]), 49.0]])])
+    def testFindShoulderJC(self, frame, thorax, wand, vsk, expected_args):
+        """
+        This test provides coverage of the findshoulderJC function in pyCGM.py, defined as findshoulderJC(frame, thorax, wand, vsk)
+
+        This test takes 5 parameters:
+        frame: dictionary of marker lists
+        thorax: array containing several x,y,z markers for the thorax
+        wand: array containing two x,y,z markers for wand
+        vsk: dictionary containing subject measurements from a VSK file
+        expected_args: the expected arguments used to call the mocked function, findJointC
+        """
         rand_coor = [np.random.randint(0, 10), np.random.randint(0, 10), np.random.randint(0, 10)]
         with patch.object(pyCGM, 'findJointC', return_value=rand_coor) as mock_findJointC:
             result = pyCGM.findshoulderJC(frame, thorax, wand, vsk)
@@ -148,16 +182,16 @@ class TestUpperBodyAxis():
         np.testing.assert_equal(mock_findJointC.call_count, 2)
 
         # Asserting that the correct params were sent in the 1st (right) call to findJointC
-        np.testing.assert_almost_equal(expected_call_right[0], mock_findJointC.call_args_list[0][0][0], rounding_precision)
-        np.testing.assert_almost_equal(expected_call_right[1], mock_findJointC.call_args_list[0][0][1], rounding_precision)
-        np.testing.assert_almost_equal(expected_call_right[2], mock_findJointC.call_args_list[0][0][2], rounding_precision)
-        np.testing.assert_almost_equal(expected_call_right[3], mock_findJointC.call_args_list[0][0][3], rounding_precision)
+        np.testing.assert_almost_equal(expected_args[0][0], mock_findJointC.call_args_list[0][0][0], rounding_precision)
+        np.testing.assert_almost_equal(expected_args[0][1], mock_findJointC.call_args_list[0][0][1], rounding_precision)
+        np.testing.assert_almost_equal(expected_args[0][2], mock_findJointC.call_args_list[0][0][2], rounding_precision)
+        np.testing.assert_almost_equal(expected_args[0][3], mock_findJointC.call_args_list[0][0][3], rounding_precision)
 
         # Asserting that the correct params were sent in the 2nd (left) call to findJointC
-        np.testing.assert_almost_equal(expected_call_left[0], mock_findJointC.call_args_list[1][0][0], rounding_precision)
-        np.testing.assert_almost_equal(expected_call_left[1], mock_findJointC.call_args_list[1][0][1], rounding_precision)
-        np.testing.assert_almost_equal(expected_call_left[2], mock_findJointC.call_args_list[1][0][2], rounding_precision)
-        np.testing.assert_almost_equal(expected_call_left[3], mock_findJointC.call_args_list[1][0][3], rounding_precision)
+        np.testing.assert_almost_equal(expected_args[1][0], mock_findJointC.call_args_list[1][0][0], rounding_precision)
+        np.testing.assert_almost_equal(expected_args[1][1], mock_findJointC.call_args_list[1][0][1], rounding_precision)
+        np.testing.assert_almost_equal(expected_args[1][2], mock_findJointC.call_args_list[1][0][2], rounding_precision)
+        np.testing.assert_almost_equal(expected_args[1][3], mock_findJointC.call_args_list[1][0][3], rounding_precision)
 
         # Asserting that findShoulderJC returned the correct result given the return value given by mocked findJointC
         np.testing.assert_almost_equal(result[0], rand_coor, rounding_precision)
@@ -228,6 +262,15 @@ class TestUpperBodyAxis():
           [[[0.93321781, 5.62330046, -3.77912558], [1.51400083, 5.69077360, -2.49143833], [1.85518611, 4.63349167, -3.36650833]],
            [[-0.64460664, -9.08385127, 1.24009787], [-0.57223612, -8.287942994, 2.40684228], [0.50697940, -8.30290332, 1.4930206]]]])])
     def testShoulderAxisCalc(self, thorax, shoulderJC, wand, expected):
+        """
+        This test provides coverage of the shoulderAxisCalc function in pyCGM.py, defined as shoulderAxisCalc(frame, thorax, shoulderJC, wand)
+
+        This test takes 4 parameters:
+        thorax: array containing several x,y,z markers for the thorax
+        shoulderJC: array containing x,y,z position of the shoulder joint center
+        wand: array containing two x,y,z markers for wand
+        expected: the expected result from calling shoulderAxisCalc on thorax, shoulderJC, and wand
+        """
         result = pyCGM.shoulderAxisCalc(None, thorax, shoulderJC, wand)
         np.testing.assert_almost_equal(result[0], expected[0], rounding_precision)
         np.testing.assert_almost_equal(result[1], expected[1], rounding_precision)
@@ -354,7 +397,7 @@ class TestUpperBodyAxis():
           [[[-0.9685895544902782, 0.17643783885299713, 0.17522546605219314], [-0.09942948749879241, 0.3710806621909213, -0.9232621075099284], [-0.2279211529192759, -0.9116846116771036, -0.3418817293789138]],
            [[-0.10295276972565287, 0.4272479327059481, 0.8982538233730544], [-0.5757655689286321, -0.7619823480470763, 0.29644040025096585], [0.8111071056538127, -0.48666426339228763, 0.3244428422615251]]],
           [[24.015786700696715, -16.61146942090584, -9.262886851567883], [-5.48395315345786, 1.5962810792528397, -6.54814053962642]]]),
-        # Testing when values are added to frame, thoras, shoulderJC, vsk and mockReturnVal
+        # Testing when values are added to frame, thorax, shoulderJC, vsk and mockReturnVal
         ({'RSHO': np.array([9, -7, -6]), 'LSHO': np.array([3, -8, 5]), 'RELB': np.array([-9, 1, -4]), 'LELB': np.array([-4, 1, -6]),
           'RWRA': np.array([2, -3, 9]), 'RWRB': np.array([-4, -2, -7]), 'LWRA': np.array([-9, 1, -1]), 'LWRB': np.array([-3, -4, -9])},
          [[rand_coor, [-9, 5, -5], rand_coor], [-5, -2, -3]],
@@ -366,9 +409,20 @@ class TestUpperBodyAxis():
          [[np.array([5, 4, -4]), np.array([6, 3, 5])],
           [[[4.156741342815987, 4.506819397152288, -3.8209778344606247], [4.809375978699987, 4.029428853750657, -4.981221904092206], [4.4974292889675835, 3.138450209658714, -3.928204184138226]],
            [[6.726856988207308, 2.5997910101837682, 5.558132316896694], [5.329224487433077, 2.760784472038086, 5.702022893446135], [5.852558043845103, 2.1153482630706173, 4.557674131535308]]],
-          [[17.14176226312361, -25.58951560761187, -7.246255574147096], [-5.726512929518925, 1.5474273567891164, -6.699526795132392]]]),
-    ])
+          [[17.14176226312361, -25.58951560761187, -7.246255574147096], [-5.726512929518925, 1.5474273567891164, -6.699526795132392]]])])
     def testElbowJointCenter(self, frame, thorax, shoulderJC, vsk, mockReturnVal, expectedMockArgs, expected):
+        """
+        This test provides coverage of the elbowJointCenter function in pyCGM.py, defined as elbowJointCenter(frame, thorax, shoulderJC, wand, vsk)
+
+        This test takes 7 parameters:
+        frame: dictionary of marker lists
+        thorax: array containing several x,y,z markers for the thorax
+        shoulderJC: array containing x,y,z position of the shoulder joint center
+        vsk: dictionary containing subject measurements from a VSK file
+        mockReturnVal: the value to be returned by the mock for findJointC
+        expectedMockArgs: the expected arguments used to call the mocked function, findJointC
+        expected: the expected result from calling elbowJointCenter on frame, thorax, shoulderJC, and vsk
+        """
         with patch.object(pyCGM, 'findJointC', side_effect=mockReturnVal) as mock_findJointC:
             result = pyCGM.elbowJointCenter(frame, thorax, shoulderJC, None, vsk)
 
@@ -458,6 +512,13 @@ class TestUpperBodyAxis():
           [[[5.63485163, -0.81742581, 5.91287093], [ 5.07152331, -1, 4.62860932], [5.93219365, -1.98319208, 5.16951588]],
            [[6.55425751, 6.08104409, -0.89148499], [7.33104236, 5.08963352, -0.24828177], [6.16830018, 5.59421098, 0.37896]]]])])
     def testWristJointCenter(self, elbowJC, expected):
+        """
+        This test provides coverage of the wristJointCenter function in pyCGM.py, defined as wristJointCenter(frame, shoulderJC, wand, elbowJC)
+
+        This test takes 2 parameters:
+        elbowJC: array containing the x,y,z position of the elbow joint center
+        expected: the expected result from calling wristJointCenter on elbowJC
+        """
         result = pyCGM.wristJointCenter(None, None, None, elbowJC)
         np.testing.assert_almost_equal(result[0], expected[0], rounding_precision)
         np.testing.assert_almost_equal(result[1], expected[1], rounding_precision)
@@ -533,6 +594,17 @@ class TestUpperBodyAxis():
           [[[2.911684611677104, 7.658118270621086, 1.227921152919276], [1.9534757894800765, 8.465242105199236, 1.8839599998785472], [1.5917517095361369, 7.183503419072274, 1.4082482904638631]],
            [[-6.21615749183132, 3.059079153204844, -3.739339495144585], [-6.186838410896736, 3.777824759216273, -4.9569376001580645], [-5.04168515250009, 3.744449374000024, -4.127775312999988]]]])])
     def testHandJointCenter(self, frame, wristJC, vsk, mockReturnVal, expectedMockArgs, expected):
+        """
+        This test provides coverage of the handJointCenter function in pyCGM.py, defined as handJointCenter(frame, elbowJC, wristJC, vsk)
+
+        This test takes 6 parameters:
+        frame: dictionary of marker lists
+        wristJC: array containing the x,y,z position of the wrist joint center
+        vsk: dictionary containing subject measurements from a VSK file
+        mockReturnVal: the value to be returned by the mock for findJointC
+        expectedMockArgs: the expected arguments used to call the mocked function, findJointC
+        expected: the expected result from calling handJointCenter on frame, wristJC, and vsk
+        """
         with patch.object(pyCGM, 'findJointC', side_effect=mockReturnVal) as mock_findJointC:
             result = pyCGM.handJointCenter(frame, None, wristJC, vsk)
 
@@ -556,6 +628,15 @@ class TestUpperBodyAxis():
         np.testing.assert_almost_equal(result[1], expected[1], rounding_precision)
 
 class TestLowerBodyAxis():
+    """
+    This class tests the lower body axis functions in pyCGM.py:
+    pelvisJointCenter
+    hipJointCenter
+    hipAxisCenter
+    kneeJointCenter
+    ankleJointCenter
+    footJointCenter
+    """
     nan_3d = [np.nan, np.nan, np.nan]
     rand_int = np.random.randint(0, 10)
     rand_coor = [np.random.randint(0, 10), np.random.randint(0, 10), np.random.randint(0, 10)]
@@ -603,9 +684,15 @@ class TestLowerBodyAxis():
           'RPSI': np.array([1, 0, -4]), 'LPSI': np.array([7, -2, 2])},
          [np.array([-6.5, -1.5,  2.0]),
           np.array([[-6.72928306, -1.61360872, 2.96670695], [-6.56593805, -2.48907071, 1.86812391], [-5.52887619, -1.59397972,  2.21928602]]),
-          np.array([-4,  8, -5])])
-    ])
+          np.array([-4,  8, -5])])])
     def testPelvisJointCenter(self, frame, expected):
+        """
+        This test provides coverage of the pelvisJointCenter function in pyCGM.py, defined as pelvisJointCenter(frame)
+
+        This test takes 2 parameters:
+        frame: dictionary of marker lists
+        expected: the expected result from calling pelvisJointCenter on frame
+        """
         result = pyCGM.pelvisJointCenter(frame)
         np.testing.assert_almost_equal(result[0], expected[0], rounding_precision)
         np.testing.assert_almost_equal(result[1], expected[1], rounding_precision)
@@ -665,6 +752,17 @@ class TestLowerBodyAxis():
          {'MeanLegLength': 15.0, 'R_AsisToTrocanterMeasure': -24.0, 'L_AsisToTrocanterMeasure': -7.0, 'InterAsisDistance': 11.0},
          [[81.76345582,  89.67607691, 124.73321758], [-76.79709552, 107.19186562, -17.60160178]])])
     def testHipJointCenter(self, pel_origin, pel_x, pel_y, pel_z, vsk, expected):
+        """
+        This test provides coverage of the hipJointCenter function in pyCGM.py, defined as hipJointCenter(frame, pel_origin, pel_x, pel_y, pel_z, vsk)
+
+        This test takes 6 parameters:
+        pel_origin: array of x,y,z position of origin of the pelvis
+        pel_x: array of x,y,z position of x-axis of the pelvis
+        pel_y: array of x,y,z position of y-axis of the pelvis
+        pel_z: array of x,y,z position of z-axis of the pelvis
+        vsk: dictionary containing subject measurements from a VSK file
+        expected: the expected result from calling hipJointCenter on pel_origin, pel_x, pel_y, pel_z, and vsk
+        """
         result = pyCGM.hipJointCenter(None, pel_origin, pel_x, pel_y, pel_z, vsk)
         np.testing.assert_almost_equal(result[0], expected[0], rounding_precision)
         np.testing.assert_almost_equal(result[1], expected[1], rounding_precision)
@@ -707,70 +805,279 @@ class TestLowerBodyAxis():
          [np.array([6, 3, 9]), np.array([[5, 4, -2], [0, 0, 0], [7, 2, 3]]), np.array(rand_coor)],
          [[-4, -2, 3.5], [[-5, -1, -7.5], [-10, -5, -5.5], [-3, -3, -2.5]]])])
     def testHipAxisCenter(self, l_hip_jc, r_hip_jc, pelvis_axis, expected):
+        """
+        This test provides coverage of the hipAxisCenter function in pyCGM.py, defined as hipAxisCenter(l_hip_jc, r_hip_jc, pelvis_axis)
+
+        This test takes 4 parameters:
+        l_hip_jc: array of left hip joint center x,y,z position
+        r_hip_jc: array of right hip joint center x,y,z position
+        pelvis_axis: array of pelvis origin and axis
+        expected: the expected result from calling hipAxisCenter on l_hip_jc, r_hip_jc, and pelvis_axis
+        """
         result = pyCGM.hipAxisCenter(l_hip_jc, r_hip_jc, pelvis_axis)
         np.testing.assert_almost_equal(result[0], expected[0], rounding_precision)
         np.testing.assert_almost_equal(result[1], expected[1], rounding_precision)
 
-    @pytest.mark.parametrize(["frame", "hip_JC", "delta", "vsk", "expected"], [
+    @pytest.mark.parametrize(["frame", "hip_JC", "vsk", "mockReturnVal", "expectedMockArgs", "expected"], [
         # Test from running sample data
         ({'RTHI': np.array([426.50338745, 262.65310669, 673.66247559]),
           'LTHI': np.array([51.93867874, 320.01849365, 723.03186035]),
           'RKNE': np.array([416.98687744, 266.22558594, 524.04089355]),
           'LKNE': np.array([84.62355804, 286.69122314, 529.39819336])},
          [[182.57097863, 339.43231855, 935.52900126], [308.38050472, 322.80342417, 937.98979061]],
-         0,
          {'RightKneeWidth': 105.0, 'LeftKneeWidth': 105.0},
+         [np.array([364.17774614, 292.17051722, 515.19181496]), np.array([143.55478579, 279.90370346, 524.78408753])],
+         [[[426.50338745, 262.65310669, 673.66247559], [308.38050472, 322.80342417, 937.98979061], [416.98687744, 266.22558594, 524.04089355], 59.5],
+          [[51.93867874, 320.01849365, 723.03186035], [182.57097863, 339.43231855, 935.52900126], [84.62355804, 286.69122314, 529.39819336], 59.5]],
          [np.array([364.17774614, 292.17051722, 515.19181496]),
           np.array([143.55478579, 279.90370346, 524.78408753]),
           np.array([[[364.61959153, 293.06758353, 515.18513093], [363.29019771, 292.60656648, 515.04309095], [364.04724541, 292.24216264, 516.18067112]],
                     [[143.65611282, 280.88685896, 524.63197541], [142.56434499, 280.01777943, 524.86163553], [143.64837987, 280.04650381, 525.76940383]]])]),
+        # Test with zeros for all params
+        ({'RTHI': np.array([0, 0, 0]), 'LTHI': np.array([0, 0, 0]), 'RKNE': np.array([0, 0, 0]), 'LKNE': np.array([0, 0, 0])},
+         [[0, 0, 0], [0, 0, 0]],
+         {'RightKneeWidth': 0.0, 'LeftKneeWidth': 0.0},
+         [np.array([0, 0, 0]), np.array([0, 0, 0])],
+         [[[0, 0, 0], [0, 0, 0], [0, 0, 0], 7.0], [[0, 0, 0], [0, 0, 0], [0, 0, 0], 7.0]],
+         [np.array([0, 0, 0]), np.array([0, 0, 0]),
+          np.array([[nan_3d, nan_3d, nan_3d],
+                    [nan_3d, nan_3d, nan_3d]])]),
+        # Testing when values are added to frame
+        ({'RTHI': np.array([1, 2, 4]), 'LTHI': np.array([-1, 0, 8]), 'RKNE': np.array([8, -4, 5]), 'LKNE': np.array([8, -8, 5])},
+         [[0, 0, 0], [0, 0, 0]],
+         {'RightKneeWidth': 0.0, 'LeftKneeWidth': 0.0},
+         [np.array([0, 0, 0]), np.array([0, 0, 0])],
+         [[[1, 2, 4], [0, 0, 0], [8, -4, 5], 7.0], [[-1, 0, 8], [0, 0, 0], [8, -8, 5], 7.0]],
+         [np.array([0, 0, 0]), np.array([0, 0, 0]),
+          np.array([[nan_3d, nan_3d, nan_3d],
+                    [nan_3d, nan_3d, nan_3d]])]),
+        # Testing when values are added to hip_JC
+        ({'RTHI': np.array([0, 0, 0]), 'LTHI': np.array([0, 0, 0]), 'RKNE': np.array([0, 0, 0]), 'LKNE': np.array([0, 0, 0])},
+         [[-8, 8, -2], [1, -9, 2]],
+         {'RightKneeWidth': 0.0, 'LeftKneeWidth': 0.0},
+         [np.array([0, 0, 0]), np.array([0, 0, 0])],
+         [[[0, 0, 0], [1, -9, 2], [0, 0, 0], 7.0], [[0, 0, 0], [-8, 8, -2], [0, 0, 0], 7.0]],
+         [np.array([0, 0, 0]), np.array([0, 0, 0]),
+          np.array([[nan_3d, nan_3d, [0.10783277, -0.97049496, 0.21566555]],
+                    [nan_3d, nan_3d, [-0.69631062, 0.69631062, -0.17407766]]])]),
+        # Testing when values are added to vsk
+        ({'RTHI': np.array([0, 0, 0]), 'LTHI': np.array([0, 0, 0]), 'RKNE': np.array([0, 0, 0]), 'LKNE': np.array([0, 0, 0])},
+         [[0, 0, 0], [0, 0, 0]],
+         {'RightKneeWidth': 9.0, 'LeftKneeWidth': -6.0},
+         [np.array([0, 0, 0]), np.array([0, 0, 0])],
+         [[[0, 0, 0], [0, 0, 0], [0, 0, 0], 11.5], [[0, 0, 0], [0, 0, 0], [0, 0, 0], 4.0]],
+         [np.array([0, 0, 0]), np.array([0, 0, 0]),
+          np.array([[nan_3d, nan_3d, nan_3d],
+                    [nan_3d, nan_3d, nan_3d]])]),
+        # Testing when values are added to mockReturnVal
+        ({'RTHI': np.array([0, 0, 0]), 'LTHI': np.array([0, 0, 0]), 'RKNE': np.array([0, 0, 0]), 'LKNE': np.array([0, 0, 0])},
+         [[0, 0, 0], [0, 0, 0]],
+         {'RightKneeWidth': 0.0, 'LeftKneeWidth': 0.0},
+         [np.array([-5, -5, -9]), np.array([3, -6, -5])],
+         [[[0, 0, 0], [0, 0, 0], [0, 0, 0], 7.0], [[0, 0, 0], [0, 0, 0], [0, 0, 0], 7.0]],
+         [np.array([-5, -5, -9]), np.array([3, -6, -5]),
+          np.array([[nan_3d, nan_3d, [-4.56314797, -4.56314797, -8.21366635]],
+                    [nan_3d, nan_3d, [2.64143142, -5.28286283, -4.4023857]]])]),
+        # Testing when values are added to frame and hip_JC
+        ({'RTHI': np.array([1, 2, 4]), 'LTHI': np.array([-1, 0, 8]), 'RKNE': np.array([8, -4, 5]), 'LKNE': np.array([8, -8, 5])},
+         [[-8, 8, -2], [1, -9, 2]],
+         {'RightKneeWidth': 0.0, 'LeftKneeWidth': 0.0},
+         [np.array([0, 0, 0]), np.array([0, 0, 0])],
+         [[[1, 2, 4], [1, -9, 2], [8, -4, 5], 7.0], [[-1, 0, 8], [-8, 8, -2], [8, -8, 5], 7.0]],
+         [np.array([0, 0, 0]), np.array([0, 0, 0]),
+          np.array([[[-0.47319376, 0.14067923, 0.86965339], [-0.8743339, -0.19582873, -0.44406233], [0.10783277, -0.97049496, 0.21566555]],
+                    [[-0.70710678, -0.70710678, 0.0], [-0.12309149, 0.12309149, 0.98473193], [-0.69631062, 0.69631062, -0.17407766]]])]),
+        # Testing when values are added to frame, hip_JC, and vsk
+        ({'RTHI': np.array([1, 2, 4]), 'LTHI': np.array([-1, 0, 8]), 'RKNE': np.array([8, -4, 5]),
+          'LKNE': np.array([8, -8, 5])},
+         [[-8, 8, -2], [1, -9, 2]],
+         {'RightKneeWidth': 9.0, 'LeftKneeWidth': -6.0},
+         [np.array([0, 0, 0]), np.array([0, 0, 0])],
+         [[[1, 2, 4], [1, -9, 2], [8, -4, 5], 11.5], [[-1, 0, 8], [-8, 8, -2], [8, -8, 5], 4.0]],
+         [np.array([0, 0, 0]), np.array([0, 0, 0]),
+          np.array([[[-0.47319376, 0.14067923, 0.86965339], [-0.8743339, -0.19582873, -0.44406233], [0.10783277, -0.97049496, 0.21566555]],
+                    [[-0.70710678, -0.70710678, 0.0], [-0.12309149, 0.12309149, 0.98473193], [-0.69631062, 0.69631062, -0.17407766]]])]),
+        # Testing when values are added to frame, hip_JC, vsk, and mockReturnVal
+        ({'RTHI': np.array([1, 2, 4]), 'LTHI': np.array([-1, 0, 8]), 'RKNE': np.array([8, -4, 5]), 'LKNE': np.array([8, -8, 5])},
+         [[-8, 8, -2], [1, -9, 2]],
+         {'RightKneeWidth': 9.0, 'LeftKneeWidth': -6.0},
+         [np.array([-5, -5, -9]), np.array([3, -6, -5])],
+         [[[1, 2, 4], [1, -9, 2], [8, -4, 5], 11.5], [[-1, 0, 8], [-8, 8, -2], [8, -8, 5], 4.0]],
+         [np.array([-5, -5, -9]), np.array([3, -6, -5]),
+          np.array([[[-5.6293369, -4.4458078, -8.45520089], [-5.62916022, -5.77484544, -8.93858368], [-4.54382845, -5.30411437, -8.16368549]],
+                    [[2.26301154, -6.63098327, -4.75770242], [3.2927155, -5.97483821, -4.04413154], [2.39076635, -5.22461171, -4.83384537]]])])])
+    def testKneeJointCenter(self, frame, hip_JC, vsk, mockReturnVal, expectedMockArgs, expected):
+        """
+        This test provides coverage of the kneeJointCenter function in pyCGM.py, defined as kneeJointCenter(frame, hip_JC, delta, vsk)
 
-        # Testing when
-        #({'RTHI': np.array([0, 0, 0]), 'LTHI': np.array([0, 0, 0]), 'RKNE': np.array([0, 0, 0]), 'LKNE': np.array([0, 0, 0])},
-         #[[0, 0, 0], [0, 0, 0]],
-         #0,
-         #{'RightKneeWidth': 0.0, 'LeftKneeWidth': 0.0},
-         #[np.array([0, 0, 0]), np.array([0, 0, 0]), np.array([[[0, 0, 0], [0, 0, 0], [0, 0, 0]], [[0, 0, 0], [0, 0, 0], [0, 0, 0]]])]),
-    ])
-    def testKneeJointCenter(self, frame, hip_JC, delta, vsk, expected):
-        result = pyCGM.kneeJointCenter(frame, hip_JC, delta, vsk)
+        This test takes 6 parameters:
+        frame: dictionary of marker lists
+        hip_JC: array of hip_JC containing the x,y,z axes marker positions of the hip joint center
+        vsk: dictionary containing subject measurements from a VSK file
+        mockReturnVal: the value to be returned by the mock for findJointC
+        expectedMockArgs: the expected arguments used to call the mocked function, findJointC
+        expected: the expected result from calling kneeJointCenter on frame, hip_JC, vsk, and mockReturnVal
+        """
+        with patch.object(pyCGM, 'findJointC', side_effect=mockReturnVal) as mock_findJointC:
+            result = pyCGM.kneeJointCenter(frame, hip_JC, None, vsk)
+
+        # Asserting that there were only 2 calls to findJointC
+        np.testing.assert_equal(mock_findJointC.call_count, 2)
+
+        # Asserting that the correct params were sent in the 1st (right) call to findJointC
+        np.testing.assert_almost_equal(expectedMockArgs[0][0], mock_findJointC.call_args_list[0][0][0], rounding_precision)
+        np.testing.assert_almost_equal(expectedMockArgs[0][1], mock_findJointC.call_args_list[0][0][1], rounding_precision)
+        np.testing.assert_almost_equal(expectedMockArgs[0][2], mock_findJointC.call_args_list[0][0][2], rounding_precision)
+        np.testing.assert_almost_equal(expectedMockArgs[0][3], mock_findJointC.call_args_list[0][0][3], rounding_precision)
+
+        # Asserting that the correct params were sent in the 2nd (left) call to findJointC
+        np.testing.assert_almost_equal(expectedMockArgs[1][0], mock_findJointC.call_args_list[1][0][0], rounding_precision)
+        np.testing.assert_almost_equal(expectedMockArgs[1][1], mock_findJointC.call_args_list[1][0][1], rounding_precision)
+        np.testing.assert_almost_equal(expectedMockArgs[1][2], mock_findJointC.call_args_list[1][0][2], rounding_precision)
+        np.testing.assert_almost_equal(expectedMockArgs[1][3], mock_findJointC.call_args_list[1][0][3], rounding_precision)
+
+        # Asserting that findShoulderJC returned the correct result given the return value given by mocked findJointC
         np.testing.assert_almost_equal(result[0], expected[0], rounding_precision)
         np.testing.assert_almost_equal(result[1], expected[1], rounding_precision)
         np.testing.assert_almost_equal(result[2], expected[2], rounding_precision)
 
-    @pytest.mark.parametrize(["frame", "knee_JC", "delta", "vsk", "expected"], [
+    @pytest.mark.parametrize(["frame", "knee_JC", "vsk", "mockReturnVal", "expectedMockArgs", "expected"], [
         # Test from running sample data
-        ({'RTIB': np.array([433.97537231, 211.93408203, 273.3008728 ]),
-          'LTIB': np.array([50.04016495, 235.90718079, 364.32226562]),
-          'RANK': np.array([422.77005005, 217.74053955, 92.86152649]),
-          'LANK': np.array([58.57380676, 208.54806519, 86.16953278])},
-         [np.array([364.17774614, 292.17051722, 515.19181496]),
-          np.array([143.55478579, 279.90370346, 524.78408753]),
-          np.array([[[364.61959153, 293.06758353, 515.18513093],
-                     [363.29019771, 292.60656648, 515.04309095],
-                     [364.04724541, 292.24216264, 516.18067112]],
-                    [[143.65611282, 280.88685896, 524.63197541], [142.56434499, 280.01777943, 524.86163553], [143.64837987, 280.04650381, 525.76940383]]])],
-         0,
+        ({'RTIB': np.array([433.97537231, 211.93408203, 273.3008728 ]), 'LTIB': np.array([50.04016495, 235.90718079, 364.32226562]),
+          'RANK': np.array([422.77005005, 217.74053955, 92.86152649]), 'LANK': np.array([58.57380676, 208.54806519, 86.16953278])},
+         [np.array([364.17774614, 292.17051722, 515.19181496]), np.array([143.55478579, 279.90370346, 524.78408753]),
+          np.array([[rand_coor, rand_coor, rand_coor], [rand_coor, rand_coor, rand_coor]])],
          {'RightAnkleWidth': 70.0, 'LeftAnkleWidth': 70.0, 'RightTibialTorsion': 0.0, 'LeftTibialTorsion': 0.0},
-         [np.array([393.76181608, 247.67829633, 87.73775041]),
-          np.array([98.74901939, 219.46930221, 80.6306816]),
+         [np.array([393.76181608, 247.67829633,  87.73775041]), np.array([98.74901939, 219.46930221,  80.6306816])],
+         [[[433.97537231, 211.93408203, 273.3008728 ], [364.17774614, 292.17051722, 515.19181496], [422.77005005, 217.74053955, 92.86152649], 42.0],
+          [[50.04016495, 235.90718079, 364.32226562], [143.55478579, 279.90370346, 524.78408753], [58.57380676, 208.54806519, 86.16953278], 42.0]],
+         [np.array([393.76181608, 247.67829633, 87.73775041]), np.array([98.74901939, 219.46930221, 80.6306816]),
           [[np.array([394.48171575, 248.37201348, 87.715368]),
             np.array([393.07114384, 248.39110006, 87.61575574]),
             np.array([393.69314056, 247.78157916, 88.73002876])],
            [np.array([98.47494966, 220.42553803, 80.52821783]),
             np.array([97.79246671, 219.20927275, 80.76255901]),
             np.array([98.84848169, 219.60345781, 81.61663775])]]]),
+        # Test with zeros for all params
+        ({'RTIB': np.array([0, 0, 0]), 'LTIB': np.array([0, 0, 0]), 'RANK': np.array([0, 0, 0]), 'LANK': np.array([0, 0, 0])},
+         [np.array([0, 0, 0]), np.array([0, 0, 0]),
+          np.array([[rand_coor, rand_coor, rand_coor], [rand_coor, rand_coor, rand_coor]])],
+         {'RightAnkleWidth': 0.0, 'LeftAnkleWidth': 0.0, 'RightTibialTorsion': 0.0, 'LeftTibialTorsion': 0.0},
+         [np.array([0, 0, 0]), np.array([0, 0, 0])],
+         [[[0, 0, 0], [0, 0, 0], [0, 0, 0], 7.0],
+          [[0, 0, 0], [0, 0, 0], [0, 0, 0], 7.0]],
+         [np.array([0, 0, 0]), np.array([0, 0, 0]),
+          [[np.array(nan_3d), np.array(nan_3d), np.array(nan_3d)],
+           [np.array(nan_3d), np.array(nan_3d), np.array(nan_3d)]]]),
+        # Testing when values are added to frame
+        ({'RTIB': np.array([-9, 6, -9]), 'LTIB': np.array([0, 2, -1]), 'RANK': np.array([1, 0, -5]),
+          'LANK': np.array([2, -4, -5])},
+         [np.array([0, 0, 0]), np.array([0, 0, 0]),
+          np.array([[rand_coor, rand_coor, rand_coor], [rand_coor, rand_coor, rand_coor]])],
+         {'RightAnkleWidth': 0.0, 'LeftAnkleWidth': 0.0, 'RightTibialTorsion': 0.0, 'LeftTibialTorsion': 0.0},
+         [np.array([0, 0, 0]), np.array([0, 0, 0])],
+         [[[-9, 6, -9], [0, 0, 0], [1, 0, -5], 7.0],
+          [[0, 2, -1], [0, 0, 0], [2, -4, -5], 7.0]],
+         [np.array([0, 0, 0]), np.array([0, 0, 0]),
+          [[np.array(nan_3d), np.array(nan_3d), np.array(nan_3d)],
+           [np.array(nan_3d), np.array(nan_3d), np.array(nan_3d)]]]),
+        # Testing when values are added to knee_JC
+        ({'RTIB': np.array([0, 0, 0]), 'LTIB': np.array([0, 0, 0]), 'RANK': np.array([0, 0, 0]), 'LANK': np.array([0, 0, 0])},
+         [np.array([-7, 1, 2]), np.array([9, -8, 9]),
+          np.array([[rand_coor, rand_coor, rand_coor], [rand_coor, rand_coor, rand_coor]])],
+         {'RightAnkleWidth': 0.0, 'LeftAnkleWidth': 0.0, 'RightTibialTorsion': 0.0, 'LeftTibialTorsion': 0.0},
+         [np.array([0, 0, 0]), np.array([0, 0, 0])],
+         [[[0, 0, 0], [-7, 1, 2], [0, 0, 0], 7.0],
+          [[0, 0, 0], [9, -8, 9], [0, 0, 0], 7.0]],
+         [np.array([0, 0, 0]), np.array([0, 0, 0]),
+          [[np.array(nan_3d), np.array(nan_3d), np.array([-0.95257934, 0.13608276, 0.27216553])],
+           [np.array(nan_3d), np.array(nan_3d), np.array([0.59867109, -0.53215208, 0.59867109])]]]),
+        # Testing when values are added to vsk
+        ({'RTIB': np.array([0, 0, 0]), 'LTIB': np.array([0, 0, 0]), 'RANK': np.array([0, 0, 0]), 'LANK': np.array([0, 0, 0])},
+         [np.array([0, 0, 0]), np.array([0, 0, 0]),
+          np.array([[rand_coor, rand_coor, rand_coor], [rand_coor, rand_coor, rand_coor]])],
+         {'RightAnkleWidth': -38.0, 'LeftAnkleWidth': 18.0, 'RightTibialTorsion': 29.0, 'LeftTibialTorsion': -13.0},
+         [np.array([0, 0, 0]), np.array([0, 0, 0])],
+         [[[0, 0, 0], [0, 0, 0], [0, 0, 0], -12.0],
+          [[0, 0, 0], [0, 0, 0], [0, 0, 0], 16.0]],
+         [np.array([0, 0, 0]), np.array([0, 0, 0]),
+          [[np.array(nan_3d), np.array(nan_3d), np.array(nan_3d)],
+           [np.array(nan_3d), np.array(nan_3d), np.array(nan_3d)]]]),
+        # Testing when values are added to mockReturnVal
+        ({'RTIB': np.array([0, 0, 0]), 'LTIB': np.array([0, 0, 0]), 'RANK': np.array([0, 0, 0]), 'LANK': np.array([0, 0, 0])},
+         [np.array([0, 0, 0]), np.array([0, 0, 0]),
+          np.array([[rand_coor, rand_coor, rand_coor], [rand_coor, rand_coor, rand_coor]])],
+         {'RightAnkleWidth': 0.0, 'LeftAnkleWidth': 0.0, 'RightTibialTorsion': 0.0, 'LeftTibialTorsion': 0.0},
+         [np.array([2, -5, 4]), np.array([8, -3, 1])],
+         [[[0, 0, 0], [0, 0, 0], [0, 0, 0], 7.0],
+          [[0, 0, 0], [0, 0, 0], [0, 0, 0], 7.0]],
+         [np.array([2, -5, 4]), np.array([8, -3, 1]),
+          [[np.array(nan_3d), np.array(nan_3d), np.array([1.7018576 , -4.25464401, 3.40371521])],
+           [np.array(nan_3d), np.array(nan_3d), np.array([7.07001889, -2.65125708, 0.88375236])]]]),
+        # Testing when values are added to frame and knee_JC
+        ({'RTIB': np.array([-9, 6, -9]), 'LTIB': np.array([0, 2, -1]), 'RANK': np.array([1, 0, -5]), 'LANK': np.array([2, -4, -5])},
+         [np.array([-7, 1, 2]), np.array([9, -8, 9]),
+          np.array([[rand_coor, rand_coor, rand_coor], [rand_coor, rand_coor, rand_coor]])],
+         {'RightAnkleWidth': 0.0, 'LeftAnkleWidth': 0.0, 'RightTibialTorsion': 0.0, 'LeftTibialTorsion': 0.0},
+         [np.array([0, 0, 0]), np.array([0, 0, 0])],
+         [[[-9, 6, -9], [-7, 1, 2], [1, 0, -5], 7.0],
+          [[0, 2, -1], [9, -8, 9], [2, -4, -5], 7.0]],
+         [np.array([0, 0, 0]), np.array([0, 0, 0]),
+          [[np.array([-0.26726124, -0.80178373, -0.53452248]), np.array([0.14547859, -0.58191437, 0.80013226]), np.array([-0.95257934, 0.13608276, 0.27216553])],
+           [np.array([0.79317435, 0.49803971, -0.35047239]), np.array([-0.11165737, 0.68466825, 0.72025136]), np.array([0.59867109, -0.53215208, 0.59867109])]]]),
+        # Testing when values are added to frame, knee_JC, and vsk
+        ({'RTIB': np.array([-9, 6, -9]), 'LTIB': np.array([0, 2, -1]), 'RANK': np.array([1, 0, -5]), 'LANK': np.array([2, -4, -5])},
+         [np.array([-7, 1, 2]), np.array([9, -8, 9]),
+          np.array([[rand_coor, rand_coor, rand_coor], [rand_coor, rand_coor, rand_coor]])],
+         {'RightAnkleWidth': -38.0, 'LeftAnkleWidth': 18.0, 'RightTibialTorsion': 29.0, 'LeftTibialTorsion': -13.0},
+         [np.array([0, 0, 0]), np.array([0, 0, 0])],
+         [[[-9, 6, -9], [-7, 1, 2], [1, 0, -5], -12.0],
+          [[0, 2, -1], [9, -8, 9], [2, -4, -5], 16.0]],
+         [np.array([0, 0, 0]), np.array([0, 0, 0]),
+          [[np.array([-0.30428137, -0.41913816, -0.85541572]), np.array([-0.00233238, -0.89766624, 0.4406698]), np.array([-0.95257934, 0.13608276, 0.27216553])],
+           [np.array([0.7477279, 0.63929183, -0.1794685]), np.array([-0.287221, 0.55508569, 0.7806305]), np.array([0.59867109, -0.53215208, 0.59867109])]]]),
+        # Testing when values are added to frame, knee_JC, vsk and mockReturnVal
+        ({'RTIB': np.array([-9, 6, -9]), 'LTIB': np.array([0, 2, -1]), 'RANK': np.array([1, 0, -5]), 'LANK': np.array([2, -4, -5])},
+         [np.array([-7, 1, 2]), np.array([9, -8, 9]),
+          np.array([[rand_coor, rand_coor, rand_coor], [rand_coor, rand_coor, rand_coor]])],
+         {'RightAnkleWidth': -38.0, 'LeftAnkleWidth': 18.0, 'RightTibialTorsion': 29.0, 'LeftTibialTorsion': -13.0},
+         [np.array([2, -5, 4]), np.array([8, -3, 1])],
+         [[[-9, 6, -9], [-7, 1, 2], [1, 0, -5], -12.0],
+          [[0, 2, -1], [9, -8, 9], [2, -4, -5], 16.0]],
+         [np.array([2, -5, 4]), np.array([8, -3, 1]),
+          [[np.array([1.48891678, -5.83482493, 3.7953997 ]), np.array([1.73661348, -5.07447603, 4.96181124]), np.array([1.18181818, -4.45454545, 3.81818182])],
+           [np.array([8.87317138, -2.54514024, 1.17514093]), np.array([7.52412119, -2.28213872, 1.50814815]), np.array([8.10540926, -3.52704628, 1.84327404])]]])])
+    def testAnkleJointCenter(self, frame, knee_JC, vsk, mockReturnVal, expectedMockArgs, expected):
+        """
+        This test provides coverage of the ankleJointCenter function in pyCGM.py, defined as ankleJointCenter(frame, knee_JC, delta, vsk)
 
-        # Testing when
-        #({'RTIB': np.array([0, 0, 0]), 'LTIB': np.array([0, 0, 0]), 'RANK': np.array([0, 0, 0]), 'LANK': np.array([0, 0, 0])},
-         #[np.array([0, 0, 0]), np.array([0, 0, 0]), np.array([[[0, 0, 0], [0, 0, 0], [0, 0, 0]], [[0, 0, 0], [0, 0, 0], [0, 0, 0]]])],
-         #0,
-         #{'RightAnkleWidth': 0.0, 'LeftAnkleWidth': 0.0, 'RightTibialTorsion': 0.0, 'LeftTibialTorsion': 0.0},
-         #[np.array([0, 0, 0]), np.array([0, 0, 0]), [[np.array([0, 0, 0]), np.array([0, 0, 0]), np.array([0, 0, 0])],
-          # [np.array([0, 0, 0]), np.array([0, 0, 0]), np.array([0, 0, 0])]]]),
-    ])
-    def testAnkleJointCenter(self, frame, knee_JC, delta, vsk, expected):
-        result = pyCGM.ankleJointCenter(frame, knee_JC, delta, vsk)
+        This test takes 6 parameters:
+        frame: dictionary of marker lists
+        knee_JC: array of knee_JC each x,y,z position.
+        vsk: dictionary containing subject measurements from a VSK file
+        mockReturnVal: the value to be returned by the mock for findJointC
+        expectedMockArgs: the expected arguments used to call the mocked function, findJointC
+        expected: the expected result from calling ankleJointCenter on frame, knee_JC, vsk, and mockReturnVal
+        """
+        with patch.object(pyCGM, 'findJointC', side_effect=mockReturnVal) as mock_findJointC:
+            result = pyCGM.ankleJointCenter(frame, knee_JC, None, vsk)
+
+        # Asserting that there were only 2 calls to findJointC
+        np.testing.assert_equal(mock_findJointC.call_count, 2)
+
+        # Asserting that the correct params were sent in the 1st (right) call to findJointC
+        np.testing.assert_almost_equal(expectedMockArgs[0][0], mock_findJointC.call_args_list[0][0][0], rounding_precision)
+        np.testing.assert_almost_equal(expectedMockArgs[0][1], mock_findJointC.call_args_list[0][0][1], rounding_precision)
+        np.testing.assert_almost_equal(expectedMockArgs[0][2], mock_findJointC.call_args_list[0][0][2], rounding_precision)
+        np.testing.assert_almost_equal(expectedMockArgs[0][3], mock_findJointC.call_args_list[0][0][3], rounding_precision)
+
+        # Asserting that the correct params were sent in the 2nd (left) call to findJointC
+        np.testing.assert_almost_equal(expectedMockArgs[1][0], mock_findJointC.call_args_list[1][0][0], rounding_precision)
+        np.testing.assert_almost_equal(expectedMockArgs[1][1], mock_findJointC.call_args_list[1][0][1], rounding_precision)
+        np.testing.assert_almost_equal(expectedMockArgs[1][2], mock_findJointC.call_args_list[1][0][2], rounding_precision)
+        np.testing.assert_almost_equal(expectedMockArgs[1][3], mock_findJointC.call_args_list[1][0][3], rounding_precision)
+
+        # Asserting that findShoulderJC returned the correct result given the return value given by mocked findJointC
         np.testing.assert_almost_equal(result[0], expected[0], rounding_precision)
         np.testing.assert_almost_equal(result[1], expected[1], rounding_precision)
         np.testing.assert_almost_equal(result[2], expected[2], rounding_precision)
@@ -867,12 +1174,26 @@ class TestLowerBodyAxis():
           [[[3.08005417, 0.34770638, -2.81889243], [4.00614173, -0.44911697, -2.10654814], [4.3919974, 0.82303962, -2.58897224]],
            [[-1.58062909, 6.83398388, 1.20293758], [-1.59355918, 7.75640754, 2.27483654], [-0.44272327, 7.63268181, 1.46226738]]]])])
     def testFootJointCenter(self, frame, vsk, ankle_JC, expected):
+        """
+        This test provides coverage of the footJointCenter function in pyCGM.py, defined as footJointCenter(frame, vsk, ankle_JC, knee_JC, delta)
+
+        This test takes 4 parameters:
+        frame: dictionary of marker lists
+        vsk: dictionary containing subject measurements from a VSK file
+        ankle_JC: array of ankle_JC containing the x,y,z axes marker positions of the ankle joint center
+        expected: the expected result from calling footJointCenter on frame, knee_JC, vsk, and mockReturnVal
+        """
         result = pyCGM.footJointCenter(frame, vsk, ankle_JC, None, None)
         np.testing.assert_almost_equal(result[0], expected[0], rounding_precision)
         np.testing.assert_almost_equal(result[1], expected[1], rounding_precision)
         np.testing.assert_almost_equal(result[2], expected[2], rounding_precision)
 
 class TestAxisUtils():
+    """
+    This class tests the lower body axis functions in pyCGM.py:
+    findJointC
+    JointAngleCalc
+    """
 
     @pytest.mark.parametrize(["a", "b", "c", "delta", "expected"], [
         # Test from running sample data
@@ -881,12 +1202,43 @@ class TestAxisUtils():
          [416.98687744, 266.22558594, 524.04089355],
          59.5,
          [364.17774614, 292.17051722, 515.19181496]),
-    ])
+        # Testing with basic value in a and c
+        ([1, 0, 0], [0, 0, 0], [0, 0, 1], 0.0, [0, 0, 1]),
+        # Testing with value in a and basic value in c
+        ([-7, 1, 2], [0, 0, 0], [0, 0, 1], 0.0, [0, 0, 1]),
+        #  Testing with value in b and basic value in c
+        ([0, 0, 0], [1, 4, 3], [0, 0, 1], 0.0, [0, 0, 1]),
+        #  Testing with value in a and b and basic value in c
+        ([-7, 1, 2], [1, 4, 3], [0, 0, 1], 0.0, [0, 0, 1]),
+        #  Testing with value in a, b, and c
+        ([-7, 1, 2], [1, 4, 3], [3, 2, -8], 0.0, [3, 2, -8]),
+        # Testing with value in a, b, c and delta of 1
+        ([-7, 1, 2], [1, 4, 3], [3, 2, -8], 1.0, [3.91271, 2.361115, -7.808801]),
+        # Testing with value in a, b, c and delta of 20
+        ([-7, 1, 2], [1, 4, 3], [3, 2, -8], 10.0, [5.867777, 5.195449, 1.031332])])
     def testfindJointC(self, a, b, c, delta, expected):
+        """
+        This test provides coverage of the findJointC function in pyCGM.py, defined as findJointC(a, b, c, delta)
+
+        This test takes 5 parameters:
+        a: list markers of x,y,z position
+        b: list markers of x,y,z position
+        c: list markers of x,y,z position
+        delta: length from marker to joint center, retrieved from subject measurement file
+        expected: the expected result from calling findJointC on a, b, c, and delta
+        """
         result = pyCGM.findJointC(a, b, c, delta)
         np.testing.assert_almost_equal(result, expected, rounding_precision)
 
     def testJointAngleCalc(self):
+        """
+        This test provides coverage of the JointAngleCalc function in pyCGM.py, defined as JointAngleCalc(frame, vsk)
+
+        This test takes 3 parameters:
+        frame: dictionary of marker lists
+        vsk: dictionary containing subject measurements from a VSK file
+        expected: the expected result from calling JointAngleCalc on frame and vsk
+        """
         # Test from running sample data
         frame = {'LFHD': np.array([ 184.5515899658203,  409.6871337890625, 1721.3428955078125]),
                  'RFHD': np.array([ 325.829833984375  ,  402.55450439453125, 1722.4981689453125 ]),
@@ -1175,4 +1527,3 @@ class TestAxisUtils():
         result = pyCGM.JointAngleCalc(frame, vsk)
         np.testing.assert_almost_equal(result[0], expected[0], rounding_precision)
         np.testing.assert_equal(result[1], expected[1])
-
