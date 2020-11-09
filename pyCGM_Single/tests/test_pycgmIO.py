@@ -1,16 +1,25 @@
 import pytest
-from pyCGM_Single.pyCGM_Helpers import getfilenames
-import pyCGM_Single.pycgmIO as pycgmIO
 import numpy as np
 import os
+import sys
+import tempfile
+from shutil import rmtree
+import pyCGM_Single.pyCGM_Helpers as pyCGM_Helpers
+import pyCGM_Single.pycgmStatic as pycgmStatic
+import pyCGM_Single.pycgmIO as pycgmIO
+import pyCGM_Single.pycgmCalc as pycgmCalc
 
 class TestPycgmIO:
     @classmethod
     def setup_class(cls):
         """
         Called once for all tests for pycgmIO.
-        Sets rounding_precision, and loads filenames to
-        be used for testing load functions.
+        Sets rounding_precision, loads filenames to
+        be used for testing load functions, and sets
+        the python version being used.
+
+        We also run the pyCGM code to get a frame of
+        output data to test pycgmIO.writeResult().
         """
         cls.rounding_precision = 8
         cwd = os.getcwd()
@@ -18,9 +27,41 @@ class TestPycgmIO:
             parent = os.path.dirname(cwd)
             os.chdir(parent)
         cls.cwd = os.getcwd()
+        cls.pyver = sys.version_info.major
 
-        cls.filename_59993_Frame = os.path.join(cls.cwd, getfilenames(1)[1])
+        cls.filename_59993_Frame = os.path.join(cls.cwd, pyCGM_Helpers.getfilenames(1)[1])
         cls.filename_Sample_Static = os.path.join(cls.cwd, 'SampleData/ROM/Sample_Static.csv')
+        cls.filename_RoboSM_vsk = os.path.join(cls.cwd, pyCGM_Helpers.getfilenames(3)[2])
+
+        dynamic_trial,static_trial,vsk_file,_,_ = pyCGM_Helpers.getfilenames(x=2)
+        motion_data = pycgmIO.loadData(os.path.join(cls.cwd, dynamic_trial))
+        static_data = pycgmIO.loadData(os.path.join(cls.cwd, static_trial))
+        vsk_data = pycgmIO.loadVSK(os.path.join(cls.cwd, vsk_file), dict=False)
+        cal_SM = pycgmStatic.getStatic(static_data,vsk_data,flat_foot=False)
+        cls.kinematics = pycgmCalc.calcAngles(motion_data,start=0,end=1,\
+                         vsk=cal_SM,splitAnglesAxis=False,formatData=False)
+        
+    def setup_method(self):
+        """
+        Called once before every test method runs.
+        Creates up a temporary directory to be used for testing
+        functions that write to disk.
+        """
+        if (self.pyver == 2):
+            self.tmp_dir_name = tempfile.mkdtemp()
+        else:
+            self.tmp_dir = tempfile.TemporaryDirectory()
+            self.tmp_dir_name = self.tmp_dir.name
+    
+    def teardown_method(self):
+        """
+        Called once after every test method is finished running.
+        If using Python 2, perform cleanup of previously created
+        temporary directory in setup_method(). Cleanup is done
+        automatically in Python 3.
+        """
+        if (self.pyver == 2):
+            rmtree(self.tmp_dir_name)
 
     @pytest.mark.parametrize("labels, data, expected_result", [
         (
@@ -498,3 +539,332 @@ class TestPycgmIO:
         result_data = result['A']
         assert isinstance(result_data, np.ndarray)
         assert not isinstance(result_data, list)
+    
+    @pytest.mark.parametrize("kinetics", [
+        ([[1.1, 2.2, 3.3],
+          [4.4, 5.5, 6.6],
+          [7.7, 8.8, 9.9]]),
+        (np.array([[1.1, 2.2, 3.3],
+                   [4.4, 5.5, 6.6],
+                   [7.7, 8.8, 9.9]]))
+    ])
+    def test_writeKinetics_accuracy(self, kinetics):
+        """
+        This function tests pycgmIO.writeKinetics(CoM_output, kinetics),
+        where CoM_output is the filename to save output to,
+        and kinetics is the array_like output to be saved.
+
+        pycgmIO.writeKinetics() saves array data as .npy files.
+
+        This function tests saving lists and numpy arrays. 
+        """
+        CoM_output = os.path.join(self.tmp_dir_name, 'CoM')
+        pycgmIO.writeKinetics(CoM_output, kinetics)
+        write_result = np.load(CoM_output + '.npy')
+        np.testing.assert_equal(write_result, kinetics)
+
+    @pytest.mark.parametrize("kwargs, len_written, truncated_result", [
+        ({}, 274, 
+         [0, -0.308494914509454,-6.121292793370006,7.571431102151712,
+          2.914222929716658,-6.867068980446340,-18.821000709643130]),
+        ({'angles': False}, 217, 
+         [0, 251.608306884765625,391.741317749023438,1032.893493652343750,
+          251.740636241118779,392.726947206848479,1032.788500732036255]),
+        ({'axis': False}, 58, 
+         [0, -0.308494914509454,-6.121292793370006,7.571431102151712,
+          2.914222929716658,-6.867068980446340,-18.821000709643130]),
+        ({'angles': ['R Hip', 'Head'],'axis': False}, 7, 
+         [0, 2.914222929716658,-6.867068980446340,-18.821000709643130,
+          0.021196729275744,5.462252836649474,-91.496085343964339]),
+        ({'axis': ['PELO', 'L RADZ'], 'angles': False}, 7, 
+         [0, 251.608306884765625,391.741317749023438,1032.893493652343750,
+          -271.942564463838380,485.192166623350204,1091.967911874857009]),
+        ({'axis': ['NonExistentKey'], 'angles': False}, 1, [0])
+    ])
+    def test_writeResult(self, kwargs, len_written, truncated_result):
+        """
+        This function tests pycgmIO.writeResult(data, filename, **kwargs),
+        where data is the pcygm output data to write, filename is the filename
+        to write to, and **kwargs is a dictionary of keyword arguments
+        specifying writing options.
+
+        We test for a truncated output, and the number of output values written.
+        We test writing all angles and axes, only angles, only axis,
+        a list of angles, a list of axis, and non-existent keys.
+
+        This function uses the previously computed kinematics data 
+        in setup_method, and writes to a temporary directory for testing.
+        """
+        data = self.kinematics
+        output_filename = os.path.join(self.tmp_dir_name, 'output')
+        pycgmIO.writeResult(data, output_filename, **kwargs)
+        with open(output_filename + '.csv', 'r') as f:
+            lines = f.readlines()
+            #Skip the first 6 lines of output since they are headers
+            result = lines[7].strip().split(',')
+            array_result = np.asarray(result, dtype=np.float64)
+            len_result = len(array_result)
+            #Test that the truncated results are equal
+            np.testing.assert_equal(truncated_result, array_result[:7])
+            #Test we have written the correct number of results
+            assert len_result == len_written
+        
+    def test_smKeys(self):
+        """
+        This function tests pycgmIO.smKeys(), which returns
+        a list of subject measurement keys.
+        """
+        result = pycgmIO.smKeys()
+        expected_result = ['Bodymass', 'Height', 'HeadOffset', 'InterAsisDistance', 'LeftAnkleWidth', 
+        'LeftAsisTrocanterDistance', 'LeftClavicleLength', 'LeftElbowWidth', 
+        'LeftFemurLength', 'LeftFootLength', 'LeftHandLength', 'LeftHandThickness', 
+        'LeftHumerusLength', 'LeftKneeWidth', 'LeftLegLength', 'LeftRadiusLength', 
+        'LeftShoulderOffset', 'LeftTibiaLength', 'LeftWristWidth', 'RightAnkleWidth', 
+        'RightClavicleLength', 'RightElbowWidth', 'RightFemurLength', 'RightFootLength', 
+        'RightHandLength', 'RightHandThickness', 'RightHumerusLength', 'RightKneeWidth', 
+        'RightLegLength', 'RightRadiusLength', 'RightShoulderOffset', 'RightTibiaLength', 
+        'RightWristWidth']
+        assert result == expected_result
+    
+    def test_loadVSK_list(self):
+        """
+        This function tests pycgmIO.loadVSK(filename, dict=True),
+        where filename is the vsk file to be loaded and dict is a 
+        bool indicating whether to return the vsk as a dictionary or list of
+        [keys, values].
+
+        RoboSM.vsk in SampleData is used to test the output.
+
+        We test returning as a list.
+        """
+        result_vsk = pycgmIO.loadVSK(self.filename_RoboSM_vsk, dict=True)
+        result_keys = result_vsk[0]
+        result_values = result_vsk[1]
+        expected_keys = ['Bodymass', 'Height', 'InterAsisDistance', 'LeftLegLength', 'LeftAsisTrocanterDistance', 
+        'LeftKneeWidth', 'LeftAnkleWidth', 'LeftTibialTorsion', 'LeftSoleDelta', 'LeftThighRotation', 
+        'LeftShankRotation', 'LeftStaticPlantFlex', 'LeftStaticRotOff', 'LeftAnkleAbAdd', 
+        'LeftShoulderOffset', 'LeftElbowWidth', 'LeftWristWidth', 'LeftHandThickness', 'RightLegLength', 
+        'RightAsisTrocanterDistance', 'RightKneeWidth', 'RightAnkleWidth', 'RightTibialTorsion', 
+        'RightSoleDelta', 'RightThighRotation', 'RightShankRotation', 'RightStaticPlantFlex', 
+        'RightStaticRotOff', 'RightAnkleAbAdd', 'RightShoulderOffset', 'RightElbowWidth', 
+        'RightWristWidth', 'RightHandThickness', 'MeanLegLength', 'C', 'Theta', 'Beta', 'HJCy', 
+        'PelvisLength', 'LASIx', 'LASIz', 'RASIx', 'RASIz', 'ASISx', 'ASISz', 'LKNEy', 'LANKy', 
+        'RKNEy', 'RANKy', 'LELBy', 'LWRy', 'LFINy', 'RELBy', 'RWRy', 'RFINy', 'HeadOffset', 'HEADy', 
+        'LBHDx', 'BHDy', 'RBHDx', 'HeadOx', 'HeadOy', 'HeadOz', 'C7x', 'C7z', 'T10x', 'T10y', 'T10z', 
+        'STRNz', 'RBAKx', 'RBAKy', 'RBAKz', 'ThorOx', 'ThorOy', 'ThorOz', 'LeftClavicleLength', 'LeftHumerusLength', 
+        'LeftRadiusLength', 'LeftHandLength', 'LWRx', 'RightClavicleLength', 'RightHumerusLength', 'RightRadiusLength', 
+        'RightHandLength', 'RWRx', 'ASISy', 'LPSIx', 'LPSIy', 'RPSIx', 'RPSIy', 'LeftFemurLength', 'LeftTibiaLength', 
+        'LeftFootLength', 'LTHIy', 'LTHIz', 'LTIBy', 'LTIBz', 'LFOOy', 'LFOOz', 'LHEEx', 'LTOEx', 'RightFemurLength', 
+        'RightTibiaLength', 'RightFootLength', 'RTHIy', 'RTHIz', 'RTIBy', 'RTIBz', 'RFOOy', 'RFOOz', 'RHEEx', 'RTOEx']
+
+        expected_values = [72.0, 1730.0, 281.118011474609, 1000.0, 0.0, 120.0, 90.0,
+        0.0, 0.0, 0.0, 0.0, 0.137504011392593, 0.0358467921614647, 0.0, 40.0, 80.0,
+        60.0, 17.0, 1000.0, 0.0, 120.0, 90.0, 0.0, 0.0, 0.0, 0.0, 0.17637075483799,
+        0.03440235927701, 0.0, 40.0, 80.0, 60.0, 17.0, 0.0, 0.0, 0.500000178813934, 
+        0.314000427722931, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 
+        0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.290628731250763, 63.3674736022949, 
+        -171.985321044922, 65.2139663696289, -159.32258605957, 0.167465895414352, 
+        0.0252241939306259, 700.027526855469, -160.832626342773, 35.1444931030273, 
+        -205.628646850586, -7.51900339126587, -261.275146484375, -207.033920288086, 
+        -217.971115112305, -97.8660354614258, -101.454940795898, 1.28787481784821, 
+        0.0719171389937401, 499.705780029297, 169.407562255859, 311.366516113281, 
+        264.315307617188, 86.4382247924805, 37.3928489685059, 172.908142089844, 
+        290.563262939453, 264.853607177734, 87.4593048095703, 35.0017356872559, 
+        140.533599853516, -134.874649047852, 66.1733016967773, -128.248474121094, 
+        -77.4204406738281, 401.595642089844, 432.649719238281, 176.388000488281, 
+        91.1664733886719, -246.724578857422, 86.1824417114258, -241.08772277832, 
+        -3.58954524993896, -15.6271200180054, -71.2924499511719, 112.053565979004, 
+        397.317260742188, 443.718109130859, 175.794006347656, -93.3007659912109, 
+        -134.734924316406, -77.5902252197266, -201.939865112305, 2.1107816696167, 
+        -23.4012489318848, -52.7204742431641, 129.999603271484]
+        
+        #Test that loadVSK correctly returned as a list
+        assert isinstance(result_vsk, list)
+        #Test that len(keys) is the same as len(values)
+        assert len(result_keys) == len(result_values)
+        #Test accurate loading
+        assert expected_keys == result_keys
+        assert expected_values == result_values
+
+    def test_loadVSK_dict(self):
+        """
+        We test pycgmIO.loadVSK returning as a dictionary.
+        """
+        result_vsk = pycgmIO.loadVSK(self.filename_RoboSM_vsk, dict=False)
+        expected_result = {
+            'ASISx': 0.0,'ASISy': 140.533599853516,'ASISz': 0.0,
+            'BHDy': 65.2139663696289,'Beta': 0.314000427722931,
+            'Bodymass': 72.0,'C': 0.0,'C7x': -160.832626342773,
+            'C7z': 35.1444931030273,'HEADy': 63.3674736022949,'HJCy': 0.0,
+            'HeadOffset': 0.290628731250763,'HeadOx': 0.167465895414352,
+            'HeadOy': 0.0252241939306259,'HeadOz': 700.027526855469,
+            'Height': 1730.0,'InterAsisDistance': 281.118011474609,
+            'LANKy': 0.0,'LASIx': 0.0,'LASIz': 0.0,
+            'LBHDx': -171.985321044922,'LELBy': 0.0,
+            'LFINy': 0.0,'LFOOy': -3.58954524993896,
+            'LFOOz': -15.6271200180054,'LHEEx': -71.2924499511719,
+            'LKNEy': 0.0,'LPSIx': -134.874649047852,
+            'LPSIy': 66.1733016967773,'LTHIy': 91.1664733886719,
+            'LTHIz': -246.724578857422,'LTIBy': 86.1824417114258,
+            'LTIBz': -241.08772277832,'LTOEx': 112.053565979004,
+            'LWRx': 37.3928489685059,'LWRy': 0.0,
+            'LeftAnkleAbAdd': 0.0,'LeftAnkleWidth': 90.0,
+            'LeftAsisTrocanterDistance': 0.0,'LeftClavicleLength': 169.407562255859,
+            'LeftElbowWidth': 80.0,'LeftFemurLength': 401.595642089844,
+            'LeftFootLength': 176.388000488281,'LeftHandLength': 86.4382247924805,
+            'LeftHandThickness': 17.0,'LeftHumerusLength': 311.366516113281,
+            'LeftKneeWidth': 120.0,'LeftLegLength': 1000.0,
+            'LeftRadiusLength': 264.315307617188,'LeftShankRotation': 0.0,
+            'LeftShoulderOffset': 40.0,'LeftSoleDelta': 0.0,
+            'LeftStaticPlantFlex': 0.137504011392593,'LeftStaticRotOff': 0.0358467921614647,
+            'LeftThighRotation': 0.0,'LeftTibiaLength': 432.649719238281,
+            'LeftTibialTorsion': 0.0,'LeftWristWidth': 60.0,
+            'MeanLegLength': 0.0,'PelvisLength': 0.0,'RANKy': 0.0,
+            'RASIx': 0.0,'RASIz': 0.0,'RBAKx': -217.971115112305,
+            'RBAKy': -97.8660354614258,'RBAKz': -101.454940795898,
+            'RBHDx': -159.32258605957,'RELBy': 0.0,
+            'RFINy': 0.0,'RFOOy': 2.1107816696167,
+            'RFOOz': -23.4012489318848,'RHEEx': -52.7204742431641,
+            'RKNEy': 0.0,'RPSIx': -128.248474121094,'RPSIy': -77.4204406738281,
+            'RTHIy': -93.3007659912109,'RTHIz': -134.734924316406,
+            'RTIBy': -77.5902252197266,'RTIBz': -201.939865112305,
+            'RTOEx': 129.999603271484,'RWRx': 35.0017356872559,
+            'RWRy': 0.0,'RightAnkleAbAdd': 0.0,'RightAnkleWidth': 90.0,
+            'RightAsisTrocanterDistance': 0.0,'RightClavicleLength': 172.908142089844,
+            'RightElbowWidth': 80.0,'RightFemurLength': 397.317260742188,
+            'RightFootLength': 175.794006347656,'RightHandLength': 87.4593048095703,
+            'RightHandThickness': 17.0,'RightHumerusLength': 290.563262939453,
+            'RightKneeWidth': 120.0,'RightLegLength': 1000.0,
+            'RightRadiusLength': 264.853607177734,'RightShankRotation': 0.0,
+            'RightShoulderOffset': 40.0,'RightSoleDelta': 0.0,
+            'RightStaticPlantFlex': 0.17637075483799,'RightStaticRotOff': 0.03440235927701,
+            'RightThighRotation': 0.0,'RightTibiaLength': 443.718109130859,
+            'RightTibialTorsion': 0.0,'RightWristWidth': 60.0,
+            'STRNz': -207.033920288086,'T10x': -205.628646850586,
+            'T10y': -7.51900339126587,'T10z': -261.275146484375,
+            'Theta': 0.500000178813934,'ThorOx': 1.28787481784821,
+            'ThorOy': 0.0719171389937401,'ThorOz': 499.705780029297
+        }
+
+        #Test that loadVSK correctly returned as a dictionary
+        assert isinstance(result_vsk, dict)
+        #Test accurate loading
+        np.testing.assert_equal(result_vsk, expected_result)
+
+    def test_loadVSK_exceptions(self):
+        """
+        Test that loading a non-existent file raises an
+        exception.
+        """
+        with pytest.raises(Exception):
+            pycgmIO.loadVSK("NonExistentFilename")
+
+    @pytest.mark.parametrize("motionData, expected_labels, expected_values", [
+        (
+         [{'A': [1, 2, 3], 'B': [4, 5, 6]},
+          {'A': [2, 3, 4], 'B': [5, 6, 7]}],
+         ['A', 'B'],
+         [np.array([[1, 2, 3],[4, 5, 6]]), np.array([[2, 3, 4],[5, 6, 7]])]
+        ),
+        (
+         [{'A': np.array([1, 2, 3]), 'B': np.array([4, 5, 6])},
+          {'A': np.array([2, 3, 4]), 'B': np.array([5, 6, 7])}],
+         ['A', 'B'],
+         [np.array([[1, 2, 3],[4, 5, 6]]), np.array([[2, 3, 4],[5, 6, 7]])]
+        ),
+        (
+         [{'A': np.array([1, 2, 3]), 'B': np.array([4, 5, 6])},
+          {'A': np.array([2, 3, 4])}],
+         ['A', 'B'],
+         [np.array([[1, 2, 3],[4, 5, 6]]), np.array([[2, 3, 4]])]
+        ),
+        (
+         [{'B': np.array([4, 5, 6])},
+          {'A': np.array([2, 3, 4])}],
+         ['B'],
+         [np.array([[4, 5, 6]]), np.array([[2, 3, 4]])]
+        )
+    ])
+    def test_splitDataDict_accuracy(self, motionData, expected_labels, expected_values):
+        """
+        This function tests pycgmIO.splitDataDict(motionData),
+        where motionData is a list of dictionaries of motion capture data.
+        This function splits the motionData into a tuple of values, labels.
+
+        We tests cases where values are lists or numpy arrays.
+        We demonstrate unexpected behavior that the function produces when
+        keys are not present in every dictionary of motiondata.
+        """
+        result_values, result_labels = pycgmIO.splitDataDict(motionData)
+        assert result_labels == expected_labels
+        np.testing.assert_equal(result_values, expected_values)
+    
+    @pytest.mark.parametrize("values, labels, expected_result", [
+        (
+         #Tests lists
+         [[[1,2,3],[4,5,6],[7,8,9]],
+          [[2,3,4],[5,6,7],[8,9,10]]],
+         ['A', 'B', 'C'],
+         [{'A':[1,2,3], 'B':[4,5,6], 'C':[7,8,9]},
+          {'A':[2,3,4], 'B':[5,6,7], 'C':[8,9,10]}]
+        ),
+
+        (
+         #Tests numpy arrays
+         [[np.array([1,2,3]),np.array([4,5,6]),np.array([7,8,9])],
+          [np.array([2,3,4]),np.array([5,6,7]),np.array([8,9,10])]],
+         ['A', 'B', 'C'],
+         [{'A':np.array([1,2,3]), 'B':np.array([4,5,6]), 'C':np.array([7,8,9])},
+          {'A':np.array([2,3,4]), 'B':np.array([5,6,7]), 'C':np.array([8,9,10])}]
+        ),
+        (
+         [[[1,2,3],[4,5,6]],
+          [[2,3,4]]],
+         ['A', 'B', 'C'],
+         [{'A': [1, 2, 3], 'B': [4, 5, 6]},
+          {'A': [2, 3, 4]}]
+        )
+    ]) 
+    def test_combineDataDict_accuracy(self, values, labels, expected_result):
+        """
+        This function tests pycgmIO.combineDataDict(values, labels), where
+        values is an array of motion data values and labels is a list of 
+        marker names.
+
+        We test cases where the arrays in values are lists and numpy arrays.
+        We test the case where there are more labels than values.
+        """
+        result = pycgmIO.combineDataDict(values, labels)
+        np.testing.assert_equal(result, expected_result)
+    
+    @pytest.mark.parametrize("values, labels", [
+        (
+         [[[1,2,3],[4,5,6],[7,8,9]],
+          [[2,3,4],[5,6,7],[8,9,10]]],
+         ['A', 'B']
+        )
+    ])
+    def test_combineDataDict_exceptions(self, values, labels):
+        """
+        We test that an exception is raised when there are more
+        values than labels.
+        """
+        with pytest.raises(Exception):
+            pycgmIO.combineDataDict(values, labels)
+        
+    def test_make_sure_path_exists(self):
+        """
+        This function tests pycgmIO.make_sure_path_exists(path),
+        where path is the path to create.
+
+        This function creates a file path. We use a temporary
+        directory for testing.
+        """
+        new_directory = os.path.join(self.tmp_dir_name, 'new_directory')
+        pycgmIO.make_sure_path_exists(new_directory)
+        assert os.path.isdir(new_directory)
+
+
+        
+
+    
