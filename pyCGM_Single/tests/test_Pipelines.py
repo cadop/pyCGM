@@ -226,43 +226,21 @@ class TestPipelines:
             Pipelines.prep(trajs)
     
     @pytest.mark.parametrize("data, name, expected_result", [
-        (
-        [{'LTIL': np.array([-268.1545105, 327.53512573,  30.17036057]),
-        'RFOP': np.array([-38.4509964, -148.6839447 ,  59.21961594])},
-        {'LTIL': np.array([-273.1545105, 324.53512573,  36.17036057]),
-        'RFOP': np.array([-38.4509964, -148.6839447 ,  59.21961594])}],
-
-        'LTIL',
-
-        [{'LTIL': np.array([np.nan, np.nan, np.nan]), 
-        'RFOP': np.array([-38.4509964, -148.6839447, 59.21961594])}, 
-        {'LTIL': np.array([np.nan, np.nan, np.nan]), 
-        'RFOP': np.array([-38.4509964, -148.6839447, 59.21961594])}]
-        ),
-        (
+        ([{'LTIL': np.array([-268.1545105, 327.53512573, 30.17036057]),'RFOP': np.array([-38.4509964, -148.6839447, 59.21961594])},
+          {'LTIL': np.array([-273.1545105, 324.53512573, 36.17036057]),'RFOP': np.array([-38.4509964, -148.6839447, 59.21961594])}],
+           'LTIL',
+         [{'LTIL': np.array([np.nan, np.nan, np.nan]), 'RFOP': np.array([-38.4509964, -148.6839447, 59.21961594])}, 
+          {'LTIL': np.array([np.nan, np.nan, np.nan]), 'RFOP': np.array([-38.4509964, -148.6839447, 59.21961594])}]),
         #Test that data[key] can be a list
-        [{'LTIL': [-268.1545105, 327.53512573, 30.17036057],
-        'RFOP': [-38.4509964, -148.6839447 , 59.21961594]},
-        {'LTIL': [-273.1545105, 324.53512573, 36.17036057],
-        'RFOP': [-38.4509964, -148.6839447 , 59.21961594]}],
-
-        'LTIL',
-
-        [{'LTIL': np.array([np.nan, np.nan, np.nan]), 
-        'RFOP': np.array([-38.4509964, -148.6839447, 59.21961594])}, 
-        {'LTIL': np.array([np.nan, np.nan, np.nan]), 
-        'RFOP': np.array([-38.4509964, -148.6839447, 59.21961594])}]
-        ),
-        (
-        #Test removing a non-existent marker
-        [{'LTIL': np.array([-268.1545105, 327.53512573, 30.17036057])}],
-
-        'non_existent_marker',
-
-        #removing a non-existent marker adds it as a key
-        [{'LTIL': np.array([-268.1545105, 327.53512573, 30.17036057]),
-        'non_existent_marker': np.array([np.nan, np.nan, np.nan])}]
-        )
+        ([{'LTIL': [-268.1545105, 327.53512573, 30.17036057],'RFOP': [-38.4509964, -148.6839447 , 59.21961594]},
+          {'LTIL': [-273.1545105, 324.53512573, 36.17036057],'RFOP': [-38.4509964, -148.6839447 , 59.21961594]}],
+           'LTIL',
+         [{'LTIL': np.array([np.nan, np.nan, np.nan]), 'RFOP': np.array([-38.4509964, -148.6839447, 59.21961594])}, 
+          {'LTIL': np.array([np.nan, np.nan, np.nan]), 'RFOP': np.array([-38.4509964, -148.6839447, 59.21961594])}]),
+        #Test that removing a non-existent marker adds it as a key
+        ([{'LTIL': np.array([-268.1545105, 327.53512573, 30.17036057])}],
+           'non_existent_marker',
+         [{'LTIL': np.array([-268.1545105, 327.53512573, 30.17036057]), 'non_existent_marker': np.array([np.nan, np.nan, np.nan])}])
     ])
     def test_clearMarker_accuracy(self, data, name, expected_result):
         """
