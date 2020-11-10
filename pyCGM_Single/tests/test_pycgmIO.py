@@ -64,39 +64,28 @@ class TestPycgmIO:
             rmtree(self.tmp_dir_name)
 
     @pytest.mark.parametrize("labels, data, expected_result", [
-        (
-         #Tests lists
-         ['A', 'B', 'C'],
+        #Tests lists
+        (['A', 'B', 'C'],
          [[[1,2,3],[4,5,6],[7,8,9]],
           [[2,3,4],[5,6,7],[8,9,10]]],
          [{'A':[1,2,3], 'B':[4,5,6], 'C':[7,8,9]},
-          {'A':[2,3,4], 'B':[5,6,7], 'C':[8,9,10]}]
-        ),
-
-        (
-         #Tests numpy arrays
-         ['A', 'B', 'C'],
+          {'A':[2,3,4], 'B':[5,6,7], 'C':[8,9,10]}]),
+        #Tests numpy arrays
+        (['A', 'B', 'C'],
          [[np.array([1,2,3]),np.array([4,5,6]),np.array([7,8,9])],
           [np.array([2,3,4]),np.array([5,6,7]),np.array([8,9,10])]],
          [{'A':np.array([1,2,3]), 'B':np.array([4,5,6]), 'C':np.array([7,8,9])},
-          {'A':np.array([2,3,4]), 'B':np.array([5,6,7]), 'C':np.array([8,9,10])}]
-        ),
-
-        (
-         ['A'],
+          {'A':np.array([2,3,4]), 'B':np.array([5,6,7]), 'C':np.array([8,9,10])}]),
+        (['A'],
          [[[1,2,3],[4,5,6],[7,8,9]],
           [[2,3,4],[5,6,7],[8,9,10]]],
          [{'A': [1, 2, 3]}, 
-          {'A': [2, 3, 4]}]
-        ),
-
-        (
-         ['A', 'B', 'C'], 
+          {'A': [2, 3, 4]}]),
+        (['A', 'B', 'C'], 
          [[[1,2,3],[4,5,6]],
           [[2,3,4]]],
          [{'A': [1, 2, 3], 'B': [4, 5, 6]}, 
-          {'A': [2, 3, 4]}]
-        )
+          {'A': [2, 3, 4]}])
     ])            
     def test_createMotionDataDict_accuracy(self, labels, data, expected_result):
         """
@@ -112,30 +101,22 @@ class TestPycgmIO:
         np.testing.assert_equal(result, expected_result)
 
     @pytest.mark.parametrize("motiondata, expected_labels, expected_data", [
-        (
-         [{'A': [1, 2, 3], 'B': [4, 5, 6]},
+        ([{'A': [1, 2, 3], 'B': [4, 5, 6]},
           {'A': [2, 3, 4], 'B': [5, 6, 7]}],
          ['A', 'B'],
-         np.array([[[1, 2, 3],[4, 5, 6]],[[2, 3, 4],[5, 6, 7]]])
-        ),
-        (
-         [{'A': np.array([1, 2, 3]), 'B': np.array([4, 5, 6])},
+         np.array([[[1, 2, 3],[4, 5, 6]],[[2, 3, 4],[5, 6, 7]]])),
+        ([{'A': np.array([1, 2, 3]), 'B': np.array([4, 5, 6])},
           {'A': np.array([2, 3, 4]), 'B': np.array([5, 6, 7])}],
          ['A', 'B'],
-         np.array([[[1, 2, 3],[4, 5, 6]],[[2, 3, 4],[5, 6, 7]]])
-        ),
-        (
-         [{'A': np.array([1, 2, 3]), 'B': np.array([4, 5, 6])},
+         np.array([[[1, 2, 3],[4, 5, 6]],[[2, 3, 4],[5, 6, 7]]])),
+        ([{'A': np.array([1, 2, 3]), 'B': np.array([4, 5, 6])},
           {'A': np.array([2, 3, 4])}],
          ['A', 'B'],
-         np.array([[[1, 2, 3],[4, 5, 6]],[[2, 3, 4],[2, 3, 4]]])
-        ),
-        (
-         [{'B': np.array([4, 5, 6])},
+         np.array([[[1, 2, 3],[4, 5, 6]],[[2, 3, 4],[2, 3, 4]]])),
+        ([{'B': np.array([4, 5, 6])},
           {'A': np.array([2, 3, 4])}],
          ['B'],
-         np.array([[[4, 5, 6]],[[2, 3, 4]]])
-        )
+         np.array([[[4, 5, 6]],[[2, 3, 4]]]))
     ])
     def test_splitMotionDataDict_accuracy(self, motiondata, expected_labels, expected_data):
         """
@@ -148,7 +129,7 @@ class TestPycgmIO:
         keys are not present in every dictionary of motiondata.
         """
         result_labels, result_data = pycgmIO.splitMotionDataDict(motiondata)
-        assert result_labels == expected_labels
+        np.testing.assert_equal(result_labels, expected_labels)
         np.testing.assert_equal(result_data, expected_data)
     
     @pytest.mark.parametrize("motiondata", [
@@ -167,35 +148,19 @@ class TestPycgmIO:
             pycgmIO.splitMotionDataDict(motiondata)
 
     @pytest.mark.parametrize("labels, data, expected_result", [
-        (
-         ['MeanLegLength', 'LeftKneeWidth', 'RightAnkleWidth'], [940.0, 105.0, 70.0],
-         {'MeanLegLength':940.0, 'LeftKneeWidth':105.0,'RightAnkleWidth':70.0}
-        ),
-        (
-         ['A', 'B', 'C', 'D'], [1, 2, 3, 4],
-         {'A': 1, 'B': 2, 'C': 3, 'D': 4}
-        ),
-        (
-         ['A', 'B', 'C', 'D'], np.array([1, 2, 3, 4]),
-         {'A': 1, 'B': 2, 'C': 3, 'D': 4}
-        ),
-        (
-         ['A', 'B'], [1, 2, 3, 4, 5, 6],
-         {'A': 1, 'B': 2}
-        ),
-        (
-         ['A', 'B', 'C', 'D', 'E'], [1, 2],
-         {'A': 1, 'B': 2}
-        ),
-        (
-         [], [0, 1], {}
-        ),
-        (
-         ['A', 'B', 'C'], [], {}
-        ),
-        (
-         [], [], {}
-        )
+        (['MeanLegLength', 'LeftKneeWidth', 'RightAnkleWidth'], [940.0, 105.0, 70.0],
+         {'MeanLegLength':940.0, 'LeftKneeWidth':105.0,'RightAnkleWidth':70.0}),
+        (['A', 'B', 'C', 'D'], [1, 2, 3, 4],
+         {'A': 1, 'B': 2, 'C': 3, 'D': 4}),
+        (['A', 'B', 'C', 'D'], np.array([1, 2, 3, 4]),
+         {'A': 1, 'B': 2, 'C': 3, 'D': 4}),
+        (['A', 'B'], [1, 2, 3, 4, 5, 6],
+         {'A': 1, 'B': 2}),
+        (['A', 'B', 'C', 'D', 'E'], [1, 2],
+         {'A': 1, 'B': 2}),
+        ([], [0, 1], {}),
+        (['A', 'B', 'C'], [], {}),
+        ([], [], {})
     ])
     def test_createVskDataDict_accuracy(self, labels, data, expected_result):
         """
@@ -212,18 +177,13 @@ class TestPycgmIO:
         np.testing.assert_equal(result, expected_result)
 
     @pytest.mark.parametrize("vsk, expected_labels, expected_data", [
-        (
-         {'MeanLegLength':940.0, 'LeftKneeWidth':105.0,'RightAnkleWidth':70.0},
+        ({'MeanLegLength':940.0, 'LeftKneeWidth':105.0,'RightAnkleWidth':70.0},
          ['MeanLegLength', 'LeftKneeWidth', 'RightAnkleWidth'],
-         np.array([940., 105.,  70.])
-        ),
-        (
-         {'A': 1, 'B': 2, 'C': 3, 'D': 4},
-         ['A', 'B', 'C', 'D'], np.array([1, 2, 3, 4])
-        ),
-        (
-         {}, [], np.array([])
-        )
+         np.array([940., 105.,  70.])),
+        ({'A': 1, 'B': 2, 'C': 3, 'D': 4},
+         ['A', 'B', 'C', 'D'], 
+         np.array([1, 2, 3, 4])),
+        ({}, [], np.array([]))
     ])
     def test_splitVskDataDict_accuracy(self, vsk, expected_labels, expected_data):
         """
@@ -251,36 +211,24 @@ class TestPycgmIO:
         assert result == expected_result
 
     @pytest.mark.parametrize("frame, data_key, unlabeled_data_key, expected_data, expected_unlabeled_data", [
-        (
-         0, 'LFHD', '*113',
+        (0, 'LFHD', '*113',
          np.array([60.1229744, 132.4755249, 1485.8293457]),
-         np.array([-173.22341919,  166.87660217, 1273.29980469])
-        ),
-        (
-         125, 'RASI', '*114',
+         np.array([-173.22341919,  166.87660217, 1273.29980469])),
+        (125, 'RASI', '*114',
          np.array([144.1030426, -0.36732361, 856.89855957]),
-         np.array([ 169.75387573, -230.69139099, 1264.89257812])
-        ),
-        (
-         2, 'LPSI', '*113',
+         np.array([ 169.75387573, -230.69139099, 1264.89257812])),
+        (2, 'LPSI', '*113',
          np.array([-94.89163208, 49.82866287, 922.64483643]),
-         np.array([-172.94085693,  167.04344177, 1273.51000977])
-        ),
-        (
-         12, 'LKNE', '*114',
+         np.array([-172.94085693,  167.04344177, 1273.51000977])),
+        (12, 'LKNE', '*114',
          np.array([-100.0297699, 126.43037415, 414.15945435]),
-         np.array([ 169.80422974, -226.73210144, 1264.15673828])
-        ),
-        (
-         22, 'C7', '*113',
+         np.array([ 169.80422974, -226.73210144, 1264.15673828])),
+        (22, 'C7', '*113',
          np.array([-27.38780975, -8.35509396, 1301.37145996]),
-         np.array([-170.55563354,  168.37162781, 1275.37451172])
-        ),
-        (
-         302, 'RANK', '*114',
+         np.array([-170.55563354,  168.37162781, 1275.37451172])),
+        (302, 'RANK', '*114',
          np.array([52.61815643, -126.93238068, 58.56194305]),
-         np.array([ 174.65007019, -225.9836731 , 1262.32373047])
-        )
+         np.array([ 174.65007019, -225.9836731 , 1262.32373047]))
     ])
     def test_loadC3D_data_accuracy(self, frame, data_key, unlabeled_data_key,\
                                                     expected_data, expected_unlabeled_data):
@@ -327,36 +275,24 @@ class TestPycgmIO:
             pycgmIO.loadC3D("NonExistentFile")
 
     @pytest.mark.parametrize("frame, data_key, unlabeled_data_key, expected_data, expected_unlabeled_data", [
-        (
-         0, 'LFHD', '*111',
+        (0, 'LFHD', '*111',
          np.array([ 174.5749207,  324.513031 , 1728.94397  ]),
-         np.array([ 692.8970947,  423.9462585, 1240.289063 ])
-        ),
-        (
-         125, 'RASI', '*112',
+         np.array([ 692.8970947,  423.9462585, 1240.289063 ])),
+        (125, 'RASI', '*112',
          np.array([ 353.3344727,  345.1920471, 1033.201172 ]),
-         np.array([-225.5984955,  403.15448  , 1209.803467 ])
-        ),
-        (
-         2, 'LPSI', '*113',
+         np.array([-225.5984955,  403.15448  , 1209.803467 ])),
+        (2, 'LPSI', '*113',
          np.array([ 191.5829468,  175.4567261, 1050.240356 ]),
-         np.array([ -82.66962433,  232.2470093 , 1361.734741  ])
-        ),
-        (
-         12, 'LKNE', '*114',
+         np.array([ -82.66962433,  232.2470093 , 1361.734741  ])),
+        (12, 'LKNE', '*114',
          np.array([ 88.88719177, 242.1836853 , 529.8156128 ]),
-         np.array([ 568.6048584,  261.1444092, 1362.141968 ])
-        ),
-        (
-         22, 'C7', '*112',
+         np.array([ 568.6048584,  261.1444092, 1362.141968 ])),
+        (22, 'C7', '*112',
          np.array([ 251.1347656,  164.8985748, 1527.874634 ]),
-         np.array([-225.2479401,  404.37146  , 1214.369141 ])
-        ),
-        (
-         273, 'RANK', '*111',
+         np.array([-225.2479401,  404.37146  , 1214.369141 ])),
+        (273, 'RANK', '*111',
          np.array([427.6519165 , 188.9484558 ,  93.37301636]),
-         np.array([ 695.2038574,  421.2562866, 1239.632446 ])
-        )
+         np.array([ 695.2038574,  421.2562866, 1239.632446 ]))
     ])
     def test_loadCSV_data_accuracy(self, frame, data_key, unlabeled_data_key, \
                                                     expected_data, expected_unlabeled_data):
@@ -445,29 +381,18 @@ class TestPycgmIO:
         assert pycgmIO.loadData("NonExistentFile") is None
 
     @pytest.mark.parametrize("data, expected_result", [
-        (
-         {'A': [[1, 2], [4, 5], [7, 8]], 'B': [[4, 5], [7, 8], [10, 11]]},
+        ({'A': [[1, 2], [4, 5], [7, 8]], 'B': [[4, 5], [7, 8], [10, 11]]},
          [{'A': np.array([1, 4, 7]), 'B': np.array([ 4,  7, 10])}, 
-          {'A': np.array([2, 5, 8]), 'B': np.array([ 5,  8, 11])}]
-        ),
-        (
-         {'A': [np.array([1, 2]), np.array([4, 5]), np.array([7, 8])],
+          {'A': np.array([2, 5, 8]), 'B': np.array([ 5,  8, 11])}]),
+        ({'A': [np.array([1, 2]), np.array([4, 5]), np.array([7, 8])],
           'B': [np.array([4, 5]), np.array([7, 8]), np.array([10, 11])]},
          [{'A': np.array([1, 4, 7]), 'B': np.array([ 4,  7, 10])}, 
-          {'A': np.array([2, 5, 8]), 'B': np.array([ 5,  8, 11])}]
-        ),
-        (
-         {'A': [[1, 2], [4, 5], [7]]},
-         [{'A': np.array([1, 4, 7])}]
-        ),
-        (
-         {'A': [[2], [4], [6], [8]]},
-         [{'A': np.array([2, 4, 6])}]
-        ),
-        (
-         {'A': [[], [4, 5], [7, 8, 9]]},
-         []
-        )
+          {'A': np.array([2, 5, 8]), 'B': np.array([ 5,  8, 11])}]),
+        ({'A': [[1, 2], [4, 5], [7]]},
+         [{'A': np.array([1, 4, 7])}]),
+        ({'A': [[2], [4], [6], [8]]},
+         [{'A': np.array([2, 4, 6])}]),
+        ({'A': [[], [4, 5], [7, 8, 9]]},[])
     ])
     def test_dataAsArray_accuracy(self, data, expected_result):
         """
@@ -498,25 +423,17 @@ class TestPycgmIO:
             pycgmIO.dataAsArray(data)
 
     @pytest.mark.parametrize("data, expected_result", [
-        (
-         [{'A': [1, 2, 3], 'B': [4, 5, 6]},
+        ([{'A': [1, 2, 3], 'B': [4, 5, 6]},
           {'A': [2, 3, 4], 'B': [5, 6, 7]}],
-         {'A': [[1, 2, 3], [2, 3, 4]], 'B': [[4, 5, 6], [5, 6, 7]]}
-        ),
-        (
-         [{'A': [1, 2], 'B': [4]},
+         {'A': [[1, 2, 3], [2, 3, 4]], 'B': [[4, 5, 6], [5, 6, 7]]}),
+        ([{'A': [1, 2], 'B': [4]},
           {'A': [4], 'B': []}],
-         {'A': [[1, 2], [4]], 'B': [[4], []]}
-        ),
-        (
-         [{'A': [1, 2]},
+         {'A': [[1, 2], [4]], 'B': [[4], []]}),
+        ([{'A': [1, 2]},
           {'A': [4, 5], 'B': [6, 7]}],
-         {'A': [[1, 2], [4, 5]], 'B': [[6, 7]]}
-        ),
-        (
-         [{'A': 2} , {'B': [6, 7]}],
-         {'A': [2], 'B': [[6, 7]]}
-        ),
+         {'A': [[1, 2], [4, 5]], 'B': [[6, 7]]}),
+        ([{'A': 2} , {'B': [6, 7]}],
+         {'A': [2], 'B': [[6, 7]]}),
         ([], {})
     ])
     def test_dataAsDict_accuracy(self, data, expected_result):
@@ -607,7 +524,7 @@ class TestPycgmIO:
             #Test that the truncated results are equal
             np.testing.assert_equal(truncated_result, array_result[:7])
             #Test we have written the correct number of results
-            assert len_result == len_written
+            np.testing.assert_equal(len_result, len_written)
         
     def test_smKeys(self):
         """
@@ -749,7 +666,7 @@ class TestPycgmIO:
         #Test that loadVSK correctly returned as a dictionary
         assert isinstance(result_vsk, dict)
         #Test accurate loading
-        np.testing.assert_equal(result_vsk, expected_result)
+        assert result_vsk == expected_result
 
     def test_loadVSK_exceptions(self):
         """
@@ -760,30 +677,22 @@ class TestPycgmIO:
             pycgmIO.loadVSK("NonExistentFilename")
 
     @pytest.mark.parametrize("motionData, expected_labels, expected_values", [
-        (
-         [{'A': [1, 2, 3], 'B': [4, 5, 6]},
+        ([{'A': [1, 2, 3], 'B': [4, 5, 6]},
           {'A': [2, 3, 4], 'B': [5, 6, 7]}],
          ['A', 'B'],
-         [np.array([[1, 2, 3],[4, 5, 6]]), np.array([[2, 3, 4],[5, 6, 7]])]
-        ),
-        (
-         [{'A': np.array([1, 2, 3]), 'B': np.array([4, 5, 6])},
+         [np.array([[1, 2, 3],[4, 5, 6]]), np.array([[2, 3, 4],[5, 6, 7]])]),
+        ([{'A': np.array([1, 2, 3]), 'B': np.array([4, 5, 6])},
           {'A': np.array([2, 3, 4]), 'B': np.array([5, 6, 7])}],
          ['A', 'B'],
-         [np.array([[1, 2, 3],[4, 5, 6]]), np.array([[2, 3, 4],[5, 6, 7]])]
-        ),
-        (
-         [{'A': np.array([1, 2, 3]), 'B': np.array([4, 5, 6])},
+         [np.array([[1, 2, 3],[4, 5, 6]]), np.array([[2, 3, 4],[5, 6, 7]])]),
+        ([{'A': np.array([1, 2, 3]), 'B': np.array([4, 5, 6])},
           {'A': np.array([2, 3, 4])}],
          ['A', 'B'],
-         [np.array([[1, 2, 3],[4, 5, 6]]), np.array([[2, 3, 4]])]
-        ),
-        (
-         [{'B': np.array([4, 5, 6])},
+         [np.array([[1, 2, 3],[4, 5, 6]]), np.array([[2, 3, 4]])]),
+        ([{'B': np.array([4, 5, 6])},
           {'A': np.array([2, 3, 4])}],
          ['B'],
-         [np.array([[4, 5, 6]]), np.array([[2, 3, 4]])]
-        )
+         [np.array([[4, 5, 6]]), np.array([[2, 3, 4]])])
     ])
     def test_splitDataDict_accuracy(self, motionData, expected_labels, expected_values):
         """
@@ -796,34 +705,27 @@ class TestPycgmIO:
         keys are not present in every dictionary of motiondata.
         """
         result_values, result_labels = pycgmIO.splitDataDict(motionData)
-        assert result_labels == expected_labels
+        np.testing.assert_equal(result_labels, expected_labels)
         np.testing.assert_equal(result_values, expected_values)
     
     @pytest.mark.parametrize("values, labels, expected_result", [
-        (
-         #Tests lists
-         [[[1,2,3],[4,5,6],[7,8,9]],
+        #Tests lists
+        ([[[1,2,3],[4,5,6],[7,8,9]],
           [[2,3,4],[5,6,7],[8,9,10]]],
          ['A', 'B', 'C'],
          [{'A':[1,2,3], 'B':[4,5,6], 'C':[7,8,9]},
-          {'A':[2,3,4], 'B':[5,6,7], 'C':[8,9,10]}]
-        ),
-
-        (
-         #Tests numpy arrays
-         [[np.array([1,2,3]),np.array([4,5,6]),np.array([7,8,9])],
+          {'A':[2,3,4], 'B':[5,6,7], 'C':[8,9,10]}]),
+        #Tests numpy arrays
+        ([[np.array([1,2,3]),np.array([4,5,6]),np.array([7,8,9])],
           [np.array([2,3,4]),np.array([5,6,7]),np.array([8,9,10])]],
          ['A', 'B', 'C'],
          [{'A':np.array([1,2,3]), 'B':np.array([4,5,6]), 'C':np.array([7,8,9])},
-          {'A':np.array([2,3,4]), 'B':np.array([5,6,7]), 'C':np.array([8,9,10])}]
-        ),
-        (
-         [[[1,2,3],[4,5,6]],
+          {'A':np.array([2,3,4]), 'B':np.array([5,6,7]), 'C':np.array([8,9,10])}]),
+        ([[[1,2,3],[4,5,6]],
           [[2,3,4]]],
          ['A', 'B', 'C'],
          [{'A': [1, 2, 3], 'B': [4, 5, 6]},
-          {'A': [2, 3, 4]}]
-        )
+          {'A': [2, 3, 4]}])
     ]) 
     def test_combineDataDict_accuracy(self, values, labels, expected_result):
         """
@@ -838,11 +740,9 @@ class TestPycgmIO:
         np.testing.assert_equal(result, expected_result)
     
     @pytest.mark.parametrize("values, labels", [
-        (
-         [[[1,2,3],[4,5,6],[7,8,9]],
+        ([[[1,2,3],[4,5,6],[7,8,9]],
           [[2,3,4],[5,6,7],[8,9,10]]],
-         ['A', 'B']
-        )
+         ['A', 'B'])
     ])
     def test_combineDataDict_exceptions(self, values, labels):
         """
