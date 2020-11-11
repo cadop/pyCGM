@@ -815,11 +815,12 @@ def writeKinetics(CoM_output,kinetics):
 
     Examples
     --------
-    >>> from tempfile import TemporaryDirectory
+    >>> import tempfile
+    >>> tmpdirName = tempfile.mkdtemp()
     >>> from numpy import load
     >>> import os
-    >>> tmpdir = TemporaryDirectory()
-    >>> CoM_output = os.path.join(tmpdir.name, 'CoM')
+    >>> from shutil import rmtree
+    >>> CoM_output = os.path.join(tmpdirName, 'CoM')
     >>> kinetics = [[246.57466721, 313.55662383, 1026.56323492],
     ...             [246.59137623, 313.6216639, 1026.56440096],
     ...             [246.60850798, 313.6856272, 1026.56531282]]
@@ -828,6 +829,7 @@ def writeKinetics(CoM_output,kinetics):
     array([[ 246.57466721, 313.55662383, 1026.56323492],
            [ 246.59137623, 313.6216639 , 1026.56440096],
            [ 246.60850798, 313.6856272 , 1026.56531282]])
+    >>> rmtree(tmpdirName)
     """
     np.save(CoM_output,kinetics)
         
@@ -866,8 +868,10 @@ def writeResult(data,filename,**kargs):
         --------
         >>> from numpy import array, zeros
         >>> import os
-        >>> from tempfile import TemporaryDirectory
-       
+        >>> from shutil import rmtree
+        >>> import tempfile
+        >>> tmpdirName = tempfile.mkdtemp()
+
         Prepare a frame of data to write to csv. This example writes joint angle values
         for the first joint, the pelvis, and axis values for the pelvis origin, PELO.
 
@@ -879,8 +883,7 @@ def writeResult(data,filename,**kargs):
         >>> for i in range(len(axis)):
         ...     frame[i+57] = axis[i]
         >>> data = [frame]
-        >>> tmpdir = TemporaryDirectory()
-        >>> outfile = os.path.join(tmpdir.name, 'output')
+        >>> outfile = os.path.join(tmpdirName, 'output')
 
         Writing angles only.
 
@@ -902,6 +905,7 @@ def writeResult(data,filename,**kargs):
         >>> result #doctest: +NORMALIZE_WHITESPACE
         ['0.000000000000000', 
          '-934.314880371093977', '-4.444435119628910', '852.837829589843977',...]
+        >>> rmtree(tmpdirName)
         """
         labelsAngs =['Pelvis','R Hip','L Hip','R Knee','L Knee','R Ankle',
                                 'L Ankle','R Foot','L Foot',
@@ -1242,12 +1246,14 @@ def make_sure_path_exists(path):
     Examples
     --------
     >>> import os
-    >>> from tempfile import TemporaryDirectory
-    >>> tmpdir = TemporaryDirectory()
-    >>> newDirectory = os.path.join(tmpdir.name, 'newDirectory')
+    >>> from shutil import rmtree
+    >>> import tempfile
+    >>> tmpdirName = tempfile.mkdtemp()
+    >>> newDirectory = os.path.join(tmpdirName, 'newDirectory')
     >>> make_sure_path_exists(newDirectory)
     >>> os.path.isdir(newDirectory)
     True
+    >>> rmtree(tmpdirName)
     """
     try:
         os.makedirs(path)
