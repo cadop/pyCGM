@@ -1,14 +1,11 @@
 import sys
 sys.path.append('./pyCGM_Single') # TODO update to pycgm when fixed
 from _about import __version__
+from io import open
 import setuptools
 
-if sys.version_info.major == 2:
-    with open("README.md", "r") as fh:
-        long_description = fh.read()
-else:
-    with open("README.md", "r",encoding="utf8") as fh:
-        long_description = fh.read()
+with open("README.md", "r",encoding="utf8") as fh:
+    long_description = fh.read()
 
 setuptools.setup(
     name="pycgm", 
