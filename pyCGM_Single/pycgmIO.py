@@ -816,12 +816,7 @@ def writeKinetics(CoM_output,kinetics):
     Examples
     --------
     >>> import tempfile
-    >>> pyver = sys.version_info.major
-    >>> if pyver == 2:
-    ...     tmpdirName = tempfile.mkdtemp()
-    ... else:
-    ...     tmpdir = tempfile.TemporaryDirectory()
-    ...     tmpdirName = tmpdir.name
+    >>> tmpdirName = tempfile.mkdtemp()
     >>> from numpy import load
     >>> import os
     >>> from shutil import rmtree
@@ -875,12 +870,7 @@ def writeResult(data,filename,**kargs):
         >>> import os
         >>> from shutil import rmtree
         >>> import tempfile
-        >>> pyver = sys.version_info.major
-        >>> if pyver == 2:
-        ...     tmpdirName = tempfile.mkdtemp()
-        ... else:
-        ...     tmpdir = tempfile.TemporaryDirectory()
-        ...     tmpdirName = tmpdir.name
+        >>> tmpdirName = tempfile.mkdtemp()
 
         Prepare a frame of data to write to csv. This example writes joint angle values
         for the first joint, the pelvis, and axis values for the pelvis origin, PELO.
@@ -1258,12 +1248,7 @@ def make_sure_path_exists(path):
     >>> import os
     >>> from shutil import rmtree
     >>> import tempfile
-    >>> pyver = sys.version_info.major
-    >>> if pyver == 2:
-    ...     tmpdirName = tempfile.mkdtemp()
-    ... else:
-    ...     tmpdir = tempfile.TemporaryDirectory()
-    ...     tmpdirName = tmpdir.name
+    >>> tmpdirName = tempfile.mkdtemp()
     >>> newDirectory = os.path.join(tmpdirName, 'newDirectory')
     >>> make_sure_path_exists(newDirectory)
     >>> os.path.isdir(newDirectory)
