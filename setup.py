@@ -22,7 +22,7 @@ setuptools.setup(
         "License :: OSI Approved :: MIT",
         "Operating System :: OS Independent",
     ],
-    python_requires='2.7, >=3.6',
+    python_requires='==2.7, >=3.6',
     install_requires=['numpy>=1.15','scipy'],
     package_data={
         "": ["SampleData/ROM/*.c3d","SampleData/ROM/*.vsk","segments.csv"], # TODO Need to fix
