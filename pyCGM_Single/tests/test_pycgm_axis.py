@@ -68,6 +68,11 @@ class TestUpperBodyAxis():
         frame: dictionary of marker lists
         vsk: dictionary containing subject measurements from a VSK file
         expected: the expected result from calling headJC on frame and vsk
+
+        This test is checking to make sure the head joint center and head joint axis are calculated correctly given
+        the 4 coordinates given in frame. This includes testing when there is no variance in the coordinates,
+        when the coordinates are in different quadrants, when the midpoints will be on diagonals, and when the z
+        dimension is variable. It also checks to see the difference when a value is set for HeadOffSet in vsk.
         """
         result = pyCGM.headJC(frame, vsk)
         np.testing.assert_almost_equal(result[0], expected[0], rounding_precision)
@@ -108,6 +113,11 @@ class TestUpperBodyAxis():
         This test takes 2 parameters:
         frame: dictionary of marker lists
         expected: the expected result from calling thoraxJC on frame
+
+        This test is checking to make sure the thorax joint center and thorax joint axis are calculated correctly given
+        the 4 coordinates given in frame. This includes testing when there is no variance in the coordinates,
+        when the coordinates are in different quadrants, when the midpoints will be on diagonals, and when the z
+        dimension is variable.
         """
         result = pyCGM.thoraxJC(frame)
         np.testing.assert_almost_equal(result[0], expected[0], rounding_precision)
@@ -173,6 +183,15 @@ class TestUpperBodyAxis():
         wand: array containing two x,y,z markers for wand
         vsk: dictionary containing subject measurements from a VSK file
         expected_args: the expected arguments used to call the mocked function, findJointC
+
+        This test is checking to make sure the shoulder joint center is calculated correctly given the input parameters.
+        This tests mocks findJointC to make sure the correct parameters are being passed into it given the parameters
+        passed into findshoulderJC. The test checks to see that the correct values in expected_args are updated per
+        each input parameter added:
+        When values are added to frame, expected_args[0][2] and expected_args[1][2] should be updated
+        When values are added to thorax, expected_args[0][1] and expected_args[1][1] should be updated
+        When values are added to wand, expected_args[0][0] and expected_args[1][0] should be updated
+        When values are added to vsk, expected_args[0][3] and expected_args[1][3] should be updated
         """
         rand_coor = [np.random.randint(0, 10), np.random.randint(0, 10), np.random.randint(0, 10)]
         with patch.object(pyCGM, 'findJointC', return_value=rand_coor) as mock_findJointC:
@@ -270,6 +289,13 @@ class TestUpperBodyAxis():
         shoulderJC: array containing x,y,z position of the shoulder joint center
         wand: array containing two x,y,z markers for wand
         expected: the expected result from calling shoulderAxisCalc on thorax, shoulderJC, and wand
+
+        This test is checking to make sure the shoulder joint axis is calculated correctly given the input parameters.
+        The test checks to see that the correct values in expected are updated per each input parameter added:
+        When values are added to thorax, expected[1][0][2] and expected[1][1][2] should be updated
+        When values are added to shoulderJC, expected[0], expected[1][0][2] and expected[1][1][2] should be updated
+        When values are only added to wand, no values in expected should be updated
+        If values are added to any two parameters, then all values in expected[1] should be updated
         """
         result = pyCGM.shoulderAxisCalc(None, thorax, shoulderJC, wand)
         np.testing.assert_almost_equal(result[0], expected[0], rounding_precision)
@@ -422,6 +448,19 @@ class TestUpperBodyAxis():
         mockReturnVal: the value to be returned by the mock for findJointC
         expectedMockArgs: the expected arguments used to call the mocked function, findJointC
         expected: the expected result from calling elbowJointCenter on frame, thorax, shoulderJC, and vsk
+
+        This test is checking to make sure the elbow joint axis is calculated correctly given the input parameters.
+        This tests mocks findJointC to make sure the correct parameters are being passed into it given the parameters
+        passed into findshoulderJC, and also ensure that elbowJointCenter returns the correct value considering
+        the return value of findJointC, mockReturnVal. The test checks to see that the correct values in expected_args
+        and expected are updated per each input parameter added:
+        When values are added to frame, expectedMockArgs[0][0], expectedMockArgs[0][2],  expectedMockArgs[1][0],
+        expectedMockArgs[0][2], and expected[2] should be updated
+        When values are added to thorax, nothing should be updated
+        When values are added to shoulderJC, expectedMockArgs[0][1], expectedMockArgs[1][1], expected[1][0][2] and
+        expected[1][1][2] should be updated
+        When values are added to vsk, expectedMockArgs[0][3], and expectedMockArgs[1][3] should be updated
+        When values are added to mockReturnVal, expected[0], expected[1][0][2] and expected[1][1][2] should be updated
         """
         with patch.object(pyCGM, 'findJointC', side_effect=mockReturnVal) as mock_findJointC:
             result = pyCGM.elbowJointCenter(frame, thorax, shoulderJC, None, vsk)
@@ -518,6 +557,13 @@ class TestUpperBodyAxis():
         This test takes 2 parameters:
         elbowJC: array containing the x,y,z position of the elbow joint center
         expected: the expected result from calling wristJointCenter on elbowJC
+
+        This test is checking to make sure the wrist joint axis is calculated correctly given the input parameters.
+        The test checks to see that the correct values in expected are updated per each input parameter added:
+        When values are only added to elbowJC[0] or elboxJC[1], expected[1][0][1] and expected[1][1][1] should be updated
+        When values are only added to elbowJC[2], expected[0] should be updated
+        When values are added to any two of elbowJC[0], elbowJC[1], and elbowJC[2], then all values in expected[1] should
+        be updated
         """
         result = pyCGM.wristJointCenter(None, None, None, elbowJC)
         np.testing.assert_almost_equal(result[0], expected[0], rounding_precision)
@@ -604,6 +650,18 @@ class TestUpperBodyAxis():
         mockReturnVal: the value to be returned by the mock for findJointC
         expectedMockArgs: the expected arguments used to call the mocked function, findJointC
         expected: the expected result from calling handJointCenter on frame, wristJC, and vsk
+
+        This test is checking to make sure the hand joint axis is calculated correctly given the input parameters.
+        This tests mocks findJointC to make sure the correct parameters are being passed into it given the parameters
+        passed into handJointCenter, and to also ensure that handJointCenter returns the correct value considering
+        the return value of findJointC, mockReturnVal. The test checks to see that the correct values in expected_args
+        and expected are updated per each input parameter added:
+        When values are added to frame, expectedMockArgs[0][0], expectedMockArgs[0][2], expectedMockArgs[1][0],
+        expectedMockArgs[1][2] and expected[1] should be updated
+        When values are added to wristJC, expectedMockArgs[0][1], expectedMockArgs[1][1], expected[1][0][2],
+        and expected[1][1][2] should be updated
+        When values are added to vsk, expectedMockArgs[0][3] and expectedMockArgs[1][3] should be updated
+        When values are added to mockReturnVal, expected[0] should be updated
         """
         with patch.object(pyCGM, 'findJointC', side_effect=mockReturnVal) as mock_findJointC:
             result = pyCGM.handJointCenter(frame, None, wristJC, vsk)
@@ -692,6 +750,14 @@ class TestLowerBodyAxis():
         This test takes 2 parameters:
         frame: dictionary of marker lists
         expected: the expected result from calling pelvisJointCenter on frame
+
+        This test is checking to make sure the pelvis joint center and axis are calculated correctly given the input
+        parameters. The test checks to see that the correct values in expected are updated per each input parameter added:
+        When values are added to frame['RASI'] and frame['LASI'], expected[0] and expected[1] should be updated
+        When values are added to frame['RPSI'] and frame['LPSI'], expected[2] should be updated
+        When values are added to frame['SACR'], expected[2] should be updated, and expected[1] should also be updated
+        if there are values for frame['RASI'] and frame['LASI']
+        Values produced from frame['SACR'] takes precedent over frame['RPSI'] and frame['LPSI']
         """
         result = pyCGM.pelvisJointCenter(frame)
         np.testing.assert_almost_equal(result[0], expected[0], rounding_precision)
@@ -762,6 +828,10 @@ class TestLowerBodyAxis():
         pel_z: array of x,y,z position of z-axis of the pelvis
         vsk: dictionary containing subject measurements from a VSK file
         expected: the expected result from calling hipJointCenter on pel_origin, pel_x, pel_y, pel_z, and vsk
+
+        This test is checking to make sure the hip joint center is calculated correctly given the input parameters.
+        The test checks to see that the correct values in expected are updated per each input parameter added. Any
+        parameter that is added should change the value of every value in expected.
         """
         result = pyCGM.hipJointCenter(None, pel_origin, pel_x, pel_y, pel_z, vsk)
         np.testing.assert_almost_equal(result[0], expected[0], rounding_precision)
@@ -813,6 +883,11 @@ class TestLowerBodyAxis():
         r_hip_jc: array of right hip joint center x,y,z position
         pelvis_axis: array of pelvis origin and axis
         expected: the expected result from calling hipAxisCenter on l_hip_jc, r_hip_jc, and pelvis_axis
+
+        This test is checking to make sure the hip axis center is calculated correctly given the input parameters.
+        The test checks to see that the correct values in expected are updated per each input parameter added:
+        When values are added to l_hip_jc or r_hip_jc, every value in expected should be updated
+        When values are added to pelvis_axis, expected[1] should be updated
         """
         result = pyCGM.hipAxisCenter(l_hip_jc, r_hip_jc, pelvis_axis)
         np.testing.assert_almost_equal(result[0], expected[0], rounding_precision)
@@ -917,6 +992,18 @@ class TestLowerBodyAxis():
         mockReturnVal: the value to be returned by the mock for findJointC
         expectedMockArgs: the expected arguments used to call the mocked function, findJointC
         expected: the expected result from calling kneeJointCenter on frame, hip_JC, vsk, and mockReturnVal
+
+        This test is checking to make sure the knee joint center and axis are calculated correctly given the input
+        parameters. This tests mocks findJointC to make sure the correct parameters are being passed into it given the
+        parameters passed into kneeJointCenter, and to also ensure that kneeJointCenter returns the correct value considering
+        the return value of findJointC, mockReturnVal. The test checks to see that the correct values in expected_args
+        and expected are updated per each input parameter added:
+        When values are added to frame, expectedMockArgs[0][0], expectedMockArgs[0][2], expectedMockArgs[1][0], and
+        expectedMockArgs[1][2] should be updated
+        When values are added to hip_JC, expectedMockArgs[0][1], expectedMockArgs[1][1], expected[2][0][2], and
+        expected[2][1][2] should be updated, unless values are also added to frame, then expected[2] should be updated
+        When values are added to vsk, expectedMockArgs[0][3], and expectedMockArgs[1][3] should be updated
+        When values are added to mockReturnVal, expected[0], expected[2][0][2], and expected[2][1][2] should be updated
         """
         with patch.object(pyCGM, 'findJointC', side_effect=mockReturnVal) as mock_findJointC:
             result = pyCGM.kneeJointCenter(frame, hip_JC, None, vsk)
@@ -1058,6 +1145,18 @@ class TestLowerBodyAxis():
         mockReturnVal: the value to be returned by the mock for findJointC
         expectedMockArgs: the expected arguments used to call the mocked function, findJointC
         expected: the expected result from calling ankleJointCenter on frame, knee_JC, vsk, and mockReturnVal
+
+        This test is checking to make sure the ankle joint center and axis are calculated correctly given the input
+        parameters. This tests mocks findJointC to make sure the correct parameters are being passed into it given the
+        parameters passed into ankleJointCenter, and to also ensure that ankleJointCenter returns the correct value considering
+        the return value of findJointC, mockReturnVal. The test checks to see that the correct values in expected_args
+        and expected are updated per each input parameter added:
+        When values are added to frame, expectedMockArgs[0][0], expectedMockArgs[0][2], expectedMockArgs[1][0], and
+        expectedMockArgs[1][2] should be updated
+        When values are added to knee_JC, expectedMockArgs[0][1], expectedMockArgs[1][1], expected[2][0][2], and
+        expected[2][1][2] should be updated, unless values are also added to frame, then all of expected should be updated
+        When values are added to vsk, expectedMockArgs[0][3], and expectedMockArgs[1][3] should be updated
+        When values are added to mockReturnVal, expected[0], expected[2][0][2], and expected[2][1][2] should be updated
         """
         with patch.object(pyCGM, 'findJointC', side_effect=mockReturnVal) as mock_findJointC:
             result = pyCGM.ankleJointCenter(frame, knee_JC, None, vsk)
@@ -1182,6 +1281,12 @@ class TestLowerBodyAxis():
         vsk: dictionary containing subject measurements from a VSK file
         ankle_JC: array of ankle_JC containing the x,y,z axes marker positions of the ankle joint center
         expected: the expected result from calling footJointCenter on frame, knee_JC, vsk, and mockReturnVal
+
+        This test is checking to make sure the foot joint center and axis are calculated correctly given the input
+        parameters. The test checks to see that the correct values in expected are updated per each input parameter added:
+        When values are added to frame, expected[0] and expected[1] should be updated
+        When values are added to vsk, expected[2] should be updated as long as there are values for frame and ankle_JC
+        When values are added to ankle_JC, expected[2] should be updated
         """
         result = pyCGM.footJointCenter(frame, vsk, ankle_JC, None, None)
         np.testing.assert_almost_equal(result[0], expected[0], rounding_precision)
