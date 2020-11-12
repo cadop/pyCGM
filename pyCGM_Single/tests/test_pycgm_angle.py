@@ -34,9 +34,13 @@ class TestPycgmAngle():
         This test provides coverage of the getangle_sho function in pyCGM.py,
         defined as getangle_sho(axisP,axisD) where axisP is the proximal axis and axisD is the dorsal axis
 
-        This test takes 3 parameters. The first 3 parameters are angles, representing the x, y, and z dimensional rotations,
-        used to create a rotational matrix. The last parameter is the expected resulting list for calling the function
-        getangle_sho on the created rotational matrix and one with no rotation.
+        This test calls pyCGM.rotmat() to create axisP with an x, y, and z rotation defined in the parameters.
+        It then calls pyCGM.getangle_sho() with axisP and axisD, which was created with no rotation in the
+        x, y or z direction. This result is then compared to the expected result. The results from this test will
+        be in the YXZ order, meaning that a parameter with an inputed x rotation will have a result with the same
+        angle in the y direction. The only exception to this is a 120, -120, or 180 degree Y rotation. These will end
+        up with a 60, -60, and 0 degree angle in the X direction respectively, and with a -180 degree
+        angle in the y and z direction.
         """
         # Create axisP as a rotatinal matrix using the x, y, and z rotations given in testcase
         axisP = pyCGM.rotmat(xRot, yRot, zRot)
@@ -45,6 +49,11 @@ class TestPycgmAngle():
         np.testing.assert_almost_equal(result, expected, rounding_precision)
 
     def test_getangle_sho_datatypes(self):
+        """
+        This test provides coverage of the getangle_sho function in pyCGM.py, defined as getangle_sho(axisP,axisD).
+        It checks that the resulting output from calling getangle_sho is correct for a list of ints, a numpy array of
+        ints, a list of floats, and a numpy array of floats.
+        """
         axisD = pyCGM.rotmat(0, 0, 0)
         axisP_floats = pyCGM.rotmat(90, 0, 90)
         axisP_ints = [[int(y) for y in x] for x in axisP_floats]
@@ -82,9 +91,12 @@ class TestPycgmAngle():
         This test provides coverage of the getangle_spi function in pyCGM.py,
         defined as getangle_spi(axisP,axisD) where axisP is the proximal axis and axisD is the dorsal axis
 
-        This test takes 3 parameters. The first 3 parameters are angles, representing the x, y, and z dimensional rotations,
-        used to create a rotational matrix. The last parameter is the expected resulting list for calling the function
-        getangle_spi on the created rotational matrix and one with no rotation.
+        This test calls pyCGM.rotmat() to create axisP with an x, y, and z rotation defined in the parameters.
+        It then calls pyCGM.getangle_spi() with axisP and axisD, which was created with no rotation in the
+        x, y or z direction. This result is then compared to the expected result. The results from this test will
+        be in the YZX order, meaning that a parameter with an inputed x rotation will have a result with the same
+        angle in the z direction. The only exception to this is a 120, -120, or 180 degree Y rotation. The exception
+        to this is that 120, -120, and 180 degree rotations end up with 60, -60, and 0 degree angles respectively.
         """
         # Create axisP as a rotatinal matrix using the x, y, and z rotations given in testcase
         axisP = pyCGM.rotmat(xRot, yRot, zRot)
@@ -93,6 +105,11 @@ class TestPycgmAngle():
         np.testing.assert_almost_equal(result, expected, rounding_precision)
 
     def test_getangle_spi_datatypes(self):
+        """
+        This test provides coverage of the getangle_spi function in pyCGM.py, defined as getangle_spi(axisP,axisD).
+        It checks that the resulting output from calling getangle_spi is correct for a list of ints, a numpy array of
+        ints, a list of floats, and a numpy array of floats.
+        """
         axisD = pyCGM.rotmat(0, 0, 0)
         axisP_floats = pyCGM.rotmat(90, 0, 90)
         axisP_ints = [[int(y) for y in x] for x in axisP_floats]
@@ -130,9 +147,13 @@ class TestPycgmAngle():
         This test provides coverage of the getangle function in pyCGM.py,
         defined as getangle(axisP,axisD) where axisP is the proximal axis and axisD is the dorsal axis
 
-        This test takes 3 parameters. The first 3 parameters are angles, representing the x, y, and z dimensional rotations,
-        used to create a rotational matrix. The last parameter is the expected resulting list for calling the function
-        getangle on the created rotational matrix and one with no rotation.
+        This test calls pyCGM.rotmat() to create axisP with an x, y, and z rotation defined in the parameters.
+        It then calls pyCGM.getangle() with axisP and axisD, which was created with no rotation in the x, y or z
+        direction. This result is then compared to the expected result. The results from this test will be in the
+        YXZ order, meaning that a parameter with an inputed x rotation will have a result with the same angle in
+        the z direction. There is also an additional 90 degree angle in the z direction if there was no z rotation.
+        If there was a z rotation than there will be a different angle in the z direction. A z rotation of 90, 30, -30,
+        120, -120, 180 degrees results in a 0, 60, 120, -30, -150, -90 degree angle in the z direction respectively.
         """
         # Create axisP as a rotatinal matrix using the x, y, and z rotations given in testcase
         axisP = pyCGM.rotmat(xRot, yRot, zRot)
@@ -141,6 +162,11 @@ class TestPycgmAngle():
         np.testing.assert_almost_equal(result, expected, rounding_precision)
 
     def test_getangle_datatypes(self):
+        """
+        This test provides coverage of the getangle function in pyCGM.py, defined as getangle(axisP,axisD).
+        It checks that the resulting output from calling getangle is correct for a list of ints, a numpy array of
+        ints, a list of floats, and a numpy array of floats.
+        """
         axisD = pyCGM.rotmat(0, 0, 0)
         axisP_floats = pyCGM.rotmat(90, 0, 90)
         axisP_ints = [[int(y) for y in x] for x in axisP_floats]
@@ -178,9 +204,13 @@ class TestPycgmAngle():
         This test provides coverage of the getHeadangle function in pyCGM.py,
         defined as getHeadangle(axisP,axisD) where axisP is the proximal axis and axisD is the dorsal axis
 
-        This test takes 3 parameters. The first 3 parameters are angles, representing the x, y, and z dimensional rotations,
-        used to create a rotational matrix. The last parameter is the expected resulting list for calling the function
-        getHeadangle on the created rotational matrix and one with no rotation.
+        This test calls pyCGM.rotmat() to create axisP with an x, y, and z rotation defined in the parameters.
+        It then calls pyCGM.getHeadangle() with axisP and axisD, which was created with no rotation in the x, y or z
+        direction. This result is then compared to the expected result. The results from this test will be in the
+        YXZ order, meaning that a parameter with an inputed x rotation will have a result with the same angle in
+        the z direction. There is also an additional -180 degree angle in the z direction if there was no z rotation.
+        If there was a z rotation than there will be a different angle in the z direction. A z rotation of 90, 30, -30,
+        120, -120, 180 degrees results in a -90, -150, -210, -60, -300, 0 degree angle in the z direction respectively.
         """
         # Create axisP as a rotatinal matrix using the x, y, and z rotations given in testcase
         axisP = pyCGM.rotmat(xRot, yRot, zRot)
@@ -189,6 +219,11 @@ class TestPycgmAngle():
         np.testing.assert_almost_equal(result, expected, rounding_precision)
 
     def test_getHeadangle_datatypes(self):
+        """
+        This test provides coverage of the getHeadangle function in pyCGM.py, defined as getHeadangle(axisP,axisD).
+        It checks that the resulting output from calling getHeadangle is correct for a list of ints, a numpy array of
+        ints, a list of floats, and a numpy array of floats.
+        """
         axisD = pyCGM.rotmat(0, 0, 0)
         axisP_floats = pyCGM.rotmat(90, 90, 90)
         axisP_ints = [[int(y) for y in x] for x in axisP_floats]
@@ -226,9 +261,13 @@ class TestPycgmAngle():
         This test provides coverage of the getPelangle function in pyCGM.py,
         defined as getPelangle(axisP,axisD) where axisP is the proximal axis and axisD is the dorsal axis
 
-        This test takes 3 parameters. The first 3 parameters are angles, representing the x, y, and z dimensional rotations,
-        used to create a rotational matrix. The last parameter is the expected resulting list for calling the function
-        getPelangle on the created rotational matrix and one with no rotation.
+        This test calls pyCGM.rotmat() to create axisP with an x, y, and z rotation defined in the parameters.
+        It then calls pyCGM.getHeadangle() with axisP and axisD, which was created with no rotation in the x, y or z
+        direction. This result is then compared to the expected result. The results from this test will be in the
+        YXZ order, meaning that a parameter with an inputed x rotation will have a result with the same angle in
+        the z direction. The exception to this is x rotations. An x rotation of 90, 30, -30, 120, -120, 180
+        degrees results in a -90, -30, 30, -6, 60, 0 degree angle in the y direction respectively. A x rotation or
+        120, -120, or 180 also results in a 180 degree rotation in the x and z angles.
         """
         # Create axisP as a rotatinal matrix using the x, y, and z rotations given in testcase
         axisP = pyCGM.rotmat(xRot, yRot, zRot)
@@ -237,6 +276,11 @@ class TestPycgmAngle():
         np.testing.assert_almost_equal(result, expected, rounding_precision)
 
     def test_getPelangle_datatypes(self):
+        """
+        This test provides coverage of the getPelangle function in pyCGM.py, defined as getPelangle(axisP,axisD).
+        It checks that the resulting output from calling getPelangle is correct for a list of ints, a numpy array of
+        ints, a list of floats, and a numpy array of floats.
+        """
         axisD = pyCGM.rotmat(0, 0, 0)
         axisP_floats = pyCGM.rotmat(90, 90, 90)
         axisP_ints = [[int(y) for y in x] for x in axisP_floats]
