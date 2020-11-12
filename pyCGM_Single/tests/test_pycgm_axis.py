@@ -1,4 +1,4 @@
-from unittest.mock import patch
+from mock import patch
 import pyCGM_Single.pyCGM as pyCGM
 import pytest
 import numpy as np
