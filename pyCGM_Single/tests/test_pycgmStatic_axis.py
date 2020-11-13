@@ -1,7 +1,7 @@
 import pytest
 import pyCGM_Single.pycgmStatic as pycgmStatic
 import numpy as np
-from unittest.mock import patch
+from mock import patch
 
 rounding_precision = 8
 
@@ -59,6 +59,14 @@ class TestPycgmStaticAxis():
        This test takes 2 parameters:
        head: array containing the head axis and head origin
        expected: the expected result from calling staticCalculationHead on head
+
+       This test is checking to make sure the head offset angle is calculated correctly given the input parameters.
+       The test checks to see that the correct values in expected are updated per each input parameter added:
+        When values are only added to head[0][0], expected should return a value
+        When values are only added to head[0][1], expected should return np.nan
+        When values are only added to head[0][2], expected should return 0
+        When values are only added to head[1], expected should return a value
+        When multiple of these values exist, they will all play a part in the final value.
        """
         result = pycgmStatic.staticCalculationHead(None, head)
         np.testing.assert_almost_equal(result, expected, rounding_precision)
@@ -118,6 +126,14 @@ class TestPycgmStaticAxis():
         This test takes 2 parameters:
         frame: dictionary of marker lists
         expected: the expected result from calling pelvisJointCenter on frame
+
+        This test is checking to make sure the pelvis joint center and axis are calculated correctly given the input
+        parameters. The test checks to see that the correct values in expected are updated per each input parameter added:
+        When values are added to frame['RASI'] and frame['LASI'], expected[0] and expected[1] should be updated
+        When values are added to frame['RPSI'] and frame['LPSI'], expected[2] should be updated
+        When values are added to frame['SACR'], expected[2] should be updated, and expected[1] should also be updated
+        if there are values for frame['RASI'] and frame['LASI']
+        Values produced from frame['SACR'] takes precedent over frame['RPSI'] and frame['LPSI']
         """
         result = pycgmStatic.pelvisJointCenter(frame)
         np.testing.assert_almost_equal(result[0], expected[0], rounding_precision)
@@ -187,6 +203,10 @@ class TestPycgmStaticAxis():
         pel_z: array of x,y,z position of z-axis of the pelvis
         vsk: dictionary containing subject measurements from a VSK file
         expected: the expected result from calling hipJointCenter on pel_origin, pel_x, pel_y, pel_z, and vsk
+
+        This test is checking to make sure the hip joint center is calculated correctly given the input parameters.
+        The test checks to see that the correct values in expected are updated per each input parameter added. Any
+        parameter that is added should change the value of every value in expected.
         """
         result = pycgmStatic.hipJointCenter(None, pel_origin, pel_x, pel_y, pel_z, vsk)
         np.testing.assert_almost_equal(result[0], expected[0], rounding_precision)
@@ -237,6 +257,11 @@ class TestPycgmStaticAxis():
         r_hip_jc: array of right hip joint center x,y,z position
         pelvis_axis: array of pelvis origin and axis
         expected: the expected result from calling hipAxisCenter on l_hip_jc, r_hip_jc, and pelvis_axis
+
+        This test is checking to make sure the hip axis center is calculated correctly given the input parameters.
+        The test checks to see that the correct values in expected are updated per each input parameter added:
+        When values are added to l_hip_jc or r_hip_jc, every value in expected should be updated
+        When values are added to pelvis_axis, expected[1] should be updated
         """
         result = pycgmStatic.hipAxisCenter(l_hip_jc, r_hip_jc, pelvis_axis)
         np.testing.assert_almost_equal(result[0], expected[0], rounding_precision)
@@ -340,6 +365,18 @@ class TestPycgmStaticAxis():
         mockReturnVal: the value to be returned by the mock for findJointC
         expectedMockArgs: the expected arguments used to call the mocked function, findJointC
         expected: the expected result from calling kneeJointCenter on frame, hip_JC, vsk, and mockReturnVal
+
+        This test is checking to make sure the knee joint center and axis are calculated correctly given the input
+        parameters. This tests mocks findJointC to make sure the correct parameters are being passed into it given the
+        parameters passed into kneeJointCenter, and to also ensure that kneeJointCenter returns the correct value considering
+        the return value of findJointC, mockReturnVal. The test checks to see that the correct values in expected_args
+        and expected are updated per each input parameter added:
+        When values are added to frame, expectedMockArgs[0][0], expectedMockArgs[0][2], expectedMockArgs[1][0], and
+        expectedMockArgs[1][2] should be updated
+        When values are added to hip_JC, expectedMockArgs[0][1], expectedMockArgs[1][1], expected[2][0][2], and
+        expected[2][1][2] should be updated, unless values are also added to frame, then expected[2] should be updated
+        When values are added to vsk, expectedMockArgs[0][3], and expectedMockArgs[1][3] should be updated
+        When values are added to mockReturnVal, expected[0], expected[2][0][2], and expected[2][1][2] should be updated
         """
         with patch.object(pycgmStatic, 'findJointC', side_effect=mockReturnVal) as mock_findJointC:
             result = pycgmStatic.kneeJointCenter(frame, hip_JC, None, vsk)
@@ -480,6 +517,18 @@ class TestPycgmStaticAxis():
         mockReturnVal: the value to be returned by the mock for findJointC
         expectedMockArgs: the expected arguments used to call the mocked function, findJointC
         expected: the expected result from calling ankleJointCenter on frame, knee_JC, vsk, and mockReturnVal
+
+        This test is checking to make sure the ankle joint center and axis are calculated correctly given the input
+        parameters. This tests mocks findJointC to make sure the correct parameters are being passed into it given the
+        parameters passed into ankleJointCenter, and to also ensure that ankleJointCenter returns the correct value considering
+        the return value of findJointC, mockReturnVal. The test checks to see that the correct values in expected_args
+        and expected are updated per each input parameter added:
+        When values are added to frame, expectedMockArgs[0][0], expectedMockArgs[0][2], expectedMockArgs[1][0], and
+        expectedMockArgs[1][2] should be updated
+        When values are added to knee_JC, expectedMockArgs[0][1], expectedMockArgs[1][1], expected[2][0][2], and
+        expected[2][1][2] should be updated, unless values are also added to frame, then all of expected should be updated
+        When values are added to vsk, expectedMockArgs[0][3], and expectedMockArgs[1][3] should be updated
+        When values are added to mockReturnVal, expected[0], expected[2][0][2], and expected[2][1][2] should be updated
         """
         with patch.object(pycgmStatic, 'findJointC', side_effect=mockReturnVal) as mock_findJointC:
             result = pycgmStatic.ankleJointCenter(frame, knee_JC, None, vsk)
@@ -601,6 +650,12 @@ class TestPycgmStaticAxis():
         static_info: array containing offset angles
         ankle_JC: array of ankle_JC each x,y,z position
         expected: the expected result from calling footJointCenter on frame, static_info, and ankle_JC
+
+        This test is checking to make sure the foot joint center and axis are calculated correctly given the input
+        parameters. The test checks to see that the correct values in expected are updated per each input parameter added:
+        When values are added to frame, expected[0] and expected[1] should be updated
+        When values are added to vsk, expected[2] should be updated as long as there are values for frame and ankle_JC
+        When values are added to ankle_JC, expected[2] should be updated
         """
         result = pycgmStatic.footJointCenter(frame, static_info, ankle_JC, None, None)
         np.testing.assert_almost_equal(result[0], expected[0], rounding_precision)
@@ -641,6 +696,11 @@ class TestPycgmStaticAxis():
         This test takes 3 parameters:
         frame: dictionary of marker lists
         expected: the expected result from calling headJC on frame
+
+        This test is checking to make sure the head joint center and head joint axis are calculated correctly given
+        the 4 coordinates given in frame. This includes testing when there is no variance in the coordinates,
+        when the coordinates are in different quadrants, when the midpoints will be on diagonals, and when the z
+        dimension is variable. It also checks to see the difference when a value is set for HeadOffSet in vsk.
         """
         result = pycgmStatic.headJC(frame)
         np.testing.assert_almost_equal(result[0], expected[0], rounding_precision)
@@ -724,6 +784,16 @@ class TestPycgmStaticAxis():
         frame: dictionaries of marker lists.
         ankle_JC: array of ankle_JC each x,y,z position
         expected: the expected result from calling uncorrect_footaxis on frame and ankle_JC
+
+        This test is checking to make sure the anatomically incorrect foot joint center and axis is calculated correctly
+        given the input parameters. The test checks to see that the correct values in expected are updated per each
+        input parameter added:
+        When values are only added to frame, expected[0], expected[1], expected[2][0][2], and expected[2][1][2] should
+        be updated.
+        When values are only added to ankle_JC[0], expected[2][0][2] should be updated.
+        When values are only added to ankle_JC[1], expected[2][1][2] should be updated.
+        When values are only added to ankle_JC[2], nothing should be updated
+        If values are added to all of ankle_JC, then expected[2] should be updated.
         """
         result = pycgmStatic.uncorrect_footaxis(frame, ankle_JC)
         np.testing.assert_almost_equal(result[0], expected[0], rounding_precision)
@@ -830,6 +900,14 @@ class TestPycgmStaticAxis():
         ankle_JC: array of ankle_JC each x,y,z position
         vsk: dictionary containing subject measurements from a VSK file
         expected: the expected result from calling rotaxis_footflat on frame, ankle_JC and vsk
+
+        This test is checking to make sure the foot joint center for flat feet is calculated correctly given the input
+        parameters. The test checks to see that the correct values in expected are updated per each input parameter added:
+        When values are only added to frame, expected[0] and expected[1] should be updated.
+        When values are only added to ankle_JC, nothing should be updated. If values are already added to frame, then
+        adding values to ankle_JC should update expected[2].
+        When values are only added to vsk, nothing should be updated. If values are already added to frame, then
+        adding values to ankle_JC should update expected[2].
         """
         result = pycgmStatic.rotaxis_footflat(frame, ankle_JC, vsk)
         np.testing.assert_almost_equal(result[0], expected[0], rounding_precision)
@@ -937,6 +1015,18 @@ class TestPycgmStaticAxis():
         frame: dictionaries of marker lists.
         ankle_JC: array of ankle_JC each x,y,z position
         expected: the expected result from calling rotaxis_nonfootflat on frame and ankle_JC
+
+        This test is checking to make sure the foot joint center for non-flat feet is calculated correctly given the input
+        parameters. The test checks to see that the correct values in expected are updated per each input parameter added:
+        When values are only added to frame, expected[0], expected[1], expected[2][0][2], and expected[2][1][2] should
+        be updated.
+        When values are only added to ankle_JC, nothing should be updated.
+        If values are already added to frame, then adding values to ankle_JC[0] should update the values in expected[0],
+        expected[1], expected[2][0][0], and expected[2][0][1]
+        If values are already added to frame, then adding values to ankle_JC[1] should update the values in expected[0],
+        expected[1], expected[2][1][0], and expected[2][1][1]
+        If values are already added to frame, then adding values to ankle_JC[2] should update the values in expected[0],
+        expected[1], expected[2][0][0], expected[2][0][1], expected[2][1][0], and expected[2][1][1]
         """
         result = pycgmStatic.rotaxis_nonfootflat(frame, ankle_JC)
         np.testing.assert_almost_equal(result[0], expected[0], rounding_precision)
