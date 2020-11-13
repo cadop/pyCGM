@@ -106,7 +106,8 @@ class TestCSVOutput:
         
         outfile = os.path.join(self.tmp_dir_name, 'output')
         writeResult(kinematics,outfile,angles=True,axis=False)
-        expected_file = os.path.join(self.directorpycgmile, self.rounding_precision)
+        expected_file = os.path.join(self.directory_ROM,'pycgm_results.csv.csv')
+        self.compare_csv(outfile + '.csv', expected_file, self.rounding_precision)
     
     def test_59993_Frame(self):
         motion_data,static_data,vsk_data = self.load_files(self.filename_59993_Frame_dynamic, self.filename_59993_Frame_static, self.filename_59993_Frame_vsk)
