@@ -41,7 +41,8 @@ class TestPycgmStaticUtils():
         x: angle to be rotated in the x axis
         y: angle to be rotated in the y axis
         z: angle to be rotated in the z axis
-        expected: the expected result from calling rotmat on x, y, and z
+        expected: the expected rotation matrix from calling rotmat on x, y, and z. This will be a transformation
+        matrix that can be used to perform a rotation in the x, y, and z directions at the values inputted.
         """
         result = pycgmStatic.rotmat(x, y, z)
         np.testing.assert_almost_equal(result, expected, rounding_precision)
@@ -51,7 +52,7 @@ class TestPycgmStaticUtils():
         This test provides coverage of the rotmat function in pycgmStatic.py, defined as rotmat(x, y, z)
         where x, y, and z are all floats that represent the angle of rotation in a particular dimension.
 
-        This test checks that the resulting output from calling rotmat is correct for different input data types.
+        This test checks that the resulting output from calling rotmat is correct when called with ints or floats.
          """
         result_int = pycgmStatic.rotmat(0, 150, -30)
         result_float = pycgmStatic.rotmat(0.0, 150.0, -30.0)
@@ -420,7 +421,7 @@ class TestPycgmStaticUtils():
 
         This test takes 2 parameters:
         v: 3D vector
-        expected: the expected result from calling norm2d on v
+        expected: the expected result from calling norm2d on v. This will be the value of the normalization of vector v.
         """
         result = pycgmStatic.norm2d(v)
         np.testing.assert_almost_equal(result, expected, rounding_precision)
@@ -429,7 +430,8 @@ class TestPycgmStaticUtils():
         """
         This test provides coverage of the norm2d function in pycgmStatic.py, defined as norm2d(v) where v is a 3D vector.
 
-        This test checks that the resulting output from calling norm2d is correct for different input data types.
+        This test checks that the resulting output from calling norm2d is correct when called with a list of ints, a
+        numpy array of ints, a list of floats, and a numpy array of floats.
         """
         v_int = [6, 0, -8]
         v_float = [6.0, 0, -8.0]
@@ -467,7 +469,8 @@ class TestPycgmStaticUtils():
 
         This test takes 2 parameters:
         v: 3D vector
-        expected: the expected result from calling norm3d on v
+        expected: the expected result from calling norm3d on v. This will be the normalization of the vector v,
+        inside of a numpy array.
         """
         result = pycgmStatic.norm3d(v)
         np.testing.assert_almost_equal(result, expected, rounding_precision)
@@ -476,7 +479,8 @@ class TestPycgmStaticUtils():
         """
         This test provides coverage of the norm3d function in pycgmStatic.py, defined as norm3d(v) where v is a 3D vector.
 
-        This test checks that the resulting output from calling norm3d is correct for different input data types.
+        This test checks that the resulting output from calling norm3d is correct when called with a list of ints, a
+        numpy array of ints, a list of floats, and a numpy array of floats.
         """
         v_int = [-6, 0, 8]
         v_float = [-6.0, 0, 8.0]
@@ -513,7 +517,8 @@ class TestPycgmStaticUtils():
         This test takes 3 parameters:
         A: a matrix, 2D array format
         B: a matrix, 2D array format
-        expected: the expected result from calling matrixmult on A and B
+        expected: the expected matrix from calling matrixmult on A and B. This is the result of multiplying the two
+        matrices A and B.
         """
         result = pycgmStatic.matrixmult(A, B)
         np.testing.assert_almost_equal(result, expected, rounding_precision)
@@ -523,7 +528,8 @@ class TestPycgmStaticUtils():
         This test provides coverage of the matrixmult function in pycgmStatic.py, defined as matrixmult(a, b)
         where a and b are both lists that represent a matrix to be multiplied.
 
-        This test checks that the resulting output from calling matrixmult is correct for different input data types.
+        This test checks that the resulting output from calling matrixmult is correct when called with a list of ints,
+        a numpy array of ints, a list of floats, and a numpy array of floats.
         """
         A_int = [[1, 2, 0], [0, 1, 2]]
         B_int = [[2, 1], [1, 4]]
@@ -565,7 +571,8 @@ class TestPycgmStaticUtils():
         This test takes 3 parameters:
         a: 3D vector
         b: 3D vector
-        expected: the expected result from calling cross on a and b
+        expected: the expected result from calling cross on a and b. This result is the cross product of the vectors
+        a and b.
         """
         result = pycgmStatic.cross(a, b)
         np.testing.assert_almost_equal(result, expected, rounding_precision)
@@ -574,7 +581,8 @@ class TestPycgmStaticUtils():
         """
         This test provides coverage of the cross function in pycgmStatic.py, defined as cross(a, b) where a and b are both 3D vectors.
 
-        This test checks that the resulting output from calling cross is correct for different input data types.
+        This test checks that the resulting output from calling cross is correct when called with a list of ints, a numpy
+        array of ints, a list of floats, and a numpy array of floats.
         """
         A_int = [-2, 3, 1]
         A_float = [-2.0, 3.0, 1.0]
