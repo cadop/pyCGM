@@ -53,7 +53,7 @@ def butterFilter(data, cutoff, Fs):
     First, we create a sin wave and add noise to it.
 
     >>> from numpy import arange, around, pi, random, shape, sin
-    >>> Fs = 360
+    >>> Fs = 360.0
     >>> t = 1
     >>> x = arange(0,t,1/Fs)
     >>> f = 10
@@ -247,11 +247,12 @@ def clearMarker(data,name):
     ... {'LTIL': np.array([-273.1545105 ,  324.53512573,   36.17036057]),
     ... 'RFOP': np.array([ -38.4509964 , -148.6839447 ,   59.21961594])}]
     >>> name = 'LTIL'
-    >>> clearMarker(data, name) #doctest: +NORMALIZE_WHITESPACE
-    [{'LTIL': array([nan, nan, nan]), 
-    'RFOP': array([ -38.4509964 , -148.6839447 ,   59.21961594])}, 
-    {'LTIL': array([nan, nan, nan]), 
-    'RFOP': array([ -38.4509964 , -148.6839447 ,   59.21961594])}]
+    >>> cleared = clearMarker(data, name)
+    >>> [sorted(cleared[0].items()), sorted(cleared[1].items())] # doctest: +NORMALIZE_WHITESPACE
+    [[('LTIL', array([nan, nan, nan])),
+    ('RFOP', array([ -38.4509964 , -148.6839447 ,   59.21961594]))],
+    [('LTIL', array([nan, nan, nan])),
+    ('RFOP', array([ -38.4509964 , -148.6839447 ,   59.21961594]))]]
     """
     for i in range(len(data)):
         data[i][name] = np.array([np.nan,np.nan,np.nan])
