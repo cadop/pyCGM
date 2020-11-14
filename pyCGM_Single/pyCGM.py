@@ -95,7 +95,7 @@ def pelvisJointCenter(frame):
         RPSI = frame['RPSI']    
         LPSI = frame['LPSI'] 
         #  If no sacrum, mean of posterior markers is used as the sacrum
-        sacrum = (RPSI+LPSI)/2  
+        sacrum = (RPSI+LPSI)/2.0
     except:
         pass #going to use sacrum marker
 
@@ -108,7 +108,7 @@ def pelvisJointCenter(frame):
     # sacrum 
     
     # Origin is Midpoint between RASI and LASI
-    origin = (RASI+LASI)/2
+    origin = (RASI+LASI)/2.0
           
     # This calculate the each axis
     # beta1,2,3 is arbitrary name to help calculate.
@@ -300,7 +300,7 @@ def hipAxisCenter(l_hip_jc,r_hip_jc,pelvis_axis):
     """
     
     # Get shared hip axis, it is inbetween the two hip joint centers
-    hipaxis_center = [(r_hip_jc[0]+l_hip_jc[0])/2,(r_hip_jc[1]+l_hip_jc[1])/2,(r_hip_jc[2]+l_hip_jc[2])/2]
+    hipaxis_center = [(r_hip_jc[0]+l_hip_jc[0])/2.0,(r_hip_jc[1]+l_hip_jc[1])/2.0,(r_hip_jc[2]+l_hip_jc[2])/2.0]
   
     #convert pelvis_axis to x,y,z axis to use more easy
     pelvis_x_axis = np.subtract(pelvis_axis[1][0],pelvis_axis[0])
@@ -1999,7 +1999,7 @@ def findJointC(a, b, c, delta):
     v3_div = norm2d(v3)
     v3 = [v3[0]/v3_div,v3[1]/v3_div,v3[2]/v3_div]
     
-    m = [(b[0]+c[0])/2,(b[1]+c[1])/2,(b[2]+c[2])/2]
+    m = [(b[0]+c[0])/2.0,(b[1]+c[1])/2.0,(b[2]+c[2])/2.0]
     length = np.subtract(b,m)
     length = norm2d(length)
 
