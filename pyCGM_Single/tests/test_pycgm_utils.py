@@ -11,6 +11,7 @@ class TestUtils():
     cross
     norm2d
     norm3d
+    normDiv
     matrixmult
     rotmat
     """
