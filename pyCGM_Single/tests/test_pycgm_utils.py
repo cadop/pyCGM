@@ -216,10 +216,63 @@ class TestUtils():
         result_float_nparray = pyCGM.norm3d(np.array(v_float, dtype='float'))
         np.testing.assert_almost_equal(result_float_nparray, expected, rounding_precision)
 
+    @pytest.mark.parametrize(["v", "expected"], [
+        ([-212.5847168, 28.09841919, -4.15808105], np.array([-4.62150006e-03,  6.10847515e-04, -9.03948887e-05])),
+        ([0, 0, 0], np.array([np.nan, np.nan, np.nan])),
+        ([2, 0, 0], np.array([0.5, 0, 0])),
+        ([0, 0, -1], np.array([0, 0, -1])),
+        ([0, 3, 4], np.array([0, 0.12, 0.16])),
+        ([-3, 0, 4], np.array([-0.12, 0, 0.16])),
+        ([-6, 8, 0], np.array([-0.06, 0.08, 0])),
+        ([-5, 0, -12], np.array([-0.0295858, 0, -0.07100592])),
+        ([1, -1, np.sqrt(2)], np.array([0.25, -0.25, 0.35355339]))
+    ])
+    def test_normDiv(self, v, expected):
+        """
+        This test provides coverage of the normDiv function in pyCGM.py, defined as normDiv(v) where v is a 3D vector.
+
+        This test takes 2 parameters:
+        v: 3D vector
+        expected: the expected result from calling norm3d on v. This function returns the wrong result. It is supposed
+        to return the normalization division, but in the function it divides the vector by the normalization twice.
+        """
+        result = pyCGM.normDiv(v)
+        np.testing.assert_almost_equal(result, expected, rounding_precision)
+
+    def test_norm3d_datatypes(self):
+        """
+        This test provides coverage of the normDiv function in pyCGM.py, defined as normDiv(v) where v is a 3D vector.
+
+        This test checks that the resulting output from calling normDiv is correct when called with a list of ints, a
+        numpy array of ints, a list of floats, and a numpy array of floats.
+        """
+        v_int = [-6, 0, 8]
+        v_float = [-6.0, 0, 8.0]
+        expected = np.array([-0.06, 0, 0.08])
+
+        # Check the calling normDiv on a list of ints yields the expected results
+        result_int_list = pyCGM.normDiv(v_int)
+        np.testing.assert_almost_equal(result_int_list, expected, rounding_precision)
+
+        # Check the calling normDiv on a numpy array of ints yields the expected results
+        result_int_nparray = pyCGM.normDiv(np.array(v_int, dtype='int'))
+        np.testing.assert_almost_equal(result_int_nparray, expected, rounding_precision)
+
+        # Check the calling normDiv on a list of floats yields the expected results
+        result_float_list = pyCGM.normDiv(v_float)
+        np.testing.assert_almost_equal(result_float_list, expected, rounding_precision)
+
+        # Check the calling normDiv on a numpy array of floats yields the expected results
+        result_float_nparray = pyCGM.normDiv(np.array(v_float, dtype='float'))
+        np.testing.assert_almost_equal(result_float_nparray, expected, rounding_precision)
+
     @pytest.mark.parametrize(["A", "B", "expected"], [
         ([[1, 0, 0], [0, 1.0, -0.0], [0, 0.0, 1.0]], [[1.0, 0, 0.0], [0, 1, 0], [-0.0, 0, 1.0]], [[1.0, 0, 0.0], [0.0, 1.0, 0.0], [0.0, 0.0, 1.0]]),
         ([[1]], [[1]], [[1]]),
+        # Invalid matrix dimensions
+        ([[1, 2]], [[1]], [[1]]),
         ([[2], [1]], [[1, 2]], [[2, 4], [1, 2]]),
+        # Invalid matrix dimensions
         ([[1, 2, 0], [0, 1, 2]], [[2, 1], [1, 4]], [[4, 9], [1, 4]]),
         ([[11, 12, 13], [14, 15, 16]], [[1, 2], [3, 4], [5, 6]], [[112, 148], [139, 184]]),
         ([[1, 2, 3], [4, 5, 6]], [[7, 8], [9, 10], [11, 12]], [[58, 64], [139, 154]])
@@ -233,7 +286,9 @@ class TestUtils():
         A: a matrix, 2D array format
         B: a matrix, 2D array format
         expected: the expected matrix from calling matrixmult on A and B. This is the result of multiplying the two
-        matrices A and B.
+        matrices A and B. It gives the correct result for multiplying two valid matrices, but still gives a result
+        in some cases when the two matrices can't be multiplied. For two matrices to be multiplied, len(A[0]) need to
+        be equal to len(B), but this function gives an output even when this isn't true
         """
         result = pyCGM.matrixmult(A, B)
         np.testing.assert_almost_equal(result, expected, rounding_precision)
