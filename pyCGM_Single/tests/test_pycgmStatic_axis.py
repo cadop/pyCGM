@@ -51,6 +51,18 @@ class TestPycgmStaticAxis():
          0.7853981633974483),
         # Testing when values are added to head
         ([[[-1, 8, 9], [7, 5, 7], [3, -6, -2]], [-4, 7, 8]],
+         -0.09966865249116204),
+        # Testing that when head is composed of lists of ints
+        ([[[-1, 8, 9], [7, 5, 7], [3, -6, -2]], [-4, 7, 8]],
+         -0.09966865249116204),
+        # Testing that when head is composed of numpy arrays of ints
+        ([np.array([[-1, 8, 9], [7, 5, 7], [3, -6, -2]], dtype='int'), np.array([-4, 7, 8], dtype='int')],
+         -0.09966865249116204),
+        # Testing that when head is composed of lists of floats
+        ([[[-1.0, 8.0, 9.0], [7.0, 5.0, 7.0], [3.0, -6.0, -2.0]], [-4.0, 7.0, 8.0]],
+         -0.09966865249116204),
+        # Testing that when head is composed of numpy arrays of floats
+        ([np.array([[-1.0, 8.0, 9.0], [7.0, 5.0, 7.0], [3.0, -6.0, -2.0]], dtype='float'), np.array([-4.0, 7.0, 8.0], dtype='float')],
          -0.09966865249116204)])
     def testStaticCalculationHead(self, head, expected):
         """
@@ -67,6 +79,9 @@ class TestPycgmStaticAxis():
         When values are only added to head[0][2], expected should return 0
         When values are only added to head[1], expected should return a value
         When multiple of these values exist, they will all play a part in the final value.
+
+        Lastly, it checks that the resulting output is correct when head is composed of lists of ints, numpy arrays of
+        ints, lists of floats, and numpy arrays of floats.
        """
         result = pycgmStatic.staticCalculationHead(None, head)
         np.testing.assert_almost_equal(result, expected, rounding_precision)
@@ -119,6 +134,32 @@ class TestPycgmStaticAxis():
           'RPSI': np.array([1, 0, -4]), 'LPSI': np.array([7, -2, 2])},
          [np.array([-6.5, -1.5, 2.0]),
           np.array([[-6.72928306, -1.61360872, 2.96670695], [-6.56593805, -2.48907071, 1.86812391], [-5.52887619, -1.59397972, 2.21928602]]),
+          np.array([-4, 8, -5])]),
+        # Testing that when frame is composed of lists of ints
+        ({'SACR': [-4, 8, -5], 'RASI': np.array([-6, 6, 3]), 'LASI': np.array([-7, -9, 1]), 'RPSI': [1, 0, -4],
+          'LPSI': [7, -2, 2]},
+         [np.array([-6.5, -1.5, 2.0]),
+          np.array([[-6.72928306, -1.61360872, 2.96670695], [-6.56593805, -2.48907071, 1.86812391], [-5.52887619, -1.59397972, 2.21928602]]),
+          np.array([-4, 8, -5])]),
+        # Testing that when frame is composed ofe numpy arrays of ints
+        ({'SACR': np.array([-4, 8, -5], dtype='int'), 'RASI': np.array([-6, 6, 3], dtype='int'),
+          'LASI': np.array([-7, -9, 1], dtype='int'), 'RPSI': np.array([1, 0, -4], dtype='int'),
+          'LPSI': np.array([7, -2, 2], dtype='int')},
+         [np.array([-6.5, -1.5, 2.0]),
+          np.array([[-6.72928306, -1.61360872, 2.96670695], [-6.56593805, -2.48907071, 1.86812391], [-5.52887619, -1.59397972, 2.21928602]]),
+          np.array([-4, 8, -5])]),
+        # Testing that when frame is composed of lists of floats
+        ({'SACR': [-4.0, 8.0, -5.0], 'RASI': np.array([-6.0, 6.0, 3.0]), 'LASI': np.array([-7.0, -9.0, 1.0]),
+          'RPSI': [1.0, 0.0, -4.0], 'LPSI': [7.0, -2.0, 2.0]},
+         [np.array([-6.5, -1.5, 2.0]),
+          np.array([[-6.72928306, -1.61360872, 2.96670695], [-6.56593805, -2.48907071, 1.86812391], [-5.52887619, -1.59397972, 2.21928602]]),
+          np.array([-4, 8, -5])]),
+        # Testing that when frame is composed of numpy arrays of floats
+        ({'SACR': np.array([-4.0, 8.0, -5.0], dtype='float'), 'RASI': np.array([-6.0, 6.0, 3.0], dtype='float'),
+          'LASI': np.array([-7.0, -9.0, 1.0], dtype='float'), 'RPSI': np.array([1.0, 0.0, -4.0], dtype='float'),
+          'LPSI': np.array([7.0, -2.0, 2.0], dtype='float')},
+         [np.array([-6.5, -1.5, 2.0]),
+          np.array([[-6.72928306, -1.61360872, 2.96670695], [-6.56593805, -2.48907071, 1.86812391], [-5.52887619, -1.59397972, 2.21928602]]),
           np.array([-4, 8, -5])])])
     def testPelvisJointCenter(self, frame, expected):
         """
@@ -134,6 +175,11 @@ class TestPycgmStaticAxis():
         When values are added to frame['SACR'], expected[2] should be updated, and expected[1] should also be updated
         if there are values for frame['RASI'] and frame['LASI']
         Values produced from frame['SACR'] takes precedent over frame['RPSI'] and frame['LPSI']
+
+        Lastly, it checks that the resulting output is correct when frame is composed of lists of ints, numpy arrays of
+        ints, lists of floats, and numpy arrays of floats. frame['LASI'] and frame['RASI'] were kept as numpy arrays
+        every time as list would cause an error in pycgmStatic.py line 632 as lists cannot be divided by floats:
+        origin = (RASI+LASI)/2.0
         """
         result = pycgmStatic.pelvisJointCenter(frame)
         np.testing.assert_almost_equal(result[0], expected[0], rounding_precision)
@@ -192,7 +238,25 @@ class TestPycgmStaticAxis():
         # Test when values are added to pel_origin, pel_x, pel_y, pel_z, and all values in vsk
         ([1, 0, -3], [-5, -3, -6], [4, -1, 2], [3, 8, 2],
          {'MeanLegLength': 15.0, 'R_AsisToTrocanterMeasure': -24.0, 'L_AsisToTrocanterMeasure': -7.0, 'InterAsisDistance': 11.0},
-         [[81.76345582,  89.67607691, 124.73321758], [-76.79709552, 107.19186562, -17.60160178]])])
+         [[81.76345582,  89.67607691, 124.73321758], [-76.79709552, 107.19186562, -17.60160178]]),
+        # Testing that when pel_origin, pel_x, pel_y, and pel_z are lists of ints and vsk values are ints
+        ([1, 0, -3], [-5, -3, -6], [4, -1, 2], [3, 8, 2],
+         {'MeanLegLength': 15, 'R_AsisToTrocanterMeasure': -24, 'L_AsisToTrocanterMeasure': -7, 'InterAsisDistance': 11},
+         [[81.76345582, 89.67607691, 124.73321758], [-76.79709552, 107.19186562, -17.60160178]]),
+        # Testing that when pel_origin, pel_x, pel_y, and pel_z are numpy arrays of ints and vsk values are ints
+        (np.array([1, 0, -3], dtype='int'), np.array([-5, -3, -6], dtype='int'), np.array([4, -1, 2], dtype='int'),
+         np.array([3, 8, 2], dtype='int'),
+         {'MeanLegLength': 15, 'R_AsisToTrocanterMeasure': -24, 'L_AsisToTrocanterMeasure': -7, 'InterAsisDistance': 11},
+         [[81.76345582, 89.67607691, 124.73321758], [-76.79709552, 107.19186562, -17.60160178]]),
+        # Testing that when pel_origin, pel_x, pel_y, and pel_z are lists of floats and vsk values are floats
+        ([1.0, 0.0, -3.0], [-5.0, -3.0, -6.0], [4.0, -1.0, 2.0], [3.0, 8.0, 2.0],
+         {'MeanLegLength': 15.0, 'R_AsisToTrocanterMeasure': -24.0, 'L_AsisToTrocanterMeasure': -7.0, 'InterAsisDistance': 11.0},
+         [[81.76345582, 89.67607691, 124.73321758], [-76.79709552, 107.19186562, -17.60160178]]),
+        # Testing that when pel_origin, pel_x, pel_y, and pel_z are numpy arrays of floats and vsk values are floats
+        (np.array([1.0, 0.0, -3.0], dtype='float'), np.array([-5.0, -3.0, -6.0], dtype='float'),
+         np.array([4.0, -1.0, 2.0], dtype='float'), np.array([3.0, 8.0, 2.0], dtype='float'),
+         {'MeanLegLength': 15.0, 'R_AsisToTrocanterMeasure': -24.0, 'L_AsisToTrocanterMeasure': -7.0, 'InterAsisDistance': 11},
+         [[81.76345582, 89.67607691, 124.73321758], [-76.79709552, 107.19186562, -17.60160178]])])
     def testHipJointCenter(self, pel_origin, pel_x, pel_y, pel_z, vsk, expected):
         """
         This test provides coverage of the hipJointCenter function in pycgmStatic.py, defined as hipJointCenter(frame, pel_origin, pel_x, pel_y, pel_z, vsk)
@@ -207,6 +271,9 @@ class TestPycgmStaticAxis():
         This test is checking to make sure the hip joint center is calculated correctly given the input parameters.
         The test checks to see that the correct values in expected are updated per each input parameter added. Any
         parameter that is added should change the value of every value in expected.
+
+        Lastly, it checks that the resulting output is correct when pel_origin, pel_x, pel_y, and pel_z are composed of
+        lists of ints, numpy arrays of ints, lists of floats, and numpy arrays of floats and vsk values are ints or floats.
         """
         result = pycgmStatic.hipJointCenter(None, pel_origin, pel_x, pel_y, pel_z, vsk)
         np.testing.assert_almost_equal(result[0], expected[0], rounding_precision)
@@ -248,6 +315,23 @@ class TestPycgmStaticAxis():
         # Testing when values are added to all params
         ([-5, 3, 8], [-3, -7, -1],
          [np.array([6, 3, 9]), np.array([[5, 4, -2], [0, 0, 0], [7, 2, 3]]), np.array(rand_coor)],
+         [[-4, -2, 3.5], [[-5, -1, -7.5], [-10, -5, -5.5], [-3, -3, -2.5]]]),
+        # Testing that when l_hip_jc, r_hip_jc, and pelvis_axis are composed of lists of ints
+        ([-5, 3, 8], [-3, -7, -1],
+         [[6, 3, 9], [[5, 4, -2], [0, 0, 0], [7, 2, 3]], rand_coor],
+         [[-4, -2, 3.5], [[-5, -1, -7.5], [-10, -5, -5.5], [-3, -3, -2.5]]]),
+        # Testing that when l_hip_jc, r_hip_jc, and pelvis_axis are composed of numpy arrays of ints
+        (np.array([-5, 3, 8], dtype='int'), np.array([-3, -7, -1], dtype='int'),
+         [np.array([6, 3, 9], dtype='int'), np.array([[5, 4, -2], [0, 0, 0], [7, 2, 3]], dtype='int'), rand_coor],
+         [[-4, -2, 3.5], [[-5, -1, -7.5], [-10, -5, -5.5], [-3, -3, -2.5]]]),
+        # Testing that when l_hip_jc, r_hip_jc, and pelvis_axis are composed of lists of floats
+        ([-5.0, 3.0, 8.0], [-3.0, -7.0, -1.0],
+         [[6.0, 3.0, 9.0], [[5.0, 4.0, -2.0], [0.0, 0.0, 0.0], [7.0, 2.0, 3.0]], rand_coor],
+         [[-4, -2, 3.5], [[-5, -1, -7.5], [-10, -5, -5.5], [-3, -3, -2.5]]]),
+        # Testing that when l_hip_jc, r_hip_jc, and pelvis_axis are composed of numpy arrays of floats
+        (np.array([-5.0, 3.0, 8.0], dtype='float'), np.array([-3.0, -7.0, -1.0], dtype='float'),
+         [np.array([6.0, 3.0, 9.0], dtype='float'),
+          np.array([[5.0, 4.0, -2.0], [0.0, 0.0, 0.0], [7.0, 2.0, 3.0]], dtype='float'), rand_coor],
          [[-4, -2, 3.5], [[-5, -1, -7.5], [-10, -5, -5.5], [-3, -3, -2.5]]])])
     def testHipAxisCenter(self, l_hip_jc, r_hip_jc, pelvis_axis, expected):
         """
@@ -262,6 +346,9 @@ class TestPycgmStaticAxis():
         The test checks to see that the correct values in expected are updated per each input parameter added:
         When values are added to l_hip_jc or r_hip_jc, every value in expected should be updated
         When values are added to pelvis_axis, expected[1] should be updated
+
+        Lastly, it checks that the resulting output is correct when l_hip_jc, r_hip_jc, and pelvis_axis are composed of
+        lists of ints, numpy arrays of ints, lists of floats, and numpy arrays of floats.
         """
         result = pycgmStatic.hipAxisCenter(l_hip_jc, r_hip_jc, pelvis_axis)
         np.testing.assert_almost_equal(result[0], expected[0], rounding_precision)
@@ -354,6 +441,44 @@ class TestPycgmStaticAxis():
          [[[1, 2, 4], [1, -9, 2], [8, -4, 5], 11.5], [[-1, 0, 8], [-8, 8, -2], [8, -8, 5], 4.0]],
          [np.array([-5, -5, -9]), np.array([3, -6, -5]),
           np.array([[[-5.65539698, -5.75053525, -8.91543265], [-4.39803462, -5.58669523, -9.54168847], [-4.54382845, -5.30411437, -8.16368549]],
+                    [[2.57620655, -6.14126448, -5.89467506], [2.32975119, -6.6154814, -4.58533245], [2.39076635, -5.22461171, -4.83384537]]])]),
+        # Testing that when hip_JC is composed of lists of ints and vsk values are ints
+        ({'RTHI': np.array([1, 2, 4]), 'LTHI': np.array([-1, 0, 8]), 'RKNE': np.array([8, -4, 5]), 'LKNE': np.array([8, -8, 5])},
+         [[-8, 8, -2], [1, -9, 2]],
+         {'RightKneeWidth': 9, 'LeftKneeWidth': -6},
+         [np.array([-5, -5, -9]), np.array([3, -6, -5])],
+         [[[1, 2, 4], [1, -9, 2], [8, -4, 5], 11.5], [[-1, 0, 8], [-8, 8, -2], [8, -8, 5], 4.0]],
+         [np.array([-5, -5, -9]), np.array([3, -6, -5]),
+          np.array([[[-5.65539698, -5.75053525, -8.91543265], [-4.39803462, -5.58669523, -9.54168847], [-4.54382845, -5.30411437, -8.16368549]],
+                    [[2.57620655, -6.14126448, -5.89467506], [2.32975119, -6.6154814, -4.58533245], [2.39076635, -5.22461171, -4.83384537]]])]),
+        # Testing that when hip_JC is composed of numpy arrays of ints and vsk values are ints
+        ({'RTHI': np.array([1, 2, 4], dtype='int'), 'LTHI': np.array([-1, 0, 8], dtype='int'),
+          'RKNE': np.array([8, -4, 5], dtype='int'), 'LKNE': np.array([8, -8, 5], dtype='int')},
+         np.array([[-8, 8, -2], [1, -9, 2]], dtype='int'),
+         {'RightKneeWidth': 9, 'LeftKneeWidth': -6},
+         [np.array([-5, -5, -9]), np.array([3, -6, -5])],
+         [[[1, 2, 4], [1, -9, 2], [8, -4, 5], 11.5], [[-1, 0, 8], [-8, 8, -2], [8, -8, 5], 4.0]],
+         [np.array([-5, -5, -9]), np.array([3, -6, -5]),
+          np.array([[[-5.65539698, -5.75053525, -8.91543265], [-4.39803462, -5.58669523, -9.54168847], [-4.54382845, -5.30411437, -8.16368549]],
+                    [[2.57620655, -6.14126448, -5.89467506], [2.32975119, -6.6154814, -4.58533245], [2.39076635, -5.22461171, -4.83384537]]])]),
+        # Testing that when hip_JC is composed of lists of floats and vsk values are floats
+        ({'RTHI': np.array([1, 2, 4]), 'LTHI': np.array([-1, 0, 8]), 'RKNE': np.array([8, -4, 5]), 'LKNE': np.array([8, -8, 5])},
+         [[-8.0, 8.0, -2.0], [1.0, -9.0, 2.0]],
+         {'RightKneeWidth': 9.0, 'LeftKneeWidth': -6.0},
+         [np.array([-5, -5, -9]), np.array([3, -6, -5])],
+         [[[1, 2, 4], [1, -9, 2], [8, -4, 5], 11.5], [[-1, 0, 8], [-8, 8, -2], [8, -8, 5], 4.0]],
+         [np.array([-5, -5, -9]), np.array([3, -6, -5]),
+          np.array([[[-5.65539698, -5.75053525, -8.91543265], [-4.39803462, -5.58669523, -9.54168847], [-4.54382845, -5.30411437, -8.16368549]],
+                    [[2.57620655, -6.14126448, -5.89467506], [2.32975119, -6.6154814, -4.58533245], [2.39076635, -5.22461171, -4.83384537]]])]),
+        # Testing that when hip_JC is composed of numpy arrays of floats and vsk values are floats
+        ({'RTHI': np.array([1.0, 2.0, 4.0], dtype='float'), 'LTHI': np.array([-1.0, 0.0, 8.0], dtype='float'),
+          'RKNE': np.array([8.0, -4.0, 5.0], dtype='float'), 'LKNE': np.array([8.0, -8.0, 5.0], dtype='float')},
+         np.array([[-8.0, 8.0, -2.0], [1.0, -9.0, 2.0]], dtype='int'),
+         {'RightKneeWidth': 9.0, 'LeftKneeWidth': -6.0},
+         [np.array([-5, -5, -9]), np.array([3, -6, -5])],
+         [[[1, 2, 4], [1, -9, 2], [8, -4, 5], 11.5], [[-1, 0, 8], [-8, 8, -2], [8, -8, 5], 4.0]],
+         [np.array([-5, -5, -9]), np.array([3, -6, -5]),
+          np.array([[[-5.65539698, -5.75053525, -8.91543265], [-4.39803462, -5.58669523, -9.54168847], [-4.54382845, -5.30411437, -8.16368549]],
                     [[2.57620655, -6.14126448, -5.89467506], [2.32975119, -6.6154814, -4.58533245], [2.39076635, -5.22461171, -4.83384537]]])])])
     def testKneeJointCenter(self, frame, hip_JC, vsk, mockReturnVal, expectedMockArgs, expected):
         """
@@ -377,6 +502,13 @@ class TestPycgmStaticAxis():
         expected[2][1][2] should be updated, unless values are also added to frame, then expected[2] should be updated
         When values are added to vsk, expectedMockArgs[0][3], and expectedMockArgs[1][3] should be updated
         When values are added to mockReturnVal, expected[0], expected[2][0][2], and expected[2][1][2] should be updated
+
+        Lastly, it checks that the resulting output is correct when hip_JC is composed of lists of ints, numpy arrays of
+        ints, lists of floats, and numpy arrays of floats and vsk values are ints and floats. The values in frame were
+        kept as numpy arrays as lists would cause an error in pycgmStatic.py line 934 and 953 as lists cannot be subtracted
+        by each other:
+        thi_kne_R = RTHI-RKNE
+        thi_kne_L = LTHI-LKNE
         """
         with patch.object(pycgmStatic, 'findJointC', side_effect=mockReturnVal) as mock_findJointC:
             result = pycgmStatic.kneeJointCenter(frame, hip_JC, None, vsk)
@@ -506,6 +638,50 @@ class TestPycgmStaticAxis():
           [[0, 2, -1], [9, -8, 9], [2, -4, -5], 16.0]],
          [np.array([2, -5, 4]), np.array([8, -3, 1]),
           [[np.array([1.48891678, -5.83482493, 3.7953997 ]), np.array([1.73661348, -5.07447603, 4.96181124]), np.array([1.18181818, -4.45454545, 3.81818182])],
+           [np.array([8.87317138, -2.54514024, 1.17514093]), np.array([7.52412119, -2.28213872, 1.50814815]), np.array([8.10540926, -3.52704628, 1.84327404])]]]),
+        # Testing that when knee_JC is composed of lists of ints and vsk values are ints
+        ({'RTIB': np.array([-9, 6, -9]), 'LTIB': np.array([0, 2, -1]), 'RANK': np.array([1, 0, -5]), 'LANK': np.array([2, -4, -5])},
+         [[-7, 1, 2], [9, -8, 9],
+          np.array([[rand_coor, rand_coor, rand_coor], [rand_coor, rand_coor, rand_coor]])],
+         {'RightAnkleWidth': -38, 'LeftAnkleWidth': 18, 'RightTibialTorsion': 29, 'LeftTibialTorsion': -13},
+         [np.array([2, -5, 4]), np.array([8, -3, 1])],
+         [[[-9, 6, -9], [-7, 1, 2], [1, 0, -5], -12.0],
+          [[0, 2, -1], [9, -8, 9], [2, -4, -5], 16.0]],
+         [np.array([2, -5, 4]), np.array([8, -3, 1]),
+          [[np.array([1.48891678, -5.83482493, 3.7953997]), np.array([1.73661348, -5.07447603, 4.96181124]), np.array([1.18181818, -4.45454545, 3.81818182])],
+           [np.array([8.87317138, -2.54514024, 1.17514093]), np.array([7.52412119, -2.28213872, 1.50814815]), np.array([8.10540926, -3.52704628, 1.84327404])]]]),
+        # Testing that when knee_JC is composed of numpy arrays of ints and vsk values are ints
+        ({'RTIB': np.array([-9, 6, -9]), 'LTIB': np.array([0, 2, -1]), 'RANK': np.array([1, 0, -5]), 'LANK': np.array([2, -4, -5])},
+         [np.array([-7, 1, 2], dtype='int'), np.array([9, -8, 9], dtype='int'),
+          np.array([[rand_coor, rand_coor, rand_coor], [rand_coor, rand_coor, rand_coor]])],
+         {'RightAnkleWidth': -38, 'LeftAnkleWidth': 18, 'RightTibialTorsion': 29, 'LeftTibialTorsion': -13},
+         [np.array([2, -5, 4]), np.array([8, -3, 1])],
+         [[[-9, 6, -9], [-7, 1, 2], [1, 0, -5], -12.0],
+          [[0, 2, -1], [9, -8, 9], [2, -4, -5], 16.0]],
+         [np.array([2, -5, 4]), np.array([8, -3, 1]),
+          [[np.array([1.48891678, -5.83482493, 3.7953997]), np.array([1.73661348, -5.07447603, 4.96181124]), np.array([1.18181818, -4.45454545, 3.81818182])],
+           [np.array([8.87317138, -2.54514024, 1.17514093]), np.array([7.52412119, -2.28213872, 1.50814815]), np.array([8.10540926, -3.52704628, 1.84327404])]]]),
+        # Testing that when knee_JC is composed of lists of floats and vsk values are floats
+        ({'RTIB': np.array([-9.0, 6.0, -9.0]), 'LTIB': np.array([0.0, 2.0, -1.0]), 'RANK': np.array([1.0, 0.0, -5.0]), 'LANK': np.array([2.0, -4.0, -5.0])},
+         [[-7.0, 1.0, 2.0], [9.0, -8.0, 9.0],
+          np.array([[rand_coor, rand_coor, rand_coor], [rand_coor, rand_coor, rand_coor]])],
+         {'RightAnkleWidth': -38.0, 'LeftAnkleWidth': 18.0, 'RightTibialTorsion': 29.0, 'LeftTibialTorsion': -13.0},
+         [np.array([2, -5, 4]), np.array([8, -3, 1])],
+         [[[-9, 6, -9], [-7, 1, 2], [1, 0, -5], -12.0],
+          [[0, 2, -1], [9, -8, 9], [2, -4, -5], 16.0]],
+         [np.array([2, -5, 4]), np.array([8, -3, 1]),
+          [[np.array([1.48891678, -5.83482493, 3.7953997]), np.array([1.73661348, -5.07447603, 4.96181124]),  np.array([1.18181818, -4.45454545, 3.81818182])],
+           [np.array([8.87317138, -2.54514024, 1.17514093]), np.array([7.52412119, -2.28213872, 1.50814815]), np.array([8.10540926, -3.52704628, 1.84327404])]]]),
+        # Testing that when knee_JC is composed of numpy arrays of floats and vsk values are floats
+        ({'RTIB': np.array([-9.0, 6.0, -9.0]), 'LTIB': np.array([0.0, 2.0, -1.0]), 'RANK': np.array([1.0, 0.0, -5.0]), 'LANK': np.array([2.0, -4.0, -5.0])},
+         [np.array([-7.0, 1.0, 2.0], dtype='float'), np.array([9.0, -8.0, 9.0], dtype='float'),
+          np.array([[rand_coor, rand_coor, rand_coor], [rand_coor, rand_coor, rand_coor]], dtype='float')],
+         {'RightAnkleWidth': -38.0, 'LeftAnkleWidth': 18.0, 'RightTibialTorsion': 29.0, 'LeftTibialTorsion': -13.0},
+         [np.array([2, -5, 4]), np.array([8, -3, 1])],
+         [[[-9, 6, -9], [-7, 1, 2], [1, 0, -5], -12.0],
+          [[0, 2, -1], [9, -8, 9], [2, -4, -5], 16.0]],
+         [np.array([2, -5, 4]), np.array([8, -3, 1]),
+          [[np.array([1.48891678, -5.83482493, 3.7953997]), np.array([1.73661348, -5.07447603, 4.96181124]), np.array([1.18181818, -4.45454545, 3.81818182])],
            [np.array([8.87317138, -2.54514024, 1.17514093]), np.array([7.52412119, -2.28213872, 1.50814815]), np.array([8.10540926, -3.52704628, 1.84327404])]]])])
     def testAnkleJointCenter(self, frame, knee_JC, vsk, mockReturnVal, expectedMockArgs, expected):
         """
@@ -529,6 +705,13 @@ class TestPycgmStaticAxis():
         expected[2][1][2] should be updated, unless values are also added to frame, then all of expected should be updated
         When values are added to vsk, expectedMockArgs[0][3], and expectedMockArgs[1][3] should be updated
         When values are added to mockReturnVal, expected[0], expected[2][0][2], and expected[2][1][2] should be updated
+
+        Lastly, it checks that the resulting output is correct when knee_JC is composed of lists of ints, numpy arrays
+        of ints, lists of floats, and numpy arrays of floats and vsk values are ints and floats. The values in frame
+        were kept as numpy arrays as lists would cause an error in pycgmStatic.py line 1102 and 1118 as lists cannot be
+        subtracted by each other:
+        tib_ank_R = tib_R-ank_R
+        tib_ank_L = tib_L-ank_L
         """
         with patch.object(pycgmStatic, 'findJointC', side_effect=mockReturnVal) as mock_findJointC:
             result = pycgmStatic.ankleJointCenter(frame, knee_JC, None, vsk)
@@ -640,6 +823,43 @@ class TestPycgmStaticAxis():
            [np.array(nan_3d), np.array([1, -6, 8]), np.array(nan_3d)]]],
          [np.array([-1, -1, -5]), np.array([-5, -6, 1]),
           np.array([[[-0.17456964188738444, -0.44190534702217665, -4.915176169482615], [-1.564451151846412, -0.1819624820720035, -4.889503319319258], [-1.0077214691178664, -1.139086223544123, -4.009749828914483]],
+                    [[-4.638059331793927, -6.864633064377841, 0.6515626072260268], [-4.6226610672854616, -5.522323332954951, 0.2066272429566376], [-4.147583269429562, -5.844325128086398, 1.4991503297587707]]])]),
+        # Testing that when frame, static_info and ankle_JC are composed of lists of ints
+        ({'RTOE': [-1, -1, -5], 'LTOE': [-5, -6, 1]},
+         [[-6, 7, np.random.randint(0, 10)], [2, -9, np.random.randint(0, 10)]],
+         [[6, 0, 3], [1, 4, -3],
+          [[nan_3d, [-2, 8, 5], nan_3d],
+           [nan_3d, [1, -6, 8], nan_3d]]],
+         [np.array([-1, -1, -5]), np.array([-5, -6, 1]),
+          np.array([[[-0.17456964188738444, -0.44190534702217665, -4.915176169482615], [-1.564451151846412, -0.1819624820720035, -4.889503319319258], [-1.0077214691178664, -1.139086223544123, -4.009749828914483]],
+                    [[-4.638059331793927, -6.864633064377841, 0.6515626072260268], [-4.6226610672854616, -5.522323332954951, 0.2066272429566376], [-4.147583269429562, -5.844325128086398, 1.4991503297587707]]])]),
+        # Testing that when frame, static_info and ankle_JC are composed of numpy arrays of ints
+        ({'RTOE': np.array([-1, -1, -5], dtype='int'), 'LTOE': np.array([-5, -6, 1], dtype='int')},
+         [np.array([-6, 7, np.random.randint(0, 10)], dtype='int'), np.array([2, -9, np.random.randint(0, 10)], dtype='int')],
+         [np.array([6, 0, 3], dtype='int'), np.array([1, 4, -3], dtype='int'),
+          [[np.array(nan_3d), np.array([-2, 8, 5], dtype='int'), np.array(nan_3d)],
+           [np.array(nan_3d), np.array([1, -6, 8], dtype='int'), np.array(nan_3d)]]],
+         [np.array([-1, -1, -5]), np.array([-5, -6, 1]),
+          np.array([[[-0.17456964188738444, -0.44190534702217665, -4.915176169482615], [-1.564451151846412, -0.1819624820720035, -4.889503319319258], [-1.0077214691178664, -1.139086223544123, -4.009749828914483]],
+                    [[-4.638059331793927, -6.864633064377841, 0.6515626072260268], [-4.6226610672854616, -5.522323332954951, 0.2066272429566376], [-4.147583269429562, -5.844325128086398, 1.4991503297587707]]])]),
+        # Testing that when frame, static_info and ankle_JC are composed of lists of floats
+        ({'RTOE': [-1.0, -1.0, -5.0], 'LTOE': [-5.0, -6.0, 1.0]},
+         [[-6.0, 7.0, np.random.randint(0, 10)], [2.0, -9.0, np.random.randint(0, 10)]],
+         [[6.0, 0.0, 3.0], [1.0, 4.0, -3.0],
+          [[nan_3d, [-2.0, 8.0, 5.0], nan_3d],
+           [nan_3d, [1.0, -6.0, 8.0], nan_3d]]],
+         [np.array([-1, -1, -5]), np.array([-5, -6, 1]),
+          np.array([[[-0.17456964188738444, -0.44190534702217665, -4.915176169482615], [-1.564451151846412, -0.1819624820720035, -4.889503319319258], [-1.0077214691178664, -1.139086223544123, -4.009749828914483]],
+                    [[-4.638059331793927, -6.864633064377841, 0.6515626072260268], [-4.6226610672854616, -5.522323332954951, 0.2066272429566376], [-4.147583269429562, -5.844325128086398, 1.4991503297587707]]])]),
+        # Testing that when frame, static_info and ankle_JC are composed of numpy arrays of floats
+        ({'RTOE': np.array([-1.0, -1.0, -5.0], dtype='float'), 'LTOE': np.array([-5.0, -6.0, 1.0], dtype='float')},
+         [np.array([-6.0, 7.0, np.random.randint(0, 10)], dtype='float'),
+          np.array([2.0, -9.0, np.random.randint(0, 10)], dtype='float')],
+         [np.array([6.0, 0.0, 3.0], dtype='float'), np.array([1.0, 4.0, -3.0], dtype='float'),
+          [[np.array(nan_3d), np.array([-2.0, 8.0, 5.0], dtype='float'), np.array(nan_3d)],
+           [np.array(nan_3d), np.array([1.0, -6.0, 8.0], dtype='float'), np.array(nan_3d)]]],
+         [np.array([-1, -1, -5]), np.array([-5, -6, 1]),
+          np.array([[[-0.17456964188738444, -0.44190534702217665, -4.915176169482615], [-1.564451151846412, -0.1819624820720035, -4.889503319319258], [-1.0077214691178664, -1.139086223544123, -4.009749828914483]],
                     [[-4.638059331793927, -6.864633064377841, 0.6515626072260268], [-4.6226610672854616, -5.522323332954951, 0.2066272429566376], [-4.147583269429562, -5.844325128086398, 1.4991503297587707]]])])])
     def testFootJointCenter(self, frame, static_info, ankle_JC, expected):
         """
@@ -689,6 +909,21 @@ class TestPycgmStaticAxis():
          [[[0.5, 2, 1.5], [1.20710678, 1, 2.20710678], [1.20710678, 1, 0.79289322]], [0.5, 1, 1.5]]),
         # Setting the z dimension value higher for LFHD and RFHD
         ({'LFHD': np.array([1, 1, 2]), 'RFHD': np.array([0, 1, 2]), 'LBHD': np.array([1, 0, 1]), 'RBHD': np.array([0, 0, 1])},
+         [[[0.5, 1.70710678, 2.70710678], [1.5, 1, 2], [0.5, 1.70710678, 1.29289322]], [0.5, 1, 2]]),
+
+        # Testing that when frame is composed of lists of ints
+        ({'LFHD': [1, 1, 2], 'RFHD': [0, 1, 2], 'LBHD': [1, 0, 1], 'RBHD': [0, 0, 1]},
+         [[[0.5, 1.70710678, 2.70710678], [1.5, 1, 2], [0.5, 1.70710678, 1.29289322]], [0.5, 1, 2]]),
+        # Testing that when frame is composed of numpy arrays of ints
+        ({'LFHD': np.array([1, 1, 2], dtype='int'), 'RFHD': np.array([0, 1, 2], dtype='int'),
+          'LBHD': np.array([1, 0, 1], dtype='int'), 'RBHD': np.array([0, 0, 1], dtype='int')},
+         [[[0.5, 1.70710678, 2.70710678], [1.5, 1, 2], [0.5, 1.70710678, 1.29289322]], [0.5, 1, 2]]),
+        # Testing that when frame is composed of lists of floats
+        ({'LFHD': [1.0, 1.0, 2.0], 'RFHD': [0.0, 1.0, 2.0], 'LBHD': [1.0, 0.0, 1.0], 'RBHD': [0.0, 0.0, 1.0]},
+         [[[0.5, 1.70710678, 2.70710678], [1.5, 1, 2], [0.5, 1.70710678, 1.29289322]], [0.5, 1, 2]]),
+        # Testing that when frame is composed of numpy arrays of floats
+        ({'LFHD': np.array([1.0, 1.0, 2.0], dtype='float'), 'RFHD': np.array([0.0, 1.0, 2.0], dtype='float'),
+          'LBHD': np.array([1.0, 0.0, 1.0], dtype='float'), 'RBHD': np.array([0.0, 0.0, 1.0], dtype='float')},
          [[[0.5, 1.70710678, 2.70710678], [1.5, 1, 2], [0.5, 1.70710678, 1.29289322]], [0.5, 1, 2]])])
     def testHeadJC(self, frame, expected):
         """
@@ -701,6 +936,9 @@ class TestPycgmStaticAxis():
         the 4 coordinates given in frame. This includes testing when there is no variance in the coordinates,
         when the coordinates are in different quadrants, when the midpoints will be on diagonals, and when the z
         dimension is variable. It also checks to see the difference when a value is set for HeadOffSet in vsk.
+
+        Lastly, it checks that the resulting output is correct when frame composed of lists of ints, numpy arrays of
+        ints, lists of floats, and numpy arrays of floats and when headOffset is an int and a float.
         """
         result = pycgmStatic.headJC(frame)
         np.testing.assert_almost_equal(result[0], expected[0], rounding_precision)
@@ -775,6 +1013,38 @@ class TestPycgmStaticAxis():
            [np.array(rand_coor), np.array([-9, 7, 4]), np.array(rand_coor)]]],
          [np.array([-7, 3, -8]), np.array([8, 0, -8]),
           [[[-6.586075309097216, 2.6732173492872757, -8.849634891853084], [-6.249026985898898, 3.6500960420576702, -7.884178291357542], [-6.485504244572473, 2.3140056594299647, -7.485504244572473]],
+           [[8.623180382731631, 0.5341546137699694, -7.428751315829338], [7.295040915019964, 0.6999344300621451, -7.885437867872096], [7.6613572692607015, -0.47409982303501746, -7.187257446225685]]]]),
+        # Testing that when frame and ankle_JC are composed of lists of ints
+        ({'RTOE': [-7, 3, -8], 'LTOE': [8, 0, -8]},
+         [[2, -9, 1], [3, -7, 4],
+          [[rand_coor, [8, -4, 2], rand_coor],
+           [rand_coor, [-9, 7, 4], rand_coor]]],
+         [np.array([-7, 3, -8]), np.array([8, 0, -8]),
+          [[[-6.586075309097216, 2.6732173492872757, -8.849634891853084], [-6.249026985898898, 3.6500960420576702, -7.884178291357542], [-6.485504244572473, 2.3140056594299647, -7.485504244572473]],
+           [[8.623180382731631, 0.5341546137699694, -7.428751315829338], [7.295040915019964, 0.6999344300621451, -7.885437867872096], [7.6613572692607015, -0.47409982303501746, -7.187257446225685]]]]),
+        # Testing that when frame and ankle_JC are composed of numpy arrays of ints
+        ({'RTOE': np.array([-7, 3, -8], dtype='int'), 'LTOE': np.array([8, 0, -8], dtype='int')},
+         [np.array([2, -9, 1], dtype='int'), np.array([3, -7, 4], dtype='int'),
+          [np.array([rand_coor, [8, -4, 2], rand_coor], dtype='int'),
+           np.array([rand_coor, [-9, 7, 4], rand_coor], dtype='int')]],
+         [np.array([-7, 3, -8]), np.array([8, 0, -8]),
+          [[[-6.586075309097216, 2.6732173492872757, -8.849634891853084], [-6.249026985898898, 3.6500960420576702, -7.884178291357542], [-6.485504244572473, 2.3140056594299647, -7.485504244572473]],
+           [[8.623180382731631, 0.5341546137699694, -7.428751315829338], [7.295040915019964, 0.6999344300621451, -7.885437867872096], [7.6613572692607015, -0.47409982303501746, -7.187257446225685]]]]),
+        # Testing that when frame and ankle_JC are composed of lists of floats
+        ({'RTOE': [-7.0, 3.0, -8.0], 'LTOE': [8.0, 0.0, -8.0]},
+         [[2.0, -9.0, 1.0], [3.0, -7.0, 4.0],
+          [[rand_coor, [8.0, -4.0, 2.0], rand_coor],
+           [rand_coor, [-9.0, 7.0, 4.0], rand_coor]]],
+         [np.array([-7, 3, -8]), np.array([8, 0, -8]),
+          [[[-6.586075309097216, 2.6732173492872757, -8.849634891853084], [-6.249026985898898, 3.6500960420576702, -7.884178291357542], [-6.485504244572473, 2.3140056594299647, -7.485504244572473]],
+           [[8.623180382731631, 0.5341546137699694, -7.428751315829338], [7.295040915019964, 0.6999344300621451, -7.885437867872096], [7.6613572692607015, -0.47409982303501746, -7.187257446225685]]]]),
+        # Testing that when frame and ankle_JC are composed of numpy arrays of floats
+        ({'RTOE': np.array([-7.0, 3.0, -8.0], dtype='float'), 'LTOE': np.array([8.0, 0.0, -8.0], dtype='float')},
+         [np.array([2.0, -9.0, 1.0], dtype='float'), np.array([3.0, -7.0, 4.0], dtype='float'),
+          [np.array([rand_coor, [8.0, -4.0, 2.0], rand_coor], dtype='float'),
+           np.array([rand_coor, [-9.0, 7.0, 4.0], rand_coor], dtype='float')]],
+         [np.array([-7, 3, -8]), np.array([8, 0, -8]),
+          [[[-6.586075309097216, 2.6732173492872757, -8.849634891853084], [-6.249026985898898, 3.6500960420576702, -7.884178291357542], [-6.485504244572473, 2.3140056594299647, -7.485504244572473]],
            [[8.623180382731631, 0.5341546137699694, -7.428751315829338], [7.295040915019964, 0.6999344300621451, -7.885437867872096], [7.6613572692607015, -0.47409982303501746, -7.187257446225685]]]])])
     def testUncorrect_footaxis(self, frame, ankle_JC, expected):
         """
@@ -794,6 +1064,9 @@ class TestPycgmStaticAxis():
         When values are only added to ankle_JC[1], expected[2][1][2] should be updated.
         When values are only added to ankle_JC[2], nothing should be updated
         If values are added to all of ankle_JC, then expected[2] should be updated.
+
+        Lastly, it checks that the resulting output is correct when frame and ankle_JC are composed of lists of ints,
+        numpy arrays of ints, lists of floats, and numpy arrays of floats.
         """
         result = pycgmStatic.uncorrect_footaxis(frame, ankle_JC)
         np.testing.assert_almost_equal(result[0], expected[0], rounding_precision)
@@ -890,7 +1163,45 @@ class TestPycgmStaticAxis():
          {'RightSoleDelta': 0.64, 'LeftSoleDelta': 0.19},
          [np.array([1, 4, -6]), np.array([4, 2, 2]),
           np.array([[[1.465329458584979, 4.0, -6.885137557090992], [1.8851375570909927, 4.0, -5.534670541415021], [1.0, 3.0, -6.0]],
-                    [[4.532940727667331, 1.7868237089330676, 2.818858992574645], [3.2397085122726565, 2.304116595090937, 2.573994730184553], [3.6286093236458963, 1.0715233091147405, 2.0]]])])])
+                    [[4.532940727667331, 1.7868237089330676, 2.818858992574645], [3.2397085122726565, 2.304116595090937, 2.573994730184553], [3.6286093236458963, 1.0715233091147405, 2.0]]])]),
+        # Testing that when thorax, shoulderJC, and wand are lists of ints
+        ({'RHEE': [1, -4, -9], 'LHEE': [2, -3, -1], 'RTOE': [1, 4, -6], 'LTOE': [4, 2, 2]},
+         [[-5, -5, -1], [5, 7, 1],
+          [[rand_coor, [9, 3, 7], rand_coor],
+           [rand_coor, [-9, 2, 9], rand_coor]]],
+         {'RightSoleDelta': 1, 'LeftSoleDelta': -1},
+         [np.array([1, 4, -6]), np.array([4, 2, 2]),
+          np.array([[[1.4472135954999579, 4.0, -6.8944271909999157], [1.894427190999916, 4.0, -5.5527864045000417], [1.0, 3.0, -6.0]],
+                    [[4.5834323811883104, 1.7666270475246759, 2.7779098415844139], [3.2777288444786272, 2.2889084622085494, 2.6283759053035944], [3.6286093236458963, 1.0715233091147407, 2.0]]])]),
+        # Testing that when thorax, shoulderJC and wand are numpy arrays of ints
+        ({'RHEE': np.array([1, -4, -9], dtype='int'), 'LHEE': np.array([2, -3, -1], dtype='int'),
+          'RTOE': np.array([1, 4, -6], dtype='int'), 'LTOE': np.array([4, 2, 2], dtype='int')},
+         [np.array([-5, -5, -1], dtype='int'), np.array([5, 7, 1], dtype='int'),
+          [np.array([rand_coor, [9, 3, 7], rand_coor], dtype='int'),
+           np.array([rand_coor, [-9, 2, 9], rand_coor], dtype='int')]],
+         {'RightSoleDelta': 1, 'LeftSoleDelta': -1},
+         [np.array([1, 4, -6]), np.array([4, 2, 2]),
+          np.array([[[1.4472135954999579, 4.0, -6.8944271909999157], [1.894427190999916, 4.0, -5.5527864045000417], [1.0, 3.0, -6.0]],
+                    [[4.5834323811883104, 1.7666270475246759, 2.7779098415844139], [3.2777288444786272, 2.2889084622085494, 2.6283759053035944], [3.6286093236458963, 1.0715233091147407, 2.0]]])]),
+        # Testing that when thorax, shoulderJC and wand are lists of floats
+        ({'RHEE': [1.0, -4.0, -9.0], 'LHEE': [2.0, -3.0, -1.0], 'RTOE': [1.0, 4.0, -6.0], 'LTOE': [4.0, 2.0, 2.0]},
+         [[-5.0, -5.0, -1.0], [5.0, 7.0, 1.0],
+          [[rand_coor, [9.0, 3.0, 7.0], rand_coor],
+           [rand_coor, [-9.0, 2.0, 9.0], rand_coor]]],
+         {'RightSoleDelta': 1.0, 'LeftSoleDelta': -1.0},
+         [np.array([1, 4, -6]), np.array([4, 2, 2]),
+          np.array([[[1.4472135954999579, 4.0, -6.8944271909999157], [1.894427190999916, 4.0, -5.5527864045000417], [1.0, 3.0, -6.0]],
+                    [[4.5834323811883104, 1.7666270475246759, 2.7779098415844139], [3.2777288444786272, 2.2889084622085494, 2.6283759053035944], [3.6286093236458963, 1.0715233091147407, 2.0]]])]),
+        # Testing that when thorax, shoulderJC and wand are numpy arrays of floats
+        ({'RHEE': np.array([1.0, -4.0, -9.0], dtype='float'), 'LHEE': np.array([2.0, -3.0, -1.0], dtype='float'),
+          'RTOE': np.array([1.0, 4.0, -6.0], dtype='float'), 'LTOE': np.array([4.0, 2.0, 2.0], dtype='float')},
+         [np.array([-5.0, -5.0, -1.0], dtype='float'), np.array([5.0, 7.0, 1.0], dtype='float'),
+          [np.array([rand_coor, [9.0, 3.0, 7.0], rand_coor], dtype='float'),
+           np.array([rand_coor, [-9.0, 2.0, 9.0], rand_coor], dtype='float')]],
+         {'RightSoleDelta': 1.0, 'LeftSoleDelta': -1.0},
+         [np.array([1, 4, -6]), np.array([4, 2, 2]),
+          np.array([[[1.4472135954999579, 4.0, -6.8944271909999157], [1.894427190999916, 4.0, -5.5527864045000417], [1.0, 3.0, -6.0]],
+                    [[4.5834323811883104, 1.7666270475246759, 2.7779098415844139], [3.2777288444786272, 2.2889084622085494, 2.6283759053035944], [3.6286093236458963, 1.0715233091147407, 2.0]]])])])
     def testRotaxis_footflat(self, frame, ankle_JC, vsk, expected):
         """
         This test provides coverage of the rotaxis_footflat function in pycgmStatic.py, defined as rotaxis_footflat(frame, ankle_JC, vsk)
@@ -931,10 +1242,8 @@ class TestPycgmStaticAxis():
             [30.873906948094536, 330.8173225172055, 42.27844159782351],
             [32.1978211099223, 330.33145619248916, 42.172681460633456]]]]),
         # Test with zeros for all params
-        ({'RTOE': np.array([0, 0, 0]),
-          'LTOE': np.array([0, 0, 0]),
-          'RHEE': np.array([0, 0, 0]),
-          'LHEE': np.array([0, 0, 0])},
+        ({'RTOE': np.array([0, 0, 0]), 'LTOE': np.array([0, 0, 0]),
+          'RHEE': np.array([0, 0, 0]), 'LHEE': np.array([0, 0, 0])},
          [np.array([0, 0, 0]), np.array([0, 0, 0]),
           [[np.array(nan_3d), np.array([0, 0, 0]), np.array(nan_3d)],
            [np.array(nan_3d), np.array([0, 0, 0]), np.array(nan_3d)]]],
@@ -942,10 +1251,8 @@ class TestPycgmStaticAxis():
           [[nan_3d, nan_3d, nan_3d],
            [nan_3d, nan_3d, nan_3d]]]),
         # Testing when values are added to frame
-        ({'RTOE': np.array([5, -2, -2]),
-          'LTOE': np.array([-2, -7, -1]),
-          'RHEE': np.array([3, 5, 9]),
-          'LHEE': np.array([-7, 6, 1])},
+        ({'RTOE': np.array([5, -2, -2]), 'LTOE': np.array([-2, -7, -1]),
+          'RHEE': np.array([3, 5, 9]), 'LHEE': np.array([-7, 6, 1])},
          [np.array([0, 0, 0]), np.array([0, 0, 0]),
           [[np.array(nan_3d), np.array([0, 0, 0]), np.array(nan_3d)],
            [np.array(nan_3d), np.array([0, 0, 0]), np.array(nan_3d)]]],
@@ -953,10 +1260,8 @@ class TestPycgmStaticAxis():
           [[nan_3d, nan_3d, [4.848380391284219, -1.4693313694947676, -1.1660921520632064]],
            [nan_3d, nan_3d, [-2.355334527259351, -6.076130229125688, -0.8578661890962597]]]]),
         # Testing when values are added to ankle_JC
-        ({'RTOE': np.array([0, 0, 0]),
-          'LTOE': np.array([0, 0, 0]),
-          'RHEE': np.array([0, 0, 0]),
-          'LHEE': np.array([0, 0, 0])},
+        ({'RTOE': np.array([0, 0, 0]), 'LTOE': np.array([0, 0, 0]),
+          'RHEE': np.array([0, 0, 0]), 'LHEE': np.array([0, 0, 0])},
          [np.array([-8, 6, 2]), np.array([3, 6, -3]),
           [[np.array(nan_3d), np.array([-7, 8, 5]), np.array(nan_3d)],
            [np.array(nan_3d), np.array([2, -7, -2]), np.array(nan_3d)]]],
@@ -964,10 +1269,8 @@ class TestPycgmStaticAxis():
           [[nan_3d, nan_3d, nan_3d],
            [nan_3d, nan_3d, nan_3d]]]),
         # Testing when values are added to frame and ankle_JC[0]
-        ({'RTOE': np.array([5, -2, -2]),
-          'LTOE': np.array([-2, -7, -1]),
-          'RHEE': np.array([3, 5, 9]),
-          'LHEE': np.array([-7, 6, 1])},
+        ({'RTOE': np.array([5, -2, -2]), 'LTOE': np.array([-2, -7, -1]),
+          'RHEE': np.array([3, 5, 9]), 'LHEE': np.array([-7, 6, 1])},
          [np.array([-8, 6, 2]), np.array([0, 0, 0]),
           [[np.array(nan_3d), np.array([0, 0, 0]), np.array(nan_3d)],
            [np.array(nan_3d), np.array([0, 0, 0]), np.array(nan_3d)]]],
@@ -975,10 +1278,8 @@ class TestPycgmStaticAxis():
           [[[4.519177631054049, -2.7767130575280747, -1.5931503031995797], [5.8636094856901915, -2.3392751550925754, -1.6270777220883264], [4.848380391284219, -1.4693313694947676, -1.1660921520632064]],
            [nan_3d, nan_3d, [-2.355334527259351, -6.076130229125688, -0.8578661890962597]]]]),
         # Testing when values are added to frame and ankle_JC[1]
-        ({'RTOE': np.array([5, -2, -2]),
-          'LTOE': np.array([-2, -7, -1]),
-          'RHEE': np.array([3, 5, 9]),
-          'LHEE': np.array([-7, 6, 1])},
+        ({'RTOE': np.array([5, -2, -2]), 'LTOE': np.array([-2, -7, -1]),
+          'RHEE': np.array([3, 5, 9]), 'LHEE': np.array([-7, 6, 1])},
          [np.array([0, 0, 0]), np.array([3, 6, -3]),
           [[np.array(nan_3d), np.array([0, 0, 0]), np.array(nan_3d)],
            [np.array(nan_3d), np.array([0, 0, 0]), np.array(nan_3d)]]],
@@ -986,10 +1287,8 @@ class TestPycgmStaticAxis():
           [[nan_3d, nan_3d, [4.848380391284219, -1.4693313694947676, -1.1660921520632064]],
            [[-2.5911479210576127, -7.104320221363108, -1.7997883637838292], [-2.7240728617802468, -7.368214526980399, -0.4167877290780265], [-2.355334527259351, -6.076130229125688, -0.8578661890962597]]]]),
         # Testing when values are added to frame and ankle_JC[2]
-        ({'RTOE': np.array([5, -2, -2]),
-          'LTOE': np.array([-2, -7, -1]),
-          'RHEE': np.array([3, 5, 9]),
-          'LHEE': np.array([-7, 6, 1])},
+        ({'RTOE': np.array([5, -2, -2]), 'LTOE': np.array([-2, -7, -1]),
+          'RHEE': np.array([3, 5, 9]), 'LHEE': np.array([-7, 6, 1])},
          [np.array([0, 0, 0]), np.array([0, 0, 0]),
           [[np.array(nan_3d), np.array([-7, 8, 5]), np.array(nan_3d)],
            [np.array(nan_3d), np.array([2, -7, -2]), np.array(nan_3d)]]],
@@ -997,13 +1296,45 @@ class TestPycgmStaticAxis():
           [[[5.578725405755168, -1.2684037323472404, -2.36033846018718], [4.198695813697202, -1.5720307186791873, -2.4180357583501166], [4.848380391284219, -1.4693313694947676, -1.1660921520632064]],
            [[-1.2572186472917923, -6.628609323645897, -1.5570860145311554], [-2.567462100766509, -7.092377551287571, -1.8182011685470592], [-2.355334527259351, -6.076130229125688, -0.8578661890962597]]]]),
         # Testing when values are added to frame and ankle_JC
-        ({'RTOE': np.array([5, -2, -2]),
-          'LTOE': np.array([-2, -7, -1]),
-          'RHEE': np.array([3, 5, 9]),
-          'LHEE': np.array([-7, 6, 1])},
+        ({'RTOE': np.array([5, -2, -2]), 'LTOE': np.array([-2, -7, -1]),
+          'RHEE': np.array([3, 5, 9]), 'LHEE': np.array([-7, 6, 1])},
          [np.array([-8, 6, 2]), np.array([3, 6, -3]),
           [[np.array(nan_3d), np.array([-7, 8, 5]), np.array(nan_3d)],
            [np.array(nan_3d), np.array([2, -7, -2]), np.array(nan_3d)]]],
+         [np.array([5, -2, -2]), np.array([-2, -7, -1]),
+          [[[5.049326362366699, -2.8385481602338833, -1.4574100139663109], [5.987207376506346, -1.8765990779367068, -1.8990356092209417], [4.848380391284219, -1.4693313694947676, -1.1660921520632064]],
+           [[-2.446949206712144, -7.0343807082086265, -1.8938984134242876], [-2.820959061315946, -7.381159564182403, -0.5748604861042421], [-2.355334527259351, -6.076130229125688, -0.8578661890962597]]]]),
+        # Testing that when thorax, shoulderJC, and wand are lists of ints
+        ({'RTOE': [5, -2, -2], 'LTOE': [-2, -7, -1], 'RHEE': [3, 5, 9], 'LHEE': [-7, 6, 1]},
+         [[-8, 6, 2], [3, 6, -3],
+          [[nan_3d, [-7, 8, 5], nan_3d],
+           [nan_3d, [2, -7, -2], nan_3d]]],
+         [np.array([5, -2, -2]), np.array([-2, -7, -1]),
+          [[[5.049326362366699, -2.8385481602338833, -1.4574100139663109], [5.987207376506346, -1.8765990779367068, -1.8990356092209417], [4.848380391284219, -1.4693313694947676, -1.1660921520632064]],
+           [[-2.446949206712144, -7.0343807082086265, -1.8938984134242876], [-2.820959061315946, -7.381159564182403, -0.5748604861042421], [-2.355334527259351, -6.076130229125688, -0.8578661890962597]]]]),
+        # Testing that when thorax, shoulderJC and wand are numpy arrays of ints
+        ({'RTOE': np.array([5, -2, -2], dtype='int'), 'LTOE': np.array([-2, -7, -1], dtype='int'),
+          'RHEE': np.array([3, 5, 9], dtype='int'), 'LHEE': np.array([-7, 6, 1], dtype='int')},
+         [np.array([-8, 6, 2], dtype='int'), np.array([3, 6, -3], dtype='int'),
+          [[np.array(nan_3d), np.array([-7, 8, 5], dtype='int'), np.array(nan_3d)],
+           [np.array(nan_3d), np.array([2, -7, -2], dtype='int'), np.array(nan_3d)]]],
+         [np.array([5, -2, -2]), np.array([-2, -7, -1]),
+          [[[5.049326362366699, -2.8385481602338833, -1.4574100139663109], [5.987207376506346, -1.8765990779367068, -1.8990356092209417], [4.848380391284219, -1.4693313694947676, -1.1660921520632064]],
+           [[-2.446949206712144, -7.0343807082086265, -1.8938984134242876], [-2.820959061315946, -7.381159564182403, -0.5748604861042421], [-2.355334527259351, -6.076130229125688, -0.8578661890962597]]]]),
+        # Testing that when thorax, shoulderJC and wand are lists of floats
+        ({'RTOE': [5.0, -2.0, -2.0], 'LTOE': [-2.0, -7.0, -1.0], 'RHEE': [3.0, 5.0, 9.0], 'LHEE': [-7.0, 6.0, 1.0]},
+         [[-8.0, 6.0, 2.0], [3.0, 6.0, -3.0],
+          [[nan_3d, [-7.0, 8.0, 5.0], nan_3d],
+           [nan_3d, [2.0, -7.0, -2.0], nan_3d]]],
+         [np.array([5, -2, -2]), np.array([-2, -7, -1]),
+          [[[5.049326362366699, -2.8385481602338833, -1.4574100139663109], [5.987207376506346, -1.8765990779367068, -1.8990356092209417], [4.848380391284219, -1.4693313694947676, -1.1660921520632064]],
+           [[-2.446949206712144, -7.0343807082086265, -1.8938984134242876], [-2.820959061315946, -7.381159564182403, -0.5748604861042421], [-2.355334527259351, -6.076130229125688, -0.8578661890962597]]]]),
+        # Testing that when thorax, shoulderJC and wand are numpy arrays of floats
+        ({'RTOE': np.array([5.0, -2.0, -2.0], dtype='float'), 'LTOE': np.array([-2.0, -7.0, -1.0], dtype='float'),
+          'RHEE': np.array([3.0, 5.0, 9.0], dtype='float'), 'LHEE': np.array([-7.0, 6.0, 1.0], dtype='float')},
+         [np.array([-8.0, 6.0, 2.0], dtype='float'), np.array([3.0, 6.0, -3.0], dtype='float'),
+          [[np.array(nan_3d), np.array([-7.0, 8.0, 5.0], dtype='float'), np.array(nan_3d)],
+           [np.array(nan_3d), np.array([2.0, -7.0, -2.0], dtype='float'), np.array(nan_3d)]]],
          [np.array([5, -2, -2]), np.array([-2, -7, -1]),
           [[[5.049326362366699, -2.8385481602338833, -1.4574100139663109], [5.987207376506346, -1.8765990779367068, -1.8990356092209417], [4.848380391284219, -1.4693313694947676, -1.1660921520632064]],
            [[-2.446949206712144, -7.0343807082086265, -1.8938984134242876], [-2.820959061315946, -7.381159564182403, -0.5748604861042421], [-2.355334527259351, -6.076130229125688, -0.8578661890962597]]]])])
@@ -1053,7 +1384,17 @@ class TestPycgmStaticAxis():
         # Testing with value in a, b, c and delta of 1
         ([-7, 1, 2], [1, 4, 3], [3, 2, -8], 1.0, [3.91270955, 2.36111526, -7.80880104]),
         # Testing with value in a, b, c and delta of 20
-        ([-7, 1, 2], [1, 4, 3], [3, 2, -8], 10.0, [5.86777669, 5.19544877, 1.031332352])])
+        ([-7, 1, 2], [1, 4, 3], [3, 2, -8], 10.0, [5.86777669, 5.19544877, 1.031332352]),
+        # Testing that when a, b, and c are lists of ints and delta is an int
+        ([-7, 1, 2], [1, 4, 3], [3, 2, -8], 10, [5.86777669, 5.19544877, 1.031332352]),
+        # Testing that when a, b, and c are numpy arrays of ints and delta is an int
+        (np.array([-7, 1, 2], dtype='int'), np.array([1, 4, 3], dtype='int'), np.array([3, 2, -8], dtype='int'),
+         10, [5.86777669, 5.19544877, 1.031332352]),
+        # Testing that when a, b, and c are lists of floats and delta is a float
+        ([-7.0, 1.0, 2.0], [1.0, 4.0, 3.0], [3.0, 2.0, -8.0], 10.0, [5.86777669, 5.19544877, 1.031332352]),
+        # Testing that when a, b, and c are numpy arrays of floats and delta is a float
+        (np.array([-7.0, 1.0, 2.0], dtype='float'), np.array([1.0, 4.0, 3.0], dtype='float'),
+         np.array([3.0, 2.0, -8.0], dtype='float'), 10.0, [5.86777669, 5.19544877, 1.031332352])])
     def testfindJointC(self, a, b, c, delta, expected):
         """
         This test provides coverage of the findJointC function in pycgmStatic.py, defined as findJointC(a, b, c, delta)
@@ -1063,6 +1404,9 @@ class TestPycgmStaticAxis():
         c: list markers of x,y,z position
         delta: length from marker to joint center, retrieved from subject measurement file
         expected: the expected result from calling findJointC on a, b, c, and delta
+
+        Lastly, it checks that the resulting output is correct when a, b, and c are lists of ints, numpy arrays of ints,
+        lists of floats, and numpy arrays of floats and delta is an int or a float.
         """
         result = pycgmStatic.findJointC(a, b, c, delta)
         np.testing.assert_almost_equal(result, expected, rounding_precision)
