@@ -17,6 +17,7 @@ class TestPycgmStaticUtils():
     getankleangle
     norm2d
     norm3d
+    normDiv
     matrixmult
     cross
     """
@@ -79,7 +80,7 @@ class TestPycgmStaticUtils():
         This test takes 3 parameters:
         p0: position of first x,y,z coordinate
         p1: position of second x,y,z coordinate
-        expected: the expected result from calling getDist on p0 and p1
+        expected: the expected result from calling getDist on p0 and p1. This will be the distance between p0 and p1
         """
         result = pycgmStatic.getDist(p0, p1)
         np.testing.assert_almost_equal(result, expected, rounding_precision)
@@ -88,7 +89,8 @@ class TestPycgmStaticUtils():
         """
         This test provides coverage of the getDist function in pycgmStatic.py, defined as getDist(p0, p1)
 
-        This test checks that the resulting output from calling getDist is correct for different input data types.
+        This test checks that the resulting output from calling getDist is correct when called with a list of ints,
+        a numpy array of ints, a list of floats, and a numpy array of floats.
         """
         p0_int = [7, -2, 5]
         p1_int = [1, -4, 9]
@@ -152,7 +154,7 @@ class TestPycgmStaticUtils():
 
         This test takes 2 parameters:
         list: list or array of values
-        expected: the expected result from calling average on list
+        expected: the expected result from calling average on list. This will be the average of the values given in list
         """
         result = pycgmStatic.average(list)
         np.testing.assert_almost_equal(result, expected, rounding_precision)
@@ -161,7 +163,8 @@ class TestPycgmStaticUtils():
         """
         This test provides coverage of the average function in pycgmStatic.py, defined as average(list)
 
-        This test checks that the resulting output from calling average is correct for different input data types.
+        This test checks that the resulting output from calling average is correct when called with a list of ints,
+        a numpy array of ints, a list of floats, and a numpy array of floats.
         """
         list_int = [-1, -2, -3, -4, -5]
         list_float = [-1.0, -2.0, -3.0, -4.0, -5.0]
@@ -271,7 +274,6 @@ class TestPycgmStaticUtils():
          {},
          [[-0.015688860223839234, 0.2703999495115947, -0.15237642705642993],
           [0.009550866847196991, 0.20242596489042683, -0.019420801722458948]]),
-
         # Testing with zeros for all params
         ({'RTOE': np.array([0, 0, 0]), 'LTOE': np.array([0, 0, 0]),
           'RHEE': np.array([0, 0, 0]), 'LHEE': np.array([0, 0, 0])},
@@ -316,7 +318,7 @@ class TestPycgmStaticUtils():
            [np.array(rand_coor), np.array([-5, 6, 9]), np.array(rand_coor)]]],
          False,
          {},
-         [[-0.590828, -0.802097, -0.554384], [ 0.955226,  0.156745,  0.166848]]),
+         [[-0.590828, -0.802097, -0.554384], [0.955226, 0.156745, 0.166848]]),
         # Testing with values for frame, ankle_JC, and vsk
         ({'RTOE': np.array([1, -4, -1]), 'LTOE': np.array([1, -1, -5]),
           'RHEE': np.array([1, -7, -4]), 'LHEE': np.array([-6, -5, 1])},
@@ -334,7 +336,45 @@ class TestPycgmStaticUtils():
            [np.array(rand_coor), np.array([-5, 6, 9]), np.array(rand_coor)]]],
          True,
          {'RightSoleDelta': 0.64, 'LeftSoleDelta': 0.19},
-         [[0.041042018208567545, -0.3065439019577841, -0.3106927663413161], [0.39326377295256626, 0.5657243847333632, 0.2128595189127902]])])
+         [[0.041042018208567545, -0.3065439019577841, -0.3106927663413161], [0.39326377295256626, 0.5657243847333632, 0.2128595189127902]]),
+        # Testing that when frame and ankle_JC are composed of lists of ints and vsk values are ints
+        ({'RTOE': [1, -4, -1], 'LTOE': [1, -1, -5], 'RHEE': [1, -7, -4], 'LHEE': [-6, -5, 1]},
+         [[3, 3, -2], [5, 9, -4],
+          [[rand_coor, [6, -9, 9], rand_coor],
+           [rand_coor, [-5, 6, 9], rand_coor]]],
+         True,
+         {'RightSoleDelta': 1, 'LeftSoleDelta': -1},
+         [[0.041042018208567545, -0.30654390195778408, -0.30110158620693045],
+          [00.3932637729525662, 0.56572438473336295, 0.22802611517428609]]),
+        # Testing that when frame and ankle_JC are composed of numpy arrays of ints and vsk values are ints
+        ({'RTOE': np.array([1, -4, -1], dtype='int'), 'LTOE': np.array([1, -1, -5], dtype='int'),
+          'RHEE': np.array([1, -7, -4], dtype='int'), 'LHEE': np.array([-6, -5, 1], dtype='int')},
+         [np.array([3, 3, -2], dtype='int'), np.array([5, 9, -4], dtype='int'),
+          [np.array([rand_coor, [6, -9, 9], rand_coor], dtype='int'),
+           np.array([rand_coor, [-5, 6, 9], rand_coor], dtype='int')]],
+         True,
+         {'RightSoleDelta': 1, 'LeftSoleDelta': -1},
+         [[0.041042018208567545, -0.30654390195778408, -0.30110158620693045],
+          [00.3932637729525662, 0.56572438473336295, 0.22802611517428609]]),
+        # Testing that when frame and ankle_JC are composed of lists of floats and vsk values are floats
+        ({'RTOE': [1.0, -4.0, -1.0], 'LTOE': [1.0, -1.0, -5.0], 'RHEE': [1.0, -7.0, -4.0], 'LHEE': [-6.0, -5.0, 1.0]},
+         [[3.0, 3.0, -2.0], [5.0, 9.0, -4.0],
+          [[rand_coor, [6.0, -9.0, 9.0], rand_coor],
+           [rand_coor, [-5.0, 6.0, 9.0], rand_coor]]],
+         True,
+         {'RightSoleDelta': 1.0, 'LeftSoleDelta': -1.0},
+         [[0.041042018208567545, -0.30654390195778408, -0.30110158620693045],
+          [00.3932637729525662, 0.56572438473336295, 0.22802611517428609]]),
+        # Testing that when frame and ankle_JC are composed of numpy arrays of floats and vsk values are floats
+        ({'RTOE': np.array([1.0, -4.0, -1.0], dtype='float'), 'LTOE': np.array([1.0, -1.0, -5.0], dtype='float'),
+          'RHEE': np.array([1.0, -7.0, -4.0], dtype='float'), 'LHEE': np.array([-6.0, -5.0, 1.0], dtype='float')},
+         [np.array([3.0, 3.0, -2.0], dtype='float'), np.array([5.0, 9.0, -4.0], dtype='float'),
+          [np.array([rand_coor, [6.0, -9.0, 9.0], rand_coor], dtype='float'),
+           np.array([rand_coor, [-5.0, 6.0, 9.0], rand_coor], dtype='float')]],
+         True,
+         {'RightSoleDelta': 1.0, 'LeftSoleDelta': -1.0},
+         [[0.041042018208567545, -0.30654390195778408, -0.30110158620693045],
+          [00.3932637729525662, 0.56572438473336295, 0.22802611517428609]])])
     def test_staticCalculation(self, frame, ankle_JC, flat_foot, vsk, expected):
         """
         This test provides coverage of the staticCalculation function in pycgmStatic.py, defined as staticCalculation(frame, ankle_JC, knee_JC, flat_foot, vsk)
@@ -345,6 +385,15 @@ class TestPycgmStaticUtils():
         flat_foot: boolean indicating if the feet are flat or not
         vsk: dictionary containing subject measurements from a VSK file
         expected: the expected result from calling staticCalculation on frame, ankle_JC, flat_foot, and vsk
+
+        This test is checking to make sure the static angle function is calculated correctly given the input parameters.
+        The test checks to see that the correct values in expected are updated per each input parameter added:
+        When values are only added to frame, ankle_JC, or vsk, expected is not updated.
+        When values are added to frame and ankle_JC, expected should be updated.
+        When flat_foot is set to True, expected should be updated.
+
+        Lastly, it checks that the resulting output is correct when frame and ankle_JC are composed of lists of ints,
+        numpy arrays of ints, lists of floats, and numpy arrays of floats and when the vsk values are ints and floats.
         """
         result = pycgmStatic.staticCalculation(frame, ankle_JC, None, flat_foot, vsk)
         np.testing.assert_almost_equal(result, expected, rounding_precision)
@@ -502,10 +551,61 @@ class TestPycgmStaticUtils():
         result_float_nparray = pycgmStatic.norm3d(np.array(v_float, dtype='float'))
         np.testing.assert_almost_equal(result_float_nparray, expected, rounding_precision)
 
+    @pytest.mark.parametrize(["v", "expected"], [
+        ([-212.5847168, 28.09841919, -4.15808105], np.array([-4.62150006e-03,  6.10847515e-04, -9.03948887e-05])),
+        ([0, 0, 0], np.array([np.nan, np.nan, np.nan])),
+        ([2, 0, 0], np.array([0.5, 0, 0])),
+        ([0, 0, -1], np.array([0, 0, -1])),
+        ([0, 3, 4], np.array([0, 0.12, 0.16])),
+        ([-3, 0, 4], np.array([-0.12, 0, 0.16])),
+        ([-6, 8, 0], np.array([-0.06, 0.08, 0])),
+        ([-5, 0, -12], np.array([-0.0295858, 0, -0.07100592])),
+        ([1, -1, np.sqrt(2)], np.array([0.25, -0.25, 0.35355339]))
+    ])
+    def test_normDiv(self, v, expected):
+        """
+        This test provides coverage of the normDiv function in pycgmStatic.py, defined as normDiv(v) where v is a 3D vector.
+        This test takes 2 parameters:
+        v: 3D vector
+        expected: the expected result from calling norm3d on v. This function returns the wrong result. It is supposed
+        to return the normalization division, but in the function it divides the vector by the normalization twice.
+        """
+        result = pycgmStatic.normDiv(v)
+        np.testing.assert_almost_equal(result, expected, rounding_precision)
+
+    def test_normDiv_datatypes(self):
+        """
+        This test provides coverage of the normDiv function in pycgmStatic.py, defined as normDiv(v) where v is a 3D vector.
+        This test checks that the resulting output from calling normDiv is correct when called with a list of ints, a
+        numpy array of ints, a list of floats, and a numpy array of floats.
+        """
+        v_int = [-6, 0, 8]
+        v_float = [-6.0, 0, 8.0]
+        expected = np.array([-0.06, 0, 0.08])
+
+        # Check the calling normDiv on a list of ints yields the expected results
+        result_int_list = pycgmStatic.normDiv(v_int)
+        np.testing.assert_almost_equal(result_int_list, expected, rounding_precision)
+
+        # Check the calling normDiv on a numpy array of ints yields the expected results
+        result_int_nparray = pycgmStatic.normDiv(np.array(v_int, dtype='int'))
+        np.testing.assert_almost_equal(result_int_nparray, expected, rounding_precision)
+
+        # Check the calling normDiv on a list of floats yields the expected results
+        result_float_list = pycgmStatic.normDiv(v_float)
+        np.testing.assert_almost_equal(result_float_list, expected, rounding_precision)
+
+        # Check the calling normDiv on a numpy array of floats yields the expected results
+        result_float_nparray = pycgmStatic.normDiv(np.array(v_float, dtype='float'))
+        np.testing.assert_almost_equal(result_float_nparray, expected, rounding_precision)
+
     @pytest.mark.parametrize(["A", "B", "expected"], [
         ([[1, 0, 0], [0, 1.0, -0.0], [0, 0.0, 1.0]], [[1.0, 0, 0.0], [0, 1, 0], [-0.0, 0, 1.0]], [[1.0, 0, 0.0], [0.0, 1.0, 0.0], [0.0, 0.0, 1.0]]),
         ([[1]], [[1]], [[1]]),
+        # Invalid matrix dimensions
+        ([[1, 2]], [[1]], [[1]]),
         ([[2], [1]], [[1, 2]], [[2, 4], [1, 2]]),
+        # Invalid matrix dimensions
         ([[1, 2, 0], [0, 1, 2]], [[2, 1], [1, 4]], [[4, 9], [1, 4]]),
         ([[11, 12, 13], [14, 15, 16]], [[1, 2], [3, 4], [5, 6]], [[112, 148], [139, 184]]),
         ([[1, 2, 3], [4, 5, 6]], [[7, 8], [9, 10], [11, 12]], [[58, 64], [139, 154]])])
@@ -518,7 +618,9 @@ class TestPycgmStaticUtils():
         A: a matrix, 2D array format
         B: a matrix, 2D array format
         expected: the expected matrix from calling matrixmult on A and B. This is the result of multiplying the two
-        matrices A and B.
+        matrices A and B. It gives the correct result for multiplying two valid matrices, but still gives a result
+        in some cases when the two matrices can't be multiplied. For two matrices to be multiplied, len(A[0]) need to
+        be equal to len(B), but this function gives an output even when this isn't true
         """
         result = pycgmStatic.matrixmult(A, B)
         np.testing.assert_almost_equal(result, expected, rounding_precision)
