@@ -240,7 +240,7 @@ class TestUtils():
         result = pyCGM.normDiv(v)
         np.testing.assert_almost_equal(result, expected, rounding_precision)
 
-    def test_norm3d_datatypes(self):
+    def test_normDiv_datatypes(self):
         """
         This test provides coverage of the normDiv function in pyCGM.py, defined as normDiv(v) where v is a 3D vector.
 
