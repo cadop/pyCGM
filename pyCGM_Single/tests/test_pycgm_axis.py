@@ -59,7 +59,25 @@ class TestUpperBodyAxis():
         # Adding a value for HeadOffset
         ({'LFHD': np.array([1, 1, 0]), 'RFHD': np.array([0, 1, 0]), 'LBHD': np.array([1, 0, 0]), 'RBHD': np.array([0, 0, 0])},
          {'HeadOffset': 0.5},
-         [[[0.5, 1.87758256, 0.47942554], [1.5, 1, 0], [0.5, 1.47942554, -0.87758256]], [0.5, 1, 0]])])
+         [[[0.5, 1.87758256, 0.47942554], [1.5, 1, 0], [0.5, 1.47942554, -0.87758256]], [0.5, 1, 0]]),
+        # Testing that when frame is a list of ints and headOffset is an int
+        ({'LFHD': [1, 1, 0], 'RFHD': [0, 1, 0], 'LBHD': [1, 0, 0], 'RBHD': [0, 0, 0]},
+         {'HeadOffset': 1.0},
+         [[[0.5, 1.5403023058681398, 0.8414709848078965], [1.5, 1, 0], [0.5, 1.8414709848078965, -0.5403023058681398]], [0.5, 1, 0]]),
+        # Testing that when frame is a numpy array of ints and headOffset is an int
+        ({'LFHD': np.array([1, 1, 0], dtype='int'), 'RFHD': np.array([0, 1, 0], dtype='int'),
+          'LBHD': np.array([1, 0, 0], dtype='int'), 'RBHD': np.array([0, 0, 0], dtype='int')},
+         {'HeadOffset': 1},
+         [[[0.5, 1.5403023058681398, 0.8414709848078965], [1.5, 1, 0], [0.5, 1.8414709848078965, -0.5403023058681398]], [0.5, 1, 0]]),
+        # Testing that when frame is a list of floats and headOffset is a float
+        ({'LFHD': [1.0, 1.0, 0.0], 'RFHD': [0.0, 1.0, 0.0], 'LBHD': [1.0, 0.0, 0.0], 'RBHD': [0.0, 0.0, 0.0]},
+         {'HeadOffset': 1.0},
+         [[[0.5, 1.5403023058681398, 0.8414709848078965], [1.5, 1, 0], [0.5, 1.8414709848078965, -0.5403023058681398]], [0.5, 1, 0]]),
+        # Testing that when frame is a numpy array of floats and headOffset is a float
+        ({'LFHD': np.array([1.0, 1.0, 0.0], dtype='float'), 'RFHD': np.array([0.0, 1.0, 0.0], dtype='float'),
+          'LBHD': np.array([1.0, 0.0, 0.0], dtype='float'), 'RBHD': np.array([0.0, 0.0, 0.0], dtype='float')},
+         {'HeadOffset': 1.0},
+         [[[0.5, 1.5403023058681398, 0.8414709848078965], [1.5, 1, 0], [0.5, 1.8414709848078965, -0.5403023058681398]], [0.5, 1, 0]])])
     def testHeadJC(self, frame, vsk, expected):
         """
         This test provides coverage of the headJC function in pyCGM.py, defined as headJC(frame, vsk)
@@ -73,6 +91,8 @@ class TestUpperBodyAxis():
         the 4 coordinates given in frame. This includes testing when there is no variance in the coordinates,
         when the coordinates are in different quadrants, when the midpoints will be on diagonals, and when the z
         dimension is variable. It also checks to see the difference when a value is set for HeadOffSet in vsk.
+        Lastly, it checks that the resulting output is correct when frame is a list of ints, a numpy array of
+        ints, a list of floats, and a numpy array of floats and when headOffset is an int and a float.
         """
         result = pyCGM.headJC(frame, vsk)
         np.testing.assert_almost_equal(result[0], expected[0], rounding_precision)
@@ -105,7 +125,25 @@ class TestUpperBodyAxis():
          [[[1, 6, 2], [0.29289322, 7, 2.70710678], [0.29289322, 7, 1.29289322]], [1, 7, 2]]),
         # Setting the z dimension value higher for C7 and T10
         ({'C7': np.array([1, 1, 2]), 'T10': np.array([0, 1, 2]), 'CLAV': np.array([1, 0, 1]), 'STRN': np.array([0, 0, 1])},
-         [[[1, 4.24264069, 5.24264069], [1, 4.24264069, 6.65685425], [0, 4.94974747, 5.94974747]], [1, 4.94974747, 5.94974747]])])
+         [[[1, 4.24264069, 5.24264069], [1, 4.24264069, 6.65685425], [0, 4.94974747, 5.94974747]], [1, 4.94974747, 5.94974747]]),
+        # Testing that when frame is a list of ints
+        ({'C7': [1, 1, 2], 'T10': [0, 1, 2], 'CLAV': [1, 0, 1], 'STRN': [0, 0, 1]},
+         [[[1, 4.24264069, 5.24264069], [1, 4.24264069, 6.65685425], [0, 4.94974747, 5.94974747]],
+          [1, 4.94974747, 5.94974747]]),
+        # Testing that when frame is a numpy array of ints
+        ({'C7': np.array([1, 1, 2], dtype='int'), 'T10': np.array([0, 1, 2], dtype='int'),
+          'CLAV': np.array([1, 0, 1], dtype='int'), 'STRN': np.array([0, 0, 1], dtype='int')},
+         [[[1, 4.24264069, 5.24264069], [1, 4.24264069, 6.65685425], [0, 4.94974747, 5.94974747]],
+          [1, 4.94974747, 5.94974747]]),
+        # Testing that when frame is a list of floats
+        ({'C7': [1.0, 1.0, 2.0], 'T10': [0.0, 1.0, 2.0], 'CLAV': [1.0, 0.0, 1.0], 'STRN': [0.0, 0.0, 1.0]},
+         [[[1, 4.24264069, 5.24264069], [1, 4.24264069, 6.65685425], [0, 4.94974747, 5.94974747]],
+          [1, 4.94974747, 5.94974747]]),
+        # Testing that when frame is a numpy array of floats
+        ({'C7': np.array([1.0, 1.0, 2.0], dtype='float'), 'T10': np.array([0.0, 1.0, 2.0], dtype='float'),
+          'CLAV': np.array([1.0, 0.0, 1.0], dtype='float'), 'STRN': np.array([0.0, 0.0, 1.0], dtype='float')},
+         [[[1, 4.24264069, 5.24264069], [1, 4.24264069, 6.65685425], [0, 4.94974747, 5.94974747]],
+          [1, 4.94974747, 5.94974747]])])
     def testThoraxJC(self, frame, expected):
         """
         This test provides coverage of the thoraxJC function in pyCGM.py, defined as thoraxJC(frame)
@@ -117,7 +155,8 @@ class TestUpperBodyAxis():
         This test is checking to make sure the thorax joint center and thorax joint axis are calculated correctly given
         the 4 coordinates given in frame. This includes testing when there is no variance in the coordinates,
         when the coordinates are in different quadrants, when the midpoints will be on diagonals, and when the z
-        dimension is variable.
+        dimension is variable. Lastly, it checks that the resulting output is correct when frame is a list of ints, a
+        numpy array of ints, a list of floats, and a numpy array of floats.
         """
         result = pyCGM.thoraxJC(frame)
         np.testing.assert_almost_equal(result[0], expected[0], rounding_precision)
@@ -172,7 +211,35 @@ class TestUpperBodyAxis():
          [[-7, -1, 5], [5, -9, 2]],
          {'RightShoulderOffset': -6.0, 'LeftShoulderOffset': 42.0},
          [[[-7, -1, 5], [-1, -9, -5], np.array([3, -5, 2]), 1.0],
-         [[5, -9, 2], [-1, -9, -5], np.array([-7, 3 , 9]), 49.0]])])
+         [[5, -9, 2], [-1, -9, -5], np.array([-7, 3 , 9]), 49.0]]),
+        # Testing that when frame, thorax, wand and vsk are lists of ints
+        ({'RSHO': [3, -5, 2], 'LSHO': [-7, 3, 9]},
+         [[rand_coor, rand_coor, rand_coor], [-1, -9, -5]],
+         [[-7, -1, 5], [5, -9, 2]],
+         {'RightShoulderOffset': -6, 'LeftShoulderOffset': 42},
+         [[[-7, -1, 5], [-1, -9, -5], np.array([3, -5, 2]), 1.0],
+          [[5, -9, 2], [-1, -9, -5], np.array([-7, 3, 9]), 49.0]]),
+        # Testing that when frame, wand and vsk are numpy arrays of ints
+        ({'RSHO': np.array([3, -5, 2], dtype='int'), 'LSHO': np.array([-7, 3, 9], dtype='int')},
+         [[rand_coor, rand_coor, rand_coor], np.array([-1, -9, -5], dtype='int')],
+         np.array([[-7, -1, 5], [5, -9, 2]], dtype='int'),
+         {'RightShoulderOffset': -6, 'LeftShoulderOffset': 42},
+         [[[-7, -1, 5], [-1, -9, -5], np.array([3, -5, 2]), 1.0],
+          [[5, -9, 2], [-1, -9, -5], np.array([-7, 3, 9]), 49.0]]),
+        # Testing that when frame, thorax, wand and vsk are lists of floats
+        ({'RSHO': [3.0, -5.0, 2.0], 'LSHO': [-7.0, 3.0, 9.0]},
+         [[rand_coor, rand_coor, rand_coor], [-1.0, -9.0, -5.0]],
+         [[-7.0, -1.0, 5.0], [5.0, -9.0, 2.0]],
+         {'RightShoulderOffset': -6.0, 'LeftShoulderOffset': 42.0},
+         [[[-7, -1, 5], [-1, -9, -5], np.array([3, -5, 2]), 1.0],
+          [[5, -9, 2], [-1, -9, -5], np.array([-7, 3, 9]), 49.0]]),
+        # Testing that when frame, wand and vsk are numpy arrays of floats
+        ({'RSHO': np.array([3.0, -5.0, 2.0], dtype='float'), 'LSHO': np.array([-7.0, 3.0, 9.0], dtype='float')},
+         [[rand_coor, rand_coor, rand_coor], np.array([-1.0, -9.0, -5.0], dtype='float')],
+         np.array([[-7.0, -1.0, 5.0], [5.0, -9.0, 2.0]], dtype='float'),
+         {'RightShoulderOffset': -6.0, 'LeftShoulderOffset': 42.0},
+         [[[-7, -1, 5], [-1, -9, -5], np.array([3, -5, 2]), 1.0],
+          [[5, -9, 2], [-1, -9, -5], np.array([-7, 3, 9]), 49.0]])])
     def testFindShoulderJC(self, frame, thorax, wand, vsk, expected_args):
         """
         This test provides coverage of the findshoulderJC function in pyCGM.py, defined as findshoulderJC(frame, thorax, wand, vsk)
@@ -192,6 +259,11 @@ class TestUpperBodyAxis():
         When values are added to thorax, expected_args[0][1] and expected_args[1][1] should be updated
         When values are added to wand, expected_args[0][0] and expected_args[1][0] should be updated
         When values are added to vsk, expected_args[0][3] and expected_args[1][3] should be updated
+
+        Lastly, it checks that the resulting output is correct when frame and wand are a list of ints, a
+        numpy array of ints, a list of floats, and a numpy array of floats, vsk values are either an int or a float,
+        and thorax values are either an int or a float. Thorax cannot be a numpy array due it not being shaped like
+        a multi-dimensional array.
         """
         rand_coor = [np.random.randint(0, 10), np.random.randint(0, 10), np.random.randint(0, 10)]
         with patch.object(pyCGM, 'findJointC', return_value=rand_coor) as mock_findJointC:
@@ -279,7 +351,43 @@ class TestUpperBodyAxis():
          [[1, 0, -7], [-3, 5, 3]],
          [[np.array([1, 5, -3]), np.array([0, -9, 2])],
           [[[0.93321781, 5.62330046, -3.77912558], [1.51400083, 5.69077360, -2.49143833], [1.85518611, 4.63349167, -3.36650833]],
-           [[-0.64460664, -9.08385127, 1.24009787], [-0.57223612, -8.287942994, 2.40684228], [0.50697940, -8.30290332, 1.4930206]]]])])
+           [[-0.64460664, -9.08385127, 1.24009787], [-0.57223612, -8.287942994, 2.40684228], [0.50697940, -8.30290332, 1.4930206]]]]),
+        # Testing that when thorax, shoulderJC, and wand are lists of ints
+        ([[rand_coor, rand_coor, rand_coor], [8, 2, -6]],
+         [[1, 5, -3], [0, -9, 2]],
+         [[1, 0, -7], [-3, 5, 3]],
+         [[np.array([1, 5, -3]), np.array([0, -9, 2])],
+          [[[0.93321781, 5.62330046, -3.77912558], [1.51400083, 5.69077360, -2.49143833],
+            [1.85518611, 4.63349167, -3.36650833]],
+           [[-0.64460664, -9.08385127, 1.24009787], [-0.57223612, -8.287942994, 2.40684228],
+            [0.50697940, -8.30290332, 1.4930206]]]]),
+        # Testing that when thorax, shoulderJC and wand are numpy arrays of ints
+        ([[rand_coor, rand_coor, rand_coor], np.array([8, 2, -6], dtype='int')],
+         np.array([np.array([1, 5, -3], dtype='int'), np.array([0, -9, 2], dtype='int')], dtype='int'),
+         np.array([np.array([1, 0, -7], dtype='int'),  np.array([-3, 5, 3], dtype='int')], dtype='int'),
+         [[np.array([1, 5, -3]), np.array([0, -9, 2])],
+          [[[0.93321781, 5.62330046, -3.77912558], [1.51400083, 5.69077360, -2.49143833],
+            [1.85518611, 4.63349167, -3.36650833]],
+           [[-0.64460664, -9.08385127, 1.24009787], [-0.57223612, -8.287942994, 2.40684228],
+            [0.50697940, -8.30290332, 1.4930206]]]]),
+        # Testing that when thorax, shoulderJC and wand are lists of floats
+        ([[rand_coor, rand_coor, rand_coor], [8.0, 2.0, -6.0]],
+         [[1.0, 5.0, -3.0], [0.0, -9.0, 2.0]],
+         [[1.0, 0.0, -7.0], [-3.0, 5.0, 3.0]],
+         [[np.array([1, 5, -3]), np.array([0, -9, 2])],
+          [[[0.93321781, 5.62330046, -3.77912558], [1.51400083, 5.69077360, -2.49143833],
+            [1.85518611, 4.63349167, -3.36650833]],
+           [[-0.64460664, -9.08385127, 1.24009787], [-0.57223612, -8.287942994, 2.40684228],
+            [0.50697940, -8.30290332, 1.4930206]]]]),
+        # Testing that when thorax, shoulderJC and wand are numpy arrays of floats
+        ([[rand_coor, rand_coor, rand_coor], np.array([8.0, 2.0, -6.0], dtype='float')],
+         np.array([np.array([1.0, 5.0, -3.0], dtype='float'), np.array([0.0, -9.0, 2.0], dtype='float')], dtype='float'),
+         np.array([np.array([1.0, 0.0, -7.0], dtype='float'), np.array([-3.0, 5.0, 3.0], dtype='float')], dtype='float'),
+         [[np.array([1.0, 5.0, -3.0]), np.array([0.0, -9.0, 2.0])],
+          [[[0.93321781, 5.62330046, -3.77912558], [1.51400083, 5.69077360, -2.49143833],
+            [1.85518611, 4.63349167, -3.36650833]],
+           [[-0.64460664, -9.08385127, 1.24009787], [-0.57223612, -8.287942994, 2.40684228],
+            [0.50697940, -8.30290332, 1.4930206]]]])])
     def testShoulderAxisCalc(self, thorax, shoulderJC, wand, expected):
         """
         This test provides coverage of the shoulderAxisCalc function in pyCGM.py, defined as shoulderAxisCalc(frame, thorax, shoulderJC, wand)
@@ -296,6 +404,10 @@ class TestUpperBodyAxis():
         When values are added to shoulderJC, expected[0], expected[1][0][2] and expected[1][1][2] should be updated
         When values are only added to wand, no values in expected should be updated
         If values are added to any two parameters, then all values in expected[1] should be updated
+
+        Lastly, it checks that the resulting output is correct when shoulderJC and wand are a list of ints, a
+        numpy array of ints, a list of floats, and a numpy array of floats, and thorax values are either an int or a
+        float. Thorax cannot be a numpy array due it not being shaped like a multi-dimensional array.
         """
         result = pyCGM.shoulderAxisCalc(None, thorax, shoulderJC, wand)
         np.testing.assert_almost_equal(result[0], expected[0], rounding_precision)
@@ -435,6 +547,62 @@ class TestUpperBodyAxis():
          [[np.array([5, 4, -4]), np.array([6, 3, 5])],
           [[[4.156741342815987, 4.506819397152288, -3.8209778344606247], [4.809375978699987, 4.029428853750657, -4.981221904092206], [4.4974292889675835, 3.138450209658714, -3.928204184138226]],
            [[6.726856988207308, 2.5997910101837682, 5.558132316896694], [5.329224487433077, 2.760784472038086, 5.702022893446135], [5.852558043845103, 2.1153482630706173, 4.557674131535308]]],
+          [[17.14176226312361, -25.58951560761187, -7.246255574147096], [-5.726512929518925, 1.5474273567891164, -6.699526795132392]]]),
+        # Testing that when frame, thorax, and shoulderJC are list of ints and vsk values are ints
+        ({'RSHO': [9, -7, -6], 'LSHO': [3, -8, 5], 'RELB': [-9, 1, -4], 'LELB': [-4, 1, -6],
+          'RWRA': [2, -3, 9], 'RWRB': [-4, -2, -7], 'LWRA': [-9, 1, -1], 'LWRB': [-3, -4, -9]},
+         [[rand_coor, [-9, 5, -5], rand_coor], [-5, -2, -3]],
+         [[-2, -8, -3], [5, -3, 2]],
+         {'RightElbowWidth': -38, 'LeftElbowWidth': 6, 'RightWristWidth': 47, 'LeftWristWidth': -7},
+         [[5, 4, -4], [6, 3, 5]],
+         [[[-311.42865408643604, -195.76081109238007, 342.15327877363165], [-2, -8, -3], [-9, 1, -4], 12.0],
+          [[183.9753004933977, -292.7114070209339, -364.32791656553934], [5, -3, 2], [-4, 1, -6], 10.0]],
+         [[np.array([5, 4, -4]), np.array([6, 3, 5])],
+          [[[4.156741342815987, 4.506819397152288, -3.8209778344606247], [4.809375978699987, 4.029428853750657, -4.981221904092206], [4.4974292889675835, 3.138450209658714, -3.928204184138226]],
+           [[6.726856988207308, 2.5997910101837682, 5.558132316896694], [5.329224487433077, 2.760784472038086, 5.702022893446135], [5.852558043845103, 2.1153482630706173, 4.557674131535308]]],
+          [[17.14176226312361, -25.58951560761187, -7.246255574147096], [-5.726512929518925, 1.5474273567891164, -6.699526795132392]]]),
+        # Testing that when frame, thorax, and shoulderJC are a numpy array of ints and vsk values are ints
+        ({'RSHO': np.array([9, -7, -6], dtype='int'), 'LSHO': np.array([3, -8, 5], dtype='int'),
+          'RELB': np.array([-9, 1, -4], dtype='int'), 'LELB': np.array([-4, 1, -6], dtype='int'),
+          'RWRA': np.array([2, -3, 9], dtype='int'), 'RWRB': np.array([-4, -2, -7], dtype='int'),
+          'LWRA': np.array([-9, 1, -1], dtype='int'), 'LWRB': np.array([-3, -4, -9], dtype='int')},
+         [[rand_coor, np.array([-9, 5, -5], dtype='int'), rand_coor], np.array([-5, -2, -3], dtype='int')],
+         [np.array([-2, -8, -3], dtype='int'), np.array([5, -3, 2], dtype='int')],
+         {'RightElbowWidth': -38, 'LeftElbowWidth': 6, 'RightWristWidth': 47, 'LeftWristWidth': -7},
+         [[5, 4, -4], [6, 3, 5]],
+         [[[-311.42865408643604, -195.76081109238007, 342.15327877363165], [-2, -8, -3], [-9, 1, -4], 12.0],
+          [[183.9753004933977, -292.7114070209339, -364.32791656553934], [5, -3, 2], [-4, 1, -6], 10.0]],
+         [[np.array([5, 4, -4]), np.array([6, 3, 5])],
+          [[[4.156741342815987, 4.506819397152288, -3.8209778344606247], [4.809375978699987, 4.029428853750657, -4.981221904092206], [4.4974292889675835, 3.138450209658714, -3.928204184138226]],
+           [[6.726856988207308, 2.5997910101837682, 5.558132316896694], [5.329224487433077, 2.760784472038086, 5.702022893446135], [5.852558043845103, 2.1153482630706173, 4.557674131535308]]],
+          [[17.14176226312361, -25.58951560761187, -7.246255574147096], [-5.726512929518925, 1.5474273567891164, -6.699526795132392]]]),
+        # Testing that when frame, thorax, and shoulderJC are a list of floats and vsk values are floats
+        ({'RSHO': [9.0, -7.0, -6.0], 'LSHO': [3.0, -8.0, 5.0], 'RELB': [-9.0, 1.0, -4.0], 'LELB': [-4.0, 1.0, -6.0],
+          'RWRA': [2.0, -3.0, 9.0], 'RWRB': [-4.0, -2.0, -7.0], 'LWRA': [-9.0, 1.0, -1.0], 'LWRB': [-3.0, -4.0, -9.0]},
+         [[rand_coor, [-9.0, 5.0, -5.0], rand_coor], [-5.0, -2.0, -3.0]],
+         [[-2.0, -8.0, -3.0], [5.0, -3.0, 2.0]],
+         {'RightElbowWidth': -38.0, 'LeftElbowWidth': 6.0, 'RightWristWidth': 47.0, 'LeftWristWidth': -7.0},
+         [[5, 4, -4], [6, 3, 5]],
+         [[[-311.42865408643604, -195.76081109238007, 342.15327877363165], [-2, -8, -3], [-9, 1, -4], 12.0],
+          [[183.9753004933977, -292.7114070209339, -364.32791656553934], [5, -3, 2], [-4, 1, -6], 10.0]],
+         [[np.array([5, 4, -4]), np.array([6, 3, 5])],
+          [[[4.156741342815987, 4.506819397152288, -3.8209778344606247], [4.809375978699987, 4.029428853750657, -4.981221904092206], [4.4974292889675835, 3.138450209658714, -3.928204184138226]],
+           [[6.726856988207308, 2.5997910101837682, 5.558132316896694], [5.329224487433077, 2.760784472038086, 5.702022893446135], [5.852558043845103, 2.1153482630706173, 4.557674131535308]]],
+          [[17.14176226312361, -25.58951560761187, -7.246255574147096], [-5.726512929518925, 1.5474273567891164, -6.699526795132392]]]),
+        # Testing that when frame, thorax, and shoulderJC are a numpy array of floats and vsk values are floats
+        ({'RSHO': np.array([9.0, -7.0, -6.0], dtype='float'), 'LSHO': np.array([3.0, -8.0, 5.0], dtype='float'),
+          'RELB': np.array([-9.0, 1.0, -4.0], dtype='float'), 'LELB': np.array([-4.0, 1.0, -6.0], dtype='float'),
+          'RWRA': np.array([2.0, -3.0, 9.0], dtype='float'), 'RWRB': np.array([-4.0, -2.0, -7.0], dtype='float'),
+          'LWRA': np.array([-9.0, 1.0, -1.0], dtype='float'), 'LWRB': np.array([-3.0, -4.0, -9.0], dtype='float')},
+         [[rand_coor, np.array([-9.0, 5.0, -5.0], dtype='float'), rand_coor], np.array([-5.0, -2.0, -3.0], dtype='float')],
+         [np.array([-2.0, -8.0, -3.0], dtype='float'), np.array([5.0, -3.0, 2.0], dtype='float')],
+         {'RightElbowWidth': -38.0, 'LeftElbowWidth': 6.0, 'RightWristWidth': 47.0, 'LeftWristWidth': -7.0},
+         [[5, 4, -4], [6, 3, 5]],
+         [[[-311.42865408643604, -195.76081109238007, 342.15327877363165], [-2, -8, -3], [-9, 1, -4], 12.0],
+          [[183.9753004933977, -292.7114070209339, -364.32791656553934], [5, -3, 2], [-4, 1, -6], 10.0]],
+         [[np.array([5, 4, -4]), np.array([6, 3, 5])],
+          [[[4.156741342815987, 4.506819397152288, -3.8209778344606247], [4.809375978699987, 4.029428853750657, -4.981221904092206], [4.4974292889675835, 3.138450209658714, -3.928204184138226]],
+           [[6.726856988207308, 2.5997910101837682, 5.558132316896694], [5.329224487433077, 2.760784472038086, 5.702022893446135], [5.852558043845103, 2.1153482630706173, 4.557674131535308]]],
           [[17.14176226312361, -25.58951560761187, -7.246255574147096], [-5.726512929518925, 1.5474273567891164, -6.699526795132392]]])])
     def testElbowJointCenter(self, frame, thorax, shoulderJC, vsk, mockReturnVal, expectedMockArgs, expected):
         """
@@ -461,6 +629,11 @@ class TestUpperBodyAxis():
         expected[1][1][2] should be updated
         When values are added to vsk, expectedMockArgs[0][3], and expectedMockArgs[1][3] should be updated
         When values are added to mockReturnVal, expected[0], expected[1][0][2] and expected[1][1][2] should be updated
+
+        Lastly, it checks that the resulting output is correct when frame and shoulderJC are a list of ints, a
+        numpy array of ints, a list of floats, and a numpy array of floats, vsk values are either an int or a float,
+        and thorax values are either an int or a float. Thorax cannot be a numpy array due to it not being shaped like
+        a multi-dimensional array.
         """
         with patch.object(pyCGM, 'findJointC', side_effect=mockReturnVal) as mock_findJointC:
             result = pyCGM.elbowJointCenter(frame, thorax, shoulderJC, None, vsk)
@@ -549,6 +722,34 @@ class TestUpperBodyAxis():
           [[6, -1, 5], [7, 6, 0]]],
          [[[6, -1, 5], [7, 6, 0]],
           [[[5.63485163, -0.81742581, 5.91287093], [ 5.07152331, -1, 4.62860932], [5.93219365, -1.98319208, 5.16951588]],
+           [[6.55425751, 6.08104409, -0.89148499], [7.33104236, 5.08963352, -0.24828177], [6.16830018, 5.59421098, 0.37896]]]]),
+        # Testing that when elbowJC is composed of lists of ints
+        ([[[9, -5, 7], [-1, 6, 4]],
+          [[[-3, -9, 6], [4, -5, 5], [-9, 7, 0]], [[4, -1, 0], [3, -5, 1], [0, -9, 7]]],
+          [[6, -1, 5], [7, 6, 0]]],
+         [[[6, -1, 5], [7, 6, 0]],
+          [[[5.63485163, -0.81742581, 5.91287093], [5.07152331, -1, 4.62860932], [5.93219365, -1.98319208, 5.16951588]],
+           [[6.55425751, 6.08104409, -0.89148499], [7.33104236, 5.08963352, -0.24828177], [6.16830018, 5.59421098, 0.37896]]]]),
+        # Testing that when elbowJC is composed of numpy arrays of ints
+        ([np.array([[9, -5, 7], [-1, 6, 4]], dtype='int'),
+          np.array([[[-3, -9, 6], [4, -5, 5], [-9, 7, 0]], [[4, -1, 0], [3, -5, 1], [0, -9, 7]]], dtype='int'),
+          np.array([[6, -1, 5], [7, 6, 0]], dtype='int')],
+         [[[6, -1, 5], [7, 6, 0]],
+          [[[5.63485163, -0.81742581, 5.91287093], [5.07152331, -1, 4.62860932], [5.93219365, -1.98319208, 5.16951588]],
+           [[6.55425751, 6.08104409, -0.89148499], [7.33104236, 5.08963352, -0.24828177], [6.16830018, 5.59421098, 0.37896]]]]),
+        # Testing that when elbowJC is composed of lists of floats
+        ([[[9.0, -5.0, 7.0], [-1.0, 6.0, 4.0]],
+          [[[-3.0, -9.0, 6.0], [4.0, -5.0, 5.0], [-9.0, 7.0, 0.0]], [[4.0, -1.0, 0.0], [3.0, -5.0, 1.0], [0.0, -9.0, 7.0]]],
+          [[6.0, -1.0, 5.0], [7.0, 6.0, 0.0]]],
+         [[[6, -1, 5], [7, 6, 0]],
+          [[[5.63485163, -0.81742581, 5.91287093], [5.07152331, -1, 4.62860932], [5.93219365, -1.98319208, 5.16951588]],
+           [[6.55425751, 6.08104409, -0.89148499], [7.33104236, 5.08963352, -0.24828177], [6.16830018, 5.59421098, 0.37896]]]]),
+        # Testing that when elbowJC is composed of numpy arrays of floats
+        ([np.array([[9.0, -5.0, 7.0], [-1.0, 6.0, 4.0]], dtype='float'),
+          np.array([[[-3.0, -9.0, 6.0], [4.0, -5.0, 5.0], [-9.0, 7.0, 0.0]], [[4.0, -1.0, 0.0], [3.0, -5.0, 1.0], [0.0, -9.0, 7.0]]], dtype='float'),
+          np.array([[6.0, -1.0, 5.0], [7.0, 6.0, 0.0]], dtype='float')],
+         [[[6, -1, 5], [7, 6, 0]],
+          [[[5.63485163, -0.81742581, 5.91287093], [5.07152331, -1, 4.62860932], [5.93219365, -1.98319208, 5.16951588]],
            [[6.55425751, 6.08104409, -0.89148499], [7.33104236, 5.08963352, -0.24828177], [6.16830018, 5.59421098, 0.37896]]]])])
     def testWristJointCenter(self, elbowJC, expected):
         """
@@ -564,6 +765,10 @@ class TestUpperBodyAxis():
         When values are only added to elbowJC[2], expected[0] should be updated
         When values are added to any two of elbowJC[0], elbowJC[1], and elbowJC[2], then all values in expected[1] should
         be updated
+
+        Lastly, it checks that the resulting output is correct when elbowJC is composed of lists of ints, numpy arrays
+        of ints, lists of floats, and numpy arrays of floats. ElbowJC cannot be a numpy array due to it not being
+        shaped like a multi-dimensional array.
         """
         result = pyCGM.wristJointCenter(None, None, None, elbowJC)
         np.testing.assert_almost_equal(result[0], expected[0], rounding_precision)
@@ -638,6 +843,50 @@ class TestUpperBodyAxis():
          [[[-3.5, 3.5, -2.0], [9, 0, -6], [-6, 3, 8], 2.5], [[2.0, 1.0, 5.0], [0, 4, 3], [1, -9, 6], 25.0]],
          [[np.array([2, 8, 1]), np.array([-6, 4, -4])],
           [[[2.911684611677104, 7.658118270621086, 1.227921152919276], [1.9534757894800765, 8.465242105199236, 1.8839599998785472], [1.5917517095361369, 7.183503419072274, 1.4082482904638631]],
+           [[-6.21615749183132, 3.059079153204844, -3.739339495144585], [-6.186838410896736, 3.777824759216273, -4.9569376001580645], [-5.04168515250009, 3.744449374000024, -4.127775312999988]]]]),
+        # Testing that when frame and wristJC are composed of lists of ints and vsk values are ints
+        ({'RWRA': [4, 7, 6], 'RWRB': [0, -5, 4], 'RFIN': [1, -9, 6], 'LWRA': [-4, 5, 3], 'LWRB': [-3, 2, -7],
+          'LFIN': [-6, 3, 8]},
+         [[[0, 4, 3], [9, 0, -6]], [[rand_coor, rand_coor, rand_coor], [rand_coor, rand_coor, rand_coor]]],
+         {'RightHandThickness': 36, 'LeftHandThickness': -9},
+         [[-6, 4, -4], [2, 8, 1]],
+         [[[-3.5, 3.5, -2.0], [9, 0, -6], [-6, 3, 8], 2.5], [[2.0, 1.0, 5.0], [0, 4, 3], [1, -9, 6], 25.0]],
+         [[np.array([2, 8, 1]), np.array([-6, 4, -4])],
+          [[[2.911684611677104, 7.658118270621086, 1.227921152919276], [1.9534757894800765, 8.465242105199236, 1.8839599998785472], [1.5917517095361369, 7.183503419072274, 1.4082482904638631]],
+           [[-6.21615749183132, 3.059079153204844, -3.739339495144585], [-6.186838410896736, 3.777824759216273, -4.9569376001580645], [-5.04168515250009, 3.744449374000024, -4.127775312999988]]]]),
+        # Testing that when frame and wristJC are composed of numpy arrays of ints and vsk values are ints
+        ({'RWRA': np.array([4, 7, 6], dtype='int'), 'RWRB': np.array([0, -5, 4], dtype='int'),
+          'RFIN': np.array([1, -9, 6], dtype='int'), 'LWRA': np.array([-4, 5, 3], dtype='int'),
+          'LWRB': np.array([-3, 2, -7], dtype='int'), 'LFIN': np.array([-6, 3, 8], dtype='int')},
+         [np.array([[0, 4, 3], [9, 0, -6]], dtype='int'),
+          [[rand_coor, rand_coor, rand_coor], [rand_coor, rand_coor, rand_coor]]],
+         {'RightHandThickness': 36, 'LeftHandThickness': -9},
+         [[-6, 4, -4], [2, 8, 1]],
+         [[[-3.5, 3.5, -2.0], [9, 0, -6], [-6, 3, 8], 2.5], [[2.0, 1.0, 5.0], [0, 4, 3], [1, -9, 6], 25.0]],
+         [[np.array([2, 8, 1]), np.array([-6, 4, -4])],
+          [[[2.911684611677104, 7.658118270621086, 1.227921152919276], [1.9534757894800765, 8.465242105199236, 1.8839599998785472], [1.5917517095361369, 7.183503419072274, 1.4082482904638631]],
+           [[-6.21615749183132, 3.059079153204844, -3.739339495144585], [-6.186838410896736, 3.777824759216273, -4.9569376001580645], [-5.04168515250009, 3.744449374000024, -4.127775312999988]]]]),
+        # Testing that when frame and wristJC are composed of lists of floats and vsk values are floats
+        ({'RWRA': [4.0, 7.0, 6.0], 'RWRB': [0.0, -5.0, 4.0], 'RFIN': [1.0, -9.0, 6.0], 'LWRA': [-4.0, 5.0, 3.0],
+          'LWRB': [-3.0, 2.0, -7.0], 'LFIN': [-6.0, 3.0, 8.0]},
+         [[[0.0, 4.0, 3.0], [9.0, 0.0, -6.0]], [[rand_coor, rand_coor, rand_coor], [rand_coor, rand_coor, rand_coor]]],
+         {'RightHandThickness': 36.0, 'LeftHandThickness': -9.0},
+         [[-6, 4, -4], [2, 8, 1]],
+         [[[-3.5, 3.5, -2.0], [9, 0, -6], [-6, 3, 8], 2.5], [[2.0, 1.0, 5.0], [0, 4, 3], [1, -9, 6], 25.0]],
+         [[np.array([2, 8, 1]), np.array([-6, 4, -4])],
+          [[[2.911684611677104, 7.658118270621086, 1.227921152919276], [1.9534757894800765, 8.465242105199236, 1.8839599998785472], [1.5917517095361369, 7.183503419072274, 1.4082482904638631]],
+           [[-6.21615749183132, 3.059079153204844, -3.739339495144585], [-6.186838410896736, 3.777824759216273, -4.9569376001580645], [-5.04168515250009, 3.744449374000024, -4.127775312999988]]]]),
+        # Testing that when frame and wristJC are composed of numpy arrays of floats and vsk values are floats
+        ({'RWRA': np.array([4.0, 7.0, 6.0], dtype='float'), 'RWRB': np.array([0.0, -5.0, 4.0], dtype='float'),
+          'RFIN': np.array([1.0, -9.0, 6.0], dtype='float'), 'LWRA': np.array([-4.0, 5.0, 3.0], dtype='float'),
+          'LWRB': np.array([-3.0, 2.0, -7.0], dtype='float'), 'LFIN': np.array([-6.0, 3.0, 8.0], dtype='float')},
+         [np.array([[0.0, 4.0, 3.0], [9.0, 0.0, -6.0]], dtype='float'),
+          [[rand_coor, rand_coor, rand_coor], [rand_coor, rand_coor, rand_coor]]],
+         {'RightHandThickness': 36.0, 'LeftHandThickness': -9.0},
+         [[-6, 4, -4], [2, 8, 1]],
+         [[[-3.5, 3.5, -2.0], [9, 0, -6], [-6, 3, 8], 2.5], [[2.0, 1.0, 5.0], [0, 4, 3], [1, -9, 6], 25.0]],
+         [[np.array([2, 8, 1]), np.array([-6, 4, -4])],
+          [[[2.911684611677104, 7.658118270621086, 1.227921152919276], [1.9534757894800765, 8.465242105199236, 1.8839599998785472], [1.5917517095361369, 7.183503419072274, 1.4082482904638631]],
            [[-6.21615749183132, 3.059079153204844, -3.739339495144585], [-6.186838410896736, 3.777824759216273, -4.9569376001580645], [-5.04168515250009, 3.744449374000024, -4.127775312999988]]]])])
     def testHandJointCenter(self, frame, wristJC, vsk, mockReturnVal, expectedMockArgs, expected):
         """
@@ -662,6 +911,10 @@ class TestUpperBodyAxis():
         and expected[1][1][2] should be updated
         When values are added to vsk, expectedMockArgs[0][3] and expectedMockArgs[1][3] should be updated
         When values are added to mockReturnVal, expected[0] should be updated
+
+        Lastly, it checks that the resulting output is correct when frame and wristJC are composed of lists of ints,
+        numpy arrays of ints, lists of floats, and numpy arrays of floats and vsk values are either an int or a float.
+        wristJC cannot be a numpy array due to it not being shaped like a multi-dimensional array.
         """
         with patch.object(pyCGM, 'findJointC', side_effect=mockReturnVal) as mock_findJointC:
             result = pyCGM.handJointCenter(frame, None, wristJC, vsk)
@@ -742,7 +995,33 @@ class TestLowerBodyAxis():
           'RPSI': np.array([1, 0, -4]), 'LPSI': np.array([7, -2, 2])},
          [np.array([-6.5, -1.5,  2.0]),
           np.array([[-6.72928306, -1.61360872, 2.96670695], [-6.56593805, -2.48907071, 1.86812391], [-5.52887619, -1.59397972,  2.21928602]]),
-          np.array([-4,  8, -5])])])
+          np.array([-4,  8, -5])]),
+        # Testing that when frame is composed of lists of ints
+        ({'SACR': [-4, 8, -5], 'RASI': np.array([-6, 6, 3]), 'LASI': np.array([-7, -9, 1]), 'RPSI': [1, 0, -4],
+          'LPSI': [7, -2, 2]},
+         [np.array([-6.5, -1.5,  2.0]),
+          np.array([[-6.72928306, -1.61360872, 2.96670695], [-6.56593805, -2.48907071, 1.86812391], [-5.52887619, -1.59397972,  2.21928602]]),
+          np.array([-4,  8, -5])]),
+        # Testing that when frame is composed ofe numpy arrays of ints
+        ({'SACR': np.array([-4, 8, -5], dtype='int'), 'RASI': np.array([-6, 6, 3], dtype='int'),
+          'LASI': np.array([-7, -9, 1], dtype='int'), 'RPSI': np.array([1, 0, -4], dtype='int'),
+          'LPSI': np.array([7, -2, 2], dtype='int')},
+         [np.array([-6.5, -1.5, 2.0]),
+          np.array([[-6.72928306, -1.61360872, 2.96670695], [-6.56593805, -2.48907071, 1.86812391], [-5.52887619, -1.59397972, 2.21928602]]),
+          np.array([-4, 8, -5])]),
+        # Testing that when frame is composed of lists of floats
+        ({'SACR': [-4.0, 8.0, -5.0], 'RASI': np.array([-6.0, 6.0, 3.0]), 'LASI': np.array([-7.0, -9.0, 1.0]),
+          'RPSI': [1.0, 0.0, -4.0], 'LPSI': [7.0, -2.0, 2.0]},
+         [np.array([-6.5, -1.5, 2.0]),
+          np.array([[-6.72928306, -1.61360872, 2.96670695], [-6.56593805, -2.48907071, 1.86812391], [-5.52887619, -1.59397972, 2.21928602]]),
+          np.array([-4, 8, -5])]),
+        # Testing that when frame is composed of numpy arrays of floats
+        ({'SACR': np.array([-4.0, 8.0, -5.0], dtype='float'), 'RASI': np.array([-6.0, 6.0, 3.0], dtype='float'),
+          'LASI': np.array([-7.0, -9.0, 1.0], dtype='float'), 'RPSI': np.array([1.0, 0.0, -4.0], dtype='float'),
+          'LPSI': np.array([7.0, -2.0, 2.0], dtype='float')},
+         [np.array([-6.5, -1.5, 2.0]),
+          np.array([[-6.72928306, -1.61360872, 2.96670695], [-6.56593805, -2.48907071, 1.86812391], [-5.52887619, -1.59397972, 2.21928602]]),
+          np.array([-4, 8, -5])])])
     def testPelvisJointCenter(self, frame, expected):
         """
         This test provides coverage of the pelvisJointCenter function in pyCGM.py, defined as pelvisJointCenter(frame)
@@ -758,6 +1037,11 @@ class TestLowerBodyAxis():
         When values are added to frame['SACR'], expected[2] should be updated, and expected[1] should also be updated
         if there are values for frame['RASI'] and frame['LASI']
         Values produced from frame['SACR'] takes precedent over frame['RPSI'] and frame['LPSI']
+
+        Lastly, it checks that the resulting output is correct when frame is composed of lists of ints, numpy arrays of
+        ints, lists of floats, and numpy arrays of floats. frame['LASI'] and frame['RASI'] were kept as numpy arrays
+        every time as list would cause an error in pyCGM.py line 111 as lists cannot be divided by floats:
+        origin = (RASI+LASI)/2.0
         """
         result = pyCGM.pelvisJointCenter(frame)
         np.testing.assert_almost_equal(result[0], expected[0], rounding_precision)
@@ -816,7 +1100,25 @@ class TestLowerBodyAxis():
         # Test when values are added to pel_origin, pel_x, pel_y, pel_z, and all values in vsk
         ([1, 0, -3], [-5, -3, -6], [4, -1, 2], [3, 8, 2],
          {'MeanLegLength': 15.0, 'R_AsisToTrocanterMeasure': -24.0, 'L_AsisToTrocanterMeasure': -7.0, 'InterAsisDistance': 11.0},
-         [[81.76345582,  89.67607691, 124.73321758], [-76.79709552, 107.19186562, -17.60160178]])])
+         [[81.76345582,  89.67607691, 124.73321758], [-76.79709552, 107.19186562, -17.60160178]]),
+        # Testing that when pel_origin, pel_x, pel_y, and pel_z are lists of ints and vsk values are ints
+        ([1, 0, -3], [-5, -3, -6], [4, -1, 2], [3, 8, 2],
+         {'MeanLegLength': 15, 'R_AsisToTrocanterMeasure': -24, 'L_AsisToTrocanterMeasure': -7, 'InterAsisDistance': 11},
+         [[81.76345582, 89.67607691, 124.73321758], [-76.79709552, 107.19186562, -17.60160178]]),
+        # Testing that when pel_origin, pel_x, pel_y, and pel_z are numpy arrays of ints and vsk values are ints
+        (np.array([1, 0, -3], dtype='int'), np.array([-5, -3, -6], dtype='int'), np.array([4, -1, 2], dtype='int'),
+         np.array([3, 8, 2], dtype='int'),
+         {'MeanLegLength': 15, 'R_AsisToTrocanterMeasure': -24, 'L_AsisToTrocanterMeasure': -7, 'InterAsisDistance': 11},
+         [[81.76345582, 89.67607691, 124.73321758], [-76.79709552, 107.19186562, -17.60160178]]),
+        # Testing that when pel_origin, pel_x, pel_y, and pel_z are lists of floats and vsk values are floats
+        ([1.0, 0.0, -3.0], [-5.0, -3.0, -6.0], [4.0, -1.0, 2.0], [3.0, 8.0, 2.0],
+         {'MeanLegLength': 15.0, 'R_AsisToTrocanterMeasure': -24.0, 'L_AsisToTrocanterMeasure': -7.0, 'InterAsisDistance': 11.0},
+         [[81.76345582, 89.67607691, 124.73321758], [-76.79709552, 107.19186562, -17.60160178]]),
+        # Testing that when pel_origin, pel_x, pel_y, and pel_z are numpy arrays of floats and vsk values are floats
+        (np.array([1.0, 0.0, -3.0], dtype='float'), np.array([-5.0, -3.0, -6.0], dtype='float'),
+         np.array([4.0, -1.0, 2.0], dtype='float'), np.array([3.0, 8.0, 2.0], dtype='float'),
+         {'MeanLegLength': 15.0, 'R_AsisToTrocanterMeasure': -24.0, 'L_AsisToTrocanterMeasure': -7.0, 'InterAsisDistance': 11},
+         [[81.76345582, 89.67607691, 124.73321758], [-76.79709552, 107.19186562, -17.60160178]])])
     def testHipJointCenter(self, pel_origin, pel_x, pel_y, pel_z, vsk, expected):
         """
         This test provides coverage of the hipJointCenter function in pyCGM.py, defined as hipJointCenter(frame, pel_origin, pel_x, pel_y, pel_z, vsk)
@@ -832,6 +1134,9 @@ class TestLowerBodyAxis():
         This test is checking to make sure the hip joint center is calculated correctly given the input parameters.
         The test checks to see that the correct values in expected are updated per each input parameter added. Any
         parameter that is added should change the value of every value in expected.
+
+        Lastly, it checks that the resulting output is correct when pel_origin, pel_x, pel_y, and pel_z are composed of
+        lists of ints, numpy arrays of ints, lists of floats, and numpy arrays of floats and vsk values are ints or floats.
         """
         result = pyCGM.hipJointCenter(None, pel_origin, pel_x, pel_y, pel_z, vsk)
         np.testing.assert_almost_equal(result[0], expected[0], rounding_precision)
@@ -873,6 +1178,22 @@ class TestLowerBodyAxis():
         # Testing when values are added to all params
         ([-5, 3, 8], [-3, -7, -1],
          [np.array([6, 3, 9]), np.array([[5, 4, -2], [0, 0, 0], [7, 2, 3]]), np.array(rand_coor)],
+         [[-4, -2, 3.5], [[-5, -1, -7.5], [-10, -5, -5.5], [-3, -3, -2.5]]]),
+        # Testing that when l_hip_jc, r_hip_jc, and pelvis_axis are composed of lists of ints
+        ([-5, 3, 8], [-3, -7, -1],
+         [[6, 3, 9], [[5, 4, -2], [0, 0, 0], [7, 2, 3]], rand_coor],
+         [[-4, -2, 3.5], [[-5, -1, -7.5], [-10, -5, -5.5], [-3, -3, -2.5]]]),
+        # Testing that when l_hip_jc, r_hip_jc, and pelvis_axis are composed of numpy arrays of ints
+        (np.array([-5, 3, 8], dtype='int'), np.array([-3, -7, -1], dtype='int'),
+         [np.array([6, 3, 9], dtype='int'), np.array([[5, 4, -2], [0, 0, 0], [7, 2, 3]], dtype='int'), rand_coor],
+         [[-4, -2, 3.5], [[-5, -1, -7.5], [-10, -5, -5.5], [-3, -3, -2.5]]]),
+        # Testing that when l_hip_jc, r_hip_jc, and pelvis_axis are composed of lists of floats
+        ([-5.0, 3.0, 8.0], [-3.0, -7.0, -1.0],
+         [[6.0, 3.0, 9.0], [[5.0, 4.0, -2.0], [0.0, 0.0, 0.0], [7.0, 2.0, 3.0]], rand_coor],
+         [[-4, -2, 3.5], [[-5, -1, -7.5], [-10, -5, -5.5], [-3, -3, -2.5]]]),
+        # Testing that when l_hip_jc, r_hip_jc, and pelvis_axis are composed of numpy arrays of floats
+        (np.array([-5.0, 3.0, 8.0], dtype='float'), np.array([-3.0, -7.0, -1.0], dtype='float'),
+         [np.array([6.0, 3.0, 9.0], dtype='float'), np.array([[5.0, 4.0, -2.0], [0.0, 0.0, 0.0], [7.0, 2.0, 3.0]], dtype='float'), rand_coor],
          [[-4, -2, 3.5], [[-5, -1, -7.5], [-10, -5, -5.5], [-3, -3, -2.5]]])])
     def testHipAxisCenter(self, l_hip_jc, r_hip_jc, pelvis_axis, expected):
         """
@@ -888,6 +1209,9 @@ class TestLowerBodyAxis():
         The test checks to see that the correct values in expected are updated per each input parameter added:
         When values are added to l_hip_jc or r_hip_jc, every value in expected should be updated
         When values are added to pelvis_axis, expected[1] should be updated
+
+        Lastly, it checks that the resulting output is correct when l_hip_jc, r_hip_jc, and pelvis_axis are composed of
+        lists of ints, numpy arrays of ints, lists of floats, and numpy arrays of floats.
         """
         result = pyCGM.hipAxisCenter(l_hip_jc, r_hip_jc, pelvis_axis)
         np.testing.assert_almost_equal(result[0], expected[0], rounding_precision)
@@ -980,6 +1304,45 @@ class TestLowerBodyAxis():
          [[[1, 2, 4], [1, -9, 2], [8, -4, 5], 11.5], [[-1, 0, 8], [-8, 8, -2], [8, -8, 5], 4.0]],
          [np.array([-5, -5, -9]), np.array([3, -6, -5]),
           np.array([[[-5.6293369, -4.4458078, -8.45520089], [-5.62916022, -5.77484544, -8.93858368], [-4.54382845, -5.30411437, -8.16368549]],
+                    [[2.26301154, -6.63098327, -4.75770242], [3.2927155, -5.97483821, -4.04413154], [2.39076635, -5.22461171, -4.83384537]]])]),
+        # Testing that when hip_JC is composed of lists of ints and vsk values are ints
+        ({'RTHI': np.array([1, 2, 4]), 'LTHI': np.array([-1, 0, 8]), 'RKNE': np.array([8, -4, 5]), 'LKNE': np.array([8, -8, 5])},
+         [[-8, 8, -2], [1, -9, 2]],
+         {'RightKneeWidth': 9, 'LeftKneeWidth': -6},
+         [np.array([-5, -5, -9]), np.array([3, -6, -5])],
+         [[[1, 2, 4], [1, -9, 2], [8, -4, 5], 11.5], [[-1, 0, 8], [-8, 8, -2], [8, -8, 5], 4.0]],
+         [np.array([-5, -5, -9]), np.array([3, -6, -5]),
+          np.array([[[-5.6293369, -4.4458078, -8.45520089], [-5.62916022, -5.77484544, -8.93858368], [-4.54382845, -5.30411437, -8.16368549]],
+                    [[2.26301154, -6.63098327, -4.75770242], [3.2927155, -5.97483821, -4.04413154], [2.39076635, -5.22461171, -4.83384537]]])]),
+        # Testing that when hip_JC is composed of numpy arrays of ints and vsk values are ints
+        ({'RTHI': np.array([1, 2, 4], dtype='int'), 'LTHI': np.array([-1, 0, 8], dtype='int'),
+          'RKNE': np.array([8, -4, 5], dtype='int'), 'LKNE': np.array([8, -8, 5], dtype='int')},
+         np.array([[-8, 8, -2], [1, -9, 2]], dtype='int'),
+         {'RightKneeWidth': 9, 'LeftKneeWidth': -6},
+         [np.array([-5, -5, -9]), np.array([3, -6, -5])],
+         [[[1, 2, 4], [1, -9, 2], [8, -4, 5], 11.5], [[-1, 0, 8], [-8, 8, -2], [8, -8, 5], 4.0]],
+         [np.array([-5, -5, -9]), np.array([3, -6, -5]),
+          np.array([[[-5.6293369, -4.4458078, -8.45520089], [-5.62916022, -5.77484544, -8.93858368], [-4.54382845, -5.30411437, -8.16368549]],
+                    [[2.26301154, -6.63098327, -4.75770242], [3.2927155, -5.97483821, -4.04413154], [2.39076635, -5.22461171, -4.83384537]]])]),
+        # Testing that when hip_JC is composed of lists of floats and vsk values are floats
+        ({'RTHI': np.array([1, 2, 4]), 'LTHI': np.array([-1, 0, 8]), 'RKNE': np.array([8, -4, 5]),
+          'LKNE': np.array([8, -8, 5])},
+         [[-8.0, 8.0, -2.0], [1.0, -9.0, 2.0]],
+         {'RightKneeWidth': 9.0, 'LeftKneeWidth': -6.0},
+         [np.array([-5, -5, -9]), np.array([3, -6, -5])],
+         [[[1, 2, 4], [1, -9, 2], [8, -4, 5], 11.5], [[-1, 0, 8], [-8, 8, -2], [8, -8, 5], 4.0]],
+         [np.array([-5, -5, -9]), np.array([3, -6, -5]),
+          np.array([[[-5.6293369, -4.4458078, -8.45520089], [-5.62916022, -5.77484544, -8.93858368], [-4.54382845, -5.30411437, -8.16368549]],
+                    [[2.26301154, -6.63098327, -4.75770242], [3.2927155, -5.97483821, -4.04413154], [2.39076635, -5.22461171, -4.83384537]]])]),
+        # Testing that when hip_JC is composed of numpy arrays of floats and vsk values are floats
+        ({'RTHI': np.array([1.0, 2.0, 4.0], dtype='float'), 'LTHI': np.array([-1.0, 0.0, 8.0], dtype='float'),
+          'RKNE': np.array([8.0, -4.0, 5.0], dtype='float'), 'LKNE': np.array([8.0, -8.0, 5.0], dtype='float')},
+         np.array([[-8.0, 8.0, -2.0], [1.0, -9.0, 2.0]], dtype='int'),
+         {'RightKneeWidth': 9.0, 'LeftKneeWidth': -6.0},
+         [np.array([-5, -5, -9]), np.array([3, -6, -5])],
+         [[[1, 2, 4], [1, -9, 2], [8, -4, 5], 11.5], [[-1, 0, 8], [-8, 8, -2], [8, -8, 5], 4.0]],
+         [np.array([-5, -5, -9]), np.array([3, -6, -5]),
+          np.array([[[-5.6293369, -4.4458078, -8.45520089], [-5.62916022, -5.77484544, -8.93858368], [-4.54382845, -5.30411437, -8.16368549]],
                     [[2.26301154, -6.63098327, -4.75770242], [3.2927155, -5.97483821, -4.04413154], [2.39076635, -5.22461171, -4.83384537]]])])])
     def testKneeJointCenter(self, frame, hip_JC, vsk, mockReturnVal, expectedMockArgs, expected):
         """
@@ -1004,6 +1367,13 @@ class TestLowerBodyAxis():
         expected[2][1][2] should be updated, unless values are also added to frame, then expected[2] should be updated
         When values are added to vsk, expectedMockArgs[0][3], and expectedMockArgs[1][3] should be updated
         When values are added to mockReturnVal, expected[0], expected[2][0][2], and expected[2][1][2] should be updated
+
+        Lastly, it checks that the resulting output is correct when hip_JC is composed of lists of ints, numpy arrays of
+        ints, lists of floats, and numpy arrays of floats and vsk values are ints and floats. The values in frame were
+        kept as numpy arrays as lists would cause an error in pyCGM.py line 409 and 429 as lists cannot be subtracted
+        by each other:
+        thi_kne_R = RTHI-RKNE
+        thi_kne_L = LTHI-LKNE
         """
         with patch.object(pyCGM, 'findJointC', side_effect=mockReturnVal) as mock_findJointC:
             result = pyCGM.kneeJointCenter(frame, hip_JC, None, vsk)
@@ -1133,6 +1503,50 @@ class TestLowerBodyAxis():
           [[0, 2, -1], [9, -8, 9], [2, -4, -5], 16.0]],
          [np.array([2, -5, 4]), np.array([8, -3, 1]),
           [[np.array([1.48891678, -5.83482493, 3.7953997 ]), np.array([1.73661348, -5.07447603, 4.96181124]), np.array([1.18181818, -4.45454545, 3.81818182])],
+           [np.array([8.87317138, -2.54514024, 1.17514093]), np.array([7.52412119, -2.28213872, 1.50814815]), np.array([8.10540926, -3.52704628, 1.84327404])]]]),
+        # Testing that when knee_JC is composed of lists of ints and vsk values are ints
+        ({'RTIB': np.array([-9, 6, -9]), 'LTIB': np.array([0, 2, -1]), 'RANK': np.array([1, 0, -5]), 'LANK': np.array([2, -4, -5])},
+         [[-7, 1, 2], [9, -8, 9],
+          np.array([[rand_coor, rand_coor, rand_coor], [rand_coor, rand_coor, rand_coor]])],
+         {'RightAnkleWidth': -38, 'LeftAnkleWidth': 18, 'RightTibialTorsion': 29, 'LeftTibialTorsion': -13},
+         [np.array([2, -5, 4]), np.array([8, -3, 1])],
+         [[[-9, 6, -9], [-7, 1, 2], [1, 0, -5], -12.0],
+          [[0, 2, -1], [9, -8, 9], [2, -4, -5], 16.0]],
+         [np.array([2, -5, 4]), np.array([8, -3, 1]),
+          [[np.array([1.48891678, -5.83482493, 3.7953997 ]), np.array([1.73661348, -5.07447603, 4.96181124]), np.array([1.18181818, -4.45454545, 3.81818182])],
+           [np.array([8.87317138, -2.54514024, 1.17514093]), np.array([7.52412119, -2.28213872, 1.50814815]), np.array([8.10540926, -3.52704628, 1.84327404])]]]),
+        # Testing that when knee_JC is composed of numpy arrays of ints and vsk values are ints
+        ({'RTIB': np.array([-9, 6, -9]), 'LTIB': np.array([0, 2, -1]), 'RANK': np.array([1, 0, -5]), 'LANK': np.array([2, -4, -5])},
+         [np.array([-7, 1, 2], dtype='int'), np.array([9, -8, 9], dtype='int'),
+          np.array([[rand_coor, rand_coor, rand_coor], [rand_coor, rand_coor, rand_coor]])],
+         {'RightAnkleWidth': -38, 'LeftAnkleWidth': 18, 'RightTibialTorsion': 29, 'LeftTibialTorsion': -13},
+         [np.array([2, -5, 4]), np.array([8, -3, 1])],
+         [[[-9, 6, -9], [-7, 1, 2], [1, 0, -5], -12.0],
+          [[0, 2, -1], [9, -8, 9], [2, -4, -5], 16.0]],
+         [np.array([2, -5, 4]), np.array([8, -3, 1]),
+          [[np.array([1.48891678, -5.83482493, 3.7953997]), np.array([1.73661348, -5.07447603, 4.96181124]), np.array([1.18181818, -4.45454545, 3.81818182])],
+           [np.array([8.87317138, -2.54514024, 1.17514093]), np.array([7.52412119, -2.28213872, 1.50814815]), np.array([8.10540926, -3.52704628, 1.84327404])]]]),
+        # Testing that when knee_JC is composed of lists of floats and vsk values are floats
+        ({'RTIB': np.array([-9.0, 6.0, -9.0]), 'LTIB': np.array([0.0, 2.0, -1.0]), 'RANK': np.array([1.0, 0.0, -5.0]), 'LANK': np.array([2.0, -4.0, -5.0])},
+         [[-7.0, 1.0, 2.0], [9.0, -8.0, 9.0],
+          np.array([[rand_coor, rand_coor, rand_coor], [rand_coor, rand_coor, rand_coor]])],
+         {'RightAnkleWidth': -38.0, 'LeftAnkleWidth': 18.0, 'RightTibialTorsion': 29.0, 'LeftTibialTorsion': -13.0},
+         [np.array([2, -5, 4]), np.array([8, -3, 1])],
+         [[[-9, 6, -9], [-7, 1, 2], [1, 0, -5], -12.0],
+          [[0, 2, -1], [9, -8, 9], [2, -4, -5], 16.0]],
+         [np.array([2, -5, 4]), np.array([8, -3, 1]),
+          [[np.array([1.48891678, -5.83482493, 3.7953997]), np.array([1.73661348, -5.07447603, 4.96181124]), np.array([1.18181818, -4.45454545, 3.81818182])],
+           [np.array([8.87317138, -2.54514024, 1.17514093]), np.array([7.52412119, -2.28213872, 1.50814815]), np.array([8.10540926, -3.52704628, 1.84327404])]]]),
+        # Testing that when knee_JC is composed of numpy arrays of floats and vsk values are floats
+        ({'RTIB': np.array([-9.0, 6.0, -9.0]), 'LTIB': np.array([0.0, 2.0, -1.0]), 'RANK': np.array([1.0, 0.0, -5.0]), 'LANK': np.array([2.0, -4.0, -5.0])},
+         [np.array([-7.0, 1.0, 2.0], dtype='float'), np.array([9.0, -8.0, 9.0], dtype='float'),
+          np.array([[rand_coor, rand_coor, rand_coor], [rand_coor, rand_coor, rand_coor]], dtype='float')],
+         {'RightAnkleWidth': -38.0, 'LeftAnkleWidth': 18.0, 'RightTibialTorsion': 29.0, 'LeftTibialTorsion': -13.0},
+         [np.array([2, -5, 4]), np.array([8, -3, 1])],
+         [[[-9, 6, -9], [-7, 1, 2], [1, 0, -5], -12.0],
+          [[0, 2, -1], [9, -8, 9], [2, -4, -5], 16.0]],
+         [np.array([2, -5, 4]), np.array([8, -3, 1]),
+          [[np.array([1.48891678, -5.83482493, 3.7953997]), np.array([1.73661348, -5.07447603, 4.96181124]), np.array([1.18181818, -4.45454545, 3.81818182])],
            [np.array([8.87317138, -2.54514024, 1.17514093]), np.array([7.52412119, -2.28213872, 1.50814815]), np.array([8.10540926, -3.52704628, 1.84327404])]]])])
     def testAnkleJointCenter(self, frame, knee_JC, vsk, mockReturnVal, expectedMockArgs, expected):
         """
@@ -1157,6 +1571,13 @@ class TestLowerBodyAxis():
         expected[2][1][2] should be updated, unless values are also added to frame, then all of expected should be updated
         When values are added to vsk, expectedMockArgs[0][3], and expectedMockArgs[1][3] should be updated
         When values are added to mockReturnVal, expected[0], expected[2][0][2], and expected[2][1][2] should be updated
+
+        Lastly, it checks that the resulting output is correct when knee_JC is composed of lists of ints, numpy arrays
+        of ints, lists of floats, and numpy arrays of floats and vsk values are ints and floats. The values in frame
+        were kept as numpy arrays as lists would cause an error in pyCGM.py line 580 and 596 as lists cannot be
+        subtracted by each other:
+        tib_ank_R = tib_R-ank_R
+        tib_ank_L = tib_L-ank_L
         """
         with patch.object(pyCGM, 'findJointC', side_effect=mockReturnVal) as mock_findJointC:
             result = pyCGM.ankleJointCenter(frame, knee_JC, None, vsk)
@@ -1271,6 +1692,42 @@ class TestLowerBodyAxis():
            [np.array(rand_coor), np.array([9, 3, -4]), np.array(rand_coor)]]],
          [np.array([4, 0, -3]), np.array([-1, 7, 2]),
           [[[3.08005417, 0.34770638, -2.81889243], [4.00614173, -0.44911697, -2.10654814], [4.3919974, 0.82303962, -2.58897224]],
+           [[-1.58062909, 6.83398388, 1.20293758], [-1.59355918, 7.75640754, 2.27483654], [-0.44272327, 7.63268181, 1.46226738]]]]),
+        # Testing that when frame and ankle_JC are composed of lists of ints and vsk values are ints
+        ({'RTOE': [4, 0, -3], 'LTOE': [-1, 7, 2]},
+         {'RightStaticRotOff': -12, 'RightStaticPlantFlex': 20, 'LeftStaticRotOff': 34, 'LeftStaticPlantFlex': -70},
+         [[-3, 5, 2], [2, 3, 9],
+          [[rand_coor, [-1, 0, 2], rand_coor],
+           [rand_coor, [9, 3, -4], rand_coor]]],
+         [np.array([4, 0, -3]), np.array([-1, 7, 2]),
+          [[[3.08005417, 0.34770638, -2.81889243], [4.00614173, -0.44911697, -2.10654814], [4.3919974, 0.82303962, -2.58897224]],
+           [[-1.58062909, 6.83398388, 1.20293758], [-1.59355918, 7.75640754, 2.27483654], [-0.44272327, 7.63268181, 1.46226738]]]]),
+        # Testing that when frame and ankle_JC are composed of numpy arrays of ints and vsk values are ints
+        ({'RTOE': np.array([4, 0, -3], dtype='int'), 'LTOE': np.array([-1, 7, 2], dtype='int')},
+         {'RightStaticRotOff': -12, 'RightStaticPlantFlex': 20, 'LeftStaticRotOff': 34, 'LeftStaticPlantFlex': -70},
+         [np.array([-3, 5, 2], dtype='int'), np.array([2, 3, 9], dtype='int'),
+          [np.array([rand_coor, [-1, 0, 2], rand_coor], dtype='int'),
+           np.array([rand_coor, [9, 3, -4], rand_coor], dtype='int')]],
+         [np.array([4, 0, -3]), np.array([-1, 7, 2]),
+          [[[3.08005417, 0.34770638, -2.81889243], [4.00614173, -0.44911697, -2.10654814], [4.3919974, 0.82303962, -2.58897224]],
+           [[-1.58062909, 6.83398388, 1.20293758], [-1.59355918, 7.75640754, 2.27483654], [-0.44272327, 7.63268181, 1.46226738]]]]),
+        # Testing that when frame and ankle_JC are composed of lists of floats and vsk values are floats
+        ({'RTOE': [4.0, 0.0, -3.0], 'LTOE': [-1.0, 7.0, 2.0]},
+         {'RightStaticRotOff': -12.0, 'RightStaticPlantFlex': 20.0, 'LeftStaticRotOff': 34.0, 'LeftStaticPlantFlex': -70.0},
+         [[-3.0, 5.0, 2.0], [2.0, 3.0, 9.0],
+          [[rand_coor, [-1.0, 0.0, 2.0], rand_coor],
+           [rand_coor, [9.0, 3.0, -4.0], rand_coor]]],
+         [np.array([4, 0, -3]), np.array([-1, 7, 2]),
+          [[[3.08005417, 0.34770638, -2.81889243], [4.00614173, -0.44911697, -2.10654814], [4.3919974, 0.82303962, -2.58897224]],
+           [[-1.58062909, 6.83398388, 1.20293758], [-1.59355918, 7.75640754, 2.27483654], [-0.44272327, 7.63268181, 1.46226738]]]]),
+        # Testing that when frame and ankle_JC are composed of numpy arrays of floats and vsk values are floats
+        ({'RTOE': np.array([4.0, 0.0, -3.0], dtype='float'), 'LTOE': np.array([-1.0, 7.0, 2.0], dtype='float')},
+         {'RightStaticRotOff': -12.0, 'RightStaticPlantFlex': 20.0, 'LeftStaticRotOff': 34.0, 'LeftStaticPlantFlex': -70.0},
+         [np.array([-3.0, 5.0, 2.0], dtype='float'), np.array([2.0, 3.0, 9.0], dtype='float'),
+          [np.array([rand_coor, [-1.0, 0.0, 2.0], rand_coor], dtype='float'),
+           np.array([rand_coor, [9.0, 3.0, -4.0], rand_coor], dtype='float')]],
+         [np.array([4, 0, -3]), np.array([-1, 7, 2]),
+          [[[3.08005417, 0.34770638, -2.81889243], [4.00614173, -0.44911697, -2.10654814], [4.3919974, 0.82303962, -2.58897224]],
            [[-1.58062909, 6.83398388, 1.20293758], [-1.59355918, 7.75640754, 2.27483654], [-0.44272327, 7.63268181, 1.46226738]]]])])
     def testFootJointCenter(self, frame, vsk, ankle_JC, expected):
         """
@@ -1280,13 +1737,16 @@ class TestLowerBodyAxis():
         frame: dictionary of marker lists
         vsk: dictionary containing subject measurements from a VSK file
         ankle_JC: array of ankle_JC containing the x,y,z axes marker positions of the ankle joint center
-        expected: the expected result from calling footJointCenter on frame, knee_JC, vsk, and mockReturnVal
+        expected: the expected result from calling footJointCenter on frame, vsk, and ankle_JC
 
         This test is checking to make sure the foot joint center and axis are calculated correctly given the input
         parameters. The test checks to see that the correct values in expected are updated per each input parameter added:
         When values are added to frame, expected[0] and expected[1] should be updated
         When values are added to vsk, expected[2] should be updated as long as there are values for frame and ankle_JC
         When values are added to ankle_JC, expected[2] should be updated
+
+        Lastly, it checks that the resulting output is correct when frame and ankle_JC is composed of lists of ints,
+        numpy arrays of ints, lists of floats, and numpy arrays of floats and vsk values are ints and floats.
         """
         result = pyCGM.footJointCenter(frame, vsk, ankle_JC, None, None)
         np.testing.assert_almost_equal(result[0], expected[0], rounding_precision)
@@ -1320,7 +1780,17 @@ class TestAxisUtils():
         # Testing with value in a, b, c and delta of 1
         ([-7, 1, 2], [1, 4, 3], [3, 2, -8], 1.0, [3.91271, 2.361115, -7.808801]),
         # Testing with value in a, b, c and delta of 20
-        ([-7, 1, 2], [1, 4, 3], [3, 2, -8], 10.0, [5.867777, 5.195449, 1.031332])])
+        ([-7, 1, 2], [1, 4, 3], [3, 2, -8], 10.0, [5.867777, 5.195449, 1.031332]),
+        # Testing that when a, b, and c are lists of ints and delta is an int
+        ([-7, 1, 2], [1, 4, 3], [3, 2, -8], 10, [5.867777, 5.195449, 1.031332]),
+        # Testing that when a, b, and c are numpy arrays of ints and delta is an int
+        (np.array([-7, 1, 2], dtype='int'), np.array([1, 4, 3], dtype='int'), np.array([3, 2, -8], dtype='int'),
+         10, [5.867777, 5.195449, 1.031332]),
+        # Testing that when a, b, and c are lists of floats and delta is a float
+        ([-7.0, 1.0, 2.0], [1.0, 4.0, 3.0], [3.0, 2.0, -8.0], 10.0, [5.867777, 5.195449, 1.031332]),
+        # Testing that when a, b, and c are numpy arrays of floats and delta is a float
+        (np.array([-7.0, 1.0, 2.0], dtype='float'), np.array([1.0, 4.0, 3.0], dtype='float'),
+         np.array([3.0, 2.0, -8.0], dtype='float'), 10.0, [5.867777, 5.195449, 1.031332])])
     def testfindJointC(self, a, b, c, delta, expected):
         """
         This test provides coverage of the findJointC function in pyCGM.py, defined as findJointC(a, b, c, delta)
@@ -1331,6 +1801,9 @@ class TestAxisUtils():
         c: list markers of x,y,z position
         delta: length from marker to joint center, retrieved from subject measurement file
         expected: the expected result from calling findJointC on a, b, c, and delta
+
+        Lastly, it checks that the resulting output is correct when a, b, and c are lists of ints, numpy arrays of ints,
+        lists of floats, and numpy arrays of floats and delta is an int or a float.
         """
         result = pyCGM.findJointC(a, b, c, delta)
         np.testing.assert_almost_equal(result, expected, rounding_precision)
