@@ -117,10 +117,10 @@ class TestPycgmStaticUtils():
     # getstatic
     '''
     @pytest.mark.parametrize(["motionData", "vsk", "flat_foot", "GCS", "expected"], [
-        ({}, 
+        ({},
          {},
-         [],
-         [],
+         False,
+         [[1, 0, 0], [0, 1, 0], [0, 0, 1]]),
          []),
     ])
     def test_getstatic(self, motionData, vsk,flat_foot,GCS, expected):
@@ -134,7 +134,6 @@ class TestPycgmStaticUtils():
         """
         result = pycgmStatic.getstatic(motionData, vsk, flat_foot, ,GCS)
         np.testing.assert_almost_equal(result, expected, rounding_precision)
-
     '''
 
     @pytest.mark.parametrize(["list", "expected"], [
@@ -197,14 +196,27 @@ class TestPycgmStaticUtils():
         ({'RASI': np.array([-5, 3, 0]), 'LASI': np.array([0, 3, 0])}, 5),
         ({'RASI': np.array([0, 3, -6]), 'LASI': np.array([0, 2, -5])}, 1.4142135623730951),
         ({'RASI': np.array([-6, 4, 0]), 'LASI': np.array([0, 6, -8])}, 10.198039027185569),
-        ({'RASI': np.array([7, 2, -6]), 'LASI': np.array([3, -7, 2])}, 12.68857754044952)])
+        ({'RASI': np.array([7, 2, -6]), 'LASI': np.array([3, -7, 2])}, 12.68857754044952),
+        # Testing that when frame is composed of lists of ints
+        ({'RASI': [7, 2, -6], 'LASI': [3, -7, 2]}, 12.68857754044952),
+        # Testing that when frame is composed of numpy arrays of ints
+        ({'RASI': np.array([7, 2, -6], dtype='int'), 'LASI': np.array([3, -7, 2], dtype='int')}, 12.68857754044952),
+        # Testing that when frame is composed of lists of floats
+        ({'RASI': [7.0, 2.0, -6.0], 'LASI': [3.0, -7.0, 2.0]}, 12.68857754044952),
+        # Testing that when frame is composed ofe numpy arrays of floats
+        ({'RASI': np.array([7.0, 2.0, -6.0], dtype='float'), 'LASI': np.array([3.0, -7.0, 2.0], dtype='float')}, 12.68857754044952)])
     def test_IADcalculation(self, frame, expected):
         """
         This test provides coverage of the IADcalculation function in pycgmStatic.py, defined as IADcalculation(frame)
 
         This test takes 2 parameters:
         frame: dictionary of marker lists
-        expected: the expected result from calling IADcalculation on frame
+        expected: the expected result from calling IADcalculation on frame. This is the Inter ASIS Distance (IAD), or
+        the distance between the two markers RASI and LASI in frame.
+
+        This test checks that this distance between these two markers is calculated correctly for a variety of different
+        coordinates. It also checks that the resulting output is correct when frame is composed of lists of ints,
+        numpy arrays of ints, lists of floats, and numpy arrays of floats.
         """
         result = pycgmStatic.IADcalculation(frame)
         np.testing.assert_almost_equal(result, expected, rounding_precision)
@@ -226,7 +238,9 @@ class TestPycgmStaticUtils():
         This test takes 3 parameters:
         axisP: the unit vector of axisP, the position of the proximal axis
         axisD: the unit vector of axisD, the position of the distal axis
-        expected: the expected result from calling headoffCalc on axisP and axisD
+        expected: the expected result from calling headoffCalc on axisP and axisD. This returns the y-rotation
+        from a rotatinal matrix calculated by matrix multiplication of axisD x inverse of axisP. This angle is in
+        radians, not degrees.
         """
         # Create axisP as a rotatinal matrix using the x, y, and z rotations given
         axisP = pycgmStatic.rotmat(xRot, yRot, zRot)
@@ -238,7 +252,8 @@ class TestPycgmStaticUtils():
         """
         This test provides coverage of the headoffCalc function in pycgmStatic.py, defined as headoffCalc(axisP, axisD)
 
-        This test checks that the resulting output from calling headoffCalc is correct for different input data types.
+        This test checks that the resulting output from calling headoffCalc is correct when called with a list of ints,
+        a numpy array of ints, a list of floats, and a numpy array of floats.
         """
         axisD = pycgmStatic.rotmat(0, 0, 0)
         axisP_floats = pycgmStatic.rotmat(90, 90, 90)
@@ -420,6 +435,11 @@ class TestPycgmStaticUtils():
         axisP: the unit vector of axisP, the position of the proximal axis
         axisD: the unit vector of axisD, the position of the distal axis
         expected: the expected result from calling getankleangle on axisP and axisD
+
+        This test calls pycgmStatic.rotmat() to create axisP with an x, y, and z rotation defined in the parameters.
+        It then calls pycgmStatic.getankleangle() with axisP and axisD, which was created with no rotation in the x, y
+        or z direction. This result is then compared to the expected result. The results from this test will be in the
+        XYZ order. This output is in radians and not degrees.
         """
         # Create axisP as a rotatinal matrix using the x, y, and z rotations given
         axisP = pycgmStatic.rotmat(xRot, yRot, zRot)
@@ -431,7 +451,8 @@ class TestPycgmStaticUtils():
         """
         This test provides coverage of the getankleangle function in pycgmStatic.py, defined as getankleangle(axisP, axisD)
 
-        This test checks that the resulting output from calling getankleangle is correct for different input data types.
+        This test checks that the resulting output from calling getankleangle is correct when called with a list of ints,
+        a numpy array of ints, a list of floats, and a numpy array of floats.
         """
         axisD = pycgmStatic.rotmat(0, 0, 0)
         axisP_floats = pycgmStatic.rotmat(90, 90, 90)
