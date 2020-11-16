@@ -1613,8 +1613,8 @@ def elbowJointCenter(frame,thorax,shoulderJC,wand,vsk=None):
     # calculate wrist joint center for humerus
     R_wristThickness = vsk['RightWristWidth']
     L_wristThickness = vsk['LeftWristWidth']
-    R_wristThickness = (R_wristThickness / 2 + mm ) 
-    L_wristThickness = (L_wristThickness / 2 + mm ) 
+    R_wristThickness = (R_wristThickness / 2.0 + mm )
+    L_wristThickness = (L_wristThickness / 2.0 + mm )
 
     RWJC = [RWRI[0]+R_wristThickness*R_radius[1][0],RWRI[1]+R_wristThickness*R_radius[1][1],RWRI[2]+R_wristThickness*R_radius[1][2]]
     LWJC = [LWRI[0]-L_wristThickness*L_radius[1][0],LWRI[1]-L_wristThickness*L_radius[1][1],LWRI[2]-L_wristThickness*L_radius[1][2]]
@@ -1899,8 +1899,8 @@ def handJointCenter(frame,elbowJC,wristJC,vsk=None):
     R_handThickness = vsk['RightHandThickness']
     L_handThickness = vsk['LeftHandThickness']
     
-    R_delta =( R_handThickness/2 + mm )  
-    L_delta =( L_handThickness/2 + mm )  
+    R_delta =( R_handThickness/2.0 + mm )
+    L_delta =( L_handThickness/2.0 + mm )
     
     LHND = findJointC(LWRI,LWJC,LFIN,L_delta)
     RHND = findJointC(RWRI,RWJC,RFIN,R_delta)
