@@ -1,6 +1,11 @@
 import pytest
-import pyCGM_Single.pycgmStatic as pycgmStatic
 import numpy as np
+import os
+import sys
+import pyCGM_Single.pyCGM_Helpers as pyCGM_Helpers
+import pyCGM_Single.pycgmStatic as pycgmStatic
+import pyCGM_Single.pycgmIO as pycgmIO
+import pyCGM_Single.pycgmCalc as pycgmCalc
 
 rounding_precision = 6
 
@@ -113,28 +118,6 @@ class TestPycgmStaticUtils():
         # Check the calling getDist on a numpy array of floats yields the expected results
         result_float_nparray = pycgmStatic.getDist(np.array(p0_float, dtype='float'), np.array(p1_float, dtype='float'))
         np.testing.assert_almost_equal(result_float_nparray, expected, rounding_precision)
-
-    # getstatic
-    '''
-    @pytest.mark.parametrize(["motionData", "vsk", "flat_foot", "GCS", "expected"], [
-        ({},
-         {},
-         False,
-         [[1, 0, 0], [0, 1, 0], [0, 0, 1]]),
-         []),
-    ])
-    def test_getstatic(self, motionData, vsk,flat_foot,GCS, expected):
-        """
-        This test provides coverage of the getstatic function in pycgmStatic.py, defined as getstatic(p0, p1)
-
-        This test takes 3 parameters:
-        p0: position of first x,y,z coordinate
-        p1: position of second x,y,z coordinate
-        expected: the expected result from calling getstatic on p0 and p1
-        """
-        result = pycgmStatic.getstatic(motionData, vsk, flat_foot, ,GCS)
-        np.testing.assert_almost_equal(result, expected, rounding_precision)
-    '''
 
     @pytest.mark.parametrize(["list", "expected"], [
         ([0], 0),
@@ -728,3 +711,159 @@ class TestPycgmStaticUtils():
         # Check the calling cross on a numpy array of floats yields the expected results
         result_float_nparray = pycgmStatic.cross(np.array(A_float, dtype='float'), np.array(B_float, dtype='float'))
         np.testing.assert_almost_equal(result_float_nparray, expected, rounding_precision)
+
+class TestPycgmStaticGetStatic():
+    """
+    This class tests the getStatic function in pycgmStatic.py:
+    """
+
+    @classmethod
+    def setup_class(cls):
+        """
+        Called once for all tests. Loads filenames to be used for testing getStatic() from SampleData/ROM/.
+        """
+        cwd = os.getcwd()
+        if (cwd.split(os.sep)[-1] == "pyCGM_Single"):
+            parent = os.path.dirname(cwd)
+            os.chdir(parent)
+        cls.cwd = os.getcwd()
+
+        dynamic_trial, static_trial, vsk_file, _, _ = pyCGM_Helpers.getfilenames(x=2)
+        cls.motion_data = pycgmIO.loadData(os.path.join(cls.cwd, static_trial))
+        cls.vsk_data_original = pycgmIO.loadVSK(os.path.join(cls.cwd, vsk_file), dict=False)
+        cls.vsk_data = cls.vsk_data_original.copy()
+
+    def setup_method(self):
+        """
+        Called once before all tests in TestPycgmStaticGetStatic. Resets the vsk_data dictionary to its original state
+        as returned from pycgmIO.loadVSK from the file SampleData/ROM/Sample_SM.vsk.
+        """
+        self.vsk_data = self.vsk_data_original.copy()
+
+    @pytest.mark.parametrize("key", [
+        ('LeftLegLength'),
+        ('RightLegLength'),
+        ('Bodymass'),
+        ('LeftAsisTrocanterDistance'),
+        ('InterAsisDistance'),
+        ('LeftTibialTorsion'),
+        ('RightTibialTorsion'),
+        ('LeftShoulderOffset'),
+        ('RightShoulderOffset'),
+        ('LeftElbowWidth'),
+        ('RightElbowWidth'),
+        ('LeftWristWidth'),
+        ('RightWristWidth'),
+        ('LeftHandThickness'),
+        ('RightHandThickness')])
+    def test_getStatic_required_markers(self, key):
+        """
+        This function tests that an exception is raised when removing given keys from the vsk_data dictionary. All
+        of the tested markers are required to exist in the vsk_data dictionary to run pycgmStatic.getStatic(), so
+        deleting those keys should raise an exception.
+        """
+        del self.vsk_data[key]
+        with pytest.raises(Exception):
+            pycgmStatic.getStatic(self.motion_data, self.vsk_data)
+
+    @pytest.mark.parametrize("key", [
+        ('RightKneeWidth'),
+        ('LeftKneeWidth'),
+        ('RightAnkleWidth'),
+        ('LeftAnkleWidth')])
+    def test_getStatic_zero_markers(self, key):
+        """
+        This function tests that when deleting given keys from the vsk_data dictionary, the value in the resulting
+        calSM is 0. All of the tested markers are set to 0 if they don't exist in pycgmStatic.getStatic(), so
+        deleting these keys should not raise an exception.
+        """
+        del self.vsk_data[key]
+        result = pycgmStatic.getStatic(self.motion_data, self.vsk_data)
+        np.testing.assert_almost_equal(result[key], 0, rounding_precision)
+
+    @pytest.mark.parametrize(["key", "keyVal"], [
+        ('Bodymass', 95),
+        ('InterAsisDistance', 28),
+        ('RightKneeWidth', -11),
+        ('LeftKneeWidth', 30),
+        ('RightAnkleWidth', -41),
+        ('LeftAnkleWidth', -5),
+        ('LeftTibialTorsion', 28),
+        ('RightTibialTorsion', -37),
+        ('LeftShoulderOffset', 48),
+        ('RightShoulderOffset', 93),
+        ('LeftElbowWidth', -10),
+        ('RightElbowWidth', -4),
+        ('LeftWristWidth', 71),
+        ('RightWristWidth', 9),
+        ('LeftHandThickness', 15),
+        ('RightHandThickness', -21),
+        ('InterAsisDistance', -10)])
+    def test_getStatic_marker_assignment(self, key, keyVal):
+        """
+        This function tests that when assigning a value to the given keys from the vsk_data dictionary, the value in
+        the resulting calSM corresponds. All of the tested markers are assigned to calSM in pycgmStatic.getStatic()
+        """
+        self.vsk_data[key] = keyVal
+        result = pycgmStatic.getStatic(self.motion_data, self.vsk_data)
+        np.testing.assert_almost_equal(result[key], keyVal, rounding_precision)
+
+    @pytest.mark.parametrize(["LeftLegLength", "RightLegLength", "MeanLegLengthExpected"], [
+        (0, 0, 0),
+        (0, 40, 20),
+        (-34, 0, -17),
+        (-15, 15, 0),
+        (5, 46, 25.5)])
+    def test_getStatic_MeanLegLength(self, LeftLegLength, RightLegLength, MeanLegLengthExpected):
+        """
+        This function tests that pycgmStatic.getStatic() properly calculates calSM['MeanLegLength'] by averaging the
+        values in vsk_data['LeftLegLength'] and vsk_data['RightLegLength']
+        """
+        self.vsk_data['LeftLegLength'] = LeftLegLength
+        self.vsk_data['RightLegLength'] = RightLegLength
+        result = pycgmStatic.getStatic(self.motion_data, self.vsk_data)
+        np.testing.assert_almost_equal(result['MeanLegLength'], MeanLegLengthExpected, rounding_precision)
+
+    @pytest.mark.parametrize(["leftVal", "rightVal", "leftExpected", "rightExpected"], [
+        # Test where left and right are 0
+        (0, 0, 72.512, 72.512),
+        # Test where left is 0
+        (85, 0, 72.512, 72.512),
+        # Test where right is 0
+        (0, 61, 72.512, 72.512),
+        # Test where left and right aren't 0
+        (85, 61, 85, 61)])
+    def test_getStatic_AsisToTrocanterMeasure(self, leftVal, rightVal, leftExpected, rightExpected):
+        """
+        Tests that if LeftAsisTrocanterDistance or RightAsisTrocanterDistance are 0 in the input vsk dictionary, their
+        corresponding values in calSM will be calculated from LeftLegLength and RightLegLength, but if they both have
+        values than they will be assigned from the vsk dictionary
+        """
+        self.vsk_data['LeftAsisTrocanterDistance'] = leftVal
+        self.vsk_data['RightAsisTrocanterDistance'] = rightVal
+        result = pycgmStatic.getStatic(self.motion_data, self.vsk_data)
+        np.testing.assert_almost_equal(result['L_AsisToTrocanterMeasure'], leftExpected, rounding_precision)
+        np.testing.assert_almost_equal(result['R_AsisToTrocanterMeasure'], rightExpected, rounding_precision)
+
+    def test_getStatic_InterAsisDistance(self):
+        """
+        This function tests that when pycgmStatic.getStatic() is called with vsk_data['InterAsisDistance'] is 0, that
+        the value for calSM['InterAsisDistance'] is calculated from motionData
+        """
+        self.vsk_data['InterAsisDistance'] = 0
+        result = pycgmStatic.getStatic(self.motion_data, self.vsk_data)
+        np.testing.assert_almost_equal(result['InterAsisDistance'], 215.9094195515741, rounding_precision)
+
+    def test_gen(self):
+        """
+        This function tests that the correct values are returned in calSM['RightStaticRotOff'],
+        calSM['RightStaticPlantFlex'], calSM['LeftStaticRotOff'], calSM['LeftStaticPlantFlex'], and calSM['HeadOffset'].
+        All of these values are calculated from calls to staticCalculation and staticCalculationHead for every frame
+        in motionData
+        """
+        result = pycgmStatic.getStatic(self.motion_data, self.vsk_data)
+        np.testing.assert_almost_equal(result['RightStaticRotOff'], 0.015683497632642041, rounding_precision)
+        np.testing.assert_almost_equal(result['RightStaticPlantFlex'], 0.27024179070027576, rounding_precision)
+        np.testing.assert_almost_equal(result['LeftStaticRotOff'], 0.0094029102924030206, rounding_precision)
+        np.testing.assert_almost_equal(result['LeftStaticPlantFlex'], 0.20251085737834015, rounding_precision)
+        np.testing.assert_almost_equal(result['HeadOffset'], 0.25719904693106527, rounding_precision)
