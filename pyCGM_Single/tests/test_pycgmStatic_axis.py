@@ -66,22 +66,19 @@ class TestPycgmStaticAxis():
          -0.09966865249116204)])
     def testStaticCalculationHead(self, head, expected):
         """
-       This test provides coverage of the staticCalculationHead function in pycgmStatic.py, defined as staticCalculationHead(frame, head)
+        This test provides coverage of the staticCalculationHead function in pycgmStatic.py, defined as staticCalculationHead(frame, head)
 
-       This test takes 2 parameters:
-       head: array containing the head axis and head origin
-       expected: the expected result from calling staticCalculationHead on head
+        This test takes 2 parameters:
+        head: array containing the head axis and head origin
+        expected: the expected result from calling staticCalculationHead on head
 
-       This test is checking to make sure the head offset angle is calculated correctly given the input parameters.
-       The test checks to see that the correct values in expected are updated per each input parameter added:
-        When values are only added to head[0][0], expected should return a value
-        When values are only added to head[0][1], expected should return np.nan
-        When values are only added to head[0][2], expected should return 0
-        When values are only added to head[1], expected should return a value
-        When multiple of these values exist, they will all play a part in the final value.
+        This function first calculates the x, y, z axes of the head by subtracting the given head axes by the head
+        origin. It then calls headoffCalc on this head axis and a global axis to find the head offset angles.
 
-        Lastly, it checks that the resulting output is correct when head is composed of lists of ints, numpy arrays of
-        ints, lists of floats, and numpy arrays of floats.
+        This test ensures that:
+        - the head axis and the head origin both have an effect on the final offset angle
+        - the resulting output is correct when head is composed of lists of ints, numpy arrays of ints, lists of
+        floats, and numpy arrays of floats.
        """
         result = pycgmStatic.staticCalculationHead(None, head)
         np.testing.assert_almost_equal(result, expected, rounding_precision)
