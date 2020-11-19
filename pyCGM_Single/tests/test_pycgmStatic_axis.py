@@ -1071,17 +1071,18 @@ class TestPycgmStaticAxis():
 
         Given a marker RTOE and the ankle JC, the right anatomically incorrect foot axis is calculated with:
 
-        R is [R_x + ROrigin_x, R_y + ROrigin_y, R_z + ROrigin_z]
+        .. math::
+            R = [R_x + ROrigin_x, R_y + ROrigin_y, R_z + ROrigin_z]
 
-        where ROrigin_x is the x coor of the foot axis's origin gotten from frame['RTOE']
+        where :math:`ROrigin_x` is the x coor of the foot axis's origin gotten from frame['RTOE']
 
-        R_x is the unit vector of Yflex_R \times R_z
+        :math:`R_x` is the unit vector of :math:`Yflex_R \times R_z`
 
-        R_y is the unit vector of R_z \times R_x
+        :math:`R_y` is the unit vector of :math:`R_z \times R_x`
 
-        R_z is the unit vector of the axis from right toe to right ankle JC
+        :math:`R_z` is the unit vector of the axis from right toe to right ankle JC
 
-        Yflex_R is the unit vector of the axis from right ankle flexion to right ankle JC
+        :math:`Yflex_R` is the unit vector of the axis from right ankle flexion to right ankle JC
 
         The same calculation applies for the left anatomically incorrect foot axis by replacing all the right values
         with left values
@@ -1256,19 +1257,21 @@ class TestPycgmStaticAxis():
         expected: the expected result from calling rotaxis_footflat on frame, ankle_JC and vsk, which should be the
         anatomically correct foot axis when foot is flat.
 
-        Given the right ankle JC and the markers TOE_R and HEE_R, the right anatomically correct foot axis is calculated with:
+        Given the right ankle JC and the markers :math:`TOE_R` and :math:`HEE_R`, the right anatomically correct foot
+        axis is calculated with:
 
-        R is [R_x + ROrigin_x, R_y + ROrigin_y, R_z + ROrigin_z]
+        .. math::
+            R = [R_x + ROrigin_x, R_y + ROrigin_y, R_z + ROrigin_z]
 
-        where ROrigin_x is the x coor of the foot axis's origin gotten from frame['RTOE']
+        where :math:`ROrigin_x` is the x coor of the foot axis's origin gotten from frame['RTOE']
 
-        R_x is the unit vector of (AnkleFlexion_R - AnkleJC_R) \times R_z
+        :math:`R_x` is the unit vector of :math:`(AnkleFlexion_R - AnkleJC_R) \times R_z`
 
-        R_y is the unit vector of R_z \times R_x
+        :math:`R_y` is the unit vector of :math:`R_z \times R_x`
 
-        R_z is the unit vector of (A \times (HEE_R - TOE_R)) \times A
+        :math:`R_z` is the unit vector of :math:`(A \times (HEE_R - TOE_R)) \times A`
 
-        A is the unit vector of (HEE_R - TOE_R) \times (AnkleJC_R - TOE_R)
+        A is the unit vector of :math:`(HEE_R - TOE_R) \times (AnkleJC_R - TOE_R)`
 
         The same calculation applies for the left anatomically correct foot axis by replacing all the right values
         with left values
@@ -1425,19 +1428,21 @@ class TestPycgmStaticAxis():
         expected: the expected result from calling rotaxis_footflat on frame, ankle_JC and vsk, which should be the
         anatomically correct foot axis when foot is not flat.
 
-        Given the right ankle JC and the markers TOE_R and HEE_R, the right anatomically correct foot axis is calculated with:
+        Given the right ankle JC and the markers :math:`TOE_R` and :math:`HEE_R , the right anatomically correct foot
+        axis is calculated with:
 
+        .. math::
         R is [R_x + ROrigin_x, R_y + ROrigin_y, R_z + ROrigin_z]
 
-        where ROrigin_x is the x coor of the foot axis's origin gotten from frame['RTOE']
+        where :math:`ROrigin_x` is the x coor of the foot axis's origin gotten from frame['RTOE']
 
-        R_x is the unit vector of YFlex_R \times R_z
+        :math:`R_x` is the unit vector of :math:`YFlex_R \times R_z`
 
-        R_y is the unit vector of R_z \times R_x
+        :math:`R_y` is the unit vector of :math:`R_z \times R_x`
 
-        R_z is the unit vector of (HEE_R - TOE_R)
+        :math:`R_z` is the unit vector of :math:`(HEE_R - TOE_R)`
 
-        YFlex_R is the unit vector of (AnkleFlexion_R - AnkleJC_R)
+        :math:`YFlex_R` is the unit vector of :math:`(AnkleFlexion_R - AnkleJC_R)`
 
         The same calculation applies for the left anatomically correct foot axis by replacing all the right values
         with left values
