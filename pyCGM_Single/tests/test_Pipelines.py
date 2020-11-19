@@ -6,43 +6,16 @@ from pyCGM_Single.clusterCalc import target_dict, segment_dict
 from pyCGM_Single.pyCGM import pelvisJointCenter
 import pyCGM_Single.Pipelines as Pipelines
 import os
+import mock 
 
-class TestPipelines:
+class TestPipelinesFiltering:
     @classmethod
     def setup_class(cls):
         """
-        Called once for all tests for Pipelines.
-        Sets rounding_precision, and does a one-time load
-        of dynamic and static trial data as dictionaries from
-        SampleData/Sample_2/.
+        Called once for all tests in TestPipelinesFiltering.
+        Sets rounding precision to 8 decimal places.
         """
         cls.rounding_precision = 8
-        cwd = os.getcwd()
-        if(cwd.split(os.sep)[-1]=="pyCGM_Single"):
-            parent = os.path.dirname(cwd)
-            os.chdir(parent)
-        cls.cwd = os.getcwd()
-
-        cur_dir = cls.cwd
-        dynamic_trial, static_trial,_,_,_ = getfilenames(3)
-        dynamic_trial = os.path.join(cur_dir, dynamic_trial)
-        static_trial = os.path.join(cur_dir, static_trial)
-        motionData = loadData(dynamic_trial)
-        staticData = loadData(static_trial)
-        cls.data_original = dataAsDict(motionData, npArray=True)
-        cls.static_original = dataAsDict(staticData, npArray=True)
-        for frame in motionData:
-            frame['SACR'] = pelvisJointCenter(frame)[2]
-        cls.data_with_sacrum_original = dataAsDict(motionData, npArray=True)
-
-    def setup_method(self):
-        """
-        Runs before every test, resetting data and static
-        to their original states.
-        """
-        self.data = self.data_original.copy()
-        self.static = self.static_original.copy()
-        self.data_with_sacrum = self.data_with_sacrum_original.copy()
 
     #Setup some inputs that are reused across tests
     valid_filter_data = np.array([[0,1], [1,2], [2,3], [3,4], 
@@ -93,13 +66,17 @@ class TestPipelines:
         where data is an array of numbers to filter, cutoff is the cutoff
         frequency to filter, and Fs is the sampling frequency of the data.
 
-        We test cases where inputs are positive and negative floats and 
-        integers. We test cases where inputs are lists and numpy arrays.
+        Pipelines.butterFilter applies a fourth-order low-pass Butterworth filter
+        that is constructed using the scipy functions butter() and filtfilt().
+
+        For each case, we test that the Butterworth filter is applied correctly
+        by testing its output is accurate in cases where inputs are positive and negative 
+        floats and integers. We test cases where inputs are lists and numpy arrays.
         """
         #Call butterFilter() with parametrized values
         result = Pipelines.butterFilter(data, cutoff, Fs)
         np.testing.assert_almost_equal(result, expected_result, self.rounding_precision)
-
+    
     @pytest.mark.parametrize("data, cutoff, Fs", [
         #Test that if len(data) < 15, an exception is raised
         ([], 20, 120),
@@ -163,6 +140,9 @@ class TestPipelines:
         where data is a 2darray of numbers to filter, cutoff is the cutoff
         frequency to filter, and Fs is the sampling frequency of the data.
 
+        This function uses the same fourth-order Butterworth filter constructed
+        in Pipelines.butterFilter().
+
         We test cases where inputs are lists of positive and negative floats 
         and ints.
         """
@@ -225,35 +205,6 @@ class TestPipelines:
         with pytest.raises(Exception):
             Pipelines.prep(trajs)
     
-    @pytest.mark.parametrize("data, name, expected_result", [
-        ([{'LTIL': np.array([-268.1545105, 327.53512573, 30.17036057]),'RFOP': np.array([-38.4509964, -148.6839447, 59.21961594])},
-          {'LTIL': np.array([-273.1545105, 324.53512573, 36.17036057]),'RFOP': np.array([-38.4509964, -148.6839447, 59.21961594])}],
-           'LTIL',
-         [{'LTIL': np.array([np.nan, np.nan, np.nan]), 'RFOP': np.array([-38.4509964, -148.6839447, 59.21961594])}, 
-          {'LTIL': np.array([np.nan, np.nan, np.nan]), 'RFOP': np.array([-38.4509964, -148.6839447, 59.21961594])}]),
-        #Test that data[key] can be a list
-        ([{'LTIL': [-268.1545105, 327.53512573, 30.17036057],'RFOP': [-38.4509964, -148.6839447 , 59.21961594]},
-          {'LTIL': [-273.1545105, 324.53512573, 36.17036057],'RFOP': [-38.4509964, -148.6839447 , 59.21961594]}],
-           'LTIL',
-         [{'LTIL': np.array([np.nan, np.nan, np.nan]), 'RFOP': np.array([-38.4509964, -148.6839447, 59.21961594])}, 
-          {'LTIL': np.array([np.nan, np.nan, np.nan]), 'RFOP': np.array([-38.4509964, -148.6839447, 59.21961594])}]),
-        #Test that removing a non-existent marker adds it as a key
-        ([{'LTIL': np.array([-268.1545105, 327.53512573, 30.17036057])}],
-           'non_existent_marker',
-         [{'LTIL': np.array([-268.1545105, 327.53512573, 30.17036057]), 'non_existent_marker': np.array([np.nan, np.nan, np.nan])}])
-    ])
-    def test_clearMarker_accuracy(self, data, name, expected_result):
-        """
-        This function tests Pipelines.clearMarker(data, name), where
-        data is an array of dictionary of markers lists and name is the 
-        name of a marker to clear.
-
-        We test cases where the values in data are lists and numpy arrays.
-        We test the case where the marker name is not a key in data.
-        """
-        result = Pipelines.clearMarker(data, name)
-        np.testing.assert_equal(result, expected_result)
-
     @pytest.mark.parametrize("Data, expected_result", [
         (
         #Test numpy arrays of positive and negative floats and ints
@@ -295,7 +246,8 @@ class TestPipelines:
         """
         The following functions test Pipelines.filtering(Data), where
         Data is a dictionary of marker lists. This function calls
-        Pipelines.filt().
+        Pipelines.filt(), and uses the same fourth-order Butterworth
+        filter constructed in Pipelines.butterFilter().
 
         We test cases where inputs are numpy arrays of positive and 
         negative floats and ints.
@@ -312,6 +264,74 @@ class TestPipelines:
         with pytest.raises(Exception):
             Pipelines.filtering(Data)
 
+class TestPipelinesGapFilling:
+    @classmethod
+    def setup_class(cls):
+        """
+        Called once for all tests for Pipelines.
+        Sets rounding_precision, and does a one-time load
+        of dynamic and static trial data as dictionaries from
+        SampleData/Sample_2/.
+        """
+        cls.rounding_precision = 8
+        cwd = os.getcwd()
+        if(cwd.split(os.sep)[-1]=="pyCGM_Single"):
+            parent = os.path.dirname(cwd)
+            os.chdir(parent)
+        cls.cwd = os.getcwd()
+
+        cur_dir = cls.cwd
+        dynamic_trial, static_trial,_,_,_ = getfilenames(3)
+        dynamic_trial = os.path.join(cur_dir, dynamic_trial)
+        static_trial = os.path.join(cur_dir, static_trial)
+        motionData = loadData(dynamic_trial)
+        staticData = loadData(static_trial)
+        cls.data_original = dataAsDict(motionData, npArray=True)
+        cls.static_original = dataAsDict(staticData, npArray=True)
+        for frame in motionData:
+            frame['SACR'] = pelvisJointCenter(frame)[2]
+        cls.data_with_sacrum_original = dataAsDict(motionData, npArray=True)
+        Pipelines.clearMarker(motionData, 'LFHD')
+        cls.data_with_sacrum_clear_marker = dataAsDict(motionData, npArray=True)
+
+    def setup_method(cls):
+        """
+        Runs before every test, resetting data and static
+        to their original states.
+        """
+        cls.data = cls.data_original.copy()
+        cls.static = cls.static_original.copy()
+        cls.data_with_sacrum = cls.data_with_sacrum_original.copy()
+    
+    @pytest.mark.parametrize("data, name, expected_result", [
+        ([{'LTIL': np.array([-268.1545105, 327.53512573, 30.17036057]),'RFOP': np.array([-38.4509964, -148.6839447, 59.21961594])},
+          {'LTIL': np.array([-273.1545105, 324.53512573, 36.17036057]),'RFOP': np.array([-38.4509964, -148.6839447, 59.21961594])}],
+           'LTIL',
+         [{'LTIL': np.array([np.nan, np.nan, np.nan]), 'RFOP': np.array([-38.4509964, -148.6839447, 59.21961594])}, 
+          {'LTIL': np.array([np.nan, np.nan, np.nan]), 'RFOP': np.array([-38.4509964, -148.6839447, 59.21961594])}]),
+        #Test that data[key] can be a list
+        ([{'LTIL': [-268.1545105, 327.53512573, 30.17036057],'RFOP': [-38.4509964, -148.6839447 , 59.21961594]},
+          {'LTIL': [-273.1545105, 324.53512573, 36.17036057],'RFOP': [-38.4509964, -148.6839447 , 59.21961594]}],
+           'LTIL',
+         [{'LTIL': np.array([np.nan, np.nan, np.nan]), 'RFOP': np.array([-38.4509964, -148.6839447, 59.21961594])}, 
+          {'LTIL': np.array([np.nan, np.nan, np.nan]), 'RFOP': np.array([-38.4509964, -148.6839447, 59.21961594])}]),
+        #Test that removing a non-existent marker adds it as a key
+        ([{'LTIL': np.array([-268.1545105, 327.53512573, 30.17036057])}],
+           'non_existent_marker',
+         [{'LTIL': np.array([-268.1545105, 327.53512573, 30.17036057]), 'non_existent_marker': np.array([np.nan, np.nan, np.nan])}])
+    ])
+    def test_clearMarker_accuracy(self, data, name, expected_result):
+        """
+        This function tests Pipelines.clearMarker(data, name), where
+        data is an array of dictionary of markers lists and name is the 
+        name of a marker to clear.
+
+        We test cases where the values in data are lists and numpy arrays.
+        We test the case where the marker name is not a key in data.
+        """
+        result = Pipelines.clearMarker(data, name)
+        np.testing.assert_equal(result, expected_result)
+    
     @pytest.mark.parametrize("key, useables, s, expected_result", [
         ('LFHD', ['RFHD', 'RBHD', 'LBHD'], 0, 
         [-1007.8145678233541, 71.28465078977477, 1522.6626006179151]),
@@ -326,7 +346,7 @@ class TestPipelines:
         ('LFHD', ['RFHD', 'RBHD', 'LBHD'], 100, 
         [-995.8183141045178, 73.11905329024174, 1526.9072499889455]),
     ])
-    def test_transform_from_static_accuracy(self, key, useables, s, expected_result):
+    def test_transform_from_static_SampleData(self, key, useables, s, expected_result):
         """
         This function tests Pipelines.transform_from_static(data,static,key,useables,s),
         where data is an array of dictionaries of marker data,
@@ -334,8 +354,6 @@ class TestPipelines:
         missing marker to perform gap filling for,
         useables is a list of markers in the same cluster as key,
         and s is the frame number that the marker data is missing for.
-
-        This function performs gap filling based on static data.
 
         We use files from SampleData/Sample_2/ for testing.
         We test for 6 missing frames from the loaded data.
@@ -346,6 +364,48 @@ class TestPipelines:
         data[key][s] = np.array([np.nan, np.nan, np.nan])
         result = Pipelines.transform_from_static(data,static,key,useables,s)
         np.testing.assert_almost_equal(result, expected_result, self.rounding_precision)
+
+    def test_transform_from_static(self):
+        """
+        This function tests Pipelines.transform_from_static().
+
+        This function uses a transformation that is stored between a 4 marker cluster.  
+        It requires an inverse transformation matrix to be stored between the 
+        combination of 3 marker groupings, with the 4th marker stored in relation to that frame. 
+        
+        The function takes in as input the missing marker, and uses static data to 
+        create an inverse transformation matrix, multiplying the new frame by the stored 
+        inverse transform to get the missing marker position.
+
+        We test that the function is accurate by creating four markers
+        in a square in static data, and adding one to all but one of their x-coordinates
+        for motion data.
+
+        We ensure that the correct position is reconstructed from the static 
+        data.
+        """
+        #Define the four markers, A, B, C, D, as the four corners of a square.
+        static = {
+            'A': np.array([[1, 1, 0]]),
+            'B': np.array([[-1, 1, 0]]),
+            'C': np.array([[1, -1, 0]]),
+            'D': np.array([[-1, -1, 0]])
+        }
+
+        #Use the three markers, B, C, D to reconstruct the position of A
+        useables = ['B', 'C', 'D']
+
+        #Add one to all of the x-coordinates of B, C, D
+        data = {
+            'B': np.array([[0, 1, 0]]),
+            'C': np.array([[2, -1, 0]]),
+            'D': np.array([[0, -1, 0]])
+        }
+
+        #We expect that A is at [2, 1, 0]
+        expected = np.array([2, 1, 0])
+        result = Pipelines.transform_from_static(data, static, 'A', useables, 0)
+        np.testing.assert_equal(result, expected)
 
     @pytest.mark.parametrize("key, useables, s", [
         #Test that if useables is not at least 3 unique markers, an exception is raised
@@ -381,7 +441,7 @@ class TestPipelines:
         ('LFHD', ['RFHD', 'RBHD', 'LBHD'], 15, 16,
         [np.nan, np.nan, np.nan])
     ])
-    def test_transform_from_mov_accuracy(self,key,clust,last_time,i,expected_result):
+    def test_transform_from_mov_SampleData(self,key,clust,last_time,i,expected_result):
         """
         This function tests Pipelines.transform_from_mov(data,key,clust,last_time,i),
         where data is an array of dictionaries of marker data,
@@ -390,8 +450,6 @@ class TestPipelines:
         last_time is the last frame the the missing marker was visible, and
         i is the frame number the marker is missing for.
 
-        This function performs gap filling based on surrounding data.
-
         We use files from SampleData/Sample_2/ for testing.
         We test for 6 missing frames from the loaded data.
         """
@@ -399,6 +457,46 @@ class TestPipelines:
         data[key][i] = np.array([np.nan, np.nan, np.nan])
         result = Pipelines.transform_from_mov(data,key,clust,last_time,i)
         np.testing.assert_almost_equal(result, expected_result, self.rounding_precision)
+
+    def test_transform_from_mov(self):
+        """
+        This function tests Pipelines.transform_from_mov().
+
+        This function uses a transformation that is stored between a 4 marker cluster.  
+        It requires an inverse transformation matrix to be stored between the 
+        combination of 3 marker groupings, with the 4th marker stored in relation to that frame. 
+        
+        The function takes in as input the missing marker, and uses previous frames of motion data to 
+        create an inverse transformation matrix, multiplying the new frame by the stored 
+        inverse transform to get the missing marker position.
+
+        We test that the function is accurate by creating four markers
+        in a square at frame zero, and adding one to all but one of their x-coordinates
+        in frame 1.
+
+        We ensure that the correct position is reconstructed from the previous frame 
+        data, and that the fourth marker is in the correct position after
+        the transform.
+        """
+        #Define the four markers, A, B, C, D, as the four corners of a square in frame 0.
+        #Add one to the x-coordinate of all markers but A in frame 1.
+        data = {
+            'A': np.array([[1, 1, 0], [np.nan, np.nan, np.nan]]),
+            'B': np.array([[-1, 1, 0], [0, 1, 0]]),
+            'C': np.array([[1, -1, 0], [2, -1, 0]]),
+            'D': np.array([[-1, -1, 0], [0, -1, 0]])
+        }
+        #Use the three markers, B, C, D to reconstruct the position of A
+        clust = ['B', 'C', 'D']
+        #Last frame in which all four markers were visible
+        last_time = 0
+        #Frame for which a marker is missing data
+        i = 1
+
+        #We expect that A is at [2, 1, 0]
+        expected = np.array([2, 1, 0])
+        result = Pipelines.transform_from_mov(data, 'A', clust, last_time, i)
+        np.testing.assert_equal(result, expected)
 
     @pytest.mark.parametrize("key,clust,last_time,i", [
         #Test that if clust is not at least 3 unique markers, an exception is raised
@@ -469,35 +567,67 @@ class TestPipelines:
         with pytest.raises(Exception):
             Pipelines.segmentFinder(key,data,target_dict,segment_dict,j,missings)
     
-    @pytest.mark.parametrize("key, frameNumber, expected_result", [
-        ('LFHD', 1, [-1007.73577975, 71.30567599, 1522.60563455]),
-        ('LFHD', 10, [-1002.75400789, 81.21320267, 1521.8559697 ]),
-        ('LFHD', 12, [-1002.57942155, 81.2521139, 1521.81737938]),
-        ('LFHD', 15, [-1002.31227389, 81.30886597, 1521.78327027]),
-        ('LFHD', 100, [-991.70150174, 82.79915329, 1526.67335699]),
-        ('LFHD', -1, [ 714.9015343, -9.04757279, 1550.23346378]),
-    ])
-    def test_rigid_fill_accuracy(self, key, frameNumber, expected_result):
+    def test_rigid_fill_transform_from_static(self):
         """
         This function tests Pipelines.rigid_fill(Data, static),
         where Data is an array of dictionaries of marker data,
         and static is an array of dictionaries of static trial data.
 
-        This function fills gaps for frames with missing data.
+        This function fills gaps for frames with missing data using
+        the transform functions Pipelines.transform_from_static and
+        Pipelines.transform_from_mov.
 
-        We simulate missing data by clearing data of the given key at
-        the given frame number and then test the gap filling result.
+        This function determines whether to call transform_from_static
+        or transform_from_mov by determining if there is a previous frame where
+        all markers in the cluster of the missing marker exist, and can be used
+        to create an inverse transformation matrix to determine
+        the position of the missing marker in the current frame. If there is,
+        transform_from_mov is used. Otherwise, transform_from_static is used.
+        
+        This function tests that rigid_fill will properly call transform_from_static
+        by using Pipelines.clearMarker() to clear the value of a given key at all
+        frames. Since there are no other frames to reconstruct the inverse transform
+        off of, we expect the function to use transform_from_static.
         """
-        #Sacrum marker is required to use rigid_fill
+
+        #The sacrum marker must exist in data to use rigid_fill
+        #Use data with the LFHD marker cleared from every frame
+        data = self.data_with_sacrum_clear_marker 
+        static = self.static
+
+        #Return value from transform_from_static is mocked 
+        mock_return_val = np.array([1, 2, 3])
+        with mock.patch.object(Pipelines, 'transform_from_static', return_value=mock_return_val) as mock_transform_from_static:
+            #Call Pipelines.rigid_fill with the mocked transform_from_static
+            rigid_fill_data = Pipelines.rigid_fill(data, static)
+            mock_transform_from_static.assert_called()
+
+        result = rigid_fill_data['LFHD'][10]
+        np.testing.assert_almost_equal(result, np.array([1, 2, 3]), self.rounding_precision)
+    
+    def test_rigid_fill_transform_from_mov(self):
+        """        
+        This function tests that rigid_fill will properly call transform_from_mov
+        by clearing the value of a marker at only one frame. We expect transform_from_mov
+        to be called in this case since there are previous markers to create the
+        inverse transform matrix from.
+        """
+
+        #Use data with all markers
         data = self.data_with_sacrum
         static = self.static
-        #Clear the given frame number to test gap filling
-        data[key][frameNumber] = np.array([np.nan, np.nan, np.nan])
-        #Call Pipelines.rigid_fill()
-        rigid_fill_data = Pipelines.rigid_fill(data, static)
-        #Test that the missing frame was filled in accurately
-        result = rigid_fill_data[key][frameNumber]
-        np.testing.assert_almost_equal(result, expected_result, self.rounding_precision)
+        #Clear marker LFHD from frame 10
+        data['LFHD'][10] = np.array([np.nan, np.nan, np.nan])
+
+        #Return value from transform_from_mov is mocked 
+        mock_return_val = np.array([1, 2, 3])
+        with mock.patch.object(Pipelines, 'transform_from_mov', return_value=mock_return_val) as mock_transform_from_mov:
+            #Call Pipelines.rigid_fill with the mocked transform_from_static
+            rigid_fill_data = Pipelines.rigid_fill(data, static)
+            mock_transform_from_mov.assert_called()
+
+        result = rigid_fill_data['LFHD'][10]
+        np.testing.assert_almost_equal(result, np.array([1, 2, 3]), self.rounding_precision)
 
     def test_rigid_fill_exceptions(self):
         """
@@ -509,4 +639,3 @@ class TestPipelines:
             data = self.data
             static = self.static
             Pipelines.rigid_fill(data, static)
-    
