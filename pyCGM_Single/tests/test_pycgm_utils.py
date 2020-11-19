@@ -153,7 +153,12 @@ class TestUtils():
 
         This test takes 2 parameters:
         v: 3D vector
-        expected: the expected result from calling norm2d on v. This will be the value of the normalization of vector v.
+        expected: the expected result from calling norm2d on v. This will be the value of the normalization of vector v,
+        returned as a float.
+
+        Given the vector v, the normalization is defined by:
+        normalization = \sqrt{v_x^2 + v_y^2 + v_z^2}
+        where v_x is the x-coordinate of the vector v
         """
         result = pyCGM.norm2d(v)
         np.testing.assert_almost_equal(result, expected, rounding_precision)
@@ -203,6 +208,10 @@ class TestUtils():
         v: 3D vector
         expected: the expected result from calling norm3d on v. This will be the normalization of the vector v,
         inside of a numpy array.
+
+        Given the vector v, the normalization is defined by:
+        normalization = \sqrt{v_x^2 + v_y^2 + v_z^2}
+        where v_x is the x-coordinate of the vector v
         """
         result = pyCGM.norm3d(v)
         np.testing.assert_almost_equal(result, expected, rounding_precision)
@@ -251,7 +260,17 @@ class TestUtils():
         This test takes 2 parameters:
         v: 3D vector
         expected: the expected result from calling norm3d on v. This function returns the wrong result. It is supposed
-        to return the normalization division, but in the function it divides the vector by the normalization twice.
+        to return the normalization division, but in the function divides the vector by the normalization twice.
+
+        Given the vector v, the normalization is defined by:
+        normalization = \sqrt{v_x^2 + v_y^2 + v_z^2}
+        where v_x is the x-coordinate of the vector v
+
+        The mathematically correct result would be defined by:
+        \[ result = [\frac{v_x}{norm}, \frac{v_y}{norm}, \frac{v_z}{norm}] \]
+
+        But this function has an error where it divides the vector twice:
+        \[ result = [\frac{v_x}{norm^2}, \frac{v_y}{norm^2}, \frac{v_z}{norm^2}] \]
         """
         result = pyCGM.normDiv(v)
         np.testing.assert_almost_equal(result, expected, rounding_precision)
