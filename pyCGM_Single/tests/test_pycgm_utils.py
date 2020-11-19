@@ -48,12 +48,14 @@ class TestUtils():
         Given a marker SHO, representing the right (RSHO) or left (LSHO) shoulder markers and a thorax axis TH, the
         wand marker W is defined as:
 
-        W_R = (RSHO-TH_o) \times TH_x
-        W_L = TH_x \times (LSHO-TH_o)
+        .. math::
+            W_R = (RSHO-TH_o) \times TH_x
+            W_L = TH_x \times (LSHO-TH_o)
 
-        where TH_o is the origin of the thorax axis, TH_x is the x unit vector of the thorax axis.
+        where :math:`TH_o` is the origin of the thorax axis, :math:`TH_x` is the x unit vector of the thorax axis.
 
-        From this calculation, it should be clear that changing the thorax y and z vectors should not have an impact on the results.
+        From this calculation, it should be clear that changing the thorax y and z vectors should not have an impact
+        on the results.
 
         This unit test ensure that:
         - The right and left markers do not impact the wand marker calculations for one another
@@ -157,8 +159,8 @@ class TestUtils():
         returned as a float.
 
         Given the vector v, the normalization is defined by:
-        normalization = \sqrt{v_x^2 + v_y^2 + v_z^2}
-        where v_x is the x-coordinate of the vector v
+        normalization = :math:`\sqrt{v_x^2 + v_y^2 + v_z^2}`
+        where :math:`v_x` is the x-coordinate of the vector v
         """
         result = pyCGM.norm2d(v)
         np.testing.assert_almost_equal(result, expected, rounding_precision)
@@ -210,8 +212,8 @@ class TestUtils():
         inside of a numpy array.
 
         Given the vector v, the normalization is defined by:
-        normalization = \sqrt{v_x^2 + v_y^2 + v_z^2}
-        where v_x is the x-coordinate of the vector v
+        normalization = :math:`\sqrt{v_x^2 + v_y^2 + v_z^2}`
+        where :math:`v_x` is the x-coordinate of the vector v
         """
         result = pyCGM.norm3d(v)
         np.testing.assert_almost_equal(result, expected, rounding_precision)
@@ -263,14 +265,16 @@ class TestUtils():
         to return the normalization division, but in the function divides the vector by the normalization twice.
 
         Given the vector v, the normalization is defined by:
-        normalization = \sqrt{v_x^2 + v_y^2 + v_z^2}
-        where v_x is the x-coordinate of the vector v
+        normalization = :math:`\sqrt{v_x^2 + v_y^2 + v_z^2}`
+        where :math:`v_x     is the x-coordinate of the vector v
 
         The mathematically correct result would be defined by:
-        \[ result = [\frac{v_x}{norm}, \frac{v_y}{norm}, \frac{v_z}{norm}] \]
+        .. math::
+            \[ result = [\frac{v_x}{norm}, \frac{v_y}{norm}, \frac{v_z}{norm}] \]
 
         But this function has an error where it divides the vector twice:
-        \[ result = [\frac{v_x}{norm^2}, \frac{v_y}{norm^2}, \frac{v_z}{norm^2}] \]
+        .. math::
+            \[ result = [\frac{v_x}{norm^2}, \frac{v_y}{norm^2}, \frac{v_z}{norm^2}] \]
         """
         result = pyCGM.normDiv(v)
         np.testing.assert_almost_equal(result, expected, rounding_precision)
