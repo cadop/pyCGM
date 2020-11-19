@@ -86,6 +86,15 @@ class TestPycgmStaticUtils():
         p0: position of first x,y,z coordinate
         p1: position of second x,y,z coordinate
         expected: the expected result from calling getDist on p0 and p1. This will be the distance between p0 and p1
+
+        Given the points p0 and p1, the distance between them is defined as:
+        distance = \sqrt{(p0_x-p1_x)^2 + (p0_y-p1_y)^2 + (p0_z-p1_z)^2}
+        where p0_x is the x-coordinate of the point p0
+
+        This unit test ensures that:
+        - the distance is measured correctly when some coordinates are the same, all coordinates are the same, and all
+        coordinates are different
+        - the distance is measured correctly given positive, negative and zero values
         """
         result = pycgmStatic.getDist(p0, p1)
         np.testing.assert_almost_equal(result, expected, rounding_precision)
@@ -136,7 +145,7 @@ class TestPycgmStaticUtils():
 
         This test takes 2 parameters:
         list: list or array of values
-        expected: the expected result from calling average on list. This will be the average of the values given in list
+        expected: the expected result from calling average on list. This will be the average of all the values given in list
         """
         result = pycgmStatic.average(list)
         np.testing.assert_almost_equal(result, expected, rounding_precision)
@@ -197,9 +206,16 @@ class TestPycgmStaticUtils():
         expected: the expected result from calling IADcalculation on frame. This is the Inter ASIS Distance (IAD), or
         the distance between the two markers RASI and LASI in frame.
 
-        This test checks that this distance between these two markers is calculated correctly for a variety of different
-        coordinates. It also checks that the resulting output is correct when frame is composed of lists of ints,
-        numpy arrays of ints, lists of floats, and numpy arrays of floats.
+        Given the markers RASI and LASI in frame, the Inter ASIS Distance is defined as:
+        InterASISDist = \sqrt{(RASI_x-LASI_x)^2 + (RASI_y-LASI_y)^2 + (RASI_z-LASI_z)^2}
+        where RASI_x is the x-coordinate of the RASI marker in frame
+
+        This unit test ensures that:
+        - the distance is measured correctly when some coordinates are the same, all coordinates are the same, and all
+        coordinates are different
+        - the distance is measured correctly given positive, negative and zero values
+        - the resulting output is correct when frame is composed of lists of ints, numpy arrays of ints, lists of
+        floats, and numpy arrays of floats.
         """
         result = pycgmStatic.IADcalculation(frame)
         np.testing.assert_almost_equal(result, expected, rounding_precision)
@@ -222,10 +238,19 @@ class TestPycgmStaticUtils():
         axisP: the unit vector of axisP, the position of the proximal axis
         axisD: the unit vector of axisD, the position of the distal axis
         expected: the expected result from calling headoffCalc on axisP and axisD. This returns the y-rotation
-        from a rotatinal matrix calculated by matrix multiplication of axisD x inverse of axisP. This angle is in
+        from a rotational matrix calculated by matrix multiplication of axisD and the inverse of axisP. This angle is in
         radians, not degrees.
+
+        The y angle is defined as:
+        \[ result = \arctan{\frac{M[0][2]}{M[2][2]}} \]
+        where M is the rotation matrix produced from multiplying axisD and axisP^{-1}
+
+        This unit test ensures that:
+        - Rotations in only the x or z direction will return a angle of 0
+        - Rotations in only the y direction will return the same angle
+        - Rotations in multiple axes will return a value based off of the all the rotations used in the rotation matrix
         """
-        # Create axisP as a rotatinal matrix using the x, y, and z rotations given
+        # Create axisP as a rotational matrix using the x, y, and z rotations given
         axisP = pycgmStatic.rotmat(xRot, yRot, zRot)
         axisD = pycgmStatic.rotmat(0, 0, 0)
         result = pycgmStatic.headoffCalc(axisP, axisD)
@@ -384,14 +409,16 @@ class TestPycgmStaticUtils():
         vsk: dictionary containing subject measurements from a VSK file
         expected: the expected result from calling staticCalculation on frame, ankle_JC, flat_foot, and vsk
 
-        This test is checking to make sure the static angle function is calculated correctly given the input parameters.
-        The test checks to see that the correct values in expected are updated per each input parameter added:
-        When values are only added to frame, ankle_JC, or vsk, expected is not updated.
-        When values are added to frame and ankle_JC, expected should be updated.
-        When flat_foot is set to True, expected should be updated.
+        This function first calculates the anatomically incorrect foot axis by calling uncorrect_footaxis. It then
+        calculates the anatomically correct foot joint center and axis using either rotaxis_footflat or
+        rotaxis_nonfootflat depending on if foot_flat is True or False. It then does some array manipulation and calls
+        getankleangle with the anatomically correct and anatomically incorrect axes, once for the left and once for the
+        right, to calculate the offset angle between the two axes.
 
-        Lastly, it checks that the resulting output is correct when frame and ankle_JC are composed of lists of ints,
-        numpy arrays of ints, lists of floats, and numpy arrays of floats and when the vsk values are ints and floats.
+        This test ensures that:
+        - Different offset angles are returned depending on whether flat_foot is True or not
+        - The resulting output is correct when frame and ankle_JC are composed of lists of ints, numpy arrays of ints,
+        lists of floats, and numpy arrays of floats and when the vsk values are ints and floats.
         """
         result = pycgmStatic.staticCalculation(frame, ankle_JC, None, flat_foot, vsk)
         np.testing.assert_almost_equal(result, expected, rounding_precision)
@@ -417,12 +444,19 @@ class TestPycgmStaticUtils():
         This test takes 3 parameters:
         axisP: the unit vector of axisP, the position of the proximal axis
         axisD: the unit vector of axisD, the position of the distal axis
-        expected: the expected result from calling getankleangle on axisP and axisD
+        expected: the expected result from calling getankleangle on axisP and axisD. This returns the x, y, z angles
+        from a XYZ Euler angle calculation from a rotational matrix. This rotational matrix is calculated by matrix
+        multiplication of axisD and the inverse of axisP. This angle is in radians, not degrees.
 
-        This test calls pycgmStatic.rotmat() to create axisP with an x, y, and z rotation defined in the parameters.
-        It then calls pycgmStatic.getankleangle() with axisP and axisD, which was created with no rotation in the x, y
-        or z direction. This result is then compared to the expected result. The results from this test will be in the
-        XYZ order. This output is in radians and not degrees.
+        The x, y, and z angles are defined as:
+        \[ x = \arctan{\frac{M[2][1]}{\sqrt{M[2][0]^2 + M[2][2]^2}}} \]
+        \[ y = \arctan{\frac{-M[2][0]}{M[2][2]}} \]
+        \[ z = \arctan{\frac{-M[0][1]}{M[1][1]}} \]
+        where M is the rotation matrix produced from multiplying axisD and axisP^{-1}
+
+        This test ensures that:
+        - A rotation in one axis will only effect the resulting angle in the corresponding axes
+        - A rotation in multiple axes can effect the angles in other axes due to XYZ order
         """
         # Create axisP as a rotatinal matrix using the x, y, and z rotations given
         axisP = pycgmStatic.rotmat(xRot, yRot, zRot)
@@ -474,7 +508,12 @@ class TestPycgmStaticUtils():
 
         This test takes 2 parameters:
         v: 3D vector
-        expected: the expected result from calling norm2d on v. This will be the value of the normalization of vector v.
+        expected: the expected result from calling norm2d on v. This will be the value of the normalization of vector v,
+        returned as a float.
+
+        Given the vector v, the normalization is defined by:
+        normalization = \sqrt{v_x^2 + v_y^2 + v_z^2}
+        where v_x is the x-coordinate of the vector v
         """
         result = pycgmStatic.norm2d(v)
         np.testing.assert_almost_equal(result, expected, rounding_precision)
@@ -524,6 +563,10 @@ class TestPycgmStaticUtils():
         v: 3D vector
         expected: the expected result from calling norm3d on v. This will be the normalization of the vector v,
         inside of a numpy array.
+
+        Given the vector v, the normalization is defined by:
+        normalization = \sqrt{v_x^2 + v_y^2 + v_z^2}
+        where v_x is the x-coordinate of the vector v
         """
         result = pycgmStatic.norm3d(v)
         np.testing.assert_almost_equal(result, expected, rounding_precision)
@@ -572,7 +615,17 @@ class TestPycgmStaticUtils():
         This test takes 2 parameters:
         v: 3D vector
         expected: the expected result from calling norm3d on v. This function returns the wrong result. It is supposed
-        to return the normalization division, but in the function it divides the vector by the normalization twice.
+        to return the normalization division, but in the function divides the vector by the normalization twice.
+
+        Given the vector v, the normalization is defined by:
+        normalization = \sqrt{v_x^2 + v_y^2 + v_z^2}
+        where v_x is the x-coordinate of the vector v
+
+        The mathematically correct result would be defined by:
+        \[ result = [\frac{v_x}{norm}, \frac{v_y}{norm}, \frac{v_z}{norm}] \]
+
+        But this function has an error where it divides the vector twice:
+        \[ result = [\frac{v_x}{norm^2}, \frac{v_y}{norm^2}, \frac{v_z}{norm^2}] \]
         """
         result = pycgmStatic.normDiv(v)
         np.testing.assert_almost_equal(result, expected, rounding_precision)
