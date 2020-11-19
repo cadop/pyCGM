@@ -23,23 +23,42 @@ class TestUtils():
         ({'RSHO': [0, 1, 1], 'LSHO': [1, 1, 1]}, [[[1, 0, 0], rand_coor, rand_coor], [0, 0, 0]], [[0, 0.70710678, -0.70710678], [0, -0.70710678, 0.70710678]]),
         ({'RSHO': [0, 1, 1], 'LSHO': [1, 1, 1]}, [[[1, 0, 0], rand_coor, rand_coor], [-1, 0, 0]], [[-1, 0.70710678, -0.70710678], [-1, -0.70710678, 0.70710678]]),
         ({'RSHO': [1, 2, 1], 'LSHO': [2, 1, 2]}, [[[1, 0, 0], rand_coor, rand_coor], [0, 0, 0]], [[0, 0.4472136, -0.89442719], [0, -0.89442719, 0.4472136]]),
+        ({'RSHO': [1, 2, 1], 'LSHO': [2, 2, 2]}, [[[1, 0, 0], rand_coor, rand_coor], [0, 0, 0]], [[0, 0.4472136, -0.89442719], [0, -0.70710678, 0.70710678]]),
+        ({'RSHO': [1, 2, 2], 'LSHO': [2, 1, 2]}, [[[1, 0, 0], rand_coor, rand_coor], [0, 0, 0]], [[0, 0.70710678, -0.70710678], [0, -0.89442719, 0.4472136]]),
         ({'RSHO': [1, 1, 1], 'LSHO': [1, 1, 1]}, [[[1, 0, 1], rand_coor, rand_coor], [0, 0, 0]], [[0.70710678, 0, -0.70710678], [-0.70710678, 0, 0.70710678]]),
         ({'RSHO': [1, 1, 1], 'LSHO': [1, 1, 1]}, [[[1, 0, 1], rand_coor, rand_coor], [0, 0, 1]], [[0, 0, 0], [0, 0, 2]]),
         ({'RSHO': [0, 1, 0], 'LSHO': [0, 0, -1]}, [[[0, 3, 4], rand_coor, rand_coor], [0, 0, 0]], [[1, 0, 0], [-1, 0, 0]]),
         ({'RSHO': [1, 0, 0], 'LSHO': [0, 1, 0]}, [[[7, 0, 24], rand_coor, rand_coor], [0, 0, 0]], [[0, -1, 0], [-0.96, 0, 0.28]]),
-        ({'RSHO': [1, 0, 0], 'LSHO': [0, 0, 1]}, [[[8, 0, 6], rand_coor, rand_coor], [8, 0, 0]], [[8, 1, 0], [8, -1, 0]])
-    ])
+        ({'RSHO': [1, 0, 0], 'LSHO': [0, 0, 1]}, [[[8, 0, 6], rand_coor, rand_coor], [8, 0, 0]], [[8, 1, 0], [8, -1, 0]])])
     def test_findwandmarker(self, frame, thorax, expected):
         """
         This test provides coverage of the findwandmarker function in pyCGM.py, defined as findwandmarker(frame,thorax)
-        where frame is a dictionary of x, y, z positions and marker names and thorax is the thorax axis.
+        where frame is a dictionary of x, y, z positions and marker names and thorax is the thorax axis and origin.
 
-        This test takes 3 parameters:
-        frame: dictionary of marker lists
-        thorax: the x,y,z position of the thorax
-        expected: the expected result from calling findwandmarker on frame and thorax. This results is the wand marker
-        position used for calculating knee joint center later. The wand marker position is returned as a 2x3 array
-        containing the right wand marker x,y,z positions (1x3) followed by the left wand marker x,y,z positions (1x3).
+        The function takes in the xyz position of the Right Shoulder and Left Shoulder markers, as well as the thorax
+        frame, which is a list of [ xyz axis vectors, origin ]. The wand marker position is returned as a 2x3 array
+        containing the right wand marker x, y, z positions (1x3) followed by the left wand marker x, y, z positions
+        (1x3). The thorax axis is provided in global coordinates, which are subtracted inside the function to define
+        the unit vectors.
+
+        For the Right and Left wand markers, the function performs the same calculation, with the difference being the
+        corresponding sides marker. Each wand marker is defined as the cross product between the unit vector of the
+        x axis of the thorax frame, and the unit vector from the thorax frame origin to the Shoulder marker.
+
+        Given a marker SHO, representing the right (RSHO) or left (LSHO) shoulder markers and a thorax axis TH, the
+        wand marker W is defined as:
+
+        W_R = (RSHO-TH_o) \times TH_x
+        W_L = TH_x \times (LSHO-TH_o)
+
+        where TH_o is the origin of the thorax axis, TH_x is the x unit vector of the thorax axis.
+
+        From this calculation, it should be clear that changing the thorax y and z vectors should not have an impact on the results.
+
+        This unit test ensure that:
+        - The right and left markers do not impact the wand marker calculations for one another
+        - The function requires global positions
+        - The thorax y and z axis do not change the results
         """
         result = pyCGM.findwandmarker(frame, thorax)
         np.testing.assert_almost_equal(result, expected, rounding_precision)
@@ -127,8 +146,7 @@ class TestUtils():
         ([-3, 0, 4], 5),
         ([6, -8, 0], 10),
         ([-5, 0, -12], 13),
-        ([1, -1, np.sqrt(2)], 2)
-    ])
+        ([1, -1, np.sqrt(2)], 2)])
     def test_norm2d(self, v, expected):
         """
         This test provides coverage of the norm2d function in pyCGM.py, defined as norm2d(v) where v is a 3D vector.
@@ -176,8 +194,7 @@ class TestUtils():
         ([-3, 0, 4], np.array(5)),
         ([-6, 8, 0], np.array(10)),
         ([-5, 0, -12], np.array(13)),
-        ([1, -1, np.sqrt(2)], np.array(2))
-    ])
+        ([1, -1, np.sqrt(2)], np.array(2))])
     def test_norm3d(self, v, expected):
         """
         This test provides coverage of the norm3d function in pyCGM.py, defined as norm3d(v) where v is a 3D vector.
@@ -226,8 +243,7 @@ class TestUtils():
         ([-3, 0, 4], np.array([-0.12, 0, 0.16])),
         ([-6, 8, 0], np.array([-0.06, 0.08, 0])),
         ([-5, 0, -12], np.array([-0.0295858, 0, -0.07100592])),
-        ([1, -1, np.sqrt(2)], np.array([0.25, -0.25, 0.35355339]))
-    ])
+        ([1, -1, np.sqrt(2)], np.array([0.25, -0.25, 0.35355339]))])
     def test_normDiv(self, v, expected):
         """
         This test provides coverage of the normDiv function in pyCGM.py, defined as normDiv(v) where v is a 3D vector.
@@ -276,8 +292,7 @@ class TestUtils():
         # Invalid matrix dimensions
         ([[1, 2, 0], [0, 1, 2]], [[2, 1], [1, 4]], [[4, 9], [1, 4]]),
         ([[11, 12, 13], [14, 15, 16]], [[1, 2], [3, 4], [5, 6]], [[112, 148], [139, 184]]),
-        ([[1, 2, 3], [4, 5, 6]], [[7, 8], [9, 10], [11, 12]], [[58, 64], [139, 154]])
-    ])
+        ([[1, 2, 3], [4, 5, 6]], [[7, 8], [9, 10], [11, 12]], [[58, 64], [139, 154]])])
     def test_matrixmult(self, A, B, expected):
         """
         This test provides coverage of the matrixmult function in pyCGM.py, defined as matrixmult(a, b)
@@ -332,8 +347,7 @@ class TestUtils():
         (0, 0, -60, [[0.5, 0.8660254, 0], [-0.8660254, 0.5, 0], [0, 0, 1]]),
         (90, 0, 90, [[0, -1, 0], [0, 0, -1], [1, 0, 0]]),
         (0, 150, -30, [[-0.75, -0.4330127, 0.5], [-0.5, 0.8660254, 0], [-0.4330127, -0.25, -0.8660254]]),
-        (90, 180, -90, [[0, -1, 0], [0, 0, 1], [-1, 0, 0]]),
-    ])
+        (90, 180, -90, [[0, -1, 0], [0, 0, 1], [-1, 0, 0]])])
     def test_rotmat(self, x, y, z, expected):
         """
         This test provides coverage of the rotmat function in pyCGM.py, defined as rotmat(x, y, z)
