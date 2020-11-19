@@ -40,10 +40,13 @@ class TestPycgmAngle():
         the vectors in axisP to those in axisD through dot products between different components
         of each axis. axisP and axisD each have 3 components to their axis, x, y, and z. 
         The angles are calculated as follows:
-        
-        \[ \alpha = \arcsin{(axisD_{z} \cdot axisP_{x})} \]
-        \[ \beta = \arctan2{(-(axisD_{z} \cdot axisP_{y}), axisD_{z} \cdot axisP_{z})} \]
-        \[ \gamma = \arctan2{(-(axisD_{y} \cdot axisP_{x}), axisD_{x} \cdot axisP_{x})} \]
+
+        .. math::
+            \[ \alpha = \arcsin{(axisD_{z} \cdot axisP_{x})} \]
+
+            \[ \beta = \arctan2{(-(axisD_{z} \cdot axisP_{y}), axisD_{z} \cdot axisP_{z})} \]
+
+            \[ \gamma = \arctan2{(-(axisD_{y} \cdot axisP_{x}), axisD_{x} \cdot axisP_{x})} \]
 
         This test calls pyCGM.rotmat() to create axisP with an x, y, and z rotation defined in the parameters.
         It then calls pyCGM.getangle_sho() with axisP and axisD, which was created with no rotation in the
@@ -108,10 +111,13 @@ class TestPycgmAngle():
         the vectors in axisP to those in axisD through dot products between different components
         of each axis. axisP and axisD each have 3 components to their axis, x, y, and z. 
         The angles are calculated as follows:
-        
-        \[ alpha = \arcsin{(axisD_{y} \cdot axisP_{z})} \]
-        \[ gamma = \arcsin{(-(axisD_{y} \cdot axisP_{x}) / \cos{\alpha})} \]
-        \[ beta = \arcsin{(-(axisD_{x} \cdot axisP_{z}) / \cos{\alpha})} \]
+
+        .. math::
+            \[ alpha = \arcsin{(axisD_{y} \cdot axisP_{z})} \]
+
+            \[ gamma = \arcsin{(-(axisD_{y} \cdot axisP_{x}) / \cos{\alpha})} \]
+
+            \[ beta = \arcsin{(-(axisD_{x} \cdot axisP_{z}) / \cos{\alpha})} \]
 
         This test calls pyCGM.rotmat() to create axisP with an x, y, and z rotation defined in the parameters.
         It then calls pyCGM.getangle_spi() with axisP and axisD, which was created with no rotation in the
@@ -177,17 +183,22 @@ class TestPycgmAngle():
         is being used, the function checks wether the angle alpha is between -pi/2 and pi/2.
         The angles are calculated as follows:
 
-        \[ \alpha = \arcsin{(-axisD_{z} \cdot axisP_{y})} \]
+        .. math::
+            \[ \alpha = \arcsin{(-axisD_{z} \cdot axisP_{y})} \]
 
         If alpha is between -pi/2 and pi/2
 
-        \[ \beta = \arctan2{((axisD_{z} \cdot axisP_{x}), axisD_{z} \cdot axisP_{z})} \]
-        \[ \gamma = \arctan2{((axisD_{y} \cdot axisP_{y}), axisD_{x} \cdot axisP_{y})} \]
+        .. math::
+            \[ \beta = \arctan2{((axisD_{z} \cdot axisP_{x}), axisD_{z} \cdot axisP_{z})} \]
+
+            \[ \gamma = \arctan2{((axisD_{y} \cdot axisP_{y}), axisD_{x} \cdot axisP_{y})} \]
 
         Otherwise
 
-        \[ \beta = \arctan2{(-(axisD_{z} \cdot axisP_{x}), axisD_{z} \cdot axisP_{z})} \]
-        \[ \gamma = \arctan2{(-(axisD_{y} \cdot axisP_{y}), axisD_{x} \cdot axisP_{y})} \]
+        .. math::
+            \[ \beta = \arctan2{(-(axisD_{z} \cdot axisP_{x}), axisD_{z} \cdot axisP_{z})} \]
+
+            \[ \gamma = \arctan2{(-(axisD_{y} \cdot axisP_{y}), axisD_{x} \cdot axisP_{y})} \]
 
         This test calls pyCGM.rotmat() to create axisP with an x, y, and z rotation defined in the parameters.
         It then calls pyCGM.getangle() with axisP and axisD, which was created with no rotation in the x, y or z
@@ -253,10 +264,12 @@ class TestPycgmAngle():
         of each axis. axisP and axisD each have 3 components to their axis, x, y, and z. 
         The angles are calculated as follows:
 
-        \[ \beta = \arctan2{((axisD_{z} \cdot axisP_{y}), \sqrt{(axisD_{x} \cdot axisP_{y})^2 + (axisD_{y} \cdot axisP_{y})^2}}) \]
+        .. math::
+            \[ \beta = \arctan2{((axisD_{z} \cdot axisP_{y}), \sqrt{(axisD_{x} \cdot axisP_{y})^2 + (axisD_{y} \cdot axisP_{y})^2}}) \]
 
-        \[ \alpha = \arctan2{(-(axisD_{z} \cdot axisP_{x}), axisD_{z} \cdot axisP_{z})} \]
-        \[ \gamma = \arctan2{(-(axisD_{x} \cdot axisP_{y}), axisD_{y} \cdot axisP_{y})} \]
+            \[ \alpha = \arctan2{(-(axisD_{z} \cdot axisP_{x}), axisD_{z} \cdot axisP_{z})} \]
+
+            \[ \gamma = \arctan2{(-(axisD_{x} \cdot axisP_{y}), axisD_{y} \cdot axisP_{y})} \]
 
         This test calls pyCGM.rotmat() to create axisP with an x, y, and z rotation defined in the parameters.
         It then calls pyCGM.getHeadangle() with axisP and axisD, which was created with no rotation in the x, y or z
@@ -322,10 +335,12 @@ class TestPycgmAngle():
         of each axis. axisP and axisD each have 3 components to their axis, x, y, and z. 
         The angles are calculated as follows:
 
-        \[ \beta = \arctan2{((axisD_{z} \cdot axisP_{y}), \sqrt{(axisD_{z} \cdot axisP_{x})^2 + (axisD_{z} \cdot axisP_{z})^2}}) \]
+        .. math::
+            \[ \beta = \arctan2{((axisD_{z} \cdot axisP_{y}), \sqrt{(axisD_{z} \cdot axisP_{x})^2 + (axisD_{z} \cdot axisP_{z})^2}}) \]
 
-        \[ \alpha = \arctan2{((axisD_{z} \cdot axisP_{x}), axisD_{z} \cdot axisP_{z})} \]
-        \[ \gamma = \arctan2{((axisD_{x} \cdot axisP_{y}), axisD_{y} \cdot axisP_{y})} \]
+            \[ \alpha = \arctan2{((axisD_{z} \cdot axisP_{x}), axisD_{z} \cdot axisP_{z})} \]
+
+            \[ \gamma = \arctan2{((axisD_{x} \cdot axisP_{y}), axisD_{y} \cdot axisP_{y})} \]
 
         This test calls pyCGM.rotmat() to create axisP with an x, y, and z rotation defined in the parameters.
         It then calls pyCGM.getHeadangle() with axisP and axisD, which was created with no rotation in the x, y or z
