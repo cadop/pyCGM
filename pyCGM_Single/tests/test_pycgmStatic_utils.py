@@ -88,8 +88,9 @@ class TestPycgmStaticUtils():
         expected: the expected result from calling getDist on p0 and p1. This will be the distance between p0 and p1
 
         Given the points p0 and p1, the distance between them is defined as:
-        distance = \sqrt{(p0_x-p1_x)^2 + (p0_y-p1_y)^2 + (p0_z-p1_z)^2}
-        where p0_x is the x-coordinate of the point p0
+        .. math::
+            distance = \sqrt{(p0_x-p1_x)^2 + (p0_y-p1_y)^2 + (p0_z-p1_z)^2}
+        where :math:`p0_x` is the x-coordinate of the point p0
 
         This unit test ensures that:
         - the distance is measured correctly when some coordinates are the same, all coordinates are the same, and all
@@ -207,8 +208,9 @@ class TestPycgmStaticUtils():
         the distance between the two markers RASI and LASI in frame.
 
         Given the markers RASI and LASI in frame, the Inter ASIS Distance is defined as:
-        InterASISDist = \sqrt{(RASI_x-LASI_x)^2 + (RASI_y-LASI_y)^2 + (RASI_z-LASI_z)^2}
-        where RASI_x is the x-coordinate of the RASI marker in frame
+        .. math::
+            InterASISDist = \sqrt{(RASI_x-LASI_x)^2 + (RASI_y-LASI_y)^2 + (RASI_z-LASI_z)^2}
+        where :math:`RASI_x` is the x-coordinate of the RASI marker in frame
 
         This unit test ensures that:
         - the distance is measured correctly when some coordinates are the same, all coordinates are the same, and all
@@ -242,8 +244,9 @@ class TestPycgmStaticUtils():
         radians, not degrees.
 
         The y angle is defined as:
-        \[ result = \arctan{\frac{M[0][2]}{M[2][2]}} \]
-        where M is the rotation matrix produced from multiplying axisD and axisP^{-1}
+        .. math::
+            \[ result = \arctan{\frac{M[0][2]}{M[2][2]}} \]
+        where M is the rotation matrix produced from multiplying axisD and :math:`axisP^{-1}`
 
         This unit test ensures that:
         - Rotations in only the x or z direction will return a angle of 0
@@ -449,10 +452,11 @@ class TestPycgmStaticUtils():
         multiplication of axisD and the inverse of axisP. This angle is in radians, not degrees.
 
         The x, y, and z angles are defined as:
-        \[ x = \arctan{\frac{M[2][1]}{\sqrt{M[2][0]^2 + M[2][2]^2}}} \]
-        \[ y = \arctan{\frac{-M[2][0]}{M[2][2]}} \]
-        \[ z = \arctan{\frac{-M[0][1]}{M[1][1]}} \]
-        where M is the rotation matrix produced from multiplying axisD and axisP^{-1}
+        .. math::
+            \[ x = \arctan{\frac{M[2][1]}{\sqrt{M[2][0]^2 + M[2][2]^2}}} \]
+            \[ y = \arctan{\frac{-M[2][0]}{M[2][2]}} \]
+            \[ z = \arctan{\frac{-M[0][1]}{M[1][1]}} \]
+        where M is the rotation matrix produced from multiplying axisD and :math:`axisP^{-1}`
 
         This test ensures that:
         - A rotation in one axis will only effect the resulting angle in the corresponding axes
@@ -512,8 +516,8 @@ class TestPycgmStaticUtils():
         returned as a float.
 
         Given the vector v, the normalization is defined by:
-        normalization = \sqrt{v_x^2 + v_y^2 + v_z^2}
-        where v_x is the x-coordinate of the vector v
+        normalization = :math:`\sqrt{v_x^2 + v_y^2 + v_z^2}`
+        where :math:`v_x` is the x-coordinate of the vector v
         """
         result = pycgmStatic.norm2d(v)
         np.testing.assert_almost_equal(result, expected, rounding_precision)
@@ -565,8 +569,8 @@ class TestPycgmStaticUtils():
         inside of a numpy array.
 
         Given the vector v, the normalization is defined by:
-        normalization = \sqrt{v_x^2 + v_y^2 + v_z^2}
-        where v_x is the x-coordinate of the vector v
+        normalization = :math:`\sqrt{v_x^2 + v_y^2 + v_z^2}`
+        where :math:`v_x` is the x-coordinate of the vector v
         """
         result = pycgmStatic.norm3d(v)
         np.testing.assert_almost_equal(result, expected, rounding_precision)
@@ -618,14 +622,16 @@ class TestPycgmStaticUtils():
         to return the normalization division, but in the function divides the vector by the normalization twice.
 
         Given the vector v, the normalization is defined by:
-        normalization = \sqrt{v_x^2 + v_y^2 + v_z^2}
-        where v_x is the x-coordinate of the vector v
+        normalization = :math:`\sqrt{v_x^2 + v_y^2 + v_z^2}`
+        where :math:`v_x` is the x-coordinate of the vector v
 
         The mathematically correct result would be defined by:
-        \[ result = [\frac{v_x}{norm}, \frac{v_y}{norm}, \frac{v_z}{norm}] \]
+        .. math::
+            \[ result = [\frac{v_x}{norm}, \frac{v_y}{norm}, \frac{v_z}{norm}] \]
 
         But this function has an error where it divides the vector twice:
-        \[ result = [\frac{v_x}{norm^2}, \frac{v_y}{norm^2}, \frac{v_z}{norm^2}] \]
+        .. math::
+            \[ result = [\frac{v_x}{norm^2}, \frac{v_y}{norm^2}, \frac{v_z}{norm^2}] \]
         """
         result = pycgmStatic.normDiv(v)
         np.testing.assert_almost_equal(result, expected, rounding_precision)
