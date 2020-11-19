@@ -8,13 +8,13 @@ rounding_precision = 6
 class TestUpperBodyAxis():
     """
     This class tests the upper body axis functions in pyCGM.py:
-    headJC
-    thoraxJC
-    findshoulderJC
-    shoulderAxisCalc
-    elbowJointCenter
-    wristJointCenter
-    handJointCenter
+        headJC
+        thoraxJC
+        findshoulderJC
+        shoulderAxisCalc
+        elbowJointCenter
+        wristJointCenter
+        handJointCenter
     """
     nan_3d = [np.nan, np.nan, np.nan]
     rand_coor = [np.random.randint(0, 10), np.random.randint(0, 10), np.random.randint(0, 10)]
@@ -78,7 +78,7 @@ class TestUpperBodyAxis():
           'LBHD': np.array([1.0, 0.0, 0.0], dtype='float'), 'RBHD': np.array([0.0, 0.0, 0.0], dtype='float')},
          {'HeadOffset': 1.0},
          [[[0.5, 1.5403023058681398, 0.8414709848078965], [1.5, 1, 0], [0.5, 1.8414709848078965, -0.5403023058681398]], [0.5, 1, 0]])])
-    def testHeadJC(self, frame, vsk, expected):
+    def test_headJC(self, frame, vsk, expected):
         """
         This test provides coverage of the headJC function in pyCGM.py, defined as headJC(frame, vsk)
 
@@ -86,6 +86,11 @@ class TestUpperBodyAxis():
         frame: dictionary of marker lists
         vsk: dictionary containing subject measurements from a VSK file
         expected: the expected result from calling headJC on frame and vsk
+
+        The function uses the LFHD, RFHD, LBHD, and RBHD markers from the frame to calculate the midpoints of the front, back, left, and right center positions of the head. 
+        The head axis vector components are then calculated using the aforementioned midpoints.
+        Afterwords, the axes are made orthogonal by calculating the cross product of each individual axis. 
+        Finally, the head axis is then rotated around the y axis based off the head offset angle in the VSK. 
 
         This test is checking to make sure the head joint center and head joint axis are calculated correctly given
         the 4 coordinates given in frame. This includes testing when there is no variance in the coordinates,
@@ -144,13 +149,18 @@ class TestUpperBodyAxis():
           'CLAV': np.array([1.0, 0.0, 1.0], dtype='float'), 'STRN': np.array([0.0, 0.0, 1.0], dtype='float')},
          [[[1, 4.24264069, 5.24264069], [1, 4.24264069, 6.65685425], [0, 4.94974747, 5.94974747]],
           [1, 4.94974747, 5.94974747]])])
-    def testThoraxJC(self, frame, expected):
+    def test_thoraxJC(self, frame, expected):
         """
         This test provides coverage of the thoraxJC function in pyCGM.py, defined as thoraxJC(frame)
 
         This test takes 2 parameters:
         frame: dictionary of marker lists
         expected: the expected result from calling thoraxJC on frame
+
+        The function uses the CLAV, C7, STRN, and T10 markers from the frame to calculate the midpoints of the front, back, left, and right center positions of the thorax. 
+        The thorax axis vector components are then calculated using subtracting the pairs (left to right, back to front) of the aforementioned midpoints.
+        Afterwords, the axes are made orthogonal by calculating the cross product of each individual axis. 
+        Finally, the head axis is then rotated around the x axis based off the thorax offset angle in the VSK. 
 
         This test is checking to make sure the thorax joint center and thorax joint axis are calculated correctly given
         the 4 coordinates given in frame. This includes testing when there is no variance in the coordinates,
@@ -240,7 +250,7 @@ class TestUpperBodyAxis():
          {'RightShoulderOffset': -6.0, 'LeftShoulderOffset': 42.0},
          [[[-7, -1, 5], [-1, -9, -5], np.array([3, -5, 2]), 1.0],
           [[5, -9, 2], [-1, -9, -5], np.array([-7, 3, 9]), 49.0]])])
-    def testFindShoulderJC(self, frame, thorax, wand, vsk, expected_args):
+    def test_findshoulderJC(self, frame, thorax, wand, vsk, expected_args):
         """
         This test provides coverage of the findshoulderJC function in pyCGM.py, defined as findshoulderJC(frame, thorax, wand, vsk)
 
@@ -251,14 +261,14 @@ class TestUpperBodyAxis():
         vsk: dictionary containing subject measurements from a VSK file
         expected_args: the expected arguments used to call the mocked function, findJointC
 
+        The function uses the RSHO and LSHO markers from the frame given, as well as the thorax origin position and the wand. 
+        The right shoulder joint center by using the the RSHO marker, right wand position, and thorax origin position, as positions in a 
+        plane for the Rodriques' rotation formula to find the right shoulder joint center. It is the same for the left shoulder joint center, 
+        although the left wand and LSHO markers are used instead.
+
         This test is checking to make sure the shoulder joint center is calculated correctly given the input parameters.
         This tests mocks findJointC to make sure the correct parameters are being passed into it given the parameters
-        passed into findshoulderJC. The test checks to see that the correct values in expected_args are updated per
-        each input parameter added:
-        When values are added to frame, expected_args[0][2] and expected_args[1][2] should be updated
-        When values are added to thorax, expected_args[0][1] and expected_args[1][1] should be updated
-        When values are added to wand, expected_args[0][0] and expected_args[1][0] should be updated
-        When values are added to vsk, expected_args[0][3] and expected_args[1][3] should be updated
+        passed into findshoulderJC. 
 
         Lastly, it checks that the resulting output is correct when frame and wand are a list of ints, a
         numpy array of ints, a list of floats, and a numpy array of floats, vsk values are either an int or a float,
@@ -388,7 +398,7 @@ class TestUpperBodyAxis():
             [1.85518611, 4.63349167, -3.36650833]],
            [[-0.64460664, -9.08385127, 1.24009787], [-0.57223612, -8.287942994, 2.40684228],
             [0.50697940, -8.30290332, 1.4930206]]]])])
-    def testShoulderAxisCalc(self, thorax, shoulderJC, wand, expected):
+    def test_shoulderAxisCalc(self, thorax, shoulderJC, wand, expected):
         """
         This test provides coverage of the shoulderAxisCalc function in pyCGM.py, defined as shoulderAxisCalc(frame, thorax, shoulderJC, wand)
 
@@ -398,12 +408,9 @@ class TestUpperBodyAxis():
         wand: array containing two x,y,z markers for wand
         expected: the expected result from calling shoulderAxisCalc on thorax, shoulderJC, and wand
 
-        This test is checking to make sure the shoulder joint axis is calculated correctly given the input parameters.
-        The test checks to see that the correct values in expected are updated per each input parameter added:
-        When values are added to thorax, expected[1][0][2] and expected[1][1][2] should be updated
-        When values are added to shoulderJC, expected[0], expected[1][0][2] and expected[1][1][2] should be updated
-        When values are only added to wand, no values in expected should be updated
-        If values are added to any two parameters, then all values in expected[1] should be updated
+        For the left and right shoulder axis, the respective axis is calculated by taking the difference from the respective direction (left or right) and the throax origin. 
+        The difference is then used to get the direction of each respective shoulder joint center for each shoulder axis in the order of Z, X, Y. 
+        The direction is then applied backwords to each shoulder joint center to account for variations in marker sizes. 
 
         Lastly, it checks that the resulting output is correct when shoulderJC and wand are a list of ints, a
         numpy array of ints, a list of floats, and a numpy array of floats, and thorax values are either an int or a
@@ -604,7 +611,7 @@ class TestUpperBodyAxis():
           [[[4.156741342815987, 4.506819397152288, -3.8209778344606247], [4.809375978699987, 4.029428853750657, -4.981221904092206], [4.4974292889675835, 3.138450209658714, -3.928204184138226]],
            [[6.726856988207308, 2.5997910101837682, 5.558132316896694], [5.329224487433077, 2.760784472038086, 5.702022893446135], [5.852558043845103, 2.1153482630706173, 4.557674131535308]]],
           [[17.14176226312361, -25.58951560761187, -7.246255574147096], [-5.726512929518925, 1.5474273567891164, -6.699526795132392]]])])
-    def testElbowJointCenter(self, frame, thorax, shoulderJC, vsk, mockReturnVal, expectedMockArgs, expected):
+    def test_elbowJointCenter(self, frame, thorax, shoulderJC, vsk, mockReturnVal, expectedMockArgs, expected):
         """
         This test provides coverage of the elbowJointCenter function in pyCGM.py, defined as elbowJointCenter(frame, thorax, shoulderJC, wand, vsk)
 
@@ -620,15 +627,7 @@ class TestUpperBodyAxis():
         This test is checking to make sure the elbow joint axis is calculated correctly given the input parameters.
         This tests mocks findJointC to make sure the correct parameters are being passed into it given the parameters
         passed into findshoulderJC, and also ensure that elbowJointCenter returns the correct value considering
-        the return value of findJointC, mockReturnVal. The test checks to see that the correct values in expected_args
-        and expected are updated per each input parameter added:
-        When values are added to frame, expectedMockArgs[0][0], expectedMockArgs[0][2],  expectedMockArgs[1][0],
-        expectedMockArgs[0][2], and expected[2] should be updated
-        When values are added to thorax, nothing should be updated
-        When values are added to shoulderJC, expectedMockArgs[0][1], expectedMockArgs[1][1], expected[1][0][2] and
-        expected[1][1][2] should be updated
-        When values are added to vsk, expectedMockArgs[0][3], and expectedMockArgs[1][3] should be updated
-        When values are added to mockReturnVal, expected[0], expected[1][0][2] and expected[1][1][2] should be updated
+        the return value of findJointC, mockReturnVal. 
 
         Lastly, it checks that the resulting output is correct when frame and shoulderJC are a list of ints, a
         numpy array of ints, a list of floats, and a numpy array of floats, vsk values are either an int or a float,
@@ -760,11 +759,11 @@ class TestUpperBodyAxis():
         expected: the expected result from calling wristJointCenter on elbowJC
 
         This test is checking to make sure the wrist joint axis is calculated correctly given the input parameters.
-        The test checks to see that the correct values in expected are updated per each input parameter added:
-        When values are only added to elbowJC[0] or elboxJC[1], expected[1][0][1] and expected[1][1][1] should be updated
-        When values are only added to elbowJC[2], expected[0] should be updated
-        When values are added to any two of elbowJC[0], elbowJC[1], and elbowJC[2], then all values in expected[1] should
-        be updated
+
+        The REJC and LEJC markers are calculated from the positions in the elbow joint center.  
+        The RWJC and LWJC markers that are found in the radius are calculated by subtracting the respective 
+        direction of each elbow axis position from the respective EJC marker. 
+        The RWJC and LWJC are then used as the origin for the wrist.
 
         Lastly, it checks that the resulting output is correct when elbowJC is composed of lists of ints, numpy arrays
         of ints, lists of floats, and numpy arrays of floats. ElbowJC cannot be a numpy array due to it not being
@@ -888,7 +887,7 @@ class TestUpperBodyAxis():
          [[np.array([2, 8, 1]), np.array([-6, 4, -4])],
           [[[2.911684611677104, 7.658118270621086, 1.227921152919276], [1.9534757894800765, 8.465242105199236, 1.8839599998785472], [1.5917517095361369, 7.183503419072274, 1.4082482904638631]],
            [[-6.21615749183132, 3.059079153204844, -3.739339495144585], [-6.186838410896736, 3.777824759216273, -4.9569376001580645], [-5.04168515250009, 3.744449374000024, -4.127775312999988]]]])])
-    def testHandJointCenter(self, frame, wristJC, vsk, mockReturnVal, expectedMockArgs, expected):
+    def test_handJointCenter(self, frame, wristJC, vsk, mockReturnVal, expectedMockArgs, expected):
         """
         This test provides coverage of the handJointCenter function in pyCGM.py, defined as handJointCenter(frame, elbowJC, wristJC, vsk)
 
@@ -903,14 +902,22 @@ class TestUpperBodyAxis():
         This test is checking to make sure the hand joint axis is calculated correctly given the input parameters.
         This tests mocks findJointC to make sure the correct parameters are being passed into it given the parameters
         passed into handJointCenter, and to also ensure that handJointCenter returns the correct value considering
-        the return value of findJointC, mockReturnVal. The test checks to see that the correct values in expected_args
-        and expected are updated per each input parameter added:
-        When values are added to frame, expectedMockArgs[0][0], expectedMockArgs[0][2], expectedMockArgs[1][0],
-        expectedMockArgs[1][2] and expected[1] should be updated
-        When values are added to wristJC, expectedMockArgs[0][1], expectedMockArgs[1][1], expected[1][0][2],
-        and expected[1][1][2] should be updated
-        When values are added to vsk, expectedMockArgs[0][3] and expectedMockArgs[1][3] should be updated
-        When values are added to mockReturnVal, expected[0] should be updated
+        the return value of findJointC, mockReturnVal. 
+
+        Using RWRA, RWRB, LWRA, and LWRB from the given frame dictionary, 
+        RWRI = (RWRA+RWRB)/2 
+        LWRI = (LWRA+LWRB)/2
+        aka the midpoints of the markers for each direction.
+
+        LHND is calculated using the Rodriques' rotation formula with the LWRI, LWJC, and LFIN as reference points. The thickness of the left hand is also applied in the calculations. 
+        The same can be said for the RHND, but with respective markers and measurements (aka RWRI, RWJC, and RFIN).
+        z_axis = LWJC - LHND
+        y-axis = LWRI - LRWA
+        x-axis =  y-axis \cross z-axis 
+        y-axis = z-axis \cross x-axis 
+
+        This is for the handJC left axis, and is the same for the right axis but with the respective markers. 
+        The origin for each direction is calculated by adding each axis to each HND marker. 
 
         Lastly, it checks that the resulting output is correct when frame and wristJC are composed of lists of ints,
         numpy arrays of ints, lists of floats, and numpy arrays of floats and vsk values are either an int or a float.
@@ -1022,7 +1029,7 @@ class TestLowerBodyAxis():
          [np.array([-6.5, -1.5, 2.0]),
           np.array([[-6.72928306, -1.61360872, 2.96670695], [-6.56593805, -2.48907071, 1.86812391], [-5.52887619, -1.59397972, 2.21928602]]),
           np.array([-4, 8, -5])])])
-    def testPelvisJointCenter(self, frame, expected):
+    def test_pelvisJointCenter(self, frame, expected):
         """
         This test provides coverage of the pelvisJointCenter function in pyCGM.py, defined as pelvisJointCenter(frame)
 
@@ -1031,12 +1038,11 @@ class TestLowerBodyAxis():
         expected: the expected result from calling pelvisJointCenter on frame
 
         This test is checking to make sure the pelvis joint center and axis are calculated correctly given the input
-        parameters. The test checks to see that the correct values in expected are updated per each input parameter added:
-        When values are added to frame['RASI'] and frame['LASI'], expected[0] and expected[1] should be updated
-        When values are added to frame['RPSI'] and frame['LPSI'], expected[2] should be updated
-        When values are added to frame['SACR'], expected[2] should be updated, and expected[1] should also be updated
-        if there are values for frame['RASI'] and frame['LASI']
-        Values produced from frame['SACR'] takes precedent over frame['RPSI'] and frame['LPSI']
+        parameters. 
+
+        If RPSI and LPSI are given, then the sacrum will be the midpoint of those two markers. If they are not given then the sacrum is already calculated / specified. 
+        The origin of the pelvis is midpoint of the RASI and LASI markers.
+        The axis of the pelvis is calculated using LASI, RASI, origin, and sacrum in the Gram-Schmidt orthogonalization procedure (ref. Kadaba 1990). 
 
         Lastly, it checks that the resulting output is correct when frame is composed of lists of ints, numpy arrays of
         ints, lists of floats, and numpy arrays of floats. frame['LASI'] and frame['RASI'] were kept as numpy arrays
@@ -1119,7 +1125,7 @@ class TestLowerBodyAxis():
          np.array([4.0, -1.0, 2.0], dtype='float'), np.array([3.0, 8.0, 2.0], dtype='float'),
          {'MeanLegLength': 15.0, 'R_AsisToTrocanterMeasure': -24.0, 'L_AsisToTrocanterMeasure': -7.0, 'InterAsisDistance': 11},
          [[81.76345582, 89.67607691, 124.73321758], [-76.79709552, 107.19186562, -17.60160178]])])
-    def testHipJointCenter(self, pel_origin, pel_x, pel_y, pel_z, vsk, expected):
+    def test_hipJointCenter(self, pel_origin, pel_x, pel_y, pel_z, vsk, expected):
         """
         This test provides coverage of the hipJointCenter function in pyCGM.py, defined as hipJointCenter(frame, pel_origin, pel_x, pel_y, pel_z, vsk)
 
@@ -1134,6 +1140,8 @@ class TestLowerBodyAxis():
         This test is checking to make sure the hip joint center is calculated correctly given the input parameters.
         The test checks to see that the correct values in expected are updated per each input parameter added. Any
         parameter that is added should change the value of every value in expected.
+
+        The hip joint center axis and origin are calculated using the Hip Joint Center Calculation (ref. Davis_1991).
 
         Lastly, it checks that the resulting output is correct when pel_origin, pel_x, pel_y, and pel_z are composed of
         lists of ints, numpy arrays of ints, lists of floats, and numpy arrays of floats and vsk values are ints or floats.
@@ -1195,7 +1203,7 @@ class TestLowerBodyAxis():
         (np.array([-5.0, 3.0, 8.0], dtype='float'), np.array([-3.0, -7.0, -1.0], dtype='float'),
          [np.array([6.0, 3.0, 9.0], dtype='float'), np.array([[5.0, 4.0, -2.0], [0.0, 0.0, 0.0], [7.0, 2.0, 3.0]], dtype='float'), rand_coor],
          [[-4, -2, 3.5], [[-5, -1, -7.5], [-10, -5, -5.5], [-3, -3, -2.5]]])])
-    def testHipAxisCenter(self, l_hip_jc, r_hip_jc, pelvis_axis, expected):
+    def test_hipAxisCenter(self, l_hip_jc, r_hip_jc, pelvis_axis, expected):
         """
         This test provides coverage of the hipAxisCenter function in pyCGM.py, defined as hipAxisCenter(l_hip_jc, r_hip_jc, pelvis_axis)
 
@@ -1206,9 +1214,11 @@ class TestLowerBodyAxis():
         expected: the expected result from calling hipAxisCenter on l_hip_jc, r_hip_jc, and pelvis_axis
 
         This test is checking to make sure the hip axis center is calculated correctly given the input parameters.
-        The test checks to see that the correct values in expected are updated per each input parameter added:
-        When values are added to l_hip_jc or r_hip_jc, every value in expected should be updated
-        When values are added to pelvis_axis, expected[1] should be updated
+
+        The hip axis center is calculated using the midpoint of the right and left hip joint centers. 
+        Then, the given pelvis_axis variable is converted into x,y,z axis format. 
+        The pelvis axis is then translated to the shared hip center by calculating the sum of:
+        pelvis_axis axis component + hip_axis_center axis component 
 
         Lastly, it checks that the resulting output is correct when l_hip_jc, r_hip_jc, and pelvis_axis are composed of
         lists of ints, numpy arrays of ints, lists of floats, and numpy arrays of floats.
@@ -1344,7 +1354,7 @@ class TestLowerBodyAxis():
          [np.array([-5, -5, -9]), np.array([3, -6, -5]),
           np.array([[[-5.6293369, -4.4458078, -8.45520089], [-5.62916022, -5.77484544, -8.93858368], [-4.54382845, -5.30411437, -8.16368549]],
                     [[2.26301154, -6.63098327, -4.75770242], [3.2927155, -5.97483821, -4.04413154], [2.39076635, -5.22461171, -4.83384537]]])])])
-    def testKneeJointCenter(self, frame, hip_JC, vsk, mockReturnVal, expectedMockArgs, expected):
+    def test_kneeJointCenter(self, frame, hip_JC, vsk, mockReturnVal, expectedMockArgs, expected):
         """
         This test provides coverage of the kneeJointCenter function in pyCGM.py, defined as kneeJointCenter(frame, hip_JC, delta, vsk)
 
@@ -1359,14 +1369,12 @@ class TestLowerBodyAxis():
         This test is checking to make sure the knee joint center and axis are calculated correctly given the input
         parameters. This tests mocks findJointC to make sure the correct parameters are being passed into it given the
         parameters passed into kneeJointCenter, and to also ensure that kneeJointCenter returns the correct value considering
-        the return value of findJointC, mockReturnVal. The test checks to see that the correct values in expected_args
-        and expected are updated per each input parameter added:
-        When values are added to frame, expectedMockArgs[0][0], expectedMockArgs[0][2], expectedMockArgs[1][0], and
-        expectedMockArgs[1][2] should be updated
-        When values are added to hip_JC, expectedMockArgs[0][1], expectedMockArgs[1][1], expected[2][0][2], and
-        expected[2][1][2] should be updated, unless values are also added to frame, then expected[2] should be updated
-        When values are added to vsk, expectedMockArgs[0][3], and expectedMockArgs[1][3] should be updated
-        When values are added to mockReturnVal, expected[0], expected[2][0][2], and expected[2][1][2] should be updated
+        the return value of findJointC, mockReturnVal. 
+
+        For each direction (L or R) D, the D knee joint center is calculated using DTHI, D hip joint center, and 
+        DKNE in the Rodriques' rotation formula. The knee width for each knee is applied after the rotation in the formula as well.
+        Each knee joint center and the RKNE / LKNE markers are used in the Knee Axis Calculation 
+        (ref. Clinical Gait Analysis hand book, Baker2013) calculation formula.
 
         Lastly, it checks that the resulting output is correct when hip_JC is composed of lists of ints, numpy arrays of
         ints, lists of floats, and numpy arrays of floats and vsk values are ints and floats. The values in frame were
@@ -1548,7 +1556,7 @@ class TestLowerBodyAxis():
          [np.array([2, -5, 4]), np.array([8, -3, 1]),
           [[np.array([1.48891678, -5.83482493, 3.7953997]), np.array([1.73661348, -5.07447603, 4.96181124]), np.array([1.18181818, -4.45454545, 3.81818182])],
            [np.array([8.87317138, -2.54514024, 1.17514093]), np.array([7.52412119, -2.28213872, 1.50814815]), np.array([8.10540926, -3.52704628, 1.84327404])]]])])
-    def testAnkleJointCenter(self, frame, knee_JC, vsk, mockReturnVal, expectedMockArgs, expected):
+    def test_ankleJointCenter(self, frame, knee_JC, vsk, mockReturnVal, expectedMockArgs, expected):
         """
         This test provides coverage of the ankleJointCenter function in pyCGM.py, defined as ankleJointCenter(frame, knee_JC, delta, vsk)
 
@@ -1563,14 +1571,10 @@ class TestLowerBodyAxis():
         This test is checking to make sure the ankle joint center and axis are calculated correctly given the input
         parameters. This tests mocks findJointC to make sure the correct parameters are being passed into it given the
         parameters passed into ankleJointCenter, and to also ensure that ankleJointCenter returns the correct value considering
-        the return value of findJointC, mockReturnVal. The test checks to see that the correct values in expected_args
-        and expected are updated per each input parameter added:
-        When values are added to frame, expectedMockArgs[0][0], expectedMockArgs[0][2], expectedMockArgs[1][0], and
-        expectedMockArgs[1][2] should be updated
-        When values are added to knee_JC, expectedMockArgs[0][1], expectedMockArgs[1][1], expected[2][0][2], and
-        expected[2][1][2] should be updated, unless values are also added to frame, then all of expected should be updated
-        When values are added to vsk, expectedMockArgs[0][3], and expectedMockArgs[1][3] should be updated
-        When values are added to mockReturnVal, expected[0], expected[2][0][2], and expected[2][1][2] should be updated
+        the return value of findJointC, mockReturnVal.
+        
+        The ankle joint center left and right origin are defined by using the ANK, Tib, and KJC marker positions in the Rodriques' rotation formula.
+        The ankle joint center axis is calculated using the Ankle Axis Calculation(ref. Clinical Gait Analysis hand book, Baker2013).
 
         Lastly, it checks that the resulting output is correct when knee_JC is composed of lists of ints, numpy arrays
         of ints, lists of floats, and numpy arrays of floats and vsk values are ints and floats. The values in frame
@@ -1729,7 +1733,7 @@ class TestLowerBodyAxis():
          [np.array([4, 0, -3]), np.array([-1, 7, 2]),
           [[[3.08005417, 0.34770638, -2.81889243], [4.00614173, -0.44911697, -2.10654814], [4.3919974, 0.82303962, -2.58897224]],
            [[-1.58062909, 6.83398388, 1.20293758], [-1.59355918, 7.75640754, 2.27483654], [-0.44272327, 7.63268181, 1.46226738]]]])])
-    def testFootJointCenter(self, frame, vsk, ankle_JC, expected):
+    def test_footJointCenter(self, frame, vsk, ankle_JC, expected):
         """
         This test provides coverage of the footJointCenter function in pyCGM.py, defined as footJointCenter(frame, vsk, ankle_JC, knee_JC, delta)
 
@@ -1740,10 +1744,15 @@ class TestLowerBodyAxis():
         expected: the expected result from calling footJointCenter on frame, vsk, and ankle_JC
 
         This test is checking to make sure the foot joint center and axis are calculated correctly given the input
-        parameters. The test checks to see that the correct values in expected are updated per each input parameter added:
-        When values are added to frame, expected[0] and expected[1] should be updated
-        When values are added to vsk, expected[2] should be updated as long as there are values for frame and ankle_JC
-        When values are added to ankle_JC, expected[2] should be updated
+        parameters. 
+
+        The incorrect foot joint axes for both directions are calculated using the following calculations:
+            z-axis = ankle joint center - TOE marker
+            y-flex = ankle joint center flexion - ankle joint center
+            x-axis =  y-flex \cross z-axis
+            y-axis = z-axis cross x-axis
+        Calculate the foot joint axis by rotating incorrect foot joint axes about offset angle.
+
 
         Lastly, it checks that the resulting output is correct when frame and ankle_JC is composed of lists of ints,
         numpy arrays of ints, lists of floats, and numpy arrays of floats and vsk values are ints and floats.
@@ -1791,7 +1800,7 @@ class TestAxisUtils():
         # Testing that when a, b, and c are numpy arrays of floats and delta is a float
         (np.array([-7.0, 1.0, 2.0], dtype='float'), np.array([1.0, 4.0, 3.0], dtype='float'),
          np.array([3.0, 2.0, -8.0], dtype='float'), 10.0, [5.867777, 5.195449, 1.031332])])
-    def testfindJointC(self, a, b, c, delta, expected):
+    def test_findJointC(self, a, b, c, delta, expected):
         """
         This test provides coverage of the findJointC function in pyCGM.py, defined as findJointC(a, b, c, delta)
 
@@ -1802,13 +1811,16 @@ class TestAxisUtils():
         delta: length from marker to joint center, retrieved from subject measurement file
         expected: the expected result from calling findJointC on a, b, c, and delta
 
+        A plane will be generated using the positions of three specified markers. 
+        The plane will then calculate a joint center by rotating the vector of the plane around the rotating axis (the orthogonal vector).
+
         Lastly, it checks that the resulting output is correct when a, b, and c are lists of ints, numpy arrays of ints,
         lists of floats, and numpy arrays of floats and delta is an int or a float.
         """
         result = pyCGM.findJointC(a, b, c, delta)
         np.testing.assert_almost_equal(result, expected, rounding_precision)
 
-    def testJointAngleCalc(self):
+    def test_JointAngleCalc(self):
         """
         This test provides coverage of the JointAngleCalc function in pyCGM.py, defined as JointAngleCalc(frame, vsk)
 
