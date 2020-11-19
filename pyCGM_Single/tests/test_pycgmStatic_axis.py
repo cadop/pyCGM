@@ -8,18 +8,18 @@ rounding_precision = 8
 class TestPycgmStaticAxis():
     """
     This class tests the axis functions in pycgmStatic.py:
-    staticCalculationHead
-    pelvisJointCenter
-    hipJointCenter
-    hipAxisCenter
-    kneeJointCenter
-    ankleJointCenter
-    footJointCenter
-    headJC
-    uncorrect_footaxis
-    rotaxis_footflat
-    rotaxis_nonfootflat
-    findJointC
+        staticCalculationHead
+        pelvisJointCenter
+        hipJointCenter
+        hipAxisCenter
+        kneeJointCenter
+        ankleJointCenter
+        footJointCenter
+        headJC
+        uncorrect_footaxis
+        rotaxis_footflat
+        rotaxis_nonfootflat
+        findJointC
     """
     nan_3d = [np.nan, np.nan, np.nan]
     rand_coor = [np.random.randint(0, 10), np.random.randint(0, 10), np.random.randint(0, 10)]
@@ -64,7 +64,7 @@ class TestPycgmStaticAxis():
         # Testing that when head is composed of numpy arrays of floats
         ([np.array([[-1.0, 8.0, 9.0], [7.0, 5.0, 7.0], [3.0, -6.0, -2.0]], dtype='float'), np.array([-4.0, 7.0, 8.0], dtype='float')],
          -0.09966865249116204)])
-    def testStaticCalculationHead(self, head, expected):
+    def test_staticCalculationHead(self, head, expected):
         """
         This test provides coverage of the staticCalculationHead function in pycgmStatic.py, defined as staticCalculationHead(frame, head)
 
@@ -158,7 +158,7 @@ class TestPycgmStaticAxis():
          [np.array([-6.5, -1.5, 2.0]),
           np.array([[-6.72928306, -1.61360872, 2.96670695], [-6.56593805, -2.48907071, 1.86812391], [-5.52887619, -1.59397972, 2.21928602]]),
           np.array([-4, 8, -5])])])
-    def testPelvisJointCenter(self, frame, expected):
+    def test_pelvisJointCenter(self, frame, expected):
         """
         This test provides coverage of the pelvisJointCenter function in pycgmStatic.py, defined as pelvisJointCenter(frame)
         This test takes 2 parameters:
@@ -167,11 +167,15 @@ class TestPycgmStaticAxis():
 
         This test is checking to make sure the pelvis joint center and axis are calculated correctly given the input
         parameters. The test checks to see that the correct values in expected are updated per each input parameter added:
-        When values are added to frame['RASI'] and frame['LASI'], expected[0] and expected[1] should be updated
-        When values are added to frame['RPSI'] and frame['LPSI'], expected[2] should be updated
-        When values are added to frame['SACR'], expected[2] should be updated, and expected[1] should also be updated
+            When values are added to frame['RASI'] and frame['LASI'], expected[0] and expected[1] should be updated
+            When values are added to frame['RPSI'] and frame['LPSI'], expected[2] should be updated
+            When values are added to frame['SACR'], expected[2] should be updated, and expected[1] should also be updated
         if there are values for frame['RASI'] and frame['LASI']
         Values produced from frame['SACR'] takes precedent over frame['RPSI'] and frame['LPSI']
+
+        If RPSI and LPSI are given, then the sacrum will be the midpoint of those two markers. If they are not given then the sacrum is already calculated / specified. 
+        The origin of the pelvis is midpoint of the RASI and LASI markers.
+        The axis of the pelvis is calculated using LASI, RASI, origin, and sacrum in the Gram-Schmidt orthogonalization procedure (ref. Kadaba 1990). 
 
         Lastly, it checks that the resulting output is correct when frame is composed of lists of ints, numpy arrays of
         ints, lists of floats, and numpy arrays of floats. frame['LASI'] and frame['RASI'] were kept as numpy arrays
@@ -254,7 +258,7 @@ class TestPycgmStaticAxis():
          np.array([4.0, -1.0, 2.0], dtype='float'), np.array([3.0, 8.0, 2.0], dtype='float'),
          {'MeanLegLength': 15.0, 'R_AsisToTrocanterMeasure': -24.0, 'L_AsisToTrocanterMeasure': -7.0, 'InterAsisDistance': 11},
          [[81.76345582, 89.67607691, 124.73321758], [-76.79709552, 107.19186562, -17.60160178]])])
-    def testHipJointCenter(self, pel_origin, pel_x, pel_y, pel_z, vsk, expected):
+    def test_hipJointCenter(self, pel_origin, pel_x, pel_y, pel_z, vsk, expected):
         """
         This test provides coverage of the hipJointCenter function in pycgmStatic.py, defined as hipJointCenter(frame, pel_origin, pel_x, pel_y, pel_z, vsk)
         This test takes 6 parameters:
@@ -269,6 +273,7 @@ class TestPycgmStaticAxis():
         The test checks to see that the correct values in expected are updated per each input parameter added. Any
         parameter that is added should change the value of every value in expected.
 
+        The hip joint center axis and origin are calculated using the Hip Joint Center Calculation (ref. Davis_1991).
         Lastly, it checks that the resulting output is correct when pel_origin, pel_x, pel_y, and pel_z are composed of
         lists of ints, numpy arrays of ints, lists of floats, and numpy arrays of floats and vsk values are ints or floats.
         """
@@ -330,7 +335,7 @@ class TestPycgmStaticAxis():
          [np.array([6.0, 3.0, 9.0], dtype='float'),
           np.array([[5.0, 4.0, -2.0], [0.0, 0.0, 0.0], [7.0, 2.0, 3.0]], dtype='float'), rand_coor],
          [[-4, -2, 3.5], [[-5, -1, -7.5], [-10, -5, -5.5], [-3, -3, -2.5]]])])
-    def testHipAxisCenter(self, l_hip_jc, r_hip_jc, pelvis_axis, expected):
+    def test_hipAxisCenter(self, l_hip_jc, r_hip_jc, pelvis_axis, expected):
         """
         This test provides coverage of the hipAxisCenter function in pycgmStatic.py, defined as hipAxisCenter(l_hip_jc, r_hip_jc, pelvis_axis)
         This test takes 4 parameters:
@@ -343,6 +348,12 @@ class TestPycgmStaticAxis():
         The test checks to see that the correct values in expected are updated per each input parameter added:
         When values are added to l_hip_jc or r_hip_jc, every value in expected should be updated
         When values are added to pelvis_axis, expected[1] should be updated
+
+
+        The hip axis center is calculated using the midpoint of the right and left hip joint centers. 
+        Then, the given pelvis_axis variable is converted into x,y,z axis format. 
+        The pelvis axis is then translated to the shared hip center by calculating the sum of:
+        pelvis_axis axis component + hip_axis_center axis component 
 
         Lastly, it checks that the resulting output is correct when l_hip_jc, r_hip_jc, and pelvis_axis are composed of
         lists of ints, numpy arrays of ints, lists of floats, and numpy arrays of floats.
@@ -477,7 +488,7 @@ class TestPycgmStaticAxis():
          [np.array([-5, -5, -9]), np.array([3, -6, -5]),
           np.array([[[-5.65539698, -5.75053525, -8.91543265], [-4.39803462, -5.58669523, -9.54168847], [-4.54382845, -5.30411437, -8.16368549]],
                     [[2.57620655, -6.14126448, -5.89467506], [2.32975119, -6.6154814, -4.58533245], [2.39076635, -5.22461171, -4.83384537]]])])])
-    def testKneeJointCenter(self, frame, hip_JC, vsk, mockReturnVal, expectedMockArgs, expected):
+    def test_kneeJointCenter(self, frame, hip_JC, vsk, mockReturnVal, expectedMockArgs, expected):
         """
         This test provides coverage of the kneeJointCenter function in pycgmStatic.py, defined as kneeJointCenter(frame, hip_JC, delta, vsk)
         This test takes 6 parameters:
@@ -491,14 +502,12 @@ class TestPycgmStaticAxis():
         This test is checking to make sure the knee joint center and axis are calculated correctly given the input
         parameters. This tests mocks findJointC to make sure the correct parameters are being passed into it given the
         parameters passed into kneeJointCenter, and to also ensure that kneeJointCenter returns the correct value considering
-        the return value of findJointC, mockReturnVal. The test checks to see that the correct values in expected_args
-        and expected are updated per each input parameter added:
-        When values are added to frame, expectedMockArgs[0][0], expectedMockArgs[0][2], expectedMockArgs[1][0], and
-        expectedMockArgs[1][2] should be updated
-        When values are added to hip_JC, expectedMockArgs[0][1], expectedMockArgs[1][1], expected[2][0][2], and
-        expected[2][1][2] should be updated, unless values are also added to frame, then expected[2] should be updated
-        When values are added to vsk, expectedMockArgs[0][3], and expectedMockArgs[1][3] should be updated
-        When values are added to mockReturnVal, expected[0], expected[2][0][2], and expected[2][1][2] should be updated
+        the return value of findJointC, mockReturnVal. 
+
+        For each direction (L or R) D, the D knee joint center is calculated using DTHI, D hip joint center, and 
+        DKNE in the Rodriques' rotation formula. The knee width for each knee is applied after the rotation in the formula as well.
+        Each knee joint center and the RKNE / LKNE markers are used in the Knee Axis Calculation 
+        (ref. Clinical Gait Analysis hand book, Baker2013) calculation formula.
 
         Lastly, it checks that the resulting output is correct when hip_JC is composed of lists of ints, numpy arrays of
         ints, lists of floats, and numpy arrays of floats and vsk values are ints and floats. The values in frame were
@@ -680,7 +689,7 @@ class TestPycgmStaticAxis():
          [np.array([2, -5, 4]), np.array([8, -3, 1]),
           [[np.array([1.48891678, -5.83482493, 3.7953997]), np.array([1.73661348, -5.07447603, 4.96181124]), np.array([1.18181818, -4.45454545, 3.81818182])],
            [np.array([8.87317138, -2.54514024, 1.17514093]), np.array([7.52412119, -2.28213872, 1.50814815]), np.array([8.10540926, -3.52704628, 1.84327404])]]])])
-    def testAnkleJointCenter(self, frame, knee_JC, vsk, mockReturnVal, expectedMockArgs, expected):
+    def test_ankleJointCenter(self, frame, knee_JC, vsk, mockReturnVal, expectedMockArgs, expected):
         """
         This test provides coverage of the ankleJointCenter function in pycgmStatic.py, defined as ankleJointCenter(frame, knee_JC, delta, vsk)
         This test takes 6 parameters:
@@ -694,14 +703,10 @@ class TestPycgmStaticAxis():
         This test is checking to make sure the ankle joint center and axis are calculated correctly given the input
         parameters. This tests mocks findJointC to make sure the correct parameters are being passed into it given the
         parameters passed into ankleJointCenter, and to also ensure that ankleJointCenter returns the correct value considering
-        the return value of findJointC, mockReturnVal. The test checks to see that the correct values in expected_args
-        and expected are updated per each input parameter added:
-        When values are added to frame, expectedMockArgs[0][0], expectedMockArgs[0][2], expectedMockArgs[1][0], and
-        expectedMockArgs[1][2] should be updated
-        When values are added to knee_JC, expectedMockArgs[0][1], expectedMockArgs[1][1], expected[2][0][2], and
-        expected[2][1][2] should be updated, unless values are also added to frame, then all of expected should be updated
-        When values are added to vsk, expectedMockArgs[0][3], and expectedMockArgs[1][3] should be updated
-        When values are added to mockReturnVal, expected[0], expected[2][0][2], and expected[2][1][2] should be updated
+        the return value of findJointC, mockReturnVal. 
+
+        The ankle joint center left and right origin are defined by using the ANK, Tib, and KJC marker positions in the Rodriques' rotation formula.
+        The ankle joint center axis is calculated using the Ankle Axis Calculation(ref. Clinical Gait Analysis hand book, Baker2013).
 
         Lastly, it checks that the resulting output is correct when knee_JC is composed of lists of ints, numpy arrays
         of ints, lists of floats, and numpy arrays of floats and vsk values are ints and floats. The values in frame
@@ -858,7 +863,7 @@ class TestPycgmStaticAxis():
          [np.array([-1, -1, -5]), np.array([-5, -6, 1]),
           np.array([[[-0.17456964188738444, -0.44190534702217665, -4.915176169482615], [-1.564451151846412, -0.1819624820720035, -4.889503319319258], [-1.0077214691178664, -1.139086223544123, -4.009749828914483]],
                     [[-4.638059331793927, -6.864633064377841, 0.6515626072260268], [-4.6226610672854616, -5.522323332954951, 0.2066272429566376], [-4.147583269429562, -5.844325128086398, 1.4991503297587707]]])])])
-    def testFootJointCenter(self, frame, static_info, ankle_JC, expected):
+    def test_footJointCenter(self, frame, static_info, ankle_JC, expected):
         """
         This test provides coverage of the footJointCenter function in pycgmStatic.py, defined as footJointCenter(frame, static_info, ankle_JC, knee_JC, delta)
 
@@ -867,6 +872,13 @@ class TestPycgmStaticAxis():
         static_info: array containing offset angles
         ankle_JC: array of ankle_JC each x,y,z position
         expected: the expected result from calling footJointCenter on frame, static_info, and ankle_JC
+
+        The incorrect foot joint axes for both feet are calculated using the following calculations:
+            z-axis = ankle joint center - TOE marker
+            y-flex = ankle joint center flexion - ankle joint center
+            x-axis =  y-flex \cross z-axis
+            y-axis = z-axis cross x-axis
+        Calculate the foot joint axis by rotating incorrect foot joint axes about offset angle.
 
         This test is checking to make sure the foot joint center and axis are calculated correctly given the input
         parameters. The test checks to see that the correct values in expected are updated per each input parameter added:
@@ -922,7 +934,7 @@ class TestPycgmStaticAxis():
         ({'LFHD': np.array([1.0, 1.0, 2.0], dtype='float'), 'RFHD': np.array([0.0, 1.0, 2.0], dtype='float'),
           'LBHD': np.array([1.0, 0.0, 1.0], dtype='float'), 'RBHD': np.array([0.0, 0.0, 1.0], dtype='float')},
          [[[0.5, 1.70710678, 2.70710678], [1.5, 1, 2], [0.5, 1.70710678, 1.29289322]], [0.5, 1, 2]])])
-    def testHeadJC(self, frame, expected):
+    def test_headJC(self, frame, expected):
         """
         This test provides coverage of the headJC function in pycgmStatic.py, defined as headJC(frame)
         This test takes 3 parameters:
@@ -933,6 +945,11 @@ class TestPycgmStaticAxis():
         the 4 coordinates given in frame. This includes testing when there is no variance in the coordinates,
         when the coordinates are in different quadrants, when the midpoints will be on diagonals, and when the z
         dimension is variable. It also checks to see the difference when a value is set for HeadOffSet in vsk.
+
+        The function uses the LFHD, RFHD, LBHD, and RBHD markers from the frame to calculate the midpoints of the front, back, left, and right center positions of the head. 
+        The head axis vector components are then calculated using the aforementioned midpoints.
+        Afterwords, the axes are made orthogonal by calculating the cross product of each individual axis. 
+        Finally, the head axis is then rotated around the y axis based off the head offset angle in the VSK. 
 
         Lastly, it checks that the resulting output is correct when frame composed of lists of ints, numpy arrays of
         ints, lists of floats, and numpy arrays of floats and when headOffset is an int and a float.
@@ -1059,13 +1076,14 @@ class TestPycgmStaticAxis():
          [np.array([-7, 3, -8]), np.array([8, 0, -8]),
           [[[-6.586075309097216, 2.6732173492872757, -8.849634891853084], [-6.249026985898898, 3.6500960420576702, -7.884178291357542], [-6.485504244572473, 2.3140056594299647, -7.485504244572473]],
            [[8.623180382731631, 0.5341546137699694, -7.428751315829338], [7.295040915019964, 0.6999344300621451, -7.885437867872096], [7.6613572692607015, -0.47409982303501746, -7.187257446225685]]]])])
-    def testUncorrect_footaxis(self, frame, ankle_JC, expected):
+    def test_uncorrect_footaxis(self, frame, ankle_JC, expected):
         """
         This test provides coverage of the uncorrect_footaxis function in pycgmStatic.py, defined as uncorrect_footaxis(frame, ankle_JC)
 
         This test takes 3 parameters:
         frame: dictionaries of marker lists.
         ankle_JC: array of ankle_JC each x,y,z position
+
         expected: the expected result from calling uncorrect_footaxis on frame and ankle_JC, which should be the
         anatomically incorrect foot axis
 
@@ -1246,7 +1264,7 @@ class TestPycgmStaticAxis():
          [np.array([1, 4, -6]), np.array([4, 2, 2]),
           np.array([[[1.4472135954999579, 4.0, -6.8944271909999157], [1.894427190999916, 4.0, -5.5527864045000417], [1.0, 3.0, -6.0]],
                     [[4.5834323811883104, 1.7666270475246759, 2.7779098415844139], [3.2777288444786272, 2.2889084622085494, 2.6283759053035944], [3.6286093236458963, 1.0715233091147407, 2.0]]])])])
-    def testRotaxis_footflat(self, frame, ankle_JC, vsk, expected):
+    def test_rotaxis_footflat(self, frame, ankle_JC, vsk, expected):
         """
         This test provides coverage of the rotaxis_footflat function in pycgmStatic.py, defined as rotaxis_footflat(frame, ankle_JC, vsk)
 
@@ -1418,7 +1436,7 @@ class TestPycgmStaticAxis():
          [np.array([5, -2, -2]), np.array([-2, -7, -1]),
           [[[5.049326362366699, -2.8385481602338833, -1.4574100139663109], [5.987207376506346, -1.8765990779367068, -1.8990356092209417], [4.848380391284219, -1.4693313694947676, -1.1660921520632064]],
            [[-2.446949206712144, -7.0343807082086265, -1.8938984134242876], [-2.820959061315946, -7.381159564182403, -0.5748604861042421], [-2.355334527259351, -6.076130229125688, -0.8578661890962597]]]])])
-    def testRotaxis_nonfootflat(self, frame, ankle_JC, expected):
+    def test_rotaxis_nonfootflat(self, frame, ankle_JC, expected):
         """
         This test provides coverage of the rotaxis_nonfootflat function in pycgmStatic.py, defined as rotaxis_nonfootflat(frame, ankle_JC)
 
@@ -1489,7 +1507,7 @@ class TestPycgmStaticAxis():
         # Testing that when a, b, and c are numpy arrays of floats and delta is a float
         (np.array([-7.0, 1.0, 2.0], dtype='float'), np.array([1.0, 4.0, 3.0], dtype='float'),
          np.array([3.0, 2.0, -8.0], dtype='float'), 10.0, [5.86777669, 5.19544877, 1.031332352])])
-    def testfindJointC(self, a, b, c, delta, expected):
+    def test_findJointC(self, a, b, c, delta, expected):
         """
         This test provides coverage of the findJointC function in pycgmStatic.py, defined as findJointC(a, b, c, delta)
         This test takes 5 parameters:
@@ -1498,6 +1516,9 @@ class TestPycgmStaticAxis():
         c: list markers of x,y,z position
         delta: length from marker to joint center, retrieved from subject measurement file
         expected: the expected result from calling findJointC on a, b, c, and delta
+
+        A plane will be generated using the positions of three specified markers. 
+        The plane will then calculate a joint center by rotating the vector of the plane around the rotating axis (the orthogonal vector).
 
         Lastly, it checks that the resulting output is correct when a, b, and c are lists of ints, numpy arrays of ints,
         lists of floats, and numpy arrays of floats and delta is an int or a float.
