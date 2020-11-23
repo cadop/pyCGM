@@ -134,7 +134,7 @@ class TestPipelinesFiltering:
         where data is a 2darray of numbers to filter, cutoff is the cutoff
         frequency to filter, and Fs is the sampling frequency of the data.
 
-        This function uses the same fourth-order Butterworth filter constructed
+        Pipelines.filt() uses the same fourth-order Butterworth filter constructed
         in Pipelines.butterFilter().
 
         We test cases where inputs are lists of positive and negative floats 
@@ -230,8 +230,8 @@ class TestPipelinesFiltering:
     ])
     def test_filtering_accuracy(self, Data, expected_result):
         """
-        The following functions test Pipelines.filtering(Data), where
-        Data is a dictionary of marker lists. This function calls
+        This function tests Pipelines.filtering(Data), where
+        Data is a dictionary of marker lists. Pipelines.filtering() calls
         Pipelines.filt(), and uses the same fourth-order Butterworth
         filter constructed in Pipelines.butterFilter().
 
@@ -355,15 +355,15 @@ class TestPipelinesGapFilling:
         """
         This function tests Pipelines.transform_from_static().
 
-        This function uses a transformation that is stored between a 4 marker cluster.  
+        Pipelines.transform_from_static() uses a transformation that is stored between a 4 marker cluster.  
         It requires an inverse transformation matrix to be stored between the 
         combination of 3 marker groupings, with the 4th marker stored in relation to that frame. 
         
-        The function takes in as input the missing marker, and uses static data to 
+        Pipelines.transform_from_static() takes in as input the missing marker, and uses static data to 
         create an inverse transformation matrix, multiplying the new frame by the stored 
         inverse transform to get the missing marker position.
 
-        We test that the function is accurate by creating four markers
+        We test that Pipelines.transform_from_mov() is accurate by creating four markers
         in a square in static data, and adding one to all but one of their x-coordinates
         for motion data.
 
@@ -406,7 +406,7 @@ class TestPipelinesGapFilling:
     def test_transform_from_static_exceptions(self, key, useables, s):
         """
         We test exceptions raised when there are not enough usable markers,
-        the frame number is out of range, and the marker name does not exist.
+        the frame number is out of range, or the marker name does not exist.
         """
         data = self.data 
         static = self.static
@@ -448,15 +448,15 @@ class TestPipelinesGapFilling:
         """
         This function tests Pipelines.transform_from_mov().
 
-        This function uses a transformation that is stored between a 4 marker cluster.  
+        Pipelines.transform_from_mov() uses a transformation that is stored between a 4 marker cluster.  
         It requires an inverse transformation matrix to be stored between the 
         combination of 3 marker groupings, with the 4th marker stored in relation to that frame. 
         
-        The function takes in as input the missing marker, and uses previous frames of motion data to 
+        Pipelines.transform_from_mov() takes in as input the missing marker, and uses previous frames of motion data to 
         create an inverse transformation matrix, multiplying the new frame by the stored 
         inverse transform to get the missing marker position.
 
-        We test that the function is accurate by creating four markers
+        We test that Pipelines.transform_from_mov() is accurate by creating four markers
         in a square at frame zero, and adding one to all but one of their x-coordinates
         in frame 1.
 
@@ -559,16 +559,17 @@ class TestPipelinesGapFilling:
         where Data is an array of dictionaries of marker data,
         and static is an array of dictionaries of static trial data.
 
-        This function fills gaps for frames with missing data using
+        Pipelines.rigid_fill() fills gaps for frames with missing data using
         the transform functions Pipelines.transform_from_static and
         Pipelines.transform_from_mov.
 
-        This function determines whether to call transform_from_static
+        Pipelines.rigid_fill() determines whether to call transform_from_static
         or transform_from_mov by determining if there is a previous frame where
         all markers in the cluster of the missing marker exist, and can be used
         to create an inverse transformation matrix to determine
         the position of the missing marker in the current frame. If there is,
-        transform_from_mov is used. Otherwise, transform_from_static is used.
+        transform_from_mov is used. Otherwise, transform_from_static, which uses
+        static data to reconstruct missing markers, is used.
         
         This function tests that rigid_fill will properly call transform_from_static
         by using Pipelines.clearMarker() to clear the value of a given key at all
@@ -593,7 +594,7 @@ class TestPipelinesGapFilling:
     
     def test_rigid_fill_transform_from_mov(self):
         """        
-        This function tests that rigid_fill will properly call transform_from_mov
+        This function tests that Pipelines.rigid_fill() will properly call transform_from_mov
         by clearing the value of a marker at only one frame. We expect transform_from_mov
         to be called in this case since there are previous markers to create the
         inverse transform matrix from.
