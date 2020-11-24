@@ -29,7 +29,7 @@ class TestPycgmStaticUtils():
     nan_3d = [np.nan, np.nan, np.nan]
     rand_coor = [np.random.randint(0, 10), np.random.randint(0, 10), np.random.randint(0, 10)]
 
-    @pytest.mark.parametrize(["x", "y", "z", "expected"], [
+    @pytest.mark.parametrize(["x", "y", "z", "expected_results"], [
         (0.0, 0.0, 180, [[-1.0, 0.0, 0.0], [0.0, -1.0, 0.0], [0.0, 0.0, 1.0]]),
         (0, 0, 0, [[1, 0, 0], [0, 1, 0], [0, 0, 1]]),
         (90, 0, 0, [[1, 0, 0], [0, 0, -1], [0, 1, 0]]),
@@ -38,7 +38,7 @@ class TestPycgmStaticUtils():
         (90, 0, 90, [[0, -1, 0], [0, 0, -1], [1, 0, 0]]),
         (0, 150, -30, [[-0.75, -0.4330127, 0.5], [-0.5, 0.8660254, 0], [-0.4330127, -0.25, -0.8660254]]),
         (90, 180, -90, [[0, -1, 0], [0, 0, 1], [-1, 0, 0]])])
-    def test_rotmat(self, x, y, z, expected):
+    def test_rotmat(self, x, y, z, expected_results):
         """
         This test provides coverage of the rotmat function in pycgmStatic.py, defined as rotmat(x, y, z)
         where x, y, and z are all floats that represent the angle of rotation in a particular dimension.
@@ -47,11 +47,11 @@ class TestPycgmStaticUtils():
         x: angle to be rotated in the x axis
         y: angle to be rotated in the y axis
         z: angle to be rotated in the z axis
-        expected: the expected rotation matrix from calling rotmat on x, y, and z. This will be a transformation
+        expected_results: the expected rotation matrix from calling rotmat on x, y, and z. This will be a transformation
         matrix that can be used to perform a rotation in the x, y, and z directions at the values inputted.
         """
         result = pycgmStatic.rotmat(x, y, z)
-        np.testing.assert_almost_equal(result, expected, rounding_precision)
+        np.testing.assert_almost_equal(result, expected_results, rounding_precision)
 
     def test_rotmat_datatypes(self):
         """
@@ -62,12 +62,12 @@ class TestPycgmStaticUtils():
          """
         result_int = pycgmStatic.rotmat(0, 150, -30)
         result_float = pycgmStatic.rotmat(0.0, 150.0, -30.0)
-        expected = [[-0.75, -0.4330127, 0.5], [-0.5, 0.8660254, 0], [-0.4330127, -0.25, -0.8660254]]
+        expected_results = [[-0.75, -0.4330127, 0.5], [-0.5, 0.8660254, 0], [-0.4330127, -0.25, -0.8660254]]
 
-        np.testing.assert_almost_equal(result_int, expected, rounding_precision)
-        np.testing.assert_almost_equal(result_float, expected, rounding_precision)
+        np.testing.assert_almost_equal(result_int, expected_results, rounding_precision)
+        np.testing.assert_almost_equal(result_float, expected_results, rounding_precision)
 
-    @pytest.mark.parametrize(["p0", "p1", "expected"], [
+    @pytest.mark.parametrize(["p0", "p1", "expected_results"], [
         ([0, 0, 0], [1, 0, 0], 1),
         ([0, 5, 0], [0, 0, 0], 5),
         ([0, 0, 0], [0, 0, -8], 8),
@@ -78,14 +78,14 @@ class TestPycgmStaticUtils():
         ([3, 3, 0], [3, 0, 3], 4.242640687119285),
         ([7, 0, -4], [7, 0, 2], 6),
         ([7, -2, 5], [1, -4, 9], 7.483314773547883)])
-    def test_getDist(self, p0, p1, expected):
+    def test_getDist(self, p0, p1, expected_results):
         """
         This test provides coverage of the getDist function in pycgmStatic.py, defined as getDist(p0, p1)
 
         This test takes 3 parameters:
         p0: position of first x,y,z coordinate
         p1: position of second x,y,z coordinate
-        expected: the expected result from calling getDist on p0 and p1. This will be the distance between p0 and p1
+        expected_results: the expected result from calling getDist on p0 and p1. This will be the distance between p0 and p1
 
         Given the points p0 and p1, the distance between them is defined as:
         .. math::
@@ -98,7 +98,7 @@ class TestPycgmStaticUtils():
         - the distance is measured correctly given positive, negative and zero values
         """
         result = pycgmStatic.getDist(p0, p1)
-        np.testing.assert_almost_equal(result, expected, rounding_precision)
+        np.testing.assert_almost_equal(result, expected_results, rounding_precision)
 
     def test_getDist_datatypes(self):
         """
@@ -111,25 +111,25 @@ class TestPycgmStaticUtils():
         p1_int = [1, -4, 9]
         p0_float = [7.0, -2.0, 5.0]
         p1_float = [1.0, -4.0, 9.0]
-        expected = 7.483314773547883
+        expected_results = 7.483314773547883
 
-        # Check the calling getDist on a list of ints yields the expected results
+        # Check that calling getDist on a list of ints yields the expected results
         result_int_list = pycgmStatic.getDist(p0_int, p1_int)
-        np.testing.assert_almost_equal(result_int_list, expected, rounding_precision)
+        np.testing.assert_almost_equal(result_int_list, expected_results, rounding_precision)
 
-        # Check the calling getDist on a numpy array of ints yields the expected results
+        # Check that calling getDist on a numpy array of ints yields the expected results
         result_int_nparray = pycgmStatic.getDist(np.array(p0_int, dtype='int'), np.array(p1_int, dtype='int'))
-        np.testing.assert_almost_equal(result_int_nparray, expected, rounding_precision)
+        np.testing.assert_almost_equal(result_int_nparray, expected_results, rounding_precision)
 
-        # Check the calling getDist on a list of floats yields the expected results
+        # Check that calling getDist on a list of floats yields the expected results
         result_float_list = pycgmStatic.getDist(p0_float, p1_float)
-        np.testing.assert_almost_equal(result_float_list, expected, rounding_precision)
+        np.testing.assert_almost_equal(result_float_list, expected_results, rounding_precision)
 
-        # Check the calling getDist on a numpy array of floats yields the expected results
+        # Check that calling getDist on a numpy array of floats yields the expected results
         result_float_nparray = pycgmStatic.getDist(np.array(p0_float, dtype='float'), np.array(p1_float, dtype='float'))
-        np.testing.assert_almost_equal(result_float_nparray, expected, rounding_precision)
+        np.testing.assert_almost_equal(result_float_nparray, expected_results, rounding_precision)
 
-    @pytest.mark.parametrize(["list", "expected"], [
+    @pytest.mark.parametrize(["list", "expected_results"], [
         ([0], 0),
         ([3], 3),
         ([-1], -1),
@@ -140,16 +140,16 @@ class TestPycgmStaticUtils():
         ([1, 2, 3, 4, 5], 3),
         ([-1, -2, -3, -4, -5], -3),
         ([0.1, 0.2, 0.3, 0.4, 0.5], 0.3)])
-    def test_average(self, list, expected):
+    def test_average(self, list, expected_results):
         """
         This test provides coverage of the average function in pycgmStatic.py, defined as average(list)
 
         This test takes 2 parameters:
         list: list or array of values
-        expected: the expected result from calling average on list. This will be the average of all the values given in list
+        expected_results: the expected result from calling average on list. This will be the average of all the values given in list
         """
         result = pycgmStatic.average(list)
-        np.testing.assert_almost_equal(result, expected, rounding_precision)
+        np.testing.assert_almost_equal(result, expected_results, rounding_precision)
 
     def test_average_datatypes(self):
         """
@@ -160,25 +160,25 @@ class TestPycgmStaticUtils():
         """
         list_int = [-1, -2, -3, -4, -5]
         list_float = [-1.0, -2.0, -3.0, -4.0, -5.0]
-        expected = -3
+        expected_results = -3
 
-        # Check the calling average on a list of ints yields the expected results
+        # Check that calling average on a list of ints yields the expected results
         result_int_list = pycgmStatic.average(list_int)
-        np.testing.assert_almost_equal(result_int_list, expected, rounding_precision)
+        np.testing.assert_almost_equal(result_int_list, expected_results, rounding_precision)
 
-        # Check the calling average on a numpy array of ints yields the expected results
+        # Check that calling average on a numpy array of ints yields the expected results
         result_int_nparray = pycgmStatic.average(np.array(list_int, dtype='int'))
-        np.testing.assert_almost_equal(result_int_nparray, expected, rounding_precision)
+        np.testing.assert_almost_equal(result_int_nparray, expected_results, rounding_precision)
 
-        # Check the calling average on a list of floats yields the expected results
+        # Check that calling average on a list of floats yields the expected results
         result_float_list = pycgmStatic.average(list_float)
-        np.testing.assert_almost_equal(result_float_list, expected, rounding_precision)
+        np.testing.assert_almost_equal(result_float_list, expected_results, rounding_precision)
 
-        # Check the calling average on a numpy array of floats yields the expected results
+        # Check that calling average on a numpy array of floats yields the expected results
         result_float_nparray = pycgmStatic.average(np.array(list_float, dtype='float'))
-        np.testing.assert_almost_equal(result_float_nparray, expected, rounding_precision)
+        np.testing.assert_almost_equal(result_float_nparray, expected_results, rounding_precision)
 
-    @pytest.mark.parametrize(["frame", "expected"], [
+    @pytest.mark.parametrize(["frame", "expected_results"], [
         ({'RASI': np.array([0, 0, 0]), 'LASI': np.array([0, 0, 0])}, 0),
         ({'RASI': np.array([1, 0, 0]), 'LASI': np.array([0, 0, 0])}, 1),
         ({'RASI': np.array([0, 0, 0]), 'LASI': np.array([2, 0, 0])}, 2),
@@ -198,14 +198,14 @@ class TestPycgmStaticUtils():
         ({'RASI': [7.0, 2.0, -6.0], 'LASI': [3.0, -7.0, 2.0]}, 12.68857754044952),
         # Testing that when frame is composed ofe numpy arrays of floats
         ({'RASI': np.array([7.0, 2.0, -6.0], dtype='float'), 'LASI': np.array([3.0, -7.0, 2.0], dtype='float')}, 12.68857754044952)])
-    def test_IADcalculation(self, frame, expected):
+    def test_IADcalculation(self, frame, expected_results):
         """
         This test provides coverage of the IADcalculation function in pycgmStatic.py, defined as IADcalculation(frame)
 
         This test takes 2 parameters:
         frame: dictionary of marker lists
-        expected: the expected result from calling IADcalculation on frame. This is the Inter ASIS Distance (IAD), or
-        the distance between the two markers RASI and LASI in frame.
+        expected_results: the expected result from calling IADcalculation on frame. This is the Inter ASIS Distance
+        (IAD), or the distance between the two markers RASI and LASI in frame.
 
         Given the markers RASI and LASI in frame, the Inter ASIS Distance is defined as:
         .. math::
@@ -220,9 +220,9 @@ class TestPycgmStaticUtils():
         floats, and numpy arrays of floats.
         """
         result = pycgmStatic.IADcalculation(frame)
-        np.testing.assert_almost_equal(result, expected, rounding_precision)
+        np.testing.assert_almost_equal(result, expected_results, rounding_precision)
 
-    @pytest.mark.parametrize(["xRot", "yRot", "zRot", "expected"], [
+    @pytest.mark.parametrize(["xRot", "yRot", "zRot", "expected_results"], [
         (0, 0, 0, [0]),
         # X rotations
         (90, 0, 0, [0]), (30, 0, 0, [0]), (-30, 0, 0, [0]), (120, 0, 0, [0]), (-120, 0, 0, [0]), (180, 0, 0, [0]),
@@ -232,14 +232,14 @@ class TestPycgmStaticUtils():
         (0, 0, 90, [0]), (0, 0, 30, [0]), (0, 0, -30, [0]), (0, 0, 120, [0]), (0, 0, -120, [0]), (0, 0, 180, [0]),
         # Multiple Rotations
         (150, 30, 0, [-0.523599]), (45, 0, 60, [0.713724]), (0, 90, 120, [1.570796]), (135, 45, 90, [-0.955317])])
-    def test_headoffCalc(self, xRot, yRot, zRot, expected):
+    def test_headoffCalc(self, xRot, yRot, zRot, expected_results):
         """
         This test provides coverage of the headoffCalc function in pycgmStatic.py, defined as headoffCalc(axisP, axisD)
 
         This test takes 3 parameters:
         axisP: the unit vector of axisP, the position of the proximal axis
         axisD: the unit vector of axisD, the position of the distal axis
-        expected: the expected result from calling headoffCalc on axisP and axisD. This returns the y-rotation
+        expected_results: the expected result from calling headoffCalc on axisP and axisD. This returns the y-rotation
         from a rotational matrix calculated by matrix multiplication of axisD and the inverse of axisP. This angle is in
         radians, not degrees.
 
@@ -257,7 +257,7 @@ class TestPycgmStaticUtils():
         axisP = pycgmStatic.rotmat(xRot, yRot, zRot)
         axisD = pycgmStatic.rotmat(0, 0, 0)
         result = pycgmStatic.headoffCalc(axisP, axisD)
-        np.testing.assert_almost_equal(result, expected, rounding_precision)
+        np.testing.assert_almost_equal(result, expected_results, rounding_precision)
 
     def test_headoffCalc_datatypes(self):
         """
@@ -269,25 +269,25 @@ class TestPycgmStaticUtils():
         axisD = pycgmStatic.rotmat(0, 0, 0)
         axisP_floats = pycgmStatic.rotmat(90, 90, 90)
         axisP_ints = [[int(y) for y in x] for x in axisP_floats]
-        expected = [1.570796]
+        expected_results = [1.570796]
 
         # Check that calling headoffCalc on a list of ints yields the expected results
         result_int_list = pycgmStatic.headoffCalc(axisP_ints, axisD)
-        np.testing.assert_almost_equal(result_int_list, expected, rounding_precision)
+        np.testing.assert_almost_equal(result_int_list, expected_results, rounding_precision)
 
         # Check that calling headoffCalc on a numpy array of ints yields the expected results
         result_int_nparray = pycgmStatic.headoffCalc(np.array(axisP_ints, dtype='int'), np.array(axisD, dtype='int'))
-        np.testing.assert_almost_equal(result_int_nparray, expected, rounding_precision)
+        np.testing.assert_almost_equal(result_int_nparray, expected_results, rounding_precision)
 
         # Check that calling headoffCalc on a list of floats yields the expected results
         result_float_list = pycgmStatic.headoffCalc(axisP_floats, axisD)
-        np.testing.assert_almost_equal(result_float_list, expected, rounding_precision)
+        np.testing.assert_almost_equal(result_float_list, expected_results, rounding_precision)
 
         # Check that calling headoffCalc on a numpy array of floats yields the expected results
         result_float_nparray = pycgmStatic.headoffCalc(np.array(axisP_floats, dtype='float'), np.array(axisD, dtype='float'))
-        np.testing.assert_almost_equal(result_float_nparray, expected, rounding_precision)
+        np.testing.assert_almost_equal(result_float_nparray, expected_results, rounding_precision)
 
-    @pytest.mark.parametrize(["frame", "ankle_JC", "flat_foot", "vsk", "expected"], [
+    @pytest.mark.parametrize(["frame", "ankle_JC", "flat_foot", "vsk", "expected_results"], [
         # Test from running sample data
         ({'RTOE': np.array([433.33508301, 354.97229004, 44.27765274]),
           'LTOE': np.array([31.77310181, 331.23657227, 42.15322876]),
@@ -401,7 +401,7 @@ class TestPycgmStaticUtils():
          {'RightSoleDelta': 1.0, 'LeftSoleDelta': -1.0},
          [[0.041042018208567545, -0.30654390195778408, -0.30110158620693045],
           [00.3932637729525662, 0.56572438473336295, 0.22802611517428609]])])
-    def test_staticCalculation(self, frame, ankle_JC, flat_foot, vsk, expected):
+    def test_staticCalculation(self, frame, ankle_JC, flat_foot, vsk, expected_results):
         """
         This test provides coverage of the staticCalculation function in pycgmStatic.py, defined as staticCalculation(frame, ankle_JC, knee_JC, flat_foot, vsk)
 
@@ -410,7 +410,7 @@ class TestPycgmStaticUtils():
         ankle_JC: array containing the x,y,z axes marker positions of the ankle joint center
         flat_foot: boolean indicating if the feet are flat or not
         vsk: dictionary containing subject measurements from a VSK file
-        expected: the expected result from calling staticCalculation on frame, ankle_JC, flat_foot, and vsk
+        expected_results: the expected result from calling staticCalculation on frame, ankle_JC, flat_foot, and vsk
 
         This function first calculates the anatomically incorrect foot axis by calling uncorrect_footaxis. It then
         calculates the anatomically correct foot joint center and axis using either rotaxis_footflat or
@@ -424,9 +424,9 @@ class TestPycgmStaticUtils():
         lists of floats, and numpy arrays of floats and when the vsk values are ints and floats.
         """
         result = pycgmStatic.staticCalculation(frame, ankle_JC, None, flat_foot, vsk)
-        np.testing.assert_almost_equal(result, expected, rounding_precision)
+        np.testing.assert_almost_equal(result, expected_results, rounding_precision)
 
-    @pytest.mark.parametrize(["xRot", "yRot", "zRot", "expected"], [
+    @pytest.mark.parametrize(["xRot", "yRot", "zRot", "expected_results"], [
         (0, 0, 0, [0, 0, 0]),
         # X rotations
         (90, 0, 0, [-1.570796, 0, 0]), (30, 0, 0, [-0.523599, 0, 0]), (-30, 0, 0, [0.523599, 0, 0]),
@@ -440,14 +440,14 @@ class TestPycgmStaticUtils():
         # Multiple Rotations
         (150, 30, 0, [-0.447832,  0.588003,  0.281035]), (45, 0, 60, [-0.785398, -0, -1.047198]),
         (0, 90, 120, [0, -1.570796,  1.047198]), (135, 45, 90, [-0.523599,  0.955317, -0.955317])])
-    def test_getankleangle(self, xRot, yRot, zRot, expected):
+    def test_getankleangle(self, xRot, yRot, zRot, expected_results):
         """
         This test provides coverage of the getankleangle function in pycgmStatic.py, defined as getankleangle(axisP, axisD)
 
         This test takes 3 parameters:
         axisP: the unit vector of axisP, the position of the proximal axis
         axisD: the unit vector of axisD, the position of the distal axis
-        expected: the expected result from calling getankleangle on axisP and axisD. This returns the x, y, z angles
+        expected_results: the expected result from calling getankleangle on axisP and axisD. This returns the x, y, z angles
         from a XYZ Euler angle calculation from a rotational matrix. This rotational matrix is calculated by matrix
         multiplication of axisD and the inverse of axisP. This angle is in radians, not degrees.
 
@@ -466,7 +466,7 @@ class TestPycgmStaticUtils():
         axisP = pycgmStatic.rotmat(xRot, yRot, zRot)
         axisD = pycgmStatic.rotmat(0, 0, 0)
         result = pycgmStatic.getankleangle(axisP, axisD)
-        np.testing.assert_almost_equal(result, expected, rounding_precision)
+        np.testing.assert_almost_equal(result, expected_results, rounding_precision)
 
     def test_getankleangle_datatypes(self):
         """
@@ -478,25 +478,25 @@ class TestPycgmStaticUtils():
         axisD = pycgmStatic.rotmat(0, 0, 0)
         axisP_floats = pycgmStatic.rotmat(90, 90, 90)
         axisP_ints = [[int(y) for y in x] for x in axisP_floats]
-        expected = [0, -1.570796, 0]
+        expected_results = [0, -1.570796, 0]
 
         # Check that calling getankleangle on a list of ints yields the expected results
         result_int_list = pycgmStatic.getankleangle(axisP_ints, axisD)
-        np.testing.assert_almost_equal(result_int_list, expected, rounding_precision)
+        np.testing.assert_almost_equal(result_int_list, expected_results, rounding_precision)
 
         # Check that calling getankleangle on a numpy array of ints yields the expected results
         result_int_nparray = pycgmStatic.getankleangle(np.array(axisP_ints, dtype='int'), np.array(axisD, dtype='int'))
-        np.testing.assert_almost_equal(result_int_nparray, expected, rounding_precision)
+        np.testing.assert_almost_equal(result_int_nparray, expected_results, rounding_precision)
 
         # Check that calling getankleangle on a list of floats yields the expected results
         result_float_list = pycgmStatic.getankleangle(axisP_floats, axisD)
-        np.testing.assert_almost_equal(result_float_list, expected, rounding_precision)
+        np.testing.assert_almost_equal(result_float_list, expected_results, rounding_precision)
 
         # Check that calling getankleangle on a numpy array of floats yields the expected results
         result_float_nparray = pycgmStatic.getankleangle(np.array(axisP_floats, dtype='float'), np.array(axisD, dtype='float'))
-        np.testing.assert_almost_equal(result_float_nparray, expected, rounding_precision)
+        np.testing.assert_almost_equal(result_float_nparray, expected_results, rounding_precision)
 
-    @pytest.mark.parametrize(["v", "expected"], [
+    @pytest.mark.parametrize(["v", "expected_results"], [
         ([-9944.089508486479, -20189.20612828088, 150.42955108569652], 22505.812344655435),
         ([0, 0, 0], 0),
         ([2, 0, 0], 2),
@@ -506,13 +506,13 @@ class TestPycgmStaticUtils():
         ([6, -8, 0], 10),
         ([-5, 0, -12], 13),
         ([1, -1, np.sqrt(2)], 2)])
-    def test_norm2d(self, v, expected):
+    def test_norm2d(self, v, expected_results):
         """
         This test provides coverage of the norm2d function in pycgmStatic.py, defined as norm2d(v) where v is a 3D vector.
 
         This test takes 2 parameters:
         v: 3D vector
-        expected: the expected result from calling norm2d on v. This will be the value of the normalization of vector v,
+        expected_results: the expected result from calling norm2d on v. This will be the value of the normalization of vector v,
         returned as a float.
 
         Given the vector v, the normalization is defined by:
@@ -520,7 +520,7 @@ class TestPycgmStaticUtils():
         where :math:`v_x` is the x-coordinate of the vector v
         """
         result = pycgmStatic.norm2d(v)
-        np.testing.assert_almost_equal(result, expected, rounding_precision)
+        np.testing.assert_almost_equal(result, expected_results, rounding_precision)
 
     def test_norm2d_datatypes(self):
         """
@@ -531,25 +531,25 @@ class TestPycgmStaticUtils():
         """
         v_int = [6, 0, -8]
         v_float = [6.0, 0, -8.0]
-        expected = 10
+        expected_results = 10
 
-        # Check the calling norm2d on a list of ints yields the expected results
+        # Check that calling norm2d on a list of ints yields the expected results
         result_int_list = pycgmStatic.norm2d(v_int)
-        np.testing.assert_almost_equal(result_int_list, expected, rounding_precision)
+        np.testing.assert_almost_equal(result_int_list, expected_results, rounding_precision)
 
-        # Check the calling norm2d on a numpy array of ints yields the expected results
+        # Check that calling norm2d on a numpy array of ints yields the expected results
         result_int_nparray = pycgmStatic.norm2d(np.array(v_int, dtype='int'))
-        np.testing.assert_almost_equal(result_int_nparray, expected, rounding_precision)
+        np.testing.assert_almost_equal(result_int_nparray, expected_results, rounding_precision)
 
-        # Check the calling norm2d on a list of floats yields the expected results
+        # Check that calling norm2d on a list of floats yields the expected results
         result_float_list = pycgmStatic.norm2d(v_float)
-        np.testing.assert_almost_equal(result_float_list, expected, rounding_precision)
+        np.testing.assert_almost_equal(result_float_list, expected_results, rounding_precision)
 
-        # Check the calling norm2d on a numpy array of floats yields the expected results
+        # Check that calling norm2d on a numpy array of floats yields the expected results
         result_float_nparray = pycgmStatic.norm2d(np.array(v_float, dtype='float'))
-        np.testing.assert_almost_equal(result_float_nparray, expected, rounding_precision)
+        np.testing.assert_almost_equal(result_float_nparray, expected_results, rounding_precision)
 
-    @pytest.mark.parametrize(["v", "expected"], [
+    @pytest.mark.parametrize(["v", "expected_results"], [
         ([-212.5847168, 28.09841919, -4.15808105], np.array(214.47394390603984)),
         ([0, 0, 0], np.array(0)),
         ([2, 0, 0], np.array(2)),
@@ -559,13 +559,13 @@ class TestPycgmStaticUtils():
         ([-6, 8, 0], np.array(10)),
         ([-5, 0, -12], np.array(13)),
         ([1, -1, np.sqrt(2)], np.array(2))])
-    def test_norm3d(self, v, expected):
+    def test_norm3d(self, v, expected_results):
         """
         This test provides coverage of the norm3d function in pycgmStatic.py, defined as norm3d(v) where v is a 3D vector.
 
         This test takes 2 parameters:
         v: 3D vector
-        expected: the expected result from calling norm3d on v. This will be the normalization of the vector v,
+        expected_results: the expected result from calling norm3d on v. This will be the normalization of the vector v,
         inside of a numpy array.
 
         Given the vector v, the normalization is defined by:
@@ -573,7 +573,7 @@ class TestPycgmStaticUtils():
         where :math:`v_x` is the x-coordinate of the vector v
         """
         result = pycgmStatic.norm3d(v)
-        np.testing.assert_almost_equal(result, expected, rounding_precision)
+        np.testing.assert_almost_equal(result, expected_results, rounding_precision)
 
     def test_norm3d_datatypes(self):
         """
@@ -584,25 +584,25 @@ class TestPycgmStaticUtils():
         """
         v_int = [-6, 0, 8]
         v_float = [-6.0, 0, 8.0]
-        expected = np.array(10)
+        expected_results = np.array(10)
 
-        # Check the calling norm3d on a list of ints yields the expected results
+        # Check that calling norm3d on a list of ints yields the expected results
         result_int_list = pycgmStatic.norm3d(v_int)
-        np.testing.assert_almost_equal(result_int_list, expected, rounding_precision)
+        np.testing.assert_almost_equal(result_int_list, expected_results, rounding_precision)
 
-        # Check the calling norm3d on a numpy array of ints yields the expected results
+        # Check that calling norm3d on a numpy array of ints yields the expected results
         result_int_nparray = pycgmStatic.norm3d(np.array(v_int, dtype='int'))
-        np.testing.assert_almost_equal(result_int_nparray, expected, rounding_precision)
+        np.testing.assert_almost_equal(result_int_nparray, expected_results, rounding_precision)
 
-        # Check the calling norm3d on a list of floats yields the expected results
+        # Check that calling norm3d on a list of floats yields the expected results
         result_float_list = pycgmStatic.norm3d(v_float)
-        np.testing.assert_almost_equal(result_float_list, expected, rounding_precision)
+        np.testing.assert_almost_equal(result_float_list, expected_results, rounding_precision)
 
-        # Check the calling norm3d on a numpy array of floats yields the expected results
+        # Check that calling norm3d on a numpy array of floats yields the expected results
         result_float_nparray = pycgmStatic.norm3d(np.array(v_float, dtype='float'))
-        np.testing.assert_almost_equal(result_float_nparray, expected, rounding_precision)
+        np.testing.assert_almost_equal(result_float_nparray, expected_results, rounding_precision)
 
-    @pytest.mark.parametrize(["v", "expected"], [
+    @pytest.mark.parametrize(["v", "expected_results"], [
         ([-212.5847168, 28.09841919, -4.15808105], np.array([-4.62150006e-03,  6.10847515e-04, -9.03948887e-05])),
         ([0, 0, 0], np.array([np.nan, np.nan, np.nan])),
         ([2, 0, 0], np.array([0.5, 0, 0])),
@@ -613,12 +613,12 @@ class TestPycgmStaticUtils():
         ([-5, 0, -12], np.array([-0.0295858, 0, -0.07100592])),
         ([1, -1, np.sqrt(2)], np.array([0.25, -0.25, 0.35355339]))
     ])
-    def test_normDiv(self, v, expected):
+    def test_normDiv(self, v, expected_results):
         """
         This test provides coverage of the normDiv function in pycgmStatic.py, defined as normDiv(v) where v is a 3D vector.
         This test takes 2 parameters:
         v: 3D vector
-        expected: the expected result from calling norm3d on v. This function returns the wrong result. It is supposed
+        expected_results: the expected result from calling norm3d on v. This function returns the wrong result. It is supposed
         to return the normalization division, but in the function divides the vector by the normalization twice.
 
         Given the vector v, the normalization is defined by:
@@ -634,35 +634,36 @@ class TestPycgmStaticUtils():
             \[ result = [\frac{v_x}{norm^2}, \frac{v_y}{norm^2}, \frac{v_z}{norm^2}] \]
         """
         result = pycgmStatic.normDiv(v)
-        np.testing.assert_almost_equal(result, expected, rounding_precision)
+        np.testing.assert_almost_equal(result, expected_results, rounding_precision)
 
     def test_normDiv_datatypes(self):
         """
         This test provides coverage of the normDiv function in pycgmStatic.py, defined as normDiv(v) where v is a 3D vector.
+
         This test checks that the resulting output from calling normDiv is correct when called with a list of ints, a
         numpy array of ints, a list of floats, and a numpy array of floats.
         """
         v_int = [-6, 0, 8]
         v_float = [-6.0, 0, 8.0]
-        expected = np.array([-0.06, 0, 0.08])
+        expected_results = np.array([-0.06, 0, 0.08])
 
-        # Check the calling normDiv on a list of ints yields the expected results
+        # Check that calling normDiv on a list of ints yields the expected results
         result_int_list = pycgmStatic.normDiv(v_int)
-        np.testing.assert_almost_equal(result_int_list, expected, rounding_precision)
+        np.testing.assert_almost_equal(result_int_list, expected_results, rounding_precision)
 
-        # Check the calling normDiv on a numpy array of ints yields the expected results
+        # Check that calling normDiv on a numpy array of ints yields the expected results
         result_int_nparray = pycgmStatic.normDiv(np.array(v_int, dtype='int'))
-        np.testing.assert_almost_equal(result_int_nparray, expected, rounding_precision)
+        np.testing.assert_almost_equal(result_int_nparray, expected_results, rounding_precision)
 
-        # Check the calling normDiv on a list of floats yields the expected results
+        # Check that calling normDiv on a list of floats yields the expected results
         result_float_list = pycgmStatic.normDiv(v_float)
-        np.testing.assert_almost_equal(result_float_list, expected, rounding_precision)
+        np.testing.assert_almost_equal(result_float_list, expected_results, rounding_precision)
 
-        # Check the calling normDiv on a numpy array of floats yields the expected results
+        # Check that calling normDiv on a numpy array of floats yields the expected results
         result_float_nparray = pycgmStatic.normDiv(np.array(v_float, dtype='float'))
-        np.testing.assert_almost_equal(result_float_nparray, expected, rounding_precision)
+        np.testing.assert_almost_equal(result_float_nparray, expected_results, rounding_precision)
 
-    @pytest.mark.parametrize(["A", "B", "expected"], [
+    @pytest.mark.parametrize(["A", "B", "expected_results"], [
         ([[1, 0, 0], [0, 1.0, -0.0], [0, 0.0, 1.0]], [[1.0, 0, 0.0], [0, 1, 0], [-0.0, 0, 1.0]], [[1.0, 0, 0.0], [0.0, 1.0, 0.0], [0.0, 0.0, 1.0]]),
         ([[1]], [[1]], [[1]]),
         # Invalid matrix dimensions
@@ -672,7 +673,7 @@ class TestPycgmStaticUtils():
         ([[1, 2, 0], [0, 1, 2]], [[2, 1], [1, 4]], [[4, 9], [1, 4]]),
         ([[11, 12, 13], [14, 15, 16]], [[1, 2], [3, 4], [5, 6]], [[112, 148], [139, 184]]),
         ([[1, 2, 3], [4, 5, 6]], [[7, 8], [9, 10], [11, 12]], [[58, 64], [139, 154]])])
-    def test_matrixmult(self, A, B, expected):
+    def test_matrixmult(self, A, B, expected_results):
         """
         This test provides coverage of the matrixmult function in pyCGM.py, defined as matrixmult(a, b)
         where a and b are both lists that represent a matrix to be multiplied.
@@ -680,13 +681,13 @@ class TestPycgmStaticUtils():
         This test takes 3 parameters:
         A: a matrix, 2D array format
         B: a matrix, 2D array format
-        expected: the expected matrix from calling matrixmult on A and B. This is the result of multiplying the two
+        expected_results: the expected matrix from calling matrixmult on A and B. This is the result of multiplying the two
         matrices A and B. It gives the correct result for multiplying two valid matrices, but still gives a result
         in some cases when the two matrices can't be multiplied. For two matrices to be multiplied, len(A[0]) need to
         be equal to len(B), but this function gives an output even when this isn't true
         """
         result = pycgmStatic.matrixmult(A, B)
-        np.testing.assert_almost_equal(result, expected, rounding_precision)
+        np.testing.assert_almost_equal(result, expected_results, rounding_precision)
 
     def test_matrixmult_datatypes(self):
         """
@@ -700,25 +701,25 @@ class TestPycgmStaticUtils():
         B_int = [[2, 1], [1, 4]]
         A_float = [[1.0, 2.0, 0.0], [0.0, 1.0, 2.0]]
         B_float = [[2.0, 1.0], [1.0, 4.0]]
-        expected = [[4, 9], [1, 4]]
+        expected_results = [[4, 9], [1, 4]]
 
-        # Check the calling matrixmult on a list of ints yields the expected results
+        # Check that calling matrixmult on a list of ints yields the expected results
         result_int_list = pycgmStatic.matrixmult(A_int, B_int)
-        np.testing.assert_almost_equal(result_int_list, expected, rounding_precision)
+        np.testing.assert_almost_equal(result_int_list, expected_results, rounding_precision)
 
-        # Check the calling matrixmult on a numpy array of ints yields the expected results
+        # Check that calling matrixmult on a numpy array of ints yields the expected results
         result_int_nparray = pycgmStatic.matrixmult(np.array(A_int, dtype='int'), np.array(B_int, dtype='int'))
-        np.testing.assert_almost_equal(result_int_nparray, expected, rounding_precision)
+        np.testing.assert_almost_equal(result_int_nparray, expected_results, rounding_precision)
 
-        # Check the calling matrixmult on a list of floats yields the expected results
+        # Check that calling matrixmult on a list of floats yields the expected results
         result_float_list = pycgmStatic.matrixmult(A_float, B_float)
-        np.testing.assert_almost_equal(result_float_list, expected, rounding_precision)
+        np.testing.assert_almost_equal(result_float_list, expected_results, rounding_precision)
 
-        # Check the calling matrixmult on a numpy array of floats yields the expected results
+        # Check that calling matrixmult on a numpy array of floats yields the expected results
         result_float_nparray = pycgmStatic.matrixmult(np.array(A_float, dtype='float'), np.array(B_float, dtype='float'))
-        np.testing.assert_almost_equal(result_float_nparray, expected, rounding_precision)
+        np.testing.assert_almost_equal(result_float_nparray, expected_results, rounding_precision)
 
-    @pytest.mark.parametrize(["a", "b", "expected"], [
+    @pytest.mark.parametrize(["a", "b", "expected_results"], [
         ([0.13232936, 0.98562946, -0.10499292], [-0.99119134, 0.13101088, -0.01938735],
          [-0.005353527183234709, 0.10663358915485248, 0.994283972218527]),
         ([0, 0, 0], [0, 0, 0], [0, 0, 0]),
@@ -729,18 +730,18 @@ class TestPycgmStaticUtils():
         ([1, 0, 1], [0, 1, 0], [-1, 0, 1]),
         ([1, 2, 3], [3, 2, 1], [-4, 8, -4]),
         ([-2, 3, 1], [4, -1, 5], [16, 14, -10])])
-    def test_cross(self, a, b, expected):
+    def test_cross(self, a, b, expected_results):
         """
         This test provides coverage of the cross function in pycgmStatic.py, defined as cross(a, b) where a and b are both 3D vectors.
 
         This test takes 3 parameters:
         a: 3D vector
         b: 3D vector
-        expected: the expected result from calling cross on a and b. This result is the cross product of the vectors
+        expected_results: the expected result from calling cross on a and b. This result is the cross product of the vectors
         a and b.
         """
         result = pycgmStatic.cross(a, b)
-        np.testing.assert_almost_equal(result, expected, rounding_precision)
+        np.testing.assert_almost_equal(result, expected_results, rounding_precision)
 
     def test_cross_datatypes(self):
         """
@@ -753,23 +754,23 @@ class TestPycgmStaticUtils():
         A_float = [-2.0, 3.0, 1.0]
         B_int = [4, -1, 5]
         B_float = [4.0, -1.0, 5.0]
-        expected = [16, 14, -10]
+        expected_results = [16, 14, -10]
 
-        # Check the calling cross on a list of ints yields the expected results
+        # Check that calling cross on a list of ints yields the expected results
         result_int_list = pycgmStatic.cross(A_int, B_int)
-        np.testing.assert_almost_equal(result_int_list, expected, rounding_precision)
+        np.testing.assert_almost_equal(result_int_list, expected_results, rounding_precision)
 
-        # Check the calling cross on a numpy array of ints yields the expected results
+        # Check that calling cross on a numpy array of ints yields the expected results
         result_int_nparray = pycgmStatic.cross(np.array(A_int, dtype='int'), np.array(B_int, dtype='int'))
-        np.testing.assert_almost_equal(result_int_nparray, expected, rounding_precision)
+        np.testing.assert_almost_equal(result_int_nparray, expected_results, rounding_precision)
 
-        # Check the calling cross on a list of floats yields the expected results
+        # Check that calling cross on a list of floats yields the expected results
         result_float_list = pycgmStatic.cross(A_float, B_float)
-        np.testing.assert_almost_equal(result_float_list, expected, rounding_precision)
+        np.testing.assert_almost_equal(result_float_list, expected_results, rounding_precision)
 
-        # Check the calling cross on a numpy array of floats yields the expected results
+        # Check that calling cross on a numpy array of floats yields the expected results
         result_float_nparray = pycgmStatic.cross(np.array(A_float, dtype='float'), np.array(B_float, dtype='float'))
-        np.testing.assert_almost_equal(result_float_nparray, expected, rounding_precision)
+        np.testing.assert_almost_equal(result_float_nparray, expected_results, rounding_precision)
 
 class TestPycgmStaticGetStatic():
     """
