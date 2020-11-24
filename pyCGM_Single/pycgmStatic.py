@@ -146,7 +146,7 @@ def getStatic(motionData,vsk,flat_foot=False,GCS=None):
     calSM = {}
     LeftLegLength = vsk['LeftLegLength']
     RightLegLength = vsk['RightLegLength']  
-    calSM['MeanLegLength'] = (LeftLegLength+RightLegLength)/2
+    calSM['MeanLegLength'] = (LeftLegLength+RightLegLength)/2.0
     calSM['Bodymass'] = vsk['Bodymass']
     
     #Define the global coordinate system
