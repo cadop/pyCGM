@@ -179,7 +179,7 @@ class TestPycgmStaticAxis():
 
         Lastly, it checks that the resulting output is correct when frame is composed of lists of ints, numpy arrays of
         ints, lists of floats, and numpy arrays of floats. frame['LASI'] and frame['RASI'] were kept as numpy arrays
-        every time as list would cause an error in pycgmStatic.py line 632 as lists cannot be divided by floats:
+        every time as list would cause an error in the following line of pycgmStatic.py as lists cannot be divided by floats:
         origin = (RASI+LASI)/2.0
         """
         result = pycgmStatic.pelvisJointCenter(frame)
@@ -511,7 +511,8 @@ class TestPycgmStaticAxis():
 
         Lastly, it checks that the resulting output is correct when hip_JC is composed of lists of ints, numpy arrays of
         ints, lists of floats, and numpy arrays of floats and vsk values are ints and floats. The values in frame were
-        kept as numpy arrays as lists would cause an error in pycgmStatic.py line 934 and 953 as lists cannot be subtracted
+        kept as numpy arrays as lists would cause an error in the following lines of pycgmStatic.py as lists cannot
+        be subtracted
         by each other:
         thi_kne_R = RTHI-RKNE
         thi_kne_L = LTHI-LKNE
@@ -710,8 +711,8 @@ class TestPycgmStaticAxis():
 
         Lastly, it checks that the resulting output is correct when knee_JC is composed of lists of ints, numpy arrays
         of ints, lists of floats, and numpy arrays of floats and vsk values are ints and floats. The values in frame
-        were kept as numpy arrays as lists would cause an error in pycgmStatic.py line 1102 and 1118 as lists cannot be
-        subtracted by each other:
+        were kept as numpy arrays as lists would cause an error in the following lines of pycgmStatic.py as lists cannot
+        be subtracted by each other:
         tib_ank_R = tib_R-ank_R
         tib_ank_L = tib_L-ank_L
         """
