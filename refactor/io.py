@@ -15,13 +15,13 @@ try:
     from ezc3d import c3d as ezc
     useEZC3D = True
     print("EZC3D Found, using instead of Python c3d")
-except:
+except ModuleNotFoundError:
     useEZC3D = False
 
 class IO:
     # Utility Functions
-    @staticmethod
-    def marker_keys():
+    @property
+    def marker_keys(self):
         """Returns a list of marker names that pycgm uses.
 
         Returns
@@ -29,11 +29,10 @@ class IO:
         markers : list
             List of marker names.
         """
-        markers = ['RASI','LASI','RPSI','LPSI','RTHI','LTHI','RKNE','LKNE','RTIB',
+        return ['RASI','LASI','RPSI','LPSI','RTHI','LTHI','RKNE','LKNE','RTIB',
                 'LTIB','RANK','LANK','RTOE','LTOE','LFHD','RFHD','LBHD','RBHD',
                 'RHEE','LHEE','CLAV','C7','STRN','T10','RSHO','LSHO','RELB','LELB',
                 'RWRA','RWRB','LWRA','LWRB','RFIN','LFIN']
-        return markers
     
     # Reading Functions
     @staticmethod
@@ -110,7 +109,7 @@ class IO:
         >>> mappings['*113'] #unlabeled marker
         113
         """
-        expected_markers = IO.marker_keys()
+        expected_markers = IO.marker_keys
         fh = open(filename,'r')
         fh = iter(fh)
         delimiter=','
@@ -233,7 +232,7 @@ class IO:
         """
         data = []
         mappings = {}
-        expected_markers = IO.marker_keys()
+        expected_markers = IO.marker_keys
         reader = c3d.Reader(open(filename, 'rb'))
         labels = reader.get('POINT:LABELS').string_array
         markers = [str(label.rstrip()) for label in labels]
