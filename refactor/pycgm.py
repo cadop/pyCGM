@@ -603,7 +603,7 @@ class CGM:
             List containing dictionary mappings for marker names and input and output indices.
         measurements : dict
             A dictionary containing the subject measurements given from the file input.
-            
+
         Returns
         -------
         results : tuple
@@ -611,4 +611,86 @@ class CGM:
             as a 2d ndarray of each angle by x, y, and z. Axis results are stored as a 3d ndarray
             of each joint by origin and xyz unit vectors by x, y, and z location.
         """
+        pass
+
+
+class StaticCGM:
+
+    def __init__(self, path_static, path_measurements):
+        pass
+
+    @staticmethod
+    def rotation_matrix(x=0, y=0, z=0):
+        pass
+
+    @staticmethod
+    def get_dist(p0, p1):
+        pass
+
+    @staticmethod
+    def norm2d(v):
+        pass
+
+    @staticmethod
+    def norm3d(v):
+        pass
+
+    @staticmethod
+    def matrix_mult(a, b):
+        pass
+
+    @staticmethod
+    def cross(a, b):
+        pass
+
+    @staticmethod
+    def average(list):
+        pass
+
+    @staticmethod
+    def find_joint_center(a, b, c, delta):
+        pass
+
+    @staticmethod
+    def get_static():
+        pass
+
+    @staticmethod
+    def iad_calculation():
+        pass
+
+    @staticmethod
+    def static_calculation_head():
+        pass
+
+    @staticmethod
+    def static_calculation():
+        pass
+
+    @staticmethod
+    def pelvis_axis_calc():
+        pass
+
+    @staticmethod
+    def hip_axis_calc():
+        pass
+
+    @staticmethod
+    def knee_axis_calc():
+        pass
+
+    @staticmethod
+    def ankle_axis_calc():
+        pass
+
+    @staticmethod
+    def foot_axis_calc():
+        pass
+
+    @staticmethod
+    def head_axis_calc():
+        pass
+
+    @staticmethod
+    def ankle_angle_calc():
         pass
