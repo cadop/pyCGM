@@ -200,11 +200,7 @@ class CGM:
         pass
 
     @staticmethod
-    def pelvis_axis_calc(rasi, lasi, rpsi, lpsi):
-        """Pelvis axis calculation function
-        
-        Calculates the
-        """
+    def pelvis_axis_calc():
         pass
 
     @staticmethod
