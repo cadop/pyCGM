@@ -52,7 +52,7 @@ class CGM:
         """
         pass
 
-    def map(self, old, new):
+    def remap(self, old, new):
         """Remap marker function
 
         Remaps a single marker from the expected name in CGM to a new one, using `old` and `new`.
@@ -64,9 +64,9 @@ class CGM:
         new : str
             String containing the marker name to map `old` to.
         """
-        pass
+        self.marker_map[old] = new
 
-    def full_map(self, mapping):
+    def full_remap(self, mapping):
         """Remap all markers function
 
         Uses the passed dictionary as the mapping for all markers.
@@ -77,7 +77,7 @@ class CGM:
             Dictionary where each key is a string of pycgm's expected marker
             name and each value is a string of the new marker name.
         """
-        pass
+        self.marker_map = mapping
 
     @staticmethod
     def cross(a, b):
