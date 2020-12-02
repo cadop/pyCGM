@@ -26,6 +26,17 @@ class CGM:
             Boolean option to enable or disable writing of angle results to output file
         write_com : bool, optional
             Boolean option to enable or disable writing of center of mass results to output file
+            
+        Examples
+        --------
+        >>> from .pycgm import CGM
+        >>> dir = "../SampleData/59993_Frame/"
+        >>> static_trial = dir + "59993_Frame_Static.c3d"
+        >>> dynamic_trial = dir + "59993_Frame_Dynamic.c3d"
+        >>> measurements = dir + "59993_Frame_SM.vsk"
+        >>> subject1 = CGM(static_trial, dynamic_trial, measurements)
+        >>> subject1.axis_results
+        None
         """
         self.path_static = path_static
         self.path_dynamic = path_dynamic
@@ -38,6 +49,7 @@ class CGM:
         self.cores = cores
         self.angle_results = None
         self.axis_results = None
+        self.com_results = None
         self.marker_map = {marker:marker for marker in io.marker_keys()}
         self.marker_data, self.marker_idx = io.load_marker_data(path_dynamic)
         
@@ -794,7 +806,7 @@ class StaticCGM:
     def static_calculation():
         pass
 
-@staticmethod
+    @staticmethod
     def pelvis_axis_calc(rasi, lasi, rpsi=None, lpsi=None, sacr=None):
         """The Pelvis Axis Calculation function
 

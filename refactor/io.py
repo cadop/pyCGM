@@ -4,10 +4,13 @@ def marker_keys():
 
     Returns
     -------
-    markers : list
+    list
         List of marker names.
     """
-    pass
+    return ['RASI', 'LASI', 'RPSI', 'LPSI', 'RTHI', 'LTHI', 'RKNE', 'LKNE', 'RTIB',
+            'LTIB', 'RANK', 'LANK', 'RTOE', 'LTOE', 'LFHD', 'RFHD', 'LBHD', 'RBHD',
+            'RHEE', 'LHEE', 'CLAV', 'C7', 'STRN', 'T10', 'RSHO', 'LSHO', 'RELB', 'LELB',
+            'RWRA', 'RWRB', 'LWRA', 'LWRB', 'RFIN', 'LFIN']
 
 
 # Reading Functions
