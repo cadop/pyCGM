@@ -126,12 +126,12 @@ class CGM:
         Returns
         -------
         rxyz : list
-            The product of the matrix multiplication.
+            The product of the matrix multiplication as a 3x3 ndarray.
         """
 
     @staticmethod
     def pelvis_axis_calc(rasi, lasi, rpsi=None, lpsi=None, sacr=None):
-        """The Pelvis Axis Calculation function
+        """Pelvis Axis Calculation function
 
         Calculates the pelvis joint center and axis and returns both.
 
@@ -145,9 +145,9 @@ class CGM:
         Parameters
         ----------
         rasi, lasi : array
-            A 1x3 array of each respective marker containing the XYZ positions.
+            A 1x3 ndarray of each respective marker containing the XYZ positions.
         rpsi, lpsi, sacr : array, optional
-            A 1x3 array of each respective marker containing the XYZ positions.
+            A 1x3 ndarray of each respective marker containing the XYZ positions.
 
         Returns
         -------
@@ -164,8 +164,8 @@ class CGM:
         """
 
     @staticmethod
-    def hip_axis_calc(pel, measurements):
-        """The Hip Axis Calculation function
+    def hip_axis_calc(pelvis_axis, measurements):
+        """Hip Axis Calculation function
 
         Calculates the hip joint center and returns the hip joint center.
 
@@ -177,16 +177,16 @@ class CGM:
 
         Parameters
         ----------
-        pel : array
-            A array containing a 1x3 array representing the pelvis origin, followed by
-            a 3x1x3 array representing the x, y, z components of the pelvis axis.
+        pelvis_axis : array
+            A 4x3 ndarray that contains the pelvis origin and the
+            pelvis x, y, and z axis components.
         measurements : dict
             A dictionary containing the subject measurements given from the file input.
 
         Returns
         -------
         array
-            Returns an 8x1x3 ndarray that contains the right hip origin, right hip x, y, and z
+            Returns an 8x3 ndarray that contains the right hip origin, right hip x, y, and z
             axis components, left hip origin, and left hip x, y, and z axis components.
 
         References
@@ -197,12 +197,12 @@ class CGM:
         """
 
     @staticmethod
-    def knee_axis_calc(rthi, lthi, rkne, lkne, hip_jc, delta, measurements):
-        """The Knee Axis Calculation function
+    def knee_axis_calc(rthi, lthi, rkne, lkne, hip_origin, delta, measurements):
+        """Knee Axis Calculation function
 
         Calculates the knee joint axis and returns the knee origin and axis
 
-        Markers used: RTHI, LTHI, RKNE, LKNE, hip_JC
+        Markers used: RTHI, LTHI, RKNE, LKNE
         Subject Measurement values used: RightKneeWidth, LeftKneeWidth
 
         Knee joint center: Computed using Knee Axis Calculation(ref. Clinical Gait Analysis hand book, Baker2013)
@@ -210,9 +210,9 @@ class CGM:
         Parameters
         ----------
         rthi, lthi, rkne, lkne : array
-            A 1x3 array of each respective marker containing the XYZ positions.
-        hip_jc : array
-            An array of hip_JC containing the x,y,z axes marker positions of the hip joint center.
+            A 1x3 ndarray of each respective marker containing the XYZ positions.
+        hip_origin : array
+            A 2x3 ndarray of the right and left hip origin vectors (joint centers).
         delta : float
             The length from marker to joint center, retrieved from subject measurement file.
         measurements : dict
@@ -221,7 +221,7 @@ class CGM:
         Returns
         -------
         array
-            Returns an 8x1x3 ndarray that contains the right knee origin, right knee x, y, and z
+            Returns an 8x3 ndarray that contains the right knee origin, right knee x, y, and z
             axis components, left knee origin, and left knee x, y, and z axis components.
 
         Modifies
@@ -236,12 +236,12 @@ class CGM:
         """
 
     @staticmethod
-    def ankle_axis_calc(rtib, ltib, rank, lank, knee_jc, delta, measurements):
-        """The Ankle Axis Calculation function
+    def ankle_axis_calc(rtib, ltib, rank, lank, knee_axis, delta, measurements):
+        """Ankle Axis Calculation function
 
         Calculates the ankle joint axis and returns the ankle origin and axis
 
-        Markers used: RTIB, LTIB, RANK, LANK, knee_JC
+        Markers used: RTIB, LTIB, RANK, LANK
         Subject Measurement values used: RightKneeWidth, LeftKneeWidth
 
         Ankle Axis: Computed using Ankle Axis Calculation(ref. Clinical Gait Analysis hand book, Baker2013).
@@ -249,9 +249,10 @@ class CGM:
         Parameters
         ----------
         rtib, ltib, rank, lank : array
-            A 1x3 array of each respective marker containing the XYZ positions.
-        knee_jc : array
-            A numpy array representing the knee joint center origin and axis.
+            A 1x3 ndarray of each respective marker containing the XYZ positions.
+        knee_axis : array
+            An 8x3 ndarray that contains the right knee origin, right knee x, y, and z
+            axis components, left knee origin, and left knee x, y, and z axis components.
         delta : float
             The length from marker to joint center, retrieved from subject measurement file
         measurements : dict, optional
@@ -260,7 +261,7 @@ class CGM:
         Returns
         -------
         array
-            Returns an 8x1x3 ndarray that contains the right ankle origin, right ankle x, y, and z
+            Returns an 8x3 ndarray that contains the right ankle origin, right ankle x, y, and z
             axis components, left ankle origin, and left ankle x, y, and z axis components.
 
         References
@@ -271,10 +272,10 @@ class CGM:
         """
 
     @staticmethod
-    def foot_axis_calc(rtoe, ltoe, measurements, ankle_jc, knee_jc, delta):
-        """The Ankle Axis Calculation function
+    def foot_axis_calc(rtoe, ltoe, measurements, knee_axis, ankle_axis, delta):
+        """Foot Axis Calculation function
 
-        Calculate the foot joint axis by rotating incorrect foot joint axes about offset angle.
+        Calculates the foot joint axis by rotating incorrect foot joint axes about offset angle.
         Returns the foot axis origin and axis.
 
         In case of foot joint center, we've already make 2 kinds of axis for static offset angle.
@@ -297,10 +298,12 @@ class CGM:
             A 1x3 array of each respective marker containing the XYZ positions.
         measurements : dict
             A dictionary containing the subject measurements given from the file input.
-        ankle_jc : array
-            An array containing the x,y,z axes marker positions of the ankle joint center.
-        knee_jc : array
-            An array containing the x,y,z axes marker positions of the knee joint center.
+        knee_axis : array
+            An 8x3 ndarray that contains the right knee origin, right knee x, y, and z
+            axis components, left knee origin, and left knee x, y, and z axis components.
+        ankle_axis : array
+            An 8x3 ndarray that contains the right ankle origin, right ankle x, y, and z
+            axis components, left ankle origin, and left ankle x, y, and z axis components.
         delta
             The length from marker to joint center, retrieved from subject measurement file.
 
