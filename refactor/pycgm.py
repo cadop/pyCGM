@@ -556,9 +556,59 @@ class CGM:
         pass
 
     @staticmethod
-    def multi_calc():
+    def multi_calc(data, methods, mappings, measurements, cores=1):
+        """Multiprocessing calculation handler function
+
+        Takes in the necessary information for performing each frame's calculation as parameters
+        and distributes frames along available cores.
+
+        Parameters
+        ----------
+        data : array
+            3d ndarray consisting of each frame by each marker by x, y, and z positions.
+        methods : list
+            List containing the calculation methods to be used.
+        mappings : list
+            List containing dictionary mappings for marker names and input and output indices.
+        measurements : dict
+            A dictionary containing the subject measurements given from the file input.
+        cores : int, optional
+            Number of cores to perform multiprocessing with, defaulting to 1 if not specified.
+
+        Returns
+        -------
+        results : tuple
+            A tuple consisting of the angle results and axis results. Angle results are
+            stored as a 3d ndarray of each frame by each angle by x, y, and z. Axis results
+            are stored as a 4d ndarray of each frame by each joint by origin and xyz unit vectors
+            by x, y, and z location.
+        """
         pass
 
     @staticmethod
-    def calc():
+    def calc(data, methods, mappings, measurements):
+        """Overall axis and angle calculation function
+
+        Uses the data and methods passed in to distribute the appropriate inputs to each
+        axis and angle calculation function (generally markers and axis results) and
+        store and return their output, all in the context of a single frame.
+
+        Parameters
+        ----------
+        data : array
+            3d ndarray consisting of each frame by each marker by x, y, and z positions.
+        methods : list
+            List containing the calculation methods to be used.
+        mappings : list
+            List containing dictionary mappings for marker names and input and output indices.
+        measurements : dict
+            A dictionary containing the subject measurements given from the file input.
+            
+        Returns
+        -------
+        results : tuple
+            A tuple consisting of the angle results and axis results. Angle results are stored
+            as a 2d ndarray of each angle by x, y, and z. Axis results are stored as a 3d ndarray
+            of each joint by origin and xyz unit vectors by x, y, and z location.
+        """
         pass
