@@ -11,7 +11,7 @@ def marker_keys():
 
 
 # Reading Functions
-def load_data(filename):
+def load_marker_data(filename):
     """Open and load a c3d or csv file of motion capture data.
 
     `filename` can be either a c3d or csv file. Depending on the file

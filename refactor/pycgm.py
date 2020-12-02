@@ -1,11 +1,46 @@
+import refactor.io as io
 import numpy as np
-import math
-
 
 class CGM:
 
-    def __init__(self, path_static, path_dynamic, path_measurements, path_results=None, path_com=None, cores=1):
-        pass
+    def __init__(self, path_static, path_dynamic, path_measurements, path_results=None,
+                 write_axes=True, write_angles=True, write_com=True,
+                 static=None, cores=1):
+        """Initialization of CGM object function
+        
+        Instantiates various class attributes based on parameters and default values.
+        
+        Parameters
+        ----------
+        path_static : str
+            File path of the static trial in csv or c3d form
+        path_dynamic : str
+            File path of the dynamic trial in csv or c3d form
+        path_measurements : str
+            File path of the subject measurements in csv or vsk form
+        path_results : str, optional
+            File path of the output file in csv or c3d form
+        write_axes : bool, optional
+            Boolean option to enable or disable writing of axis results to output file
+        write_angles : bool, optional
+            Boolean option to enable or disable writing of angle results to output file
+        write_com : bool, optional
+            Boolean option to enable or disable writing of center of mass results to output file
+        """
+        self.path_static = path_static
+        self.path_dynamic = path_dynamic
+        self.path_measurements = path_measurements
+        self.path_results = path_results
+        self.write_axes = write_axes
+        self.write_angles = write_angles
+        self.write_com = write_com
+        self.static = static if static else StaticCGM(path_static, path_measurements)
+        self.cores = cores
+        self.angle_results = None
+        self.axis_results = None
+        self.marker_map = {marker:marker for marker in io.marker_keys()}
+        self.marker_data, self.marker_idx = io.load_marker_data(path_dynamic)
+        
 
     def run(self):
         """Execute the CGM calculations function
