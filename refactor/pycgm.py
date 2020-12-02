@@ -33,13 +33,14 @@ class CGM:
         Examples
         --------
         >>> from .pycgm import CGM
-        >>> dir = "../SampleData/59993_Frame/"
+        >>> dir = "SampleData/59993_Frame/"
         >>> static_trial = dir + "59993_Frame_Static.c3d"
         >>> dynamic_trial = dir + "59993_Frame_Dynamic.c3d"
         >>> measurements = dir + "59993_Frame_SM.vsk"
         >>> subject1 = CGM(static_trial, dynamic_trial, measurements)
-        >>> subject1.axis_results
-        None
+        SampleData/59993_Frame/59993_Frame_Dynamic.c3d
+        >>> subject1.marker_data[0][0]  # doctest: +NORMALIZE_WHITESPACE
+        array([  54.67363358,  156.26828003, 1474.328125  ])
         """
         self.path_static = path_static
         self.path_dynamic = path_dynamic
@@ -53,8 +54,8 @@ class CGM:
         self.angle_results = None
         self.axis_results = None
         self.com_results = None
-        self.marker_map = {marker: marker for marker in io.marker_keys}
-        self.marker_data, self.marker_idx = io.load_marker_data(path_dynamic)
+        self.marker_map = {marker: marker for marker in IO.marker_keys()}
+        self.marker_data, self.marker_idx = IO.load_marker_data(path_dynamic)
 
     def run(self):
         """Execute the CGM calculations function
@@ -158,7 +159,7 @@ class CGM:
         """
 
     @staticmethod
-    def pelvis_axis_calc(rasi, lasi, rpsi=None, lpsi=None, sacr=None):
+    def pelvis_axis_calc(rasi, lasi, rpsi, lpsi, sacr=None):
         """Pelvis Axis Calculation function
 
         Calculates the pelvis joint center and axis and returns them.
@@ -172,9 +173,9 @@ class CGM:
 
         Parameters
         ----------
-        rasi, lasi : array
+        rasi, lasi, rpsi, lpsi : array
             A 1x3 ndarray of each respective marker containing the XYZ positions.
-        rpsi, lpsi, sacr : array, optional
+        sacr : array, optional
             A 1x3 ndarray of each respective marker containing the XYZ positions.
 
         Returns
@@ -189,7 +190,64 @@ class CGM:
            Measurement of lower extremity kinematics during level walking.
            Journal of orthopaedic research: official publication of the Orthopaedic Research Society.
            1990;8(3):383–92.
+
+        Examples
+        --------
+        >>> import numpy as np
+        >>> from .pycgm import CGM
+        >>> data = np.array([[ 395.36532593,  428.09790039, 1036.82763672],
+        ...                 [ 183.18504333,  422.78927612, 1033.07299805],
+        ...                 [ 341.41815186,  246.72117615, 1055.99145508],
+        ...                 [ 255.79994202,  241.42199707, 1057.30065918]])
+        >>> CGM.pelvis_axis_calc(*data)
+        array([[ 289.27518463,  425.44358826, 1034.95031739],
+               [ 289.25243803,  426.43632163, 1034.8321521 ],
+               [ 288.27565385,  425.41858059, 1034.93263018],
+               [ 289.25467091,  425.56129577, 1035.94315379]])
         """
+
+        # REQUIRED MARKERS:
+        # RASI
+        # LASI
+        # RPSI
+        # LPSI
+
+        # If sacrum marker is present, use it
+        if sacr:
+            sacrum = sacr
+        # Otherwise mean of posterior markers is used as the sacrum
+        else:
+            sacrum = (rpsi + lpsi) / 2.0
+
+        # REQUIRED LANDMARKS:
+        # origin
+        # sacrum
+
+        # Origin is the midpoint between RASI and LASI
+        origin = (rasi + lasi) / 2.0
+
+        # Calculate each axis; beta{n} are arbitrary names
+        beta1 = origin - sacrum
+        beta2 = lasi - rasi
+
+        # Y_axis is normalized beta2
+        y_axis = beta2 / np.linalg.norm(beta2)
+
+        # X_axis computed with a Gram-Schmidt orthogonalization procedure(ref. Kadaba 1990)
+        # and then normalized.
+        beta3_cal = np.dot(beta1, y_axis) * y_axis
+        beta3 = beta1 - beta3_cal
+        x_axis = beta3 / np.array(np.linalg.norm(beta3))
+
+        # Z-axis is cross product of x_axis and y_axis
+        z_axis = np.cross(x_axis, y_axis)
+
+        # Add the origin back to the vector 
+        y_axis = y_axis + origin
+        z_axis = z_axis + origin
+        x_axis = x_axis + origin
+
+        return np.array([origin, x_axis, y_axis, z_axis])
 
     @staticmethod
     def hip_axis_calc(pelvis_axis, measurements):

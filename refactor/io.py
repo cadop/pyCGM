@@ -1,27 +1,32 @@
 import numpy as np
 import sys
 import xml.etree.ElementTree as ET
-if sys.version_info[0]==2:
+
+if sys.version_info[0] == 2:
     import c3d
+
     pyver = 2
     print("Using python 2 c3d loader")
 
 else:
     from . import c3dpy3 as c3d
+
     pyver = 3
     print("Using python 3 c3d loader - c3dpy3")
 
 try:
     from ezc3d import c3d as ezc
+
     useEZC3D = True
     print("EZC3D Found, using instead of Python c3d")
 except ModuleNotFoundError:
     useEZC3D = False
 
+
 class IO:
     # Utility Functions
-    @property
-    def marker_keys(self):
+    @staticmethod
+    def marker_keys():
         """Returns a list of marker names that pycgm uses.
 
         Returns
@@ -29,11 +34,11 @@ class IO:
         markers : list
             List of marker names.
         """
-        return ['RASI','LASI','RPSI','LPSI','RTHI','LTHI','RKNE','LKNE','RTIB',
-                'LTIB','RANK','LANK','RTOE','LTOE','LFHD','RFHD','LBHD','RBHD',
-                'RHEE','LHEE','CLAV','C7','STRN','T10','RSHO','LSHO','RELB','LELB',
-                'RWRA','RWRB','LWRA','LWRB','RFIN','LFIN']
-    
+        return ['RASI', 'LASI', 'RPSI', 'LPSI', 'RTHI', 'LTHI', 'RKNE', 'LKNE', 'RTIB',
+                'LTIB', 'RANK', 'LANK', 'RTOE', 'LTOE', 'LFHD', 'RFHD', 'LBHD', 'RBHD',
+                'RHEE', 'LHEE', 'CLAV', 'C7', 'STRN', 'T10', 'RSHO', 'LSHO', 'RELB', 'LELB',
+                'RWRA', 'RWRB', 'LWRA', 'LWRB', 'RFIN', 'LFIN']
+
     # Reading Functions
     @staticmethod
     def load_marker_data(filename):
@@ -134,16 +139,16 @@ class IO:
         >>> mappings['*113'] #unlabeled marker
         113
         """
-        expected_markers = IO.marker_keys
-        fh = open(filename,'r')
+        expected_markers = IO.marker_keys()
+        fh = open(filename, 'r')
         fh = iter(fh)
-        delimiter=','
+        delimiter = ','
 
         def row_to_array(row):
             frame = []
-            if pyver == 2: row=zip(row[0::3],row[1::3],row[2::3])
-            if pyver == 3: row=list(zip(row[0::3],row[1::3],row[2::3]))
-            empty=np.asarray([np.nan,np.nan,np.nan],dtype=np.float64)
+            if pyver == 2: row = zip(row[0::3], row[1::3], row[2::3])
+            if pyver == 3: row = list(zip(row[0::3], row[1::3], row[2::3]))
+            empty = np.asarray([np.nan, np.nan, np.nan], dtype=np.float64)
             for coordinates in row:
                 try:
                     frame.append(np.float64(coordinates))
@@ -152,8 +157,10 @@ class IO:
             return np.array(frame)
 
         def split_line(line):
-            if pyver == 2: line = np.compat.asbytes(line).strip(np.compat.asbytes('\r\n'))
-            elif pyver == 3: line = line.strip('\r\n')
+            if pyver == 2:
+                line = np.compat.asbytes(line).strip(np.compat.asbytes('\r\n'))
+            elif pyver == 3:
+                line = line.strip('\r\n')
             if line:
                 return line.split(delimiter)
             else:
@@ -163,22 +170,22 @@ class IO:
             data = []
             mappings = {}
 
-            delimiter=','
+            delimiter = ','
             if pyver == 2:
-                freq=np.float64(split_line(fh.next())[0])
-                labels=split_line(fh.next())[1::3]
-                fields=split_line(fh.next())
+                freq = np.float64(split_line(fh.next())[0])
+                labels = split_line(fh.next())[1::3]
+                fields = split_line(fh.next())
             elif pyver == 3:
-                freq=np.float64(split_line(next(fh))[0])
-                labels=split_line(next(fh))[1::3]
-                fields=split_line(next(fh))
+                freq = np.float64(split_line(next(fh))[0])
+                labels = split_line(next(fh))[1::3]
+                fields = split_line(next(fh))
             delimiter = np.compat.asbytes(delimiter)
             for i in range(len(labels)):
                 label = labels[i]
                 if label in expected_markers:
                     expected_markers.remove(label)
                 mappings[label] = i
-            
+
             for row in fh:
                 row = split_line(row)[1:]
                 frame = row_to_array(row)
@@ -188,15 +195,15 @@ class IO:
         # Find the trajectories
         for i in fh:
             if i.startswith("TRAJECTORIES"):
-                #First elements with freq,labels,fields
-                if pyver == 2: rows=[fh.next(),fh.next(),fh.next()]
-                if pyver == 3: rows=[next(fh),next(fh),next(fh)]
+                # First elements with freq,labels,fields
+                if pyver == 2: rows = [fh.next(), fh.next(), fh.next()]
+                if pyver == 3: rows = [next(fh), next(fh), next(fh)]
                 for j in fh:
                     if j.startswith("\r\n"):
                         break
                     rows.append(j)
                 break
-        rows=iter(rows)
+        rows = iter(rows)
         data, mappings = parse_trajectories(rows)
 
         if (len(expected_markers) > 0):
@@ -257,7 +264,7 @@ class IO:
         """
         data = []
         mappings = {}
-        expected_markers = IO.marker_keys
+        expected_markers = IO.marker_keys()
         reader = c3d.Reader(open(filename, 'rb'))
         labels = reader.get('POINT:LABELS').string_array
         markers = [str(label.rstrip()) for label in labels]
@@ -273,13 +280,13 @@ class IO:
             for label, point in zip(markers, points):
                 frame.append(point)
             data.append(frame)
-        
+
         if (len(expected_markers) > 0):
             print("The following expected pycgm markers were not found in", filename, ":")
             print(expected_markers)
             print("pycgm functions may not work properly as a result.")
             print("Consider renaming the markers or adding the expected markers to the c3d file if they are missing.")
-        
+
         data = np.array(data)
         return data, mappings
 
@@ -355,20 +362,20 @@ class IO:
         >>> subject_measurements['RightStaticPlantFlex']
         0.17637075483799
         """
-        #Check if the filename is valid
-        #if not, return None
+        # Check if the filename is valid
+        # if not, return None
         if filename == '':
-                return None
+            return None
 
         # Create Dictionary to store values from VSK file
-        subject_measurements = {}        
-        #Create an XML tree from file
+        subject_measurements = {}
+        # Create an XML tree from file
         tree = ET.parse(filename)
-        #Get the root of the file
+        # Get the root of the file
         # <KinematicModel>
         root = tree.getroot()
-        
-        #Store the values of each parameter in a dictionary
+
+        # Store the values of each parameter in a dictionary
         # the format is (NAME,VALUE)
         keys = [r.get('NAME') for r in root[0]]
         data = []
@@ -377,10 +384,10 @@ class IO:
             if val == None:
                 val = 0
             data.append(float(val))
-        
+
         for key, value in zip(keys, data):
             subject_measurements[key] = value
-        
+
         return subject_measurements
 
     @staticmethod
