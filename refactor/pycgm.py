@@ -1,7 +1,6 @@
 import numpy as np
 import math
 
-
 class CGM:
 
     def __init__(self, path_static, path_dynamic, path_measurements, path_results=None, path_com=None, cores=1):
@@ -48,7 +47,7 @@ class CGM:
     def cross(a, b):
         """Cross Product function
 
-        Given vectors a and b, calculate the CGM.cross product.
+        Given vectors a and b, calculate the cross product.
 
         Parameters
         ----------
@@ -60,7 +59,7 @@ class CGM:
         Returns
         -------
         c : list
-            The CGM.cross product of vector a and vector b.
+            The cross product of vector a and vector b.
 
         Examples
         --------
