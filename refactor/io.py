@@ -55,6 +55,31 @@ class IO:
             Each coordinate value is a 1x3 list: [X, Y, Z].
             `mappings` is a dictionary that indicates which marker corresponds to which index
             in `data[i]`.
+        
+        Examples
+        --------
+        >>> from refactor import io
+        >>> import os
+        >>> csv_file = 'SampleData' + os.sep + 'Sample_2' + os.sep + 'RoboResults.csv' 
+        >>> c3d_file = 'SampleData' + os.sep + 'Sample_2' + os.sep + 'RoboStatic.c3d'
+        >>> csv_data, csv_mappings = io.IO.load_marker_data(csv_file)
+        SampleData/Sample_2/RoboResults.csv
+        >>> c3d_data, c3d_mappings = io.IO.load_marker_data(c3d_file)
+        SampleData/Sample_2/RoboStatic.c3d
+
+        Testing for some values from the loaded csv file.
+
+        >>> csv_data[0][csv_mappings['RHNO']] #doctest: +NORMALIZE_WHITESPACE
+        array([-772.184937, -312.352295, 589.815308])
+        >>> csv_data[0][csv_mappings['C7']] #doctest: +NORMALIZE_WHITESPACE 
+        array([-1010.098999, 3.508968, 1336.794434])
+
+        Testing for some values from the loaded c3d file.
+
+        >>> c3d_data[0][c3d_mappings['RHNO']] #doctest: +NORMALIZE_WHITESPACE
+        array([-259.45016479, -844.99560547, 1464.26330566])
+        >>> c3d_data[0][c3d_mappings['C7']] #doctest: +NORMALIZE_WHITESPACE
+        array([-2.20681717e+02, -1.07236075e+00, 1.45551550e+03])    
         """
         print(filename)
         if str(filename).endswith('.c3d'):
@@ -269,47 +294,94 @@ class IO:
         ----------
         filename : str
             Path to the subject measurement file to be loaded
-        dict : bool, optional
-            Returns loaded subject measurement values as a dictionary if True.
-            Otherwise, return as an array `[vsk_keys, vsk_data]`.
-            True by default.
 
         Returns
         -------
         subject_measurements : dict
             Dictionary where keys are subject measurement labels, such as
             `Bodymass`, and values are the corresponding value.
+        
+        Examples
+        --------
+        >>> from refactor import io
+        >>> import os
+        >>> vsk_filename = 'SampleData' + os.sep + 'Sample_2' + os.sep + 'RoboSM.vsk'
+        >>> csv_filename = 'SampleData' + os.sep + 'Sample_2' + os.sep + 'RoboSM.csv'
+        >>> vsk_subject_measurements = io.IO.load_sm(vsk_filename)
+        >>> csv_subject_measurements = io.IO.load_sm(csv_filename)
 
-            If `dict` is False, return as an array `[keys, data]`, where keys is a
-            list of the subject measurement labels, and data is a list of the
-            corresponding values.
+        Testing for some values from loaded vsk file.
+
+        >>> vsk_subject_measurements['Bodymass']
+        72.0
+        >>> vsk_subject_measurements['RightStaticPlantFlex']
+        0.17637075483799
+
+        Testing for some values from loaded csv file.
+        
+        >>> csv_subject_measurements['Bodymass']
+        72.0
+        >>> csv_subject_measurements['RightStaticPlantFlex']
+        0.17637075483799
         """
-        pass
+        if str(filename).endswith('.vsk'):
+            return IO.load_sm_vsk(filename)
+        elif str(filename).endswith('.csv'):
+            return IO.load_sm_csv(filename)
 
     @staticmethod
-    def load_sm_vsk(filename:
+    def load_sm_vsk(filename):
         """Open and load a vsk file with subject measurement data.
 
         Parameters
         ----------
         filename : str
             Path to the vsk file to be loaded.
-        dict : bool, optional
-            Returns loaded subject measurement values as a dictionary if True.
-            Otherwise, return as an array `[vsk_keys, vsk_data]`.
-            True by default.
 
         Returns
         -------
         subject_measurements : dict
             Dictionary where keys are subject measurement labels, such as
             `Bodymass`, and values are the corresponding value.
-
-            If `dict` is False, return as an array `[keys, data]`, where keys is a
-            list of the subject measurement labels, and data is a list of the
-            corresponding values.
+        
+        Examples
+        --------
+        >>> from refactor import io
+        >>> import os
+        >>> filename = 'SampleData' + os.sep + 'Sample_2' + os.sep + 'RoboSM.vsk'
+        >>> subject_measurements = io.IO.load_sm_vsk(filename)
+        >>> subject_measurements['Bodymass']
+        72.0
+        >>> subject_measurements['RightStaticPlantFlex']
+        0.17637075483799
         """
-        pass
+        #Check if the filename is valid
+        #if not, return None
+        if filename == '':
+                return None
+
+        # Create Dictionary to store values from VSK file
+        subject_measurements = {}        
+        #Create an XML tree from file
+        tree = ET.parse(filename)
+        #Get the root of the file
+        # <KinematicModel>
+        root = tree.getroot()
+        
+        #Store the values of each parameter in a dictionary
+        # the format is (NAME,VALUE)
+        keys = [r.get('NAME') for r in root[0]]
+        data = []
+        for R in root[0]:
+            val = (R.get('VALUE'))
+            if val == None:
+                val = 0
+            data.append(float(val))
+        
+        for key, value in zip(keys, data):
+            subject_measurements[key] = value
+        
+        return subject_measurements
 
     @staticmethod
     def load_sm_csv(filename):
@@ -327,22 +399,30 @@ class IO:
         ----------
         filename : str
             Path to the csv file to be loaded.
-        dict : bool, optional
-            Returns loaded subject measurement values as a dictionary if True.
-            Otherwise, return as an array `[vsk_keys, vsk_data]`.
-            True by default.
 
         Returns
         -------
         subject_measurements : dict
             Dictionary where keys are subject measurement labels, such as
             `Bodymass`, and values are the corresponding value.
-
-            If `dict` is False, return as an array `[keys, data]`, where keys is a
-            list of the subject measurement labels, and data is a list of the
-            corresponding values.
+        
+        Examples
+        --------
+        >>> from refactor import io
+        >>> import os
+        >>> filename = 'SampleData' + os.sep + 'Sample_2' + os.sep + 'RoboSM.csv'
+        >>> subject_measurements = io.IO.load_sm_csv(filename)
+        >>> subject_measurements['Bodymass']
+        72.0
+        >>> subject_measurements['RightStaticPlantFlex']
+        0.17637075483799
         """
-        pass
+        subject_measurements = {}
+        with open(filename, 'r') as infile:
+            for row in infile:
+                line = row.strip().split(',')
+                subject_measurements[line[0]] = np.float64(line[1])
+        return subject_measurements
 
     # Writing Functions
     def write_result(filename, output_data, output_mapping, angles=True, axis=True, center_of_mass=True):
