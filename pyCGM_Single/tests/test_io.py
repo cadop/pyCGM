@@ -5,6 +5,7 @@ import sys
 import tempfile
 from shutil import rmtree
 import refactor.io as io
+import mock
 
 class TestIO:
     @classmethod
@@ -23,11 +24,70 @@ class TestIO:
         self.cwd = os.getcwd()
         self.pyver = sys.version_info.major
 
+        self.expected_subject_measurements = {
+            'ASISx': 0.0,'ASISy': 140.533599853516,'ASISz': 0.0,
+            'BHDy': 65.2139663696289,'Beta': 0.314000427722931,
+            'Bodymass': 72.0,'C': 0.0,'C7x': -160.832626342773,
+            'C7z': 35.1444931030273,'HEADy': 63.3674736022949,'HJCy': 0.0,
+            'HeadOffset': 0.290628731250763,'HeadOx': 0.167465895414352,
+            'HeadOy': 0.0252241939306259,'HeadOz': 700.027526855469,
+            'Height': 1730.0,'InterAsisDistance': 281.118011474609,
+            'LANKy': 0.0,'LASIx': 0.0,'LASIz': 0.0,
+            'LBHDx': -171.985321044922,'LELBy': 0.0,
+            'LFINy': 0.0,'LFOOy': -3.58954524993896,
+            'LFOOz': -15.6271200180054,'LHEEx': -71.2924499511719,
+            'LKNEy': 0.0,'LPSIx': -134.874649047852,
+            'LPSIy': 66.1733016967773,'LTHIy': 91.1664733886719,
+            'LTHIz': -246.724578857422,'LTIBy': 86.1824417114258,
+            'LTIBz': -241.08772277832,'LTOEx': 112.053565979004,
+            'LWRx': 37.3928489685059,'LWRy': 0.0,
+            'LeftAnkleAbAdd': 0.0,'LeftAnkleWidth': 90.0,
+            'LeftAsisTrocanterDistance': 0.0,'LeftClavicleLength': 169.407562255859,
+            'LeftElbowWidth': 80.0,'LeftFemurLength': 401.595642089844,
+            'LeftFootLength': 176.388000488281,'LeftHandLength': 86.4382247924805,
+            'LeftHandThickness': 17.0,'LeftHumerusLength': 311.366516113281,
+            'LeftKneeWidth': 120.0,'LeftLegLength': 1000.0,
+            'LeftRadiusLength': 264.315307617188,'LeftShankRotation': 0.0,
+            'LeftShoulderOffset': 40.0,'LeftSoleDelta': 0.0,
+            'LeftStaticPlantFlex': 0.137504011392593,'LeftStaticRotOff': 0.0358467921614647,
+            'LeftThighRotation': 0.0,'LeftTibiaLength': 432.649719238281,
+            'LeftTibialTorsion': 0.0,'LeftWristWidth': 60.0,
+            'MeanLegLength': 0.0,'PelvisLength': 0.0,'RANKy': 0.0,
+            'RASIx': 0.0,'RASIz': 0.0,'RBAKx': -217.971115112305,
+            'RBAKy': -97.8660354614258,'RBAKz': -101.454940795898,
+            'RBHDx': -159.32258605957,'RELBy': 0.0,
+            'RFINy': 0.0,'RFOOy': 2.1107816696167,
+            'RFOOz': -23.4012489318848,'RHEEx': -52.7204742431641,
+            'RKNEy': 0.0,'RPSIx': -128.248474121094,'RPSIy': -77.4204406738281,
+            'RTHIy': -93.3007659912109,'RTHIz': -134.734924316406,
+            'RTIBy': -77.5902252197266,'RTIBz': -201.939865112305,
+            'RTOEx': 129.999603271484,'RWRx': 35.0017356872559,
+            'RWRy': 0.0,'RightAnkleAbAdd': 0.0,'RightAnkleWidth': 90.0,
+            'RightAsisTrocanterDistance': 0.0,'RightClavicleLength': 172.908142089844,
+            'RightElbowWidth': 80.0,'RightFemurLength': 397.317260742188,
+            'RightFootLength': 175.794006347656,'RightHandLength': 87.4593048095703,
+            'RightHandThickness': 17.0,'RightHumerusLength': 290.563262939453,
+            'RightKneeWidth': 120.0,'RightLegLength': 1000.0,
+            'RightRadiusLength': 264.853607177734,'RightShankRotation': 0.0,
+            'RightShoulderOffset': 40.0,'RightSoleDelta': 0.0,
+            'RightStaticPlantFlex': 0.17637075483799,'RightStaticRotOff': 0.03440235927701,
+            'RightThighRotation': 0.0,'RightTibiaLength': 443.718109130859,
+            'RightTibialTorsion': 0.0,'RightWristWidth': 60.0,
+            'STRNz': -207.033920288086,'T10x': -205.628646850586,
+            'T10y': -7.51900339126587,'T10z': -261.275146484375,
+            'Theta': 0.500000178813934,'ThorOx': 1.28787481784821,
+            'ThorOy': 0.0719171389937401,'ThorOz': 499.705780029297
+        }
+
         filename_59993_Frame = 'SampleData' + os.sep + '59993_Frame' + os.sep + '59993_Frame_Static.c3d'
         self.filename_59993_Frame = os.path.join(self.cwd, filename_59993_Frame)
         filename_Sample_Static = 'SampleData' + os.sep + 'ROM' + os.sep + 'Sample_Static.csv'
         self.filename_Sample_Static = os.path.join(self.cwd, filename_Sample_Static)
-    
+        filename_RoboSM_vsk = 'SampleData' + os.sep + 'Sample_2' + os.sep + 'RoboSM.vsk'
+        self.filename_RoboSM_vsk = os.path.join(self.cwd, filename_RoboSM_vsk)
+        filename_RoboSM_csv = 'SampleData' + os.sep + 'Sample_2' + os.sep + 'RoboSM.csv'
+        self.filename_RoboSM_csv = os.path.join(self.cwd, filename_RoboSM_csv)
+
     @pytest.mark.parametrize("frame, data_key, expected_data", [
         (0, 'LFHD',
          np.array([60.1229744, 132.4755249, 1485.8293457])),
@@ -146,3 +206,46 @@ class TestIO:
         extension returns none.
         """
         assert io.IO.load_marker_data("NonExistentFile") is None
+    
+    def test_load_sm_vsk(self):
+        subject_measurements = io.IO.load_sm_vsk(self.filename_RoboSM_vsk)
+        assert isinstance(subject_measurements, dict)
+        assert subject_measurements == self.expected_subject_measurements
+    
+    def test_load_sm_vsk_exceptions(self):
+        """
+        Test that loading a non-existent file raises an
+        exception.
+        """
+        with pytest.raises(Exception):
+            io.IO.load_sm_vsk("NonExistentFilename")
+
+    def test_load_sm_csv(self):
+        subject_measurements = io.IO.load_sm_csv(self.filename_RoboSM_csv)
+        assert isinstance(subject_measurements, dict)
+        assert subject_measurements == self.expected_subject_measurements
+    
+    def test_load_sm_vsk_exceptions(self):
+        """
+        Test that loading a non-existent file raises an
+        exception.
+        """
+        with pytest.raises(Exception):
+            io.IO.load_sm_csv("NonExistentFilename")
+    
+    def test_load_sm_calls_vsk(self):
+        subject_measurements = io.IO.load_sm(self.filename_RoboSM_vsk)
+        assert isinstance(subject_measurements, dict)
+        assert subject_measurements == self.expected_subject_measurements
+
+    def test_load_sm_calls_csv(self):
+        subject_measurements = io.IO.load_sm(self.filename_RoboSM_csv)
+        assert isinstance(subject_measurements, dict)
+        assert subject_measurements == self.expected_subject_measurements
+    
+    def test_load_sm_exceptions(self):
+        """
+        We test that loading a filename without a csv or vsk
+        extension returns none.
+        """
+        assert io.IO.load_sm("NonExistentFile") is None
