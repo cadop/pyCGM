@@ -159,7 +159,7 @@ class CGM:
         """
 
     @staticmethod
-    def pelvis_axis_calc(rasi, lasi, rpsi, lpsi, sacr=None):
+    def pelvis_axis_calc(rasi, lasi, rpsi=None, lpsi=None, sacr=None):
         """Pelvis Axis Calculation function
 
         Calculates the pelvis joint center and axis and returns them.
@@ -173,9 +173,9 @@ class CGM:
 
         Parameters
         ----------
-        rasi, lasi, rpsi, lpsi : array
+        rasi, lasi : array
             A 1x3 ndarray of each respective marker containing the XYZ positions.
-        sacr : array, optional
+        sacr, rpsi, lpsi : array, optional
             A 1x3 ndarray of each respective marker containing the XYZ positions.
 
         Returns
@@ -195,15 +195,23 @@ class CGM:
         --------
         >>> import numpy as np
         >>> from .pycgm import CGM
-        >>> data = np.array([[ 395.36532593,  428.09790039, 1036.82763672],
-        ...                 [ 183.18504333,  422.78927612, 1033.07299805],
-        ...                 [ 341.41815186,  246.72117615, 1055.99145508],
-        ...                 [ 255.79994202,  241.42199707, 1057.30065918]])
-        >>> CGM.pelvis_axis_calc(*data)
+        >>> rasi, lasi, rpsi, lpsi = np.array([[ 395.36532593,  428.09790039, 1036.82763672],
+        ...                                    [ 183.18504333,  422.78927612, 1033.07299805],
+        ...                                    [ 341.41815186,  246.72117615, 1055.99145508],
+        ...                                    [ 255.79994202,  241.42199707, 1057.30065918]])
+        >>> CGM.pelvis_axis_calc(rasi, lasi, rpsi=rpsi, lpsi=lpsi)
         array([[ 289.27518463,  425.44358826, 1034.95031739],
                [ 289.25243803,  426.43632163, 1034.8321521 ],
                [ 288.27565385,  425.41858059, 1034.93263018],
                [ 289.25467091,  425.56129577, 1035.94315379]])
+        >>> rasi, lasi, sacr = np.array([[ 395.36532593,  428.09790039, 1036.82763672],
+        ...                              [ 183.18504333,  422.78927612, 1033.07299805],
+        ...                              [ 294.60904694,  242.07158661, 1049.64605713]])
+        >>> CGM.pelvis_axis_calc(rasi, lasi, sacr=sacr)
+        array([[ 289.27518463,  425.44358826, 1034.95031739],
+               [ 289.25166321,  426.44012508, 1034.87056085],
+               [ 288.27565385,  425.41858059, 1034.93263018],
+               [ 289.25556415,  425.52289134, 1035.94697483]])
         """
 
         # REQUIRED MARKERS:
@@ -213,7 +221,7 @@ class CGM:
         # LPSI
 
         # If sacrum marker is present, use it
-        if sacr:
+        if sacr is not None:
             sacrum = sacr
         # Otherwise mean of posterior markers is used as the sacrum
         else:

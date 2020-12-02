@@ -60,7 +60,7 @@ class IO:
             Each coordinate value is a 1x3 list: [X, Y, Z].
             `mappings` is a dictionary that indicates which marker corresponds to which index
             in `data[i]`.
-        
+
         Examples
         --------
         >>> from refactor import io
