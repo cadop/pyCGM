@@ -95,6 +95,48 @@ def segment_dict():
     """
     pass
 
+def get_marker_location(Pm, C):
+    """Finds the location of the missing marker in the world frame.
+
+    Parameters
+    ----------
+    Pm : ndarray or list
+        Location of the missing marker in the cluster frame. 1x3 list or 
+        numpy array.
+    C : 2darray or list
+        2d array or list indicating locations of other markers in the same
+        cluster and same frame as the missing marker. 
+        Contains 3 1x3 lists or numpy arrays: `[X, Y, Z]`.
+    
+    Returns
+    -------
+    Pw : array
+        Location of the missing marker in the world frame. List of 
+        3 elements `[X, Y, Z]`.
+    """
+    pass
+
+def get_static_transform(p, C):
+    """Finds the location of the missing marker in the cluster frame.
+
+    Parameters
+    ----------
+    p : ndarray or list
+        1x3 numpy array or list: `[X, Y, Z]` indicating the location of
+        the marker at a previously visible frame.
+    C : 2darray or list
+        2d array or list indicating locations of other markers in the same
+        cluster as the missing marker. Contains 3 1x3 lists or numpy arrays:
+        `[X, Y, Z]`.
+    
+    Returns
+    -------
+    Pm : array
+        Location of the missing marker in the cluster frame. List of 
+        3 elements `[X, Y, Z]`.
+    """
+    pass
+
 def transform_from_static(data, data_mapping, static, static_mapping, key, useables, s):
     """Performs gap filling using static data.
 
