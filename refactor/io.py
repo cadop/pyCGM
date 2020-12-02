@@ -1,4 +1,4 @@
-#Utility Functions
+# Utility Functions
 def marker_keys():
     """Returns a list of marker names that pycgm uses.
 
@@ -9,7 +9,8 @@ def marker_keys():
     """
     pass
 
-#Reading Functions
+
+# Reading Functions
 def load_data(filename):
     """Open and load a c3d or csv file of motion capture data.
 
@@ -32,6 +33,7 @@ def load_data(filename):
     """
     pass
 
+
 def load_csv(filename):
     """Open and load a csv file of motion capture data.
 
@@ -50,6 +52,7 @@ def load_csv(filename):
         in `data[i]`.
     """
     pass
+
 
 def load_c3d(filename):
     """Open and load a c3d file of motion capture data.
@@ -70,7 +73,8 @@ def load_c3d(filename):
     """
     pass
 
-def load_SM(filename, dict=True):
+
+def load_sm(filename, dict=True):
     """Open and load a file with subject measurement data.
 
     Subject measurements can be in a vsk or csv file. Depending on the file
@@ -81,7 +85,7 @@ def load_SM(filename, dict=True):
     filename : str
         Path to the subject measurement file to be loaded
     dict : bool, optional
-        Returns loaded subject measurement values as a dictionary if True. 
+        Returns loaded subject measurement values as a dictionary if True.
         Otherwise, return as an array `[vsk_keys, vsk_data]`.
         True by default.
 
@@ -89,15 +93,16 @@ def load_SM(filename, dict=True):
     -------
     subject_measurements : dict
         Dictionary where keys are subject measurement labels, such as
-        `Bodymass`, and values are the corresponding value. 
-        
-        If `dict` is False, return as an array `[keys, data]`, where keys is a 
-        list of the subject measurement labels, and data is a list of the 
-        corresponding values. 
+        `Bodymass`, and values are the corresponding value.
+
+        If `dict` is False, return as an array `[keys, data]`, where keys is a
+        list of the subject measurement labels, and data is a list of the
+        corresponding values.
     """
     pass
 
-def load_SM_vsk(filename, dict=True):
+
+def load_sm_vsk(filename, dict=True):
     """Open and load a vsk file with subject measurement data.
 
     Parameters
@@ -105,26 +110,27 @@ def load_SM_vsk(filename, dict=True):
     filename : str
         Path to the vsk file to be loaded.
     dict : bool, optional
-        Returns loaded subject measurement values as a dictionary if True. 
+        Returns loaded subject measurement values as a dictionary if True.
         Otherwise, return as an array `[vsk_keys, vsk_data]`.
         True by default.
-    
+
     Returns
     -------
     subject_measurements : dict
         Dictionary where keys are subject measurement labels, such as
-        `Bodymass`, and values are the corresponding value. 
-        
-        If `dict` is False, return as an array `[keys, data]`, where keys is a 
-        list of the subject measurement labels, and data is a list of the 
-        corresponding values.    
+        `Bodymass`, and values are the corresponding value.
+
+        If `dict` is False, return as an array `[keys, data]`, where keys is a
+        list of the subject measurement labels, and data is a list of the
+        corresponding values.
     """
     pass
 
-def load_SM_csv(filename, dict=True):
+
+def load_sm_csv(filename, dict=True):
     """Open and load a csv file with subject measurement data.
 
-    csv files with subject measurements are lines of data in the following 
+    csv files with subject measurements are lines of data in the following
     format:
 
     `key, value`
@@ -137,30 +143,31 @@ def load_SM_csv(filename, dict=True):
     filename : str
         Path to the csv file to be loaded.
     dict : bool, optional
-        Returns loaded subject measurement values as a dictionary if True. 
+        Returns loaded subject measurement values as a dictionary if True.
         Otherwise, return as an array `[vsk_keys, vsk_data]`.
         True by default.
-    
+
     Returns
     -------
     subject_measurements : dict
         Dictionary where keys are subject measurement labels, such as
-        `Bodymass`, and values are the corresponding value. 
-        
-        If `dict` is False, return as an array `[keys, data]`, where keys is a 
-        list of the subject measurement labels, and data is a list of the 
+        `Bodymass`, and values are the corresponding value.
+
+        If `dict` is False, return as an array `[keys, data]`, where keys is a
+        list of the subject measurement labels, and data is a list of the
         corresponding values.
     """
     pass
 
-#Writing Functions
-def write_result(filename,output_data,output_mapping,angles=True,axis=True,center_of_mass=True):
+
+# Writing Functions
+def write_result(filename, output_data, output_mapping, angles=True, axis=True, center_of_mass=True):
     """Writes outputs from pycgm to a CSV file.
 
     Lines 0-6 of the output csv are headers. Lines 7 and onwards
     are angle, axis, or center of mass results for each frame. For example,
     line 7 of the csv is output for frame 0 of the motion capture.
-    The first element of each row of output is the frame number. 
+    The first element of each row of output is the frame number.
 
     Parameters
     ----------
@@ -168,7 +175,7 @@ def write_result(filename,output_data,output_mapping,angles=True,axis=True,cente
         Path of the csv filename to write to.
     output_data : 3darray
         3d numpy array, where each index in the array corresponds to a frame
-        of trial to write output for. Each index contains a list of 1x3 lists of 
+        of trial to write output for. Each index contains a list of 1x3 lists of
         XYZ coordinate data to write.s
     output_mapping : dict
         Dictionary where keys are output labels, such as `R Hip`, and values
@@ -180,7 +187,6 @@ def write_result(filename,output_data,output_mapping,angles=True,axis=True,cente
         Indicates wheter or not to include center of mass output in the written
         csv. True by default.
     """
-    #The function will include list of 19 angles, 24 axes, and center of mass with the same
-    #consistent naming scheme that already exists. See labelsAngs and labelsAxis in existing writeResult.
+    # The function will include list of 19 angles, 24 axes, and center of mass with the same
+    # consistent naming scheme that already exists. See labelsAngs and labelsAxis in existing writeResult.
     pass
-
