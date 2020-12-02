@@ -52,15 +52,14 @@ class CGM:
         self.com_results = None
         self.marker_map = {marker:marker for marker in io.marker_keys()}
         self.marker_data, self.marker_idx = io.load_marker_data(path_dynamic)
-        
 
     def run(self):
         """Execute the CGM calculations function
 
-        Load in appropriate data from IO using paths.
-        Perform any necessary prep on data.
-        Run the static calibration trial.
-        Run the dynamic trial to calculate all axes and angles.
+        Loads in appropriate data from IO using paths.
+        Performs any necessary prep on data.
+        Runs the static calibration trial.
+        Runs the dynamic trial to calculate all axes and angles.
         """
         pass
 
@@ -92,100 +91,23 @@ class CGM:
         self.marker_map = mapping
 
     @staticmethod
-    def cross(a, b):
-        """Cross Product function
-
-        Given vectors a and b, calculate the cross product.
-
-        Parameters
-        ----------
-        a : list
-            First 3D vector.
-        b : list
-            Second 3D vector.
-
-        Returns
-        -------
-        list
-            The cross product of vector a and vector b.
-        """
-
-    @staticmethod
-    def norm2d(v):
-        """2D Vector normalization function
-
-        This function calculates the normalization of a 3-dimensional vector.
-
-        Parameters
-        ----------
-        v : list
-            A 3D vector.
-
-        Returns
-        -------
-        float
-            The normalization of the vector as a float.
-        """
-
-    @staticmethod
-    def norm3d(v):
-        """3D Vector normalization function
-
-        This function calculates the normalization of a 3-dimensional vector.
-
-        Parameters
-        ----------
-        v : list
-            A 3D vector.
-
-        Returns
-        -------
-        list
-            The normalization of the vector returned as a float in an array.
-        """
-
-    @staticmethod
     def find_joint_c(a, b, c, delta):
         """Calculate the Joint Center function.
 
-        This function is based on physical markers, a,b,c and joint center which will be
-        calulcated in this function are all in the same plane.
+        This function is based on physical markers, a, b, and c, and joint center, which will be
+        calculated in this function. All are in the same plane.
 
         Parameters
         ----------
-        a,b,c : list
-            Three markers x,y,z position of a, b, c.
+        a, b, c : array
+            A 1x3 ndarray representing x, y, and z coordinates of the marker.
         delta : float
             The length from marker to joint center, retrieved from subject measurement file.
 
         Returns
         -------
         mr : array
-            Returns the Joint C x, y, z positions in a 1x3 array.
-        """
-
-    @staticmethod
-    def matrix_mult(a, b):
-        """Matrix multiplication function
-
-        This function returns the product of a matrix multiplication given two matrices.
-
-        Let the dimension of the matrix A be: m by n,
-        let the dimension of the matrix B be: p by q,
-        multiplication will only possible if n = p,
-        creating a matrix of m by q size.
-
-        Parameters
-        ----------
-        a : list
-            First matrix, in a 2D array format.
-        b : list
-            Second matrix, in a 2D array format.
-
-        Returns
-        -------
-        c : list
-            The product of the matrix multiplication.
+            Returns the Joint Center x, y, z positions in a 1x3 ndarray.
         """
 
     @staticmethod
@@ -688,83 +610,6 @@ class StaticCGM:
     @staticmethod
     def get_dist(p0, p1):
         pass
-
-    @staticmethod
-    def norm2d(v):
-        """2D Vector normalization function
-
-        This function calculates the normalization of a 3-dimensional vector.
-
-        Parameters
-        ----------
-        v : list
-            A 3D vector.
-
-        Returns
-        -------
-        float
-            The normalization of the vector as a float.
-        """
-
-    @staticmethod
-    def norm3d(v):
-        """3D Vector normalization function
-
-        This function calculates the normalization of a 3-dimensional vector.
-
-        Parameters
-        ----------
-        v : list
-            A 3D vector.
-
-        Returns
-        -------
-        list
-            The normalization of the vector returned as a float in an array.
-        """
-
-    @staticmethod
-    def matrix_mult(a, b):
-        """Matrix multiplication function
-
-        This function returns the product of a matrix multiplication given two matrices.
-
-        Let the dimension of the matrix A be: m by n,
-        let the dimension of the matrix B be: p by q,
-        multiplication will only possible if n = p,
-        creating a matrix of m by q size.
-
-        Parameters
-        ----------
-        a : list
-            First matrix, in a 2D array format.
-        b : list
-            Second matrix, in a 2D array format.
-
-        Returns
-        -------
-        c : list
-            The product of the matrix multiplication.
-        """
-
-    @staticmethod
-    def cross(a, b):
-        """Cross Product function
-
-        Given vectors a and b, calculate the cross product.
-
-        Parameters
-        ----------
-        a : list
-            First 3D vector.
-        b : list
-            Second 3D vector.
-
-        Returns
-        -------
-        list
-            The cross product of vector a and vector b.
-        """
 
     @staticmethod
     def average(list):
