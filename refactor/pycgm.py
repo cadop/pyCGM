@@ -1,5 +1,5 @@
 from refactor.io import IO
-from math import cos, sin
+from math import cos, sin, acos
 import numpy as np
 
 
@@ -114,6 +114,46 @@ class CGM:
         mr : array
             Returns the Joint Center x, y, z positions in a 1x3 ndarray.
         """
+        # Make the two vector using 3 markers, which is on the same plane.
+        v1 = (a[0] - c[0], a[1] - c[1], a[2] - c[2])
+        v2 = (b[0] - c[0], b[1] - c[1], b[2] - c[2])
+
+        # v3 is cross vector of v1, v2
+        # and then it is normalized.
+        # v3 = cross(v1,v2)
+        v3 = [v1[1] * v2[2] - v1[2] * v2[1], v1[2] * v2[0] - v1[0] * v2[2], v1[0] * v2[1] - v1[1] * v2[0]]
+        v3_div = np.linalg.norm(v3)
+        v3 = [v3[0] / v3_div, v3[1] / v3_div, v3[2] / v3_div]
+
+        m = [(b[0] + c[0]) / 2.0, (b[1] + c[1]) / 2.0, (b[2] + c[2]) / 2.0]
+        length = np.subtract(b, m)
+        length = np.linalg.norm(length)
+
+        theta = acos(delta / np.linalg.norm(v2))
+
+        cs = cos(theta * 2)
+        sn = sin(theta * 2)
+
+        ux = v3[0]
+        uy = v3[1]
+        uz = v3[2]
+
+        # This rotation matrix is called Rodrigues' rotation formula.
+        # In order to make a plane, at least 3 markers are required which means
+        # three physical markers on the segment can make a plane.
+        # Then the orthogonal vector of the plane will be rotating axis.
+        # Joint center is determined by rotating the one vector of plane around rotating axis.
+
+        rot = np.matrix([[cs + ux ** 2.0 * (1.0 - cs), ux * uy * (1.0 - cs) - uz * sn, ux * uz * (1.0 - cs) + uy * sn],
+                         [uy * ux * (1.0 - cs) + uz * sn, cs + uy ** 2.0 * (1.0 - cs), uy * uz * (1.0 - cs) - ux * sn],
+                         [uz * ux * (1.0 - cs) - uy * sn, uz * uy * (1.0 - cs) + ux * sn, cs + uz ** 2.0 * (1.0 - cs)]])
+        r = rot * (np.matrix(v2).transpose())
+        r = r * length / np.linalg.norm(r)
+
+        r = [r[0, 0], r[1, 0], r[2, 0]]
+        mr = np.array([r[0] + m[0], r[1] + m[1], r[2] + m[2]])
+
+        return mr
 
     @staticmethod
     def rotation_matrix(x=0, y=0, z=0):
@@ -390,7 +430,7 @@ class CGM:
         return np.array([hip_axis_center, x_axis, y_axis, z_axis])
 
     @staticmethod
-    def knee_axis_calc(rthi, lthi, rkne, lkne, hip_origin, delta, measurements):
+    def knee_axis_calc(rthi, lthi, rkne, lkne, hip_origin, measurements):
         """Knee Axis Calculation function
 
         Calculates the right and left knee joint center and axis and returns them.
@@ -406,8 +446,6 @@ class CGM:
             A 1x3 ndarray of each respective marker containing the XYZ positions.
         hip_origin : array
             A 2x3 ndarray of the right and left hip origin vectors (joint centers).
-        delta : float
-            The length from marker to joint center, retrieved from subject measurement file.
         measurements : dict
             A dictionary containing the subject measurements given from the file input.
 
@@ -427,9 +465,89 @@ class CGM:
            Measuring walking: a handbook of clinical gait analysis.
            Hart Hilary M, editor. Mac Keith Press; 2013.
         """
+        # Get Global Values
+        mm = 7.0
+        r_knee_width = measurements['RightKneeWidth']
+        l_knee_width = measurements['LeftKneeWidth']
+        r_delta = (r_knee_width / 2.0) + mm
+        l_delta = (l_knee_width / 2.0) + mm
+
+        # REQUIRED MARKERS:
+        # RTHI
+        # LTHI
+        # RKNE
+        # LKNE
+        # hip_JC
+
+        r_hip_jc, l_hip_jc = hip_origin
+
+        # Determine the position of kneeJointCenter using findJointC function
+        r_knee_jc = CGM.find_joint_center(rthi, r_hip_jc, rkne, r_delta)
+        l_knee_jc = CGM.find_joint_center(lthi, l_hip_jc, lkne, l_delta)
+
+        # Right axis calculation
+
+        # Z axis is Thigh bone calculated by the hipJC and  kneeJC
+        # the axis is then normalized
+        axis_z = r_hip_jc - r_knee_jc
+
+        # X axis is perpendicular to the points plane which is determined by KJC, HJC, KNE markers.
+        # and calculated by each point's vector cross vector.
+        # the axis is then normalized.
+        axis_x = np.cross(axis_z, rkne - r_hip_jc)
+
+        # Y axis is determined by cross product of axis_z and axis_x.
+        # the axis is then normalized.
+        axis_y = np.cross(axis_z, axis_x)
+
+        r_axis = np.array([axis_x, axis_y, axis_z])
+
+        # Left axis calculation
+
+        # Z axis is Thigh bone calculated by the hipJC and  kneeJC
+        # the axis is then normalized
+        axis_z = l_hip_jc - l_knee_jc
+
+        # X axis is perpendicular to the points plane which is determined by KJC, HJC, KNE markers.
+        # and calculated by each point's vector cross vector.
+        # the axis is then normalized.
+        axis_x = np.cross(lkne - l_hip_jc, axis_z)
+
+        # Y axis is determined by cross product of axis_z and axis_x.
+        # the axis is then normalized.
+        axis_y = np.cross(axis_z, axis_x)
+
+        l_axis = np.array([axis_x, axis_y, axis_z])
+
+        # Clear the name of axis and then nomalize it.
+        r_knee_x_axis = r_axis[0]
+        r_knee_x_axis = r_knee_x_axis / np.array([np.linalg.norm(r_knee_x_axis)])
+        r_knee_y_axis = r_axis[1]
+        r_knee_y_axis = r_knee_y_axis / np.array([np.linalg.norm(r_knee_y_axis)])
+        r_knee_z_axis = r_axis[2]
+        r_knee_z_axis = r_knee_z_axis / np.array([np.linalg.norm(r_knee_z_axis)])
+        l_knee_x_axis = l_axis[0]
+        l_knee_x_axis = l_knee_x_axis / np.array([np.linalg.norm(l_knee_x_axis)])
+        l_knee_y_axis = l_axis[1]
+        l_knee_y_axis = l_knee_y_axis / np.array([np.linalg.norm(l_knee_y_axis)])
+        l_knee_z_axis = l_axis[2]
+        l_knee_z_axis = l_knee_z_axis / np.array([np.linalg.norm(l_knee_z_axis)])
+
+        # Put both axis in array
+        # Add the origin back to the vector
+        ry_axis = r_knee_y_axis + r_knee_jc
+        rz_axis = r_knee_z_axis + r_knee_jc
+        rx_axis = r_knee_x_axis + r_knee_jc
+
+        # Add the origin back to the vector
+        ly_axis = l_knee_y_axis + l_knee_jc
+        lz_axis = l_knee_z_axis + l_knee_jc
+        lx_axis = l_knee_x_axis + l_knee_jc
+
+        return np.array([r_knee_jc, rx_axis, ry_axis, rz_axis, l_knee_jc, lx_axis, ly_axis, lz_axis])
 
     @staticmethod
-    def ankle_axis_calc(rtib, ltib, rank, lank, knee_origin, delta, measurements):
+    def ankle_axis_calc(rtib, ltib, rank, lank, knee_origin, measurements):
         """Ankle Axis Calculation function
 
         Calculates the right and left ankle joint center and axis and returns them.
@@ -445,8 +563,6 @@ class CGM:
             A 1x3 ndarray of each respective marker containing the XYZ positions.
         knee_origin : array
             A 2x3 ndarray of the right and left knee origin vectors (joint centers).
-        delta : float
-            The length from marker to joint center, retrieved from subject measurement file
         measurements : dict, optional
             A dictionary containing the subject measurements given from the file input.
 
@@ -464,7 +580,7 @@ class CGM:
         """
 
     @staticmethod
-    def foot_axis_calc(rtoe, ltoe, ankle_axis, delta, measurements):
+    def foot_axis_calc(rtoe, ltoe, ankle_axis, measurements):
         """Foot Axis Calculation function
 
         Calculates the right and left foot joint axis by rotating uncorrect foot joint axes about offset angle.
@@ -491,8 +607,6 @@ class CGM:
         ankle_axis : array
             An 8x3 ndarray that contains the right ankle origin, right ankle x, y, and z
             axis components, left ankle origin, and left ankle x, y, and z axis components.
-        delta : float
-            The length from marker to joint center, retrieved from subject measurement file.
         measurements : dict
             A dictionary containing the subject measurements given from the file input.
 
@@ -783,7 +897,7 @@ class StaticCGM:
 
     def __init__(self, path_static, path_measurements):
         """Initialization of StaticCGM object function
-        
+
         Instantiates various class attributes based on parameters and default values.
 
         Parameters
@@ -817,7 +931,7 @@ class StaticCGM:
     @staticmethod
     def get_dist(p0, p1):
         """Get Distance function
-        
+
         This function calculates the distance between two 3-D positions.
 
         Parameters
@@ -828,8 +942,8 @@ class StaticCGM:
             Position of second x,y,z coordinate.
         Returns
         -------
-        float 
-            The distance between positions p0 and p1. 
+        float
+            The distance between positions p0 and p1.
 
         Examples
         --------
@@ -848,17 +962,17 @@ class StaticCGM:
     @staticmethod
     def average(list):
         """The Average Calculation function
-        
+
         Calculates the average of the values in a given list or array.
 
         Parameters
         ----------
         list : list
             List or array of values.
-        
+
         Returns
         -------
-        float 
+        float
             The mean of the list.
 
         Examples
