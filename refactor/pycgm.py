@@ -57,6 +57,7 @@ class CGM:
         self.com_results = None
         self.marker_map = {marker: marker for marker in IO.marker_keys()}
         self.marker_data, self.marker_idx = IO.load_marker_data(path_dynamic)
+        self.measurements = IO.load_sm(path_measurements)
 
     def run(self):
         """Execute the CGM calculations function
