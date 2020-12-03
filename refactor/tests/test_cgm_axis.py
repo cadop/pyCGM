@@ -1,6 +1,4 @@
-#!/usr/bin/python
-# -*- coding: utf-8 -*-
-
+<<<<<<< HEAD
 from mock import patch
 import numpy as np
 import pytest
@@ -10,11 +8,20 @@ from refactor.pycgm import CGM
 rounding_precision = 8
 
 
+=======
+from refactor.pycgm import CGM
+import pytest
+import numpy as np
+
+rounding_precision = 8
+
+>>>>>>> 8971d99... Change test directory
 class TestLowerBodyAxis():
     """
     This class tests the lower body axis functions in the class CGM in pycgm.py:
     pelvis_axis_calc
     hip_axis_calc
+<<<<<<< HEAD
     knee_axis_calc
     ankle_axis_calc
     foot_axis_calc
@@ -22,6 +29,11 @@ class TestLowerBodyAxis():
 
     nan_3d = [np.nan, np.nan, np.nan]
     rand_coor = [np.random.randint(0, 10), np.random.randint(0, 10), np.random.randint(0, 10)]
+=======
+    """
+
+    nan_3d = [np.nan, np.nan, np.nan]
+>>>>>>> 8971d99... Change test directory
 
     @pytest.mark.parametrize(["rasi", "lasi", "rpsi", "lpsi", "sacr", "expected"], [
         # Test from running sample data
@@ -92,7 +104,11 @@ class TestLowerBodyAxis():
         y axis is computed by subtracting rasi from lasi.
         z axis is cross product of x axis and y axis.
 
+<<<<<<< HEAD
         This unit test ensures that:
+=======
+        This unit test ensure that:
+>>>>>>> 8971d99... Change test directory
         - the correct expected values are altered per parameter given.
         - rpsi and lpsi are only used if sacr isn't given.
         - the resulting output is correct when rasi, lasi, rpsi, lpsi, and sacr are composed of numpy arrays of ints
@@ -112,110 +128,174 @@ class TestLowerBodyAxis():
                    [251.602953357582, 391.847951338178, 1033.887777624562]]),
          {'MeanLegLength': 940.0, 'R_AsisToTrocanterMeasure': 72.512, 'L_AsisToTrocanterMeasure': 72.512,
           'InterAsisDistance': 215.908996582031},
+<<<<<<< HEAD
          np.array([[308.38050472, 322.80342417, 937.98979061], [182.57097863, 339.43231855, 935.52900126],
                    [245.47574167, 331.11787136, 936.75939593], [245.60807103, 332.10350082, 936.65440301],
+=======
+         np.array([[245.47574167, 331.11787136, 936.75939593], [245.60807103, 332.10350082, 936.65440301],
+>>>>>>> 8971d99... Change test directory
                    [244.48455033, 331.24888223, 936.74000858], [245.47038814, 331.22450495, 937.7536799]])),
         # Basic test with zeros for all params
         (np.array([[0, 0, 0], [0, 0, 0], [0, 0, 0], [0, 0, 0]]),
          {'MeanLegLength': 0.0, 'R_AsisToTrocanterMeasure': 0.0, 'L_AsisToTrocanterMeasure': 0.0,
           'InterAsisDistance': 0.0},
+<<<<<<< HEAD
          np.array([[0, 0, 0], [0, 0, 0], [0, 0, 0], [0, 0, 0], [0, 0, 0], [0, 0, 0]])),
+=======
+         np.array([[0, 0, 0], [0, 0, 0], [0, 0, 0], [0, 0, 0]])),
+>>>>>>> 8971d99... Change test directory
         # Testing when values are added to pel_o
         (np.array([[1, 0, -3], [0, 0, 0], [0, 0, 0], [0, 0, 0]]),
          {'MeanLegLength': 0.0, 'R_AsisToTrocanterMeasure': 0.0, 'L_AsisToTrocanterMeasure': 0.0,
           'InterAsisDistance': 0.0},
+<<<<<<< HEAD
          np.array([[8.53165418, 0., -25.59496255], [-6.1387721, 0., 18.4163163], [1.19644104, 0., -3.58932313],
                    [0.19644104, 0, -0.58932313], [0.19644104, 0, -0.58932313], [0.19644104, 0, -0.58932313]])),
+=======
+         np.array([[1.19644104, 0., -3.58932313], [0.19644104, 0, -0.58932313], [0.19644104, 0, -0.58932313],
+                   [0.19644104, 0, -0.58932313]])),
+>>>>>>> 8971d99... Change test directory
         # Testing when values are added to pel_x
         (np.array([[0, 0, 0], [-5, -3, -6], [0, 0, 0], [0, 0, 0]]),
          {'MeanLegLength': 0.0, 'R_AsisToTrocanterMeasure': 0.0, 'L_AsisToTrocanterMeasure': 0.0,
           'InterAsisDistance': 0.0},
+<<<<<<< HEAD
          np.array([[54.02442793, 32.41465676, 64.82931352], [54.02442793, 32.41465676, 64.82931352],
                    [54.02442793, 32.41465676, 64.82931352], [49.02442793, 29.41465676, 58.82931352],
+=======
+         np.array([[54.02442793, 32.41465676, 64.82931352], [49.02442793, 29.41465676, 58.82931352],
+>>>>>>> 8971d99... Change test directory
                    [54.02442793, 32.41465676, 64.82931352], [54.02442793, 32.41465676, 64.82931352]])),
         # Testing when values are added to pel_y
         (np.array([[0, 0, 0], [0, 0, 0], [4, -1, 2], [0, 0, 0]]),
          {'MeanLegLength': 0.0, 'R_AsisToTrocanterMeasure': 0.0, 'L_AsisToTrocanterMeasure': 0.0,
           'InterAsisDistance': 0.0},
+<<<<<<< HEAD
          np.array(
              [[-29.34085257, 7.33521314, -14.67042628], [29.34085257, -7.33521314, 14.67042628], [0, 0, 0], [0, 0, 0],
               [4, -1, 2], [0, 0, 0]])),
+=======
+         np.array([[0, 0, 0], [0, 0, 0], [4, -1, 2], [0, 0, 0]])),
+>>>>>>> 8971d99... Change test directory
         # Testing when values are added to pel_z
         (np.array([[0, 0, 0], [0, 0, 0], [0, 0, 0], [3, 8, 2]]),
          {'MeanLegLength': 0.0, 'R_AsisToTrocanterMeasure': 0.0, 'L_AsisToTrocanterMeasure': 0.0,
           'InterAsisDistance': 0.0},
          np.array([[31.82533363, 84.86755635, 21.21688909], [31.82533363, 84.86755635, 21.21688909],
+<<<<<<< HEAD
                    [31.82533363, 84.86755635, 21.21688909], [31.82533363, 84.86755635, 21.21688909],
+=======
+>>>>>>> 8971d99... Change test directory
                    [31.82533363, 84.86755635, 21.21688909], [34.82533363, 92.86755635, 23.21688909]])),
         # Test when values are added to pel_x, pel_y, and pel_z
         (np.array([[0, 0, 0], [-5, -3, -6], [4, -1, 2], [3, 8, 2]]),
          {'MeanLegLength': 0.0, 'R_AsisToTrocanterMeasure': 0.0, 'L_AsisToTrocanterMeasure': 0.0,
           'InterAsisDistance': 0.0},
+<<<<<<< HEAD
          np.array([[56.508909, 124.61742625, 71.37577632], [115.19061413, 109.94699997, 100.71662889],
                    [85.84976156, 117.28221311, 86.04620261], [80.84976156, 114.28221311, 80.04620261],
+=======
+         np.array([[85.84976156, 117.28221311, 86.04620261], [80.84976156, 114.28221311, 80.04620261],
+>>>>>>> 8971d99... Change test directory
                    [89.84976156, 116.28221311, 88.04620261], [88.84976156, 125.28221311, 88.04620261]])),
         # Test when values are added to pel_o, pel_x, pel_y, and pel_z
         (np.array([[1, 0, -3], [-5, -3, -6], [4, -1, 2], [3, 8, 2]]),
          {'MeanLegLength': 0.0, 'R_AsisToTrocanterMeasure': 0.0, 'L_AsisToTrocanterMeasure': 0.0,
           'InterAsisDistance': 0.0},
+<<<<<<< HEAD
          np.array([[65.04056318, 124.61742625, 45.78081377], [109.05184203, 109.94699997, 119.13294518],
                    [87.04620261, 117.28221311, 82.45687948], [81.04620261, 114.28221311, 79.45687948],
+=======
+         np.array([[87.04620261, 117.28221311, 82.45687948], [81.04620261, 114.28221311, 79.45687948],
+>>>>>>> 8971d99... Change test directory
                    [90.04620261, 116.28221311, 87.45687948], [89.04620261, 125.28221311, 87.45687948]])),
         # Test when values are added to pel_o, pel_x, pel_y, pel_z, and measurements[MeanLegLength]
         (np.array([[1, 0, -3], [-5, -3, -6], [4, -1, 2], [3, 8, 2]]),
          {'MeanLegLength': 15.0, 'R_AsisToTrocanterMeasure': 0.0, 'L_AsisToTrocanterMeasure': 0.0,
           'InterAsisDistance': 0.0},
+<<<<<<< HEAD
          np.array([[61.83654463, 110.86920998, 41.31408931], [100.88576753, 97.85280235, 106.39612748],
                    [81.36115608, 104.36100616, 73.8551084], [75.36115608, 101.36100616, 70.8551084],
+=======
+         np.array([[81.36115608, 104.36100616, 73.8551084], [75.36115608, 101.36100616, 70.8551084],
+>>>>>>> 8971d99... Change test directory
                    [84.36115608, 103.36100616, 78.8551084], [83.36115608, 112.36100616, 78.8551084]])),
         # Test when values are added to pel_o, pel_x, pel_y, pel_z, and measurements[R_AsisToTrocanterMeasure]
         (np.array([[1, 0, -3], [-5, -3, -6], [4, -1, 2], [3, 8, 2]]),
          {'MeanLegLength': 0.0, 'R_AsisToTrocanterMeasure': -24.0, 'L_AsisToTrocanterMeasure': 0.0,
           'InterAsisDistance': 0.0},
+<<<<<<< HEAD
          np.array([[-57.09307697, 115.44008189, 14.36512267], [109.05184203, 109.94699997, 119.13294518],
                    [25.97938253, 112.69354093, 66.74903393], [19.97938253, 109.69354093, 63.74903393],
+=======
+         np.array([[25.97938253, 112.69354093, 66.74903393], [19.97938253, 109.69354093, 63.74903393],
+>>>>>>> 8971d99... Change test directory
                    [28.97938253, 111.69354093, 71.74903393], [27.97938253, 120.69354093, 71.74903393]])),
         # Test when values are added to pel_o, pel_x, pel_y, pel_z, and measurements[R_AsisToTrocanterMeasure]
         (np.array([[1, 0, -3], [-5, -3, -6], [4, -1, 2], [3, 8, 2]]),
          {'MeanLegLength': 0.0, 'R_AsisToTrocanterMeasure': -24.0, 'L_AsisToTrocanterMeasure': 0.0,
           'InterAsisDistance': 0.0},
+<<<<<<< HEAD
          np.array([[-57.09307697, 115.44008189, 14.36512267], [109.05184203, 109.94699997, 119.13294518],
                    [25.97938253, 112.69354093, 66.74903393], [19.97938253, 109.69354093, 63.74903393],
+=======
+         np.array([[25.97938253, 112.69354093, 66.74903393], [19.97938253, 109.69354093, 63.74903393],
+>>>>>>> 8971d99... Change test directory
                    [28.97938253, 111.69354093, 71.74903393], [27.97938253, 120.69354093, 71.74903393]])),
         # Test when values are added to pel_o, pel_x, pel_y, pel_z, and measurements[L_AsisToTrocanterMeasure]
         (np.array([[1, 0, -3], [-5, -3, -6], [4, -1, 2], [3, 8, 2]]),
          {'MeanLegLength': 0.0, 'R_AsisToTrocanterMeasure': 0.0, 'L_AsisToTrocanterMeasure': 0 - 7.0,
           'InterAsisDistance': 0.0},
+<<<<<<< HEAD
          np.array([[65.04056318, 124.61742625, 45.78081377], [73.42953032, 107.27027453, 109.97003528],
                    [69.23504675, 115.94385039, 77.87542453], [63.23504675, 112.94385039, 74.87542453],
+=======
+         np.array([[69.23504675, 115.94385039, 77.87542453], [63.23504675, 112.94385039, 74.87542453],
+>>>>>>> 8971d99... Change test directory
                    [72.23504675, 114.94385039, 82.87542453], [71.23504675, 123.94385039, 82.87542453]])),
         # Test when values are added to pel_o, pel_x, pel_y, pel_z, and measurements[InterAsisDistance]
         (np.array([[1, 0, -3], [-5, -3, -6], [4, -1, 2], [3, 8, 2]]),
          {'MeanLegLength': 0.0, 'R_AsisToTrocanterMeasure': 0.0, 'L_AsisToTrocanterMeasure': 0.0,
           'InterAsisDistance': 11.0},
+<<<<<<< HEAD
          np.array([[48.54056318, 130.11742625, 18.28081377], [125.55184203, 104.44699997, 146.63294518],
                    [87.04620261, 117.28221311, 82.45687948], [81.04620261, 114.28221311, 79.45687948],
+=======
+         np.array([[87.04620261, 117.28221311, 82.45687948], [81.04620261, 114.28221311, 79.45687948],
+>>>>>>> 8971d99... Change test directory
                    [90.04620261, 116.28221311, 87.45687948], [89.04620261, 125.28221311, 87.45687948]])),
         # Test when values are added to pel_o, pel_x, pel_y, pel_z, and all values in measurements
         (np.array([[1, 0, -3], [-5, -3, -6], [4, -1, 2], [3, 8, 2]]),
          {'MeanLegLength': 15.0, 'R_AsisToTrocanterMeasure': -24.0, 'L_AsisToTrocanterMeasure': -7.0,
           'InterAsisDistance': 11.0},
+<<<<<<< HEAD
          np.array([[-76.79709552, 107.19186562, -17.60160178], [81.76345582, 89.67607691, 124.73321758],
                    [2.48318015, 98.43397127, 53.5658079], [-3.51681985, 95.43397127, 50.5658079],
+=======
+         np.array([[2.48318015, 98.43397127, 53.5658079], [-3.51681985, 95.43397127, 50.5658079],
+>>>>>>> 8971d99... Change test directory
                    [5.48318015, 97.43397127, 58.5658079], [4.48318015, 106.43397127, 58.5658079]])),
         # Testing that when pel_o, pel_x, pel_y, and pel_z are numpy arrays of ints and measurements values are ints
         (np.array([[1, 0, -3], [-5, -3, -6], [4, -1, 2], [3, 8, 2]], dtype='int'),
          {'MeanLegLength': 15, 'R_AsisToTrocanterMeasure': -24, 'L_AsisToTrocanterMeasure': -7,
           'InterAsisDistance': 11},
+<<<<<<< HEAD
          np.array([[-76.79709552, 107.19186562, -17.60160178], [81.76345582, 89.67607691, 124.73321758],
                    [2.48318015, 98.43397127, 53.5658079], [-3.51681985, 95.43397127, 50.5658079],
+=======
+         np.array([[2.48318015, 98.43397127, 53.5658079], [-3.51681985, 95.43397127, 50.5658079],
+>>>>>>> 8971d99... Change test directory
                    [5.48318015, 97.43397127, 58.5658079], [4.48318015, 106.43397127, 58.5658079]])),
         # Testing that when pel_o, pel_x, pel_y, and pel_z are numpy arrays of floats and measurements values are floats
         (np.array([[1.0, 0.0, -3.0], [-5.0, -3.0, -6.0], [4.0, -1.0, 2.0], [3.0, 8.0, 2.0]], dtype='float'),
          {'MeanLegLength': 15.0, 'R_AsisToTrocanterMeasure': -24.0, 'L_AsisToTrocanterMeasure': -7.0,
           'InterAsisDistance': 11},
+<<<<<<< HEAD
          np.array([[-76.79709552, 107.19186562, -17.60160178], [81.76345582, 89.67607691, 124.73321758],
                    [2.48318015, 98.43397127, 53.5658079], [-3.51681985, 95.43397127, 50.5658079],
+=======
+         np.array([[2.48318015, 98.43397127, 53.5658079], [-3.51681985, 95.43397127, 50.5658079],
+>>>>>>> 8971d99... Change test directory
                    [5.48318015, 97.43397127, 58.5658079], [4.48318015, 106.43397127, 58.5658079]]))])
     def test_hip_axis_calc(self, pelvis_axis, measurements, expected):
         """
@@ -238,7 +318,11 @@ class TestLowerBodyAxis():
         center.
         The hip axis is calculated by getting the summation of the pelvis and hip center axis.
 
+<<<<<<< HEAD
         This unit test ensures that:
+=======
+        This unit test ensure that:
+>>>>>>> 8971d99... Change test directory
         - the correct expected values are altered per parameter given.
         - the resulting output is correct when pelvis_axis is composed of numpy arrays of ints and numpy arrays of
         floats. Lists were not tested as lists would cause errors on the following lines in pycgm.py as lists cannot
@@ -248,6 +332,7 @@ class TestLowerBodyAxis():
         pelvis_zaxis = pel_z - pel_o
         """
         result = CGM.hip_axis_calc(pelvis_axis, measurements)
+<<<<<<< HEAD
         np.testing.assert_almost_equal(result, expected, rounding_precision)
 
     @pytest.mark.parametrize(
@@ -882,3 +967,6 @@ class TestAxisUtils():
         """
         result = CGM.find_joint_center(a, b, c, delta)
         np.testing.assert_almost_equal(result, expected, rounding_precision)
+=======
+        np.testing.assert_almost_equal(result, expected, rounding_precision)
+>>>>>>> 8971d99... Change test directory
