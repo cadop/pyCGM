@@ -928,7 +928,6 @@ class StaticCGM:
         path_measurements : str
             File path of the subject measurements in csv or vsk form
         """
-        pass
 
     @staticmethod
     def rotation_matrix(x=0, y=0, z=0):
@@ -965,19 +964,6 @@ class StaticCGM:
         -------
         float
             The distance between positions p0 and p1.
-
-        Examples
-        --------
-        >>> import numpy as np
-        >>> from .pycgm import StaticCGM
-        >>> p0 = [0,1,2]
-        >>> p1 = [1,2,3]
-        >>> np.around(StaticCGM.getDist(p0,p1),8)
-        1.73205081
-        >>> p0 = np.array([991.44611381, 741.95103792, 321.35500969])
-        >>> p1 = np.array([117.08710839, 142.23917057, 481.95268411])
-        >>> np.around(StaticCGM.getDist(p0,p1),8)
-        1072.35703347
         """
 
     @staticmethod
@@ -995,17 +981,6 @@ class StaticCGM:
         -------
         float
             The mean of the list.
-
-        Examples
-        --------
-        >>> import numpy as np
-        >>> from .pycgm import StaticCGM
-        >>> list = [1,2,3,4,5]
-        >>> StaticCGM.average(list)
-        3.0
-        >>> list = np.array([93.81607046, 248.95632028, 782.61762769])
-        >>> np.around(StaticCGM.average(list),8)
-        375.13000614
         """
 
     @staticmethod
@@ -1029,24 +1004,24 @@ class StaticCGM:
         """
 
     @staticmethod
-    def get_static(motion_data, ):
+    def get_static(motion_data, measurements, flat_foot, gcs):
         """ Get Static Offset function
-        
+
         Calculate the static offset angle values and return the values in radians
 
         Parameters
         ----------
-        motionData : dict
+        motion_data : dict
             Dictionary of marker lists.
         measurements : dict, optional
             A dictionary containing the subject measurements given from the file input.
         flat_foot : boolean, optional
             A boolean indicating if the feet are flat or not.
             The default value is False.
-        GCS : array, optional
+        gcs : array, optional
             An array containing the Global Coordinate System.
             If not provided, the default will be set to: [[1, 0, 0], [0, 1, 0], [0, 0, 1]].
-        
+
         Returns
         -------
         calSM : dict
@@ -1062,73 +1037,39 @@ class StaticCGM:
         pass
 
     @staticmethod
-    def static_calculation(rtoe, ltoe, rhee, lhee, ankle_JC, knee_JC, flat_foot, measurements):
+    def static_calculation(rtoe, ltoe, rhee, lhee, ankle_jc, knee_jc, flat_foot, measurements):
         """The Static Angle Calculation function
-        
-        Takes in anatomical uncorrect axis and anatomical correct axis. 
+
+        Takes in anatomical uncorrect axis and anatomical correct axis.
         Correct axis depends on foot flat options.
 
         Calculates the offset angle between that two axis.
 
         It is rotated from uncorrect axis in YXZ order.
-        
+
         Parameters
         ----------
-        rtoe, ltoe, rhee, lhee : dict 
+        rtoe, ltoe, rhee, lhee : dict
             A 1x3 ndarray of each respective marker containing the XYZ positions.
-        ankle_JC : array
-            An ndarray containing the x,y,z axes marker positions of the ankle joint centers. 
-        knee_JC : array
-            An ndarray containing the x,y,z axes marker positions of the knee joint centers. 
+        ankle_jc : array
+            An ndarray containing the x,y,z axes marker positions of the ankle joint centers.
+        knee_jc : array
+            An ndarray containing the x,y,z axes marker positions of the knee joint centers.
         flat_foot : boolean
             A boolean indicating if the feet are flat or not.
         measurements : dict, optional
             A dictionary containing the subject measurements given from the file input.
-                
+
         Returns
-        ------- 
+        -------
         angle : list
-            Returns the offset angle represented by a 2x3x3 array. 
+            Returns the offset angle represented by a 2x3x3 array.
             The array contains the right flexion, abduction, rotation angles (1x3x3)
             followed by the left flexion, abduction, rotation angles (1x3x3).
 
         Modifies
         --------
-        The correct axis changes following to the foot flat option. 
-        
-        Examples
-        --------
-        >>> import numpy as np
-        >>> from .pycgm import StaticCGM
-        >>> rtoe = np.array([427.95211792, 437.99603271,  41.77342987])
-        >>> ltoe = np.array([175.78988647, 379.49987793,  42.61193085])
-        >>> rhee = np.array([406.46331787, 227.56491089,  48.75952911])
-        >>> lhee = np.array([223.59848022, 173.42980957,  47.92973328])
-        >>> ankle_JC = [np.array([393.76181608, 247.67829633, 87.73775041]),
-        ...            np.array([98.74901939, 219.46930221, 80.6306816]),
-        ...            [[np.array([394.4817575, 248.37201348, 87.715368]),
-        ...            np.array([393.07114384, 248.39110006, 87.61575574]),
-        ...            np.array([393.69314056, 247.78157916, 88.73002876])],
-        ...            [np.array([98.47494966, 220.42553803, 80.52821783]),
-        ...            np.array([97.79246671, 219.20927275, 80.76255901]),
-        ...            np.array([98.84848169, 219.60345781, 81.61663775])]]]
-        >>> knee_JC = [np.array([364.17774614, 292.17051722, 515.19181496]),
-        ...           np.array([143.55478579, 279.90370346, 524.78408753]),
-        ...           np.array([[[364.64959153, 293.06758353, 515.18513093],
-        ...           [363.29019771, 292.60656648, 515.04309095],
-        ...           [364.04724541, 292.24216264, 516.18067112]],
-        ...           [[143.65611282, 280.88685896, 524.63197541],
-        ...           [142.56434499, 280.01777943, 524.86163553],
-        ...           [143.64837987, 280.04650381, 525.76940383]]])]
-        >>> flat_foot = True      
-        >>> measurements = { 'RightSoleDelta': 0.4532,'LeftSoleDelta': 0.4532 }
-        >>> np.around(StaticCGM.staticCalculation(rtoe, ltoe, rhee, lhee, ankle_JC, knee_JC, flat_foot, measurements),8)
-        array([[-0.08036968,  0.23192796, -0.66672181],
-            [-0.67466613,  0.21812578, -0.30207993]])
-        >>> flat_foot = False # Using the same variables and switching the flat_foot flag. 
-        >>> np.around(StaticCGM.staticCalculation(rtoe, ltoe, rhee, lhee, ankle_JC, knee_JC, flat_foot, measurements),8)
-        array([[-0.07971346,  0.19881323, -0.15319313],
-            [-0.67470483,  0.18594096,  0.12287455]])
+        The correct axis changes following to the foot flat option.
         """
 
     @staticmethod
@@ -1350,37 +1291,24 @@ class StaticCGM:
     @staticmethod
     def ankle_angle_calc(axis_p, axis_d):
         """Static angle calculation function.
-        
+
         This function takes in two axis and returns three angles.
         and It use inverse Euler rotation matrix in YXZ order.
         the output shows the angle in degrees.
-        
+
         As we use arc sin we have to care about if the angle is in area between -pi/2 to pi/2
         but in case of calculate static offset angle it is in boundry under pi/2, it doesn't matter.
-        
+
         Parameters
         ----------
         axis_p : list
             Shows the unit vector of axisP, the position of the proximal axis.
         axis_d : list
             Shows the unit vector of axisD, the position of the distal axis.
-            
+
         Returns
         -------
         angle : list
-            Returns the gamma, beta, alpha angles in degrees in a 1x3 corresponding list. 
-        
-        Examples
-        --------
-        >>> import numpy as np
-        >>> from .pycgm import StaticCGM
-        >>> axis_p = [[ 0.59327576, 0.10572786, 0.15773334],
-        ...         [-0.13176004, -0.10067464, -0.90325703],
-        ...         [0.9399765, -0.04907387, 0.75029827]]
-        >>> axis_d = [[0.16701015, 0.69080381, -0.37358145],
-        ...         [0.1433922, -0.3923507, 0.94383974],
-        ...         [-0.15507695, -0.5313784, -0.60119402]]
-        >>> np.around(StaticCGM.getankleangle(axis_p,axis_d),8)
-        array([0.47919763, 0.99019921, 1.51695461])
+            Returns the gamma, beta, alpha angles in degrees in a 1x3 corresponding list.
         """
         pass
