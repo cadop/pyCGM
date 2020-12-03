@@ -4,7 +4,8 @@ import os
 import sys
 import tempfile
 from shutil import rmtree
-import refactor.io as io
+from refactor.io import IO
+from mock import patch
 
 class TestIO:
     @classmethod
@@ -108,7 +109,7 @@ class TestIO:
          np.array([52.61815643, -126.93238068, 58.56194305]))
     ])
     def test_load_c3d_data_accuracy(self, frame, data_key, expected_data):
-        data,mappings = io.IO.load_c3d(self.filename_59993_Frame)
+        data,mappings = IO.load_c3d(self.filename_59993_Frame)
         result_marker_data = data[frame][mappings[data_key]]
         np.testing.assert_almost_equal(result_marker_data, expected_data, self.rounding_precision)
     
@@ -119,7 +120,7 @@ class TestIO:
         ('HEDO', 37)
     ])
     def test_load_c3d_mapping(self, data_key, expected_index):
-        _,mappings = io.IO.load_c3d(self.filename_59993_Frame)
+        _,mappings = IO.load_c3d(self.filename_59993_Frame)
         result_index = mappings[data_key]
         assert result_index == expected_index
     
@@ -129,7 +130,7 @@ class TestIO:
         file name.
         """
         with pytest.raises(Exception):
-            io.IO.load_c3d("NonExistentFile")
+            IO.load_c3d("NonExistentFile")
     
     @pytest.mark.parametrize("frame, data_key, expected_data", [
         (0, 'LFHD',
@@ -152,7 +153,7 @@ class TestIO:
          np.array([427.6356201 , 188.9467773 ,  93.36354828]))
     ])
     def test_load_csv_data_accuracy(self, frame, data_key, expected_data):
-        data,mappings = io.IO.load_csv(self.filename_Sample_Static)
+        data,mappings = IO.load_csv(self.filename_Sample_Static)
         result_marker_data = data[frame][mappings[data_key]]
         np.testing.assert_almost_equal(result_marker_data, expected_data, self.rounding_precision)
     
@@ -163,7 +164,7 @@ class TestIO:
         ('*113', 113)
     ])
     def test_load_csv_mapping(self, data_key, expected_index):
-        _,mappings = io.IO.load_csv(self.filename_Sample_Static)
+        _,mappings = IO.load_csv(self.filename_Sample_Static)
         result_index = mappings[data_key]
         assert result_index == expected_index
     
@@ -173,7 +174,7 @@ class TestIO:
         file name.
         """
         with pytest.raises(Exception):
-            io.IO.load_csv("NonExistentFile")
+            IO.load_csv("NonExistentFile")
 
     @pytest.mark.parametrize("frame, data_key, expected_data", [
         (0, 'LFHD', np.array([174.5749207, 324.513031, 1728.94397])),
@@ -183,7 +184,7 @@ class TestIO:
         (12, 'RKNE', np.array([417.5567017, 241.5111389, 523.7767334]))
     ])
     def test_load_marker_data_csv(self, frame, data_key, expected_data):
-        data,mappings = io.IO.load_marker_data(self.filename_Sample_Static)
+        data,mappings = IO.load_marker_data(self.filename_Sample_Static)
         result_data = data[frame][mappings[data_key]]
         np.testing.assert_almost_equal(result_data, expected_data, self.rounding_precision)
 
@@ -195,7 +196,7 @@ class TestIO:
         (12, 'RKNE', np.array([96.54218292, -111.24856567, 412.34362793]))
     ])
     def test_load_marker_data_c3d(self, frame, data_key, expected_data):
-        data, mappings = io.IO.load_marker_data(self.filename_59993_Frame)
+        data, mappings = IO.load_marker_data(self.filename_59993_Frame)
         result_data = data[frame][mappings[data_key]]
         np.testing.assert_almost_equal(result_data, expected_data, self.rounding_precision)
     
@@ -204,10 +205,10 @@ class TestIO:
         We test that loading a filename without a csv or c3d
         extension returns none.
         """
-        assert io.IO.load_marker_data("NonExistentFile") is None
+        assert IO.load_marker_data("NonExistentFile") is None
     
     def test_load_sm_vsk(self):
-        subject_measurements = io.IO.load_sm_vsk(self.filename_RoboSM_vsk)
+        subject_measurements = IO.load_sm_vsk(self.filename_RoboSM_vsk)
         assert isinstance(subject_measurements, dict)
         assert subject_measurements == self.expected_subject_measurements
     
@@ -217,10 +218,10 @@ class TestIO:
         exception.
         """
         with pytest.raises(Exception):
-            io.IO.load_sm_vsk("NonExistentFilename")
+            IO.load_sm_vsk("NonExistentFilename")
 
     def test_load_sm_csv(self):
-        subject_measurements = io.IO.load_sm_csv(self.filename_RoboSM_csv)
+        subject_measurements = IO.load_sm_csv(self.filename_RoboSM_csv)
         assert isinstance(subject_measurements, dict)
         assert subject_measurements == self.expected_subject_measurements
     
@@ -230,21 +231,27 @@ class TestIO:
         exception.
         """
         with pytest.raises(Exception):
-            io.IO.load_sm_csv("NonExistentFilename")
+            IO.load_sm_csv("NonExistentFilename")
     
     def test_load_sm_calls_vsk(self):
-        subject_measurements = io.IO.load_sm(self.filename_RoboSM_vsk)
-        assert isinstance(subject_measurements, dict)
-        assert subject_measurements == self.expected_subject_measurements
+        mock_return_value = {'Bodymass': 72.0}
+        with patch.object(IO, 'load_sm_vsk', return_value=mock_return_value) as mock_load_sm_vsk:
+            subject_measurements = IO.load_sm(self.filename_RoboSM_vsk)
+            assert isinstance(subject_measurements, dict)
+            assert subject_measurements == {'Bodymass': 72.0}
+            mock_load_sm_vsk.assert_called()
 
     def test_load_sm_calls_csv(self):
-        subject_measurements = io.IO.load_sm(self.filename_RoboSM_csv)
-        assert isinstance(subject_measurements, dict)
-        assert subject_measurements == self.expected_subject_measurements
+        mock_return_value = {'Bodymass': 72.0}
+        with patch.object(IO, 'load_sm_csv', return_value=mock_return_value) as mock_load_sm_csv:
+            subject_measurements = IO.load_sm(self.filename_RoboSM_csv)
+            assert isinstance(subject_measurements, dict)
+            assert subject_measurements == {'Bodymass': 72.0}
+            mock_load_sm_csv.assert_called()
     
     def test_load_sm_exceptions(self):
         """
         We test that loading a filename without a csv or vsk
         extension returns none.
         """
-        assert io.IO.load_sm("NonExistentFile") is None
+        assert IO.load_sm("NonExistentFile") is None
