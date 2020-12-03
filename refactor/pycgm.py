@@ -312,7 +312,7 @@ class CGM:
 
         Parameters
         ----------
-        pelvis_axis : array
+        pelvis_axis : ndarray
             A 4x3 ndarray that contains the pelvis origin and the
             pelvis x, y, and z axis components.
         measurements : dict
@@ -334,13 +334,13 @@ class CGM:
         --------
         >>> import numpy as np
         >>> from .pycgm import CGM
-        >>> measurements = {'MeanLegLength': 940.0, 'R_AsisToTrocanterMeasure': 72.512,
-        ...                 'L_AsisToTrocanterMeasure': 72.512, 'InterAsisDistance': 215.908996582031}
         >>> pelvis_axis = np.array([[ 251.60830688, 391.74131775, 1032.89349365],
         ...                         [ 251.74063624, 392.72694721, 1032.78850073],
         ...                         [ 250.61711554, 391.87232862, 1032.8741063 ],
         ...                         [ 251.60295336, 391.84795134, 1033.88777762]])
-        >>> CGM.hip_axis_calc(pelvis_axis, measurements) #doctest: +NORMALIZE_WHITESPACE
+        >>> measurements = {'MeanLegLength': 940.0, 'R_AsisToTrocanterMeasure': 72.512,
+        ...                 'L_AsisToTrocanterMeasure': 72.512, 'InterAsisDistance': 215.908996582031}
+        >>> CGM.hip_axis_calc(pelvis_axis, measurements)  # doctest: +NORMALIZE_WHITESPACE
         array([[245.47574075, 331.11787116, 936.75939614],
                [245.60807011, 332.10350062, 936.65440322],
                [244.48454941, 331.24888203, 936.74000879],
@@ -464,6 +464,27 @@ class CGM:
         .. [43]  Baker R.
            Measuring walking: a handbook of clinical gait analysis.
            Hart Hilary M, editor. Mac Keith Press; 2013.
+
+        Examples
+        --------
+        >>> import numpy as np
+        >>> from .pycgm import CGM
+        >>> rthi, lthi, rkne, lkne = np.array([[426.50338745, 262.65310669, 673.66247559],
+        ...                                    [51.93867874 , 320.01849365, 723.03186035],
+        ...                                    [416.98687744, 266.22558594, 524.04089355],
+        ...                                    [84.62355804 , 286.69122314, 529.39819336]])
+        >>> hip_origin = np.array([[309.38050472, 32280342417, 937.98979061],
+        ...                        [182.57097863, 339.43231855, 935.52900126]])
+        >>> measurements = {'RightKneeWidth': 105.0, 'LeftKneeWidth': 105.0 }
+        >>> CGM.knee_axis_calc(rthi, lthi, rkne, lkne, hip_origin, measurements)  # doctest: +NORMALIZE_WHITESPACE
+        array([[413.21007973, 266.22558784, 464.66088466],
+               [414.20806312, 266.22558785, 464.59740907],
+               [413.14660414, 266.22558786, 463.66290127],
+               [413.21007973, 267.22558784, 464.66088468],
+               [143.55478579, 279.90370346, 524.78408753],
+               [143.65611281, 280.88685896, 524.63197541],
+               [142.56434499, 280.01777942, 524.86163553],
+               [143.64837987, 280.0465038 , 525.76940383]])
         """
         # Get Global Values
         mm = 7.0
