@@ -991,7 +991,7 @@ class StaticCGM:
         return iad
 
     @staticmethod
-    def static_calculation_head(head):
+    def static_calculation_head(head_axis):
         """Calculates the offset angle of the head.
 
         Uses the x,y,z axes of the head and the head origin to calculate
@@ -1000,9 +1000,9 @@ class StaticCGM:
         Parameters
         ----------
         head : array
-            Array containing 2 arrays. The first gives the XYZ coordinates of the head
-            x-axis, y-axis, and z-axis, each of which is a 1x3 list. The second is a
-            1x3 list giving the XYZ coordinate of the head origin.
+            Array containing 4 1x3 arrays. The first gives the XYZ coordinates of the head
+            origin. The remaining 3 are 1x3 arrays that give the XYZ coordinates of the 
+            X, Y, and Z head axis respectively.
         
         Returns
         -------
@@ -1011,30 +1011,25 @@ class StaticCGM:
         
         Examples
         --------
-        >>> from numpy import around
+        >>> from numpy import around, array
         >>> from refactor import pycgm
-        >>> head = [[[100.33272997128863, 83.39303060995121, 1484.078302933558], 
-        ...        [98.9655145897623, 83.57884461044797, 1483.7681493301013], 
-        ...        [99.34535520789223, 82.64077714742746, 1484.7559501904173]], 
-        ...        [99.58366584777832, 82.79330825805664, 1483.7968139648438]]
+        >>> head = array([[99.58366584777832, 82.79330825805664, 1483.7968139648438],
+        ...               [100.33272997128863, 83.39303060995121, 1484.078302933558], 
+        ...               [98.9655145897623, 83.57884461044797, 1483.7681493301013], 
+        ...               [99.34535520789223, 82.64077714742746, 1484.7559501904173]])
         >>> around(pycgm.StaticCGM.static_calculation_head(head), 8)
         0.28546606
         """
-        head_axis = head[0]
-        head_origin = head[1]
-        x_axis = [head_axis[0][0]-head_origin[0],head_axis[0][1]-head_origin[1],head_axis[0][2]-head_origin[2]]
-        y_axis = [head_axis[1][0]-head_origin[0],head_axis[1][1]-head_origin[1],head_axis[1][2]-head_origin[2]]
-        z_axis = [head_axis[2][0]-head_origin[0],head_axis[2][1]-head_origin[1],head_axis[2][2]-head_origin[2]]
-        head_axis = [x_axis, y_axis, z_axis]
+        head_axis = CGM.subtract_origin(head_axis)
         global_axis = [[0,1,0],[-1,0,0],[0,0,1]]
 
         #Global axis is the proximal axis
         #Head axis is the distal axis
-        axisP = global_axis
-        axisD = head_axis
+        axis_p = global_axis
+        axis_d = head_axis
 
-        axisP_inverse = np.linalg.inv(axisP)
-        rotation_matrix = np.matmul(axisD, axisP_inverse)
+        axis_p_inverse = np.linalg.inv(axis_p)
+        rotation_matrix = np.matmul(axis_d, axis_p_inverse)
         offset = np.arctan(rotation_matrix[0][2]/rotation_matrix[2][2])
         
         return offset
