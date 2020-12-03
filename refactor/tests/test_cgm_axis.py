@@ -4,7 +4,6 @@ import numpy as np
 
 rounding_precision = 8
 
-
 class TestLowerBodyAxis():
     """
     This class tests the lower body axis functions in the class CGM in pycgm.py:
