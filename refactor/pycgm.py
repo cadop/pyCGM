@@ -1,4 +1,5 @@
 from refactor.io import IO
+from math import cos, sin
 import numpy as np
 
 
@@ -250,10 +251,10 @@ class CGM:
         # Z-axis is cross product of x_axis and y_axis
         z_axis = np.cross(x_axis, y_axis)
 
-        # Add the origin back to the vector 
-        y_axis = y_axis + origin
-        z_axis = z_axis + origin
-        x_axis = x_axis + origin
+        # Add the origin back to the vector
+        y_axis += origin
+        z_axis += origin
+        x_axis += origin
 
         return np.array([origin, x_axis, y_axis, z_axis])
 
@@ -288,7 +289,105 @@ class CGM:
         .. [20]  Davis RB, Ounpuu S, Tyburski D, Gage JR.
            A gait analysis data collection and reduction technique. Human Movement Science.
            1991;10(5):575–587.
+
+        Examples
+        --------
+        >>> import numpy as np
+        >>> from .pycgm import CGM
+        >>> measurements = {'MeanLegLength': 940.0, 'R_AsisToTrocanterMeasure': 72.512,
+        ...                 'L_AsisToTrocanterMeasure': 72.512, 'InterAsisDistance': 215.908996582031}
+        >>> pelvis_axis = np.array([[ 251.60830688, 391.74131775, 1032.89349365],
+        ...                         [ 251.74063624, 392.72694721, 1032.78850073],
+        ...                         [ 250.61711554, 391.87232862, 1032.8741063 ],
+        ...                         [ 251.60295336, 391.84795134, 1033.88777762]])
+        >>> CGM.hip_axis_calc(pelvis_axis, measurements) #doctest: +NORMALIZE_WHITESPACE
+        array([[245.47574075, 331.11787116, 936.75939614],
+               [245.60807011, 332.10350062, 936.65440322],
+               [244.48454941, 331.24888203, 936.74000879],
+               [245.47038723, 331.22450475, 937.75368011]])
         """
+
+        # Requires
+        # pelvis axis
+
+        pel_o, pel_x, pel_y, pel_z = pelvis_axis
+
+        # Model's eigen value
+
+        # LegLength
+        # MeanLegLength
+        # mm (marker radius)
+        # interAsisMeasure
+
+        # Set the variables needed to calculate the joint angle
+        # Half of marker size
+        mm = 7.0
+
+        mean_leg_length = measurements['MeanLegLength']
+        r_asis_to_trocanter_measure = measurements['R_AsisToTrocanterMeasure']
+        l_asis_to_trocanter_measure = measurements['L_AsisToTrocanterMeasure']
+        inter_asis_measure = measurements['InterAsisDistance']
+        c = (mean_leg_length * 0.115) - 15.3
+        theta = 0.500000178813934
+        beta = 0.314000427722931
+        aa = inter_asis_measure / 2.0
+        s = -1
+
+        # Hip Joint Center Calculation (ref. Davis_1991)
+
+        # Calculate the distance to translate along the pelvis axis
+        # Left
+        l_xh = (-l_asis_to_trocanter_measure - mm) * cos(beta) + c * cos(theta) * sin(beta)
+        l_yh = s * (c * sin(theta) - aa)
+        l_zh = (-l_asis_to_trocanter_measure - mm) * sin(beta) - c * cos(theta) * cos(beta)
+
+        # Right
+        r_xh = (-r_asis_to_trocanter_measure - mm) * cos(beta) + c * cos(theta) * sin(beta)
+        r_yh = (c * sin(theta) - aa)
+        r_zh = (-r_asis_to_trocanter_measure - mm) * sin(beta) - c * cos(theta) * cos(beta)
+
+        # Get the unit pelvis axis
+        pelvis_xaxis = pel_x - pel_o
+        pelvis_yaxis = pel_y - pel_o
+        pelvis_zaxis = pel_z - pel_o
+
+        # Multiply the distance to the unit pelvis axis
+        l_hip_jc_x = pelvis_xaxis * l_xh
+        l_hip_jc_y = pelvis_yaxis * l_yh
+        l_hip_jc_z = pelvis_zaxis * l_zh
+        l_hip_jc = np.array([l_hip_jc_x[0] + l_hip_jc_y[0] + l_hip_jc_z[0],
+                             l_hip_jc_x[1] + l_hip_jc_y[1] + l_hip_jc_z[1],
+                             l_hip_jc_x[2] + l_hip_jc_y[2] + l_hip_jc_z[2]])
+
+        r_hip_jc_x = pelvis_xaxis * r_xh
+        r_hip_jc_y = pelvis_yaxis * r_yh
+        r_hip_jc_z = pelvis_zaxis * r_zh
+        r_hip_jc = np.array([r_hip_jc_x[0] + r_hip_jc_y[0] + r_hip_jc_z[0],
+                             r_hip_jc_x[1] + r_hip_jc_y[1] + r_hip_jc_z[1],
+                             r_hip_jc_x[2] + r_hip_jc_y[2] + r_hip_jc_z[2]])
+
+        l_hip_jc += pel_o
+        r_hip_jc += pel_o
+
+        # Get shared hip axis, it is inbetween the two hip joint centers
+        hip_axis_center = [(r_hip_jc[0] + l_hip_jc[0]) / 2.0, (r_hip_jc[1] + l_hip_jc[1]) / 2.0,
+                           (r_hip_jc[2] + l_hip_jc[2]) / 2.0]
+
+        # Convert pelvis_axis to x, y, z axis to use more easily
+        pelvis_x_axis = np.subtract(pelvis_axis[1], pelvis_axis[0])
+        pelvis_y_axis = np.subtract(pelvis_axis[2], pelvis_axis[0])
+        pelvis_z_axis = np.subtract(pelvis_axis[3], pelvis_axis[0])
+
+        # Translate pelvis axis to shared hip center
+        # Add the origin back to the vector
+        y_axis = [pelvis_y_axis[0] + hip_axis_center[0], pelvis_y_axis[1] + hip_axis_center[1],
+                  pelvis_y_axis[2] + hip_axis_center[2]]
+        z_axis = [pelvis_z_axis[0] + hip_axis_center[0], pelvis_z_axis[1] + hip_axis_center[1],
+                  pelvis_z_axis[2] + hip_axis_center[2]]
+        x_axis = [pelvis_x_axis[0] + hip_axis_center[0], pelvis_x_axis[1] + hip_axis_center[1],
+                  pelvis_x_axis[2] + hip_axis_center[2]]
+
+        return np.array([hip_axis_center, x_axis, y_axis, z_axis])
 
     @staticmethod
     def knee_axis_calc(rthi, lthi, rkne, lkne, hip_origin, delta, measurements):
