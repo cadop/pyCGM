@@ -1,5 +1,5 @@
 from refactor.io import IO
-from math import cos, sin, acos
+from math import cos, sin, acos, degrees, radians
 import numpy as np
 
 
@@ -129,9 +129,9 @@ class CGM:
         v1 = (a[0] - c[0], a[1] - c[1], a[2] - c[2])
         v2 = (b[0] - c[0], b[1] - c[1], b[2] - c[2])
 
-        # v3 is cross vector of v1, v2
+        # v3 is np.cross vector of v1, v2
         # and then it is normalized.
-        # v3 = cross(v1,v2)
+        # v3 = np.cross(v1,v2)
         v3 = [v1[1] * v2[2] - v1[2] * v2[1], v1[2] * v2[0] - v1[0] * v2[2], v1[0] * v2[1] - v1[1] * v2[0]]
         v3_div = np.linalg.norm(v3)
         v3 = [v3[0] / v3_div, v3[1] / v3_div, v3[2] / v3_div]
@@ -299,7 +299,7 @@ class CGM:
         beta3 = beta1 - beta3_cal
         x_axis = beta3 / np.array(np.linalg.norm(beta3))
 
-        # Z-axis is cross product of x_axis and y_axis
+        # Z-axis is np.cross product of x_axis and y_axis
         z_axis = np.cross(x_axis, y_axis)
 
         # Add the origin back to the vector
@@ -524,11 +524,11 @@ class CGM:
         axis_z = r_hip_jc - r_knee_jc
 
         # X axis is perpendicular to the points plane which is determined by KJC, HJC, KNE markers.
-        # and calculated by each point's vector cross vector.
+        # and calculated by each point's vector np.cross vector.
         # the axis is then normalized.
         axis_x = np.cross(axis_z, rkne - r_hip_jc)
 
-        # Y axis is determined by cross product of axis_z and axis_x.
+        # Y axis is determined by np.cross product of axis_z and axis_x.
         # the axis is then normalized.
         axis_y = np.cross(axis_z, axis_x)
 
@@ -541,11 +541,11 @@ class CGM:
         axis_z = l_hip_jc - l_knee_jc
 
         # X axis is perpendicular to the points plane which is determined by KJC, HJC, KNE markers.
-        # and calculated by each point's vector cross vector.
+        # and calculated by each point's vector np.cross vector.
         # the axis is then normalized.
         axis_x = np.cross(lkne - l_hip_jc, axis_z)
 
-        # Y axis is determined by cross product of axis_z and axis_x.
+        # Y axis is determined by np.cross product of axis_z and axis_x.
         # the axis is then normalized.
         axis_y = np.cross(axis_z, axis_x)
 
@@ -665,12 +665,12 @@ class CGM:
         axis_z = knee_jc_r - r_ankle_jc
 
         # X axis is perpendicular to the points plane which is determined by ANK, TIB, and KJC markers.
-        # and calculated by each point's vector cross vector.
+        # and calculated by each point's vector np.cross vector.
         # tib_ank_r vector is making a tibia plane to be assumed as rigid segment.
         tib_ank_r = rtib - rank
         axis_x = np.cross(axis_z, tib_ank_r)
 
-        # Y axis is determined by cross product of axis_z and axis_x.
+        # Y axis is determined by np.cross product of axis_z and axis_x.
         axis_y = np.cross(axis_z, axis_x)
 
         r_axis = np.array([axis_x, axis_y, axis_z])
@@ -681,12 +681,12 @@ class CGM:
         axis_z = knee_jc_l - l_ankle_jc
 
         # X axis is perpendicular to the points plane which is determined by ANK, TIB, and KJC markers.
-        # and calculated by each point's vector cross vector.
+        # and calculated by each point's vector np.cross vector.
         # tib_ank_l vector is making a tibia plane to be assumed as rigid segment.
         tib_ank_l = ltib - lank
         axis_x = np.cross(tib_ank_l, axis_z)
 
-        # Y axis is determined by cross product of axis_z and axis_x.
+        # Y axis is determined by np.cross product of axis_z and axis_x.
         axis_y = np.cross(axis_z, axis_x)
 
         l_axis = np.array([axis_x, axis_y, axis_z])
@@ -805,7 +805,184 @@ class CGM:
         if press the static_info button so if static_info is not None,
         and then the static offsets angles are applied to the reference axis.
         the reference axis is Z axis point to HEE from TOE
+
+        Examples
+        --------
+        >>> import numpy as np
+        >>> from .pycgm import CGM
+        >>> rtoe, ltoe = np.array([[442.81997681, 381.62280273, 42.66047668],
+        ...                        [39.43652725 , 382.44522095, 41.78911591]])
+        >>> ankle_axis = np.array([[393.76181608, 247.67829633, 87.73775041],
+        ...                        [394.4817575 , 248.37201348, 87.715368  ],
+        ...                        [393.07114384, 248.39110006, 87.61575574],
+        ...                        [393.69314056, 247.78157916, 88.73002876],
+        ...                        [98.74901939 , 219.46930221, 80.6306816 ],
+        ...                        [98.47494966 , 220.42553803, 80.52821783],
+        ...                        [97.79246671 , 219.20927275, 80.76255901],
+        ...                        [98.84848169 , 219.60345781, 81.61663775]])
+        >>> measurements = {'RightStaticRotOff': 0.015683497632642047, 'LeftStaticRotOff': 0.009402910292403012,
+        ...                 'RightStaticPlantFlex': 0.2702417907002758, 'LeftStaticPlantFlex': 0.20251085737834015}
+        >>> CGM.foot_axis_calc(rtoe, ltoe, ankle_axis, measurements)  # doctest: +NORMALIZE_WHITESPACE
+        array([[442.81997681, 381.62280273,  42.66047668],
+               [442.84624127, 381.6513024 ,  43.65972537],
+               [441.87735057, 381.9563035 ,  42.67574106],
+               [442.48716163, 380.68048378,  42.69610043],
+               [ 39.43652725, 382.44522095,  41.78911591],
+               [ 39.56652626, 382.50901001,  42.77857597],
+               [ 38.49313328, 382.14606841,  41.93234851],
+               [ 39.74166341, 381.4931502 ,  41.81040459]])
         """
+
+        # REQUIRED MARKERS:
+        # RTOE
+        # LTOE
+
+        # REQUIRED JOINT CENTER & AXIS
+        # ANKLE JOINT CENTER
+        # ANKLE FLEXION AXIS
+
+        ankle_jc_r = ankle_axis[0]
+        ankle_jc_l = ankle_axis[4]
+        ankle_flexion_r = ankle_axis[2]
+        ankle_flexion_l = ankle_axis[6]
+
+        # Toe axis's origin is marker position of TOE
+        toe_jc_r = rtoe
+        toe_jc_l = ltoe
+
+        # HERE IS THE INCORRECT AXIS
+
+        # Right
+        # Z axis is from TOE marker to AJC, normalized.
+        r_axis_z = [ankle_jc_r[0] - rtoe[0], ankle_jc_r[1] - rtoe[1], ankle_jc_r[2] - rtoe[2]]
+        r_axis_z_div = np.linalg.norm(r_axis_z)
+        r_axis_z = [r_axis_z[0] / r_axis_z_div, r_axis_z[1] / r_axis_z_div, r_axis_z[2] / r_axis_z_div]
+
+        # Bring the flexion axis of ankle axes from ankle_axis, and normalize it.
+        y_flex_r = [ankle_flexion_r[0] - ankle_jc_r[0], ankle_flexion_r[1] - ankle_jc_r[1],
+                    ankle_flexion_r[2] - ankle_jc_r[2]]
+        y_flex_r_div = np.linalg.norm(y_flex_r)
+        y_flex_r = [y_flex_r[0] / y_flex_r_div, y_flex_r[1] / y_flex_r_div, y_flex_r[2] / y_flex_r_div]
+
+        # X axis is calculated as a cross product of Z axis and ankle flexion axis.
+        r_axis_x = np.cross(y_flex_r, r_axis_z)
+        r_axis_x_div = np.linalg.norm(r_axis_x)
+        r_axis_x = [r_axis_x[0] / r_axis_x_div, r_axis_x[1] / r_axis_x_div, r_axis_x[2] / r_axis_x_div]
+
+        # Y axis is then perpendicularly calculated from Z axis and X axis, and normalized.
+        r_axis_y = np.cross(r_axis_z, r_axis_x)
+        r_axis_y_div = np.linalg.norm(r_axis_y)
+        r_axis_y = [r_axis_y[0] / r_axis_y_div, r_axis_y[1] / r_axis_y_div, r_axis_y[2] / r_axis_y_div]
+
+        r_foot_axis = [r_axis_x, r_axis_y, r_axis_z]
+
+        # Left
+        # Z axis is from TOE marker to AJC, normalized.
+        l_axis_z = [ankle_jc_l[0] - ltoe[0], ankle_jc_l[1] - ltoe[1], ankle_jc_l[2] - ltoe[2]]
+        l_axis_z_div = np.linalg.norm(l_axis_z)
+        l_axis_z = [l_axis_z[0] / l_axis_z_div, l_axis_z[1] / l_axis_z_div, l_axis_z[2] / l_axis_z_div]
+
+        # Bring the flexion axis of ankle axes from ankle_axis, and normalize it.
+        y_flex_l = [ankle_flexion_l[0] - ankle_jc_l[0], ankle_flexion_l[1] - ankle_jc_l[1],
+                    ankle_flexion_l[2] - ankle_jc_l[2]]
+        y_flex_l_div = np.linalg.norm(y_flex_l)
+        y_flex_l = [y_flex_l[0] / y_flex_l_div, y_flex_l[1] / y_flex_l_div, y_flex_l[2] / y_flex_l_div]
+
+        # X axis is calculated as a cross product of Z axis and ankle flexion axis.
+        l_axis_x = np.cross(y_flex_l, l_axis_z)
+        l_axis_x_div = np.linalg.norm(l_axis_x)
+        l_axis_x = [l_axis_x[0] / l_axis_x_div, l_axis_x[1] / l_axis_x_div, l_axis_x[2] / l_axis_x_div]
+
+        # Y axis is then perpendicularly calculated from Z axis and X axis, and normalized.
+        l_axis_y = np.cross(l_axis_z, l_axis_x)
+        l_axis_y_div = np.linalg.norm(l_axis_y)
+        l_axis_y = [l_axis_y[0] / l_axis_y_div, l_axis_y[1] / l_axis_y_div, l_axis_y[2] / l_axis_y_div]
+
+        l_foot_axis = [l_axis_x, l_axis_y, l_axis_z]
+
+        # Apply static offset angle to the incorrect foot axes
+
+        # Static offset angle are taken from static_info variable in radians.
+        r_alpha = measurements['RightStaticRotOff']
+        r_beta = measurements['RightStaticPlantFlex']
+        l_alpha = measurements['LeftStaticRotOff']
+        l_beta = measurements['LeftStaticPlantFlex']
+
+        r_alpha = np.around(degrees(r_alpha), decimals=5)
+        r_beta = np.around(degrees(r_beta), decimals=5)
+        l_alpha = np.around(degrees(l_alpha), decimals=5)
+        l_beta = np.around(degrees(l_beta), decimals=5)
+
+        r_alpha = -radians(r_alpha)
+        r_beta = radians(r_beta)
+        l_alpha = radians(l_alpha)
+        l_beta = radians(l_beta)
+
+        r_axis = [[(r_foot_axis[0][0]), (r_foot_axis[0][1]), (r_foot_axis[0][2])],
+                  [(r_foot_axis[1][0]), (r_foot_axis[1][1]), (r_foot_axis[1][2])],
+                  [(r_foot_axis[2][0]), (r_foot_axis[2][1]), (r_foot_axis[2][2])]]
+
+        l_axis = [[(l_foot_axis[0][0]), (l_foot_axis[0][1]), (l_foot_axis[0][2])],
+                  [(l_foot_axis[1][0]), (l_foot_axis[1][1]), (l_foot_axis[1][2])],
+                  [(l_foot_axis[2][0]), (l_foot_axis[2][1]), (l_foot_axis[2][2])]]
+
+        # Rotate incorrect foot axis around y axis first.
+
+        # Right
+        r_rotmat = [[(cos(r_beta) * r_axis[0][0] + sin(r_beta) * r_axis[2][0]),
+                     (cos(r_beta) * r_axis[0][1] + sin(r_beta) * r_axis[2][1]),
+                     (cos(r_beta) * r_axis[0][2] + sin(r_beta) * r_axis[2][2])],
+                    [r_axis[1][0], r_axis[1][1], r_axis[1][2]],
+                    [(-1 * sin(r_beta) * r_axis[0][0] + cos(r_beta) * r_axis[2][0]),
+                     (-1 * sin(r_beta) * r_axis[0][1] + cos(r_beta) * r_axis[2][1]),
+                     (-1 * sin(r_beta) * r_axis[0][2] + cos(r_beta) * r_axis[2][2])]]
+        # Left
+        l_rotmat = [[(cos(l_beta) * l_axis[0][0] + sin(l_beta) * l_axis[2][0]),
+                     (cos(l_beta) * l_axis[0][1] + sin(l_beta) * l_axis[2][1]),
+                     (cos(l_beta) * l_axis[0][2] + sin(l_beta) * l_axis[2][2])],
+                    [l_axis[1][0], l_axis[1][1], l_axis[1][2]],
+                    [(-1 * sin(l_beta) * l_axis[0][0] + cos(l_beta) * l_axis[2][0]),
+                     (-1 * sin(l_beta) * l_axis[0][1] + cos(l_beta) * l_axis[2][1]),
+                     (-1 * sin(l_beta) * l_axis[0][2] + cos(l_beta) * l_axis[2][2])]]
+
+        # Rotate incorrect foot axis around x axis next.
+
+        # Right
+        r_rotmat = [[r_rotmat[0][0], r_rotmat[0][1], r_rotmat[0][2]],
+                    [(cos(r_alpha) * r_rotmat[1][0] - sin(r_alpha) * r_rotmat[2][0]),
+                     (cos(r_alpha) * r_rotmat[1][1] - sin(r_alpha) * r_rotmat[2][1]),
+                     (cos(r_alpha) * r_rotmat[1][2] - sin(r_alpha) * r_rotmat[2][2])],
+                    [(sin(r_alpha) * r_rotmat[1][0] + cos(r_alpha) * r_rotmat[2][0]),
+                     (sin(r_alpha) * r_rotmat[1][1] + cos(r_alpha) * r_rotmat[2][1]),
+                     (sin(r_alpha) * r_rotmat[1][2] + cos(r_alpha) * r_rotmat[2][2])]]
+
+        # Left
+        l_rotmat = [[l_rotmat[0][0], l_rotmat[0][1], l_rotmat[0][2]],
+                    [(cos(l_alpha) * l_rotmat[1][0] - sin(l_alpha) * l_rotmat[2][0]),
+                     (cos(l_alpha) * l_rotmat[1][1] - sin(l_alpha) * l_rotmat[2][1]),
+                     (cos(l_alpha) * l_rotmat[1][2] - sin(l_alpha) * l_rotmat[2][2])],
+                    [(sin(l_alpha) * l_rotmat[1][0] + cos(l_alpha) * l_rotmat[2][0]),
+                     (sin(l_alpha) * l_rotmat[1][1] + cos(l_alpha) * l_rotmat[2][1]),
+                     (sin(l_alpha) * l_rotmat[1][2] + cos(l_alpha) * l_rotmat[2][2])]]
+
+        # Bring each x,y,z axis from rotation axes
+        r_axis_x = r_rotmat[0]
+        r_axis_y = r_rotmat[1]
+        r_axis_z = r_rotmat[2]
+        l_axis_x = l_rotmat[0]
+        l_axis_y = l_rotmat[1]
+        l_axis_z = l_rotmat[2]
+
+        # Attach each axis to the origin
+        rx_axis = [r_axis_x[0] + toe_jc_r[0], r_axis_x[1] + toe_jc_r[1], r_axis_x[2] + toe_jc_r[2]]
+        ry_axis = [r_axis_y[0] + toe_jc_r[0], r_axis_y[1] + toe_jc_r[1], r_axis_y[2] + toe_jc_r[2]]
+        rz_axis = [r_axis_z[0] + toe_jc_r[0], r_axis_z[1] + toe_jc_r[1], r_axis_z[2] + toe_jc_r[2]]
+
+        lx_axis = [l_axis_x[0] + toe_jc_l[0], l_axis_x[1] + toe_jc_l[1], l_axis_x[2] + toe_jc_l[2]]
+        ly_axis = [l_axis_y[0] + toe_jc_l[0], l_axis_y[1] + toe_jc_l[1], l_axis_y[2] + toe_jc_l[2]]
+        lz_axis = [l_axis_z[0] + toe_jc_l[0], l_axis_z[1] + toe_jc_l[1], l_axis_z[2] + toe_jc_l[2]]
+
+        return np.array([toe_jc_r, rx_axis, ry_axis, rz_axis, toe_jc_l, lx_axis, ly_axis, lz_axis])
 
     @staticmethod
     def head_axis_calc(lfhd, rfhd, lbhd, rbhd, measurements):
