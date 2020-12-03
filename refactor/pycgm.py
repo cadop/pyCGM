@@ -113,6 +113,17 @@ class CGM:
         -------
         mr : array
             Returns the Joint Center x, y, z positions in a 1x3 ndarray.
+
+        Examples
+        --------
+        >>> import numpy as np
+        >>> from .pycgm import CGM
+        >>> a, b, c = np.array([[468.14532471, 325.09780884, 673.12591553],
+        ...                     [355.90861996, 365.38260964, 940.6974861 ],
+        ...                     [452.35180664, 329.0609436 , 524.77893066]])
+        >>> delta = 59.5
+        >>> CGM.find_joint_center(a, b, c, delta)
+        array([396.25286248, 347.91367254, 518.63620527])
         """
         # Make the two vector using 3 markers, which is on the same plane.
         v1 = (a[0] - c[0], a[1] - c[1], a[2] - c[2])
@@ -525,7 +536,7 @@ class CGM:
 
         # Left axis calculation
 
-        # Z axis is Thigh bone calculated by the hipJC and  kneeJC
+        # Z axis is Thigh bone calculated by the hipJC and kneeJC
         # the axis is then normalized
         axis_z = l_hip_jc - l_knee_jc
 
@@ -540,7 +551,7 @@ class CGM:
 
         l_axis = np.array([axis_x, axis_y, axis_z])
 
-        # Clear the name of axis and then nomalize it.
+        # Clear the name of axis and then normalize it.
         r_knee_x_axis = r_axis[0]
         r_knee_x_axis = r_knee_x_axis / np.array([np.linalg.norm(r_knee_x_axis)])
         r_knee_y_axis = r_axis[1]
@@ -584,7 +595,7 @@ class CGM:
             A 1x3 ndarray of each respective marker containing the XYZ positions.
         knee_origin : array
             A 2x3 ndarray of the right and left knee origin vectors (joint centers).
-        measurements : dict, optional
+        measurements : dict
             A dictionary containing the subject measurements given from the file input.
 
         Returns
@@ -1197,7 +1208,7 @@ class StaticCGM:
             A 2x3 ndarray of the right and left knee origin vectors (joint centers).
         delta : float
             The length from marker to joint center, retrieved from subject measurement file
-        measurements : dict, optional
+        measurements : dict
             A dictionary containing the subject measurements given from the file input.
 
         Returns
@@ -1311,4 +1322,3 @@ class StaticCGM:
         angle : list
             Returns the gamma, beta, alpha angles in degrees in a 1x3 corresponding list.
         """
-        pass
