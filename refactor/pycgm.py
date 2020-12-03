@@ -609,7 +609,153 @@ class CGM:
         .. [43]  Baker R.
            Measuring walking: a handbook of clinical gait analysis.
            Hart Hilary M, editor. Mac Keith Press; 2013.
+
+        Examples
+        --------
+        >>> import numpy as np
+        >>> from .pycgm import CGM
+        >>> rtib, ltib, rank, lank = np.array([[433.97537231, 211.93408203, 273.3008728 ],
+        ...                                    [50.04016495 , 235.90718079, 364.32226562],
+        ...                                    [422.77005005, 217.74053955, 92.86152649 ],
+        ...                                    [58.57380676 , 208.54806519, 86.16953278 ]])
+        >>> knee_origin = np.array([[364.17774614, 292.17051722, 515.19181496],
+        ...                         [143.55478579, 279.90370346, 524.78408753]])
+        >>> measurements = {'RightAnkleWidth': 70.0, 'LeftAnkleWidth': 70.0,
+        ...                 'RightTibialTorsion': 0.0, 'LeftTibialTorsion': 0.0}
+        >>> CGM.ankle_axis_calc(rtib, ltib, rank, lank, knee_origin, measurements)
+        array([[393.76181609, 247.67829633,  87.73775041],
+               [394.48171575, 248.37201349,  87.715368  ],
+               [393.07114385, 248.39110006,  87.61575574],
+               [393.69314056, 247.78157916,  88.73002876],
+               [ 98.74901939, 219.46930221,  80.63068161],
+               [ 98.47494966, 220.42553804,  80.52821783],
+               [ 97.79246671, 219.20927276,  80.76255902],
+               [ 98.84848169, 219.60345781,  81.61663776]])
         """
+
+        # Get Global Values
+        r_ankle_width = measurements['RightAnkleWidth']
+        l_ankle_width = measurements['LeftAnkleWidth']
+        r_torsion = measurements['RightTibialTorsion']
+        l_torsion = measurements['LeftTibialTorsion']
+        mm = 7.0
+        r_delta = (r_ankle_width / 2.0) + mm
+        l_delta = (l_ankle_width / 2.0) + mm
+
+        # REQUIRED MARKERS:
+        # tib_R
+        # tib_L
+        # ank_R
+        # ank_L
+        # knee_JC
+
+        knee_jc_r, knee_jc_l = knee_origin
+
+        # This is Torsioned Tibia and this describes the ankle angles
+        # Tibial frontal plane is being defined by ANK, TIB, and KJC
+
+        # Determine the position of ankleJointCenter using findJointC function
+        r_ankle_jc = CGM.find_joint_center(rtib, knee_jc_r, rank, r_delta)
+        l_ankle_jc = CGM.find_joint_center(ltib, knee_jc_l, lank, l_delta)
+
+        # Ankle Axis Calculation(ref. Clinical Gait Analysis hand book, Baker2013)
+        # Right axis calculation
+
+        # Z axis is shank bone calculated by the ankleJC and  kneeJC
+        axis_z = knee_jc_r - r_ankle_jc
+
+        # X axis is perpendicular to the points plane which is determined by ANK, TIB, and KJC markers.
+        # and calculated by each point's vector cross vector.
+        # tib_ank_r vector is making a tibia plane to be assumed as rigid segment.
+        tib_ank_r = rtib - rank
+        axis_x = np.cross(axis_z, tib_ank_r)
+
+        # Y axis is determined by cross product of axis_z and axis_x.
+        axis_y = np.cross(axis_z, axis_x)
+
+        r_axis = np.array([axis_x, axis_y, axis_z])
+
+        # Left axis calculation
+
+        # Z axis is shank bone calculated by the ankleJC and kneeJC
+        axis_z = knee_jc_l - l_ankle_jc
+
+        # X axis is perpendicular to the points plane which is determined by ANK, TIB, and KJC markers.
+        # and calculated by each point's vector cross vector.
+        # tib_ank_l vector is making a tibia plane to be assumed as rigid segment.
+        tib_ank_l = ltib - lank
+        axis_x = np.cross(tib_ank_l, axis_z)
+
+        # Y axis is determined by cross product of axis_z and axis_x.
+        axis_y = np.cross(axis_z, axis_x)
+
+        l_axis = np.array([axis_x, axis_y, axis_z])
+
+        # Clear the name of axis and then normalize it.
+        r_ankle_x_axis = r_axis[0]
+        r_ankle_x_axis_div = np.linalg.norm(r_ankle_x_axis)
+        r_ankle_x_axis = np.array([r_ankle_x_axis[0] / r_ankle_x_axis_div, r_ankle_x_axis[1] / r_ankle_x_axis_div,
+                                   r_ankle_x_axis[2] / r_ankle_x_axis_div])
+
+        r_ankle_y_axis = r_axis[1]
+        r_ankle_y_axis_div = np.linalg.norm(r_ankle_y_axis)
+        r_ankle_y_axis = np.array([r_ankle_y_axis[0] / r_ankle_y_axis_div, r_ankle_y_axis[1] / r_ankle_y_axis_div,
+                                   r_ankle_y_axis[2] / r_ankle_y_axis_div])
+
+        r_ankle_z_axis = r_axis[2]
+        r_ankle_z_axis_div = np.linalg.norm(r_ankle_z_axis)
+        r_ankle_z_axis = np.array([r_ankle_z_axis[0] / r_ankle_z_axis_div, r_ankle_z_axis[1] / r_ankle_z_axis_div,
+                                   r_ankle_z_axis[2] / r_ankle_z_axis_div])
+
+        l_ankle_x_axis = l_axis[0]
+        l_ankle_x_axis_div = np.linalg.norm(l_ankle_x_axis)
+        l_ankle_x_axis = np.array([l_ankle_x_axis[0] / l_ankle_x_axis_div, l_ankle_x_axis[1] / l_ankle_x_axis_div,
+                                   l_ankle_x_axis[2] / l_ankle_x_axis_div])
+
+        l_ankle_y_axis = l_axis[1]
+        l_ankle_y_axis_div = np.linalg.norm(l_ankle_y_axis)
+        l_ankle_y_axis = np.array([l_ankle_y_axis[0] / l_ankle_y_axis_div, l_ankle_y_axis[1] / l_ankle_y_axis_div,
+                                   l_ankle_y_axis[2] / l_ankle_y_axis_div])
+
+        l_ankle_z_axis = l_axis[2]
+        l_ankle_z_axis_div = np.linalg.norm(l_ankle_z_axis)
+        l_ankle_z_axis = np.array([l_ankle_z_axis[0] / l_ankle_z_axis_div, l_ankle_z_axis[1] / l_ankle_z_axis_div,
+                                   l_ankle_z_axis[2] / l_ankle_z_axis_div])
+
+        # Put both axis in array
+        r_axis = np.array([r_ankle_x_axis, r_ankle_y_axis, r_ankle_z_axis])
+        l_axis = np.array([l_ankle_x_axis, l_ankle_y_axis, l_ankle_z_axis])
+
+        # Rotate the axes about the tibia torsion.
+        r_torsion = np.radians(r_torsion)
+        l_torsion = np.radians(l_torsion)
+
+        r_axis = np.array([[cos(r_torsion) * r_axis[0][0] - sin(r_torsion) * r_axis[1][0],
+                            cos(r_torsion) * r_axis[0][1] - sin(r_torsion) * r_axis[1][1],
+                            cos(r_torsion) * r_axis[0][2] - sin(r_torsion) * r_axis[1][2]],
+                           [sin(r_torsion) * r_axis[0][0] + cos(r_torsion) * r_axis[1][0],
+                            sin(r_torsion) * r_axis[0][1] + cos(r_torsion) * r_axis[1][1],
+                            sin(r_torsion) * r_axis[0][2] + cos(r_torsion) * r_axis[1][2]],
+                           [r_axis[2][0], r_axis[2][1], r_axis[2][2]]])
+
+        l_axis = np.array([[cos(l_torsion) * l_axis[0][0] - sin(l_torsion) * l_axis[1][0],
+                            cos(l_torsion) * l_axis[0][1] - sin(l_torsion) * l_axis[1][1],
+                            cos(l_torsion) * l_axis[0][2] - sin(l_torsion) * l_axis[1][2]],
+                           [sin(l_torsion) * l_axis[0][0] + cos(l_torsion) * l_axis[1][0],
+                            sin(l_torsion) * l_axis[0][1] + cos(l_torsion) * l_axis[1][1],
+                            sin(l_torsion) * l_axis[0][2] + cos(l_torsion) * l_axis[1][2]],
+                           [l_axis[2][0], l_axis[2][1], l_axis[2][2]]])
+
+        # Add the origin back to the vector
+        rx_axis = r_axis[0] + r_ankle_jc
+        ry_axis = r_axis[1] + r_ankle_jc
+        rz_axis = r_axis[2] + r_ankle_jc
+
+        lx_axis = l_axis[0] + l_ankle_jc
+        ly_axis = l_axis[1] + l_ankle_jc
+        lz_axis = l_axis[2] + l_ankle_jc
+
+        return np.array([r_ankle_jc, rx_axis, ry_axis, rz_axis, l_ankle_jc, lx_axis, ly_axis, lz_axis])
 
     @staticmethod
     def foot_axis_calc(rtoe, ltoe, ankle_axis, measurements):
