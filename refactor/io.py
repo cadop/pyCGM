@@ -1,22 +1,27 @@
 import numpy as np
 import sys
 import xml.etree.ElementTree as ET
-if sys.version_info[0]==2:
+
+if sys.version_info[0] == 2:
     import c3d
+
     pyver = 2
     print("Using python 2 c3d loader")
 
 else:
     from . import c3dpy3 as c3d
+
     pyver = 3
     print("Using python 3 c3d loader - c3dpy3")
 
 try:
     from ezc3d import c3d as ezc
+
     useEZC3D = True
     print("EZC3D Found, using instead of Python c3d")
-except:
+except ModuleNotFoundError:
     useEZC3D = False
+
 
 class IO:
     # Utility Functions
@@ -29,12 +34,11 @@ class IO:
         markers : list
             List of marker names.
         """
-        markers = ['RASI','LASI','RPSI','LPSI','RTHI','LTHI','RKNE','LKNE','RTIB',
-                'LTIB','RANK','LANK','RTOE','LTOE','LFHD','RFHD','LBHD','RBHD',
-                'RHEE','LHEE','CLAV','C7','STRN','T10','RSHO','LSHO','RELB','LELB',
-                'RWRA','RWRB','LWRA','LWRB','RFIN','LFIN']
-        return markers
-    
+        return ['RASI', 'LASI', 'RPSI', 'LPSI', 'RTHI', 'LTHI', 'RKNE', 'LKNE', 'RTIB',
+                'LTIB', 'RANK', 'LANK', 'RTOE', 'LTOE', 'LFHD', 'RFHD', 'LBHD', 'RBHD',
+                'RHEE', 'LHEE', 'CLAV', 'C7', 'STRN', 'T10', 'RSHO', 'LSHO', 'RELB', 'LELB',
+                'RWRA', 'RWRB', 'LWRA', 'LWRB', 'RFIN', 'LFIN']
+
     # Reading Functions
     @staticmethod
     def load_marker_data(filename):
@@ -56,12 +60,12 @@ class IO:
             Each coordinate value is a 1x3 list: [X, Y, Z].
             `mappings` is a dictionary that indicates which marker corresponds to which index
             in `data[i]`.
-        
+
         Examples
         --------
         >>> from refactor import io
         >>> import os
-        >>> csv_file = 'SampleData' + os.sep + 'Sample_2' + os.sep + 'RoboResults.csv' 
+        >>> csv_file = 'SampleData' + os.sep + 'Sample_2' + os.sep + 'RoboResults.csv'
         >>> c3d_file = 'SampleData' + os.sep + 'Sample_2' + os.sep + 'RoboStatic.c3d'
         >>> csv_data, csv_mappings = io.IO.load_marker_data(csv_file)
         SampleData/Sample_2/RoboResults.csv
@@ -72,7 +76,7 @@ class IO:
 
         >>> csv_data[0][csv_mappings['RHNO']] #doctest: +NORMALIZE_WHITESPACE
         array([-772.184937, -312.352295, 589.815308])
-        >>> csv_data[0][csv_mappings['C7']] #doctest: +NORMALIZE_WHITESPACE 
+        >>> csv_data[0][csv_mappings['C7']] #doctest: +NORMALIZE_WHITESPACE
         array([-1010.098999, 3.508968, 1336.794434])
 
         Testing for some values from the loaded c3d file.
@@ -80,7 +84,7 @@ class IO:
         >>> c3d_data[0][c3d_mappings['RHNO']] #doctest: +NORMALIZE_WHITESPACE
         array([-259.45016479, -844.99560547, 1464.26330566])
         >>> c3d_data[0][c3d_mappings['C7']] #doctest: +NORMALIZE_WHITESPACE
-        array([-2.20681717e+02, -1.07236075e+00, 1.45551550e+03])    
+        array([-2.20681717e+02, -1.07236075e+00, 1.45551550e+03])
         """
         print(filename)
         if str(filename).endswith('.c3d'):
@@ -105,7 +109,7 @@ class IO:
             Each coordinate value is a 1x3 list: [X, Y, Z].
             `mappings` is a dictionary that indicates which marker corresponds to which index
             in `data[i]`.
-        
+
         Examples
         --------
         >>> from numpy import around, array, shape
@@ -113,9 +117,9 @@ class IO:
         >>> import os
         >>> filename = 'SampleData' + os.sep + 'ROM' + os.sep + 'Sample_Static.csv'
         >>> data, mappings = io.IO.load_csv(filename)
-        
+
         Test for the shape of data.
-        
+
         >>> shape(data) #Indicates 275 frames, 141 points of data, 3 coordinates per point
         (275, 141, 3)
 
@@ -127,7 +131,7 @@ class IO:
         array([ 250.765976,  165.616333, 1528.094116])
         >>> around(data[0][mappings['*113']], 8)
         array([ -82.65164185,  232.3781891 , 1361.853638  ])
-        
+
         Testing for correct mappings.
 
         >>> mappings['RFHD']
@@ -136,25 +140,29 @@ class IO:
         113
         """
         expected_markers = IO.marker_keys()
-        fh = open(filename,'r')
+        fh = open(filename, 'r')
         fh = iter(fh)
-        delimiter=','
+        delimiter = ','
 
         def row_to_array(row):
             frame = []
-            if pyver == 2: row=zip(row[0::3],row[1::3],row[2::3])
-            if pyver == 3: row=list(zip(row[0::3],row[1::3],row[2::3]))
-            empty=np.asarray([np.nan,np.nan,np.nan],dtype=np.float64)
+            if pyver == 2:
+                row = zip(row[0::3], row[1::3], row[2::3])
+            elif pyver == 3:
+                row = list(zip(row[0::3], row[1::3], row[2::3]))
+            empty = np.asarray([np.nan, np.nan, np.nan], dtype=np.float64)
             for coordinates in row:
                 try:
                     frame.append(np.float64(coordinates))
-                except:
+                except ValueError:
                     frame.append(empty.copy())
             return np.array(frame)
 
         def split_line(line):
-            if pyver == 2: line = np.compat.asbytes(line).strip(np.compat.asbytes('\r\n'))
-            elif pyver == 3: line = line.strip('\r\n')
+            if pyver == 2:
+                line = np.compat.asbytes(line).strip(np.compat.asbytes('\r\n'))
+            elif pyver == 3:
+                line = line.strip('\r\n')
             if line:
                 return line.split(delimiter)
             else:
@@ -164,22 +172,22 @@ class IO:
             data = []
             mappings = {}
 
-            delimiter=','
+            delimiter = ','
             if pyver == 2:
-                freq=np.float64(split_line(fh.next())[0])
-                labels=split_line(fh.next())[1::3]
-                fields=split_line(fh.next())
+                freq = np.float64(split_line(fh.next())[0])
+                labels = split_line(fh.next())[1::3]
+                fields = split_line(fh.next())
             elif pyver == 3:
-                freq=np.float64(split_line(next(fh))[0])
-                labels=split_line(next(fh))[1::3]
-                fields=split_line(next(fh))
+                freq = np.float64(split_line(next(fh))[0])
+                labels = split_line(next(fh))[1::3]
+                fields = split_line(next(fh))
             delimiter = np.compat.asbytes(delimiter)
             for i in range(len(labels)):
                 label = labels[i]
                 if label in expected_markers:
                     expected_markers.remove(label)
                 mappings[label] = i
-            
+
             for row in fh:
                 row = split_line(row)[1:]
                 frame = row_to_array(row)
@@ -189,18 +197,20 @@ class IO:
         # Find the trajectories
         for i in fh:
             if i.startswith("TRAJECTORIES"):
-                #First elements with freq,labels,fields
-                if pyver == 2: rows=[fh.next(),fh.next(),fh.next()]
-                if pyver == 3: rows=[next(fh),next(fh),next(fh)]
+                # First elements with freq,labels,fields
+                if pyver == 2:
+                    rows = [fh.next(), fh.next(), fh.next()]
+                elif pyver == 3:
+                    rows = [next(fh), next(fh), next(fh)]
                 for j in fh:
                     if j.startswith("\r\n"):
                         break
                     rows.append(j)
                 break
-        rows=iter(rows)
+        rows = iter(rows)
         data, mappings = parse_trajectories(rows)
 
-        if (len(expected_markers) > 0):
+        if len(expected_markers) > 0:
             print("The following expected pycgm markers were not found in", filename, ":")
             print(expected_markers)
             print("pycgm functions may not work properly as a result.")
@@ -234,9 +244,9 @@ class IO:
         >>> import os
         >>> filename = 'SampleData' + os.sep + '59993_Frame' + os.sep + '59993_Frame_Static.c3d'
         >>> data, mappings = io.IO.load_c3d(filename)
-        
+
         Test for the shape of data.
-        
+
         >>> shape(data) #Indicates 371 frames, 189 points of data, 3 coordinates per point
         (371, 189, 3)
 
@@ -248,12 +258,12 @@ class IO:
         array([ -29.57296562,   -9.34280109, 1300.86730957])
         >>> around(data[0][mappings['*113']], 8)
         array([-173.22341919,  166.87660217, 1273.29980469])
-        
+
         Testing for correct mappings.
 
         >>> mappings['RFHD']
         1
-        >>> mappings['*113'] #unlabeled marker
+        >>> mappings['*113']  # unlabeled marker
         113
         """
         data = []
@@ -265,7 +275,7 @@ class IO:
         num_markers = len(markers)
         for i in range(len(markers)):
             marker = markers[i]
-            if (marker in expected_markers):
+            if marker in expected_markers:
                 expected_markers.remove(marker)
             mappings[marker] = i
 
@@ -274,13 +284,13 @@ class IO:
             for label, point in zip(markers, points):
                 frame.append(point)
             data.append(frame)
-        
-        if (len(expected_markers) > 0):
+
+        if len(expected_markers) > 0:
             print("The following expected pycgm markers were not found in", filename, ":")
             print(expected_markers)
             print("pycgm functions may not work properly as a result.")
             print("Consider renaming the markers or adding the expected markers to the c3d file if they are missing.")
-        
+
         data = np.array(data)
         return data, mappings
 
@@ -301,7 +311,7 @@ class IO:
         subject_measurements : dict
             Dictionary where keys are subject measurement labels, such as
             `Bodymass`, and values are the corresponding value.
-        
+
         Examples
         --------
         >>> from refactor import io
@@ -319,7 +329,7 @@ class IO:
         0.17637075483799
 
         Testing for some values from loaded csv file.
-        
+
         >>> csv_subject_measurements['Bodymass']
         72.0
         >>> csv_subject_measurements['RightStaticPlantFlex']
@@ -344,7 +354,7 @@ class IO:
         subject_measurements : dict
             Dictionary where keys are subject measurement labels, such as
             `Bodymass`, and values are the corresponding value.
-        
+
         Examples
         --------
         >>> from refactor import io
@@ -356,32 +366,32 @@ class IO:
         >>> subject_measurements['RightStaticPlantFlex']
         0.17637075483799
         """
-        #Check if the filename is valid
-        #if not, return None
+        # Check if the filename is valid
+        # if not, return None
         if filename == '':
-                return None
+            return None
 
         # Create Dictionary to store values from VSK file
-        subject_measurements = {}        
-        #Create an XML tree from file
+        subject_measurements = {}
+        # Create an XML tree from file
         tree = ET.parse(filename)
-        #Get the root of the file
+        # Get the root of the file
         # <KinematicModel>
         root = tree.getroot()
-        
-        #Store the values of each parameter in a dictionary
+
+        # Store the values of each parameter in a dictionary
         # the format is (NAME,VALUE)
         keys = [r.get('NAME') for r in root[0]]
         data = []
         for R in root[0]:
             val = (R.get('VALUE'))
-            if val == None:
+            if val is None:
                 val = 0
             data.append(float(val))
-        
+
         for key, value in zip(keys, data):
             subject_measurements[key] = value
-        
+
         return subject_measurements
 
     @staticmethod
@@ -406,7 +416,7 @@ class IO:
         subject_measurements : dict
             Dictionary where keys are subject measurement labels, such as
             `Bodymass`, and values are the corresponding value.
-        
+
         Examples
         --------
         >>> from refactor import io
