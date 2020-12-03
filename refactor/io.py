@@ -464,4 +464,3 @@ class IO:
         """
         # The function will include list of 19 angles, 24 axes, and center of mass with the same
         # consistent naming scheme that already exists. See labelsAngs and labelsAxis in existing writeResult.
-        pass

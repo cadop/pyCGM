@@ -66,7 +66,6 @@ class CGM:
         Runs the static calibration trial.
         Runs the dynamic trial to calculate all axes and angles.
         """
-        pass
 
     def remap(self, old, new):
         """Remap marker function
@@ -1217,7 +1216,6 @@ class CGM:
             are stored as a 4d ndarray of each frame by each joint by origin and xyz unit vectors
             by x, y, and z location.
         """
-        pass
 
     @staticmethod
     def calc(data, methods, mappings, measurements):
@@ -1245,7 +1243,6 @@ class CGM:
             as a 2d ndarray of each angle by x, y, and z. Axis results are stored as a 3d ndarray
             of each joint by origin and xyz unit vectors by x, y, and z location.
         """
-        pass
 
 
 class StaticCGM:
