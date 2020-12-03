@@ -91,6 +91,42 @@ class CGM:
         self.marker_map = mapping
 
     @staticmethod
+    def subtract_origin(axis_vectors):
+        """Subtract origin from axis vectors.
+
+        Parameters
+        ----------
+        axis_vectors : array
+            numpy array containing 4 1x3 arrays - the origin vector, followed by
+            the three X, Y, and Z axis vectors, each of which is a 1x3 numpy array
+            of the respective X, Y, and Z components.
+
+        Returns
+        -------
+        array
+            numpy array containing 3 1x3 arrays of the X, Y, and Z axis vectors, after
+            the origin is subtracted away.
+        
+        Examples
+        --------
+        >>> import numpy as np
+        >>> from refactor.pycgm import CGM
+        >>> origin = [1, 2, 3]
+        >>> x_axis = [4, 4, 4]
+        >>> y_axis = [9, 9, 9]
+        >>> z_axis = [-1, 0, 1]
+        >>> axis_vectors = np.array([origin, x_axis, y_axis, z_axis])
+        >>> CGM.subtract_origin(axis_vectors)
+        array([[ 3,  2,  1],
+               [ 8,  7,  6],
+               [-2, -2, -2]])
+        """
+        origin, x_axis, y_axis, z_axis = axis_vectors
+        return np.vstack([np.subtract(x_axis, origin),
+                          np.subtract(y_axis, origin),
+                          np.subtract(z_axis, origin)])
+
+    @staticmethod
     def find_joint_center(a, b, c, delta):
         """Calculate the Joint Center function.
 
@@ -666,12 +702,89 @@ class StaticCGM:
         pass
 
     @staticmethod
-    def iad_calculation():
-        pass
+    def iad_calculation(rasi, lasi):
+        """Calculates the Inter ASIS Distance.
+
+        Given the markers RASI and LASI, the Inter ASIS Distance is defined as:
+        .. math::
+            InterASISDist = \sqrt{(RASI_x-LASI_x)^2 + (RASI_y-LASI_y)^2 + (RASI_z-LASI_z)^2}
+        where :math:`RASI_x` is the x-coordinate of the RASI marker in frame.
+
+        Markers used: RASI, LASI
+
+        Parameters
+        ----------
+        rasi, lasi : array
+            A 1x3 ndarray of each respective marker containing the XYZ positions.
+
+        Returns
+        -------
+        iad : float
+            The Inter ASIS distance as a float.
+        
+        Examples
+        --------
+        >>> from numpy import around, array
+        >>> from refactor import pycgm
+        >>> lasi = array([ 183.18504333,  422.78927612, 1033.07299805])
+        >>> rasi = array([ 395.36532593,  428.09790039, 1036.82763672])
+        >>> around(pycgm.StaticCGM.iad_calculation(rasi, lasi), 2)
+        212.28
+        """
+        x_diff = rasi[0] - lasi[0]
+        y_diff = rasi[1] - lasi[1]
+        z_diff = rasi[2] - lasi[2]
+        iad = np.sqrt(x_diff*x_diff + y_diff*y_diff + z_diff*z_diff)
+        return iad
 
     @staticmethod
-    def static_calculation_head():
-        pass
+    def static_calculation_head(head):
+        """Calculates the offset angle of the head.
+
+        Uses the x,y,z axes of the head and the head origin to calculate
+        the head offset angle. Uses the global axis.
+
+        Parameters
+        ----------
+        head : array
+            Array containing 2 arrays. The first gives the XYZ coordinates of the head
+            x-axis, y-axis, and z-axis, each of which is a 1x3 list. The second is a
+            1x3 list giving the XYZ coordinate of the head origin.
+        
+        Returns
+        -------
+        offset : float
+            The head offset angle.
+        
+        Examples
+        --------
+        >>> from numpy import around
+        >>> from refactor import pycgm
+        >>> head = [[[100.33272997128863, 83.39303060995121, 1484.078302933558], 
+        ...        [98.9655145897623, 83.57884461044797, 1483.7681493301013], 
+        ...        [99.34535520789223, 82.64077714742746, 1484.7559501904173]], 
+        ...        [99.58366584777832, 82.79330825805664, 1483.7968139648438]]
+        >>> around(pycgm.StaticCGM.static_calculation_head(head), 8)
+        0.28546606
+        """
+        head_axis = head[0]
+        head_origin = head[1]
+        x_axis = [head_axis[0][0]-head_origin[0],head_axis[0][1]-head_origin[1],head_axis[0][2]-head_origin[2]]
+        y_axis = [head_axis[1][0]-head_origin[0],head_axis[1][1]-head_origin[1],head_axis[1][2]-head_origin[2]]
+        z_axis = [head_axis[2][0]-head_origin[0],head_axis[2][1]-head_origin[1],head_axis[2][2]-head_origin[2]]
+        head_axis = [x_axis, y_axis, z_axis]
+        global_axis = [[0,1,0],[-1,0,0],[0,0,1]]
+
+        #Global axis is the proximal axis
+        #Head axis is the distal axis
+        axisP = global_axis
+        axisD = head_axis
+
+        axisP_inverse = np.linalg.inv(axisP)
+        rotation_matrix = np.matmul(axisD, axisP_inverse)
+        offset = np.arctan(rotation_matrix[0][2]/rotation_matrix[2][2])
+        
+        return offset
 
     @staticmethod
     def static_calculation():

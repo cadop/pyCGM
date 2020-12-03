@@ -5,7 +5,6 @@ import sys
 import tempfile
 from shutil import rmtree
 import refactor.io as io
-import mock
 
 class TestIO:
     @classmethod
