@@ -1,5 +1,5 @@
 from refactor.io import IO
-from math import cos, sin, acos, degrees, radians
+from math import cos, sin, acos, degrees, radians, pi
 import numpy as np
 
 
@@ -94,6 +94,26 @@ class CGM:
         """
         self.marker_map = mapping
 
+    # Utility functions
+    @staticmethod
+    def rotation_matrix(x=0, y=0, z=0):
+        """Rotation Matrix function
+
+        This function creates and returns a rotation matrix.
+
+        Parameters
+        ----------
+        x, y, z : float, optional
+            Angle, which will be converted to radians, in
+            each respective axis to describe the rotations.
+            The default is 0 for each unspecified angle.
+
+        Returns
+        -------
+        rxyz : list
+            The product of the matrix multiplication as a 3x3 ndarray.
+        """
+
     @staticmethod
     def find_joint_center(a, b, c, delta):
         """Calculate the Joint Center function.
@@ -166,25 +186,6 @@ class CGM:
         return mr
 
     @staticmethod
-    def rotation_matrix(x=0, y=0, z=0):
-        """Rotation Matrix function
-
-        This function creates and returns a rotation matrix.
-
-        Parameters
-        ----------
-        x, y, z : float, optional
-            Angle, which will be converted to radians, in
-            each respective axis to describe the rotations.
-            The default is 0 for each unspecified angle.
-
-        Returns
-        -------
-        rxyz : list
-            The product of the matrix multiplication as a 3x3 ndarray.
-        """
-
-    @staticmethod
     def wand_marker(rsho, lsho, thorax_axis):
         """Wand Marker Calculation function
 
@@ -208,6 +209,77 @@ class CGM:
             Returns a 2x3 ndarray containing the right wand marker x, y, and z positions and the
             left wand marker x, y, and z positions.
         """
+
+    @staticmethod
+    def get_angle(axis_p, axis_d):
+        """Normal angle calculation function
+
+        This function takes in two axes, proximal and distal, and returns three angles.
+        It uses inverse Euler rotation matrix in YXZ order.
+        The output contains the angles in degrees.
+
+        As we use arcsin, we have to care about if the angle is in area between -pi/2 to pi/2
+
+        Parameters
+        ----------
+        axis_p : nparray
+            The unit vectors of axis_p, the position of the proximal axis.
+        axis_d : nparray
+            The unit vectors of axis_d, the position of the distal axis.
+
+        Returns
+        -------
+        angle : nparray
+            Returns the flexion, abduction, and rotation angles in a 1x3 ndarray.
+
+        Examples
+        --------
+        >>> import numpy as np 
+        >>> from .pycgm import CGM
+        >>> axis_p = np.array([[ 0.0464229,   0.99648672,  0.06970743],
+        ...                    [ 0.99734011, -0.04231089, -0.05935067],
+        ...                    [-0.05619277,  0.07227725, -0.99580037]])
+        >>> axis_d = np.array([[-0.18067218, -0.98329158, -0.02225371],
+        ...                    [ 0.71383942, -0.1155303,  -0.69071415],
+        ...                    [ 0.67660243, -0.1406784,   0.7227854 ]])
+        >>> CGM.get_angle(axis_p, axis_d)
+        array([-175.65183483,  -39.6322192 ,  100.2668477 ])
+        """
+        # This is the angle calculation, in which the order is Y-X-Z
+
+        # Alpha is abduction angle.
+
+        ang = ((-1 * axis_d[2][0] * axis_p[1][0]) +
+               (-1 * axis_d[2][1] * axis_p[1][1]) +
+               (-1 * axis_d[2][2] * axis_p[1][2]))
+        alpha = np.nan
+        if -1 <= ang <= 1:
+            alpha = np.arcsin(ang)
+
+        # Check the abduction angle is in the area between -pi/2 and pi/2
+        # Beta is flexion angle
+        # Gamma is rotation angle
+
+        if -1.57079633 < alpha < 1.57079633:
+            beta = np.arctan2(
+                ((axis_d[2][0] * axis_p[0][0]) + (axis_d[2][1] * axis_p[0][1]) + (axis_d[2][2] * axis_p[0][2])),
+                ((axis_d[2][0] * axis_p[2][0]) + (axis_d[2][1] * axis_p[2][1]) + (axis_d[2][2] * axis_p[2][2])))
+            gamma = np.arctan2(
+                ((axis_d[1][0] * axis_p[1][0]) + (axis_d[1][1] * axis_p[1][1]) + (axis_d[1][2] * axis_p[1][2])),
+                ((axis_d[0][0] * axis_p[1][0]) + (axis_d[0][1] * axis_p[1][1]) + (axis_d[0][2] * axis_p[1][2])))
+        else:
+            beta = np.arctan2(
+                -1 * ((axis_d[2][0] * axis_p[0][0]) + (axis_d[2][1] * axis_p[0][1]) + (axis_d[2][2] * axis_p[0][2])),
+                ((axis_d[2][0] * axis_p[2][0]) + (axis_d[2][1] * axis_p[2][1]) + (axis_d[2][2] * axis_p[2][2])))
+            gamma = np.arctan2(
+                -1 * ((axis_d[1][0] * axis_p[1][0]) + (axis_d[1][1] * axis_p[1][1]) + (axis_d[1][2] * axis_p[1][2])),
+                ((axis_d[0][0] * axis_p[1][0]) + (axis_d[0][1] * axis_p[1][1]) + (axis_d[0][2] * axis_p[1][2])))
+
+        angle = np.array([180.0 * beta / pi, 180.0 * alpha / pi, 180.0 * gamma / pi])
+
+        return angle
+
+        # Axis calculation functions
 
     @staticmethod
     def pelvis_axis_calc(rasi, lasi, rpsi=None, lpsi=None, sacr=None):
@@ -1140,6 +1212,7 @@ class CGM:
             axis components, left hand origin, and left hand x, y, and z axis components.
         """
 
+    # Angle calculation functions
     @staticmethod
     def pelvis_angle_calc():
         pass
@@ -1188,6 +1261,7 @@ class CGM:
     def wrist_angle_calc():
         pass
 
+    # Input and output handlers
     @staticmethod
     def multi_calc(data, methods, mappings, measurements, cores=1):
         """Multiprocessing calculation handler function
