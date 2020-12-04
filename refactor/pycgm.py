@@ -2978,14 +2978,7 @@ class StaticCGM:
             axis components, left ankle origin, and left ankle x, y, and z axis components.
         measurements : dict
             A dictionary containing the subject measurements given from the file input.
-<<<<<<< HEAD
-<<<<<<< HEAD
-=======
 
->>>>>>> b7e00824c0a77b102ac1a8d64432e9f00d50be7d
-=======
-
->>>>>>> 2d22c9d6baa34674342e2ede0536a9976d3a4cae
         Returns
         -------
         array
