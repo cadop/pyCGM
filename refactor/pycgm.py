@@ -237,7 +237,7 @@ class CGM:
         v3 = np.cross(v1, v2)
         v3 /= np.linalg.norm(v3)
 
-        m = (b + c) / 2
+        m = (b + c) / 2.0
         length = np.subtract(b, m)
         length = np.linalg.norm(length)
 
@@ -515,8 +515,6 @@ class CGM:
         # Requires
         # pelvis axis
 
-        pel_o, pel_x, pel_y, pel_z = pelvis_axis
-
         # Model's eigen value
 
         # LegLength
@@ -552,45 +550,27 @@ class CGM:
         r_zh = (-r_asis_to_trocanter_measure - mm) * sin(beta) - c * cos(theta) * cos(beta)
 
         # Get the unit pelvis axis
-        pelvis_xaxis = pel_x - pel_o
-        pelvis_yaxis = pel_y - pel_o
-        pelvis_zaxis = pel_z - pel_o
+        pelvis_xaxis, pelvis_yaxis, pelvis_zaxis = CGM.subtract_origin(pelvis_axis)
 
         # Multiply the distance to the unit pelvis axis
-        l_hip_jc_x = pelvis_xaxis * l_xh
-        l_hip_jc_y = pelvis_yaxis * l_yh
-        l_hip_jc_z = pelvis_zaxis * l_zh
-        l_hip_jc = np.array([l_hip_jc_x[0] + l_hip_jc_y[0] + l_hip_jc_z[0],
-                             l_hip_jc_x[1] + l_hip_jc_y[1] + l_hip_jc_z[1],
-                             l_hip_jc_x[2] + l_hip_jc_y[2] + l_hip_jc_z[2]])
+        l_hip_jc = pelvis_xaxis * l_xh + pelvis_yaxis * l_yh + pelvis_zaxis * l_zh
+        r_hip_jc = pelvis_xaxis * r_xh + pelvis_yaxis * r_yh + pelvis_zaxis * r_zh
 
-        r_hip_jc_x = pelvis_xaxis * r_xh
-        r_hip_jc_y = pelvis_yaxis * r_yh
-        r_hip_jc_z = pelvis_zaxis * r_zh
-        r_hip_jc = np.array([r_hip_jc_x[0] + r_hip_jc_y[0] + r_hip_jc_z[0],
-                             r_hip_jc_x[1] + r_hip_jc_y[1] + r_hip_jc_z[1],
-                             r_hip_jc_x[2] + r_hip_jc_y[2] + r_hip_jc_z[2]])
-
-        l_hip_jc += pel_o
-        r_hip_jc += pel_o
+        l_hip_jc += pelvis_axis[0]
+        r_hip_jc += pelvis_axis[0]
 
         # Get shared hip axis, it is inbetween the two hip joint centers
-        hip_axis_center = [(r_hip_jc[0] + l_hip_jc[0]) / 2.0, (r_hip_jc[1] + l_hip_jc[1]) / 2.0,
-                           (r_hip_jc[2] + l_hip_jc[2]) / 2.0]
+        hip_axis_center = (r_hip_jc + l_hip_jc) / 2.0
 
         # Convert pelvis_axis to x, y, z axis to use more easily
-        pelvis_x_axis = np.subtract(pelvis_axis[1], pelvis_axis[0])
-        pelvis_y_axis = np.subtract(pelvis_axis[2], pelvis_axis[0])
-        pelvis_z_axis = np.subtract(pelvis_axis[3], pelvis_axis[0])
+        pelvis_x_axis, pelvis_y_axis, pelvis_z_axis = CGM.subtract_origin(pelvis_axis)
 
         # Translate pelvis axis to shared hip center
         # Add the origin back to the vector
-        y_axis = [pelvis_y_axis[0] + hip_axis_center[0], pelvis_y_axis[1] + hip_axis_center[1],
-                  pelvis_y_axis[2] + hip_axis_center[2]]
-        z_axis = [pelvis_z_axis[0] + hip_axis_center[0], pelvis_z_axis[1] + hip_axis_center[1],
-                  pelvis_z_axis[2] + hip_axis_center[2]]
-        x_axis = [pelvis_x_axis[0] + hip_axis_center[0], pelvis_x_axis[1] + hip_axis_center[1],
-                  pelvis_x_axis[2] + hip_axis_center[2]]
+
+        y_axis = pelvis_y_axis + hip_axis_center
+        z_axis = pelvis_z_axis + hip_axis_center
+        x_axis = pelvis_x_axis + hip_axis_center
 
         return np.array([r_hip_jc, l_hip_jc, hip_axis_center, x_axis, y_axis, z_axis])
 
@@ -1734,7 +1714,7 @@ class CGM:
         # (0.0, 0.0, 0.828) * Length(LHJC - RHJC), where the value 0.828
         # is a ratio of the distance from the hip joint centre level to the
         # top of the lumbar 5: this is calculated as in the vertical (z) axis
-        mid_hip = (lhjc + rhjc) / 2
+        mid_hip = (lhjc + rhjc) / 2.0
 
         offset = np.linalg.norm(lhjc - rhjc) * 0.925
         origin, x_axis, y_axis, z_axis = axis
