@@ -1,16 +1,23 @@
 #!/usr/bin/python
 # -*- coding: utf-8 -*-
 
+from mock import patch
 import pytest
 import numpy as np
-from refactor.pycgm import StaticCGM
+from refactor.pycgm import StaticCGM, CGM 
+
 
 rounding_precision = 8
 class TestStaticCGMAxis:
     """
     This class tests the axis functions in pycgm.StaticCGM:
         static_calculation_head
+        pelvis_axis_calc
+        hip_axis_calc
+        ankle_axis_calc
     """
+    nan_3d = [np.nan, np.nan, np.nan]
+    rand_coor = [np.random.randint(0, 10), np.random.randint(0, 10), np.random.randint(0, 10)]
 
     @pytest.mark.parametrize(["head_axis", "expected"], [
         # Test from running sample data
@@ -67,4 +74,519 @@ class TestStaticCGMAxis:
         floats, and numpy arrays of floats.
         """
         result = StaticCGM.static_calculation_head(head_axis)
+        np.testing.assert_almost_equal(result, expected, rounding_precision)
+
+    @pytest.mark.parametrize(["rasi", "lasi", "rpsi", "lpsi", "sacr", "expected"], [
+        # Test from running sample data
+        (np.array([357.90066528, 377.69210815, 1034.97253418]), np.array([145.31594849, 405.79052734, 1030.81445312]),
+         np.array([274.00466919, 205.64402771, 1051.76452637]), np.array([189.15231323, 214.86122131, 1052.73486328]),
+         None,
+         [np.array([251.60830688, 391.74131775, 1032.89349365]), np.array([251.74063624, 392.72694721, 1032.78850073]),
+          np.array([250.61711554, 391.87232862, 1032.8741063]), np.array([251.60295336, 391.84795134, 1033.88777762])]),
+        # Test with zeros for all params
+        (np.array([0, 0, 0]), np.array([0, 0, 0]), np.array([0, 0, 0]), np.array([0, 0, 0]), np.array([0, 0, 0]),
+         [np.array([0, 0, 0]), np.array(nan_3d), np.array(nan_3d), np.array(nan_3d)]),
+        # Testing when adding values to rasi and lasi
+        (np.array([-6, 6, 3]), np.array([-7, -9, 1]), np.array([0, 0, 0]), np.array([0, 0, 0]), None,
+         [np.array([-6.5, -1.5, 2.0]), np.array([-7.44458106, -1.48072284, 2.32771179]),
+          np.array([-6.56593805, -2.48907071, 1.86812391]), np.array([-6.17841206, -1.64617634, 2.93552855])]),
+        # Testing when adding values to rpsi and lpsi
+        (np.array([0, 0, 0]), np.array([0, 0, 0]), np.array([1, 0, -4]), np.array([7, -2, 2]), None,
+         [np.array([0, 0, 0]), np.array(nan_3d), np.array(nan_3d), np.array(nan_3d)]),
+        # Testing when adding values to sacr
+        (np.array([0, 0, 0]), np.array([0, 0, 0]), None, None, np.array([-4, 8, -5]),
+         [np.array([0, 0, 0]), np.array(nan_3d), np.array(nan_3d), np.array(nan_3d)]),
+        # Testing when adding values to rasi, lasi, rpsi, lpsi
+        (np.array([-6, 6, 3]), np.array([-7, -9, 1]), np.array([1, 0, -4]), np.array([7, -2, 2]), None,
+         [np.array([-6.5, -1.5, 2.0]), np.array([-7.45825845, -1.47407957, 2.28472598]),
+          np.array([-6.56593805, -2.48907071, 1.86812391]), np.array([-6.22180416, -1.64514566, 2.9494945])]),
+        # Testing when adding values to rasi, lasi, and sacr
+        (np.array([-6, 6, 3]), np.array([-7, -9, 1]), None, None, np.array([-4, 8, -5]),
+         [np.array([-6.5, -1.5, 2.0]), np.array([-6.72928306, -1.61360872, 2.96670695]),
+          np.array([-6.56593805, -2.48907071, 1.86812391]), np.array([-5.52887619, -1.59397972, 2.21928602])]),
+        # Testing when adding values to rpsi, lpsi, and sacr
+        (np.array([0, 0, 0]), np.array([0, 0, 0]), np.array([1, 0, -4]), np.array([7, -2, 2]), np.array([-4, 8, -5]),
+         [np.array([0, 0, 0]), np.array(nan_3d), np.array(nan_3d), np.array(nan_3d)]),
+        # Testing when adding values to rasi, lasi, rpsi, lpsi, and sacr
+        (np.array([-6, 6, 3]), np.array([-7, -9, 1]), np.array([1, 0, -4]), np.array([7, -2, 2]), np.array([-4, 8, -5]),
+         [np.array([-6.5, -1.5, 2.0]), np.array([-6.72928306, -1.61360872, 2.96670695]),
+          np.array([-6.56593805, -2.48907071, 1.86812391]), np.array([-5.52887619, -1.59397972, 2.21928602])]),
+        # Testing that when rasi, lasi, rpsi, lpsi, and sacr are composed of numpy arrays of ints
+        (np.array([-6, 6, 3], dtype='int'), np.array([-7, -9, 1], dtype='int'), np.array([1, 0, -4], dtype='int'),
+         np.array([7, -2, 2], dtype='int'), np.array([-4, 8, -5], dtype='int'),
+         [np.array([-6.5, -1.5, 2.0]), np.array([-6.72928306, -1.61360872, 2.96670695]),
+          np.array([-6.56593805, -2.48907071, 1.86812391]), np.array([-5.52887619, -1.59397972, 2.21928602])]),
+        # Testing that when rasi, lasi, rpsi, lpsi, and sacr are composed of numpy arrays of floats
+        (np.array([-6.0, 6.0, 3.0], dtype='float'), np.array([-7.0, -9.0, 1.0], dtype='float'),
+         np.array([1.0, 0.0, -4.0], dtype='float'), np.array([7.0, -2.0, 2.0], dtype='float'),
+         np.array([-4.0, 8.0, -5.0], dtype='float'),
+         [np.array([-6.5, -1.5, 2.0]), np.array([-6.72928306, -1.61360872, 2.96670695]),
+          np.array([-6.56593805, -2.48907071, 1.86812391]), np.array([-5.52887619, -1.59397972, 2.21928602])])])
+    def test_pelvis_axis_calc(self, rasi, lasi, rpsi, lpsi, sacr, expected):
+        """
+        This test provides coverage of the pelvis_axis_calc function in the class StaticCGM in pycgm.py, defined as
+        pelvis_axis_calc(rasi, lasi, rpsi, lpsi, sacr)
+
+        This test takes 6 parameters:
+        rasi, lasi : array
+            A 1x3 ndarray of each respective marker containing the XYZ positions.
+        rpsi, lpsi, sacr : array, optional
+            A 1x3 ndarray of each respective marker containing the XYZ positions.
+        expected : array
+            A 4x3 ndarray that contains the pelvis origin and the pelvis x, y, and z axis components.
+
+        This test is checking to make sure the pelvis joint center and axis are calculated correctly given the input
+        parameters.
+
+        If sacr marker is not present, the mean of rpsi and lpsi markers will be used instead.
+        The pelvis origin is the midpoint of the rasi and lasi markers.
+
+        x axis is computed with a Gram-Schmidt orthogonalization procedure (ref. Kadaba 1990).
+        y axis is computed by subtracting rasi from lasi.
+        z axis is cross product of x axis and y axis.
+
+        This unit test ensures that:
+        - the correct expected values are altered per parameter given.
+        - rpsi and lpsi are only used if sacr isn't given.
+        - the resulting output is correct when rasi, lasi, rpsi, lpsi, and sacr are composed of numpy arrays of ints
+        and numpy arrays of floats. Lists were not tested as lists would cause errors on the following lines in
+        pycgm.py as lists cannot be divided by floats:
+        origin = (rasi + lasi) / 2.0
+        sacrum = (rpsi + lpsi) / 2.0
+        """
+        result = StaticCGM.pelvis_axis_calc(rasi, lasi, rpsi, lpsi, sacr)
+        np.testing.assert_almost_equal(result, expected, rounding_precision)
+
+    @pytest.mark.parametrize(["pelvis_axis", "measurements", "expected"], [
+        # Test from running sample data
+        (np.array([[251.608306884766, 391.741317749023, 1032.893493652344],
+                   [251.740636241119, 392.726947206848, 1032.788500732036],
+                   [250.617115540376, 391.872328624646, 1032.874106304030],
+                   [251.602953357582, 391.847951338178, 1033.887777624562]]),
+         {'MeanLegLength': 940.0, 'R_AsisToTrocanterMeasure': 72.512, 'L_AsisToTrocanterMeasure': 72.512,
+          'InterAsisDistance': 215.908996582031},
+         np.array([[308.38050472, 322.80342417, 937.98979061], [182.57097863, 339.43231855, 935.52900126],
+                   [245.47574167, 331.11787136, 936.75939593], [245.60807103, 332.10350082, 936.65440301],
+                   [244.48455033, 331.24888223, 936.74000858], [245.47038814, 331.22450495, 937.7536799]])),
+        # Basic test with zeros for all params
+        (np.array([[0, 0, 0], [0, 0, 0], [0, 0, 0], [0, 0, 0]]),
+         {'MeanLegLength': 0.0, 'R_AsisToTrocanterMeasure': 0.0, 'L_AsisToTrocanterMeasure': 0.0,
+          'InterAsisDistance': 0.0},
+         np.array([[0, 0, 0], [0, 0, 0], [0, 0, 0], [0, 0, 0], [0, 0, 0], [0, 0, 0]])),
+        # Testing when values are added to pel_o
+        (np.array([[1, 0, -3], [0, 0, 0], [0, 0, 0], [0, 0, 0]]),
+         {'MeanLegLength': 0.0, 'R_AsisToTrocanterMeasure': 0.0, 'L_AsisToTrocanterMeasure': 0.0,
+          'InterAsisDistance': 0.0},
+         np.array([[8.53165418, 0., -25.59496255], [-6.1387721, 0., 18.4163163], [1.19644104, 0., -3.58932313],
+                   [0.19644104, 0, -0.58932313], [0.19644104, 0, -0.58932313], [0.19644104, 0, -0.58932313]])),
+        # Testing when values are added to pel_x
+        (np.array([[0, 0, 0], [-5, -3, -6], [0, 0, 0], [0, 0, 0]]),
+         {'MeanLegLength': 0.0, 'R_AsisToTrocanterMeasure': 0.0, 'L_AsisToTrocanterMeasure': 0.0,
+          'InterAsisDistance': 0.0},
+         np.array([[54.02442793, 32.41465676, 64.82931352], [54.02442793, 32.41465676, 64.82931352],
+                   [54.02442793, 32.41465676, 64.82931352], [49.02442793, 29.41465676, 58.82931352],
+                   [54.02442793, 32.41465676, 64.82931352], [54.02442793, 32.41465676, 64.82931352]])),
+        # Testing when values are added to pel_y
+        (np.array([[0, 0, 0], [0, 0, 0], [4, -1, 2], [0, 0, 0]]),
+         {'MeanLegLength': 0.0, 'R_AsisToTrocanterMeasure': 0.0, 'L_AsisToTrocanterMeasure': 0.0,
+          'InterAsisDistance': 0.0},
+         np.array(
+             [[-29.34085257, 7.33521314, -14.67042628], [29.34085257, -7.33521314, 14.67042628], [0, 0, 0], [0, 0, 0],
+              [4, -1, 2], [0, 0, 0]])),
+        # Testing when values are added to pel_z
+        (np.array([[0, 0, 0], [0, 0, 0], [0, 0, 0], [3, 8, 2]]),
+         {'MeanLegLength': 0.0, 'R_AsisToTrocanterMeasure': 0.0, 'L_AsisToTrocanterMeasure': 0.0,
+          'InterAsisDistance': 0.0},
+         np.array([[31.82533363, 84.86755635, 21.21688909], [31.82533363, 84.86755635, 21.21688909],
+                   [31.82533363, 84.86755635, 21.21688909], [31.82533363, 84.86755635, 21.21688909],
+                   [31.82533363, 84.86755635, 21.21688909], [34.82533363, 92.86755635, 23.21688909]])),
+        # Test when values are added to pel_x, pel_y, and pel_z
+        (np.array([[0, 0, 0], [-5, -3, -6], [4, -1, 2], [3, 8, 2]]),
+         {'MeanLegLength': 0.0, 'R_AsisToTrocanterMeasure': 0.0, 'L_AsisToTrocanterMeasure': 0.0,
+          'InterAsisDistance': 0.0},
+         np.array([[56.508909, 124.61742625, 71.37577632], [115.19061413, 109.94699997, 100.71662889],
+                   [85.84976156, 117.28221311, 86.04620261], [80.84976156, 114.28221311, 80.04620261],
+                   [89.84976156, 116.28221311, 88.04620261], [88.84976156, 125.28221311, 88.04620261]])),
+        # Test when values are added to pel_o, pel_x, pel_y, and pel_z
+        (np.array([[1, 0, -3], [-5, -3, -6], [4, -1, 2], [3, 8, 2]]),
+         {'MeanLegLength': 0.0, 'R_AsisToTrocanterMeasure': 0.0, 'L_AsisToTrocanterMeasure': 0.0,
+          'InterAsisDistance': 0.0},
+         np.array([[65.04056318, 124.61742625, 45.78081377], [109.05184203, 109.94699997, 119.13294518],
+                   [87.04620261, 117.28221311, 82.45687948], [81.04620261, 114.28221311, 79.45687948],
+                   [90.04620261, 116.28221311, 87.45687948], [89.04620261, 125.28221311, 87.45687948]])),
+        # Test when values are added to pel_o, pel_x, pel_y, pel_z, and measurements[MeanLegLength]
+        (np.array([[1, 0, -3], [-5, -3, -6], [4, -1, 2], [3, 8, 2]]),
+         {'MeanLegLength': 15.0, 'R_AsisToTrocanterMeasure': 0.0, 'L_AsisToTrocanterMeasure': 0.0,
+          'InterAsisDistance': 0.0},
+         np.array([[61.83654463, 110.86920998, 41.31408931], [100.88576753, 97.85280235, 106.39612748],
+                   [81.36115608, 104.36100616, 73.8551084], [75.36115608, 101.36100616, 70.8551084],
+                   [84.36115608, 103.36100616, 78.8551084], [83.36115608, 112.36100616, 78.8551084]])),
+        # Test when values are added to pel_o, pel_x, pel_y, pel_z, and measurements[R_AsisToTrocanterMeasure]
+        (np.array([[1, 0, -3], [-5, -3, -6], [4, -1, 2], [3, 8, 2]]),
+         {'MeanLegLength': 0.0, 'R_AsisToTrocanterMeasure': -24.0, 'L_AsisToTrocanterMeasure': 0.0,
+          'InterAsisDistance': 0.0},
+         np.array([[-57.09307697, 115.44008189, 14.36512267], [109.05184203, 109.94699997, 119.13294518],
+                   [25.97938253, 112.69354093, 66.74903393], [19.97938253, 109.69354093, 63.74903393],
+                   [28.97938253, 111.69354093, 71.74903393], [27.97938253, 120.69354093, 71.74903393]])),
+        # Test when values are added to pel_o, pel_x, pel_y, pel_z, and measurements[R_AsisToTrocanterMeasure]
+        (np.array([[1, 0, -3], [-5, -3, -6], [4, -1, 2], [3, 8, 2]]),
+         {'MeanLegLength': 0.0, 'R_AsisToTrocanterMeasure': -24.0, 'L_AsisToTrocanterMeasure': 0.0,
+          'InterAsisDistance': 0.0},
+         np.array([[-57.09307697, 115.44008189, 14.36512267], [109.05184203, 109.94699997, 119.13294518],
+                   [25.97938253, 112.69354093, 66.74903393], [19.97938253, 109.69354093, 63.74903393],
+                   [28.97938253, 111.69354093, 71.74903393], [27.97938253, 120.69354093, 71.74903393]])),
+        # Test when values are added to pel_o, pel_x, pel_y, pel_z, and measurements[L_AsisToTrocanterMeasure]
+        (np.array([[1, 0, -3], [-5, -3, -6], [4, -1, 2], [3, 8, 2]]),
+         {'MeanLegLength': 0.0, 'R_AsisToTrocanterMeasure': 0.0, 'L_AsisToTrocanterMeasure': 0 - 7.0,
+          'InterAsisDistance': 0.0},
+         np.array([[65.04056318, 124.61742625, 45.78081377], [73.42953032, 107.27027453, 109.97003528],
+                   [69.23504675, 115.94385039, 77.87542453], [63.23504675, 112.94385039, 74.87542453],
+                   [72.23504675, 114.94385039, 82.87542453], [71.23504675, 123.94385039, 82.87542453]])),
+        # Test when values are added to pel_o, pel_x, pel_y, pel_z, and measurements[InterAsisDistance]
+        (np.array([[1, 0, -3], [-5, -3, -6], [4, -1, 2], [3, 8, 2]]),
+         {'MeanLegLength': 0.0, 'R_AsisToTrocanterMeasure': 0.0, 'L_AsisToTrocanterMeasure': 0.0,
+          'InterAsisDistance': 11.0},
+         np.array([[48.54056318, 130.11742625, 18.28081377], [125.55184203, 104.44699997, 146.63294518],
+                   [87.04620261, 117.28221311, 82.45687948], [81.04620261, 114.28221311, 79.45687948],
+                   [90.04620261, 116.28221311, 87.45687948], [89.04620261, 125.28221311, 87.45687948]])),
+        # Test when values are added to pel_o, pel_x, pel_y, pel_z, and all values in measurements
+        (np.array([[1, 0, -3], [-5, -3, -6], [4, -1, 2], [3, 8, 2]]),
+         {'MeanLegLength': 15.0, 'R_AsisToTrocanterMeasure': -24.0, 'L_AsisToTrocanterMeasure': -7.0,
+          'InterAsisDistance': 11.0},
+         np.array([[-76.79709552, 107.19186562, -17.60160178], [81.76345582, 89.67607691, 124.73321758],
+                   [2.48318015, 98.43397127, 53.5658079], [-3.51681985, 95.43397127, 50.5658079],
+                   [5.48318015, 97.43397127, 58.5658079], [4.48318015, 106.43397127, 58.5658079]])),
+        # Testing that when pel_o, pel_x, pel_y, and pel_z are numpy arrays of ints and measurements values are ints
+        (np.array([[1, 0, -3], [-5, -3, -6], [4, -1, 2], [3, 8, 2]], dtype='int'),
+         {'MeanLegLength': 15, 'R_AsisToTrocanterMeasure': -24, 'L_AsisToTrocanterMeasure': -7,
+          'InterAsisDistance': 11},
+         np.array([[-76.79709552, 107.19186562, -17.60160178], [81.76345582, 89.67607691, 124.73321758],
+                   [2.48318015, 98.43397127, 53.5658079], [-3.51681985, 95.43397127, 50.5658079],
+                   [5.48318015, 97.43397127, 58.5658079], [4.48318015, 106.43397127, 58.5658079]])),
+        # Testing that when pel_o, pel_x, pel_y, and pel_z are numpy arrays of floats and measurements values are floats
+        (np.array([[1.0, 0.0, -3.0], [-5.0, -3.0, -6.0], [4.0, -1.0, 2.0], [3.0, 8.0, 2.0]], dtype='float'),
+         {'MeanLegLength': 15.0, 'R_AsisToTrocanterMeasure': -24.0, 'L_AsisToTrocanterMeasure': -7.0,
+          'InterAsisDistance': 11},
+         np.array([[-76.79709552, 107.19186562, -17.60160178], [81.76345582, 89.67607691, 124.73321758],
+                   [2.48318015, 98.43397127, 53.5658079], [-3.51681985, 95.43397127, 50.5658079],
+                   [5.48318015, 97.43397127, 58.5658079], [4.48318015, 106.43397127, 58.5658079]]))])
+    def test_hip_axis_calc(self, pelvis_axis, measurements, expected):
+        """
+        This test provides coverage of the hip_axis_calc function in the class StaticCGM in pycgm.py, defined as
+        hip_axis_calc(pelvis_axis, measurements)
+
+        This test takes 3 parameters:
+        pelvis_axis : array
+            A 4x3 ndarray that contains the pelvis origin and the pelvis x, y, and z axis components.
+        measurements : dict
+            A dictionary containing the subject measurements given from the file input.
+        expected : array
+            A 4x3 ndarray that contains the hip origin and the hip x, y, and z axis components.
+
+        This test is checking to make sure the hip joint center and axis are calculated correctly given the input
+        parameters.
+
+        The hip origin is calculated using the Hip Joint Center Calculation (ref. Davis_1991).
+        The hip center axis is calculated by taking the mean at each x, y, z axis of the left and right hip joint
+        center.
+        The hip axis is calculated by getting the summation of the pelvis and hip center axis.
+
+        This unit test ensures that:
+        - the correct expected values are altered per parameter given.
+        - the resulting output is correct when pelvis_axis is composed of numpy arrays of ints and numpy arrays of
+        floats. Lists were not tested as lists would cause errors on the following lines in pycgm.py as lists cannot
+        be subtracted by each other:
+        pelvis_xaxis = pel_x - pel_o
+        pelvis_yaxis = pel_y - pel_o
+        pelvis_zaxis = pel_z - pel_o
+        """
+        result = StaticCGM.hip_axis_calc(pelvis_axis, measurements)
+        np.testing.assert_almost_equal(result, expected, rounding_precision)
+
+    @pytest.mark.parametrize(
+        ["rtib", "ltib", "rank", "lank", "knee_origin", "measurements", "mock_return_val", "expected_mock_args",
+         "expected"], [
+            # Test from running sample data
+            (np.array([433.97537231, 211.93408203, 273.3008728]), np.array([50.04016495, 235.90718079, 364.32226562]),
+             np.array([422.77005005, 217.74053955, 92.86152649]), np.array([58.57380676, 208.54806519, 86.16953278]),
+             np.array([[364.17774614, 292.17051722, 515.19181496], [143.55478579, 279.90370346, 524.78408753]]),
+             {'RightAnkleWidth': 70.0, 'LeftAnkleWidth': 70.0, 'RightTibialTorsion': 0.0, 'LeftTibialTorsion': 0.0},
+             [np.array([393.76181608, 247.67829633, 87.73775041]), np.array([98.74901939, 219.46930221, 80.6306816])],
+             [[[433.97537231, 211.93408203, 273.3008728], [364.17774614, 292.17051722, 515.19181496],
+               [422.77005005, 217.74053955, 92.86152649], 42.0],
+              [[50.04016495, 235.90718079, 364.32226562], [143.55478579, 279.90370346, 524.78408753],
+               [58.57380676, 208.54806519, 86.16953278], 42.0]],
+             np.array([[393.76181608, 247.67829633, 87.73775041], [394.48171575, 248.37201348, 87.715368],
+                       [393.07114384, 248.39110006, 87.61575574], [393.69314056, 247.78157916, 88.73002876],
+                       [98.74901939, 219.46930221, 80.6306816], [98.47494966, 220.42553803, 80.52821783],
+                       [97.79246671, 219.20927275, 80.76255901], [98.84848169, 219.60345781, 81.61663775]])),
+            # Test with zeros for all params
+            (np.array([0, 0, 0]), np.array([0, 0, 0]), np.array([0, 0, 0]), np.array([0, 0, 0]),
+             np.array([[0, 0, 0], [0, 0, 0]]),
+             {'RightAnkleWidth': 0.0, 'LeftAnkleWidth': 0.0, 'RightTibialTorsion': 0.0, 'LeftTibialTorsion': 0.0},
+             [np.array([0, 0, 0]), np.array([0, 0, 0])],
+             [[[0, 0, 0], [0, 0, 0], [0, 0, 0], 7.0], [[0, 0, 0], [0, 0, 0], [0, 0, 0], 7.0]],
+             np.array([[0, 0, 0], nan_3d, nan_3d, nan_3d, [0, 0, 0], nan_3d, nan_3d, nan_3d])),
+            # Testing when values are added to rtib
+            (np.array([-9, 6, -9]), np.array([0, 0, 0]), np.array([0, 0, 0]), np.array([0, 0, 0]),
+             np.array([[0, 0, 0], [0, 0, 0]]),
+             {'RightAnkleWidth': 0.0, 'LeftAnkleWidth': 0.0, 'RightTibialTorsion': 0.0, 'LeftTibialTorsion': 0.0},
+             [np.array([0, 0, 0]), np.array([0, 0, 0])],
+             [[[-9, 6, -9], [0, 0, 0], [0, 0, 0], 7.0], [[0, 0, 0], [0, 0, 0], [0, 0, 0], 7.0]],
+             np.array([[0, 0, 0], nan_3d, nan_3d, nan_3d, [0, 0, 0], nan_3d, nan_3d, nan_3d])),
+            # Testing when values are added to ltib
+            (np.array([0, 0, 0]), np.array([0, 2, -1]), np.array([0, 0, 0]), np.array([0, 0, 0]),
+             np.array([[0, 0, 0], [0, 0, 0]]),
+             {'RightAnkleWidth': 0.0, 'LeftAnkleWidth': 0.0, 'RightTibialTorsion': 0.0, 'LeftTibialTorsion': 0.0},
+             [np.array([0, 0, 0]), np.array([0, 0, 0])],
+             [[[0, 0, 0], [0, 0, 0], [0, 0, 0], 7.0], [[0, 2, -1], [0, 0, 0], [0, 0, 0], 7.0]],
+             np.array([[0, 0, 0], nan_3d, nan_3d, nan_3d, [0, 0, 0], nan_3d, nan_3d, nan_3d])),
+            # Testing when values are added to rank
+            (np.array([0, 0, 0]), np.array([0, 0, 0]), np.array([1, 0, -5]), np.array([0, 0, 0]),
+             np.array([[0, 0, 0], [0, 0, 0]]),
+             {'RightAnkleWidth': 0.0, 'LeftAnkleWidth': 0.0, 'RightTibialTorsion': 0.0, 'LeftTibialTorsion': 0.0},
+             [np.array([0, 0, 0]), np.array([0, 0, 0])],
+             [[[0, 0, 0], [0, 0, 0], [1, 0, -5], 7.0], [[0, 0, 0], [0, 0, 0], [0, 0, 0], 7.0]],
+             np.array([[0, 0, 0], nan_3d, nan_3d, nan_3d, [0, 0, 0], nan_3d, nan_3d, nan_3d])),
+            # Testing when values are added to lank
+            (np.array([0, 0, 0]), np.array([0, 0, 0]), np.array([0, 0, 0]), np.array([2, -4, -5]),
+             np.array([[0, 0, 0], [0, 0, 0]]),
+             {'RightAnkleWidth': 0.0, 'LeftAnkleWidth': 0.0, 'RightTibialTorsion': 0.0, 'LeftTibialTorsion': 0.0},
+             [np.array([0, 0, 0]), np.array([0, 0, 0])],
+             [[[0, 0, 0], [0, 0, 0], [0, 0, 0], 7.0], [[0, 0, 0], [0, 0, 0], [2, -4, -5], 7.0]],
+             np.array([[0, 0, 0], nan_3d, nan_3d, nan_3d, [0, 0, 0], nan_3d, nan_3d, nan_3d])),
+            # Testing when values are added to rtib, ltib, rank, and lank
+            (np.array([-9, 6, -9]), np.array([0, 2, -1]), np.array([1, 0, -5]), np.array([2, -4, -5]),
+             np.array([[0, 0, 0], [0, 0, 0]]),
+             {'RightAnkleWidth': 0.0, 'LeftAnkleWidth': 0.0, 'RightTibialTorsion': 0.0, 'LeftTibialTorsion': 0.0},
+             [np.array([0, 0, 0]), np.array([0, 0, 0])],
+             [[[-9, 6, -9], [0, 0, 0], [1, 0, -5], 7.0], [[0, 2, -1], [0, 0, 0], [2, -4, -5], 7.0]],
+             np.array([[0, 0, 0], nan_3d, nan_3d, nan_3d, [0, 0, 0], nan_3d, nan_3d, nan_3d])),
+            # Testing when values are added to knee_origin
+            (np.array([0, 0, 0]), np.array([0, 0, 0]), np.array([0, 0, 0]), np.array([0, 0, 0]),
+             np.array([[-7, 1, 2], [9, -8, 9]]),
+             {'RightAnkleWidth': 0.0, 'LeftAnkleWidth': 0.0, 'RightTibialTorsion': 0.0, 'LeftTibialTorsion': 0.0},
+             [np.array([0, 0, 0]), np.array([0, 0, 0])],
+             [[[0, 0, 0], [-7, 1, 2], [0, 0, 0], 7.0], [[0, 0, 0], [9, -8, 9], [0, 0, 0], 7.0]],
+             np.array([[0, 0, 0], nan_3d, nan_3d, [-0.95257934, 0.13608276, 0.27216553], [0, 0, 0], nan_3d, nan_3d,
+                       [0.59867109, -0.53215208, 0.59867109]])),
+            # Testing when values are added to measurements
+            (np.array([0, 0, 0]), np.array([0, 0, 0]), np.array([0, 0, 0]), np.array([0, 0, 0]),
+             np.array([[0, 0, 0], [0, 0, 0]]),
+             {'RightAnkleWidth': -38.0, 'LeftAnkleWidth': 18.0, 'RightTibialTorsion': 29.0, 'LeftTibialTorsion': -13.0},
+             [np.array([0, 0, 0]), np.array([0, 0, 0])],
+             [[[0, 0, 0], [0, 0, 0], [0, 0, 0], -12.0], [[0, 0, 0], [0, 0, 0], [0, 0, 0], 16.0]],
+             np.array([[0, 0, 0], nan_3d, nan_3d, nan_3d, [0, 0, 0], nan_3d, nan_3d, nan_3d])),
+            # Testing when values are added to mock_return_val
+            (np.array([0, 0, 0]), np.array([0, 0, 0]), np.array([0, 0, 0]), np.array([0, 0, 0]),
+             np.array([[0, 0, 0], [0, 0, 0]]),
+             {'RightAnkleWidth': 0.0, 'LeftAnkleWidth': 0.0, 'RightTibialTorsion': 0.0, 'LeftTibialTorsion': 0.0},
+             [np.array([2, -5, 4]), np.array([8, -3, 1])],
+             [[[0, 0, 0], [0, 0, 0], [0, 0, 0], 7.0], [[0, 0, 0], [0, 0, 0], [0, 0, 0], 7.0]],
+             np.array([[2, -5, 4], nan_3d, nan_3d, [1.7018576, -4.25464401, 3.40371521], [8, -3, 1], nan_3d, nan_3d,
+                       [7.07001889, -2.65125708, 0.88375236]])),
+            # Testing when values are added to rtib, ltib, rank, lank, and knee_origin
+            (np.array([-9, 6, -9]), np.array([0, 2, -1]), np.array([1, 0, -5]), np.array([2, -4, -5]),
+             np.array([[-7, 1, 2], [9, -8, 9]]),
+             {'RightAnkleWidth': 0.0, 'LeftAnkleWidth': 0.0, 'RightTibialTorsion': 0.0, 'LeftTibialTorsion': 0.0},
+             [np.array([0, 0, 0]), np.array([0, 0, 0])],
+             [[[-9, 6, -9], [-7, 1, 2], [1, 0, -5], 7.0], [[0, 2, -1], [9, -8, 9], [2, -4, -5], 7.0]],
+             np.array([[0, 0, 0], [-0.26726124, -0.80178373, -0.53452248], [0.14547859, -0.58191437, 0.80013226],
+                       [-0.95257934, 0.13608276, 0.27216553], [0, 0, 0], [0.79317435, 0.49803971, -0.35047239],
+                       [-0.11165737, 0.68466825, 0.72025136], [0.59867109, -0.53215208, 0.59867109]])),
+            # Testing when values are added to rtib, ltib, rank, lank, knee_origin, and measurements
+            (np.array([-9, 6, -9]), np.array([0, 2, -1]), np.array([1, 0, -5]), np.array([2, -4, -5]),
+             np.array([[-7, 1, 2], [9, -8, 9]]),
+             {'RightAnkleWidth': -38.0, 'LeftAnkleWidth': 18.0, 'RightTibialTorsion': 29.0, 'LeftTibialTorsion': -13.0},
+             [np.array([0, 0, 0]), np.array([0, 0, 0])],
+             [[[-9, 6, -9], [-7, 1, 2], [1, 0, -5], -12.0], [[0, 2, -1], [9, -8, 9], [2, -4, -5], 16.0]],
+             np.array([[0, 0, 0], [-0.30428137, -0.41913816, -0.85541572], [-0.00233238, -0.89766624, 0.4406698],
+                       [-0.95257934, 0.13608276, 0.27216553], [0, 0, 0], [0.7477279, 0.63929183, -0.1794685],
+                       [-0.287221, 0.55508569, 0.7806305], [0.59867109, -0.53215208, 0.59867109]])),
+            # Testing when values are added to rtib, ltib, rank, lank, knee_origin, measurements, and mock_return_val
+            (np.array([-9, 6, -9]), np.array([0, 2, -1]), np.array([1, 0, -5]), np.array([2, -4, -5]),
+             np.array([[-7, 1, 2], [9, -8, 9]]),
+             {'RightAnkleWidth': -38.0, 'LeftAnkleWidth': 18.0, 'RightTibialTorsion': 29.0, 'LeftTibialTorsion': -13.0},
+             [np.array([2, -5, 4]), np.array([8, -3, 1])],
+             [[[-9, 6, -9], [-7, 1, 2], [1, 0, -5], -12.0], [[0, 2, -1], [9, -8, 9], [2, -4, -5], 16.0]],
+             np.array([[2, -5, 4], [1.48891678, -5.83482493, 3.7953997], [1.73661348, -5.07447603, 4.96181124],
+                       [1.18181818, -4.45454545, 3.81818182], [8, -3, 1], [8.87317138, -2.54514024, 1.17514093],
+                       [7.52412119, -2.28213872, 1.50814815], [8.10540926, -3.52704628, 1.84327404]])),
+            # Testing that when rank, lank, and knee_origin are composed of lists of ints and measurements values are
+            #  ints
+            (np.array([-9, 6, -9]), np.array([0, 2, -1]), [1, 0, -5], [2, -4, -5],
+             [[-7, 1, 2], [9, -8, 9]],
+             {'RightAnkleWidth': -38, 'LeftAnkleWidth': 18, 'RightTibialTorsion': 29, 'LeftTibialTorsion': -13},
+             [np.array([2, -5, 4]), np.array([8, -3, 1])],
+             [[[-9, 6, -9], [-7, 1, 2], [1, 0, -5], -12.0], [[0, 2, -1], [9, -8, 9], [2, -4, -5], 16.0]],
+             np.array([[2, -5, 4], [1.48891678, -5.83482493, 3.7953997], [1.73661348, -5.07447603, 4.96181124],
+                       [1.18181818, -4.45454545, 3.81818182], [8, -3, 1], [8.87317138, -2.54514024, 1.17514093],
+                       [7.52412119, -2.28213872, 1.50814815], [8.10540926, -3.52704628, 1.84327404]])),
+            # Testing that when rank, lank, and knee_origin are composed of numpy arrays of ints and measurements
+            # values are ints
+            (np.array([-9, 6, -9], dtype='int'), np.array([0, 2, -1], dtype='int'), np.array([1, 0, -5], dtype='int'),
+             np.array([2, -4, -5], dtype='int'),
+             np.array([[-7, 1, 2], [9, -8, 9]], dtype='int'),
+             {'RightAnkleWidth': -38, 'LeftAnkleWidth': 18, 'RightTibialTorsion': 29, 'LeftTibialTorsion': -13},
+             [np.array([2, -5, 4]), np.array([8, -3, 1])],
+             [[[-9, 6, -9], [-7, 1, 2], [1, 0, -5], -12.0], [[0, 2, -1], [9, -8, 9], [2, -4, -5], 16.0]],
+             np.array([[2, -5, 4], [1.48891678, -5.83482493, 3.7953997], [1.73661348, -5.07447603, 4.96181124],
+                       [1.18181818, -4.45454545, 3.81818182], [8, -3, 1], [8.87317138, -2.54514024, 1.17514093],
+                       [7.52412119, -2.28213872, 1.50814815], [8.10540926, -3.52704628, 1.84327404]])),
+            # Testing that when rank, lank, and knee_origin are composed of lists of floats and measurements values
+            # are floats
+            (np.array([-9.0, 6.0, -9.0]), np.array([0.0, 2.0, -1.0]), [1.0, 0.0, -5.0], [2.0, -4.0, -5.0],
+             [[-7.0, 1.0, 2.0], [9.0, -8.0, 9.0]],
+             {'RightAnkleWidth': -38.0, 'LeftAnkleWidth': 18.0, 'RightTibialTorsion': 29.0, 'LeftTibialTorsion': -13.0},
+             [np.array([2, -5, 4]), np.array([8, -3, 1])],
+             [[[-9, 6, -9], [-7, 1, 2], [1, 0, -5], -12.0], [[0, 2, -1], [9, -8, 9], [2, -4, -5], 16.0]],
+             np.array([[2, -5, 4], [1.48891678, -5.83482493, 3.7953997], [1.73661348, -5.07447603, 4.96181124],
+                       [1.18181818, -4.45454545, 3.81818182], [8, -3, 1], [8.87317138, -2.54514024, 1.17514093],
+                       [7.52412119, -2.28213872, 1.50814815], [8.10540926, -3.52704628, 1.84327404]])),
+            # Testing that when rank, lank, and knee_origin are composed of numpy arrays of floats and measurements
+            # values are floats
+            (np.array([-9, 6, -9], dtype='float'), np.array([0, 2, -1], dtype='float'),
+             np.array([1, 0, -5], dtype='float'), np.array([2, -4, -5], dtype='float'),
+             np.array([[-7, 1, 2], [9, -8, 9]], dtype='float'),
+             {'RightAnkleWidth': -38.0, 'LeftAnkleWidth': 18.0, 'RightTibialTorsion': 29.0, 'LeftTibialTorsion': -13.0},
+             [np.array([2, -5, 4]), np.array([8, -3, 1])],
+             [[[-9, 6, -9], [-7, 1, 2], [1, 0, -5], -12.0], [[0, 2, -1], [9, -8, 9], [2, -4, -5], 16.0]],
+             np.array([[2, -5, 4], [1.48891678, -5.83482493, 3.7953997], [1.73661348, -5.07447603, 4.96181124],
+                       [1.18181818, -4.45454545, 3.81818182], [8, -3, 1], [8.87317138, -2.54514024, 1.17514093],
+                       [7.52412119, -2.28213872, 1.50814815], [8.10540926, -3.52704628, 1.84327404]]))])
+    def test_ankle_axis_calc(self, rtib, ltib, rank, lank, knee_origin, measurements, mock_return_val,
+                             expected_mock_args, expected):
+        """
+        This test provides coverage of the ankle_axis_calc function in the class StaticCGM in pycgm.py, defined as
+        ankle_axis_calc(rtib, ltib, rank, lank, knee_origin, measurements)
+
+        This test takes 9 parameters:
+        rtib, ltib, rank, lank : array
+            A 1x3 ndarray of each respective marker containing the XYZ positions.
+        knee_origin : array
+            A 2x3 ndarray of the right and left knee origin vectors (joint centers).
+        measurements : dict
+            A dictionary containing the subject measurements given from the file input.
+        mock_return_val : list
+            The value to be returned by the mock for find_joint_center
+        expected_mock_args : list
+            The expected arguments used to call the mocked function, find_joint_center
+        expected : array
+            An 8x3 ndarray that contains the right ankle origin, right ankle x, y, and z axis components, left ankle
+            origin, and left ankle x, y, and z axis components.
+
+        This test is checking to make sure the ankle joint center and axis are calculated correctly given the input
+        parameters. This tests mocks find_joint_center to make sure the correct parameters are being passed into it
+        given the parameters passed into ankle_axis_calc, expected_mock_args, and to also ensure that ankle_axis_calc
+        returns the correct value considering the return value of find_joint_center, mock_return_val.
+
+        Calculated using Ankle Axis Calculation (ref. Clinical Gait Analysis hand book, Baker2013).
+
+        This unit test ensures that:
+        - the correct expected values are altered per parameter given.
+        - the resulting output is correct when rank, lank, and knee_origin are composed of lists of ints,
+        numpy arrays of ints, lists of floats, and numpy arrays of floats and measurements values are ints and
+        floats. The values of rtib and ltib were kept as numpy arrays as lists would cause errors on the following
+        lines in pycgm.py as lists cannot be subtracted by each other:
+        tib_ank_r = rtib - rank
+        tib_ank_l = ltib - lank
+        """
+        with patch.object(CGM, 'find_joint_center', side_effect=mock_return_val) as mock_find_joint_center:
+            result = StaticCGM.ankle_axis_calc(rtib, ltib, rank, lank, knee_origin, measurements)
+
+        # Asserting that there were only 2 calls to find_joint_center
+        np.testing.assert_equal(mock_find_joint_center.call_count, 2)
+
+        # Asserting that the correct params were sent in the 1st (right) call to find_joint_center
+        np.testing.assert_almost_equal(expected_mock_args[0][0], mock_find_joint_center.call_args_list[0][0][0],
+                                       rounding_precision)
+        np.testing.assert_almost_equal(expected_mock_args[0][1], mock_find_joint_center.call_args_list[0][0][1],
+                                       rounding_precision)
+        np.testing.assert_almost_equal(expected_mock_args[0][2], mock_find_joint_center.call_args_list[0][0][2],
+                                       rounding_precision)
+        np.testing.assert_almost_equal(expected_mock_args[0][3], mock_find_joint_center.call_args_list[0][0][3],
+                                       rounding_precision)
+
+        # Asserting that the correct params were sent in the 2nd (left) call to find_joint_center
+        np.testing.assert_almost_equal(expected_mock_args[1][0], mock_find_joint_center.call_args_list[1][0][0],
+                                       rounding_precision)
+        np.testing.assert_almost_equal(expected_mock_args[1][1], mock_find_joint_center.call_args_list[1][0][1],
+                                       rounding_precision)
+        np.testing.assert_almost_equal(expected_mock_args[1][2], mock_find_joint_center.call_args_list[1][0][2],
+                                       rounding_precision)
+        np.testing.assert_almost_equal(expected_mock_args[1][3], mock_find_joint_center.call_args_list[1][0][3],
+                                       rounding_precision)
+
+        # Asserting that ankle_axis_calc returned the correct result given the return value given by mocked
+        # find_joint_center
+        np.testing.assert_almost_equal(result, expected, rounding_precision)
+
+    @pytest.mark.parametrize(["rtoe", "ltoe", "ankle_axis", "expected"],
+    # Test from running sample data
+    ([ ([ np.array([0, 0, 0]), 
+
+            np.array([0, 0, 0]), 
+
+            np.array([ [0, 0, 0], [0, 0, 0], 
+            [0, 0, 0], [0, 0, 0], 
+            [0, 0, 0], [0, 0, 0], 
+            [0, 0, 0], [0, 0, 0]]), 
+
+            np.array([ [0, 0, 0], nan_3d, 
+            nan_3d, nan_3d, 
+            [0, 0, 0], nan_3d, 
+            nan_3d, nan_3d]) ]),
+    # Test with zeros for all params
+       ([ np.array([0, 0, 0]), 
+
+            np.array([0, 0, 0]), 
+
+            np.array([ [0, 0, 0], [0, 0, 0], 
+            [0, 0, 0], [0, 0, 0], 
+            [0, 0, 0], [0, 0, 0], 
+            [0, 0, 0], [0, 0, 0]]), 
+
+            np.array([ [0, 0, 0], nan_3d, 
+            nan_3d, nan_3d, 
+            [0, 0, 0], nan_3d, 
+            nan_3d, nan_3d]) ])
+        ])
+    )
+    def test_foot_axis_calc(self, rtoe, ltoe, ankle_axis, expected):
+        """
+        This test provides coverage of the uncorrect_footaxis function in pycgmStatic.py, defined as uncorrect_footaxis(frame, ankle_JC)
+
+        This test takes 3 parameters:
+        frame: dictionaries of marker lists.
+        ankle_JC: array of ankle_JC each x,y,z position
+
+        expected: the expected result from calling uncorrect_footaxis on frame and ankle_JC, which should be the
+        anatomically incorrect foot axis
+
+        Given a marker RTOE and the ankle JC, the right anatomically incorrect foot axis is calculated with:
+
+        .. math::
+            R = [R_x + ROrigin_x, R_y + ROrigin_y, R_z + ROrigin_z]
+
+        where :math:`ROrigin_x` is the x coor of the foot axis's origin gotten from frame['RTOE']
+
+        :math:`R_x` is the unit vector of :math:`Yflex_R \times R_z`
+
+        :math:`R_y` is the unit vector of :math:`R_z \times R_x`
+
+        :math:`R_z` is the unit vector of the axis from right toe to right ankle JC
+
+        :math:`Yflex_R` is the unit vector of the axis from right ankle flexion to right ankle JC
+
+        The same calculation applies for the left anatomically incorrect foot axis by replacing all the right values
+        with left values
+
+        This unit test ensures that:
+        - the markers for RTOE and LTOE only effect either the right or the left axis
+        - ankle_JC_R and ankle_JC_L only effect either the right or the left axis
+        - the resulting output is correct when frame and ankle_JC are composed of lists of ints,
+        numpy arrays of ints, lists of floats, and numpy arrays of floats.
+
+        """
+        result = StaticCGM.foot_axis_calc(rtoe, ltoe, ankle_axis)
         np.testing.assert_almost_equal(result, expected, rounding_precision)
