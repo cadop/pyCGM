@@ -1970,31 +1970,6 @@ class StaticCGM:
         self.subject_measurements = IO.load_sm(path_measurements)
 
     @staticmethod
-    def get_static(motion_data, measurements, flat_foot, gcs):
-        """ Get Static Offset function
-
-        Calculate the static offset angle values and return the values in radians
-
-        Parameters
-        ----------
-        motion_data : dict
-            Dictionary of marker lists.
-        measurements : dict, optional
-            A dictionary containing the subject measurements given from the file input.
-        flat_foot : boolean, optional
-            A boolean indicating if the feet are flat or not.
-            The default value is False.
-        gcs : array, optional
-            An array containing the Global Coordinate System.
-            If not provided, the default will be set to: [[1, 0, 0], [0, 1, 0], [0, 0, 1]].
-
-        Returns
-        -------
-        calSM : dict
-            Dictionary containing various marker lists of offsets.
-        """
-
-    @staticmethod
     def iad_calculation(rasi, lasi):
         """Calculates the Inter ASIS Distance.
         Given the markers RASI and LASI, the Inter ASIS Distance is defined as:
@@ -2999,7 +2974,8 @@ class StaticCGM:
         ankle_axis : array
             An 8x3 ndarray that contains the right ankle origin, right ankle x, y, and z
             axis components, left ankle origin, and left ankle x, y, and z axis components.
-            
+        measurements : dict
+            A dictionary containing the subject measurements given from the file input.
         Returns
         -------
         array
