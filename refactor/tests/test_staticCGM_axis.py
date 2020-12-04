@@ -851,3 +851,55 @@ class TestStaticCGMAxis:
         """
         result = StaticCGM.flat_foot_axis_calc(rtoe, ltoe, rhee, lhee, ankle_axis, measurements)
         np.testing.assert_almost_equal(result, expected, rounding_precision)
+    
+    @pytest.mark.parametrize(["a", "b", "c", "delta", "expected"],[
+        ([ np.array([0, 0, 0]), 
+            np.array([0, 0, 0]),
+            np.array([0, 0, 0]), 
+            np.array([0, 0, 0]),  
+            np.array([ [0, 0, 0], np.array(rand_coor), 
+            [0, 0, 0], np.array(rand_coor), 
+            [0, 0, 0], np.array(rand_coor), 
+            [0, 0, 0], np.array(rand_coor)]), 
+            {'RightSoleDelta': 0.0, 'LeftSoleDelta': 0.0},
+            np.array([ [0, 0, 0], nan_3d, 
+            nan_3d, nan_3d, 
+            [0, 0, 0], nan_3d, 
+            nan_3d, nan_3d]) ]) 
+    ])
+    def test_non_flat_foot_axis_calc(self, rtoe, ltoe, rhee, lhee, ankle_axis):
+        """
+        This test provides coverage of the rotaxis_nonfootflat function in pycgmStatic.py, defined as rotaxis_nonfootflat(frame, ankle_JC)
+
+        This test takes 3 parameters:
+        frame: dictionaries of marker lists.
+        ankle_JC: array of ankle_JC each x,y,z position
+        expected: the expected result from calling rotaxis_footflat on frame, ankle_JC and vsk, which should be the
+        anatomically correct foot axis when foot is not flat.
+
+        Given the right ankle JC and the markers :math:`TOE_R` and :math:`HEE_R , the right anatomically correct foot
+        axis is calculated with:
+
+        .. math::
+        R is [R_x + ROrigin_x, R_y + ROrigin_y, R_z + ROrigin_z]
+
+        where :math:`ROrigin_x` is the x coor of the foot axis's origin gotten from frame['RTOE']
+
+        :math:`R_x` is the unit vector of :math:`YFlex_R \times R_z`
+
+        :math:`R_y` is the unit vector of :math:`R_z \times R_x`
+
+        :math:`R_z` is the unit vector of :math:`(HEE_R - TOE_R)`
+
+        :math:`YFlex_R` is the unit vector of :math:`(AnkleFlexion_R - AnkleJC_R)`
+
+        The same calculation applies for the left anatomically correct foot axis by replacing all the right values
+        with left values
+
+        This unit test ensures that:
+        - the markers for RTOE, LTOE, RHEE, and LHEE only effect either the right or the left axis
+        - ankle_JC_R and ankle_JC_L only effect either the right or the left axis
+        - the resulting output is correct when frame and ankle_JC are composed of lists of ints,
+        numpy arrays of ints, lists of floats, and numpy arrays of floats.
+        """
+        pass
