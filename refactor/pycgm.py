@@ -1292,12 +1292,78 @@ class StaticCGM:
         """
 
     @staticmethod
-    def iad_calculation():
-        pass
+    def iad_calculation(rasi, lasi):
+        """Calculates the Inter ASIS Distance.
+        Given the markers RASI and LASI, the Inter ASIS Distance is defined as:
+        .. math::
+            InterASISDist = \sqrt{(RASI_x-LASI_x)^2 + (RASI_y-LASI_y)^2 + (RASI_z-LASI_z)^2}
+        where :math:`RASI_x` is the x-coordinate of the RASI marker in frame.
+        Markers used: RASI, LASI
+        Parameters
+        ----------
+        rasi, lasi : array
+            A 1x3 ndarray of each respective marker containing the XYZ positions.
+        Returns
+        -------
+        iad : float
+            The Inter ASIS distance as a float.
+        
+        Examples
+        --------
+        >>> from numpy import around, array
+        >>> from refactor import pycgm
+        >>> lasi = array([ 183.18504333,  422.78927612, 1033.07299805])
+        >>> rasi = array([ 395.36532593,  428.09790039, 1036.82763672])
+        >>> around(pycgm.StaticCGM.iad_calculation(rasi, lasi), 2)
+        212.28
+        """
+        x_diff = rasi[0] - lasi[0]
+        y_diff = rasi[1] - lasi[1]
+        z_diff = rasi[2] - lasi[2]
+        iad = np.sqrt(x_diff*x_diff + y_diff*y_diff + z_diff*z_diff)
+        return iad
 
     @staticmethod
-    def static_calculation_head():
-        pass
+    def static_calculation_head(head_axis):
+        """Calculates the offset angle of the head.
+        Uses the x,y,z axes of the head and the head origin to calculate
+        the head offset angle. Uses the global axis.
+        Parameters
+        ----------
+        head : array
+            Array containing 4 1x3 arrays. The first gives the XYZ coordinates of the head
+            origin. The remaining 3 are 1x3 arrays that give the XYZ coordinates of the 
+            X, Y, and Z head axis respectively.
+        
+        Returns
+        -------
+        offset : float
+            The head offset angle.
+        
+        Examples
+        --------
+        >>> from numpy import around, array
+        >>> from refactor import pycgm
+        >>> head = array([[99.58366584777832, 82.79330825805664, 1483.7968139648438],
+        ...               [100.33272997128863, 83.39303060995121, 1484.078302933558], 
+        ...               [98.9655145897623, 83.57884461044797, 1483.7681493301013], 
+        ...               [99.34535520789223, 82.64077714742746, 1484.7559501904173]])
+        >>> around(pycgm.StaticCGM.static_calculation_head(head), 8)
+        0.28546606
+        """
+        head_axis = CGM.subtract_origin(head_axis)
+        global_axis = [[0,1,0],[-1,0,0],[0,0,1]]
+
+        #Global axis is the proximal axis
+        #Head axis is the distal axis
+        axis_p = global_axis
+        axis_d = head_axis
+
+        axis_p_inverse = np.linalg.inv(axis_p)
+        rotation_matrix = np.matmul(axis_d, axis_p_inverse)
+        offset = np.arctan(rotation_matrix[0][2]/rotation_matrix[2][2])
+        
+        return offset
 
     @staticmethod
     def static_calculation(rtoe, ltoe, rhee, lhee, ankle_axis, knee_axis, flat_foot, measurements):
@@ -2478,8 +2544,8 @@ class StaticCGM:
 
         Parameters
         ----------
-        motionData : dict
-            Dictionary of marker lists.
+        motion_data : dict
+            A dictionary containing the motion captured frames. 
         measurements : dict, optional
             Dictionary of various attributes of the skeleton.
         flat_foot : boolean, optional
@@ -2536,8 +2602,9 @@ class StaticCGM:
         if measurements['InterAsisDistance'] != 0:
             calSM['InterAsisDistance'] = measurements['InterAsisDistance']
         else:
-            for frame in motionData:
-                iadCalc = IADcalculation(frame)
+            for frame in motion_data:
+                rasi, lasi = frame['RASI'], frame['LASI']
+                iadCalc = StaticCGM.iad_calculation(rasi, lasi)
                 IAD.append(iadCalc)
             InterAsisDistance = np.average(IAD)
             calSM['InterAsisDistance'] = InterAsisDistance
@@ -2552,12 +2619,12 @@ class StaticCGM:
             calSM['LeftKneeWidth'] = 0
             
         if calSM['RightKneeWidth'] == 0:
-            if 'RMKN' in list(motionData[0].keys()):
+            if 'RMKN' in list(motion_data[0].keys()):
                 #medial knee markers are available
                 Rwidth = []
                 Lwidth = []
                 #average each frame 
-                for frame in motionData:
+                for frame in motion_data:
                     RMKN = frame['RMKN']
                     LMKN = frame['LMKN']
                     
@@ -2572,8 +2639,8 @@ class StaticCGM:
                 calSM['RightKneeWidth'] = sum(Rwidth)/len(Rwidth)
                 calSM['LeftKneeWidth'] = sum(Lwidth)/len(Lwidth)        
         try: 
-            calSM['RightAnkleWidth'] = vsk['RightAnkleWidth']
-            calSM['LeftAnkleWidth'] = vsk['LeftAnkleWidth']
+            calSM['RightAnkleWidth'] = measurements['RightAnkleWidth']
+            calSM['LeftAnkleWidth'] = measurements['LeftAnkleWidth']
         
         except: 
             #no knee width
@@ -2581,12 +2648,12 @@ class StaticCGM:
             calSM['LeftAnkleWidth'] = 0
             
         if calSM['RightAnkleWidth'] == 0:
-            if 'RMKN' in list(motionData[0].keys()):
+            if 'RMKN' in list(motion_data[0].keys()):
                 #medial knee markers are available
                 Rwidth = []
                 Lwidth = []
                 #average each frame 
-                for frame in motionData:
+                for frame in motion_data:
                     RMMA = frame['RMMA']
                     LMMA = frame['LMMA']
                     
@@ -2615,17 +2682,36 @@ class StaticCGM:
         calSM['RightHandThickness'] = measurements['RightHandThickness']
         calSM['LeftHandThickness'] = measurements['LeftHandThickness']
         
-        for frame in motionData:
-            pelvis_origin,pelvis_axis,sacrum = StaticCGM.pelvis_axis_calc(frame)
-            hip_JC = StaticCGM.hip_axis_calc(frame,pelvis_origin,pelvis_axis[0],pelvis_axis[1],pelvis_axis[2],calSM)
-            knee_JC = StaticCGM.knee_axis_calc(frame,hip_JC,0,vsk=calSM)
-            ankle_JC = StaticCGM.ankle_axis_calc(frame,knee_JC,0,vsk=calSM)
-            angle = StaticCGM.static_calculation(frame,ankle_JC,knee_JC,flat_foot,calSM)
-            head = StaticCGM.head_axis_calc(frame)
-            headangle = StaticCGM.static_calculation_head(frame,head)
+        for frame in motion_data:
+            rasi, lasi = frame['RASI'], markers['LASI']
+            rpsi, lpsi, sacr = None, None, None
+            try:
+                rpsi = frame['RPSI']
+                lpsi = frame['LPSI']
+            except:
+                sacr = frame['SACR']
+            pelvis = StaticCGM.pelvis_axis_calc(rasi, lasi, rpsi, lpsi, sacr)
 
-            static_offset.append(angle)
-            head_offset.append(headangle)
+            hip_axis = StaticCGM.hip_axis_calc(pelvis, calSM)
+            hip_origin = np.array([hip_axis[0],hip_axis[4]])
+
+            rthi, lthi, rkne, lkne = frame['RTHI'],  frame['LTHI'], frame['RKNE'], frame['LKNE']
+            knee_axis = StaticCGM.knee_axis_calc(rthi, lthi, rkne, lkne, hip_origin, calSM)
+            knee_origin = np.array([knee_axis[0], knee_axis[4]])
+
+            rtib, ltib, rank, lank = frame['RTIB'],  frame['LTIB'], frame['RANK'], frame['LANK']
+            ankle_axis = StaticCGM.ankle_axis_calc(rtib, ltib, rank, lank, knee_origin, calSM)
+
+            rtoe, ltoe, rhee, lhee = frame['RTOE'],  frame['LTOE'], frame['RHEE'], frame['LHEE']
+            angles = StaticCGM.static_calculation(rtoe, ltoe, rhee, lhee, ankle_axis, knee_axis, flat_foot, calSM)
+
+            rfhd, lfhd, rbhd, lbhd = frame['RFHD'],  frame['LFHD'], frame['RBHD'], frame['LBHD']
+            head_axis = StaticCGM.head_axis_calc(rfhd, lfhd, rbhd, lbhd)
+
+            head_angle = StaticCGM.static_calculation_head(head_axis)
+
+            static_offset.append(angles)
+            head_offset.append(head_angle)
             
         
         static=np.average(static_offset,axis=0)
