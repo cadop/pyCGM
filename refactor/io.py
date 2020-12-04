@@ -439,6 +439,7 @@ class IO:
         return subject_measurements
 
     # Writing Functions
+    @staticmethod
     def write_result(filename, angle_output, angle_mapping, axis_output, axis_mapping, center_of_mass_output, angles=None, axis=None, center_of_mass=True):
         """Writes outputs from pycgm to a CSV file.
 
