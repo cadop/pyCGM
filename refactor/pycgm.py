@@ -648,7 +648,6 @@ class CGM:
         l_knee_jc = CGM.find_joint_center(lthi, l_hip_jc, lkne, l_delta)
 
         # Right axis calculation
-
         # Z axis is Thigh bone calculated by the hipJC and  kneeJC
         # the axis is then normalized
         axis_z = r_hip_jc - r_knee_jc
@@ -665,7 +664,6 @@ class CGM:
         r_axis = np.array([axis_x, axis_y, axis_z])
 
         # Left axis calculation
-
         # Z axis is Thigh bone calculated by the hipJC and kneeJC
         # the axis is then normalized
         axis_z = l_hip_jc - l_knee_jc
@@ -682,18 +680,14 @@ class CGM:
         l_axis = np.array([axis_x, axis_y, axis_z])
 
         # Clear the name of axis and then normalize it.
-        r_knee_x_axis = r_axis[0]
-        r_knee_x_axis = r_knee_x_axis / np.array([np.linalg.norm(r_knee_x_axis)])
-        r_knee_y_axis = r_axis[1]
-        r_knee_y_axis = r_knee_y_axis / np.array([np.linalg.norm(r_knee_y_axis)])
-        r_knee_z_axis = r_axis[2]
-        r_knee_z_axis = r_knee_z_axis / np.array([np.linalg.norm(r_knee_z_axis)])
-        l_knee_x_axis = l_axis[0]
-        l_knee_x_axis = l_knee_x_axis / np.array([np.linalg.norm(l_knee_x_axis)])
-        l_knee_y_axis = l_axis[1]
-        l_knee_y_axis = l_knee_y_axis / np.array([np.linalg.norm(l_knee_y_axis)])
-        l_knee_z_axis = l_axis[2]
-        l_knee_z_axis = l_knee_z_axis / np.array([np.linalg.norm(l_knee_z_axis)])
+        r_knee_x_axis, r_knee_y_axis, r_knee_z_axis = r_axis
+        r_knee_x_axis /= np.array([np.linalg.norm(r_knee_x_axis)])
+        r_knee_y_axis /= np.array([np.linalg.norm(r_knee_y_axis)])
+        r_knee_z_axis /= np.array([np.linalg.norm(r_knee_z_axis)])
+        l_knee_x_axis, l_knee_y_axis, l_knee_z_axis = l_axis
+        l_knee_x_axis /= np.array([np.linalg.norm(l_knee_x_axis)])
+        l_knee_y_axis /= np.array([np.linalg.norm(l_knee_y_axis)])
+        l_knee_z_axis /= np.array([np.linalg.norm(l_knee_z_axis)])
 
         # Put both axis in array
         # Add the origin back to the vector
