@@ -68,6 +68,9 @@ class CGM:
         self.com_results = None
         self.marker_map = {marker: marker for marker in IO.marker_keys()}
         self.marker_data, self.marker_idx = IO.load_marker_data(path_dynamic)
+        self.axis_idx = {"Pelvis Axis": 0, "Hip Axis": 1, "R Knee Axis": 2, "L Knee Axis": 3,
+                         "R Ankle Axis": 4, "L Ankle Axis": 5, "R Foot Axis": 6, "L Foot Axis": 7}
+        self.angle_idx = {}
         self.measurements = IO.load_sm(path_measurements)
 
     def run(self):
@@ -78,6 +81,17 @@ class CGM:
         Runs the static calibration trial.
         Runs the dynamic trial to calculate all axes and angles.
         """
+
+        self.measurements = self.static.get_static(self.static.marker_data, self.static.marker_idx,
+                                                   self.static.subject_measurements, False)
+
+        methods = [self.pelvis_axis_calc, self.hip_axis_calc, self.knee_axis_calc,
+                   self.ankle_axis_calc, self.foot_axis_calc,
+                   self.pelvis_angle_calc, self.hip_angle_calc, self.knee_angle_calc,
+                   self.ankle_angle_calc, self.foot_angle_calc]
+        mappings = [self.marker_map, self.marker_idx, self.axis_idx, self.angle_idx]
+        results = self.multi_calc(self.marker_data, methods, mappings, self.measurements)
+        self.axis_results, self.angle_results, self.com_results = results
 
     def remap(self, old, new):
         """Remap marker function
@@ -1540,8 +1554,26 @@ class CGM:
             by x, y, and z location.
         """
 
+        markers, marker_idx, axis_idx, angle_idx = mappings
+
+        axis_results = np.empty((len(data), len(axis_idx), 4, 3), dtype=float)
+        axis_results.fill(np.nan)
+        angle_results = np.empty((len(data), len(angle_idx), 3), dtype=float)
+        angle_results.fill(np.nan)
+        com_results = np.empty((len(data), 3), dtype=float)
+        com_results.fill(np.nan)
+
+        for i, frame in enumerate(data):
+
+            frame_axes, frame_angles, frame_com = CGM.calc(frame, methods, mappings, measurements)
+            axis_results[i] = frame_axes
+            angle_results[i] = frame_angles
+            com_results[i] = frame_com
+
+        return axis_results, angle_results, com_results
+
     @staticmethod
-    def calc(data, methods, mappings, measurements):
+    def calc(frame, methods, mappings, measurements):
         """Overall axis and angle calculation function
 
         Uses the data and methods passed in to distribute the appropriate inputs to each
@@ -1550,8 +1582,9 @@ class CGM:
 
         Parameters
         ----------
-        data : ndarray
-            3d ndarray consisting of each frame by each marker by x, y, and z positions.
+        frame : ndarray
+            An nx3 ndarray consisting of each marker in the current frame and their x, y, and z positions,
+            with n being the number of markers expected from the input.
         methods : list
             List containing the calculation methods to be used.
         mappings : list
@@ -1562,10 +1595,73 @@ class CGM:
         Returns
         -------
         results : tuple
-            A tuple consisting of the angle results and axis results. Angle results are stored
-            as a 2d ndarray of each angle by x, y, and z. Axis results are stored as a 3d ndarray
-            of each joint by origin and xyz unit vectors by x, y, and z location.
+            A tuple consisting of the axis results, angle results, and center of mass results.
+            Axis results are stored as a 3d ndarray of each joint by origin and xyz unit vectors
+            by x, y, and z location. Angle results are stored as a 2d ndarray of each angle by x, y, and z.
         """
+
+        pel_ax, hip_ax, kne_ax, ank_ax, foo_ax, pel_an, hip_an, kne_an, ank_an, foo_an = methods  # Add upper when impl
+
+        # markers maps expected marker name to its actual name in the input
+        # marker_idx maps actual marker name from input to its index in the input
+        # For example, if the input's first marker is RASIS, equivalent of RASI,
+        # markers would translate RASI to RASIS and marker_idx would translate RASIS to 0
+        markers, marker_idx, axis_idx, angle_idx = mappings
+
+        axis_results = np.empty((len(axis_idx), 4, 3), dtype=float)
+        axis_results.fill(np.nan)
+        angle_results = np.empty((len(angle_idx), 3), dtype=float)
+        angle_results.fill(np.nan)
+        com_results = np.empty(3, dtype=float)
+        com_results.fill(np.nan)
+
+        # Axis calculations
+
+        rasi = frame[marker_idx[markers["RASI"]]]
+        lasi = frame[marker_idx[markers["LASI"]]]
+        if "SACR" in markers:
+            sacr = frame[marker_idx[markers["SACR"]]]
+            pelvis_axis = pel_ax(rasi, lasi, sacr=sacr)
+        elif "RPSI" in markers and "LPSI" in markers:
+            rpsi = frame[marker_idx[markers["RPSI"]]]
+            lpsi = frame[marker_idx[markers["LPSI"]]]
+            pelvis_axis = pel_ax(rasi, lasi, rpsi=rpsi, lpsi=lpsi)
+        else:
+            raise ValueError("Required marker RPSI and LPSI, or SACR, missing")
+        axis_results[axis_idx["Pelvis Axis"]] = pelvis_axis
+
+        hip_axis = hip_ax(pelvis_axis, measurements)
+        axis_results[axis_idx["Hip Axis"]] = hip_axis[2:]
+
+        rthi = frame[marker_idx[markers["RTHI"]]]
+        lthi = frame[marker_idx[markers["LTHI"]]]
+        rkne = frame[marker_idx[markers["RKNE"]]]
+        lkne = frame[marker_idx[markers["LKNE"]]]
+        hip_origin = hip_axis[:2]
+
+        knee_axis = kne_ax(rthi, lthi, rkne, lkne, hip_origin, measurements)
+        axis_results[axis_idx["R Knee Axis"]], axis_results[axis_idx["L Knee Axis"]] = knee_axis[:4], knee_axis[4:]
+
+        rtib = frame[marker_idx[markers["RTIB"]]]
+        ltib = frame[marker_idx[markers["LTIB"]]]
+        rank = frame[marker_idx[markers["RANK"]]]
+        lank = frame[marker_idx[markers["LANK"]]]
+        knee_origin = np.array([knee_axis[0], knee_axis[4]])
+
+        ankle_axis = ank_ax(rtib, ltib, rank, lank, knee_origin, measurements)
+        axis_results[axis_idx["R Ankle Axis"]], axis_results[axis_idx["L Ankle Axis"]] = ankle_axis[:4], ankle_axis[4:]
+
+        rtoe = frame[marker_idx[markers["RTOE"]]]
+        ltoe = frame[marker_idx[markers["LTOE"]]]
+
+        foot_axis = foo_ax(rtoe, ltoe, ankle_axis, measurements)
+        axis_results[axis_idx["R Foot Axis"]], axis_results[axis_idx["L Foot Axis"]] = foot_axis[:4], foot_axis[4:]
+
+        # Angle calculations
+
+        # Center of Mass calculations
+
+        return axis_results, angle_results, com_results
 
     # Center of Mass / Kinetics calculation Methods:
     @staticmethod
