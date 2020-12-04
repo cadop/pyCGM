@@ -11,19 +11,7 @@ def normalize(v):
     -------
     ndarray
         Normalized form of input vector `v`. Returns `v` if its norm is 0.
-
-    Examples
-    --------
-    >>> from numpy import array, around
-    >>> v = np.array([1.0, 2.0, 3.0])
-    >>> around(normalize(v), 8)
-    array([0.26726124, 0.53452248, 0.80178373])
-
-    >>> v = np.array([0, 0, 0])
-    >>> normalize(v)
-    array([0, 0, 0])
     """
-    pass
 
 
 # Gap Filling
@@ -34,18 +22,7 @@ def target_name():
     -------
     target_names : array
         Empty list of marker names.
-
-    Examples
-    --------
-    >>> targetName() #doctest: +NORMALIZE_WHITESPACE
-    ['C7', 'T10', 'CLAV', 'STRN', 'RBAK', 'LPSI', 'RPSI',
-     'RASI', 'LASI', 'SACR', 'LKNE', 'LKNE', 'RKNE', 'RKNE',
-     'LANK', 'RANK', 'LHEE', 'RHEE', 'LTOE', 'RTOE', 'LTHI',
-     'RTHI', 'LTIB', 'RTIB', 'RBHD', 'RFHD', 'LBHD', 'LFHD',
-     'RELB', 'LELB']
     """
-    pass
-
 
 def target_dict():
     """Creates a dictionary of marker to segment.
@@ -54,21 +31,7 @@ def target_dict():
     -------
     targetDict : dict
         Dict of marker to segment.
-
-    Examples
-    --------
-    >>> result = target_dict()
-    >>> expected = {'LFHD': 'Head', 'LBHD': 'Head', 'RFHD': 'Head', 'RBHD': 'Head',
-    ...             'C7': 'Trunk', 'T10': 'Trunk', 'CLAV': 'Trunk', 'STRN': 'Trunk',
-    ...             'RBAK': 'Trunk', 'LPSI': 'Pelvis', 'RPSI': 'Pelvis', 'RASI': 'Pelvis',
-    ...             'LASI': 'Pelvis', 'SACR': 'Pelvis', 'LKNE': 'LThigh', 'RKNE': 'RThigh',
-    ...             'LANK': 'LShin', 'RANK': 'RShin', 'LHEE': 'LFoot', 'LTOE': 'LFoot',
-    ...             'RHEE': 'RFoot', 'RTOE': 'RFoot', 'LTHI': 'LThigh', 'RTHI': 'RThigh',
-    ...             'LTIB': 'LShin', 'RTIB': 'RShin', 'RELB': 'RHum', 'LELB': 'LHum'}
-    >>> result == expected
-    True
     """
-    pass
 
 
 def segment_dict():
@@ -78,25 +41,7 @@ def segment_dict():
     -------
     segmentDict : dict
         Dictionary of segments to marker names.
-
-    Examples
-    --------
-    >>> result = segment_dict()
-    >>> expected = {'Head': ['RFHD', 'RBHD', 'LFHD', 'LBHD', 'REAR', 'LEAR'],
-    ...             'Trunk': ['C7', 'STRN', 'CLAV', 'T10', 'RBAK', 'RSHO', 'LSHO'],
-    ...             'Pelvis': ['SACR', 'RPSI', 'LPSI', 'LASI', 'RASI'],
-    ...             'RThigh': ['RTHI', 'RTH2', 'RTH3', 'RTH4'],
-    ...             'LThigh': ['LTHI', 'LTH2', 'LTH3', 'LTH4'],
-    ...             'RShin': ['RTIB', 'RSH2', 'RSH3', 'RSH4'],
-    ...             'LShin': ['LTIB', 'LSH2', 'LSH3', 'LSH4'],
-    ...             'RFoot': ['RLFT1', 'RFT2', 'RMFT3', 'RLUP'],
-    ...             'LFoot': ['LLFT1', 'LFT2', 'LMFT3', 'LLUP'],
-    ...             'RHum': ['RMELB', 'RSHO', 'RUPA'],
-    ...             'LHum': ['LMELB', 'LSHO', 'LUPA']}
-    >>> result == expected
-    True
     """
-    pass
 
 
 def get_marker_location(pm, c):
@@ -118,7 +63,6 @@ def get_marker_location(pm, c):
         Location of the missing marker in the world frame. List of
         3 elements `[X, Y, Z]`.
     """
-    pass
 
 
 def get_static_transform(p, c):
@@ -140,7 +84,6 @@ def get_static_transform(p, c):
         Location of the missing marker in the cluster frame. List of
         3 elements `[X, Y, Z]`.
     """
-    pass
 
 
 def transform_from_static(data, data_mapping, static, static_mapping, key, useables, s):
@@ -174,7 +117,6 @@ def transform_from_static(data, data_mapping, static, static_mapping, key, useab
         Location of the missing marker in the world frame. List of
         3 elements `[X, Y, Z]`.
     """
-    pass
 
 
 def transform_from_mov(data, data_mapping, key, clust, last_time, i):
@@ -212,7 +154,6 @@ def transform_from_mov(data, data_mapping, key, clust, last_time, i):
         Location of the missing marker in the world frame. List of
         3 elements `[X, Y, Z]`.
     """
-    pass
 
 
 def segment_finder(key, data, data_mapping, target_dict, segment_dict, j, missings):
@@ -249,7 +190,6 @@ def segment_finder(key, data, data_mapping, target_dict, segment_dict, j, missin
         List of marker names in the same cluster as the marker `key` that
         can be used for gap filling.
     """
-    pass
 
 
 def rigid_fill(data, data_mapping, static, static_mapping):
@@ -277,7 +217,6 @@ def rigid_fill(data, data_mapping, static, static_mapping):
         3d numpy array of the same format as `data` after gap filling
         has been performed.
     """
-    pass
 
 
 # Filtering
@@ -315,7 +254,6 @@ def butter_filter(data, cutoff_frequency, sampling_frequency):
     factor C = square root of 2 to the power of 1/n - 1, where n is equal to
     the number of passes.
     """
-    pass
 
 
 def filt(data, cutoff_frequency, sampling_frequency):
@@ -341,7 +279,6 @@ def filt(data, cutoff_frequency, sampling_frequency):
         2d numpy array of the same format as `data` after the Butterworth
         filter is applied.
     """
-    pass
 
 
 def filtering(data, cutoff_frequency, sampling_frequency):
@@ -368,4 +305,3 @@ def filtering(data, cutoff_frequency, sampling_frequency):
         3d numpy array of the same format as `data` after the Butterworth
         filter is applied.
     """
-    pass
