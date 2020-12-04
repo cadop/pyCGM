@@ -1,3 +1,6 @@
+#!/usr/bin/python
+# -*- coding: utf-8 -*-
+
 from mock import patch
 import numpy as np
 import pytest
@@ -221,7 +224,10 @@ class TestCGMAngle():
         expected : array
             A 1x3 ndarray containing the flexion, abduction, and rotation angles of the pelvis.
 
-        This test is checking to make sure the global pelvis angle is calculated correctly given the input parameters.
+        This test is checking to make sure the global pelvis angle is calculated correctly given the input
+        parameters. This tests mocks get_angle to make sure the correct parameters are being passed into it given the
+        parameters passed into pelvis_angle_calc, expected_mock_args, and to also ensure that pelvis_angle_calc
+        returns the correct value considering the return value of get_angle, mock_return_val.
 
         This unit test ensures that:
         - the correct expected values are altered per parameter given.
@@ -382,7 +388,10 @@ class TestCGMAngle():
         expected : array
             A 2x3 ndarray containing the flexion, abduction, and rotation angles of the right and left hip.
 
-        This test is checking to make sure the hip angle is calculated correctly given the input parameters.
+        This test is checking to make sure the hip angle is calculated correctly given the input parameters. This
+        tests mocks get_angle to make sure the correct parameters are being passed into it given the parameters
+        passed into hip_angle_calc, expected_mock_args, and to also ensure that hip_angle_calc returns the correct
+        value considering the return value of get_angle, mock_return_val.
 
         This unit test ensures that:
         - the correct expected values are altered per parameter given.
@@ -549,7 +558,10 @@ class TestCGMAngle():
         expected : array
             A 2x3 ndarray containing the flexion, abduction, and rotation angles of the right and left ankle.
 
-        This test is checking to make sure the knee angle is calculated correctly given the input parameters.
+        This test is checking to make sure the knee angle is calculated correctly given the input parameters. This
+        tests mocks get_angle to make sure the correct parameters are being passed into it given the parameters
+        passed into knee_angle_calc, expected_mock_args, and to also ensure that knee_angle_calc returns the correct
+        value considering the return value of get_angle, mock_return_val.
 
         This unit test ensures that:
         - the correct expected values are altered per parameter given.
