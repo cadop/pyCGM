@@ -2471,5 +2471,170 @@ class StaticCGM:
         return angle
     
     # Note: This function will be equivalent to getStatic
-    def calc(self):
-        pass
+    def calc(self, motion_data, measurements, flat_foot, GCS):
+        """ Get Static Offset function
+        
+        Calculate the static offset angle values and return the values in radians
+
+        Parameters
+        ----------
+        motionData : dict
+            Dictionary of marker lists.
+        measurements : dict, optional
+            Dictionary of various attributes of the skeleton.
+        flat_foot : boolean, optional
+            A boolean indicating if the feet are flat or not.
+            The default value is False.
+        GCS : array, optional
+            An array containing the Global Coordinate System.
+            If not provided, the default will be set to: [[1, 0, 0], [0, 1, 0], [0, 0, 1]].
+        
+        Returns
+        -------
+        calSM : dict
+            Dictionary containing calibrated subject measurements.
+        
+        Examples
+        --------
+        >>> from .pycgmIO import loadC3D, loadVSK
+        >>> from .pycgmStatic import getStatic
+        >>> import os
+        >>> from .pyCGM_Helpers import getfilenames
+        >>> fileNames=getfilenames(2)
+        >>> c3dFile = fileNames[1]
+        >>> vskFile = fileNames[2]
+        >>> result = loadC3D(c3dFile)
+        >>> data = result[0]
+        >>> vskData = loadVSK(vskFile, False)
+        >>> result = getStatic(data,vskData,flat_foot=False)
+        >>> result['Bodymass']
+        75.0
+        >>> result['RightKneeWidth']
+        105.0
+        >>> result['LeftTibialTorsion']
+        0.0
+        """
+        static_offset = []
+        head_offset = []
+        IAD = []
+        calSM = {}
+        LeftLegLength = measurements['LeftLegLength']
+        RightLegLength = measurements['RightLegLength']  
+        calSM['MeanLegLength'] = (LeftLegLength+RightLegLength)/2.0
+        calSM['Bodymass'] = measurements['Bodymass']
+        
+        #Define the global coordinate system
+        if GCS == None: calSM['GCS'] = [[1,0,0],[0,1,0],[0,0,1]] 
+        
+        if measurements['LeftAsisTrocanterDistance'] != 0 and measurements['RightAsisTrocanterDistance'] != 0:
+            calSM['L_AsisToTrocanterMeasure'] = measurements['LeftAsisTrocanterDistance']
+            calSM['R_AsisToTrocanterMeasure'] = measurements['RightAsisTrocanterDistance']
+        else:
+            calSM['R_AsisToTrocanterMeasure'] = ( 0.1288 * RightLegLength ) - 48.56
+            calSM['L_AsisToTrocanterMeasure'] = ( 0.1288 * LeftLegLength ) - 48.56
+            
+        if measurements['InterAsisDistance'] != 0:
+            calSM['InterAsisDistance'] = measurements['InterAsisDistance']
+        else:
+            for frame in motionData:
+                iadCalc = IADcalculation(frame)
+                IAD.append(iadCalc)
+            InterAsisDistance = np.average(IAD)
+            calSM['InterAsisDistance'] = InterAsisDistance
+            
+        try: 
+            calSM['RightKneeWidth'] = measurements['RightKneeWidth']
+            calSM['LeftKneeWidth'] = measurements['LeftKneeWidth']
+        
+        except: 
+            #no knee width
+            calSM['RightKneeWidth'] = 0
+            calSM['LeftKneeWidth'] = 0
+            
+        if calSM['RightKneeWidth'] == 0:
+            if 'RMKN' in list(motionData[0].keys()):
+                #medial knee markers are available
+                Rwidth = []
+                Lwidth = []
+                #average each frame 
+                for frame in motionData:
+                    RMKN = frame['RMKN']
+                    LMKN = frame['LMKN']
+                    
+                    RKNE = frame['RKNE']
+                    LKNE = frame['LKNE']
+
+                    Rdst = np.linalg.norm(RKNE - RMKN)
+                    Ldst = np.linalg.norm(LKNE - LMKN)
+                    Rwidth.append(Rdst)
+                    Lwidth.append(Ldst)
+
+                calSM['RightKneeWidth'] = sum(Rwidth)/len(Rwidth)
+                calSM['LeftKneeWidth'] = sum(Lwidth)/len(Lwidth)        
+        try: 
+            calSM['RightAnkleWidth'] = vsk['RightAnkleWidth']
+            calSM['LeftAnkleWidth'] = vsk['LeftAnkleWidth']
+        
+        except: 
+            #no knee width
+            calSM['RightAnkleWidth'] = 0
+            calSM['LeftAnkleWidth'] = 0
+            
+        if calSM['RightAnkleWidth'] == 0:
+            if 'RMKN' in list(motionData[0].keys()):
+                #medial knee markers are available
+                Rwidth = []
+                Lwidth = []
+                #average each frame 
+                for frame in motionData:
+                    RMMA = frame['RMMA']
+                    LMMA = frame['LMMA']
+                    
+                    RANK = frame['RANK']
+                    LANK = frame['LANK']
+
+                    Rdst = np.linalg.norm(RMMA - RANK)
+                    Ldst = np.linalg.norm(LMMA - LANK)
+                    Rwidth.append(Rdst)
+                    Lwidth.append(Ldst)
+
+                calSM['RightAnkleWidth'] = sum(Rwidth)/len(Rwidth)
+                calSM['LeftAnkleWidth'] = sum(Lwidth)/len(Lwidth)
+        
+        calSM['RightTibialTorsion'] = measurements['RightTibialTorsion']
+        calSM['LeftTibialTorsion'] = measurements['LeftTibialTorsion']
+
+        calSM['RightShoulderOffset'] = measurements['RightShoulderOffset']
+        calSM['LeftShoulderOffset'] = measurements['LeftShoulderOffset']
+        
+        calSM['RightElbowWidth'] = measurements['RightElbowWidth']
+        calSM['LeftElbowWidth'] = measurements['LeftElbowWidth']
+        calSM['RightWristWidth'] = measurements['RightWristWidth']
+        calSM['LeftWristWidth'] = measurements['LeftWristWidth']
+        
+        calSM['RightHandThickness'] = measurements['RightHandThickness']
+        calSM['LeftHandThickness'] = measurements['LeftHandThickness']
+        
+        for frame in motionData:
+            pelvis_origin,pelvis_axis,sacrum = StaticCGM.pelvis_axis_calc(frame)
+            hip_JC = StaticCGM.hip_axis_calc(frame,pelvis_origin,pelvis_axis[0],pelvis_axis[1],pelvis_axis[2],calSM)
+            knee_JC = StaticCGM.knee_axis_calc(frame,hip_JC,0,vsk=calSM)
+            ankle_JC = StaticCGM.ankle_axis_calc(frame,knee_JC,0,vsk=calSM)
+            angle = StaticCGM.static_calculation(frame,ankle_JC,knee_JC,flat_foot,calSM)
+            head = StaticCGM.head_axis_calc(frame)
+            headangle = StaticCGM.static_calculation_head(frame,head)
+
+            static_offset.append(angle)
+            head_offset.append(headangle)
+            
+        
+        static=np.average(static_offset,axis=0)
+        staticHead=np.average(head_offset)
+        
+        calSM['RightStaticRotOff'] = static[0][0]*-1
+        calSM['RightStaticPlantFlex'] = static[0][1]
+        calSM['LeftStaticRotOff'] = static[1][0]
+        calSM['LeftStaticPlantFlex'] = static[1][1]
+        calSM['HeadOffset'] = staticHead
+        
+        return calSM
