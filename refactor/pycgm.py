@@ -235,7 +235,7 @@ class CGM:
         # v3 is np.cross vector of v1, v2
         # and then it is normalized.
         v3 = np.cross(v1, v2)
-        v3 /= np.linalg.norm(v3)
+        v3 = v3 / np.linalg.norm(v3)
 
         m = (b + c) / 2.0
         length = np.subtract(b, m)
@@ -681,13 +681,13 @@ class CGM:
 
         # Clear the name of axis and then normalize it.
         r_knee_x_axis, r_knee_y_axis, r_knee_z_axis = r_axis
-        r_knee_x_axis /= np.array([np.linalg.norm(r_knee_x_axis)])
-        r_knee_y_axis /= np.array([np.linalg.norm(r_knee_y_axis)])
-        r_knee_z_axis /= np.array([np.linalg.norm(r_knee_z_axis)])
+        r_knee_x_axis = r_knee_x_axis / np.array([np.linalg.norm(r_knee_x_axis)])
+        r_knee_y_axis = r_knee_y_axis / np.array([np.linalg.norm(r_knee_y_axis)])
+        r_knee_z_axis = r_knee_z_axis / np.array([np.linalg.norm(r_knee_z_axis)])
         l_knee_x_axis, l_knee_y_axis, l_knee_z_axis = l_axis
-        l_knee_x_axis /= np.array([np.linalg.norm(l_knee_x_axis)])
-        l_knee_y_axis /= np.array([np.linalg.norm(l_knee_y_axis)])
-        l_knee_z_axis /= np.array([np.linalg.norm(l_knee_z_axis)])
+        l_knee_x_axis = l_knee_x_axis / np.array([np.linalg.norm(l_knee_x_axis)])
+        l_knee_y_axis = l_knee_y_axis / np.array([np.linalg.norm(l_knee_y_axis)])
+        l_knee_z_axis = l_knee_z_axis / np.array([np.linalg.norm(l_knee_z_axis)])
 
         # Put both axis in array
         # Add the origin back to the vector
@@ -818,15 +818,15 @@ class CGM:
         # Clear the name of axis and then normalize it.
         r_ankle_x_axis, r_ankle_y_axis, r_ankle_z_axis = r_axis
 
-        r_ankle_x_axis /= np.linalg.norm(r_ankle_x_axis)
-        r_ankle_y_axis /= np.linalg.norm(r_ankle_y_axis)
-        r_ankle_z_axis /= np.linalg.norm(r_ankle_z_axis)
+        r_ankle_x_axis = r_ankle_x_axis / np.linalg.norm(r_ankle_x_axis)
+        r_ankle_y_axis = r_ankle_y_axis / np.linalg.norm(r_ankle_y_axis)
+        r_ankle_z_axis = r_ankle_z_axis / np.linalg.norm(r_ankle_z_axis)
 
         l_ankle_x_axis, l_ankle_y_axis, l_ankle_z_axis = l_axis
 
-        l_ankle_x_axis /= np.linalg.norm(l_ankle_x_axis)
-        l_ankle_y_axis /= np.linalg.norm(l_ankle_y_axis)
-        l_ankle_z_axis /= np.linalg.norm(l_ankle_z_axis)
+        l_ankle_x_axis = l_ankle_x_axis / np.linalg.norm(l_ankle_x_axis)
+        l_ankle_y_axis = l_ankle_y_axis / np.linalg.norm(l_ankle_y_axis)
+        l_ankle_z_axis = l_ankle_z_axis / np.linalg.norm(l_ankle_z_axis)
 
         # Put both axis in array
         r_axis = np.array([r_ankle_x_axis, r_ankle_y_axis, r_ankle_z_axis])
@@ -961,38 +961,38 @@ class CGM:
         # Right
         # Z axis is from TOE marker to AJC, normalized.
         r_axis_z = ankle_jc_r - rtoe
-        r_axis_z /= np.linalg.norm(r_axis_z)
+        r_axis_z = r_axis_z / np.linalg.norm(r_axis_z)
 
         # Bring the flexion axis of ankle axes from ankle_axis, and normalize it.
         y_flex_r = ankle_flexion_r - ankle_jc_r
-        y_flex_r /= np.linalg.norm(y_flex_r)
+        y_flex_r = y_flex_r / np.linalg.norm(y_flex_r)
 
         # X axis is calculated as a cross product of Z axis and ankle flexion axis.
         r_axis_x = np.cross(y_flex_r, r_axis_z)
-        r_axis_x /= np.linalg.norm(r_axis_x)
+        r_axis_x = r_axis_x / np.linalg.norm(r_axis_x)
 
         # Y axis is then perpendicularly calculated from Z axis and X axis, and normalized.
         r_axis_y = np.cross(r_axis_z, r_axis_x)
-        r_axis_y /= np.linalg.norm(r_axis_y)
+        r_axis_y = r_axis_y / np.linalg.norm(r_axis_y)
 
         r_foot_axis = np.array([r_axis_x, r_axis_y, r_axis_z])
 
         # Left
         # Z axis is from TOE marker to AJC, normalized.
         l_axis_z = ankle_jc_l - ltoe
-        l_axis_z /= np.linalg.norm(l_axis_z)
+        l_axis_z = l_axis_z / np.linalg.norm(l_axis_z)
 
         # Bring the flexion axis of ankle axes from ankle_axis, and normalize it.
         y_flex_l = ankle_flexion_l - ankle_jc_l
-        y_flex_l /= np.linalg.norm(y_flex_l)
+        y_flex_l = y_flex_l / np.linalg.norm(y_flex_l)
 
         # X axis is calculated as a cross product of Z axis and ankle flexion axis.
         l_axis_x = np.cross(y_flex_l, l_axis_z)
-        l_axis_x /= np.linalg.norm(l_axis_x)
+        l_axis_x = l_axis_x / np.linalg.norm(l_axis_x)
 
         # Y axis is then perpendicularly calculated from Z axis and X axis, and normalized.
         l_axis_y = np.cross(l_axis_z, l_axis_x)
-        l_axis_y /= np.linalg.norm(l_axis_y)
+        l_axis_y = l_axis_y / np.linalg.norm(l_axis_y)
 
         l_foot_axis = np.array([l_axis_x, l_axis_y, l_axis_z])
 
