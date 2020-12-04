@@ -1,3 +1,6 @@
+#!/usr/bin/python
+# -*- coding: utf-8 -*-
+
 # Utility
 def normalize(v):
     """Normalizes an input vector

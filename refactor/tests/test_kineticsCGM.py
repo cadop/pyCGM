@@ -1,3 +1,6 @@
+#!/usr/bin/python
+# -*- coding: utf-8 -*-
+
 import pytest
 import numpy as np
 from refactor.pycgm import CGM
