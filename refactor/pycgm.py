@@ -1262,12 +1262,12 @@ class CGM:
         global_axis : ndarray
             A 3x3 ndarray representing the global coordinate system.
         pelvis_axis : ndarray
-            A 4x3 ndarray representing the origin and three unit vectors of the pelvis axis.
+            A 4x3 ndarray containing the origin and three unit vectors of the pelvis axis.
 
         Returns
         -------
         ndarray
-            A 1x3 numpy array representing the flexion, abduction, and rotation angles of the pelvis.
+            A 1x3 ndarray containing the flexion, abduction, and rotation angles of the pelvis.
 
         Examples
         --------
@@ -1286,8 +1286,62 @@ class CGM:
         return CGM.get_angle(global_axis, pelvis_axis_mod)
 
     @staticmethod
-    def hip_angle_calc():
-        pass
+    def hip_angle_calc(hip_axis, knee_axis):
+        """Pelvis Angle Calculation function
+
+        Calculates the global pelvis angle.
+
+        Parameters
+        ----------
+        hip_axis : ndarray
+            A 6x3 ndarray containing the right and left hip joint centers, the hip origin,
+            and the hip unit vectors.
+        knee_axis : ndarray
+            An 8x3 ndarray containing the right knee origin, right knee unit vectors,
+            left knee origin, and left knee unit vectors.
+
+        Returns
+        -------
+        ndarray
+            A 2x3 ndarray containing the flexion, abduction, and rotation angles
+            of the right and left hip.
+
+        Examples
+        --------
+        >>> import numpy as np
+        >>> from .pycgm import CGM
+        >>> hip_axis = np.array([[np.nan, np.nan, np.nan],
+        ...                      [np.nan, np.nan, np.nan],
+        ...                      [245.47574167, 331.11787135, 936.75939593],
+        ...                      [245.60807102, 332.10350081, 936.65440301],
+        ...                      [244.48455032, 331.24888223, 936.74000858],
+        ...                      [245.47038814, 331.22450494, 937.75367990]])
+        >>> knee_axis = np.array([[364.17774613, 292.17051731, 515.19181496],
+        ...                       [364.61959153, 293.06758353, 515.18513093],
+        ...                       [363.29019771, 292.60656648, 515.04309095],
+        ...                       [364.04724540, 292.24216263, 516.18067111],
+        ...                       [143.55478579, 279.90370346, 524.78408753],
+        ...                       [143.65611281, 280.88685896, 524.63197541],
+        ...                       [142.56434499, 280.01777942, 524.86163553],
+        ...                       [143.64837986, 280.04650380, 525.76940383]])
+        >>> CGM.hip_angle_calc(hip_axis, knee_axis)
+        array([[  2.91422854,  -6.86706805, -18.82100186],
+               [ -2.86020432,  -5.34565068,  -1.80256237]])
+        """
+        r_hip_jc, l_hip_jc, hip_origin, hip_x, hip_y, hip_z = hip_axis
+        r_knee_jc, r_knee_x, r_knee_y, r_knee_z, l_knee_jc, l_knee_x, l_knee_y, l_knee_z = knee_axis
+
+        hip_axis_mod = CGM.subtract_origin(hip_axis[2:])
+        r_knee_axis_mod = CGM.subtract_origin(knee_axis[:4])
+        l_knee_axis_mod = CGM.subtract_origin(knee_axis[4:])
+
+        r_hip_angle = CGM.get_angle(hip_axis_mod, r_knee_axis_mod)
+        l_hip_angle = CGM.get_angle(hip_axis_mod, l_knee_axis_mod)
+
+        r_hip_angle = np.array([r_hip_angle[0] * -1, r_hip_angle[1], r_hip_angle[2] * -1 + 90])
+        l_hip_angle = np.array([l_hip_angle[0] * -1, l_hip_angle[1] * -1, l_hip_angle[2] - 90])
+
+        return np.array([r_hip_angle, l_hip_angle])
 
     @staticmethod
     def knee_angle_calc():
