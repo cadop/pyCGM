@@ -1,3 +1,6 @@
+#!/usr/bin/python
+# -*- coding: utf-8 -*-
+
 from refactor.io import IO
 from math import cos, sin, acos, degrees, radians, sqrt, pi 
 import numpy as np
