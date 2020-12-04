@@ -1287,9 +1287,9 @@ class CGM:
 
     @staticmethod
     def hip_angle_calc(hip_axis, knee_axis):
-        """Pelvis Angle Calculation function
+        """Hip Angle Calculation function
 
-        Calculates the global pelvis angle.
+        Calculates the hip angle.
 
         Parameters
         ----------
@@ -1342,8 +1342,62 @@ class CGM:
         return np.array([r_hip_angle, l_hip_angle])
 
     @staticmethod
-    def knee_angle_calc():
-        pass
+    def knee_angle_calc(knee_axis, ankle_axis):
+        """Knee Angle Calculation function
+
+        Calculates the knee angle.
+
+        Parameters
+        ----------
+        knee_axis : ndarray
+            An 8x3 ndarray containing the right knee origin, right knee unit vectors,
+            left knee origin, and left knee unit vectors.
+        ankle_axis : ndarray
+            An 8x3 ndarray containing the right ankle origin, right ankle unit vectors,
+            left ankle origin, and left ankle unit vectors.
+
+        Returns
+        -------
+        ndarray
+            A 2x3 ndarray containing the flexion, abduction, and rotation angles
+            of the right and left ankle.
+
+        Examples
+        --------
+        >>> import numpy as np
+        >>> from .pycgm import CGM
+        >>> knee_axis = np.array([[364.17774614, 292.17051722, 515.19181496],
+        ...                       [364.61959153, 293.06758353, 515.18513093],
+        ...                       [363.29019771, 292.60656648, 515.04309095],
+        ...                       [364.04724541, 292.24216264, 516.18067112],
+        ...                       [143.55478579, 279.90370346, 524.78408753],
+        ...                       [143.65611282, 280.88685896, 524.63197541],
+        ...                       [142.56434499, 280.01777943, 524.86163553],
+        ...                       [143.64837987, 280.04650381, 525.76940383]])
+        >>> ankle_axis = np.array([[393.76181608, 247.67829633, 87.73775041],
+        ...                        [394.48171575, 248.37201348, 87.71536800],
+        ...                        [393.07114384, 248.39110006, 87.61575574],
+        ...                        [393.69314056, 247.78157916, 88.73002876],
+        ...                        [ 98.74901939, 219.46930221, 80.63068160],
+        ...                        [ 98.47494966, 220.42553803, 80.52821783],
+        ...                        [ 97.79246671, 219.20927275, 80.76255901],
+        ...                        [ 98.84848169, 219.60345781, 81.61663775]])
+        >>> CGM.knee_angle_calc(knee_axis, ankle_axis)
+        array([[  3.19436865,   2.38341045, -19.47591616],
+               [ -0.45848726,  -0.3866728 , -21.87580851]])
+        """
+        r_knee_axis_mod = CGM.subtract_origin(knee_axis[:4])
+        l_knee_axis_mod = CGM.subtract_origin(knee_axis[4:])
+        r_ankle_axis_mod = CGM.subtract_origin(ankle_axis[:4])
+        l_ankle_axis_mod = CGM.subtract_origin(ankle_axis[4:])
+
+        r_knee_angle = CGM.get_angle(r_knee_axis_mod, r_ankle_axis_mod)
+        l_knee_angle = CGM.get_angle(l_knee_axis_mod, l_ankle_axis_mod)
+
+        r_knee_angle = np.array([r_knee_angle[0], r_knee_angle[1], r_knee_angle[2] * -1 + 90])
+        l_knee_angle = np.array([l_knee_angle[0], l_knee_angle[1] * -1, l_knee_angle[2] - 90])
+
+        return np.array([r_knee_angle, l_knee_angle])
 
     @staticmethod
     def ankle_angle_calc():
