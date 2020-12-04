@@ -122,8 +122,29 @@ class CGM:
 
         Returns
         -------
-        rxyz : list
+        rxyz : ndarray
             The product of the matrix multiplication as a 3x3 ndarray.
+
+        Examples
+        --------
+        >>> import numpy as np
+        >>> from .pycgm import CGM
+        >>> x, y, z = 0.5, 0.3, 0.8
+        >>> np.around(CGM.rotation_matrix(x, y, z), 8)
+        array([[ 0.99988882, -0.01396199,  0.00523596],
+               [ 0.01400734,  0.99986381, -0.00872642],
+               [-0.00511341,  0.00879879,  0.99994822]])
+        >>> x = 0.5
+        >>> np.around(CGM.rotation_matrix(x), 8)
+        array([[ 1.        ,  0.        ,  0.        ],
+               [ 0.        ,  0.99996192, -0.00872654],
+               [ 0.        ,  0.00872654,  0.99996192]])
+        >>> x = 1
+        >>> y = 1
+        >>> np.around(CGM.rotation_matrix(x, y), 8)
+        array([[ 9.9984770e-01,  0.0000000e+00,  1.7452410e-02],
+               [ 3.0459000e-04,  9.9984770e-01, -1.7449750e-02],
+               [-1.7449750e-02,  1.7452410e-02,  9.9969541e-01]])
         """
         # Convert the x, y, z rotation angles from degrees to radians
         x = radians(x)
@@ -131,9 +152,9 @@ class CGM:
         z = radians(z)
 
         # Making elemental rotations about each of the x, y, z axes
-        rx = [[1, 0, 0], [0, cos(x), sin(x) * -1], [0, sin(x), cos(x)]]
-        ry = [[cos(y), 0, sin(y)], [0, 1, 0], [sin(y) * -1, 0, cos(y)]]
-        rz = [[cos(z), sin(z) * -1, 0], [sin(z), cos(z), 0], [0, 0, 1]]
+        rx = np.array([[1, 0, 0], [0, cos(x), sin(x) * -1], [0, sin(x), cos(x)]])
+        ry = np.array([[cos(y), 0, sin(y)], [0, 1, 0], [sin(y) * -1, 0, cos(y)]])
+        rz = np.array([[cos(z), sin(z) * -1, 0], [sin(z), cos(z), 0], [0, 0, 1]])
 
         # Making the rotation matrix around x, y, z axes using matrix multiplication
         rxy = np.matmul(rx, ry)
@@ -208,17 +229,15 @@ class CGM:
         array([396.25286248, 347.91367254, 518.63620527])
         """
         # Make the two vector using 3 markers, which is on the same plane.
-        v1 = (a[0] - c[0], a[1] - c[1], a[2] - c[2])
-        v2 = (b[0] - c[0], b[1] - c[1], b[2] - c[2])
+        v1 = a - c
+        v2 = b - c
 
         # v3 is np.cross vector of v1, v2
         # and then it is normalized.
-        # v3 = np.cross(v1,v2)
-        v3 = [v1[1] * v2[2] - v1[2] * v2[1], v1[2] * v2[0] - v1[0] * v2[2], v1[0] * v2[1] - v1[1] * v2[0]]
-        v3_div = np.linalg.norm(v3)
-        v3 = [v3[0] / v3_div, v3[1] / v3_div, v3[2] / v3_div]
+        v3 = np.cross(v1, v2)
+        v3 /= np.linalg.norm(v3)
 
-        m = [(b[0] + c[0]) / 2.0, (b[1] + c[1]) / 2.0, (b[2] + c[2]) / 2.0]
+        m = (b + c) / 2
         length = np.subtract(b, m)
         length = np.linalg.norm(length)
 
@@ -243,7 +262,7 @@ class CGM:
         r = rot * (np.matrix(v2).transpose())
         r = r * length / np.linalg.norm(r)
 
-        r = [r[0, 0], r[1, 0], r[2, 0]]
+        r = np.array([r[0, 0], r[1, 0], r[2, 0]])
         mr = np.array([r[0] + m[0], r[1] + m[1], r[2] + m[2]])
 
         return mr
@@ -342,8 +361,7 @@ class CGM:
 
         return angle
 
-        # Axis calculation functions
-
+    # Axis calculation functions
     @staticmethod
     def pelvis_axis_calc(rasi, lasi, rpsi=None, lpsi=None, sacr=None):
         """Pelvis Axis Calculation function
@@ -1576,7 +1594,7 @@ class CGM:
             of each joint by origin and xyz unit vectors by x, y, and z location.
         """
 
-    # Center of Mass / kinetics calculation Methods:
+    # Center of Mass / Kinetics calculation Methods:
     @staticmethod
     def point_to_line(point, start, end):
         """Finds the distance from a point to a line.
@@ -1720,7 +1738,7 @@ class CGM:
         with open(os.path.dirname(os.path.abspath(__file__)) + os.sep + 'segments.csv', 'r') as f:
             header = False
             for line in f:
-                if header == False:
+                if not header:
                     header = line.rstrip('\n').split(',')
                     header = True
                 else:
@@ -1915,31 +1933,6 @@ class StaticCGM:
         self.subject_measurements = IO.load_sm(path_measurements)
 
     @staticmethod
-    def get_static(motion_data, measurements, flat_foot, gcs):
-        """ Get Static Offset function
-
-        Calculate the static offset angle values and return the values in radians
-
-        Parameters
-        ----------
-        motion_data : dict
-            Dictionary of marker lists.
-        measurements : dict, optional
-            A dictionary containing the subject measurements given from the file input.
-        flat_foot : boolean, optional
-            A boolean indicating if the feet are flat or not.
-            The default value is False.
-        gcs : ndarray, optional
-            An array containing the Global Coordinate System.
-            If not provided, the default will be set to: [[1, 0, 0], [0, 1, 0], [0, 0, 1]].
-
-        Returns
-        -------
-        calSM : dict
-            Dictionary containing various marker lists of offsets.
-        """
-
-    @staticmethod
     def iad_calculation(rasi, lasi):
         """Calculates the Inter ASIS Distance.
         Given the markers RASI and LASI, the Inter ASIS Distance is defined as:
@@ -1978,7 +1971,7 @@ class StaticCGM:
         the head offset angle. Uses the global axis.
         Parameters
         ----------
-        head : ndarray
+        head_axis : ndarray
             Array containing 4 1x3 arrays. The first gives the XYZ coordinates of the head
             origin. The remaining 3 are 1x3 arrays that give the XYZ coordinates of the
             X, Y, and Z head axis respectively.
@@ -1992,11 +1985,11 @@ class StaticCGM:
         --------
         >>> from numpy import around, array
         >>> from refactor import pycgm
-        >>> head = array([[99.58366584777832, 82.79330825805664, 1483.7968139648438],
-        ...               [100.33272997128863, 83.39303060995121, 1484.078302933558], 
-        ...               [98.9655145897623, 83.57884461044797, 1483.7681493301013], 
-        ...               [99.34535520789223, 82.64077714742746, 1484.7559501904173]])
-        >>> around(pycgm.StaticCGM.static_calculation_head(head), 8)
+        >>> head_axis = array([[99.58366584777832, 82.79330825805664, 1483.7968139648438],
+        ...                    [100.33272997128863, 83.39303060995121, 1484.078302933558],
+        ...                    [98.9655145897623, 83.57884461044797, 1483.7681493301013],
+        ...                    [99.34535520789223, 82.64077714742746, 1484.7559501904173]])
+        >>> around(pycgm.StaticCGM.static_calculation_head(head_axis), 8)
         0.28546606
         """
         head_axis = CGM.subtract_origin(head_axis)
@@ -2036,7 +2029,7 @@ class StaticCGM:
             left knee origin, and left knee unit vectors.
         flat_foot : boolean
             A boolean indicating if the feet are flat or not.
-        measurements : dict, optional
+        measurements : dict
             A dictionary containing the subject measurements given from the file input.
 
         Returns
@@ -2077,12 +2070,12 @@ class StaticCGM:
         >>> flat_foot = True
         >>> measurements = { 'RightSoleDelta': 0.4532,'LeftSoleDelta': 0.4532 }
         >>> parameters = [rtoe, ltoe, rhee, lhee, ankle_axis, knee_axis, flat_foot, measurements]
-        >>> np.around(StaticCGM.static_calculation(*parameters),8) 
+        >>> np.around(StaticCGM.static_calculation(*parameters),8)
         array([[-0.08036968,  0.23192796, -0.66672181],
                [-0.67466613,  0.21812578, -0.30207993]])
         >>> flat_foot = False
         >>> parameters = [rtoe, ltoe, rhee, lhee, ankle_axis, knee_axis, flat_foot, measurements]
-        >>> np.around(StaticCGM.static_calculation(*parameters),8) 
+        >>> np.around(StaticCGM.static_calculation(*parameters),8)
         array([[-0.07971346,  0.19881323, -0.15319313],
                [-0.67470483,  0.18594096,  0.12287455]])
         """
@@ -2102,7 +2095,7 @@ class StaticCGM:
             r_ankle_flex_angle = StaticCGM.ankle_angle_calc(rf1_r_axis, rf2_r_axis)
             l_ankle_flex_angle = StaticCGM.ankle_angle_calc(rf1_l_axis, rf2_l_axis)
 
-        elif flat_foot:
+        else:
             rf_axis3 = StaticCGM.flat_foot_axis_calc(rtoe, ltoe, rhee, lhee, ankle_axis, measurements)
             # make the array to same format for calculating angle.
             rf3_r_axis = CGM.subtract_origin(rf_axis3[:4])
@@ -2661,7 +2654,8 @@ class StaticCGM:
 
         return np.array([r_ankle_jc, rx_axis, ry_axis, rz_axis, l_ankle_jc, lx_axis, ly_axis, lz_axis])
 
-    # Note: this function is equivalent to uncorrect_footaxis() in pycgmStatic.py, the only difference is the order in which operations were calculated. 
+    # Note: this function is equivalent to uncorrect_footaxis() in pycgmStatic.py
+    # the only difference is the order in which operations were calculated.
     # The footJointCenter() function in pycgm is not used anywhere.
     @staticmethod
     def foot_axis_calc(rtoe, ltoe, ankle_axis):
@@ -2689,8 +2683,6 @@ class StaticCGM:
         ankle_axis : ndarray
             An 8x3 ndarray that contains the right ankle origin, right ankle x, y, and z
             axis components, left ankle origin, and left ankle x, y, and z axis components.
-        measurements : dict
-            A dictionary containing the subject measurements given from the file input.
 
         Returns
         -------
@@ -2734,68 +2726,68 @@ class StaticCGM:
            [ 38.49604413, 382.13712948,  41.93254235],
            [ 39.77025057, 381.52823259,  42.00765902]])
         """
-        ankle_JC_R = ankle_axis[0]
-        ankle_JC_L = ankle_axis[4]
-        ankle_flexion_R = ankle_axis[2]
-        ankle_flexion_L = ankle_axis[6]
+        ankle_jc_r = ankle_axis[0]
+        ankle_jc_l = ankle_axis[4]
+        ankle_flexion_r = ankle_axis[2]
+        ankle_flexion_l = ankle_axis[6]
 
         # Foot axis's origin is marker position of TOE
 
         # z axis is from Toe to AJC and normalized.
-        R_axis_z = [ankle_JC_R[0] - rtoe[0], ankle_JC_R[1] - rtoe[1], ankle_JC_R[2] - rtoe[2]]
-        R_axis_z_div = np.linalg.norm(R_axis_z)
-        R_axis_z = [R_axis_z[0] / R_axis_z_div, R_axis_z[1] / R_axis_z_div, R_axis_z[2] / R_axis_z_div]
+        r_axis_z = [ankle_jc_r[0] - rtoe[0], ankle_jc_r[1] - rtoe[1], ankle_jc_r[2] - rtoe[2]]
+        r_axis_z_div = np.linalg.norm(r_axis_z)
+        r_axis_z = [r_axis_z[0] / r_axis_z_div, r_axis_z[1] / r_axis_z_div, r_axis_z[2] / r_axis_z_div]
 
         # Bring y flexion axis from ankle axis.
-        y_flex_R = [ankle_flexion_R[0] - ankle_JC_R[0], ankle_flexion_R[1] - ankle_JC_R[1],
-                    ankle_flexion_R[2] - ankle_JC_R[2]]
-        y_flex_R_div = np.linalg.norm(y_flex_R)
-        y_flex_R = [y_flex_R[0] / y_flex_R_div, y_flex_R[1] / y_flex_R_div, y_flex_R[2] / y_flex_R_div]
+        y_flex_r = [ankle_flexion_r[0] - ankle_jc_r[0], ankle_flexion_r[1] - ankle_jc_r[1],
+                    ankle_flexion_r[2] - ankle_jc_r[2]]
+        y_flex_r_div = np.linalg.norm(y_flex_r)
+        y_flex_r = [y_flex_r[0] / y_flex_r_div, y_flex_r[1] / y_flex_r_div, y_flex_r[2] / y_flex_r_div]
 
         # Calculate x axis by cross-product of ankle flexion axis and z axis.
-        R_axis_x = np.cross(y_flex_R, R_axis_z)
-        R_axis_x_div = np.linalg.norm(R_axis_x)
-        R_axis_x = [R_axis_x[0] / R_axis_x_div, R_axis_x[1] / R_axis_x_div, R_axis_x[2] / R_axis_x_div]
+        r_axis_x = np.cross(y_flex_r, r_axis_z)
+        r_axis_x_div = np.linalg.norm(r_axis_x)
+        r_axis_x = [r_axis_x[0] / r_axis_x_div, r_axis_x[1] / r_axis_x_div, r_axis_x[2] / r_axis_x_div]
 
         # Calculate y axis by cross-product of z axis and x axis.
-        R_axis_y = np.cross(R_axis_z, R_axis_x)
-        R_axis_y_div = np.linalg.norm(R_axis_y)
-        R_axis_y = [R_axis_y[0] / R_axis_y_div, R_axis_y[1] / R_axis_y_div, R_axis_y[2] / R_axis_y_div]
+        r_axis_y = np.cross(r_axis_z, r_axis_x)
+        r_axis_y_div = np.linalg.norm(r_axis_y)
+        r_axis_y = [r_axis_y[0] / r_axis_y_div, r_axis_y[1] / r_axis_y_div, r_axis_y[2] / r_axis_y_div]
 
         # Attach each axes to origin.
-        R_axis_x = [R_axis_x[0] + rtoe[0], R_axis_x[1] + rtoe[1], R_axis_x[2] + rtoe[2]]
-        R_axis_y = [R_axis_y[0] + rtoe[0], R_axis_y[1] + rtoe[1], R_axis_y[2] + rtoe[2]]
-        R_axis_z = [R_axis_z[0] + rtoe[0], R_axis_z[1] + rtoe[1], R_axis_z[2] + rtoe[2]]
+        r_axis_x = [r_axis_x[0] + rtoe[0], r_axis_x[1] + rtoe[1], r_axis_x[2] + rtoe[2]]
+        r_axis_y = [r_axis_y[0] + rtoe[0], r_axis_y[1] + rtoe[1], r_axis_y[2] + rtoe[2]]
+        r_axis_z = [r_axis_z[0] + rtoe[0], r_axis_z[1] + rtoe[1], r_axis_z[2] + rtoe[2]]
 
         # Left
 
         # z axis is from Toe to AJC and normalized.
-        L_axis_z = [ankle_JC_L[0] - ltoe[0], ankle_JC_L[1] - ltoe[1], ankle_JC_L[2] - ltoe[2]]
-        L_axis_z_div = np.linalg.norm(L_axis_z)
-        L_axis_z = [L_axis_z[0] / L_axis_z_div, L_axis_z[1] / L_axis_z_div, L_axis_z[2] / L_axis_z_div]
+        l_axis_z = [ankle_jc_l[0] - ltoe[0], ankle_jc_l[1] - ltoe[1], ankle_jc_l[2] - ltoe[2]]
+        l_axis_z_div = np.linalg.norm(l_axis_z)
+        l_axis_z = [l_axis_z[0] / l_axis_z_div, l_axis_z[1] / l_axis_z_div, l_axis_z[2] / l_axis_z_div]
 
         # Bring y flexion axis from ankle axis.
-        y_flex_L = [ankle_flexion_L[0] - ankle_JC_L[0], ankle_flexion_L[1] - ankle_JC_L[1],
-                    ankle_flexion_L[2] - ankle_JC_L[2]]
-        y_flex_L_div = np.linalg.norm(y_flex_L)
-        y_flex_L = [y_flex_L[0] / y_flex_L_div, y_flex_L[1] / y_flex_L_div, y_flex_L[2] / y_flex_L_div]
+        y_flex_l = [ankle_flexion_l[0] - ankle_jc_l[0], ankle_flexion_l[1] - ankle_jc_l[1],
+                    ankle_flexion_l[2] - ankle_jc_l[2]]
+        y_flex_l_div = np.linalg.norm(y_flex_l)
+        y_flex_l = [y_flex_l[0] / y_flex_l_div, y_flex_l[1] / y_flex_l_div, y_flex_l[2] / y_flex_l_div]
 
         # Calculate x axis by cross-product of ankle flexion axis and z axis.
-        L_axis_x = np.cross(y_flex_L, L_axis_z)
-        L_axis_x_div = np.linalg.norm(L_axis_x)
-        L_axis_x = [L_axis_x[0] / L_axis_x_div, L_axis_x[1] / L_axis_x_div, L_axis_x[2] / L_axis_x_div]
+        l_axis_x = np.cross(y_flex_l, l_axis_z)
+        l_axis_x_div = np.linalg.norm(l_axis_x)
+        l_axis_x = [l_axis_x[0] / l_axis_x_div, l_axis_x[1] / l_axis_x_div, l_axis_x[2] / l_axis_x_div]
 
         # Calculate y axis by cross-product of z axis and x axis.
-        L_axis_y = np.cross(L_axis_z, L_axis_x)
-        L_axis_y_div = np.linalg.norm(L_axis_y)
-        L_axis_y = [L_axis_y[0] / L_axis_y_div, L_axis_y[1] / L_axis_y_div, L_axis_y[2] / L_axis_y_div]
+        l_axis_y = np.cross(l_axis_z, l_axis_x)
+        l_axis_y_div = np.linalg.norm(l_axis_y)
+        l_axis_y = [l_axis_y[0] / l_axis_y_div, l_axis_y[1] / l_axis_y_div, l_axis_y[2] / l_axis_y_div]
 
         # Attach each axis to origin.
-        L_axis_x = [L_axis_x[0] + ltoe[0], L_axis_x[1] + ltoe[1], L_axis_x[2] + ltoe[2]]
-        L_axis_y = [L_axis_y[0] + ltoe[0], L_axis_y[1] + ltoe[1], L_axis_y[2] + ltoe[2]]
-        L_axis_z = [L_axis_z[0] + ltoe[0], L_axis_z[1] + ltoe[1], L_axis_z[2] + ltoe[2]]
+        l_axis_x = [l_axis_x[0] + ltoe[0], l_axis_x[1] + ltoe[1], l_axis_x[2] + ltoe[2]]
+        l_axis_y = [l_axis_y[0] + ltoe[0], l_axis_y[1] + ltoe[1], l_axis_y[2] + ltoe[2]]
+        l_axis_z = [l_axis_z[0] + ltoe[0], l_axis_z[1] + ltoe[1], l_axis_z[2] + ltoe[2]]
 
-        return np.array([rtoe, R_axis_x, R_axis_y, R_axis_z, ltoe, L_axis_x, L_axis_y, L_axis_z])
+        return np.array([rtoe, r_axis_x, r_axis_y, r_axis_z, ltoe, l_axis_x, l_axis_y, l_axis_z])
 
     @staticmethod
     def non_flat_foot_axis_calc(rtoe, ltoe, rhee, lhee, ankle_axis):
@@ -2804,7 +2796,7 @@ class StaticCGM:
         Calculate the anatomical correct foot axis for non-foot flat.
 
         Markers used: RTOE, LTOE, RHEE, LHEE
-            
+
         Parameters
         ----------
         rtoe, ltoe, rhee, lhee : ndarray
@@ -2812,12 +2804,12 @@ class StaticCGM:
         ankle_axis : ndarray
             An 8x3 ndarray that contains the right ankle origin, right ankle x, y, and z
             axis components, left ankle origin, and left ankle x, y, and z axis components.
-            
+
         Returns
         -------
         array
             Returns an 8x3 ndarray that contains the right foot origin, right foot x, y, and z
-            axis components, left foot origin, and left foot x, y, and z axis components.    
+            axis components, left foot origin, and left foot x, y, and z axis components.
 
         Examples
         --------
@@ -2825,7 +2817,7 @@ class StaticCGM:
         >>> from refactor.pycgm import StaticCGM
         >>> rhee, lhee, rtoe, ltoe = np.array([[374.01257324, 181.57929993, 49.50960922],
         ...                                    [105.30126953, 180.2130127, 47.15660858],
-        ...                                    [442.81997681, 381.62280273, 42.66047668], 
+        ...                                    [442.81997681, 381.62280273, 42.66047668],
         ...                                    [39.43652725, 382.44522095, 41.78911591]])
         >>> ankle_axis = np.array([[393.76181608, 247.67829633, 87.73775041],
         ...                        [394.4817575 , 248.37201348, 87.715368  ],
@@ -2836,70 +2828,70 @@ class StaticCGM:
         ...                        [97.79246671 , 219.20927275, 80.76255901],
         ...                        [98.84848169 , 219.60345781, 81.61663775]])
         >>> [np.around(arr,8) for arr in StaticCGM.non_flat_foot_axis_calc(rtoe, ltoe, rhee, lhee, ankle_axis)] #doctest: +NORMALIZE_WHITESPACE
-        [array([442.81997681, 381.62280273,  42.66047668]), 
-        array([442.71651135, 381.69236202,  43.65267444]), 
-        array([441.87997036, 381.94200709,  42.54007546]), 
-        array([442.49488793, 380.67767307,  42.69283623]), 
-        array([ 39.43652725, 382.44522095,  41.78911591]), 
-        array([ 39.55544558, 382.51024763,  42.77988832]), 
-        array([ 38.49311916, 382.14149804,  41.92228333]), 
-        array([ 39.74610697, 381.4946822 ,  41.81434438])]       
+        [array([442.81997681, 381.62280273,  42.66047668]),
+        array([442.71651135, 381.69236202,  43.65267444]),
+        array([441.87997036, 381.94200709,  42.54007546]),
+        array([442.49488793, 380.67767307,  42.69283623]),
+        array([ 39.43652725, 382.44522095,  41.78911591]),
+        array([ 39.55544558, 382.51024763,  42.77988832]),
+        array([ 38.49311916, 382.14149804,  41.92228333]),
+        array([ 39.74610697, 381.4946822 ,  41.81434438])]
         """
-        # REQUIRED MARKERS: 
+        # REQUIRED MARKERS:
         # RTOE
         # LTOE
         # ankle_JC
 
-        ankle_JC_R = ankle_axis[0]
-        ankle_JC_L = ankle_axis[4]
-        ankle_flexion_R = ankle_axis[2]
-        ankle_flexion_L = ankle_axis[6]
+        ankle_jc_r = ankle_axis[0]
+        ankle_jc_l = ankle_axis[4]
+        ankle_flexion_r = ankle_axis[2]
+        ankle_flexion_l = ankle_axis[6]
 
         # Toe axis's origin is marker position of TOE
-        ankle_JC_R = [ankle_JC_R[0], ankle_JC_R[1], ankle_JC_R[2]]
-        ankle_JC_L = [ankle_JC_L[0], ankle_JC_L[1], ankle_JC_L[2]]
+        ankle_jc_r = [ankle_jc_r[0], ankle_jc_r[1], ankle_jc_r[2]]
+        ankle_jc_l = [ankle_jc_l[0], ankle_jc_l[1], ankle_jc_l[2]]
 
         # in case of non foot flat we just use the HEE marker
-        R_axis_z = [rhee[0] - rtoe[0], rhee[1] - rtoe[1], rhee[2] - rtoe[2]]
-        R_axis_z = R_axis_z / np.array([np.linalg.norm(R_axis_z)])
+        r_axis_z = [rhee[0] - rtoe[0], rhee[1] - rtoe[1], rhee[2] - rtoe[2]]
+        r_axis_z = r_axis_z / np.array([np.linalg.norm(r_axis_z)])
 
-        y_flex_R = [ankle_flexion_R[0] - ankle_JC_R[0], ankle_flexion_R[1] - ankle_JC_R[1],
-                    ankle_flexion_R[2] - ankle_JC_R[2]]
-        y_flex_R = y_flex_R / np.array([np.linalg.norm(y_flex_R)])
+        y_flex_r = [ankle_flexion_r[0] - ankle_jc_r[0], ankle_flexion_r[1] - ankle_jc_r[1],
+                    ankle_flexion_r[2] - ankle_jc_r[2]]
+        y_flex_r = y_flex_r / np.array([np.linalg.norm(y_flex_r)])
 
-        R_axis_x = np.cross(y_flex_R, R_axis_z)
-        R_axis_x = R_axis_x / np.array([np.linalg.norm(R_axis_x)])
+        r_axis_x = np.cross(y_flex_r, r_axis_z)
+        r_axis_x = r_axis_x / np.array([np.linalg.norm(r_axis_x)])
 
-        R_axis_y = np.cross(R_axis_z, R_axis_x)
-        R_axis_y = R_axis_y / np.array([np.linalg.norm(R_axis_y)])
+        r_axis_y = np.cross(r_axis_z, r_axis_x)
+        r_axis_y = r_axis_y / np.array([np.linalg.norm(r_axis_y)])
 
-        R_axis_x = [R_axis_x[0] + rtoe[0], R_axis_x[1] + rtoe[1], R_axis_x[2] + rtoe[2]]
-        R_axis_y = [R_axis_y[0] + rtoe[0], R_axis_y[1] + rtoe[1], R_axis_y[2] + rtoe[2]]
-        R_axis_z = [R_axis_z[0] + rtoe[0], R_axis_z[1] + rtoe[1], R_axis_z[2] + rtoe[2]]
+        r_axis_x = [r_axis_x[0] + rtoe[0], r_axis_x[1] + rtoe[1], r_axis_x[2] + rtoe[2]]
+        r_axis_y = [r_axis_y[0] + rtoe[0], r_axis_y[1] + rtoe[1], r_axis_y[2] + rtoe[2]]
+        r_axis_z = [r_axis_z[0] + rtoe[0], r_axis_z[1] + rtoe[1], r_axis_z[2] + rtoe[2]]
 
         # Left
 
-        ankle_JC_R = [ankle_JC_R[0], ankle_JC_R[1], ankle_JC_R[2]]
-        ankle_JC_L = [ankle_JC_L[0], ankle_JC_L[1], ankle_JC_L[2]]
+        ankle_jc_r = [ankle_jc_r[0], ankle_jc_r[1], ankle_jc_r[2]]
+        ankle_jc_l = [ankle_jc_l[0], ankle_jc_l[1], ankle_jc_l[2]]
 
-        L_axis_z = [lhee[0] - ltoe[0], lhee[1] - ltoe[1], lhee[2] - ltoe[2]]
-        L_axis_z = L_axis_z / np.array([np.linalg.norm(L_axis_z)])
+        l_axis_z = [lhee[0] - ltoe[0], lhee[1] - ltoe[1], lhee[2] - ltoe[2]]
+        l_axis_z = l_axis_z / np.array([np.linalg.norm(l_axis_z)])
 
-        y_flex_L = [ankle_flexion_L[0] - ankle_JC_L[0], ankle_flexion_L[1] - ankle_JC_L[1],
-                    ankle_flexion_L[2] - ankle_JC_L[2]]
-        y_flex_L = y_flex_L / np.array([np.linalg.norm(y_flex_L)])
+        y_flex_l = [ankle_flexion_l[0] - ankle_jc_l[0], ankle_flexion_l[1] - ankle_jc_l[1],
+                    ankle_flexion_l[2] - ankle_jc_l[2]]
+        y_flex_l = y_flex_l / np.array([np.linalg.norm(y_flex_l)])
 
-        L_axis_x = np.cross(y_flex_L, L_axis_z)
-        L_axis_x = L_axis_x / np.array([np.linalg.norm(L_axis_x)])
+        l_axis_x = np.cross(y_flex_l, l_axis_z)
+        l_axis_x = l_axis_x / np.array([np.linalg.norm(l_axis_x)])
 
-        L_axis_y = np.cross(L_axis_z, L_axis_x)
-        L_axis_y = L_axis_y / np.array([np.linalg.norm(L_axis_y)])
+        l_axis_y = np.cross(l_axis_z, l_axis_x)
+        l_axis_y = l_axis_y / np.array([np.linalg.norm(l_axis_y)])
 
-        L_axis_x = [L_axis_x[0] + ltoe[0], L_axis_x[1] + ltoe[1], L_axis_x[2] + ltoe[2]]
-        L_axis_y = [L_axis_y[0] + ltoe[0], L_axis_y[1] + ltoe[1], L_axis_y[2] + ltoe[2]]
-        L_axis_z = [L_axis_z[0] + ltoe[0], L_axis_z[1] + ltoe[1], L_axis_z[2] + ltoe[2]]
+        l_axis_x = [l_axis_x[0] + ltoe[0], l_axis_x[1] + ltoe[1], l_axis_x[2] + ltoe[2]]
+        l_axis_y = [l_axis_y[0] + ltoe[0], l_axis_y[1] + ltoe[1], l_axis_y[2] + ltoe[2]]
+        l_axis_z = [l_axis_z[0] + ltoe[0], l_axis_z[1] + ltoe[1], l_axis_z[2] + ltoe[2]]
 
-        return np.array([rtoe, R_axis_x, R_axis_y, R_axis_z, ltoe, L_axis_x, L_axis_y, L_axis_z])
+        return np.array([rtoe, r_axis_x, r_axis_y, r_axis_z, ltoe, l_axis_x, l_axis_y, l_axis_z])
 
     @staticmethod
     def flat_foot_axis_calc(rtoe, ltoe, rhee, lhee, ankle_axis, measurements):
@@ -2908,7 +2900,7 @@ class StaticCGM:
         Calculate the anatomical correct foot axis for non-foot flat.
 
         Markers used: RTOE, LTOE, RHEE, LHEE
-            
+
         Parameters
         ----------
         rtoe, ltoe, rhee, lhee : ndarray
@@ -2916,12 +2908,14 @@ class StaticCGM:
         ankle_axis : ndarray
             An 8x3 ndarray that contains the right ankle origin, right ankle x, y, and z
             axis components, left ankle origin, and left ankle x, y, and z axis components.
-            
+        measurements : dict
+            A dictionary containing the subject measurements given from the file input.
+
         Returns
         -------
         array
             Returns an 8x3 ndarray that contains the right foot origin, right foot x, y, and z
-            axis components, left foot origin, and left foot x, y, and z axis components.    
+            axis components, left foot origin, and left foot x, y, and z axis components.
 
         Examples
         --------
@@ -2941,104 +2935,104 @@ class StaticCGM:
         ...                        [98.84848169 , 219.60345781, 81.61663775]])
         >>> measurements = { 'RightSoleDelta': 0.45, 'LeftSoleDelta': 0.35}
         >>> [np.around(arr,8) for arr in StaticCGM.flat_foot_axis_calc(rtoe, ltoe, rhee, lhee, ankle_axis, measurements)] #doctest: +NORMALIZE_WHITESPACE
-        [array([442.81997681, 381.62280273,  42.66047668]), 
-        array([442.30666241, 381.79936348,  43.50031871]), 
-        array([442.02580128, 381.89596909,  42.1176458 ]), 
-        array([442.49471759, 380.67717784,  42.66047668]), 
-        array([ 39.43652725, 382.44522095,  41.78911591]), 
-        array([ 39.23195009, 382.37859248,  42.76569608]), 
-        array([ 38.5079544 , 382.14279528,  41.57396209]), 
-        array([ 39.74620554, 381.49437955,  41.78911591])] 
+        [array([442.81997681, 381.62280273,  42.66047668]),
+        array([442.30666241, 381.79936348,  43.50031871]),
+        array([442.02580128, 381.89596909,  42.1176458 ]),
+        array([442.49471759, 380.67717784,  42.66047668]),
+        array([ 39.43652725, 382.44522095,  41.78911591]),
+        array([ 39.23195009, 382.37859248,  42.76569608]),
+        array([ 38.5079544 , 382.14279528,  41.57396209]),
+        array([ 39.74620554, 381.49437955,  41.78911591])]
         """
-        R_sole_delta = measurements['RightSoleDelta']
-        L_sole_delta = measurements['LeftSoleDelta']
+        r_sole_delta = measurements['RightSoleDelta']
+        l_sole_delta = measurements['LeftSoleDelta']
 
-        # REQUIRED MARKERS: 
+        # REQUIRED MARKERS:
         # RTOE
         # LTOE
         # ankle_JC
 
-        ankle_JC_R = ankle_axis[0]
-        ankle_JC_L = ankle_axis[4]
-        ankle_flexion_R = ankle_axis[2]
-        ankle_flexion_L = ankle_axis[6]
+        ankle_jc_r = ankle_axis[0]
+        ankle_jc_l = ankle_axis[4]
+        ankle_flexion_r = ankle_axis[2]
+        ankle_flexion_l = ankle_axis[6]
 
         # Toe axis's origin is marker position of TOE
 
-        ankle_JC_R = [ankle_JC_R[0], ankle_JC_R[1], ankle_JC_R[2] + R_sole_delta]
-        ankle_JC_L = [ankle_JC_L[0], ankle_JC_L[1], ankle_JC_L[2] + L_sole_delta]
+        ankle_jc_r = [ankle_jc_r[0], ankle_jc_r[1], ankle_jc_r[2] + r_sole_delta]
+        ankle_jc_l = [ankle_jc_l[0], ankle_jc_l[1], ankle_jc_l[2] + l_sole_delta]
 
         # this is the way to calculate the z axis
-        R_axis_z = [ankle_JC_R[0] - rtoe[0], ankle_JC_R[1] - rtoe[1], ankle_JC_R[2] - rtoe[2]]
-        R_axis_z = R_axis_z / np.array([np.linalg.norm(R_axis_z)])
+        r_axis_z = [ankle_jc_r[0] - rtoe[0], ankle_jc_r[1] - rtoe[1], ankle_jc_r[2] - rtoe[2]]
+        r_axis_z = r_axis_z / np.array([np.linalg.norm(r_axis_z)])
 
         # For foot flat, Z axis pointing same height of TOE marker from TOE to AJC
         hee2_toe = [rhee[0] - rtoe[0], rhee[1] - rtoe[1], rtoe[2] - rtoe[2]]
         hee2_toe = hee2_toe / np.array([np.linalg.norm(hee2_toe)])
-        A = np.cross(hee2_toe, R_axis_z)
-        A = A / np.array([np.linalg.norm(A)])
-        B = np.cross(A, hee2_toe)
-        B = B / np.array([np.linalg.norm(B)])
-        C = np.cross(B, A)
-        R_axis_z = C / np.array([np.linalg.norm(C)])
+        a = np.cross(hee2_toe, r_axis_z)
+        a = a / np.array([np.linalg.norm(a)])
+        b = np.cross(a, hee2_toe)
+        b = b / np.array([np.linalg.norm(b)])
+        c = np.cross(b, a)
+        r_axis_z = c / np.array([np.linalg.norm(c)])
 
         # Bring flexion axis from ankle axis.
-        y_flex_R = [ankle_flexion_R[0] - ankle_JC_R[0], ankle_flexion_R[1] - ankle_JC_R[1],
-                    ankle_flexion_R[2] - ankle_JC_R[2]]
-        y_flex_R = y_flex_R / np.array([np.linalg.norm(y_flex_R)])
+        y_flex_r = [ankle_flexion_r[0] - ankle_jc_r[0], ankle_flexion_r[1] - ankle_jc_r[1],
+                    ankle_flexion_r[2] - ankle_jc_r[2]]
+        y_flex_r = y_flex_r / np.array([np.linalg.norm(y_flex_r)])
 
         # Calculate each x,y,z axis of foot using cross-product and make sure x,y,z axis is orthogonal each other.
-        R_axis_x = np.cross(y_flex_R, R_axis_z)
-        R_axis_x = R_axis_x / np.array([np.linalg.norm(R_axis_x)])
+        r_axis_x = np.cross(y_flex_r, r_axis_z)
+        r_axis_x = r_axis_x / np.array([np.linalg.norm(r_axis_x)])
 
-        R_axis_y = np.cross(R_axis_z, R_axis_x)
-        R_axis_y = R_axis_y / np.array([np.linalg.norm(R_axis_y)])
+        r_axis_y = np.cross(r_axis_z, r_axis_x)
+        r_axis_y = r_axis_y / np.array([np.linalg.norm(r_axis_y)])
 
-        R_axis_z = np.cross(R_axis_x, R_axis_y)
-        R_axis_z = R_axis_z / np.array([np.linalg.norm(R_axis_z)])
+        r_axis_z = np.cross(r_axis_x, r_axis_y)
+        r_axis_z = r_axis_z / np.array([np.linalg.norm(r_axis_z)])
 
         # Attach each axis to origin.
-        R_axis_x = [R_axis_x[0] + rtoe[0], R_axis_x[1] + rtoe[1], R_axis_x[2] + rtoe[2]]
-        R_axis_y = [R_axis_y[0] + rtoe[0], R_axis_y[1] + rtoe[1], R_axis_y[2] + rtoe[2]]
-        R_axis_z = [R_axis_z[0] + rtoe[0], R_axis_z[1] + rtoe[1], R_axis_z[2] + rtoe[2]]
+        r_axis_x = [r_axis_x[0] + rtoe[0], r_axis_x[1] + rtoe[1], r_axis_x[2] + rtoe[2]]
+        r_axis_y = [r_axis_y[0] + rtoe[0], r_axis_y[1] + rtoe[1], r_axis_y[2] + rtoe[2]]
+        r_axis_z = [r_axis_z[0] + rtoe[0], r_axis_z[1] + rtoe[1], r_axis_z[2] + rtoe[2]]
 
         # Left
 
         # this is the way to calculate the z axis of foot flat.
-        L_axis_z = [ankle_JC_L[0] - ltoe[0], ankle_JC_L[1] - ltoe[1], ankle_JC_L[2] - ltoe[2]]
-        L_axis_z = L_axis_z / np.array([np.linalg.norm(L_axis_z)])
+        l_axis_z = [ankle_jc_l[0] - ltoe[0], ankle_jc_l[1] - ltoe[1], ankle_jc_l[2] - ltoe[2]]
+        l_axis_z = l_axis_z / np.array([np.linalg.norm(l_axis_z)])
 
         # For foot flat, Z axis pointing same height of TOE marker from TOE to AJC
         hee2_toe = [lhee[0] - ltoe[0], lhee[1] - ltoe[1], ltoe[2] - ltoe[2]]
         hee2_toe = hee2_toe / np.array([np.linalg.norm(hee2_toe)])
-        A = np.cross(hee2_toe, L_axis_z)
-        A = A / np.array([np.linalg.norm(A)])
-        B = np.cross(A, hee2_toe)
-        B = B / np.array([np.linalg.norm(B)])
-        C = np.cross(B, A)
-        L_axis_z = C / np.array([np.linalg.norm(C)])
+        a = np.cross(hee2_toe, l_axis_z)
+        a = a / np.array([np.linalg.norm(a)])
+        b = np.cross(a, hee2_toe)
+        b = b / np.array([np.linalg.norm(b)])
+        c = np.cross(b, a)
+        l_axis_z = c / np.array([np.linalg.norm(c)])
 
         # Bring flexion axis from ankle axis.
-        y_flex_L = [ankle_flexion_L[0] - ankle_JC_L[0], ankle_flexion_L[1] - ankle_JC_L[1],
-                    ankle_flexion_L[2] - ankle_JC_L[2]]
-        y_flex_L = y_flex_L / np.array([np.linalg.norm(y_flex_L)])
+        y_flex_l = [ankle_flexion_l[0] - ankle_jc_l[0], ankle_flexion_l[1] - ankle_jc_l[1],
+                    ankle_flexion_l[2] - ankle_jc_l[2]]
+        y_flex_l = y_flex_l / np.array([np.linalg.norm(y_flex_l)])
 
         # Calculate each x,y,z axis of foot using cross-product and make sure x,y,z axis is orthogonal each other.
-        L_axis_x = np.cross(y_flex_L, L_axis_z)
-        L_axis_x = L_axis_x / np.array([np.linalg.norm(L_axis_x)])
+        l_axis_x = np.cross(y_flex_l, l_axis_z)
+        l_axis_x = l_axis_x / np.array([np.linalg.norm(l_axis_x)])
 
-        L_axis_y = np.cross(L_axis_z, L_axis_x)
-        L_axis_y = L_axis_y / np.array([np.linalg.norm(L_axis_y)])
+        l_axis_y = np.cross(l_axis_z, l_axis_x)
+        l_axis_y = l_axis_y / np.array([np.linalg.norm(l_axis_y)])
 
-        L_axis_z = np.cross(L_axis_x, L_axis_y)
-        L_axis_z = L_axis_z / np.array([np.linalg.norm(L_axis_z)])
+        l_axis_z = np.cross(l_axis_x, l_axis_y)
+        l_axis_z = l_axis_z / np.array([np.linalg.norm(l_axis_z)])
 
         # Attach each axis to origin.
-        L_axis_x = [L_axis_x[0] + ltoe[0], L_axis_x[1] + ltoe[1], L_axis_x[2] + ltoe[2]]
-        L_axis_y = [L_axis_y[0] + ltoe[0], L_axis_y[1] + ltoe[1], L_axis_y[2] + ltoe[2]]
-        L_axis_z = [L_axis_z[0] + ltoe[0], L_axis_z[1] + ltoe[1], L_axis_z[2] + ltoe[2]]
+        l_axis_x = [l_axis_x[0] + ltoe[0], l_axis_x[1] + ltoe[1], l_axis_x[2] + ltoe[2]]
+        l_axis_y = [l_axis_y[0] + ltoe[0], l_axis_y[1] + ltoe[1], l_axis_y[2] + ltoe[2]]
+        l_axis_z = [l_axis_z[0] + ltoe[0], l_axis_z[1] + ltoe[1], l_axis_z[2] + ltoe[2]]
 
-        return np.array([rtoe, R_axis_x, R_axis_y, R_axis_z, ltoe, L_axis_x, L_axis_y, L_axis_z])
+        return np.array([rtoe, r_axis_x, r_axis_y, r_axis_z, ltoe, l_axis_x, l_axis_y, l_axis_z])
 
     @staticmethod
     def head_axis_calc(rfhd, lfhd, rbhd, lbhd):
@@ -3058,19 +3052,19 @@ class StaticCGM:
         array
             Returns a 4x3 ndarray that contains the head origin and the
             head x, y, and z axis components.
-        
+
         Examples
         --------
-        >>> import numpy as np 
+        >>> import numpy as np
         >>> from refactor.pycgm import StaticCGM
         >>> rfhd, lfhd, rbhd, lbhd = np.array([[325.82983398, 402.55450439, 1722.49816895],
         ...                                   [184.55158997, 409.68713379, 1721.34289551],
         ...                                   [304.39898682, 242.91339111, 1694.97497559],
         ...                                   [197.8621521, 251.28889465, 1696.90197754]])
         >>> [np.around(arr,8) for arr in StaticCGM.head_axis_calc(rfhd, lfhd, rbhd, lbhd)] #doctest: +NORMALIZE_WHITESPACE
-        [array([ 255.19071198,  406.12081909, 1721.92053223]), 
-        array([ 255.21590218,  407.10741939, 1722.0817318 ]), 
-        array([ 254.19105385,  406.14680918, 1721.91767712]), 
+        [array([ 255.19071198,  406.12081909, 1721.92053223]),
+        array([ 255.21590218,  407.10741939, 1722.0817318 ]),
+        array([ 254.19105385,  406.14680918, 1721.91767712]),
         array([ 255.18370553,  405.95974655, 1722.90744993])]
         """
         # get the midpoints of the head to define the sides
@@ -3121,20 +3115,20 @@ class StaticCGM:
         the output shows the angle in degrees.
 
         As we use arc sin we have to care about if the angle is in area between -pi/2 to pi/2
-        but in case of calculate static offset angle it is in boundry under pi/2, it doesn't matter.
+        but in case of calculate static offset angle it is in boundary under pi/2, it doesn't matter.
 
         Parameters
         ----------
-        axis_p : list
-            Shows the unit vector of axisP, the position of the proximal axis.
-        axis_d : list
-            Shows the unit vector of axisD, the position of the distal axis.
+        axis_p : ndarray
+            A 3x3 ndarray containing the unit vectors of axisP, the proximal axis.
+        axis_d : ndarray
+            A 3x3 ndarray containing the unit vectors of axisD, the distal axis.
 
         Returns
         -------
-        angle : list
-            Returns the gamma, beta, alpha angles in degrees in a 1x3 corresponding list.
-        
+        angle : ndarray
+            Returns the gamma, beta, alpha angles in degrees in a 1x3 corresponding ndarray.
+
         Examples
         --------
         >>> import numpy as np
@@ -3152,23 +3146,23 @@ class StaticCGM:
         axis_p_i = np.linalg.inv(axis_p)
 
         # M is multiply of axis_d and axis_p_i
-        M = np.matmul(axis_d, axis_p_i)
+        m = np.matmul(axis_d, axis_p_i)
 
         # This is the angle calculation in YXZ Euler angle
-        getA = M[2][1] / sqrt((M[2][0] * M[2][0]) + (M[2][2] * M[2][2]))
-        getB = -1 * M[2][0] / M[2][2]
-        getG = -1 * M[0][1] / M[1][1]
+        get_a = m[2][1] / sqrt((m[2][0] * m[2][0]) + (m[2][2] * m[2][2]))
+        get_b = -1 * m[2][0] / m[2][2]
+        get_g = -1 * m[0][1] / m[1][1]
 
-        gamma = np.arctan(getG)
-        alpha = np.arctan(getA)
-        beta = np.arctan(getB)
+        gamma = np.arctan(get_g)
+        alpha = np.arctan(get_a)
+        beta = np.arctan(get_b)
 
-        angle = [alpha, beta, gamma]
+        angle = np.array([alpha, beta, gamma])
         return angle
 
-    def getStatic(self, motion_data, mapping, measurements, flat_foot, GCS=None):
+    def get_static(self, motion_data, mapping, measurements, flat_foot, gcs=None):
         """ Get Static Offset function
-        
+
         Calculate the static offset angle values and return the values in radians
 
         Parameters
@@ -3180,20 +3174,20 @@ class StaticCGM:
         mapping : dictionary
             `mappings` is a dictionary that indicates which marker corresponds to which index
             in `motion_data[i]`.
-        measurements : dict, optional
-            Dictionary of various attributes of the skeleton.
+        measurements : dict
+            A dictionary containing the subject measurements given from the file input.
         flat_foot : boolean, optional
             A boolean indicating if the feet are flat or not.
             The default value is False.
-        GCS : ndarray, optional
+        gcs : ndarray, optional
             An array containing the Global Coordinate System.
             If not provided, the default will be set to: [[1, 0, 0], [0, 1, 0], [0, 0, 1]].
-        
+
         Returns
         -------
-        calSM : dict
+        cal_sm : dict
             Dictionary containing the calibrated subject measurements.
-        
+
         Examples
         --------
         >>> from refactor.pycgm import StaticCGM
@@ -3205,137 +3199,138 @@ class StaticCGM:
         >>> measurements['HeadOffset']
         0.0
         >>> flat_foot = False
-        >>> calSM = static.getStatic(motion_data, mapping, measurements, flat_foot)
+        >>> calSM = static.get_static(motion_data, mapping, measurements, flat_foot)
         >>> np.around(calSM['HeadOffset'],8)
         0.25719905
         """
         static_offset = []
         head_offset = []
-        IAD = []
-        calSM = {}
-        LeftLegLength = measurements['LeftLegLength']
-        RightLegLength = measurements['RightLegLength']
-        calSM['MeanLegLength'] = (LeftLegLength + RightLegLength) / 2.0
-        calSM['Bodymass'] = measurements['Bodymass']
+        iad = []
+        cal_sm = {}
+        left_leg_length = measurements['LeftLegLength']
+        right_leg_length = measurements['RightLegLength']
+        cal_sm['MeanLegLength'] = (left_leg_length + right_leg_length) / 2.0
+        cal_sm['Bodymass'] = measurements['Bodymass']
 
         # Define the global coordinate system
-        if GCS == None: calSM['GCS'] = [[1, 0, 0], [0, 1, 0], [0, 0, 1]]
+        if gcs is None:
+            cal_sm['GCS'] = [[1, 0, 0], [0, 1, 0], [0, 0, 1]]
 
         if measurements['LeftAsisTrocanterDistance'] != 0 and measurements['RightAsisTrocanterDistance'] != 0:
-            calSM['L_AsisToTrocanterMeasure'] = measurements['LeftAsisTrocanterDistance']
-            calSM['R_AsisToTrocanterMeasure'] = measurements['RightAsisTrocanterDistance']
+            cal_sm['L_AsisToTrocanterMeasure'] = measurements['LeftAsisTrocanterDistance']
+            cal_sm['R_AsisToTrocanterMeasure'] = measurements['RightAsisTrocanterDistance']
         else:
-            calSM['R_AsisToTrocanterMeasure'] = (0.1288 * RightLegLength) - 48.56
-            calSM['L_AsisToTrocanterMeasure'] = (0.1288 * LeftLegLength) - 48.56
+            cal_sm['R_AsisToTrocanterMeasure'] = (0.1288 * right_leg_length) - 48.56
+            cal_sm['L_AsisToTrocanterMeasure'] = (0.1288 * left_leg_length) - 48.56
 
         if measurements['InterAsisDistance'] != 0:
-            calSM['InterAsisDistance'] = measurements['InterAsisDistance']
+            cal_sm['InterAsisDistance'] = measurements['InterAsisDistance']
         else:
             for frame in motion_data:
                 rasi, lasi = frame[mapping['RASI']], frame[mapping['LASI']]
-                iadCalc = StaticCGM.iad_calculation(rasi, lasi)
-                IAD.append(iadCalc)
-            InterAsisDistance = np.average(IAD)
-            calSM['InterAsisDistance'] = InterAsisDistance
+                iad_calc = StaticCGM.iad_calculation(rasi, lasi)
+                iad.append(iad_calc)
+            inter_asis_distance = np.average(iad)
+            cal_sm['InterAsisDistance'] = inter_asis_distance
 
         try:
-            calSM['RightKneeWidth'] = measurements['RightKneeWidth']
-            calSM['LeftKneeWidth'] = measurements['LeftKneeWidth']
+            cal_sm['RightKneeWidth'] = measurements['RightKneeWidth']
+            cal_sm['LeftKneeWidth'] = measurements['LeftKneeWidth']
 
-        except:
+        except KeyError:
             # no knee width
-            calSM['RightKneeWidth'] = 0
-            calSM['LeftKneeWidth'] = 0
+            cal_sm['RightKneeWidth'] = 0
+            cal_sm['LeftKneeWidth'] = 0
 
-        if calSM['RightKneeWidth'] == 0:
+        if cal_sm['RightKneeWidth'] == 0:
             if 'RMKN' in list(motion_data[0].keys()):
                 # medial knee markers are available
-                Rwidth = []
-                Lwidth = []
-                # average each frame 
+                rwidth = []
+                lwidth = []
+                # average each frame
                 for frame in motion_data:
-                    RMKN = frame[mapping['RMKN']]
-                    LMKN = frame[mapping['LMKN']]
+                    rmkn = frame[mapping['RMKN']]
+                    lmkn = frame[mapping['LMKN']]
 
-                    RKNE = frame[mapping['RKNE']]
-                    LKNE = frame[mapping['LKNE']]
+                    rkne = frame[mapping['RKNE']]
+                    lkne = frame[mapping['LKNE']]
 
-                    Rdst = np.linalg.norm(RKNE - RMKN)
-                    Ldst = np.linalg.norm(LKNE - LMKN)
-                    Rwidth.append(Rdst)
-                    Lwidth.append(Ldst)
+                    rdst = np.linalg.norm(rkne - rmkn)
+                    ldst = np.linalg.norm(lkne - lmkn)
+                    rwidth.append(rdst)
+                    lwidth.append(ldst)
 
-                calSM['RightKneeWidth'] = sum(Rwidth) / len(Rwidth)
-                calSM['LeftKneeWidth'] = sum(Lwidth) / len(Lwidth)
+                cal_sm['RightKneeWidth'] = sum(rwidth) / len(rwidth)
+                cal_sm['LeftKneeWidth'] = sum(lwidth) / len(lwidth)
         try:
-            calSM['RightAnkleWidth'] = measurements['RightAnkleWidth']
-            calSM['LeftAnkleWidth'] = measurements['LeftAnkleWidth']
+            cal_sm['RightAnkleWidth'] = measurements['RightAnkleWidth']
+            cal_sm['LeftAnkleWidth'] = measurements['LeftAnkleWidth']
 
-        except:
+        except KeyError:
             # no knee width
-            calSM['RightAnkleWidth'] = 0
-            calSM['LeftAnkleWidth'] = 0
+            cal_sm['RightAnkleWidth'] = 0
+            cal_sm['LeftAnkleWidth'] = 0
 
-        if calSM['RightAnkleWidth'] == 0:
+        if cal_sm['RightAnkleWidth'] == 0:
             if 'RMKN' in list(motion_data[0].keys()):
                 # medial knee markers are available
-                Rwidth = []
-                Lwidth = []
-                # average each frame 
+                rwidth = []
+                lwidth = []
+                # average each frame
                 for frame in motion_data:
-                    RMMA = frame[mapping['RMMA']]
-                    LMMA = frame[mapping['LMMA']]
+                    rmma = frame[mapping['RMMA']]
+                    lmma = frame[mapping['LMMA']]
 
-                    RANK = frame[mapping['RANK']]
-                    LANK = frame[mapping['LANK']]
+                    rank = frame[mapping['RANK']]
+                    lank = frame[mapping['LANK']]
 
-                    Rdst = np.linalg.norm(RMMA - RANK)
-                    Ldst = np.linalg.norm(LMMA - LANK)
-                    Rwidth.append(Rdst)
-                    Lwidth.append(Ldst)
+                    rdst = np.linalg.norm(rmma - rank)
+                    ldst = np.linalg.norm(lmma - lank)
+                    rwidth.append(rdst)
+                    lwidth.append(ldst)
 
-                calSM['RightAnkleWidth'] = sum(Rwidth) / len(Rwidth)
-                calSM['LeftAnkleWidth'] = sum(Lwidth) / len(Lwidth)
+                cal_sm['RightAnkleWidth'] = sum(rwidth) / len(rwidth)
+                cal_sm['LeftAnkleWidth'] = sum(lwidth) / len(lwidth)
 
-        calSM['RightTibialTorsion'] = measurements['RightTibialTorsion']
-        calSM['LeftTibialTorsion'] = measurements['LeftTibialTorsion']
+        cal_sm['RightTibialTorsion'] = measurements['RightTibialTorsion']
+        cal_sm['LeftTibialTorsion'] = measurements['LeftTibialTorsion']
 
-        calSM['RightShoulderOffset'] = measurements['RightShoulderOffset']
-        calSM['LeftShoulderOffset'] = measurements['LeftShoulderOffset']
+        cal_sm['RightShoulderOffset'] = measurements['RightShoulderOffset']
+        cal_sm['LeftShoulderOffset'] = measurements['LeftShoulderOffset']
 
-        calSM['RightElbowWidth'] = measurements['RightElbowWidth']
-        calSM['LeftElbowWidth'] = measurements['LeftElbowWidth']
-        calSM['RightWristWidth'] = measurements['RightWristWidth']
-        calSM['LeftWristWidth'] = measurements['LeftWristWidth']
+        cal_sm['RightElbowWidth'] = measurements['RightElbowWidth']
+        cal_sm['LeftElbowWidth'] = measurements['LeftElbowWidth']
+        cal_sm['RightWristWidth'] = measurements['RightWristWidth']
+        cal_sm['LeftWristWidth'] = measurements['LeftWristWidth']
 
-        calSM['RightHandThickness'] = measurements['RightHandThickness']
-        calSM['LeftHandThickness'] = measurements['LeftHandThickness']
+        cal_sm['RightHandThickness'] = measurements['RightHandThickness']
+        cal_sm['LeftHandThickness'] = measurements['LeftHandThickness']
 
         for frame in motion_data:
             rasi, lasi = frame[mapping['RASI']], frame[mapping['LASI']]
             rpsi, lpsi, sacr = None, None, None
             try:
+                sacr = frame[mapping['SACR']]
+            except KeyError:
                 rpsi = frame[mapping['RPSI']]
                 lpsi = frame[mapping['LPSI']]
-            except:
-                sacr = frame[mapping['SACR']]
             pelvis = StaticCGM.pelvis_axis_calc(rasi, lasi, rpsi, lpsi, sacr)
 
-            hip_axis = StaticCGM.hip_axis_calc(pelvis, calSM)
+            hip_axis = StaticCGM.hip_axis_calc(pelvis, cal_sm)
             hip_origin = [hip_axis[0], hip_axis[1]]
 
             rthi, lthi, rkne, lkne = frame[mapping['RTHI']], frame[mapping['LTHI']], frame[mapping['RKNE']], frame[
                 mapping['LKNE']]
-            knee_axis = StaticCGM.knee_axis_calc(rthi, lthi, rkne, lkne, hip_origin, calSM)
+            knee_axis = StaticCGM.knee_axis_calc(rthi, lthi, rkne, lkne, hip_origin, cal_sm)
             knee_origin = np.array([knee_axis[0], knee_axis[4]])
 
             rtib, ltib, rank, lank = frame[mapping['RTIB']], frame[mapping['LTIB']], frame[mapping['RANK']], frame[
                 mapping['LANK']]
-            ankle_axis = StaticCGM.ankle_axis_calc(rtib, ltib, rank, lank, knee_origin, calSM)
+            ankle_axis = StaticCGM.ankle_axis_calc(rtib, ltib, rank, lank, knee_origin, cal_sm)
 
             rtoe, ltoe, rhee, lhee = frame[mapping['RTOE']], frame[mapping['LTOE']], frame[mapping['RHEE']], frame[
                 mapping['LHEE']]
-            angles = StaticCGM.static_calculation(rtoe, ltoe, rhee, lhee, ankle_axis, knee_axis, flat_foot, calSM)
+            angles = StaticCGM.static_calculation(rtoe, ltoe, rhee, lhee, ankle_axis, knee_axis, flat_foot, cal_sm)
 
             rfhd, lfhd, rbhd, lbhd = frame[mapping['RFHD']], frame[mapping['LFHD']], frame[mapping['RBHD']], frame[
                 mapping['LBHD']]
@@ -3347,12 +3342,12 @@ class StaticCGM:
             head_offset.append(head_angle)
 
         static = np.average(static_offset, axis=0)
-        staticHead = np.average(head_offset)
+        static_head = np.average(head_offset)
 
-        calSM['RightStaticRotOff'] = static[0][0] * -1
-        calSM['RightStaticPlantFlex'] = static[0][1]
-        calSM['LeftStaticRotOff'] = static[1][0]
-        calSM['LeftStaticPlantFlex'] = static[1][1]
-        calSM['HeadOffset'] = staticHead
+        cal_sm['RightStaticRotOff'] = static[0][0] * -1
+        cal_sm['RightStaticPlantFlex'] = static[0][1]
+        cal_sm['LeftStaticRotOff'] = static[1][0]
+        cal_sm['LeftStaticPlantFlex'] = static[1][1]
+        cal_sm['HeadOffset'] = static_head
 
-        return calSM
+        return cal_sm
