@@ -10,7 +10,6 @@ class TestStaticCGMAxis:
         iad_calculation
     """
 
-
     @pytest.mark.parametrize(["rasi", "lasi", "expected"], [
         (np.array([0, 0, 0]), np.array([0, 0, 0]), 0),
         (np.array([1, 0, 0]), np.array([0, 0, 0]), 1),

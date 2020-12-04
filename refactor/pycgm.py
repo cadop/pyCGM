@@ -815,6 +815,88 @@ class CGM:
         """
         pass
 
+    #Center of Mass / kinetics calculation Methods:
+    @staticmethod
+    def find_l5_pelvis(lhjc, rhjc, pelvis_axis):
+        """Estimates the L5 marker position given the pelvis axis.
+
+        Markers used : LHJC, RHJC
+
+        Parameters
+        ----------
+        lhjc, rhjc : array
+            1x3 ndarray giving the XYZ coordinates of the LHJC and RHJC
+            markers respectively.
+        pelvis_axis : array
+            Numpy array containing 4 1x3 arrays of pelvis origin, x-axis, y-axis, 
+            and z-axis.
+        
+        Returns
+        -------
+        mid_hip, l5 : tuple
+            `mid_hip` is a 1x3 ndarray giving the XYZ coordinates of the middle
+            of the LHJC and RHJC markers. `l5` is a 1x3 ndarray giving the estimated
+            XYZ coordinates of the L5 marker.
+        
+        Examples
+        --------
+        >>> import numpy as np
+        >>> from refactor.pycgm import CGM
+        >>> lhjc = np.array([308.38050472, 322.80342417, 937.98979061])
+        >>> rhjc = np.array([182.57097863, 339.43231855, 935.529000126])
+        >>> pelvis_axis = np.array([[251.60830688, 391.74131775, 1032.89349365],
+        ...                         [251.74063624, 392.72694721, 1032.78850073],
+        ...                         [250.61711554, 391.87232862, 1032.8741063 ],
+        ...                         [251.60295336, 391.84795134, 1033.88777762]])
+        >>> np.around(CGM.find_l5_pelvis(lhjc, rhjc, pelvis_axis), 8)
+        array([[ 245.47574168,  331.11787136,  936.75939537],
+               [ 271.52716019,  371.69050709, 1043.80997977]])
+        """
+        #The L5 position is estimated as (LHJC + RHJC)/2 + 
+        #(0.0, 0.0, 0.828) * Length(LHJC - RHJC), where the value 0.828 
+        #is a ratio of the distance from the hip joint centre level to the 
+        #top of the lumbar 5: this is calculated as in the vertical (z) axis
+        mid_hip = (lhjc + rhjc) / 2
+
+        offset = np.linalg.norm(lhjc - rhjc) * 0.925
+        origin, x_axis, y_axis, z_axis = pelvis_axis
+        norm_dir = z_axis / np.linalg.norm(z_axis) #Create unit vector
+        l5 = mid_hip + offset * norm_dir
+
+        return mid_hip, l5
+
+    def find_L5_thorax(lhjc, rhjc, c7, thorax_axis):
+        """Estimates the L5 marker position given the thorax axis. 
+
+        Markers used : LHJC, RHJC, C7
+
+        Parameters
+        ----------
+        lhjc, rhjc, c7 : array
+            1x3 ndarray giving the XYZ coordinates of the LHJC, RHJC, and C7
+            markers respectively.
+        thorax_axis : array
+            Numpy array containing 4 1x3 arrays of thorax origin, x-axis, y-axis, 
+            and z-axis.
+        
+        Returns
+        -------
+        l5 : array
+            1x3 ndarray giving the estimated XYZ coordinates of the L5 marker.
+        """
+        origin, x_axis, y_axis, z_axis = thorax_axis
+        norm_dir_y = y_axis / np.linalg.norm(y_axis) #Create unit vector
+        if (c7[1] >= 0):
+            c7 = c7 + 7 * -norm_dir_y
+        else:
+            c7 = c7 + 7 * norm_dir_y
+        
+        norm_dir_z = z_axis / np.linalg.norm(z_axis) #Create unit vector
+        mid_hip = (lhjc + rhjc) / 2
+        offset = np.linalg.norm(rhjc - lhjc) * 0.925
+        l5 = mid_hip + offset * norm_dir_z
+
+        return l5
 
 class StaticCGM:
 
