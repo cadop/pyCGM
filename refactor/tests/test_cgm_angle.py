@@ -25,8 +25,7 @@ class TestCGMAngle():
         (0, 0, -120, [0, 0, -150]), (0, 0, 180, [0, 0, -90]),
         # Multiple Rotations
         (150, 30, 0, [146.30993247, 25.65890627, -73.89788625]), (45, 0, 60, [0, 45, 30]), (0, 90, 120, [90, 0, -30]),
-        (135, 45, 90, [125.26438968, 30, -144.73561032])
-    ])
+        (135, 45, 90, [125.26438968, 30, -144.73561032])])
     def test_get_angle(self, xRot, yRot, zRot, expected):
         """
         This test provides coverage of the getangle function in pyCGM.py,
