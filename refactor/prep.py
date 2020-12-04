@@ -96,13 +96,13 @@ def transform_from_static(data, data_mapping, static, static_mapping, key, useab
     Parameters
     ----------
     data, static : 3darray
-        3d numpy array of dynamic or static trial data. Each index
+        3d numpy array of dynamic or static trial data respectively. Each index
         corresponds to a frame of trial. Each index holds a list of
         coordinate values for each marker in the trial.
         Each coordinate value is a 1x3 list: `[X, Y, Z]`.
     data_mapping, static_mapping : dict
         Dictionary that indicates which marker corresponds to which
-        index in `data` or `static`.
+        index in `data` or `static` respectively.
     key : str
         String indicating the missing marker.
     useables : list

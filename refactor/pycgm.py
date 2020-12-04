@@ -1,7 +1,13 @@
 from refactor.io import IO
 from math import cos, sin, acos, degrees, radians, sqrt, pi 
 import numpy as np
+import os
+import sys
 
+if sys.version_info[0]==2:
+    pyver = 2
+else:
+    pyver = 3
 
 class CGM:
 
@@ -58,6 +64,7 @@ class CGM:
         self.com_results = None
         self.marker_map = {marker: marker for marker in IO.marker_keys()}
         self.marker_data, self.marker_idx = IO.load_marker_data(path_dynamic)
+        self.measurements = IO.load_sm(path_measurements)
 
     def run(self):
         """Execute the CGM calculations function
@@ -132,6 +139,42 @@ class CGM:
             numpy array containing 3 1x3 arrays of the X, Y, and Z axis vectors, after
             the origin is subtracted away.
 
+        Examples
+        --------
+        >>> import numpy as np
+        >>> from refactor.pycgm import CGM
+        >>> origin = [1, 2, 3]
+        >>> x_axis = [4, 4, 4]
+        >>> y_axis = [9, 9, 9]
+        >>> z_axis = [-1, 0, 1]
+        >>> axis_vectors = np.array([origin, x_axis, y_axis, z_axis])
+        >>> CGM.subtract_origin(axis_vectors)
+        array([[ 3,  2,  1],
+               [ 8,  7,  6],
+               [-2, -2, -2]])
+        """
+        origin, x_axis, y_axis, z_axis = axis_vectors
+        return np.vstack([np.subtract(x_axis, origin),
+                          np.subtract(y_axis, origin),
+                          np.subtract(z_axis, origin)])
+
+    @staticmethod
+    def subtract_origin(axis_vectors):
+        """Subtract origin from axis vectors.
+
+        Parameters
+        ----------
+        axis_vectors : array
+            numpy array containing 4 1x3 arrays - the origin vector, followed by
+            the three X, Y, and Z axis vectors, each of which is a 1x3 numpy array
+            of the respective X, Y, and Z components.
+
+        Returns
+        -------
+        array
+            numpy array containing 3 1x3 arrays of the X, Y, and Z axis vectors, after
+            the origin is subtracted away.
+        
         Examples
         --------
         >>> import numpy as np
@@ -1584,6 +1627,323 @@ class CGM:
             of each joint by origin and xyz unit vectors by x, y, and z location.
         """
 
+    #Center of Mass / kinetics calculation Methods:
+    @staticmethod
+    def point_to_line(point, start, end):
+        """Finds the distance from a point to a line.
+
+        Calculates the distance from the point `point` to the line formed
+        by the points `start` and `end`.
+
+        Parameters
+        ----------
+        point, start, end : array
+            1x3 numpy arrays representing the XYZ coordinates of a point.
+            `point` is a point not on the line.
+            `start` and `end` form a line.
+        
+        Returns
+        -------
+        dist, nearest, point : tuple
+            `dist` is the closest distance from the point to the line.
+            `nearest` is the closest point on the line from `point`.
+            It is represented as a 1x3 array.
+            `point` is the original point not on the line.
+        
+        Examples
+        --------
+        >>> import numpy as np
+        >>> from refactor.pycgm import CGM
+        >>> point = np.array([1, 2, 3])
+        >>> start = np.array([4, 5, 6])
+        >>> end = np.array([7, 8, 9])
+        >>> dist, nearest, point = CGM.point_to_line(point, start, end)
+        >>> np.around(dist, 8)
+        5.19615242
+        >>> np.around(nearest, 8)
+        array([4., 5., 6.])
+        >>> np.around(point, 8)
+        array([1, 2, 3])
+        """
+        line_vector = end - start
+        point_vector = point - start
+        line_length = np.linalg.norm(line_vector)
+        line_unit_vector = line_vector / line_length
+        point_vector_scaled = point_vector * (1.0/line_length)
+        t = np.dot(line_unit_vector, point_vector_scaled)
+        if t < 0.0:
+            t = 0.0
+        elif t > 1.0:
+            t = 1.0
+        
+        nearest = line_vector * t
+        dist = np.linalg.norm(point_vector - nearest)
+        nearest = nearest + start
+
+        return dist, nearest, point
+
+    @staticmethod
+    def find_l5(lhjc, rhjc, axis):
+        """Estimates the L5 marker position given the pelvis or thorax axis.
+
+        Markers used : LHJC, RHJC
+
+        Parameters
+        ----------
+        lhjc, rhjc : array
+            1x3 ndarray giving the XYZ coordinates of the LHJC and RHJC
+            markers respectively.
+        axis : array
+            Numpy array containing 4 1x3 arrays of pelvis or thorax origin, x-axis, y-axis, 
+            and z-axis. Only the z-axis affects the estimated L5 result.
+        
+        Returns
+        -------
+        mid_hip, l5 : tuple
+            `mid_hip` is a 1x3 ndarray giving the XYZ coordinates of the middle
+            of the LHJC and RHJC markers. `l5` is a 1x3 ndarray giving the estimated
+            XYZ coordinates of the L5 marker.
+        
+        Examples
+        --------
+        >>> import numpy as np
+        >>> from refactor.pycgm import CGM
+        >>> lhjc = np.array([308.38050472, 322.80342417, 937.98979061])
+        >>> rhjc = np.array([182.57097863, 339.43231855, 935.529000126])
+        >>> axis = np.array([[251.60830688, 391.74131775, 1032.89349365],
+        ...                  [251.74063624, 392.72694721, 1032.78850073],
+        ...                  [250.61711554, 391.87232862, 1032.8741063 ],
+        ...                  [251.60295336, 391.84795134, 1033.88777762]])
+        >>> np.around(CGM.find_l5(lhjc, rhjc, axis), 8)
+        array([[ 245.47574168,  331.11787136,  936.75939537],
+               [ 271.52716019,  371.69050709, 1043.80997977]])
+        """
+        #The L5 position is estimated as (LHJC + RHJC)/2 + 
+        #(0.0, 0.0, 0.828) * Length(LHJC - RHJC), where the value 0.828 
+        #is a ratio of the distance from the hip joint centre level to the 
+        #top of the lumbar 5: this is calculated as in the vertical (z) axis
+        mid_hip = (lhjc + rhjc) / 2
+
+        offset = np.linalg.norm(lhjc - rhjc) * 0.925
+        origin, x_axis, y_axis, z_axis = axis
+        norm_dir = z_axis / np.linalg.norm(z_axis) #Create unit vector
+        l5 = mid_hip + offset * norm_dir
+
+        return mid_hip, l5
+    
+    @staticmethod
+    def get_kinetics(joint_centers, jc_mapping, body_mass):
+        """Estimate center of mass values in the global coordinate system.
+
+        Estimates whole body CoM in global coordinate system using PiG scaling 
+        factors for determining individual segment CoM.
+
+        Parameters
+        ----------
+        joint_centers : 3darray
+            3D numpy array where each index corresponds to a frame of trial.
+            Each index contains an array of joint center or marker values that
+            are used to estimate the center of mass for that frame. Each value
+            is a 1x3 array indicating the XYZ coordinate of that marker or joint
+            center.
+        jc_mapping : dict
+            Dictionary where keys are joint center or marker names, and values are
+            indices that indicate which index in `joint_centers` correspond to that
+            joint center or marker name.
+        body_mass : int, float
+            Total bodymass (kg) of the subject.
+        
+        Returns
+        -------
+        com_coords : 2darray
+            Numpy array containing center of mass coordinates for each frame of
+            trial. Each coordinate is a 1x3 array of the XYZ position of the center
+            of mass.
+        
+        Notes
+        -----
+        The PiG scaling factors are taken from Dempster -- they are available at:
+        http://www.c-motion.com/download/IORGaitFiles/pigmanualver1.pdf
+        """
+
+        #Get PlugInGait scaling table from segments.csv
+        seg_scale = {}
+        with open(os.path.dirname(os.path.abspath(__file__)) + os.sep +'segments.csv','r') as f:
+            header = False
+            for line in f:
+                if header == False:
+                    header = line.rstrip('\n').split(',')
+                    header = True
+                else:
+                    row = line.rstrip('\n').split(',')
+                    seg_scale[row[0]] = {'com':float(row[1]),'mass':float(row[2]),'x':row[3],'y':row[4],'z':row[5]}
+
+        #Define names of segments
+        sides = ['L', 'R']
+        segments = ['Foot','Tibia','Femur','Pelvis','Radius','Hand','Humerus','Head','Thorax']
+
+        #Create empty numpy array for center of mass outputs
+        com_coords = np.empty([len(joint_centers), 3])
+
+        #Iterate through each frame of joint_centers
+        for idx, frame in enumerate(joint_centers):
+
+            #Find distal and proximal joint centers
+            seg_temp = {}
+            for s in sides:
+                for seg in segments:
+                    if seg != 'Pelvis' and seg != 'Thorax' and seg != 'Head':
+                        seg_temp[s+seg] = {}
+                    else:
+                        seg_temp[seg] = {}
+
+                    if seg == 'Foot':
+                        seg_temp[s+seg]['Prox'] = frame[jc_mapping[s+'Foot']]
+                        seg_temp[s+seg]['Dist'] = frame[jc_mapping[s+'HEE']]
+
+                    if seg == 'Tibia':
+                        seg_temp[s+seg]['Prox'] = frame[jc_mapping[s+'Knee']]
+                        seg_temp[s+seg]['Dist'] = frame[jc_mapping[s+'Ankle']]
+
+                    if seg == 'Femur':
+                        seg_temp[s+seg]['Prox'] = frame[jc_mapping[s+'Hip']]
+                        seg_temp[s+seg]['Dist'] = frame[jc_mapping[s+'Knee']]
+
+                    if seg == 'Pelvis':
+                        lhjc = frame[jc_mapping['LHip']]
+                        rhjc = frame[jc_mapping['RHip']]
+                        pelvis_origin = frame[jc_mapping['pelvis_origin']]
+                        pelvis_x = frame[jc_mapping['pelvis_x']]
+                        pelvis_y = frame[jc_mapping['pelvis_y']]
+                        pelvis_z = frame[jc_mapping['pelvis_z']]
+                        pelvis_axis = [pelvis_origin, pelvis_x, pelvis_y, pelvis_z]
+                        mid_hip, l5 = CGM.find_l5(lhjc, rhjc, pelvis_axis)
+                        seg_temp[seg]['Prox'] = mid_hip 
+                        seg_temp[seg]['Dist'] = l5
+
+                    if seg == 'Thorax':
+                        #The thorax length is taken as the distance between an 
+                        #approximation to the C7 vertebra and the L5 vertebra in the 
+                        #Thorax reference frame. C7 is estimated from the C7 marker, 
+                        #and offset by half a marker diameter in the direction of 
+                        #the X axis. L5 is estimated from the L5 provided from the 
+                        #pelvis segment, but localised to the thorax.
+
+                        lhjc = frame[jc_mapping['LHip']]
+                        rhjc = frame[jc_mapping['RHip']]
+                        thorax_origin = frame[jc_mapping['thorax_origin']]
+                        thorax_x = frame[jc_mapping['thorax_x']]
+                        thorax_y = frame[jc_mapping['thorax_y']]
+                        thorax_z = frame[jc_mapping['thorax_z']]
+                        thorax_axis = [thorax_origin, thorax_x, thorax_y, thorax_z]
+                        _, l5 = CGM.find_l5(lhjc, rhjc, thorax_axis)
+                        c7 = frame[jc_mapping['C7']]
+                        clav = frame[jc_mapping['CLAV']]
+                        strn = frame[jc_mapping['STRN']]
+                        t10 = frame[jc_mapping['T10']]
+
+                        upper = np.array([(clav[0]+c7[0])/2.0,(clav[1]+c7[1])/2.0,(clav[2]+c7[2])/2.0])
+                        lower = np.array([(strn[0]+t10[0])/2.0,(strn[1]+t10[1])/2.0,(strn[2]+t10[2])/2.0])
+
+                        #Get the direction of the primary axis Z (facing down)
+                        z_vec = upper - lower
+                        z_dir = z_vec / np.linalg.norm(z_vec)
+                        new_start = upper + (z_dir * 300)
+                        new_end = lower - (z_dir * 300)
+
+                        _,new_l5,_ = CGM.point_to_line(l5, new_start, new_end)
+                        _,new_c7,_ = CGM.point_to_line(c7, new_start, new_end)
+
+                        seg_temp[seg]['Prox'] = np.array(new_c7)
+                        seg_temp[seg]['Dist'] = np.array(new_l5)
+
+                    if seg == 'Humerus':
+                        seg_temp[s+seg]['Prox'] = frame[jc_mapping[s+'Shoulder']] 
+                        seg_temp[s+seg]['Dist'] = frame[jc_mapping[s+'Humerus']]
+
+                    if seg == 'Radius':
+                        seg_temp[s+seg]['Prox'] = frame[jc_mapping[s+'Humerus']] 
+                        seg_temp[s+seg]['Dist'] = frame[jc_mapping[s+'Radius']] 
+                        
+                    if seg == 'Hand':
+                        seg_temp[s+seg]['Prox'] = frame[jc_mapping[s+'Radius']]  
+                        seg_temp[s+seg]['Dist'] = frame[jc_mapping[s+'Hand']] 
+
+                    if seg == 'Head':
+                        seg_temp[seg]['Prox'] = frame[jc_mapping['Back_Head']]
+                        seg_temp[seg]['Dist'] = frame[jc_mapping['Front_Head']]
+                    
+                    #Iterate through scaling values
+                    for row in list(seg_scale.keys()):
+                        scale = seg_scale[row]['com']
+                        mass = seg_scale[row]['mass']
+                        if seg == row:
+                            if seg!='Pelvis' and seg!='Thorax' and seg!='Head':
+                                prox = seg_temp[s+seg]['Prox']
+                                dist = seg_temp[s+seg]['Dist']
+                            
+                                #segment length
+                                length = prox - dist
+                                
+                                #segment center of mass
+                                com = dist + length * scale
+
+                                seg_temp[s+seg]['CoM'] = com
+
+                                #segment mass (kg)
+                                mass = body_mass * mass #row[2] contains mass corrections
+                                seg_temp[s+seg]['Mass'] = mass
+
+                                #segment torque
+                                torque = com * mass
+                                seg_temp[s+seg]['Torque'] = torque
+
+                                #vector
+                                vector = np.array(com) - np.array([0, 0, 0])
+                                val = vector * mass
+                                seg_temp[s+seg]['val'] = val
+                            
+                            #no side allocation
+                            else:
+                                prox = seg_temp[seg]['Prox']
+                                dist = seg_temp[seg]['Dist']
+                                
+                                #segment length
+                                length = prox - dist
+                                
+                                #segment CoM
+                                com = dist + length * scale
+                                
+                                seg_temp[seg]['CoM'] = com
+                                
+                                #segment mass (kg)
+                                mass = body_mass*mass #row[2] is mass correction factor
+                                seg_temp[seg]['Mass'] = mass
+                                
+                                #segment torque
+                                torque = com * mass
+                                seg_temp[seg]['Torque'] = torque
+                                
+                                #vector
+                                vector = np.array(com) - np.array([0, 0, 0])
+                                val = vector*mass
+                                seg_temp[seg]['val'] = val
+                    
+                    vals = []
+
+                    if pyver == 2:
+                        for_iter = seg_temp.iteritems()
+                    elif pyver == 3:
+                        for_iter = seg_temp.items()
+                    
+                    for attr, value in for_iter:
+                        vals.append(value['val'])
+                    
+                    com_coords[idx,:] = sum(vals) / body_mass
+
+        return com_coords
+
+                
 
 class StaticCGM:
     """
