@@ -1,6 +1,3 @@
-#!/usr/bin/python
-# -*- coding: utf-8 -*-
-
 import numpy as np
 import pytest
 
@@ -8,7 +5,10 @@ from refactor.pycgm import CGM
 
 rounding_precision = 8
 
+<<<<<<< HEAD
 
+=======
+>>>>>>> 508b656... Add
 class TestCGMAngle():
     """
     This class tests the angle functions in the class CGM in pycgm.py:
@@ -18,6 +18,7 @@ class TestCGMAngle():
     @pytest.mark.parametrize(["xRot", "yRot", "zRot", "expected"], [
         (0, 0, 0, [0, 0, 90]),
         # X rotations
+<<<<<<< HEAD
         (90, 0, 0, [0, 90, 90]), (30, 0, 0, [0, 30, 90]), (-30, 0, 0, [0, -30, 90]), (120, 0, 0, [180, 60, -90]),
         (-120, 0, 0, [180, -60, -90]), (180, 0, 0, [180, 0, -90]),
         # Y rotations
@@ -28,7 +29,17 @@ class TestCGMAngle():
         (0, 0, -120, [0, 0, -150]), (0, 0, 180, [0, 0, -90]),
         # Multiple Rotations
         (150, 30, 0, [146.30993247, 25.65890627, -73.89788625]), (45, 0, 60, [0, 45, 30]), (0, 90, 120, [90, 0, -30]),
-        (135, 45, 90, [125.26438968, 30, -144.73561032])])
+        (135, 45, 90, [125.26438968, 30, -144.73561032])
+=======
+        (90, 0, 0, [0, 90, 90]), (30, 0, 0, [0, 30, 90]), (-30, 0, 0, [0, -30, 90]), (120, 0, 0, [180, 60, -90]), (-120, 0, 0, [180, -60, -90]), (180, 0, 0, [180, 0, -90]),
+        # Y rotations
+        (0, 90, 0, [90, 0, 90]), (0, 30, 0, [30, 0, 90]), (0, -30, 0, [-30, 0, 90]), (0, 120, 0, [120, 0, 90]), (0, -120, 0, [-120, 0, 90]), (0, 180, 0, [180, 0, 90]),
+        # Z rotations
+        (0, 0, 90, [0, 0, 0]), (0, 0, 30, [0, 0, 60]), (0, 0, -30, [0, 0, 120]), (0, 0, 120, [0, 0, -30]), (0, 0, -120, [0, 0, -150]), (0, 0, 180, [0, 0, -90]),
+        # Multiple Rotations
+        (150, 30, 0, [146.30993247, 25.65890627, -73.89788625]), (45, 0, 60, [0, 45, 30]), (0, 90, 120, [90, 0, -30]), (135, 45, 90, [125.26438968, 30, -144.73561032])
+>>>>>>> 508b656... Add
+    ])
     def test_get_angle(self, xRot, yRot, zRot, expected):
         """
         This test provides coverage of the getangle function in pyCGM.py,
@@ -98,4 +109,8 @@ class TestCGMAngle():
 
         # Check that calling getangle on a numpy array of floats yields the expected results
         result_float_nparray = CGM.get_angle(np.array(axisP_floats, dtype='float'), np.array(axisD, dtype='float'))
+<<<<<<< HEAD
         np.testing.assert_almost_equal(result_float_nparray, expected, rounding_precision)
+=======
+        np.testing.assert_almost_equal(result_float_nparray, expected, rounding_precision)
+>>>>>>> 508b656... Add
