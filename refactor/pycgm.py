@@ -348,7 +348,6 @@ class CGM:
         .. [12] Kadaba MP, Ramakrishnan HK, Wootten ME.
            Measurement of lower extremity kinematics during level walking.
            Journal of orthopaedic research: official publication of the Orthopaedic Research Society.
-           1990;8(3):383–92.
 
         Examples
         --------
