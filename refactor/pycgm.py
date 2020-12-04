@@ -73,26 +73,7 @@ class CGM:
         self.angle_idx = {}
         self.measurements = IO.load_sm(path_measurements)
 
-    def run(self):
-        """Execute the CGM calculations function
-
-        Loads in appropriate data from IO using paths.
-        Performs any necessary prep on data.
-        Runs the static calibration trial.
-        Runs the dynamic trial to calculate all axes and angles.
-        """
-
-        self.measurements = self.static.get_static(self.static.marker_data, self.static.marker_idx,
-                                                   self.static.subject_measurements, False)
-
-        methods = [self.pelvis_axis_calc, self.hip_axis_calc, self.knee_axis_calc,
-                   self.ankle_axis_calc, self.foot_axis_calc,
-                   self.pelvis_angle_calc, self.hip_angle_calc, self.knee_angle_calc,
-                   self.ankle_angle_calc, self.foot_angle_calc]
-        mappings = [self.marker_map, self.marker_idx, self.axis_idx, self.angle_idx]
-        results = self.multi_calc(self.marker_data, methods, mappings, self.measurements)
-        self.axis_results, self.angle_results, self.com_results = results
-
+    # Customisation functions
     def remap(self, old, new):
         """Remap marker function
 
@@ -119,6 +100,165 @@ class CGM:
             name and each value is a string of the new marker name.
         """
         self.marker_map = mapping
+
+    # Input and output handlers
+    def run(self):
+        """Execute the CGM calculations function
+
+        Loads in appropriate data from IO using paths.
+        Performs any necessary prep on data.
+        Runs the static calibration trial.
+        Runs the dynamic trial to calculate all axes and angles.
+        """
+
+        self.measurements = self.static.get_static(self.static.marker_data, self.static.marker_idx,
+                                                   self.static.subject_measurements, False)
+
+        methods = [self.pelvis_axis_calc, self.hip_axis_calc, self.knee_axis_calc,
+                   self.ankle_axis_calc, self.foot_axis_calc,
+                   self.pelvis_angle_calc, self.hip_angle_calc, self.knee_angle_calc,
+                   self.ankle_angle_calc, self.foot_angle_calc]
+        mappings = [self.marker_map, self.marker_idx, self.axis_idx, self.angle_idx]
+        results = self.multi_calc(self.marker_data, methods, mappings, self.measurements)
+        self.axis_results, self.angle_results, self.com_results = results
+
+    @staticmethod
+    def multi_calc(data, methods, mappings, measurements, cores=1):
+        """Multiprocessing calculation handler function
+
+        Takes in the necessary information for performing each frame's calculation as parameters
+        and distributes frames along available cores.
+
+        Parameters
+        ----------
+        data : ndarray
+            3d ndarray consisting of each frame by each marker by x, y, and z positions.
+        methods : list
+            List containing the calculation methods to be used.
+        mappings : list
+            List containing dictionary mappings for marker names and input and output indices.
+        measurements : dict
+            A dictionary containing the subject measurements given from the file input.
+        cores : int, optional
+            Number of cores to perform multiprocessing with, defaulting to 1 if not specified.
+
+        Returns
+        -------
+        results : tuple
+            A tuple consisting of the angle results and axis results. Angle results are
+            stored as a 3d ndarray of each frame by each angle by x, y, and z. Axis results
+            are stored as a 4d ndarray of each frame by each joint by origin and xyz unit vectors
+            by x, y, and z location.
+        """
+
+        markers, marker_idx, axis_idx, angle_idx = mappings
+
+        axis_results = np.empty((len(data), len(axis_idx), 4, 3), dtype=float)
+        axis_results.fill(np.nan)
+        angle_results = np.empty((len(data), len(angle_idx), 3), dtype=float)
+        angle_results.fill(np.nan)
+        com_results = np.empty((len(data), 3), dtype=float)
+        com_results.fill(np.nan)
+
+        for i, frame in enumerate(data):
+
+            frame_axes, frame_angles, frame_com = CGM.calc(frame, methods, mappings, measurements)
+            axis_results[i] = frame_axes
+            angle_results[i] = frame_angles
+            com_results[i] = frame_com
+
+        return axis_results, angle_results, com_results
+
+    @staticmethod
+    def calc(frame, methods, mappings, measurements):
+        """Overall axis and angle calculation function
+
+        Uses the data and methods passed in to distribute the appropriate inputs to each
+        axis and angle calculation function (generally markers and axis results) and
+        store and return their output, all in the context of a single frame.
+
+        Parameters
+        ----------
+        frame : ndarray
+            An nx3 ndarray consisting of each marker in the current frame and their x, y, and z positions,
+            with n being the number of markers expected from the input.
+        methods : list
+            List containing the calculation methods to be used.
+        mappings : list
+            List containing dictionary mappings for marker names and input and output indices.
+        measurements : dict
+            A dictionary containing the subject measurements given from the file input.
+
+        Returns
+        -------
+        results : tuple
+            A tuple consisting of the axis results, angle results, and center of mass results.
+            Axis results are stored as a 3d ndarray of each joint by origin and xyz unit vectors
+            by x, y, and z location. Angle results are stored as a 2d ndarray of each angle by x, y, and z.
+        """
+
+        pel_ax, hip_ax, kne_ax, ank_ax, foo_ax, pel_an, hip_an, kne_an, ank_an, foo_an = methods  # Add upper when impl
+
+        # markers maps expected marker name to its actual name in the input
+        # marker_idx maps actual marker name from input to its index in the input
+        # For example, if the input's first marker is RASIS, equivalent of RASI,
+        # markers would translate RASI to RASIS and marker_idx would translate RASIS to 0
+        markers, marker_idx, axis_idx, angle_idx = mappings
+
+        axis_results = np.empty((len(axis_idx), 4, 3), dtype=float)
+        axis_results.fill(np.nan)
+        angle_results = np.empty((len(angle_idx), 3), dtype=float)
+        angle_results.fill(np.nan)
+        com_results = np.empty(3, dtype=float)
+        com_results.fill(np.nan)
+
+        # Axis calculations
+
+        rasi = frame[marker_idx[markers["RASI"]]]
+        lasi = frame[marker_idx[markers["LASI"]]]
+        if "SACR" in markers:
+            sacr = frame[marker_idx[markers["SACR"]]]
+            pelvis_axis = pel_ax(rasi, lasi, sacr=sacr)
+        elif "RPSI" in markers and "LPSI" in markers:
+            rpsi = frame[marker_idx[markers["RPSI"]]]
+            lpsi = frame[marker_idx[markers["LPSI"]]]
+            pelvis_axis = pel_ax(rasi, lasi, rpsi=rpsi, lpsi=lpsi)
+        else:
+            raise ValueError("Required marker RPSI and LPSI, or SACR, missing")
+        axis_results[axis_idx["Pelvis Axis"]] = pelvis_axis
+
+        hip_axis = hip_ax(pelvis_axis, measurements)
+        axis_results[axis_idx["Hip Axis"]] = hip_axis[2:]
+
+        rthi = frame[marker_idx[markers["RTHI"]]]
+        lthi = frame[marker_idx[markers["LTHI"]]]
+        rkne = frame[marker_idx[markers["RKNE"]]]
+        lkne = frame[marker_idx[markers["LKNE"]]]
+        hip_origin = hip_axis[:2]
+
+        knee_axis = kne_ax(rthi, lthi, rkne, lkne, hip_origin, measurements)
+        axis_results[axis_idx["R Knee Axis"]], axis_results[axis_idx["L Knee Axis"]] = knee_axis[:4], knee_axis[4:]
+
+        rtib = frame[marker_idx[markers["RTIB"]]]
+        ltib = frame[marker_idx[markers["LTIB"]]]
+        rank = frame[marker_idx[markers["RANK"]]]
+        lank = frame[marker_idx[markers["LANK"]]]
+        knee_origin = np.array([knee_axis[0], knee_axis[4]])
+
+        ankle_axis = ank_ax(rtib, ltib, rank, lank, knee_origin, measurements)
+        axis_results[axis_idx["R Ankle Axis"]], axis_results[axis_idx["L Ankle Axis"]] = ankle_axis[:4], ankle_axis[4:]
+
+        rtoe = frame[marker_idx[markers["RTOE"]]]
+        ltoe = frame[marker_idx[markers["LTOE"]]]
+
+        foot_axis = foo_ax(rtoe, ltoe, ankle_axis, measurements)
+        axis_results[axis_idx["R Foot Axis"]], axis_results[axis_idx["L Foot Axis"]] = foot_axis[:4], foot_axis[4:]
+
+        # Angle calculations
+
+        # Center of Mass calculations
+
+        return axis_results, angle_results, com_results
 
     # Utility functions
     @staticmethod
@@ -374,6 +514,109 @@ class CGM:
         angle = np.array([180.0 * beta / pi, 180.0 * alpha / pi, 180.0 * gamma / pi])
 
         return angle
+
+    @staticmethod
+    def point_to_line(point, start, end):
+        """Finds the distance from a point to a line.
+
+        Calculates the distance from the point `point` to the line formed
+        by the points `start` and `end`.
+
+        Parameters
+        ----------
+        point, start, end : ndarray
+            1x3 numpy arrays representing the XYZ coordinates of a point.
+            `point` is a point not on the line.
+            `start` and `end` form a line.
+
+        Returns
+        -------
+        dist, nearest, point : tuple
+            `dist` is the closest distance from the point to the line.
+            `nearest` is the closest point on the line from `point`.
+            It is represented as a 1x3 array.
+            `point` is the original point not on the line.
+
+        Examples
+        --------
+        >>> import numpy as np
+        >>> from refactor.pycgm import CGM
+        >>> point = np.array([1, 2, 3])
+        >>> start = np.array([4, 5, 6])
+        >>> end = np.array([7, 8, 9])
+        >>> dist, nearest, point = CGM.point_to_line(point, start, end)
+        >>> np.around(dist, 8)
+        5.19615242
+        >>> np.around(nearest, 8)
+        array([4., 5., 6.])
+        >>> np.around(point, 8)
+        array([1, 2, 3])
+        """
+        line_vector = end - start
+        point_vector = point - start
+        line_length = np.linalg.norm(line_vector)
+        line_unit_vector = line_vector / line_length
+        point_vector_scaled = point_vector * (1.0 / line_length)
+        t = np.dot(line_unit_vector, point_vector_scaled)
+        if t < 0.0:
+            t = 0.0
+        elif t > 1.0:
+            t = 1.0
+
+        nearest = line_vector * t
+        dist = np.linalg.norm(point_vector - nearest)
+        nearest = nearest + start
+
+        return dist, nearest, point
+
+    @staticmethod
+    def find_l5(lhjc, rhjc, axis):
+        """Estimates the L5 marker position given the pelvis or thorax axis.
+
+        Markers used : LHJC, RHJC
+
+        Parameters
+        ----------
+        lhjc, rhjc : ndarray
+            1x3 ndarray giving the XYZ coordinates of the LHJC and RHJC
+            markers respectively.
+        axis : ndarray
+            Numpy array containing 4 1x3 arrays of pelvis or thorax origin, x-axis, y-axis,
+            and z-axis. Only the z-axis affects the estimated L5 result.
+
+        Returns
+        -------
+        mid_hip, l5 : tuple
+            `mid_hip` is a 1x3 ndarray giving the XYZ coordinates of the middle
+            of the LHJC and RHJC markers. `l5` is a 1x3 ndarray giving the estimated
+            XYZ coordinates of the L5 marker.
+
+        Examples
+        --------
+        >>> import numpy as np
+        >>> from refactor.pycgm import CGM
+        >>> lhjc = np.array([308.38050472, 322.80342417, 937.98979061])
+        >>> rhjc = np.array([182.57097863, 339.43231855, 935.529000126])
+        >>> axis = np.array([[251.60830688, 391.74131775, 1032.89349365],
+        ...                  [251.74063624, 392.72694721, 1032.78850073],
+        ...                  [250.61711554, 391.87232862, 1032.8741063 ],
+        ...                  [251.60295336, 391.84795134, 1033.88777762]])
+        >>> np.around(CGM.find_l5(lhjc, rhjc, axis), 8)
+        array([[ 245.47574168,  331.11787136,  936.75939537],
+               [ 271.52716019,  371.69050709, 1043.80997977]])
+        """
+        # The L5 position is estimated as (LHJC + RHJC)/2 +
+        # (0.0, 0.0, 0.828) * Length(LHJC - RHJC), where the value 0.828
+        # is a ratio of the distance from the hip joint centre level to the
+        # top of the lumbar 5: this is calculated as in the vertical (z) axis
+        mid_hip = (lhjc + rhjc) / 2.0
+
+        offset = np.linalg.norm(lhjc - rhjc) * 0.925
+        origin, x_axis, y_axis, z_axis = axis
+        norm_dir = z_axis / np.linalg.norm(z_axis)  # Create unit vector
+        l5 = mid_hip + offset * norm_dir
+
+        return mid_hip, l5
 
     # Axis calculation functions
     @staticmethod
@@ -1524,249 +1767,7 @@ class CGM:
     def wrist_angle_calc():
         pass
 
-    # Input and output handlers
-    @staticmethod
-    def multi_calc(data, methods, mappings, measurements, cores=1):
-        """Multiprocessing calculation handler function
-
-        Takes in the necessary information for performing each frame's calculation as parameters
-        and distributes frames along available cores.
-
-        Parameters
-        ----------
-        data : ndarray
-            3d ndarray consisting of each frame by each marker by x, y, and z positions.
-        methods : list
-            List containing the calculation methods to be used.
-        mappings : list
-            List containing dictionary mappings for marker names and input and output indices.
-        measurements : dict
-            A dictionary containing the subject measurements given from the file input.
-        cores : int, optional
-            Number of cores to perform multiprocessing with, defaulting to 1 if not specified.
-
-        Returns
-        -------
-        results : tuple
-            A tuple consisting of the angle results and axis results. Angle results are
-            stored as a 3d ndarray of each frame by each angle by x, y, and z. Axis results
-            are stored as a 4d ndarray of each frame by each joint by origin and xyz unit vectors
-            by x, y, and z location.
-        """
-
-        markers, marker_idx, axis_idx, angle_idx = mappings
-
-        axis_results = np.empty((len(data), len(axis_idx), 4, 3), dtype=float)
-        axis_results.fill(np.nan)
-        angle_results = np.empty((len(data), len(angle_idx), 3), dtype=float)
-        angle_results.fill(np.nan)
-        com_results = np.empty((len(data), 3), dtype=float)
-        com_results.fill(np.nan)
-
-        for i, frame in enumerate(data):
-
-            frame_axes, frame_angles, frame_com = CGM.calc(frame, methods, mappings, measurements)
-            axis_results[i] = frame_axes
-            angle_results[i] = frame_angles
-            com_results[i] = frame_com
-
-        return axis_results, angle_results, com_results
-
-    @staticmethod
-    def calc(frame, methods, mappings, measurements):
-        """Overall axis and angle calculation function
-
-        Uses the data and methods passed in to distribute the appropriate inputs to each
-        axis and angle calculation function (generally markers and axis results) and
-        store and return their output, all in the context of a single frame.
-
-        Parameters
-        ----------
-        frame : ndarray
-            An nx3 ndarray consisting of each marker in the current frame and their x, y, and z positions,
-            with n being the number of markers expected from the input.
-        methods : list
-            List containing the calculation methods to be used.
-        mappings : list
-            List containing dictionary mappings for marker names and input and output indices.
-        measurements : dict
-            A dictionary containing the subject measurements given from the file input.
-
-        Returns
-        -------
-        results : tuple
-            A tuple consisting of the axis results, angle results, and center of mass results.
-            Axis results are stored as a 3d ndarray of each joint by origin and xyz unit vectors
-            by x, y, and z location. Angle results are stored as a 2d ndarray of each angle by x, y, and z.
-        """
-
-        pel_ax, hip_ax, kne_ax, ank_ax, foo_ax, pel_an, hip_an, kne_an, ank_an, foo_an = methods  # Add upper when impl
-
-        # markers maps expected marker name to its actual name in the input
-        # marker_idx maps actual marker name from input to its index in the input
-        # For example, if the input's first marker is RASIS, equivalent of RASI,
-        # markers would translate RASI to RASIS and marker_idx would translate RASIS to 0
-        markers, marker_idx, axis_idx, angle_idx = mappings
-
-        axis_results = np.empty((len(axis_idx), 4, 3), dtype=float)
-        axis_results.fill(np.nan)
-        angle_results = np.empty((len(angle_idx), 3), dtype=float)
-        angle_results.fill(np.nan)
-        com_results = np.empty(3, dtype=float)
-        com_results.fill(np.nan)
-
-        # Axis calculations
-
-        rasi = frame[marker_idx[markers["RASI"]]]
-        lasi = frame[marker_idx[markers["LASI"]]]
-        if "SACR" in markers:
-            sacr = frame[marker_idx[markers["SACR"]]]
-            pelvis_axis = pel_ax(rasi, lasi, sacr=sacr)
-        elif "RPSI" in markers and "LPSI" in markers:
-            rpsi = frame[marker_idx[markers["RPSI"]]]
-            lpsi = frame[marker_idx[markers["LPSI"]]]
-            pelvis_axis = pel_ax(rasi, lasi, rpsi=rpsi, lpsi=lpsi)
-        else:
-            raise ValueError("Required marker RPSI and LPSI, or SACR, missing")
-        axis_results[axis_idx["Pelvis Axis"]] = pelvis_axis
-
-        hip_axis = hip_ax(pelvis_axis, measurements)
-        axis_results[axis_idx["Hip Axis"]] = hip_axis[2:]
-
-        rthi = frame[marker_idx[markers["RTHI"]]]
-        lthi = frame[marker_idx[markers["LTHI"]]]
-        rkne = frame[marker_idx[markers["RKNE"]]]
-        lkne = frame[marker_idx[markers["LKNE"]]]
-        hip_origin = hip_axis[:2]
-
-        knee_axis = kne_ax(rthi, lthi, rkne, lkne, hip_origin, measurements)
-        axis_results[axis_idx["R Knee Axis"]], axis_results[axis_idx["L Knee Axis"]] = knee_axis[:4], knee_axis[4:]
-
-        rtib = frame[marker_idx[markers["RTIB"]]]
-        ltib = frame[marker_idx[markers["LTIB"]]]
-        rank = frame[marker_idx[markers["RANK"]]]
-        lank = frame[marker_idx[markers["LANK"]]]
-        knee_origin = np.array([knee_axis[0], knee_axis[4]])
-
-        ankle_axis = ank_ax(rtib, ltib, rank, lank, knee_origin, measurements)
-        axis_results[axis_idx["R Ankle Axis"]], axis_results[axis_idx["L Ankle Axis"]] = ankle_axis[:4], ankle_axis[4:]
-
-        rtoe = frame[marker_idx[markers["RTOE"]]]
-        ltoe = frame[marker_idx[markers["LTOE"]]]
-
-        foot_axis = foo_ax(rtoe, ltoe, ankle_axis, measurements)
-        axis_results[axis_idx["R Foot Axis"]], axis_results[axis_idx["L Foot Axis"]] = foot_axis[:4], foot_axis[4:]
-
-        # Angle calculations
-
-        # Center of Mass calculations
-
-        return axis_results, angle_results, com_results
-
     # Center of Mass / Kinetics calculation Methods:
-    @staticmethod
-    def point_to_line(point, start, end):
-        """Finds the distance from a point to a line.
-
-        Calculates the distance from the point `point` to the line formed
-        by the points `start` and `end`.
-
-        Parameters
-        ----------
-        point, start, end : ndarray
-            1x3 numpy arrays representing the XYZ coordinates of a point.
-            `point` is a point not on the line.
-            `start` and `end` form a line.
-
-        Returns
-        -------
-        dist, nearest, point : tuple
-            `dist` is the closest distance from the point to the line.
-            `nearest` is the closest point on the line from `point`.
-            It is represented as a 1x3 array.
-            `point` is the original point not on the line.
-
-        Examples
-        --------
-        >>> import numpy as np
-        >>> from refactor.pycgm import CGM
-        >>> point = np.array([1, 2, 3])
-        >>> start = np.array([4, 5, 6])
-        >>> end = np.array([7, 8, 9])
-        >>> dist, nearest, point = CGM.point_to_line(point, start, end)
-        >>> np.around(dist, 8)
-        5.19615242
-        >>> np.around(nearest, 8)
-        array([4., 5., 6.])
-        >>> np.around(point, 8)
-        array([1, 2, 3])
-        """
-        line_vector = end - start
-        point_vector = point - start
-        line_length = np.linalg.norm(line_vector)
-        line_unit_vector = line_vector / line_length
-        point_vector_scaled = point_vector * (1.0 / line_length)
-        t = np.dot(line_unit_vector, point_vector_scaled)
-        if t < 0.0:
-            t = 0.0
-        elif t > 1.0:
-            t = 1.0
-
-        nearest = line_vector * t
-        dist = np.linalg.norm(point_vector - nearest)
-        nearest = nearest + start
-
-        return dist, nearest, point
-
-    @staticmethod
-    def find_l5(lhjc, rhjc, axis):
-        """Estimates the L5 marker position given the pelvis or thorax axis.
-
-        Markers used : LHJC, RHJC
-
-        Parameters
-        ----------
-        lhjc, rhjc : ndarray
-            1x3 ndarray giving the XYZ coordinates of the LHJC and RHJC
-            markers respectively.
-        axis : ndarray
-            Numpy array containing 4 1x3 arrays of pelvis or thorax origin, x-axis, y-axis,
-            and z-axis. Only the z-axis affects the estimated L5 result.
-
-        Returns
-        -------
-        mid_hip, l5 : tuple
-            `mid_hip` is a 1x3 ndarray giving the XYZ coordinates of the middle
-            of the LHJC and RHJC markers. `l5` is a 1x3 ndarray giving the estimated
-            XYZ coordinates of the L5 marker.
-
-        Examples
-        --------
-        >>> import numpy as np
-        >>> from refactor.pycgm import CGM
-        >>> lhjc = np.array([308.38050472, 322.80342417, 937.98979061])
-        >>> rhjc = np.array([182.57097863, 339.43231855, 935.529000126])
-        >>> axis = np.array([[251.60830688, 391.74131775, 1032.89349365],
-        ...                  [251.74063624, 392.72694721, 1032.78850073],
-        ...                  [250.61711554, 391.87232862, 1032.8741063 ],
-        ...                  [251.60295336, 391.84795134, 1033.88777762]])
-        >>> np.around(CGM.find_l5(lhjc, rhjc, axis), 8)
-        array([[ 245.47574168,  331.11787136,  936.75939537],
-               [ 271.52716019,  371.69050709, 1043.80997977]])
-        """
-        # The L5 position is estimated as (LHJC + RHJC)/2 +
-        # (0.0, 0.0, 0.828) * Length(LHJC - RHJC), where the value 0.828
-        # is a ratio of the distance from the hip joint centre level to the
-        # top of the lumbar 5: this is calculated as in the vertical (z) axis
-        mid_hip = (lhjc + rhjc) / 2.0
-
-        offset = np.linalg.norm(lhjc - rhjc) * 0.925
-        origin, x_axis, y_axis, z_axis = axis
-        norm_dir = z_axis / np.linalg.norm(z_axis)  # Create unit vector
-        l5 = mid_hip + offset * norm_dir
-
-        return mid_hip, l5
-
     @staticmethod
     def get_kinetics(joint_centers, jc_mapping, body_mass):
         """Estimate center of mass values in the global coordinate system.
