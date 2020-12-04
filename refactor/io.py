@@ -19,7 +19,7 @@ try:
 
     useEZC3D = True
     print("EZC3D Found, using instead of Python c3d")
-except ModuleNotFoundError:
+except ImportError:
     useEZC3D = False
 
 
