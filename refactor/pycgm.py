@@ -550,11 +550,11 @@ class CGM:
         r_zh = (-r_asis_to_trocanter_measure - mm) * sin(beta) - c * cos(theta) * cos(beta)
 
         # Get the unit pelvis axis
-        pelvis_xaxis, pelvis_yaxis, pelvis_zaxis = CGM.subtract_origin(pelvis_axis)
+        pelvis_x_axis, pelvis_y_axis, pelvis_z_axis = CGM.subtract_origin(pelvis_axis)
 
         # Multiply the distance to the unit pelvis axis
-        l_hip_jc = pelvis_xaxis * l_xh + pelvis_yaxis * l_yh + pelvis_zaxis * l_zh
-        r_hip_jc = pelvis_xaxis * r_xh + pelvis_yaxis * r_yh + pelvis_zaxis * r_zh
+        l_hip_jc = pelvis_x_axis * l_xh + pelvis_y_axis * l_yh + pelvis_z_axis * l_zh
+        r_hip_jc = pelvis_x_axis * r_xh + pelvis_y_axis * r_yh + pelvis_z_axis * r_zh
 
         l_hip_jc += pelvis_axis[0]
         r_hip_jc += pelvis_axis[0]
@@ -562,12 +562,8 @@ class CGM:
         # Get shared hip axis, it is inbetween the two hip joint centers
         hip_axis_center = (r_hip_jc + l_hip_jc) / 2.0
 
-        # Convert pelvis_axis to x, y, z axis to use more easily
-        pelvis_x_axis, pelvis_y_axis, pelvis_z_axis = CGM.subtract_origin(pelvis_axis)
-
         # Translate pelvis axis to shared hip center
         # Add the origin back to the vector
-
         y_axis = pelvis_y_axis + hip_axis_center
         z_axis = pelvis_z_axis + hip_axis_center
         x_axis = pelvis_x_axis + hip_axis_center
