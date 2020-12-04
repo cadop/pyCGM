@@ -170,7 +170,7 @@ class CGM:
     def rotation_matrix(x=0, y=0, z=0):
         """Rotation Matrix function
 
-        This function creates and returns a rotation matrix.
+        This function creates and returns a rotation matrix about axes x, y, z.
 
         Parameters
         ----------
@@ -184,6 +184,21 @@ class CGM:
         rxyz : list
             The product of the matrix multiplication as a 3x3 ndarray.
         """
+        # Convert the x, y, z rotation angles from degrees to radians
+        x = radians(x)
+        y = radians(y)
+        z = radians(z)
+
+        # Making elemental rotations about each of the x, y, z axes
+        Rx = [[1, 0, 0], [0, cos(x), sin(x) * -1], [0, sin(x), cos(x)]]
+        Ry = [[cos(y), 0, sin(y)], [0, 1, 0], [sin(y) * -1, 0, cos(y)]]
+        Rz = [[cos(z), sin(z) * -1, 0], [sin(z), cos(z), 0], [0, 0, 1]]
+
+        # Making the rotation matrix around x, y, z axes using matrix multiplication
+        Rxy = np.matmul(Rx, Ry)
+        Rxyz = np.matmul(Rxy, Rz)
+
+        return Rxyz
 
     @staticmethod
     def wand_marker(rsho, lsho, thorax_axis):
@@ -241,6 +256,7 @@ class CGM:
         .. [12] Kadaba MP, Ramakrishnan HK, Wootten ME.
            Measurement of lower extremity kinematics during level walking.
            Journal of orthopaedic research: official publication of the Orthopaedic Research Society.
+           1990;8(3):383-92.
 
         Examples
         --------
