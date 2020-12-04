@@ -439,8 +439,8 @@ class CGM:
         Returns
         -------
         array
-            Returns a 4x3 ndarray that contains the hip origin and the
-            hip x, y, and z axis components.
+            Returns a 6x3 ndarray that contains the right and left hip joint centers,
+            hip origin, and hip x, y, and z axis components.
 
         References
         ----------
@@ -459,7 +459,9 @@ class CGM:
         >>> measurements = {'MeanLegLength': 940.0, 'R_AsisToTrocanterMeasure': 72.512,
         ...                 'L_AsisToTrocanterMeasure': 72.512, 'InterAsisDistance': 215.908996582031}
         >>> CGM.hip_axis_calc(pelvis_axis, measurements)  # doctest: +NORMALIZE_WHITESPACE
-        array([[245.47574075, 331.11787116, 936.75939614],
+        array([[308.38050352, 322.80342433, 937.98979092],
+               [182.57097799, 339.43231799, 935.52900136],
+               [245.47574075, 331.11787116, 936.75939614],
                [245.60807011, 332.10350062, 936.65440322],
                [244.48454941, 331.24888203, 936.74000879],
                [245.47038723, 331.22450475, 937.75368011]])
@@ -545,7 +547,7 @@ class CGM:
         x_axis = [pelvis_x_axis[0] + hip_axis_center[0], pelvis_x_axis[1] + hip_axis_center[1],
                   pelvis_x_axis[2] + hip_axis_center[2]]
 
-        return np.array([hip_axis_center, x_axis, y_axis, z_axis])
+        return np.array([r_hip_jc, l_hip_jc, hip_axis_center, x_axis, y_axis, z_axis])
 
     @staticmethod
     def knee_axis_calc(rthi, lthi, rkne, lkne, hip_origin, measurements):
@@ -1272,12 +1274,12 @@ class CGM:
         >>> import numpy as np
         >>> from .pycgm import CGM
         >>> global_axis = np.array([[1,0,0],[0,1,0],[0,0,1]])
-        >>> pelvis_axis = np.array([[33.17319107, 92.17796134, 831.48202514],
-        ...                         [33.75163424, 92.94877869, 831.21510922],
-        ...                         [32.37542212, 92.78080410, 831.49408009],
-        ...                         [33.34339156, 92.38392548, 832.44566956]])
+        >>> pelvis_axis = np.array([[251.60830688, 391.74131774, 1032.89349365],
+        ...                         [251.74063624, 392.72694720, 1032.78850073],
+        ...                         [250.61711554, 391.87232862, 1032.87410630],
+        ...                         [251.60295335, 391.84795133, 1033.88777762]])
         >>> CGM.pelvis_angle_calc(global_axis, pelvis_axis)
-        array([12.06456223, -9.79947634, -35.94496886])
+        array([-0.30849508, -6.12129284,  7.57143134])
         """
 
         pelvis_axis_mod = CGM.subtract_origin(pelvis_axis)
