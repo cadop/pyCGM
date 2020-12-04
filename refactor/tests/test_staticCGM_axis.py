@@ -852,21 +852,6 @@ class TestStaticCGMAxis:
         result = StaticCGM.flat_foot_axis_calc(rtoe, ltoe, rhee, lhee, ankle_axis, measurements)
         np.testing.assert_almost_equal(result, expected, rounding_precision)
     
-    @pytest.mark.parametrize(["a", "b", "c", "delta", "expected"],[
-        ([ np.array([0, 0, 0]), 
-            np.array([0, 0, 0]),
-            np.array([0, 0, 0]), 
-            np.array([0, 0, 0]),  
-            np.array([ [0, 0, 0], np.array(rand_coor), 
-            [0, 0, 0], np.array(rand_coor), 
-            [0, 0, 0], np.array(rand_coor), 
-            [0, 0, 0], np.array(rand_coor)]), 
-            {'RightSoleDelta': 0.0, 'LeftSoleDelta': 0.0},
-            np.array([ [0, 0, 0], nan_3d, 
-            nan_3d, nan_3d, 
-            [0, 0, 0], nan_3d, 
-            nan_3d, nan_3d]) ]) 
-    ])
     def test_non_flat_foot_axis_calc(self, rtoe, ltoe, rhee, lhee, ankle_axis):
         """
         This test provides coverage of the rotaxis_nonfootflat function in pycgmStatic.py, defined as rotaxis_nonfootflat(frame, ankle_JC)
