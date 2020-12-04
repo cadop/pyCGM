@@ -20,8 +20,8 @@ class TestLowerBodyAxis():
     foot_axis_calc
     """
 
-    nan_3d = [np.nan, np.nan, np.nan]
-    rand_coor = [np.random.randint(0, 10), np.random.randint(0, 10), np.random.randint(0, 10)]
+    nan_3d = np.array([np.nan, np.nan, np.nan])
+    rand_coor = np.array([np.random.randint(0, 10), np.random.randint(0, 10), np.random.randint(0, 10)])
 
     @pytest.mark.parametrize(["rasi", "lasi", "rpsi", "lpsi", "sacr", "expected"], [
         # Test from running sample data
@@ -87,7 +87,6 @@ class TestLowerBodyAxis():
 
         If sacr marker is not present, the mean of rpsi and lpsi markers will be used instead.
         The pelvis origin is the midpoint of the rasi and lasi markers.
-
         x axis is computed with a Gram-Schmidt orthogonalization procedure (ref. Kadaba 1990).
         y axis is computed by subtracting rasi from lasi.
         z axis is cross product of x axis and y axis.
@@ -761,8 +760,8 @@ class TestLowerBodyAxis():
                    [4.3919974, 0.82303962, -2.58897224], [-1, 7, 2], [-1.58062909, 6.83398388, 1.20293758],
                    [-1.59355918, 7.75640754, 2.27483654], [-0.44272327, 7.63268181, 1.46226738]])),
         # Testing that when rtoe, ltoe, and ankle_axis are composed of lists of ints and measurements values are ints
-        ([4, 0, -3], [-1, 7, 2],
-         [[-3, 5, 2], rand_coor, [-1, 0, 2], rand_coor, [2, 3, 9], rand_coor, [9, 3, -4], rand_coor],
+        (np.array([4, 0, -3]), np.array([-1, 7, 2]),
+         np.array([[-3, 5, 2], rand_coor, [-1, 0, 2], rand_coor, [2, 3, 9], rand_coor, [9, 3, -4], rand_coor]),
          {'RightStaticRotOff': -12, 'RightStaticPlantFlex': 20, 'LeftStaticRotOff': 34, 'LeftStaticPlantFlex': -70},
          np.array([[4, 0, -3], [3.08005417, 0.34770638, -2.81889243], [4.00614173, -0.44911697, -2.10654814],
                    [4.3919974, 0.82303962, -2.58897224], [-1, 7, 2], [-1.58062909, 6.83398388, 1.20293758],
@@ -778,9 +777,9 @@ class TestLowerBodyAxis():
                    [-1.59355918, 7.75640754, 2.27483654], [-0.44272327, 7.63268181, 1.46226738]])),
         # Testing that when rtoe, ltoe, and ankle_axis are composed of lists of floats and measurements values are
         # floats
-        ([4.0, 0.0, -3.0], [-1.0, 7.0, 2.0],
-         [[-3.0, 5.0, 2.0], rand_coor, [-1.0, 0.0, 2.0], rand_coor, [2.0, 3.0, 9.0], rand_coor, [9.0, 3.0, -4.0],
-          rand_coor],
+        (np.array([4.0, 0.0, -3.0]), np.array([-1.0, 7.0, 2.0]),
+         np.array([[-3.0, 5.0, 2.0], rand_coor, [-1.0, 0.0, 2.0], rand_coor, [2.0, 3.0, 9.0], rand_coor, [9.0, 3.0, -4.0],
+          rand_coor]),
          {'RightStaticRotOff': -12.0, 'RightStaticPlantFlex': 20.0, 'LeftStaticRotOff': 34.0,
           'LeftStaticPlantFlex': -70.0},
          np.array([[4, 0, -3], [3.08005417, 0.34770638, -2.81889243], [4.00614173, -0.44911697, -2.10654814],
@@ -834,32 +833,24 @@ class TestAxisUtils():
 
     @pytest.mark.parametrize(["a", "b", "c", "delta", "expected"], [
         # Test from running sample data
-        ([426.50338745, 262.65310669, 673.66247559], [308.38050472, 322.80342417, 937.98979061],
-         [416.98687744, 266.22558594, 524.04089355], 59.5, [364.17774614, 292.17051722, 515.19181496]),
+        (np.array([426.50338745, 262.65310669, 673.66247559]), np.array([308.38050472, 322.80342417, 937.98979061]),
+         np.array([416.98687744, 266.22558594, 524.04089355]), 59.5, [364.17774614, 292.17051722, 515.19181496]),
         # Testing with basic value in a and c
-        ([1, 0, 0], [0, 0, 0], [0, 0, 1], 0.0, [0, 0, 1]),
+        (np.array([1.0, 0.0, 0.0]), np.array([0.0, 0.0, 0.0]), np.array([0.0, 0.0, 1.0]), 0.0, [0, 0, 1]),
         # Testing with value in a and basic value in c
-        ([-7, 1, 2], [0, 0, 0], [0, 0, 1], 0.0, [0, 0, 1]),
+        (np.array([-7.0, 1.0, 2.0]), np.array([0.0, 0.0, 0.0]), np.array([0.0, 0.0, 1.0]), 0.0, [0, 0, 1]),
         #  Testing with value in b and basic value in c
-        ([0, 0, 0], [1, 4, 3], [0, 0, 1], 0.0, [0, 0, 1]),
+        (np.array([0.0, 0.0, 0.0]), np.array([1.0, 4.0, 3.0]), np.array([0.0, 0.0, 1.0]), 0.0, [0, 0, 1]),
         #  Testing with value in a and b and basic value in c
-        ([-7, 1, 2], [1, 4, 3], [0, 0, 1], 0.0, [0, 0, 1]),
+        (np.array([-7.0, 1.0, 2.0]), np.array([1.0, 4.0, 3.0]), np.array([0.0, 0.0, 1.0]), 0.0, [0, 0, 1]),
         #  Testing with value in a, b, and c
-        ([-7, 1, 2], [1, 4, 3], [3, 2, -8], 0.0, [3, 2, -8]),
+        (np.array([-7.0, 1.0, 2.0]), np.array([1.0, 4.0, 3.0]), np.array([3.0, 2.0, -8.0]), 0.0, [3, 2, -8]),
         # Testing with value in a, b, c and delta of 1
-        ([-7, 1, 2], [1, 4, 3], [3, 2, -8], 1.0, [3.91270955, 2.36111526, -7.80880104]),
+        (np.array([-7.0, 1.0, 2.0]), np.array([1.0, 4.0, 3.0]), np.array([3.0, 2.0, -8.0]), 1.0,
+         [3.91270955, 2.36111526, -7.80880104]),
         # Testing with value in a, b, c and delta of 20
-        ([-7, 1, 2], [1, 4, 3], [3, 2, -8], 10.0, [5.86777669, 5.19544877, 1.03133235]),
-        # Testing that when a, b, and c are lists of ints and delta is an int
-        ([-7, 1, 2], [1, 4, 3], [3, 2, -8], 10, [5.86777669, 5.19544877, 1.03133235]),
-        # Testing that when a, b, and c are numpy arrays of ints and delta is an int
-        (np.array([-7, 1, 2], dtype='int'), np.array([1, 4, 3], dtype='int'), np.array([3, 2, -8], dtype='int'), 10,
-         [5.86777669, 5.19544877, 1.03133235]),
-        # Testing that when a, b, and c are lists of floats and delta is a float
-        ([-7.0, 1.0, 2.0], [1.0, 4.0, 3.0], [3.0, 2.0, -8.0], 10.0, [5.86777669, 5.19544877, 1.03133235]),
-        # Testing that when a, b, and c are numpy arrays of floats and delta is a float
-        (np.array([-7.0, 1.0, 2.0], dtype='float'), np.array([1.0, 4.0, 3.0], dtype='float'),
-         np.array([3.0, 2.0, -8.0], dtype='float'), 10.0, [5.86777669, 5.19544877, 1.03133235])])
+        (np.array([-7.0, 1.0, 2.0]), np.array([1.0, 4.0, 3.0]), np.array([3.0, 2.0, -8.0]), 10.0,
+         [5.86777669, 5.19544877, 1.03133235])])
     def test_find_joint_center(self, a, b, c, delta, expected):
         """
         This test provides coverage of the find_joint_center function in the class CGM in pycgm.py, defined as
@@ -874,11 +865,6 @@ class TestAxisUtils():
             A 1x3 ndarray for the x, y, z positions in Joint Center
 
         Calculated using Rodrigues' rotation formula
-
-        This unit test ensures that:
-        - the correct expected values are altered per parameter given.
-        - the resulting output is correct when a, b, and c are composed of lists of ints, numpy arrays of ints,
-        lists of floats, and numpy arrays of floats and delta is a int or float.
         """
         result = CGM.find_joint_center(a, b, c, delta)
         np.testing.assert_almost_equal(result, expected, rounding_precision)

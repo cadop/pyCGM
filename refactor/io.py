@@ -439,7 +439,8 @@ class IO:
         return subject_measurements
 
     # Writing Functions
-    def write_result(filename, output_data, output_mapping, angles=True, axis=True, center_of_mass=True):
+    @staticmethod
+    def write_result(filename, angle_output, angle_mapping, axis_output, axis_mapping, center_of_mass_output, angles=None, axis=None, center_of_mass=True):
         """Writes outputs from pycgm to a CSV file.
 
         Lines 0-6 of the output csv are headers. Lines 7 and onwards
@@ -447,23 +448,190 @@ class IO:
         line 7 of the csv is output for frame 0 of the motion capture.
         The first element of each row of output is the frame number.
 
+        Assumes that angle_output, axis_output, and center_of_mass_output are all
+        of the same length - the number of frames in the trial.
+
         Parameters
         ----------
         filename : str
             Path of the csv filename to write to.
-        output_data : 3darray
-            3d numpy array, where each index in the array corresponds to a frame
-            of trial to write output for. Each index contains a list of 1x3 lists of
-            XYZ coordinate data to write.s
-        output_mapping : dict
-            Dictionary where keys are output labels, such as `R Hip`, and values
-            indicate which index in `output_data` corresponds to the data for that label.
-        angles, axis : bool or list, optional
+        angle_output, axis_output : 3darray
+            3d numpy arrays, where each index in the array corresponds to a frame
+            of trial to write output for. Each index contains an array of 1x3 arrays of
+            XYZ coordinate data to write for an angle or axis.
+        center_of_mass_output : 2darray
+            2d numpy array where each index in the array corresponds to a frame of trial.
+            Each index contains a 1x3 array of the XYZ coordinate of the center of mass for
+            that frame.
+        angle_mapping, axis_mapping : dict
+            Dictionary where keys are angle or axis output labels, such as 'R Hip' or 'PELO', and values
+            indicate which index in `angle_output` or `axis_output` corresponds to the data for that label.
+        angles, axis : bool or list or tuple, optional
             Indicates whether or not to include the corresponding output in the
-            written csv, or a list of angles/axes to write. All are True by default.
+            written csv, or a list or tuple of angles/axes to write.
+            If `angles` or `axis` is not specified or is True, all angles or axes will be written in
+            the default order. 
+            If `angles` or `axis` is False, no angles or axes will be written.
+            If `angles` or `axis` is a list or tuple, the angles or axes will be written in the order
+            given by the labels in the list or tuple. The labels must exist in the respective mapping
+            dictionaries `angle_mapping` or `axis_mapping`.
         center_of_mass : bool, optional
-            Indicates wheter or not to include center of mass output in the written
+            Indicates whether or not to include center of mass output in the written
             csv. True by default.
+        
+        Examples
+        --------
+        >>> from numpy import array
+        >>> import os
+        >>> from shutil import rmtree
+        >>> import tempfile
+        >>> tmp_dir_name = tempfile.mkdtemp()
+        >>> from refactor.io import IO
+
+        Prepare data to write to csv. 
+
+        >>> angle_output = [[[1, 2, 3], [4, 5, 6]]]
+        >>> angle_mapping = {'Pelvis' : 0, 'R Hip' : 1}
+        >>> axis_output = [[[1, 1, 1], [2, 2, 2]]]
+        >>> axis_mapping = {'PELO': 0, 'HIPX' : 1}
+        >>> center_of_mass_output = [[0, 1, 2]]
+        >>> filename = os.path.join(tmp_dir_name, 'output.csv')
+
+        Writing angles only.
+
+        >>> IO.write_result(filename, angle_output, angle_mapping, axis_output, axis_mapping, center_of_mass_output, axis=False, center_of_mass = False)
+        >>> with open(filename) as file:
+        ...    lines = file.readlines()
+        >>> result = lines[7].strip().split(',')
+        >>> result = [float(i) for i in result]
+        >>> result
+        [0.0, 1.0, 2.0, 3.0, 4.0, 5.0, 6.0]
+
+        Writing axis only.
+
+        >>> IO.write_result(filename, angle_output, angle_mapping, axis_output, axis_mapping, center_of_mass_output, angles=False, center_of_mass = False)
+        >>> with open(filename) as file:
+        ...    lines = file.readlines()
+        >>> result = lines[7].strip().split(',')
+        >>> result = [float(i) for i in result]
+        >>> result
+        [0.0, 1.0, 1.0, 1.0, 2.0, 2.0, 2.0]
+
+        Writing center of mass only.
+        >>> IO.write_result(filename, angle_output, angle_mapping, axis_output, axis_mapping, center_of_mass_output, angles=False, axis=False)
+        >>> with open(filename) as file:
+        ...    lines = file.readlines()
+        >>> result = lines[7].strip().split(',')
+        >>> result = [float(i) for i in result]
+        >>> result
+        [0.0, 0.0, 1.0, 2.0]
+
+        >>> rmtree(tmp_dir_name)
         """
-        # The function will include list of 19 angles, 24 axes, and center of mass with the same
-        # consistent naming scheme that already exists. See labelsAngs and labelsAxis in existing writeResult.
+        #Default orders to write angles or axes:
+        default_angle_labels = ['Pelvis','R Hip','L Hip','R Knee','L Knee','R Ankle',
+                                'L Ankle','R Foot','L Foot',
+                                'Head','Thorax','Neck','Spine','R Shoulder','L Shoulder',
+                                'R Elbow','L Elbow','R Wrist','L Wrist']
+
+        default_axis_labels = ["PELO","PELX","PELY","PELZ","HIPO","HIPX","HIPY","HIPZ","R KNEO",
+        "R KNEX","R KNEY","R KNEZ","L KNEO","L KNEX","L KNEY","L KNEZ","R ANKO","R ANKX",
+        "R ANKY","R ANKZ","L ANKO","L ANKX","L ANKY","L ANKZ","R FOOO","R FOOX","R FOOY",
+        "R FOOZ","L FOOO","L FOOX","L FOOY","L FOOZ","HEAO","HEAX","HEAY","HEAZ","THOO",
+        "THOX","THOY","THOZ","R CLAO","R CLAX","R CLAY","R CLAZ","L CLAO","L CLAX",
+        "L CLAY","L CLAZ","R HUMO","R HUMX","R HUMY","R HUMZ","L HUMO","L HUMX","L HUMY",
+        "L HUMZ","R RADO","R RADX","R RADY","R RADZ","L RADO","L RADX","L RADY","L RADZ",
+        "R HANO","R HANX","R HANY","R HANZ","L HANO","L HANX","L HANY","L HANZ"]
+
+        if (angles == False and axis == False and center_of_mass == False):
+            return
+        
+        #Populate data_to_write
+        data_to_write = []
+        num_frames = len(angle_output)
+        for i in range(num_frames):
+            temp = [i] #Frame number
+            #Determine whether or not to write center_of_mass
+            if (center_of_mass):
+                temp.extend(center_of_mass_output[i])
+            #Get which angles to write
+            if (isinstance(angles, (list, tuple))):
+                #Loop over angles
+                for label in angles:
+                    if label in angle_mapping:
+                        temp.extend(angle_output[i][angle_mapping[label]])
+            elif (angles is None or angles == True):
+                #Write all keys in default_angle_labels
+                for label in default_angle_labels:
+                    if label in angle_mapping:
+                        temp.extend(angle_output[i][angle_mapping[label]])
+
+            #Get which axes to write
+            if (isinstance(axis, (list, tuple))):
+                #Loop over axis
+                for label in axis:
+                    if label in axis_mapping:
+                        temp.extend(axis_output[i][axis_mapping[label]])
+            elif (axis is None or axis == True):
+                #Write all keys in default_axis_labels
+                for label in default_axis_labels:
+                    if label in axis_mapping:
+                        temp.extend(axis_output[i][axis_mapping[label]])
+            data_to_write.append(temp)
+        
+        #Convert to numpy array
+        data_to_write = np.array(data_to_write)
+
+        #Determine header
+        #Find which angles were actually written
+        output_angle_labels = []
+        if (isinstance(angles, (list, tuple))):
+            for label in angles:
+                if label in angle_mapping:
+                    output_angle_labels.append(label)
+        elif angles is None or angles == True:
+            for label in default_angle_labels:
+                if label in angle_mapping:
+                    output_angle_labels.append(label)
+        
+        output_axis_labels = []
+        if (isinstance(axis, (list, tuple))):
+            for label in axis:
+                if label in axis_mapping:
+                    output_axis_labels.append(label)
+        elif axis is None or axis == True:
+            for label in default_axis_labels:
+                if label in axis_mapping:
+                    output_axis_labels.append(label)
+        
+        header = " ,"
+        header_angs=["Joint Angle,,,",",,,x = flexion/extension angle",",,,y= abudction/adduction angle",",,,z = external/internal rotation angle",",,,"]
+        header_axis=["Joint Coordinate",",,,###O = Origin",",,,###X = X axis orientation",",,,###Y = Y axis orientation",",,,###Z = Z axis orientation"]
+        
+        has_angle_output = len(output_angle_labels) > 0
+        has_axis_output = len(output_axis_labels) > 0
+        has_com = center_of_mass
+
+        for i in range(len(header_angs)):
+            if (has_com):
+                header += ",,,"
+            if (has_angle_output):
+                header += header_angs[i]
+            if (has_axis_output):
+                header += ',' * 3 * (len(output_angle_labels) - 1)
+                header += header_axis[i]
+            header += '\n'
+        
+        header += ','
+        if (center_of_mass):
+            header += "Center of Mass,,,"
+        for label in output_angle_labels:
+            header += label + ",,,"
+        for label in output_axis_labels:
+            header += label + ",,,"
+        header += "\n"
+        xyz = " Frame Number," + "X,Y,Z," * int(len(data_to_write[0][1:])/3)
+        np.savetxt(filename, data_to_write, header=header+xyz, delimiter=',', fmt="%.15f")
+        
+        
+
