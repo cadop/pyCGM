@@ -1328,8 +1328,6 @@ class CGM:
         array([[  2.91422854,  -6.86706805, -18.82100186],
                [ -2.86020432,  -5.34565068,  -1.80256237]])
         """
-        r_hip_jc, l_hip_jc, hip_origin, hip_x, hip_y, hip_z = hip_axis
-        r_knee_jc, r_knee_x, r_knee_y, r_knee_z, l_knee_jc, l_knee_x, l_knee_y, l_knee_z = knee_axis
 
         hip_axis_mod = CGM.subtract_origin(hip_axis[2:])
         r_knee_axis_mod = CGM.subtract_origin(knee_axis[:4])
