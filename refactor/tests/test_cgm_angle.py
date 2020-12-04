@@ -1,6 +1,7 @@
 #!/usr/bin/python
 # -*- coding: utf-8 -*-
 
+from mock import patch
 import numpy as np
 import pytest
 
@@ -13,7 +14,13 @@ class TestCGMAngle():
     """
     This class tests the angle functions in the class CGM in pycgm.py:
     get_angle
+    pelvis_angle_calc
+    hip_angle_calc
+    knee_angle_calc
     """
+
+    nan_3d = [np.nan, np.nan, np.nan]
+    rand_coor = [np.random.randint(0, 10), np.random.randint(0, 10), np.random.randint(0, 10)]
 
     @pytest.mark.parametrize(["xRot", "yRot", "zRot", "expected"], [
         (0, 0, 0, [0, 0, 90]),
@@ -99,3 +106,479 @@ class TestCGMAngle():
         # Check that calling getangle on a numpy array of floats yields the expected results
         result_float_nparray = CGM.get_angle(np.array(axisP_floats, dtype='float'), np.array(axisD, dtype='float'))
         np.testing.assert_almost_equal(result_float_nparray, expected, rounding_precision)
+
+    @pytest.mark.parametrize(["global_axis", "pelvis_axis", "mock_return_val", "expected_mock_args", "expected"], [
+        # Test from running sample data
+        (np.array([[1, 0, 0], [0, 1, 0], [0, 0, 1]]),
+         np.array([[251.60830688, 391.74131774, 1032.89349365], [251.74063624, 392.72694720, 1032.78850073],
+                   [250.61711554, 391.87232862, 1032.87410630], [251.60295335, 391.84795133, 1033.88777762]]),
+         [-0.30849508, -6.12129284, 7.57143134],
+         [[[1, 0, 0], [0, 1, 0], [0, 0, 1]],
+          [[0.13232936, 0.98562946, -0.10499292], [-0.99119134, 0.13101088, -0.01938735],
+           [-0.00535353, 0.10663359, 0.99428397]]],
+         [-0.30849508, - 6.12129284, 7.57143134]),
+        # Test with zeros for all params
+        (np.array([[0, 0, 0], [0, 0, 0], [0, 0, 0]]),
+         np.array([[0, 0, 0], [0, 0, 0], [0, 0, 0], [0, 0, 0]]),
+         [0, 0, 0],
+         np.array([[[0, 0, 0], [0, 0, 0], [0, 0, 0]], [[0, 0, 0], [0, 0, 0], [0, 0, 0]]]),
+         np.array([0, 0, 0])),
+        # Testing when values are added to global_axis
+        (np.array([[3, 8, 6], [6, -5, -9], [0, -8, 0]]),
+         np.array([[0, 0, 0], [0, 0, 0], [0, 0, 0], [0, 0, 0]]),
+         [0, 0, 0],
+         np.array([[[3, 8, 6], [6, -5, -9], [0, -8, 0]], [[0, 0, 0], [0, 0, 0], [0, 0, 0]]]),
+         np.array([0, 0, 0])),
+        # Testing when values are added to pelvis origin
+        (np.array([[0, 0, 0], [0, 0, 0], [0, 0, 0]]),
+         np.array([[3, 1, 2], [0, 0, 0], [0, 0, 0], [0, 0, 0]]),
+         [0, 0, 0],
+         np.array([[[0, 0, 0], [0, 0, 0], [0, 0, 0]], [[-3, -1, -2], [-3, -1, -2], [-3, -1, -2]]]),
+         np.array([0, 0, 0])),
+        # Testing when values are added to pelvis x axis
+        (np.array([[0, 0, 0], [0, 0, 0], [0, 0, 0]]),
+         np.array([[0, 0, 0], [-6, -3, -7], [0, 0, 0], [0, 0, 0]]),
+         [0, 0, 0],
+         np.array([[[0, 0, 0], [0, 0, 0], [0, 0, 0]], [[-6, -3, -7], [0, 0, 0], [0, 0, 0]]]),
+         np.array([0, 0, 0])),
+        # Testing when values are added to pelvis y axis
+        (np.array([[0, 0, 0], [0, 0, 0], [0, 0, 0]]),
+         np.array([[0, 0, 0], [0, 0, 0], [4, -8, 7], [0, 0, 0]]),
+         [0, 0, 0],
+         np.array([[[0, 0, 0], [0, 0, 0], [0, 0, 0]], [[0, 0, 0], [4, -8, 7], [0, 0, 0]]]),
+         np.array([0, 0, 0])),
+        # Testing when values are added to pelvis z axis
+        (np.array([[0, 0, 0], [0, 0, 0], [0, 0, 0]]),
+         np.array([[0, 0, 0], [0, 0, 0], [0, 0, 0], [5, -7, -9]]),
+         [0, 0, 0],
+         np.array([[[0, 0, 0], [0, 0, 0], [0, 0, 0]], [[0, 0, 0], [0, 0, 0], [5, -7, -9]]]),
+         np.array([0, 0, 0])),
+        # Testing when values are added to pelvis x, y, z axes
+        (np.array([[0, 0, 0], [0, 0, 0], [0, 0, 0]]),
+         np.array([[0, 0, 0], [-6, -3, -7], [4, -8, 7], [5, -7, -9]]),
+         [0, 0, 0],
+         np.array([[[0, 0, 0], [0, 0, 0], [0, 0, 0]], [[-6, -3, -7], [4, -8, 7], [5, -7, -9]]]),
+         np.array([0, 0, 0])),
+        # Testing when values are added to pelvis_axis
+        (np.array([[0, 0, 0], [0, 0, 0], [0, 0, 0]]),
+         np.array([[3, 1, 2], [-6, -3, -7], [4, -8, 7], [5, -7, -9]]),
+         [0, 0, 0],
+         np.array([[[0, 0, 0], [0, 0, 0], [0, 0, 0]], [[-9, -4, -9], [1, -9, 5], [2, -8, -11]]]),
+         np.array([0, 0, 0])),
+        # Testing when values are added to mock_return_val
+        (np.array([[0, 0, 0], [0, 0, 0], [0, 0, 0]]),
+         np.array([[0, 0, 0], [0, 0, 0], [0, 0, 0], [0, 0, 0]]),
+         [6, 2, -7],
+         np.array([[[0, 0, 0], [0, 0, 0], [0, 0, 0]], [[0, 0, 0], [0, 0, 0], [0, 0, 0]]]),
+         np.array([6, 2, -7])),
+        # Testing when values are added to global_axis and pelvis_axis
+        (np.array([[3, 8, 6], [6, -5, -9], [0, -8, 0]]),
+         np.array([[3, 1, 2], [-6, -3, -7], [4, -8, 7], [5, -7, -9]]),
+         [0, 0, 0],
+         np.array([[[3, 8, 6], [6, -5, -9], [0, -8, 0]], [[-9, -4, -9], [1, -9, 5], [2, -8, -11]]]),
+         np.array([0, 0, 0])),
+        # Testing when values are added to global_axis, pelvis_axis, and mock_return_val
+        (np.array([[3, 8, 6], [6, -5, -9], [0, -8, 0]]),
+         np.array([[3, 1, 2], [-6, -3, -7], [4, -8, 7], [5, -7, -9]]),
+         [6, 2, -7],
+         np.array([[[3, 8, 6], [6, -5, -9], [0, -8, 0]], [[-9, -4, -9], [1, -9, 5], [2, -8, -11]]]),
+         np.array([6, 2, -7])),
+        # Testing that when global_axis and pelvis_axis are composed of lists of ints
+        ([[3, 8, 6], [6, -5, -9], [0, -8, 0]],
+         [[3, 1, 2], [-6, -3, -7], [4, -8, 7], [5, -7, -9]],
+         [6, 2, -7],
+         np.array([[[3, 8, 6], [6, -5, -9], [0, -8, 0]], [[-9, -4, -9], [1, -9, 5], [2, -8, -11]]]),
+         np.array([6, 2, -7])),
+        # Testing that when global_axis and pelvis_axis are composed of numpy arrays of ints
+        (np.array([[3, 8, 6], [6, -5, -9], [0, -8, 0]], dtype='int'),
+         np.array([[3, 1, 2], [-6, -3, -7], [4, -8, 7], [5, -7, -9]], dtype='int'),
+         [6, 2, -7],
+         np.array([[[3, 8, 6], [6, -5, -9], [0, -8, 0]], [[-9, -4, -9], [1, -9, 5], [2, -8, -11]]]),
+         np.array([6, 2, -7])),
+        # Testing that when global_axis and pelvis_axis are composed of lists of floats
+        ([[3.0, 8.0, 6.0], [6.0, -5.0, -9.0], [0.0, -8.0, 0.0]],
+         [[3.0, 1.0, 2.0], [-6.0, -3.0, -7.0], [4.0, -8.0, 7.0], [5.0, -7.0, -9.0]],
+         [6, 2, -7],
+         np.array([[[3, 8, 6], [6, -5, -9], [0, -8, 0]], [[-9, -4, -9], [1, -9, 5], [2, -8, -11]]]),
+         np.array([6, 2, -7])),
+        # Testing that when global_axis and pelvis_axis are composed of numpy arrays of floats
+        (np.array([[3, 8, 6], [6, -5, -9], [0, -8, 0]], dtype='float'),
+         np.array([[3, 1, 2], [-6, -3, -7], [4, -8, 7], [5, -7, -9]], dtype='float'),
+         [6, 2, -7],
+         np.array([[[3, 8, 6], [6, -5, -9], [0, -8, 0]], [[-9, -4, -9], [1, -9, 5], [2, -8, -11]]]),
+         np.array([6, 2, -7]))])
+    def test_pelvis_angle_calc(self, global_axis, pelvis_axis, mock_return_val, expected_mock_args, expected):
+        """
+        This test provides coverage of the pelvis_angle_calc function in the class CGM in pycgm.py, defined as
+        pelvis_angle_calc(global_axis, pelvis_axis)
+
+        This test takes 5 parameters:
+        global_axis : ndarray
+            A 3x3 ndarray representing the global coordinate system.
+        pelvis_axis : ndarray
+            A 4x3 ndarray containing the origin and three unit vectors of the pelvis axis.
+        mock_return_val : list
+            The value to be returned by the mock for get_angle
+        expected_mock_args : list
+            The expected arguments used to call the mocked function, get_angle
+        expected : array
+            A 1x3 ndarray containing the flexion, abduction, and rotation angles of the pelvis.
+
+        This test is checking to make sure the global pelvis angle is calculated correctly given the input
+        parameters. This tests mocks get_angle to make sure the correct parameters are being passed into it given the
+        parameters passed into pelvis_angle_calc, expected_mock_args, and to also ensure that pelvis_angle_calc
+        returns the correct value considering the return value of get_angle, mock_return_val.
+
+        This unit test ensures that:
+        - the correct expected values are altered per parameter given.
+        - the resulting output is correct when global_axis and pelvis_axis are composed of lists of ints,
+        numpy arrays of ints, list of floats, and numpy arrays of floats.
+        """
+        with patch.object(CGM, 'get_angle', return_value=mock_return_val) as mock_get_angle:
+            result = CGM.pelvis_angle_calc(global_axis, pelvis_axis)
+
+        # Asserting that there was only 1 call to get_angle
+        np.testing.assert_equal(mock_get_angle.call_count, 1)
+
+        # Asserting that the correct params were sent in the call to get_angle
+        np.testing.assert_almost_equal(expected_mock_args, mock_get_angle.call_args_list[0][0], rounding_precision)
+
+        # Asserting that pelvis_angle_calc returned the correct result given the return value given by mocked get_angle
+        np.testing.assert_almost_equal(result, expected, rounding_precision)
+
+    @pytest.mark.parametrize(["hip_axis", "knee_axis", "mock_return_val", "expected_mock_args", "expected"], [
+        # Test from running sample data
+        (np.array(
+            [nan_3d, nan_3d, [245.47574167, 331.11787135, 936.75939593], [245.60807102, 332.10350081, 936.65440301],
+             [244.48455032, 331.24888223, 936.74000858], [245.47038814, 331.22450494, 937.75367990]]),
+         np.array([[364.17774613, 292.17051731, 515.19181496], [364.61959153, 293.06758353, 515.18513093],
+                   [363.29019771, 292.60656648, 515.04309095], [364.04724540, 292.24216263, 516.18067111],
+                   [143.55478579, 279.90370346, 524.78408753], [143.65611281, 280.88685896, 524.63197541],
+                   [142.56434499, 280.01777942, 524.86163553], [143.64837986, 280.04650380, 525.76940383]]),
+         [[-2.91422854, -6.86706805, 108.82100186], [2.86020432, 5.34565068, 88.19743763]],
+         [[[[0.13232935, 0.98562946, -0.10499292], [-0.99119135, 0.13101088, -0.01938735],
+            [-0.00535353, 0.10663359, 0.99428397]],
+           [[0.4418454, 0.89706622, -0.00668403], [-0.88754842, 0.43604917, -0.14872401],
+            [-0.13050073, 0.07164532, 0.98885615]]], [
+              [[0.13232935, 0.98562946, -0.10499292], [-0.99119135, 0.13101088, -0.01938735],
+               [-0.00535353, 0.10663359, 0.99428397]],
+              [[0.10132702, 0.9831555, -0.15211212], [-0.9904408, 0.11407596, 0.077548],
+               [0.09359407, 0.14280034, 0.9853163]]]],
+         [[2.91422854, -6.86706805, -18.82100186], [-2.86020432, -5.34565068, -1.80256237]]),
+        # Test with zeros for all params
+        (np.array([rand_coor, rand_coor, [0, 0, 0], [0, 0, 0], [0, 0, 0], [0, 0, 0]]),
+         np.array([[0, 0, 0], [0, 0, 0], [0, 0, 0], [0, 0, 0], [0, 0, 0], [0, 0, 0], [0, 0, 0], [0, 0, 0]]),
+         [[0, 0, 0], [0, 0, 0]],
+         [[[[0, 0, 0], [0, 0, 0], [0, 0, 0]], [[0, 0, 0], [0, 0, 0], [0, 0, 0]]],
+          [[[0, 0, 0], [0, 0, 0], [0, 0, 0]], [[0, 0, 0], [0, 0, 0], [0, 0, 0]]]],
+         [[0, 0, 90], [0, 0, -90]]),
+        # Testing when values are added to hip origin
+        (np.array([rand_coor, rand_coor, [-6, -2, -9], [0, 0, 0], [0, 0, 0], [0, 0, 0]]),
+         np.array([[0, 0, 0], [0, 0, 0], [0, 0, 0], [0, 0, 0], [0, 0, 0], [0, 0, 0], [0, 0, 0], [0, 0, 0]]),
+         [[0, 0, 0], [0, 0, 0]],
+         [[[[6, 2, 9], [6, 2, 9], [6, 2, 9]], [[0, 0, 0], [0, 0, 0], [0, 0, 0]]],
+          [[[6, 2, 9], [6, 2, 9], [6, 2, 9]], [[0, 0, 0], [0, 0, 0], [0, 0, 0]]]],
+         [[0, 0, 90], [0, 0, -90]]),
+        # Testing when values are added to hip x, y, z axes
+        (np.array([rand_coor, rand_coor, [0, 0, 0], [3, 4, 1], [-9, 1, -1], [-2, -5, 4]]),
+         np.array([[0, 0, 0], [0, 0, 0], [0, 0, 0], [0, 0, 0], [0, 0, 0], [0, 0, 0], [0, 0, 0], [0, 0, 0]]),
+         [[0, 0, 0], [0, 0, 0]],
+         [[[[3, 4, 1], [-9, 1, -1], [-2, -5, 4]], [[0, 0, 0], [0, 0, 0], [0, 0, 0]]],
+          [[[3, 4, 1], [-9, 1, -1], [-2, -5, 4]], [[0, 0, 0], [0, 0, 0], [0, 0, 0]]]],
+         [[0, 0, 90], [0, 0, -90]]),
+        # Testing when values are added to hip_axis
+        (np.array([rand_coor, rand_coor, [-6, -2, -9], [3, 4, 1], [-9, 1, -1], [-2, -5, 4]]),
+         np.array([[0, 0, 0], [0, 0, 0], [0, 0, 0], [0, 0, 0], [0, 0, 0], [0, 0, 0], [0, 0, 0], [0, 0, 0]]),
+         [[0, 0, 0], [0, 0, 0]],
+         [[[[9, 6, 10], [-3, 3, 8], [4, -3, 13]], [[0, 0, 0], [0, 0, 0], [0, 0, 0]]],
+          [[[9, 6, 10], [-3, 3, 8], [4, -3, 13]], [[0, 0, 0], [0, 0, 0], [0, 0, 0]]]],
+         [[0, 0, 90], [0, 0, -90]]),
+        # Testing when values are added to right knee origin and x, y, z axes
+        (np.array([rand_coor, rand_coor, [0, 0, 0], [0, 0, 0], [0, 0, 0], [0, 0, 0]]),
+         np.array([[5, -4, -3], [1, -6, 3], [8, -7, 1], [-9, 3, -1], [0, 0, 0], [0, 0, 0], [0, 0, 0], [0, 0, 0]]),
+         [[0, 0, 0], [0, 0, 0]],
+         [[[[0, 0, 0], [0, 0, 0], [0, 0, 0]], [[-4, -2, 6], [3, -3, 4], [-14, 7, 2]]],
+          [[[0, 0, 0], [0, 0, 0], [0, 0, 0]], [[0, 0, 0], [0, 0, 0], [0, 0, 0]]]],
+         [[0, 0, 90], [0, 0, -90]]),
+        # Testing when values are added to left knee origin and x, y, z axes
+        (np.array([rand_coor, rand_coor, [0, 0, 0], [0, 0, 0], [0, 0, 0], [0, 0, 0]]),
+         np.array([[0, 0, 0], [0, 0, 0], [0, 0, 0], [0, 0, 0], [-7, -8, -1], [-1, 8, 9], [-7, 5, -3], [2, 0, -9]]),
+         [[0, 0, 0], [0, 0, 0]],
+         [[[[0, 0, 0], [0, 0, 0], [0, 0, 0]], [[0, 0, 0], [0, 0, 0], [0, 0, 0]]],
+          [[[0, 0, 0], [0, 0, 0], [0, 0, 0]], [[6, 16, 10], [0, 13, -2], [9, 8, -8]]]],
+         [[0, 0, 90], [0, 0, -90]]),
+        # Testing when values are added to knee_axis
+        (np.array([rand_coor, rand_coor, [0, 0, 0], [0, 0, 0], [0, 0, 0], [0, 0, 0]]),
+         np.array(
+             [[5, -4, -3], [1, -6, 3], [8, -7, 1], [-9, 3, -1], [-7, -8, -1], [-1, 8, 9], [-7, 5, -3], [2, 0, -9]]),
+         [[0, 0, 0], [0, 0, 0]],
+         [[[[0, 0, 0], [0, 0, 0], [0, 0, 0]], [[-4, -2, 6], [3, -3, 4], [-14, 7, 2]]],
+          [[[0, 0, 0], [0, 0, 0], [0, 0, 0]], [[6, 16, 10], [0, 13, -2], [9, 8, -8]]]],
+         [[0, 0, 90], [0, 0, -90]]),
+        # Testing when values are added to mock_return_val
+        (np.array([rand_coor, rand_coor, [0, 0, 0], [0, 0, 0], [0, 0, 0], [0, 0, 0]]),
+         np.array([[0, 0, 0], [0, 0, 0], [0, 0, 0], [0, 0, 0], [0, 0, 0], [0, 0, 0], [0, 0, 0], [0, 0, 0]]),
+         [[1, -45, 145], [-29, -165, 157]],
+         [[[[0, 0, 0], [0, 0, 0], [0, 0, 0]], [[0, 0, 0], [0, 0, 0], [0, 0, 0]]],
+          [[[0, 0, 0], [0, 0, 0], [0, 0, 0]], [[0, 0, 0], [0, 0, 0], [0, 0, 0]]]],
+         [[-1, -45, -55], [29, 165, 67]]),
+        # Testing when values are added to hip_axis and knee_axis
+        (np.array([rand_coor, rand_coor, [-6, -2, -9], [3, 4, 1], [-9, 1, -1], [-2, -5, 4]]),
+         np.array(
+             [[5, -4, -3], [1, -6, 3], [8, -7, 1], [-9, 3, -1], [-7, -8, -1], [-1, 8, 9], [-7, 5, -3], [2, 0, -9]]),
+         [[0, 0, 0], [0, 0, 0]],
+         [[[[9, 6, 10], [-3, 3, 8], [4, -3, 13]], [[-4, -2, 6], [3, -3, 4], [-14, 7, 2]]],
+          [[[9, 6, 10], [-3, 3, 8], [4, -3, 13]], [[6, 16, 10], [0, 13, -2], [9, 8, -8]]]],
+         [[0, 0, 90], [0, 0, -90]]),
+        # Testing when values are added to hip_axis, knee_axis, and mock_return_val
+        (np.array([rand_coor, rand_coor, [-6, -2, -9], [3, 4, 1], [-9, 1, -1], [-2, -5, 4]]),
+         np.array(
+             [[5, -4, -3], [1, -6, 3], [8, -7, 1], [-9, 3, -1], [-7, -8, -1], [-1, 8, 9], [-7, 5, -3], [2, 0, -9]]),
+         [[1, -45, 145], [-29, -165, 157]],
+         [[[[9, 6, 10], [-3, 3, 8], [4, -3, 13]], [[-4, -2, 6], [3, -3, 4], [-14, 7, 2]]],
+          [[[9, 6, 10], [-3, 3, 8], [4, -3, 13]], [[6, 16, 10], [0, 13, -2], [9, 8, -8]]]],
+         [[-1, -45, -55], [29, 165, 67]]),
+        # Testing that when hip_axis and knee_axis are composed of lists of ints
+        ([rand_coor, rand_coor, [-6, -2, -9], [3, 4, 1], [-9, 1, -1], [-2, -5, 4]],
+         [[5, -4, -3], [1, -6, 3], [8, -7, 1], [-9, 3, -1], [-7, -8, -1], [-1, 8, 9], [-7, 5, -3], [2, 0, -9]],
+         [[1, -45, 145], [-29, -165, 157]],
+         [[[[9, 6, 10], [-3, 3, 8], [4, -3, 13]], [[-4, -2, 6], [3, -3, 4], [-14, 7, 2]]],
+          [[[9, 6, 10], [-3, 3, 8], [4, -3, 13]], [[6, 16, 10], [0, 13, -2], [9, 8, -8]]]],
+         [[-1, -45, -55], [29, 165, 67]]),
+        # Testing that when hip_axis and knee_axis are composed of numpy arrays of ints
+        (np.array([rand_coor, rand_coor, [-6, -2, -9], [3, 4, 1], [-9, 1, -1], [-2, -5, 4]], dtype='int'),
+         np.array([[5, -4, -3], [1, -6, 3], [8, -7, 1], [-9, 3, -1], [-7, -8, -1], [-1, 8, 9], [-7, 5, -3], [2, 0, -9]],
+                  dtype='int'),
+         [[1, -45, 145], [-29, -165, 157]],
+         [[[[9, 6, 10], [-3, 3, 8], [4, -3, 13]], [[-4, -2, 6], [3, -3, 4], [-14, 7, 2]]],
+          [[[9, 6, 10], [-3, 3, 8], [4, -3, 13]], [[6, 16, 10], [0, 13, -2], [9, 8, -8]]]],
+         [[-1, -45, -55], [29, 165, 67]]),
+        # Testing that when hip_axis and knee_axis are composed of lists of floats
+        ([rand_coor, rand_coor, [-6.0, -2.0, -9.0], [3.0, 4.0, 1.0], [-9.0, 1.0, -1.0], [-2.0, -5.0, 4.0]],
+         [[5.0, -4.0, -3.0], [1.0, -6.0, 3.0], [8.0, -7.0, 1.0], [-9.0, 3.0, -1.0], [-7.0, -8.0, -1.0],
+          [-1.0, 8.0, 9.0], [-7.0, 5.0, -3.0], [2.0, 0.0, -9.0]],
+         [[1, -45, 145], [-29, -165, 157]],
+         [[[[9, 6, 10], [-3, 3, 8], [4, -3, 13]], [[-4, -2, 6], [3, -3, 4], [-14, 7, 2]]],
+          [[[9, 6, 10], [-3, 3, 8], [4, -3, 13]], [[6, 16, 10], [0, 13, -2], [9, 8, -8]]]],
+         [[-1, -45, -55], [29, 165, 67]]),
+        # Testing that when hip_axis and knee_axis are composed of numpy arrays of floats
+        (np.array([rand_coor, rand_coor, [-6.0, -2.0, -9.0], [3.0, 4.0, 1.0], [-9.0, 1.0, -1.0], [-2.0, -5.0, 4.0]],
+                  dtype='float'),
+         np.array([[5.0, -4.0, -3.0], [1.0, -6.0, 3.0], [8.0, -7.0, 1.0], [-9.0, 3.0, -1.0], [-7.0, -8.0, -1.0],
+                   [-1.0, 8.0, 9.0], [-7.0, 5.0, -3.0], [2.0, 0.0, -9.0]], dtype='float'),
+         [[1, -45, 145], [-29, -165, 157]],
+         [[[[9, 6, 10], [-3, 3, 8], [4, -3, 13]], [[-4, -2, 6], [3, -3, 4], [-14, 7, 2]]],
+          [[[9, 6, 10], [-3, 3, 8], [4, -3, 13]], [[6, 16, 10], [0, 13, -2], [9, 8, -8]]]],
+         [[-1, -45, -55], [29, 165, 67]])])
+    def test_hip_angle_calc(self, hip_axis, knee_axis, mock_return_val, expected_mock_args, expected):
+        """
+        This test provides coverage of the hip_angle_calc function in the class CGM in pycgm.py, defined as
+        hip_angle_calc(hip_axis, knee_axis)
+
+        This test takes 5 parameters:
+        hip_axis : ndarray
+            A 6x3 ndarray containing the right and left hip joint centers, the hip origin, and the hip unit vectors.
+        knee_axis : ndarray
+            An 8x3 ndarray containing the right knee origin, right knee unit vectors, left knee origin, and left knee
+            unit vectors.
+        mock_return_val : list
+            The value to be returned by the mock for get_angle
+        expected_mock_args : list
+            The expected arguments used to call the mocked function, get_angle
+        expected : array
+            A 2x3 ndarray containing the flexion, abduction, and rotation angles of the right and left hip.
+
+        This test is checking to make sure the hip angle is calculated correctly given the input parameters. This
+        tests mocks get_angle to make sure the correct parameters are being passed into it given the parameters
+        passed into hip_angle_calc, expected_mock_args, and to also ensure that hip_angle_calc returns the correct
+        value considering the return value of get_angle, mock_return_val.
+
+        This unit test ensures that:
+        - the correct expected values are altered per parameter given.
+        - the resulting output is correct when hip_axis and knee_axis are composed of lists of ints, numpy arrays of
+        ints, list of floats, and numpy arrays of floats.
+        """
+        with patch.object(CGM, 'get_angle', side_effect=mock_return_val) as mock_get_angle:
+            result = CGM.hip_angle_calc(hip_axis, knee_axis)
+
+        # Asserting that there was only 1 call to get_angle
+        np.testing.assert_equal(mock_get_angle.call_count, 2)
+
+        # Asserting that the correct params were sent in the 1st (right) call to get_angle
+        np.testing.assert_almost_equal(expected_mock_args[0], mock_get_angle.call_args_list[0][0], rounding_precision)
+
+        # Asserting that the correct params were sent in the 2nd (left) call to get_angle
+        np.testing.assert_almost_equal(expected_mock_args[1], mock_get_angle.call_args_list[1][0], rounding_precision)
+
+        # Asserting that hip_angle_calc returned the correct result given the return value given by mocked get_angle
+        np.testing.assert_almost_equal(result, expected, rounding_precision)
+
+    @pytest.mark.parametrize(["knee_axis", "ankle_axis", "mock_return_val", "expected_mock_args", "expected"], [
+        # Test from running sample data
+        (np.array([[364.17774614, 292.17051722, 515.19181496], [364.61959153, 293.06758353, 515.18513093],
+                   [363.29019771, 292.60656648, 515.04309095], [364.04724541, 292.24216264, 516.18067112],
+                   [143.55478579, 279.90370346, 524.78408753], [143.65611282, 280.88685896, 524.63197541],
+                   [142.56434499, 280.01777943, 524.86163553], [143.64837987, 280.04650381, 525.76940383]]),
+         np.array([[393.76181608, 247.67829633, 87.73775041], [394.48171575, 248.37201348, 87.71536800],
+                   [393.07114384, 248.39110006, 87.61575574], [393.69314056, 247.78157916, 88.73002876],
+                   [98.74901939, 219.46930221, 80.63068160], [98.47494966, 220.42553803, 80.52821783],
+                   [97.79246671, 219.20927275, 80.76255901], [98.84848169, 219.60345781, 81.61663775]]),
+         [[3.19436865, 2.38341045, 109.47591616], [-0.45848726, 0.3866728, 68.12419149]],
+         [[[[0.44184539, 0.89706631, -0.00668403], [-0.88754843, 0.43604926, -0.14872401],
+            [-0.13050073, 0.07164542, 0.98885616]],
+           [[0.71989967, 0.69371715, -0.02238241], [-0.69067224, 0.71280373, -0.12199467],
+            [-0.06867552, 0.10328283, 0.99227835]]], [
+              [[0.10132703, 0.9831555, -0.15211212], [-0.9904408, 0.11407597, 0.077548],
+               [0.09359408, 0.14280035, 0.9853163]],
+              [[-0.27406973, 0.95623582, -0.10246377], [-0.95655268, -0.26002946, 0.13187741],
+               [0.0994623, 0.1341556, 0.98595615]]]],
+         [[3.19436865, 2.38341045, -19.47591616], [-0.45848726, -0.3866728, -21.87580851]]),
+        # Test with zeros for all params
+        (np.array([[0, 0, 0], [0, 0, 0], [0, 0, 0], [0, 0, 0], [0, 0, 0], [0, 0, 0], [0, 0, 0], [0, 0, 0]]),
+         np.array([[0, 0, 0], [0, 0, 0], [0, 0, 0], [0, 0, 0], [0, 0, 0], [0, 0, 0], [0, 0, 0], [0, 0, 0]]),
+         [[0, 0, 0], [0, 0, 0]],
+         [[[[0, 0, 0], [0, 0, 0], [0, 0, 0]], [[0, 0, 0], [0, 0, 0], [0, 0, 0]]],
+          [[[0, 0, 0], [0, 0, 0], [0, 0, 0]], [[0, 0, 0], [0, 0, 0], [0, 0, 0]]]],
+         [[0, 0, 90], [0, 0, -90]]),
+        # Testing when values are added to right knee origin and x, y, z axes
+        (np.array([[6, 5, -7], [9, 8, -3], [3, 5, -3], [-8, 3, -1], [0, 0, 0], [0, 0, 0], [0, 0, 0], [0, 0, 0]]),
+         np.array([[0, 0, 0], [0, 0, 0], [0, 0, 0], [0, 0, 0], [0, 0, 0], [0, 0, 0], [0, 0, 0], [0, 0, 0]]),
+         [[0, 0, 0], [0, 0, 0]],
+         [[[[3, 3, 4], [-3, 0, 4], [-14, -2, 6]], [[0, 0, 0], [0, 0, 0], [0, 0, 0]]],
+          [[[0, 0, 0], [0, 0, 0], [0, 0, 0]], [[0, 0, 0], [0, 0, 0], [0, 0, 0]]]],
+         [[0, 0, 90], [0, 0, -90]]),
+        # Testing when values are added to left knee origin and x, y, z axes
+        (np.array([[0, 0, 0], [0, 0, 0], [0, 0, 0], [0, 0, 0], [0, 4, 3], [5, 6, -5], [1, -7, 3], [0, -4, 4]]),
+         np.array([[0, 0, 0], [0, 0, 0], [0, 0, 0], [0, 0, 0], [0, 0, 0], [0, 0, 0], [0, 0, 0], [0, 0, 0]]),
+         [[0, 0, 0], [0, 0, 0]],
+         [[[[0, 0, 0], [0, 0, 0], [0, 0, 0]], [[0, 0, 0], [0, 0, 0], [0, 0, 0]]],
+          [[[5, 2, -8], [1, -11, 0], [0, -8, 1]], [[0, 0, 0], [0, 0, 0], [0, 0, 0]]]],
+         [[0, 0, 90], [0, 0, -90]]),
+        # Testing when values are added to knee_axis
+        (np.array([[6, 5, -7], [9, 8, -3], [3, 5, -3], [-8, 3, -1], [0, 4, 3], [5, 6, -5], [1, -7, 3], [0, -4, 4]]),
+         np.array([[0, 0, 0], [0, 0, 0], [0, 0, 0], [0, 0, 0], [0, 0, 0], [0, 0, 0], [0, 0, 0], [0, 0, 0]]),
+         [[0, 0, 0], [0, 0, 0]],
+         [[[[3, 3, 4], [-3, 0, 4], [-14, -2, 6]], [[0, 0, 0], [0, 0, 0], [0, 0, 0]]],
+          [[[5, 2, -8], [1, -11, 0], [0, -8, 1]], [[0, 0, 0], [0, 0, 0], [0, 0, 0]]]],
+         [[0, 0, 90], [0, 0, -90]]),
+        # Testing when values are added to right ankle origin and x, y, z axes
+        (np.array([[0, 0, 0], [0, 0, 0], [0, 0, 0], [0, 0, 0], [0, 0, 0], [0, 0, 0], [0, 0, 0], [0, 0, 0]]),
+         np.array([[0, 4, 1], [5, 8, 9], [0, 2, 5], [-9, 0, -8], [0, 0, 0], [0, 0, 0], [0, 0, 0], [0, 0, 0]]),
+         [[0, 0, 0], [0, 0, 0]],
+         [[[[0, 0, 0], [0, 0, 0], [0, 0, 0]], [[5, 4, 8], [0, -2, 4], [-9, -4, -9]]],
+          [[[0, 0, 0], [0, 0, 0], [0, 0, 0]], [[0, 0, 0], [0, 0, 0], [0, 0, 0]]]],
+         [[0, 0, 90], [0, 0, -90]]),
+        # Testing when values are added to left ankle origin and x, y, z axes
+        (np.array([[0, 0, 0], [0, 0, 0], [0, 0, 0], [0, 0, 0], [0, 0, 0], [0, 0, 0], [0, 0, 0], [0, 0, 0]]),
+         np.array([[0, 0, 0], [0, 0, 0], [0, 0, 0], [0, 0, 0], [4, 1, 0], [9, 4, 8], [4, -4, -4], [-5, -3, -5]]),
+         [[0, 0, 0], [0, 0, 0]],
+         [[[[0, 0, 0], [0, 0, 0], [0, 0, 0]], [[0, 0, 0], [0, 0, 0], [0, 0, 0]]],
+          [[[0, 0, 0], [0, 0, 0], [0, 0, 0]], [[5, 3, 8], [0, -5, -4], [-9, -4, -5]]]],
+         [[0, 0, 90], [0, 0, -90]]),
+        # Testing when values are added to ankle_axis
+        (np.array([[0, 0, 0], [0, 0, 0], [0, 0, 0], [0, 0, 0], [0, 0, 0], [0, 0, 0], [0, 0, 0], [0, 0, 0]]),
+         np.array([[0, 4, 1], [5, 8, 9], [0, 2, 5], [-9, 0, -8], [4, 1, 0], [9, 4, 8], [4, -4, -4], [-5, -3, -5]]),
+         [[0, 0, 0], [0, 0, 0]],
+         [[[[0, 0, 0], [0, 0, 0], [0, 0, 0]], [[5, 4, 8], [0, -2, 4], [-9, -4, -9]]],
+          [[[0, 0, 0], [0, 0, 0], [0, 0, 0]], [[5, 3, 8], [0, -5, -4], [-9, -4, -5]]]],
+         [[0, 0, 90], [0, 0, -90]]),
+        # Testing when values are added to mock_return_val
+        (np.array([[0, 0, 0], [0, 0, 0], [0, 0, 0], [0, 0, 0], [0, 0, 0], [0, 0, 0], [0, 0, 0], [0, 0, 0]]),
+         np.array([[0, 0, 0], [0, 0, 0], [0, 0, 0], [0, 0, 0], [0, 0, 0], [0, 0, 0], [0, 0, 0], [0, 0, 0]]),
+         [[66, -109, 121], [-56, 175, -32]],
+         [[[[0, 0, 0], [0, 0, 0], [0, 0, 0]], [[0, 0, 0], [0, 0, 0], [0, 0, 0]]],
+          [[[0, 0, 0], [0, 0, 0], [0, 0, 0]], [[0, 0, 0], [0, 0, 0], [0, 0, 0]]]],
+         [[66, -109, -31], [-56, -175, -122]]),
+        # Testing when values are added to knee_axis and ankle_axis
+        (np.array([[6, 5, -7], [9, 8, -3], [3, 5, -3], [-8, 3, -1], [0, 4, 3], [5, 6, -5], [1, -7, 3], [0, -4, 4]]),
+         np.array([[0, 4, 1], [5, 8, 9], [0, 2, 5], [-9, 0, -8], [4, 1, 0], [9, 4, 8], [4, -4, -4], [-5, -3, -5]]),
+         [[0, 0, 0], [0, 0, 0]],
+         [[[[3, 3, 4], [-3, 0, 4], [-14, -2, 6]], [[5, 4, 8], [0, -2, 4], [-9, -4, -9]]],
+          [[[5, 2, -8], [1, -11, 0], [0, -8, 1]], [[5, 3, 8], [0, -5, -4], [-9, -4, -5]]]],
+         [[0, 0, 90], [0, 0, -90]]),
+        # Testing when values are added to knee_axis, ankle_axis, and mock_return_val
+        (np.array([[6, 5, -7], [9, 8, -3], [3, 5, -3], [-8, 3, -1], [0, 4, 3], [5, 6, -5], [1, -7, 3], [0, -4, 4]]),
+         np.array([[0, 4, 1], [5, 8, 9], [0, 2, 5], [-9, 0, -8], [4, 1, 0], [9, 4, 8], [4, -4, -4], [-5, -3, -5]]),
+         [[66, -109, 121], [-56, 175, -32]],
+         [[[[3, 3, 4], [-3, 0, 4], [-14, -2, 6]], [[5, 4, 8], [0, -2, 4], [-9, -4, -9]]],
+          [[[5, 2, -8], [1, -11, 0], [0, -8, 1]], [[5, 3, 8], [0, -5, -4], [-9, -4, -5]]]],
+         [[66, -109, -31], [-56, -175, -122]]),
+        # Testing that when knee_axis and ankle_axis are composed of lists of ints
+        ([[6, 5, -7], [9, 8, -3], [3, 5, -3], [-8, 3, -1], [0, 4, 3], [5, 6, -5], [1, -7, 3], [0, -4, 4]],
+         [[0, 4, 1], [5, 8, 9], [0, 2, 5], [-9, 0, -8], [4, 1, 0], [9, 4, 8], [4, -4, -4], [-5, -3, -5]],
+         [[66, -109, 121], [-56, 175, -32]],
+         [[[[3, 3, 4], [-3, 0, 4], [-14, -2, 6]], [[5, 4, 8], [0, -2, 4], [-9, -4, -9]]],
+          [[[5, 2, -8], [1, -11, 0], [0, -8, 1]], [[5, 3, 8], [0, -5, -4], [-9, -4, -5]]]],
+         [[66, -109, -31], [-56, -175, -122]]),
+        # Testing that when knee_axis and ankle_axis are composed of numpy arrays of ints
+        (np.array([[6, 5, -7], [9, 8, -3], [3, 5, -3], [-8, 3, -1], [0, 4, 3], [5, 6, -5], [1, -7, 3], [0, -4, 4]],
+                  dtype='int'),
+         np.array([[0, 4, 1], [5, 8, 9], [0, 2, 5], [-9, 0, -8], [4, 1, 0], [9, 4, 8], [4, -4, -4], [-5, -3, -5]],
+                  dtype='int'),
+         [[66, -109, 121], [-56, 175, -32]],
+         [[[[3, 3, 4], [-3, 0, 4], [-14, -2, 6]], [[5, 4, 8], [0, -2, 4], [-9, -4, -9]]],
+          [[[5, 2, -8], [1, -11, 0], [0, -8, 1]], [[5, 3, 8], [0, -5, -4], [-9, -4, -5]]]],
+         [[66, -109, -31], [-56, -175, -122]]),
+        # Testing that when knee_axis and ankle_axis are composed of lists of floats
+        ([[6.0, 5.0, -7.0], [9.0, 8.0, -3.0], [3.0, 5.0, -3.0], [-8.0, 3.0, -1.0], [0.0, 4.0, 3.0], [5.0, 6.0, -5.0],
+          [1.0, -7.0, 3.0], [0.0, -4.0, 4.0]],
+         [[0.0, 4.0, 1.0], [5.0, 8.0, 9.0], [0.0, 2.0, 5.0], [-9.0, 0.0, -8.0], [4.0, 1.0, 0.0], [9.0, 4.0, 8.0],
+          [4.0, -4.0, -4.0], [-5.0, -3.0, -5.0]],
+         [[66, -109, 121], [-56, 175, -32]],
+         [[[[3, 3, 4], [-3, 0, 4], [-14, -2, 6]], [[5, 4, 8], [0, -2, 4], [-9, -4, -9]]],
+          [[[5, 2, -8], [1, -11, 0], [0, -8, 1]], [[5, 3, 8], [0, -5, -4], [-9, -4, -5]]]],
+         [[66, -109, -31], [-56, -175, -122]]),
+        # Testing that when knee_axis and ankle_axis are composed of numpy arrays of floats
+        (np.array(
+            [[6.0, 5.0, -7.0], [9.0, 8.0, -3.0], [3.0, 5.0, -3.0], [-8.0, 3.0, -1.0], [0.0, 4.0, 3.0], [5.0, 6.0, -5.0],
+             [1.0, -7.0, 3.0], [0.0, -4.0, 4.0]], dtype='float'),
+         np.array(
+             [[0.0, 4.0, 1.0], [5.0, 8.0, 9.0], [0.0, 2.0, 5.0], [-9.0, 0.0, -8.0], [4.0, 1.0, 0.0], [9.0, 4.0, 8.0],
+              [4.0, -4.0, -4.0], [-5.0, -3.0, -5.0]], dtype='float'),
+         [[66, -109, 121], [-56, 175, -32]],
+         [[[[3, 3, 4], [-3, 0, 4], [-14, -2, 6]], [[5, 4, 8], [0, -2, 4], [-9, -4, -9]]],
+          [[[5, 2, -8], [1, -11, 0], [0, -8, 1]], [[5, 3, 8], [0, -5, -4], [-9, -4, -5]]]],
+         [[66, -109, -31], [-56, -175, -122]])])
+    def test_knee_angle_calc(self, knee_axis, ankle_axis, mock_return_val, expected_mock_args, expected):
+        """
+        This test provides coverage of the knee_angle_calc function in the class CGM in pycgm.py, defined as
+        knee_angle_calc(knee_axis, ankle_axis)
+
+        This test takes 5 parameters:
+        knee_axis : ndarray
+            An 8x3 ndarray containing the right knee origin, right knee unit vectors, left knee origin, and left knee
+            unit vectors.
+        ankle_axis : ndarray
+            An 8x3 ndarray containing the right ankle origin, right ankle unit vectors, left ankle origin,
+            and left ankle unit vectors.
+        mock_return_val : list
+            The value to be returned by the mock for get_angle
+        expected_mock_args : list
+            The expected arguments used to call the mocked function, get_angle
+        expected : array
+            A 2x3 ndarray containing the flexion, abduction, and rotation angles of the right and left ankle.
+
+        This test is checking to make sure the knee angle is calculated correctly given the input parameters. This
+        tests mocks get_angle to make sure the correct parameters are being passed into it given the parameters
+        passed into knee_angle_calc, expected_mock_args, and to also ensure that knee_angle_calc returns the correct
+        value considering the return value of get_angle, mock_return_val.
+
+        This unit test ensures that:
+        - the correct expected values are altered per parameter given.
+        - the resulting output is correct when knee_axis and ankle_axis are composed of lists of ints, numpy arrays
+        of ints, list of floats, and numpy arrays of floats.
+        """
+        with patch.object(CGM, 'get_angle', side_effect=mock_return_val) as mock_get_angle:
+            result = CGM.knee_angle_calc(knee_axis, ankle_axis)
+
+        # Asserting that there was only 1 call to get_angle
+        np.testing.assert_equal(mock_get_angle.call_count, 2)
+
+        # Asserting that the correct params were sent in the 1st (right) call to get_angle
+        np.testing.assert_almost_equal(expected_mock_args[0], mock_get_angle.call_args_list[0][0], rounding_precision)
+
+        # Asserting that the correct params were sent in the 2nd (left) call to get_angle
+        np.testing.assert_almost_equal(expected_mock_args[1], mock_get_angle.call_args_list[1][0], rounding_precision)
+
+        # Asserting that knee_angle_calc returned the correct result given the return value given by mocked get_angle
+        np.testing.assert_almost_equal(result, expected, rounding_precision)
