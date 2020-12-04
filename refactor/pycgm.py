@@ -1943,11 +1943,7 @@ class StaticCGM:
         the head offset angle. Uses the global axis.
         Parameters
         ----------
-<<<<<<< HEAD
-        head_axis : array
-=======
         head_axis : ndarray
->>>>>>> upstream/refactor
             Array containing 4 1x3 arrays. The first gives the XYZ coordinates of the head
             origin. The remaining 3 are 1x3 arrays that give the XYZ coordinates of the
             X, Y, and Z head axis respectively.
@@ -1962,13 +1958,8 @@ class StaticCGM:
         >>> from numpy import around, array
         >>> from refactor import pycgm
         >>> head_axis = array([[99.58366584777832, 82.79330825805664, 1483.7968139648438],
-<<<<<<< HEAD
-        ...                    [100.33272997128863, 83.39303060995121, 1484.078302933558], 
-        ...                    [98.9655145897623, 83.57884461044797, 1483.7681493301013], 
-=======
         ...                    [100.33272997128863, 83.39303060995121, 1484.078302933558],
         ...                    [98.9655145897623, 83.57884461044797, 1483.7681493301013],
->>>>>>> upstream/refactor
         ...                    [99.34535520789223, 82.64077714742746, 1484.7559501904173]])
         >>> around(pycgm.StaticCGM.static_calculation_head(head_axis), 8)
         0.28546606
