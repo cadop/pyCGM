@@ -1739,7 +1739,6 @@ class CGM:
             header = False
             for line in f:
                 if not header:
-                    header = line.rstrip('\n').split(',')
                     header = True
                 else:
                     row = line.rstrip('\n').split(',')
@@ -3160,7 +3159,8 @@ class StaticCGM:
         angle = np.array([alpha, beta, gamma])
         return angle
 
-    def get_static(self, motion_data, mapping, measurements, flat_foot, gcs=None):
+    @staticmethod
+    def get_static(motion_data, mapping, measurements, flat_foot, gcs=None):
         """ Get Static Offset function
 
         Calculate the static offset angle values and return the values in radians
@@ -3199,8 +3199,8 @@ class StaticCGM:
         >>> measurements['HeadOffset']
         0.0
         >>> flat_foot = False
-        >>> calSM = static.get_static(motion_data, mapping, measurements, flat_foot)
-        >>> np.around(calSM['HeadOffset'],8)
+        >>> cal_sm = static.get_static(motion_data, mapping, measurements, flat_foot)
+        >>> np.around(cal_sm['HeadOffset'],8)
         0.25719905
         """
         static_offset = []
