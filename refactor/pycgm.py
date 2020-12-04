@@ -1318,7 +1318,7 @@ class CGM:
         --------
         >>> import numpy as np
         >>> from .pycgm import CGM
-        >>> global_axis = np.array([[1,0,0],[0,1,0],[0,0,1]])
+        >>> global_axis = np.array([[1, 0, 0], [0, 1, 0], [0, 0, 1]])
         >>> pelvis_axis = np.array([[251.60830688, 391.74131774, 1032.89349365],
         ...                         [251.74063624, 392.72694720, 1032.78850073],
         ...                         [250.61711554, 391.87232862, 1032.87410630],
@@ -1487,9 +1487,9 @@ class CGM:
         ...                       [39.56652626 , 382.50901000, 42.77857597],
         ...                       [38.49313328 , 382.14606841, 41.93234850],
         ...                       [39.74166342 , 381.49315020, 41.81040458]])
-        >>> CGM.knee_angle_calc(ankle_axis, foot_axis)
-        array([[-92.50533765,  26.4981019 ,  -7.68822002],
-               [-94.38467038,  -2.37873795,   0.59929708]])
+        >>> CGM.ankle_angle_calc(ankle_axis, foot_axis)
+        array([[ 2.50533765, -7.68822002, 26.4981019 ],
+               [ 4.38467038,  0.59929708, -2.37873795]])
         """
         r_ankle_axis_mod = CGM.subtract_origin(ankle_axis[:4])
         l_ankle_axis_mod = CGM.subtract_origin(ankle_axis[4:])
@@ -1500,14 +1500,59 @@ class CGM:
         l_ankle_angle = CGM.get_angle(l_ankle_axis_mod, l_foot_axis_mod)
 
         # GCS fix
-        r_ankle_angle = np.array([r_ankle_angle[0] * -1 - 90, r_ankle_angle[1] * -1 + 90, r_ankle_angle[2]])
-        l_ankle_angle = np.array([l_ankle_angle[0] * -1 - 90, l_ankle_angle[1] - 90, l_ankle_angle[2] * -1])
+        r_ankle_angle = np.array([r_ankle_angle[0] * -1 - 90, r_ankle_angle[2] * -1 + 90, r_ankle_angle[1]])
+        l_ankle_angle = np.array([l_ankle_angle[0] * -1 - 90, l_ankle_angle[2] - 90, l_ankle_angle[1] * -1])
 
         return np.array([r_ankle_angle, l_ankle_angle])
 
     @staticmethod
-    def foot_angle_calc():
-        pass
+    def foot_angle_calc(global_axis, foot_axis):
+        """Foot Angle Calculation function
+
+        Calculates the global foot angle.
+
+        Parameters
+        ----------
+        global_axis : ndarray
+            A 3x3 ndarray representing the global coordinate system.
+        foot_axis : ndarray
+            An 8x3 ndarray containing the right foot origin, right foot unit vectors,
+            left foot origin, and left foot unit vectors.
+
+        Returns
+        -------
+        ndarray
+            A 2x3 ndarray containing the flexion, abduction, and rotation angles
+            of the right and left foot.
+
+        Examples
+        --------
+        >>> import numpy as np
+        >>> from .pycgm import CGM
+        >>> global_axis = np.array([[1, 0, 0], [0, 1, 0], [0, 0, 1]])
+        >>> foot_axis = np.array([[442.81997681, 381.62280273, 42.66047668],
+        ...                       [442.84624127, 381.65130240, 43.65972538],
+        ...                       [441.87735056, 381.95630350, 42.67574106],
+        ...                       [442.48716163, 380.68048378, 42.69610044],
+        ...                       [39.43652725 , 382.44522095, 41.78911591],
+        ...                       [39.56652626 , 382.50901000, 42.77857597],
+        ...                       [38.49313328 , 382.14606841, 41.93234850],
+        ...                       [39.74166342 , 381.49315020, 41.81040458]])
+        >>> CGM.foot_angle_calc(global_axis, foot_axis)
+        array([[-83.89045512,  -4.88440619,  70.44471323],
+               [ 86.00906822, 167.96294971, -72.18901201]])
+        """
+
+        r_foot_axis_mod = CGM.subtract_origin(foot_axis[:4])
+        l_foot_axis_mod = CGM.subtract_origin(foot_axis[4:])
+
+        r_global_foot_angle = CGM.get_angle(global_axis, r_foot_axis_mod)
+        l_global_foot_angle = CGM.get_angle(global_axis, l_foot_axis_mod)
+
+        r_foot_angle = np.array([r_global_foot_angle[0], r_global_foot_angle[2] - 90, r_global_foot_angle[1]])
+        l_foot_angle = np.array([l_global_foot_angle[0], l_global_foot_angle[2] * -1 + 90, l_global_foot_angle[1] * -1])
+
+        return np.array([r_foot_angle, l_foot_angle])
 
     @staticmethod
     def head_angle_calc():
