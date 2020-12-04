@@ -39,6 +39,7 @@ class CGM:
         >>> dynamic_trial = dir + "59993_Frame_Dynamic.c3d"
         >>> measurements = dir + "59993_Frame_SM.vsk"
         >>> subject1 = CGM(static_trial, dynamic_trial, measurements)
+        SampleData/59993_Frame/59993_Frame_Static.c3d
         SampleData/59993_Frame/59993_Frame_Dynamic.c3d
         >>> subject1.marker_data[0][0]  # doctest: +NORMALIZE_WHITESPACE
         array([  54.67363358,  156.26828003, 1474.328125  ])
@@ -1370,6 +1371,7 @@ class CGM:
         r_hip_angle = CGM.get_angle(hip_axis_mod, r_knee_axis_mod)
         l_hip_angle = CGM.get_angle(hip_axis_mod, l_knee_axis_mod)
 
+        # GCS fix
         r_hip_angle = np.array([r_hip_angle[0] * -1, r_hip_angle[1], r_hip_angle[2] * -1 + 90])
         l_hip_angle = np.array([l_hip_angle[0] * -1, l_hip_angle[1] * -1, l_hip_angle[2] - 90])
 
@@ -1428,6 +1430,7 @@ class CGM:
         r_knee_angle = CGM.get_angle(r_knee_axis_mod, r_ankle_axis_mod)
         l_knee_angle = CGM.get_angle(l_knee_axis_mod, l_ankle_axis_mod)
 
+        # GCS fix
         r_knee_angle = np.array([r_knee_angle[0], r_knee_angle[1], r_knee_angle[2] * -1 + 90])
         l_knee_angle = np.array([l_knee_angle[0], l_knee_angle[1] * -1, l_knee_angle[2] - 90])
 
@@ -1458,15 +1461,7 @@ class CGM:
         --------
         >>> import numpy as np
         >>> from .pycgm import CGM
-        >>> ankle_axis = np.array([[364.17774614, 292.17051722, 515.19181496],
-        ...                       [364.61959153, 293.06758353, 515.18513093],
-        ...                       [363.29019771, 292.60656648, 515.04309095],
-        ...                       [364.04724541, 292.24216264, 516.18067112],
-        ...                       [143.55478579, 279.90370346, 524.78408753],
-        ...                       [143.65611282, 280.88685896, 524.63197541],
-        ...                       [142.56434499, 280.01777943, 524.86163553],
-        ...                       [143.64837987, 280.04650381, 525.76940383]])
-        >>> foot_axis = np.array([[393.76181608, 247.67829633, 87.73775041],
+        >>> ankle_axis = np.array([[393.76181608, 247.67829633, 87.73775041],
         ...                        [394.48171575, 248.37201348, 87.71536800],
         ...                        [393.07114384, 248.39110006, 87.61575574],
         ...                        [393.69314056, 247.78157916, 88.73002876],
@@ -1474,10 +1469,31 @@ class CGM:
         ...                        [ 98.47494966, 220.42553803, 80.52821783],
         ...                        [ 97.79246671, 219.20927275, 80.76255901],
         ...                        [ 98.84848169, 219.60345781, 81.61663775]])
-        >>> CGM.knee_angle_calc(knee_axis, ankle_axis)
-        array([[  3.19436865,   2.38341045, -19.47591616],
-               [ -0.45848726,  -0.3866728 , -21.87580851]])
+        >>> foot_axis = np.array([[442.81997681, 381.62280273, 42.66047668],
+        ...                       [442.84624127, 381.65130240, 43.65972538],
+        ...                       [441.87735056, 381.95630350, 42.67574106],
+        ...                       [442.48716163, 380.68048378, 42.69610044],
+        ...                       [39.43652725 , 382.44522095, 41.78911591],
+        ...                       [39.56652626 , 382.50901000, 42.77857597],
+        ...                       [38.49313328 , 382.14606841, 41.93234850],
+        ...                       [39.74166342 , 381.49315020, 41.81040458]])
+        >>> CGM.knee_angle_calc(ankle_axis, foot_axis)
+        array([[-92.50533765,  26.4981019 ,  -7.68822002],
+               [-94.38467038,  -2.37873795,   0.59929708]])
         """
+        r_ankle_axis_mod = CGM.subtract_origin(ankle_axis[:4])
+        l_ankle_axis_mod = CGM.subtract_origin(ankle_axis[4:])
+        r_foot_axis_mod = CGM.subtract_origin(foot_axis[:4])
+        l_foot_axis_mod = CGM.subtract_origin(foot_axis[4:])
+
+        r_ankle_angle = CGM.get_angle(r_ankle_axis_mod, r_foot_axis_mod)
+        l_ankle_angle = CGM.get_angle(l_ankle_axis_mod, l_foot_axis_mod)
+
+        # GCS fix
+        r_ankle_angle = np.array([r_ankle_angle[0] * -1 - 90, r_ankle_angle[1] * -1 + 90, r_ankle_angle[2]])
+        l_ankle_angle = np.array([l_ankle_angle[0] * -1 - 90, l_ankle_angle[1] - 90, l_ankle_angle[2] * -1])
+
+        return np.array([r_ankle_angle, l_ankle_angle])
 
     @staticmethod
     def foot_angle_calc():
