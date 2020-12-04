@@ -115,6 +115,42 @@ class CGM:
         """
 
     @staticmethod
+    def subtract_origin(axis_vectors):
+        """Subtract origin from axis vectors.
+
+        Parameters
+        ----------
+        axis_vectors : array
+            numpy array containing 4 1x3 arrays - the origin vector, followed by
+            the three X, Y, and Z axis vectors, each of which is a 1x3 numpy array
+            of the respective X, Y, and Z components.
+
+        Returns
+        -------
+        array
+            numpy array containing 3 1x3 arrays of the X, Y, and Z axis vectors, after
+            the origin is subtracted away.
+
+        Examples
+        --------
+        >>> import numpy as np
+        >>> from refactor.pycgm import CGM
+        >>> origin = [1, 2, 3]
+        >>> x_axis = [4, 4, 4]
+        >>> y_axis = [9, 9, 9]
+        >>> z_axis = [-1, 0, 1]
+        >>> axis_vectors = np.array([origin, x_axis, y_axis, z_axis])
+        >>> CGM.subtract_origin(axis_vectors)
+        array([[ 3,  2,  1],
+               [ 8,  7,  6],
+               [-2, -2, -2]])
+        """
+        origin, x_axis, y_axis, z_axis = axis_vectors
+        return np.vstack([np.subtract(x_axis, origin),
+                          np.subtract(y_axis, origin),
+                          np.subtract(z_axis, origin)])
+
+    @staticmethod
     def find_joint_center(a, b, c, delta):
         """Calculate the Joint Center function.
 
@@ -236,12 +272,12 @@ class CGM:
         --------
         >>> import numpy as np 
         >>> from .pycgm import CGM
-        >>> axis_p = np.array([[ 0.0464229,   0.99648672,  0.06970743],
-        ...                    [ 0.99734011, -0.04231089, -0.05935067],
-        ...                    [-0.05619277,  0.07227725, -0.99580037]])
-        >>> axis_d = np.array([[-0.18067218, -0.98329158, -0.02225371],
-        ...                    [ 0.71383942, -0.1155303,  -0.69071415],
-        ...                    [ 0.67660243, -0.1406784,   0.7227854 ]])
+        >>> axis_p = np.array([[ 0.0464229 ,   0.99648672,  0.06970743],
+        ...                    [ 0.99734011,  -0.04231089, -0.05935067],
+        ...                    [-0.05619277,   0.07227725, -0.99580037]])
+        >>> axis_d = np.array([[-0.18067218,  -0.98329158, -0.02225371],
+        ...                    [ 0.71383942,  -0.1155303 , -0.69071415],
+        ...                    [ 0.67660243,  -0.1406784 ,  0.7227854 ]])
         >>> CGM.get_angle(axis_p, axis_d)
         array([-175.65183483,  -39.6322192 ,  100.2668477 ])
         """
@@ -1214,8 +1250,38 @@ class CGM:
 
     # Angle calculation functions
     @staticmethod
-    def pelvis_angle_calc():
-        pass
+    def pelvis_angle_calc(global_axis, pelvis_axis):
+        """Pelvis Angle Calculation function
+
+        Calculates the global pelvis angle.
+
+        Parameters
+        ----------
+        global_axis : ndarray
+            A 3x3 ndarray representing the global coordinate system.
+        pelvis_axis : ndarray
+            A 4x3 ndarray representing the origin and three unit vectors of the pelvis axis.
+
+        Returns
+        -------
+        ndarray
+            A 1x3 numpy array representing the flexion, abduction, and rotation angles of the pelvis.
+
+        Examples
+        --------
+        >>> import numpy as np
+        >>> from .pycgm import CGM
+        >>> global_axis = np.array([[1,0,0],[0,1,0],[0,0,1]])
+        >>> pelvis_axis = np.array([[33.17319107, 92.17796134, 831.48202514],
+        ...                         [33.75163424, 92.94877869, 831.21510922],
+        ...                         [32.37542212, 92.78080410, 831.49408009],
+        ...                         [33.34339156, 92.38392548, 832.44566956]])
+        >>> CGM.pelvis_angle_calc(global_axis, pelvis_axis)
+        array([12.06456223, -9.79947634, -35.94496886])
+        """
+
+        pelvis_axis_mod = CGM.subtract_origin(pelvis_axis)
+        return CGM.get_angle(global_axis, pelvis_axis_mod)
 
     @staticmethod
     def hip_angle_calc():
