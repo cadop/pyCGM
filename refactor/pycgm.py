@@ -785,7 +785,7 @@ class CGM:
         # Ankle Axis Calculation(ref. Clinical Gait Analysis hand book, Baker2013)
         # Right axis calculation
 
-        # Z axis is shank bone calculated by the ankleJC and  kneeJC
+        # Z axis is shank bone calculated by the ankleJC and kneeJC
         axis_z = knee_jc_r - r_ankle_jc
 
         # X axis is perpendicular to the points plane which is determined by ANK, TIB, and KJC markers.
@@ -816,35 +816,17 @@ class CGM:
         l_axis = np.array([axis_x, axis_y, axis_z])
 
         # Clear the name of axis and then normalize it.
-        r_ankle_x_axis = r_axis[0]
-        r_ankle_x_axis_div = np.linalg.norm(r_ankle_x_axis)
-        r_ankle_x_axis = np.array([r_ankle_x_axis[0] / r_ankle_x_axis_div, r_ankle_x_axis[1] / r_ankle_x_axis_div,
-                                   r_ankle_x_axis[2] / r_ankle_x_axis_div])
+        r_ankle_x_axis, r_ankle_y_axis, r_ankle_z_axis = r_axis
 
-        r_ankle_y_axis = r_axis[1]
-        r_ankle_y_axis_div = np.linalg.norm(r_ankle_y_axis)
-        r_ankle_y_axis = np.array([r_ankle_y_axis[0] / r_ankle_y_axis_div, r_ankle_y_axis[1] / r_ankle_y_axis_div,
-                                   r_ankle_y_axis[2] / r_ankle_y_axis_div])
+        r_ankle_x_axis /= np.linalg.norm(r_ankle_x_axis)
+        r_ankle_y_axis /= np.linalg.norm(r_ankle_y_axis)
+        r_ankle_z_axis /= np.linalg.norm(r_ankle_z_axis)
 
-        r_ankle_z_axis = r_axis[2]
-        r_ankle_z_axis_div = np.linalg.norm(r_ankle_z_axis)
-        r_ankle_z_axis = np.array([r_ankle_z_axis[0] / r_ankle_z_axis_div, r_ankle_z_axis[1] / r_ankle_z_axis_div,
-                                   r_ankle_z_axis[2] / r_ankle_z_axis_div])
+        l_ankle_x_axis, l_ankle_y_axis, l_ankle_z_axis = l_axis
 
-        l_ankle_x_axis = l_axis[0]
-        l_ankle_x_axis_div = np.linalg.norm(l_ankle_x_axis)
-        l_ankle_x_axis = np.array([l_ankle_x_axis[0] / l_ankle_x_axis_div, l_ankle_x_axis[1] / l_ankle_x_axis_div,
-                                   l_ankle_x_axis[2] / l_ankle_x_axis_div])
-
-        l_ankle_y_axis = l_axis[1]
-        l_ankle_y_axis_div = np.linalg.norm(l_ankle_y_axis)
-        l_ankle_y_axis = np.array([l_ankle_y_axis[0] / l_ankle_y_axis_div, l_ankle_y_axis[1] / l_ankle_y_axis_div,
-                                   l_ankle_y_axis[2] / l_ankle_y_axis_div])
-
-        l_ankle_z_axis = l_axis[2]
-        l_ankle_z_axis_div = np.linalg.norm(l_ankle_z_axis)
-        l_ankle_z_axis = np.array([l_ankle_z_axis[0] / l_ankle_z_axis_div, l_ankle_z_axis[1] / l_ankle_z_axis_div,
-                                   l_ankle_z_axis[2] / l_ankle_z_axis_div])
+        l_ankle_x_axis /= np.linalg.norm(l_ankle_x_axis)
+        l_ankle_y_axis /= np.linalg.norm(l_ankle_y_axis)
+        l_ankle_z_axis /= np.linalg.norm(l_ankle_z_axis)
 
         # Put both axis in array
         r_axis = np.array([r_ankle_x_axis, r_ankle_y_axis, r_ankle_z_axis])
