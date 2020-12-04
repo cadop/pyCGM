@@ -111,7 +111,7 @@ class CGM:
     def rotation_matrix(x=0, y=0, z=0):
         """Rotation Matrix function
 
-        This function creates and returns a rotation matrix.
+        This function creates and returns a rotation matrix about axes x, y, z.
 
         Parameters
         ----------
@@ -125,6 +125,21 @@ class CGM:
         rxyz : list
             The product of the matrix multiplication as a 3x3 ndarray.
         """
+        # Convert the x, y, z rotation angles from degrees to radians
+        x = radians(x)
+        y = radians(y)
+        z = radians(z)
+
+        # Making elemental rotations about each of the x, y, z axes
+        rx = [[1, 0, 0], [0, cos(x), sin(x) * -1], [0, sin(x), cos(x)]]
+        ry = [[cos(y), 0, sin(y)], [0, 1, 0], [sin(y) * -1, 0, cos(y)]]
+        rz = [[cos(z), sin(z) * -1, 0], [sin(z), cos(z), 0], [0, 0, 1]]
+
+        # Making the rotation matrix around x, y, z axes using matrix multiplication
+        rxy = np.matmul(rx, ry)
+        rxyz = np.matmul(rxy, rz)
+
+        return rxyz
 
     @staticmethod
     def subtract_origin(axis_vectors):
@@ -132,7 +147,7 @@ class CGM:
 
         Parameters
         ----------
-        axis_vectors : array
+        axis_vectors : ndarray
             numpy array containing 4 1x3 arrays - the origin vector, followed by
             the three X, Y, and Z axis vectors, each of which is a 1x3 numpy array
             of the respective X, Y, and Z components.
@@ -143,42 +158,6 @@ class CGM:
             numpy array containing 3 1x3 arrays of the X, Y, and Z axis vectors, after
             the origin is subtracted away.
 
-        Examples
-        --------
-        >>> import numpy as np
-        >>> from refactor.pycgm import CGM
-        >>> origin = [1, 2, 3]
-        >>> x_axis = [4, 4, 4]
-        >>> y_axis = [9, 9, 9]
-        >>> z_axis = [-1, 0, 1]
-        >>> axis_vectors = np.array([origin, x_axis, y_axis, z_axis])
-        >>> CGM.subtract_origin(axis_vectors)
-        array([[ 3,  2,  1],
-               [ 8,  7,  6],
-               [-2, -2, -2]])
-        """
-        origin, x_axis, y_axis, z_axis = axis_vectors
-        return np.vstack([np.subtract(x_axis, origin),
-                          np.subtract(y_axis, origin),
-                          np.subtract(z_axis, origin)])
-
-    @staticmethod
-    def subtract_origin(axis_vectors):
-        """Subtract origin from axis vectors.
-
-        Parameters
-        ----------
-        axis_vectors : array
-            numpy array containing 4 1x3 arrays - the origin vector, followed by
-            the three X, Y, and Z axis vectors, each of which is a 1x3 numpy array
-            of the respective X, Y, and Z components.
-
-        Returns
-        -------
-        array
-            numpy array containing 3 1x3 arrays of the X, Y, and Z axis vectors, after
-            the origin is subtracted away.
-        
         Examples
         --------
         >>> import numpy as np
@@ -207,14 +186,14 @@ class CGM:
 
         Parameters
         ----------
-        a, b, c : array
+        a, b, c : ndarray
             A 1x3 ndarray representing x, y, and z coordinates of the marker.
         delta : float
             The length from marker to joint center, retrieved from subject measurement file.
 
         Returns
         -------
-        mr : array
+        mr : ndarray
             Returns the Joint Center x, y, z positions in a 1x3 ndarray.
 
         Examples
@@ -270,40 +249,6 @@ class CGM:
         return mr
 
     @staticmethod
-    def rotation_matrix(x=0, y=0, z=0):
-        """Rotation Matrix function
-
-        This function creates and returns a rotation matrix about axes x, y, z.
-
-        Parameters
-        ----------
-        x, y, z : float, optional
-            Angle, which will be converted to radians, in
-            each respective axis to describe the rotations.
-            The default is 0 for each unspecified angle.
-
-        Returns
-        -------
-        rxyz : list
-            The product of the matrix multiplication as a 3x3 ndarray.
-        """
-        # Convert the x, y, z rotation angles from degrees to radians
-        x = radians(x)
-        y = radians(y)
-        z = radians(z)
-
-        # Making elemental rotations about each of the x, y, z axes
-        Rx = [[1, 0, 0], [0, cos(x), sin(x) * -1], [0, sin(x), cos(x)]]
-        Ry = [[cos(y), 0, sin(y)], [0, 1, 0], [sin(y) * -1, 0, cos(y)]]
-        Rz = [[cos(z), sin(z) * -1, 0], [sin(z), cos(z), 0], [0, 0, 1]]
-
-        # Making the rotation matrix around x, y, z axes using matrix multiplication
-        Rxy = np.matmul(Rx, Ry)
-        Rxyz = np.matmul(Rxy, Rz)
-
-        return Rxyz
-
-    @staticmethod
     def wand_marker(rsho, lsho, thorax_axis):
         """Wand Marker Calculation function
 
@@ -315,15 +260,15 @@ class CGM:
 
         Parameters
         ----------
-        rsho, lsho : array
+        rsho, lsho : ndarray
             A 1x3 ndarray of each respective marker containing the XYZ positions.
-        thorax_axis : array
+        thorax_axis : ndarray
             A 4x3 ndarray that contains the thorax origin and the
             thorax x, y, and z axis components.
 
         Returns
         -------
-        wand : array
+        wand : ndarray
             Returns a 2x3 ndarray containing the right wand marker x, y, and z positions and the
             left wand marker x, y, and z positions.
         """
@@ -414,9 +359,9 @@ class CGM:
 
         Parameters
         ----------
-        rasi, lasi : array
+        rasi, lasi : ndarray
             A 1x3 ndarray of each respective marker containing the XYZ positions.
-        sacr, rpsi, lpsi : array, optional
+        sacr, rpsi, lpsi : ndarray, optional
             A 1x3 ndarray of each respective marker containing the XYZ positions.
 
         Returns
@@ -644,9 +589,9 @@ class CGM:
 
         Parameters
         ----------
-        rthi, lthi, rkne, lkne : array
+        rthi, lthi, rkne, lkne : ndarray
             A 1x3 ndarray of each respective marker containing the XYZ positions.
-        hip_origin : array
+        hip_origin : ndarray
             A 2x3 ndarray of the right and left hip origin vectors (joint centers).
         measurements : dict
             A dictionary containing the subject measurements given from the file input.
@@ -782,9 +727,9 @@ class CGM:
 
         Parameters
         ----------
-        rtib, ltib, rank, lank : array
+        rtib, ltib, rank, lank : ndarray
             A 1x3 ndarray of each respective marker containing the XYZ positions.
-        knee_origin : array
+        knee_origin : ndarray
             A 2x3 ndarray of the right and left knee origin vectors (joint centers).
         measurements : dict
             A dictionary containing the subject measurements given from the file input.
@@ -971,9 +916,9 @@ class CGM:
 
         Parameters
         ----------
-        rtoe, ltoe : array
+        rtoe, ltoe : ndarray
             A 1x3 ndarray of each respective marker containing the XYZ positions.
-        ankle_axis : array
+        ankle_axis : ndarray
             An 8x3 ndarray that contains the right ankle origin, right ankle x, y, and z
             axis components, left ankle origin, and left ankle x, y, and z axis components.
         measurements : dict
@@ -1186,7 +1131,7 @@ class CGM:
 
         Parameters
         ----------
-        lfhd, rfhd, lbhd, rbhd : array
+        lfhd, rfhd, lbhd, rbhd : ndarray
             A 1x3 ndarray of each respective marker containing the XYZ positions.
         measurements : dict
             A dictionary containing the subject measurements given from the file input.
@@ -1208,7 +1153,7 @@ class CGM:
 
         Parameters
         ----------
-        clav, c7, strn, t10 : array
+        clav, c7, strn, t10 : ndarray
             A 1x3 ndarray of each respective marker containing the XYZ positions.
 
         Returns
@@ -1231,9 +1176,9 @@ class CGM:
         ----------
         rsho, lsho : dict
             A 1x3 ndarray of each respective marker containing the XYZ positions.
-        thorax_origin : array
+        thorax_origin : ndarray
             A 1x3 ndarray of the thorax origin vector (joint center).
-        wand : array
+        wand : ndarray
             A 2x3 ndarray containing the right wand marker x, y, and z positions and the
             left wand marker x, y, and z positions.
         measurements : dict
@@ -1259,14 +1204,14 @@ class CGM:
 
         Parameters
         ----------
-        rsho, lsho, relb, lelb, rwra, rwrb, lwra, lwrb : array
+        rsho, lsho, relb, lelb, rwra, rwrb, lwra, lwrb : ndarray
             A 1x3 ndarray of each respective marker containing the XYZ positions.
-        thorax_axis : array
+        thorax_axis : ndarray
             A 4x3 ndarray that contains the thorax origin and the
             thorax x, y, and z axis components.
-        shoulder_origin : array
+        shoulder_origin : ndarray
             A 2x3 ndarray of the right and left shoulder origin vectors (joint centers).
-        wand : array
+        wand : ndarray
             A 2x3 ndarray containing the right wand marker x, y, and z positions and the
             left wand marker x, y, and z positions.
         measurements : dict
@@ -1291,12 +1236,12 @@ class CGM:
     #
     #     Parameters
     #     ----------
-    #     rsho, lsho, relb, lelb, rwra, rwrb, lwra, lwrb : array
+    #     rsho, lsho, relb, lelb, rwra, rwrb, lwra, lwrb : ndarray
     #         A 1x3 ndarray of each respective marker containing the XYZ positions.
-    #     elbow_axis : array
+    #     elbow_axis : ndarray
     #         An 8x3 ndarray that contains the right elbow origin, right elbow x, y, and z
     #         axis components, left elbow origin, and left elbow x, y, and z axis components.
-    #     wand : array
+    #     wand : ndarray
     #         A 2x3 ndarray containing the right wand marker x, y, and z positions and the
     #         left wand marker x, y, and z positions.
     #
@@ -1318,9 +1263,9 @@ class CGM:
 
         Parameters
         ----------
-        rwra, wrb, lwra, lwrb, rfin, lfin : array
+        rwra, wrb, lwra, lwrb, rfin, lfin : ndarray
             A 1x3 ndarray of each respective marker containing the XYZ positions.
-        wrist_jc : array
+        wrist_jc : ndarray
             A 2x3 array containing the x,y,z position of the right and left wrist joint center.
         measurements : dict
             A dictionary containing the subject measurements given from the file input.
@@ -1584,7 +1529,7 @@ class CGM:
 
         Parameters
         ----------
-        data : array
+        data : ndarray
             3d ndarray consisting of each frame by each marker by x, y, and z positions.
         methods : list
             List containing the calculation methods to be used.
@@ -1614,7 +1559,7 @@ class CGM:
 
         Parameters
         ----------
-        data : array
+        data : ndarray
             3d ndarray consisting of each frame by each marker by x, y, and z positions.
         methods : list
             List containing the calculation methods to be used.
@@ -1641,7 +1586,7 @@ class CGM:
 
         Parameters
         ----------
-        point, start, end : array
+        point, start, end : ndarray
             1x3 numpy arrays representing the XYZ coordinates of a point.
             `point` is a point not on the line.
             `start` and `end` form a line.
@@ -1694,10 +1639,10 @@ class CGM:
 
         Parameters
         ----------
-        lhjc, rhjc : array
+        lhjc, rhjc : ndarray
             1x3 ndarray giving the XYZ coordinates of the LHJC and RHJC
             markers respectively.
-        axis : array
+        axis : ndarray
             Numpy array containing 4 1x3 arrays of pelvis or thorax origin, x-axis, y-axis,
             and z-axis. Only the z-axis affects the estimated L5 result.
 
@@ -1984,7 +1929,7 @@ class StaticCGM:
         flat_foot : boolean, optional
             A boolean indicating if the feet are flat or not.
             The default value is False.
-        gcs : array, optional
+        gcs : ndarray, optional
             An array containing the Global Coordinate System.
             If not provided, the default will be set to: [[1, 0, 0], [0, 1, 0], [0, 0, 1]].
 
@@ -2004,7 +1949,7 @@ class StaticCGM:
         Markers used: RASI, LASI
         Parameters
         ----------
-        rasi, lasi : array
+        rasi, lasi : ndarray
             A 1x3 ndarray of each respective marker containing the XYZ positions.
         Returns
         -------
@@ -2033,7 +1978,7 @@ class StaticCGM:
         the head offset angle. Uses the global axis.
         Parameters
         ----------
-        head : array
+        head : ndarray
             Array containing 4 1x3 arrays. The first gives the XYZ coordinates of the head
             origin. The remaining 3 are 1x3 arrays that give the XYZ coordinates of the
             X, Y, and Z head axis respectively.
@@ -2055,7 +2000,7 @@ class StaticCGM:
         0.28546606
         """
         head_axis = CGM.subtract_origin(head_axis)
-        global_axis = [[0, 1, 0], [-1, 0, 0], [0, 0, 1]]
+        global_axis = np.array([[0, 1, 0], [-1, 0, 0], [0, 0, 1]])
 
         # Global axis is the proximal axis
         # Head axis is the distal axis
@@ -2083,10 +2028,12 @@ class StaticCGM:
         ----------
         rtoe, ltoe, rhee, lhee : dict
             A 1x3 ndarray of each respective marker containing the XYZ positions.
-        ankle_axis : array
-            An ndarray containing the x,y,z axes marker positions of the ankle joint centers.
-        knee_axis : array
-            An ndarray containing the x,y,z axes marker positions of the knee joint centers.
+        ankle_axis : ndarray
+            An 8x3 ndarray that contains the right ankle origin, right ankle x, y, and z
+            axis components, left ankle origin, and left ankle x, y, and z axis components.
+        knee_axis : ndarray
+            An 8x3 ndarray containing the right knee origin, right knee unit vectors,
+            left knee origin, and left knee unit vectors.
         flat_foot : boolean
             A boolean indicating if the feet are flat or not.
         measurements : dict, optional
@@ -2094,10 +2041,10 @@ class StaticCGM:
 
         Returns
         -------
-        angle : list
-            Returns the offset angle represented by a 2x3x3 array.
-            The array contains the right flexion, abduction, rotation angles (1x3x3)
-            followed by the left flexion, abduction, rotation angles (1x3x3).
+        angle : ndarray
+            Returns the offset angle represented by a 2x3 ndarray.
+            The array contains the right flexion, abduction, and rotation angles,
+            followed by the left flexion, abduction, and rotation angles.
 
         Modifies
         --------
@@ -2142,59 +2089,29 @@ class StaticCGM:
         # Get the each axis from the function.
         uncorrect_foot = StaticCGM.foot_axis_calc(rtoe, ltoe, ankle_axis)
 
-        # # change the reference uncorrect foot axis to same format
-        # rf_center1_r_form = uncorrect_foot[0]
-        # rf_center1_l_form = uncorrect_foot[4]
-        # rf_axis1_r_form = [uncorrect_foot[1], uncorrect_foot[2], uncorrect_foot[3]]
-        # rf_axis1_l_form = [uncorrect_foot[5], uncorrect_foot[6], uncorrect_foot[7]]
-
         rf1_r_axis = CGM.subtract_origin(uncorrect_foot[:4])
         rf1_l_axis = CGM.subtract_origin(uncorrect_foot[4:])
-
-        # # make the array which will be the input of get_angle function
-        # rf1_r_axis = np.vstack([np.subtract(rf_axis1_r_form[0], rf_center1_r_form),
-        #                         np.subtract(rf_axis1_r_form[1], rf_center1_r_form),
-        #                         np.subtract(rf_axis1_r_form[2], rf_center1_r_form)])
-        # rf1_l_axis = np.vstack([np.subtract(rf_axis1_l_form[0], rf_center1_l_form),
-        #                         np.subtract(rf_axis1_l_form[1], rf_center1_l_form),
-        #                         np.subtract(rf_axis1_l_form[2], rf_center1_l_form)])
 
         # Check if it is flat foot or not.
         if not flat_foot:
             rf_axis2 = StaticCGM.non_flat_foot_axis_calc(rtoe, ltoe, rhee, lhee, ankle_axis)
-            rf_center2_r_form = rf_axis2[0]
-            rf_center2_l_form = rf_axis2[4]
-            rf_axis2_r_form = [rf_axis2[1], rf_axis2[2], rf_axis2[3]]
-            rf_axis2_l_form = [rf_axis2[5], rf_axis2[6], rf_axis2[7]]
             # make the array to same format for calculating angle.
-            rf2_r_axis = np.vstack([np.subtract(rf_axis2_r_form[0], rf_center2_r_form),
-                                    np.subtract(rf_axis2_r_form[1], rf_center2_r_form),
-                                    np.subtract(rf_axis2_r_form[2], rf_center2_r_form)])
-            rf2_l_axis = np.vstack([np.subtract(rf_axis2_l_form[0], rf_center2_l_form),
-                                    np.subtract(rf_axis2_l_form[1], rf_center2_l_form),
-                                    np.subtract(rf_axis2_l_form[2], rf_center2_l_form)])
+            rf2_r_axis = CGM.subtract_origin(rf_axis2[:4])
+            rf2_l_axis = CGM.subtract_origin(rf_axis2[4:])
 
             r_ankle_flex_angle = StaticCGM.ankle_angle_calc(rf1_r_axis, rf2_r_axis)
             l_ankle_flex_angle = StaticCGM.ankle_angle_calc(rf1_l_axis, rf2_l_axis)
 
         elif flat_foot:
             rf_axis3 = StaticCGM.flat_foot_axis_calc(rtoe, ltoe, rhee, lhee, ankle_axis, measurements)
-            rf_center3_r_form = rf_axis3[0]
-            rf_center3_l_form = rf_axis3[4]
-            rf_axis3_r_form = [rf_axis3[1], rf_axis3[2], rf_axis3[3]]
-            rf_axis3_l_form = [rf_axis3[5], rf_axis3[6], rf_axis3[7]]
             # make the array to same format for calculating angle.
-            rf3_r_axis = np.vstack([np.subtract(rf_axis3_r_form[0], rf_center3_r_form),
-                                    np.subtract(rf_axis3_r_form[1], rf_center3_r_form),
-                                    np.subtract(rf_axis3_r_form[2], rf_center3_r_form)])
-            rf3_l_axis = np.vstack([np.subtract(rf_axis3_l_form[0], rf_center3_l_form),
-                                    np.subtract(rf_axis3_l_form[1], rf_center3_l_form),
-                                    np.subtract(rf_axis3_l_form[2], rf_center3_l_form)])
+            rf3_r_axis = CGM.subtract_origin(rf_axis3[:4])
+            rf3_l_axis = CGM.subtract_origin(rf_axis3[4:])
 
             r_ankle_flex_angle = StaticCGM.ankle_angle_calc(rf1_r_axis, rf3_r_axis)
             l_ankle_flex_angle = StaticCGM.ankle_angle_calc(rf1_l_axis, rf3_l_axis)
 
-        angle = [r_ankle_flex_angle, l_ankle_flex_angle]
+        angle = np.array([r_ankle_flex_angle, l_ankle_flex_angle])
 
         return angle
 
@@ -2213,9 +2130,9 @@ class StaticCGM:
 
         Parameters
         ----------
-        rasi, lasi : array
+        rasi, lasi : ndarray
             A 1x3 ndarray of each respective marker containing the XYZ positions.
-        sacr, rpsi, lpsi : array, optional
+        sacr, rpsi, lpsi : ndarray, optional
             A 1x3 ndarray of each respective marker containing the XYZ positions.
 
         Returns
@@ -2444,9 +2361,9 @@ class StaticCGM:
 
         Parameters
         ----------
-        rthi, lthi, rkne, lkne : array
+        rthi, lthi, rkne, lkne : ndarray
             A 1x3 ndarray of each respective marker containing the XYZ positions.
-        hip_origin : array
+        hip_origin : ndarray
             A 2x3 ndarray of the right and left hip origin vectors (joint centers).
         measurements : dict
             A dictionary containing the subject measurements given from the file input.
@@ -2578,9 +2495,9 @@ class StaticCGM:
 
         Parameters
         ----------
-        rtib, ltib, rank, lank : array
+        rtib, ltib, rank, lank : ndarray
             A 1x3 ndarray of each respective marker containing the XYZ positions.
-        knee_origin : array
+        knee_origin : ndarray
             A 2x3 ndarray of the right and left knee origin vectors (joint centers).
         measurements : dict
             A dictionary containing the subject measurements given from the file input.
@@ -2767,9 +2684,9 @@ class StaticCGM:
 
         Parameters
         ----------
-        rtoe, ltoe : array
+        rtoe, ltoe : ndarray
             A 1x3 ndarray of each respective marker containing the XYZ positions.
-        ankle_axis : array
+        ankle_axis : ndarray
             An 8x3 ndarray that contains the right ankle origin, right ankle x, y, and z
             axis components, left ankle origin, and left ankle x, y, and z axis components.
         measurements : dict
@@ -2890,9 +2807,9 @@ class StaticCGM:
             
         Parameters
         ----------
-        rtoe, ltoe, rhee, lhee : array
+        rtoe, ltoe, rhee, lhee : ndarray
             A 1x3 ndarray of each respective marker containing the XYZ positions.
-        ankle_axis : array
+        ankle_axis : ndarray
             An 8x3 ndarray that contains the right ankle origin, right ankle x, y, and z
             axis components, left ankle origin, and left ankle x, y, and z axis components.
             
@@ -2994,9 +2911,9 @@ class StaticCGM:
             
         Parameters
         ----------
-        rtoe, ltoe, rhee, lhee : array
+        rtoe, ltoe, rhee, lhee : ndarray
             A 1x3 ndarray of each respective marker containing the XYZ positions.
-        ankle_axis : array
+        ankle_axis : ndarray
             An 8x3 ndarray that contains the right ankle origin, right ankle x, y, and z
             axis components, left ankle origin, and left ankle x, y, and z axis components.
             
@@ -3133,7 +3050,7 @@ class StaticCGM:
 
         Parameters
         ----------
-        lfhd, rfhd, lbhd, rbhd : array
+        lfhd, rfhd, lbhd, rbhd : ndarray
             A 1x3 ndarray of each respective marker containing the XYZ positions.
 
         Returns
@@ -3256,7 +3173,7 @@ class StaticCGM:
 
         Parameters
         ----------
-        motion_data : array
+        motion_data : ndarray
            `motion_data` is a 3d numpy array. Each index `i` corresponds to frame `i`
             of trial. `motion_data[i]` contains a list of coordinate values for each marker.
             Each coordinate value is a 1x3 list: [X, Y, Z].
@@ -3268,7 +3185,7 @@ class StaticCGM:
         flat_foot : boolean, optional
             A boolean indicating if the feet are flat or not.
             The default value is False.
-        GCS : array, optional
+        GCS : ndarray, optional
             An array containing the Global Coordinate System.
             If not provided, the default will be set to: [[1, 0, 0], [0, 1, 0], [0, 0, 1]].
         
