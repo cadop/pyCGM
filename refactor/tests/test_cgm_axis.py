@@ -20,8 +20,8 @@ class TestLowerBodyAxis():
     foot_axis_calc
     """
 
-    nan_3d = [np.nan, np.nan, np.nan]
-    rand_coor = [np.random.randint(0, 10), np.random.randint(0, 10), np.random.randint(0, 10)]
+    nan_3d = np.array([np.nan, np.nan, np.nan])
+    rand_coor = np.array([np.random.randint(0, 10), np.random.randint(0, 10), np.random.randint(0, 10)])
 
     @pytest.mark.parametrize(["rasi", "lasi", "rpsi", "lpsi", "sacr", "expected"], [
         # Test from running sample data
@@ -760,8 +760,8 @@ class TestLowerBodyAxis():
                    [4.3919974, 0.82303962, -2.58897224], [-1, 7, 2], [-1.58062909, 6.83398388, 1.20293758],
                    [-1.59355918, 7.75640754, 2.27483654], [-0.44272327, 7.63268181, 1.46226738]])),
         # Testing that when rtoe, ltoe, and ankle_axis are composed of lists of ints and measurements values are ints
-        ([4, 0, -3], [-1, 7, 2],
-         [[-3, 5, 2], rand_coor, [-1, 0, 2], rand_coor, [2, 3, 9], rand_coor, [9, 3, -4], rand_coor],
+        (np.array([4, 0, -3]), np.array([-1, 7, 2]),
+         np.array([[-3, 5, 2], rand_coor, [-1, 0, 2], rand_coor, [2, 3, 9], rand_coor, [9, 3, -4], rand_coor]),
          {'RightStaticRotOff': -12, 'RightStaticPlantFlex': 20, 'LeftStaticRotOff': 34, 'LeftStaticPlantFlex': -70},
          np.array([[4, 0, -3], [3.08005417, 0.34770638, -2.81889243], [4.00614173, -0.44911697, -2.10654814],
                    [4.3919974, 0.82303962, -2.58897224], [-1, 7, 2], [-1.58062909, 6.83398388, 1.20293758],
@@ -777,9 +777,9 @@ class TestLowerBodyAxis():
                    [-1.59355918, 7.75640754, 2.27483654], [-0.44272327, 7.63268181, 1.46226738]])),
         # Testing that when rtoe, ltoe, and ankle_axis are composed of lists of floats and measurements values are
         # floats
-        ([4.0, 0.0, -3.0], [-1.0, 7.0, 2.0],
-         [[-3.0, 5.0, 2.0], rand_coor, [-1.0, 0.0, 2.0], rand_coor, [2.0, 3.0, 9.0], rand_coor, [9.0, 3.0, -4.0],
-          rand_coor],
+        (np.array([4.0, 0.0, -3.0]), np.array([-1.0, 7.0, 2.0]),
+         np.array([[-3.0, 5.0, 2.0], rand_coor, [-1.0, 0.0, 2.0], rand_coor, [2.0, 3.0, 9.0], rand_coor, [9.0, 3.0, -4.0],
+          rand_coor]),
          {'RightStaticRotOff': -12.0, 'RightStaticPlantFlex': 20.0, 'LeftStaticRotOff': 34.0,
           'LeftStaticPlantFlex': -70.0},
          np.array([[4, 0, -3], [3.08005417, 0.34770638, -2.81889243], [4.00614173, -0.44911697, -2.10654814],
