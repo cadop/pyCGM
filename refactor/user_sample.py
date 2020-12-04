@@ -1,15 +1,16 @@
 import numpy as np
-
+import os
 
 if __name__ == "__main__":
     from refactor.pycgm import CGM
 
-    # sample_dir = "../SampleData/59993_Frame/"
-    # static_trial = sample_dir + "59993_Frame_Static.c3d"
-    # dynamic_trial = sample_dir + "59993_Frame_Dynamic.c3d"
-    # measurements = sample_dir + "59993_Frame_SM.vsk"
-    # subject1 = CGM(static_trial, dynamic_trial, measurements)
-    # print(subject1.marker_data[0][0])
+    sample_dir = "SampleData/59993_Frame/"
+    static_trial = sample_dir + "59993_Frame_Static.c3d"
+    dynamic_trial = sample_dir + "59993_Frame_Dynamic.c3d"
+    measurements = sample_dir + "59993_Frame_SM.vsk"
+    subject1 = CGM(static_trial, dynamic_trial, measurements)
+    print(subject1.marker_data[0][0])
+    print(subject1.measurements['Bodymass'])
 
     measurements = {'MeanLegLength': 940.0, 'R_AsisToTrocanterMeasure': 72.512,
                     'L_AsisToTrocanterMeasure': 72.512, 'InterAsisDistance': 215.908996582031}
