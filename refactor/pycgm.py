@@ -3048,7 +3048,7 @@ class CGM:
         ...                        [-518, 316, 1258]])
         >>> CGM.shoulder_angle_calc(thorax_axis, elbow_axis)
         array([[ 26.74368395, 135.28459775,  24.44395478],
-               [ -0.        , -45.0558983 , 270.00981765]])
+               [ -0.        , -45.0558983 , -89.99018235]])
         """
         thorax_axis_mod = CGM.subtract_origin(thorax_axis)
         r_elbow_axis_mod = CGM.subtract_origin(elbow_axis[:4])
