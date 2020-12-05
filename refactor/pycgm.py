@@ -1855,48 +1855,7 @@ class CGM:
         # make humerus axis
         tho_y_axis = CGM.subtract_origin(thorax_axis)
 
-        r_sho_mod = [(rsho[0] - r_delta * tho_y_axis[0] - relb[0]),
-                     (rsho[1] - r_delta * tho_y_axis[1] - relb[1]),
-                     (rsho[2] - r_delta * tho_y_axis[2] - relb[2])]
-        l_sho_mod = [(lsho[0] + l_delta * tho_y_axis[0] - lelb[0]),
-                     (lsho[1] + l_delta * tho_y_axis[1] - lelb[1]),
-                     (lsho[2] + l_delta * tho_y_axis[2] - lelb[2])]
-
         # right axis
-        z_axis = r_sho_mod
-        z_axis = z_axis / np.linalg.norm(z_axis)
-
-        # this is reference axis                     double check if this whole section is even used
-        x_axis = np.subtract(rwri, relb)
-        x_axis = x_axis / np.linalg.norm(x_axis)
-
-        y_axis = np.cross(z_axis, x_axis)
-        y_axis = y_axis / np.linalg.norm(y_axis)
-
-        x_axis = np.cross(y_axis, z_axis)
-        x_axis = x_axis / np.linalg.norm(x_axis)
-
-        r_ref_x_axis = x_axis
-        r_ref_y_axis = y_axis
-        r_ref_z_axis = z_axis
-
-        # left axis
-        z_axis = np.subtract(l_sho_mod, lelb)
-        z_axis = z_axis / np.linalg.norm(z_axis)
-
-        # this is reference axis
-        x_axis = l_sho_mod
-        x_axis = x_axis / np.linalg.norm(x_axis)
-
-        y_axis = np.cross(z_axis, x_axis)
-        y_axis = y_axis / np.linalg.norm(y_axis)
-
-        x_axis = np.cross(y_axis, z_axis)
-        x_axis = x_axis / np.linalg.norm(x_axis)
-
-        l_ref_x_axis = x_axis
-        l_ref_y_axis = y_axis
-        l_ref_z_axis = z_axis
 
         rsjc, lsjc = shoulder_origin
 
