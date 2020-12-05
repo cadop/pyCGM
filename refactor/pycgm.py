@@ -874,6 +874,56 @@ class CGM:
         return angle
 
     @staticmethod
+    def get_spine_angle(axis_p, axis_d):
+        """Spine angle calculation function
+
+        This function takes in two axes, proximal and distal, and returns three angles.
+        It uses inverse Euler rotation matrix in YXZ order.
+        The output contains the angles in degrees.
+
+        As we use arcsin, we have to care about if the angle is in area between -pi/2 to pi/2
+
+        Parameters
+        ----------
+        axis_p : nparray
+            The unit vectors of axis_p, the position of the proximal axis.
+        axis_d : nparray
+            The unit vectors of axis_d, the position of the distal axis.
+
+        Returns
+        -------
+        angle : nparray
+            Returns the flexion, abduction, and rotation angles in a 1x3 ndarray.
+
+        Examples
+        --------
+        >>> import numpy as np 
+        >>> from .pycgm import CGM
+        >>> axis_p = np.array([[ 0.0464229,   0.99648672,  0.06970743],
+        ...        [ 0.99734011, -0.04231089, -0.05935067],
+        ...        [-0.05619277,  0.07227725, -0.99580037]])
+        >>> axis_d = np.array([[-0.18067218, -0.98329158,-0.02225371],
+        ...        [ 0.71383942, -0.1155303,  -0.69071415],
+        ...        [ 0.67660243, -0.1406784,   0.7227854 ]])
+        >>> CGM.get_spine_angle(axis_p, axis_d)
+        array([ 2.8891964 ,  9.7438295 , 39.74341087])
+        """
+
+        alpha = np.arcsin(((axis_d[1][0] * axis_p[2][0]) +
+                           (axis_d[1][1] * axis_p[2][1]) +
+                           (axis_d[1][2] * axis_p[2][2])))
+        gamma = np.arcsin(((-1 * axis_d[1][0] * axis_p[0][0]) +
+                           (-1 * axis_d[1][1] * axis_p[0][1]) +
+                           (-1 * axis_d[1][2] * axis_p[0][2])) / np.cos(alpha))
+        beta = np.arcsin(((-1 * axis_d[0][0] * axis_p[2][0]) +
+                          (-1 * axis_d[0][1] * axis_p[2][1]) +
+                          (-1 * axis_d[0][2] * axis_p[2][2])) / np.cos(alpha))
+
+        angle = np.array([beta, gamma, alpha]) * 180.0 / pi
+
+        return angle
+
+    @staticmethod
     def point_to_line(point, start, end):
         """Finds the distance from a point to a line.
 
