@@ -1983,7 +1983,22 @@ class CGM:
 class StaticCGM:
     """
     A class to used to calculate the offsets in a static trial and calibrate subject measurements.
+
+    Attributes
+    ----------
+    motion_data : ndarray
+        `motion_data` is a 3d numpy array. Each index `i` corresponds to frame `i`
+        of trial. `motion_data[i]` contains a list of coordinate values for each marker.
+        Each coordinate value is a 1x3 list: [X, Y, Z].
+    mapping : dict
+        `mapping` is a dictionary that indicates which marker corresponds to which index
+        in `motion_data[i]`.
+    subject_measurements : dict
+        A dictionary of the measurements of the subject, obtained from file input. 
     """
+    motion_data = None
+    mapping = None
+    measurements = None
 
     def __init__(self, path_static, path_measurements):
         """Initialization of StaticCGM object function
@@ -1997,8 +2012,8 @@ class StaticCGM:
         path_measurements : str
             File path of the subject measurements in csv or vsk form
         """
-        self.marker_data, self.marker_idx = IO.load_marker_data(path_static)
-        self.subject_measurements = IO.load_sm(path_measurements)
+        self.motion_data, self.mapping = IO.load_marker_data(path_static)
+        self.measurements = IO.load_sm(path_measurements)
 
     @staticmethod
     def iad_calculation(rasi, lasi):
@@ -3209,23 +3224,13 @@ class StaticCGM:
         angle = np.array([alpha, beta, gamma])
         return angle
 
-    @staticmethod
-    def get_static(motion_data, mapping, measurements, flat_foot, gcs=None):
+    def get_static(self, flat_foot=False, gcs=None):
         """ Get Static Offset function
 
         Calculate the static offset angle values and return the values in radians
 
         Parameters
         ----------
-        motion_data : ndarray
-           `motion_data` is a 3d numpy array. Each index `i` corresponds to frame `i`
-            of trial. `motion_data[i]` contains a list of coordinate values for each marker.
-            Each coordinate value is a 1x3 list: [X, Y, Z].
-        mapping : dictionary
-            `mappings` is a dictionary that indicates which marker corresponds to which index
-            in `motion_data[i]`.
-        measurements : dict
-            A dictionary containing the subject measurements given from the file input.
         flat_foot : boolean, optional
             A boolean indicating if the feet are flat or not.
             The default value is False.
@@ -3243,13 +3248,9 @@ class StaticCGM:
         >>> from refactor.pycgm import StaticCGM
         >>> static = StaticCGM('SampleData/ROM/Sample_Static.c3d', 'SampleData/ROM/Sample_SM.vsk')
         Sample...
-        >>> motion_data = static.marker_data
-        >>> mapping = static.marker_idx
-        >>> measurements = static.subject_measurements
-        >>> measurements['HeadOffset']
+        >>> static.measurements['HeadOffset']
         0.0
-        >>> flat_foot = False
-        >>> cal_sm = static.get_static(motion_data, mapping, measurements, flat_foot)
+        >>> cal_sm = static.get_static()
         >>> np.around(cal_sm['HeadOffset'],8)
         0.25719905
         """
@@ -3257,35 +3258,35 @@ class StaticCGM:
         head_offset = []
         iad = []
         cal_sm = {}
-        left_leg_length = measurements['LeftLegLength']
-        right_leg_length = measurements['RightLegLength']
+        left_leg_length = self.measurements['LeftLegLength']
+        right_leg_length = self.measurements['RightLegLength']
         cal_sm['MeanLegLength'] = (left_leg_length + right_leg_length) / 2.0
-        cal_sm['Bodymass'] = measurements['Bodymass']
+        cal_sm['Bodymass'] = self.measurements['Bodymass']
 
         # Define the global coordinate system
         if gcs is None:
             cal_sm['GCS'] = [[1, 0, 0], [0, 1, 0], [0, 0, 1]]
 
-        if measurements['LeftAsisTrocanterDistance'] != 0 and measurements['RightAsisTrocanterDistance'] != 0:
-            cal_sm['L_AsisToTrocanterMeasure'] = measurements['LeftAsisTrocanterDistance']
-            cal_sm['R_AsisToTrocanterMeasure'] = measurements['RightAsisTrocanterDistance']
+        if self.measurements['LeftAsisTrocanterDistance'] != 0 and self.measurements['RightAsisTrocanterDistance'] != 0:
+            cal_sm['L_AsisToTrocanterMeasure'] = self.measurements['LeftAsisTrocanterDistance']
+            cal_sm['R_AsisToTrocanterMeasure'] = self.measurements['RightAsisTrocanterDistance']
         else:
             cal_sm['R_AsisToTrocanterMeasure'] = (0.1288 * right_leg_length) - 48.56
             cal_sm['L_AsisToTrocanterMeasure'] = (0.1288 * left_leg_length) - 48.56
 
-        if measurements['InterAsisDistance'] != 0:
-            cal_sm['InterAsisDistance'] = measurements['InterAsisDistance']
+        if self.measurements['InterAsisDistance'] != 0:
+            cal_sm['InterAsisDistance'] = self.measurements['InterAsisDistance']
         else:
-            for frame in motion_data:
-                rasi, lasi = frame[mapping['RASI']], frame[mapping['LASI']]
+            for frame in self.motion_data:
+                rasi, lasi = frame[self.mapping['RASI']], frame[self.mapping['LASI']]
                 iad_calc = StaticCGM.iad_calculation(rasi, lasi)
                 iad.append(iad_calc)
             inter_asis_distance = np.average(iad)
             cal_sm['InterAsisDistance'] = inter_asis_distance
 
         try:
-            cal_sm['RightKneeWidth'] = measurements['RightKneeWidth']
-            cal_sm['LeftKneeWidth'] = measurements['LeftKneeWidth']
+            cal_sm['RightKneeWidth'] = self.measurements['RightKneeWidth']
+            cal_sm['LeftKneeWidth'] = self.measurements['LeftKneeWidth']
 
         except KeyError:
             # no knee width
@@ -3293,17 +3294,17 @@ class StaticCGM:
             cal_sm['LeftKneeWidth'] = 0
 
         if cal_sm['RightKneeWidth'] == 0:
-            if 'RMKN' in list(motion_data[0].keys()):
+            if 'RMKN' in self.mapping:
                 # medial knee markers are available
                 rwidth = []
                 lwidth = []
                 # average each frame
-                for frame in motion_data:
-                    rmkn = frame[mapping['RMKN']]
-                    lmkn = frame[mapping['LMKN']]
+                for frame in self.motion_data:
+                    rmkn = frame[self.mapping['RMKN']]
+                    lmkn = frame[self.mapping['LMKN']]
 
-                    rkne = frame[mapping['RKNE']]
-                    lkne = frame[mapping['LKNE']]
+                    rkne = frame[self.mapping['RKNE']]
+                    lkne = frame[self.mapping['LKNE']]
 
                     rdst = np.linalg.norm(rkne - rmkn)
                     ldst = np.linalg.norm(lkne - lmkn)
@@ -3313,8 +3314,8 @@ class StaticCGM:
                 cal_sm['RightKneeWidth'] = sum(rwidth) / len(rwidth)
                 cal_sm['LeftKneeWidth'] = sum(lwidth) / len(lwidth)
         try:
-            cal_sm['RightAnkleWidth'] = measurements['RightAnkleWidth']
-            cal_sm['LeftAnkleWidth'] = measurements['LeftAnkleWidth']
+            cal_sm['RightAnkleWidth'] = self.measurements['RightAnkleWidth']
+            cal_sm['LeftAnkleWidth'] = self.measurements['LeftAnkleWidth']
 
         except KeyError:
             # no knee width
@@ -3322,17 +3323,17 @@ class StaticCGM:
             cal_sm['LeftAnkleWidth'] = 0
 
         if cal_sm['RightAnkleWidth'] == 0:
-            if 'RMKN' in list(motion_data[0].keys()):
+            if 'RMKN' in self.mapping:
                 # medial knee markers are available
                 rwidth = []
                 lwidth = []
                 # average each frame
-                for frame in motion_data:
-                    rmma = frame[mapping['RMMA']]
-                    lmma = frame[mapping['LMMA']]
+                for frame in self.motion_data:
+                    rmma = frame[self.mapping['RMMA']]
+                    lmma = frame[self.mapping['LMMA']]
 
-                    rank = frame[mapping['RANK']]
-                    lank = frame[mapping['LANK']]
+                    rank = frame[self.mapping['RANK']]
+                    lank = frame[self.mapping['LANK']]
 
                     rdst = np.linalg.norm(rmma - rank)
                     ldst = np.linalg.norm(lmma - lank)
@@ -3342,48 +3343,48 @@ class StaticCGM:
                 cal_sm['RightAnkleWidth'] = sum(rwidth) / len(rwidth)
                 cal_sm['LeftAnkleWidth'] = sum(lwidth) / len(lwidth)
 
-        cal_sm['RightTibialTorsion'] = measurements['RightTibialTorsion']
-        cal_sm['LeftTibialTorsion'] = measurements['LeftTibialTorsion']
+        cal_sm['RightTibialTorsion'] = self.measurements['RightTibialTorsion']
+        cal_sm['LeftTibialTorsion'] = self.measurements['LeftTibialTorsion']
 
-        cal_sm['RightShoulderOffset'] = measurements['RightShoulderOffset']
-        cal_sm['LeftShoulderOffset'] = measurements['LeftShoulderOffset']
+        cal_sm['RightShoulderOffset'] = self.measurements['RightShoulderOffset']
+        cal_sm['LeftShoulderOffset'] = self.measurements['LeftShoulderOffset']
 
-        cal_sm['RightElbowWidth'] = measurements['RightElbowWidth']
-        cal_sm['LeftElbowWidth'] = measurements['LeftElbowWidth']
-        cal_sm['RightWristWidth'] = measurements['RightWristWidth']
-        cal_sm['LeftWristWidth'] = measurements['LeftWristWidth']
+        cal_sm['RightElbowWidth'] = self.measurements['RightElbowWidth']
+        cal_sm['LeftElbowWidth'] = self.measurements['LeftElbowWidth']
+        cal_sm['RightWristWidth'] = self.measurements['RightWristWidth']
+        cal_sm['LeftWristWidth'] = self.measurements['LeftWristWidth']
 
-        cal_sm['RightHandThickness'] = measurements['RightHandThickness']
-        cal_sm['LeftHandThickness'] = measurements['LeftHandThickness']
+        cal_sm['RightHandThickness'] = self.measurements['RightHandThickness']
+        cal_sm['LeftHandThickness'] = self.measurements['LeftHandThickness']
 
-        for frame in motion_data:
-            rasi, lasi = frame[mapping['RASI']], frame[mapping['LASI']]
+        for frame in self.motion_data:
+            rasi, lasi = frame[self.mapping['RASI']], frame[self.mapping['LASI']]
             rpsi, lpsi, sacr = None, None, None
             try:
-                sacr = frame[mapping['SACR']]
+                sacr = frame[self.mapping['SACR']]
             except KeyError:
-                rpsi = frame[mapping['RPSI']]
-                lpsi = frame[mapping['LPSI']]
+                rpsi = frame[self.mapping['RPSI']]
+                lpsi = frame[self.mapping['LPSI']]
             pelvis = StaticCGM.pelvis_axis_calc(rasi, lasi, rpsi, lpsi, sacr)
 
             hip_axis = StaticCGM.hip_axis_calc(pelvis, cal_sm)
             hip_origin = [hip_axis[0], hip_axis[1]]
 
-            rthi, lthi, rkne, lkne = frame[mapping['RTHI']], frame[mapping['LTHI']], frame[mapping['RKNE']], frame[
-                mapping['LKNE']]
+            rthi, lthi, rkne, lkne = frame[self.mapping['RTHI']], frame[self.mapping['LTHI']], frame[self.mapping['RKNE']], frame[
+                self.mapping['LKNE']]
             knee_axis = StaticCGM.knee_axis_calc(rthi, lthi, rkne, lkne, hip_origin, cal_sm)
             knee_origin = np.array([knee_axis[0], knee_axis[4]])
 
-            rtib, ltib, rank, lank = frame[mapping['RTIB']], frame[mapping['LTIB']], frame[mapping['RANK']], frame[
-                mapping['LANK']]
+            rtib, ltib, rank, lank = frame[self.mapping['RTIB']], frame[self.mapping['LTIB']], frame[self.mapping['RANK']], frame[
+                self.mapping['LANK']]
             ankle_axis = StaticCGM.ankle_axis_calc(rtib, ltib, rank, lank, knee_origin, cal_sm)
 
-            rtoe, ltoe, rhee, lhee = frame[mapping['RTOE']], frame[mapping['LTOE']], frame[mapping['RHEE']], frame[
-                mapping['LHEE']]
+            rtoe, ltoe, rhee, lhee = frame[self.mapping['RTOE']], frame[self.mapping['LTOE']], frame[self.mapping['RHEE']], frame[
+                self.mapping['LHEE']]
             angles = StaticCGM.static_calculation(rtoe, ltoe, rhee, lhee, ankle_axis, flat_foot, cal_sm)
 
-            rfhd, lfhd, rbhd, lbhd = frame[mapping['RFHD']], frame[mapping['LFHD']], frame[mapping['RBHD']], frame[
-                mapping['LBHD']]
+            rfhd, lfhd, rbhd, lbhd = frame[self.mapping['RFHD']], frame[self.mapping['LFHD']], frame[self.mapping['RBHD']], frame[
+                self.mapping['LBHD']]
             head_axis = StaticCGM.head_axis_calc(rfhd, lfhd, rbhd, lbhd)
 
             head_angle = StaticCGM.static_calculation_head(head_axis)

@@ -4,7 +4,9 @@
 import pytest
 import numpy as np
 import os
+import sys
 from refactor.pycgm import StaticCGM, CGM
+import refactor.io as IO
 
 rounding_precision = 6
 
@@ -228,23 +230,163 @@ class TestStaticCGMAxis:
         np.testing.assert_almost_equal(result, expected, rounding_precision)
 
 
-# class TestStaticCGMGetStatic():
-#     """
-#     This class tests the getStatic method in pycgm.py's StaticCGM class.
-#     """
-#     @classmethod
-#     def setup_class(cls):
-#         """
-#         Called once for all tests. Loads filenames to be used for testing get_static() from SampleData/ROM/.
-#         """
-#         cwd = os.getcwd()
-#         if (cwd.split(os.sep)[-1] == "refactor"):
-#             parent = os.path.dirname(cwd)
-#             os.chdir(parent)
-#         cls.cwd = os.getcwd()
+class TestStaticCGMGetStatic():
+    """
+    This class tests the get_static method in pycgm.py's StaticCGM class.
+    """
+    @classmethod
+    def setup_class(self):
+        """
+        Called once for all tests. Loads the measurements and motion_data to be used for testing get_static() from SampleData/ROM/.
+        """
+        cwd = os.getcwd()
+        if (cwd.split(os.sep)[-1] == "refactor"):
+            parent = os.path.dirname(cwd)
+            os.chdir(parent)
 
-#         static_trial = 'SampleData/ROM/Sample_Static.c3d'
-#         measurements = 'SampleData/ROM/Sample_SM.vsk'
-#         cls.motion_data = pycgmIO.loadData(os.path.join(cls.cwd, static_trial))
-#         cls.vsk_data_original = pycgmIO.loadVSK(os.path.join(cls.cwd, vsk_file), dict=False)
-#         cls.vsk_data = cls.vsk_data_original.copy()
+        static_trial = 'SampleData/ROM/Sample_Static.c3d'
+        measurements_path = 'SampleData/ROM/Sample_SM.vsk'
+        self.static = StaticCGM(static_trial, measurements_path)
+        self.measurements_copy = self.static.measurements.copy()
+
+    def setup_method(self):
+        """
+        Called once before all tests in test_get_static_required_markers. Resets the measurements dictionary to its original state
+        as returned from IO.py. 
+        """
+        self.measurements = self.measurements_copy.copy()
+
+    @pytest.mark.parametrize("key", [
+        ('LeftLegLength'),
+        ('RightLegLength'),
+        ('Bodymass'),
+        ('LeftAsisTrocanterDistance'),
+        ('InterAsisDistance'),
+        ('LeftTibialTorsion'),
+        ('RightTibialTorsion'),
+        ('LeftShoulderOffset'),
+        ('RightShoulderOffset'),
+        ('LeftElbowWidth'),
+        ('RightElbowWidth'),
+        ('LeftWristWidth'),
+        ('RightWristWidth'),
+        ('LeftHandThickness'),
+        ('RightHandThickness')])
+    def test_get_static_required_markers(self, key):
+        """
+        This function tests that an exception is raised when removing given keys from the measurements dictionary. All
+        of the tested markers are required to exist in the measurements dictionary to run StaticCGM.get_static(), so
+        deleting those keys should raise an exception.
+        """
+        for flat_foot in [True, False]:
+            del self.static.measurements[key]
+            with pytest.raises(Exception):
+                self.static.get_static(flat_foot)
+            self.static.measurements = self.measurements_copy.copy()
+
+    @pytest.mark.parametrize("key", [
+        ('RightKneeWidth'),
+        ('LeftKneeWidth'),
+        ('RightAnkleWidth'),
+        ('LeftAnkleWidth')])
+    def test_get_static_zero_markers(self, key):
+        """
+        This function tests that when deleting given keys from the measurements dictionary, the value in the resulting
+        calSM is 0. All of the tested markers are set to 0 if they don't exist in StaticCGM.get_static(), so
+        deleting these keys should not raise an exception.
+        """
+        del self.static.measurements[key]
+        result = self.static.get_static()
+        np.testing.assert_almost_equal(result[key], 0, rounding_precision)
+
+    @pytest.mark.parametrize(["key", "keyVal"], [
+        ('Bodymass', 95),
+        ('InterAsisDistance', 28),
+        ('RightKneeWidth', -11),
+        ('LeftKneeWidth', 30),
+        ('RightAnkleWidth', -41),
+        ('LeftAnkleWidth', -5),
+        ('LeftTibialTorsion', 28),
+        ('RightTibialTorsion', -37),
+        ('LeftShoulderOffset', 48),
+        ('RightShoulderOffset', 93),
+        ('LeftElbowWidth', -10),
+        ('RightElbowWidth', -4),
+        ('LeftWristWidth', 71),
+        ('RightWristWidth', 9),
+        ('LeftHandThickness', 15),
+        ('RightHandThickness', -21),
+        ('InterAsisDistance', -10)])
+    def test_get_static_marker_assignment(self, key, keyVal):
+        """
+        This function tests that when assigning a value to the given keys from the measurements dictionary, the value in
+        the resulting calSM corresponds. All of the tested markers are assigned to calSM in StaticCGM.get_static()
+        """
+        self.static.measurements=self.measurements_copy.copy()
+        self.static.measurements[key] = keyVal
+        result = self.static.get_static()
+        np.testing.assert_almost_equal(result[key], keyVal, rounding_precision)
+
+    @pytest.mark.parametrize(["LeftLegLength", "RightLegLength", "MeanLegLengthExpected"], [
+        (0, 0, 0),
+        (0, 40, 20),
+        (-34, 0, -17),
+        (-15, 15, 0),
+        (5, 46, 25.5)])
+    def test_get_static_MeanLegLength(self, LeftLegLength, RightLegLength, MeanLegLengthExpected):
+        """
+        This function tests that StaticCGM.get_static() properly calculates calSM['MeanLegLength'] by averaging the
+        values in measurements['LeftLegLength'] and measurements['RightLegLength']
+        """
+        self.static.measurements = self.measurements_copy.copy()
+        self.static.measurements['LeftLegLength'] = LeftLegLength
+        self.static.measurements['RightLegLength'] = RightLegLength
+        result = self.static.get_static()
+        np.testing.assert_almost_equal(result['MeanLegLength'], MeanLegLengthExpected, rounding_precision)
+
+    @pytest.mark.parametrize(["leftVal", "rightVal", "leftExpected", "rightExpected"], [
+        # Test where left and right are 0
+        (0, 0, 72.512, 72.512),
+        # Test where left is 0
+        (85, 0, 72.512, 72.512),
+        # Test where right is 0
+        (0, 61, 72.512, 72.512),
+        # Test where left and right aren't 0
+        (85, 61, 85, 61)])
+    def test_get_static_AsisToTrocanterMeasure(self, leftVal, rightVal, leftExpected, rightExpected):
+        """
+        Tests that if LeftAsisTrocanterDistance or RightAsisTrocanterDistance are 0 in the input measurements dictionary, their
+        corresponding values in calSM will be calculated from LeftLegLength and RightLegLength, but if they both have
+        values than they will be assigned from the vsk dictionary
+        """
+        self.static.measurements = self.measurements_copy.copy()
+        self.static.measurements['LeftAsisTrocanterDistance'] = leftVal
+        self.static.measurements['RightAsisTrocanterDistance'] = rightVal
+        result = self.static.get_static()
+        np.testing.assert_almost_equal(result['L_AsisToTrocanterMeasure'], leftExpected, rounding_precision)
+        np.testing.assert_almost_equal(result['R_AsisToTrocanterMeasure'], rightExpected, rounding_precision)
+
+    def test_get_static_InterAsisDistance(self):
+        """
+        This function tests that when StaticCGM.get_static() is called with measurements['InterAsisDistance'] is 0, that
+        the value for calSM['InterAsisDistance'] is calculated from motion_data.
+        """
+        self.static.measurements = self.measurements_copy.copy()
+        self.static.measurements['InterAsisDistance'] = 0
+        result = self.static.get_static()
+        np.testing.assert_almost_equal(result['InterAsisDistance'], 215.9094195515741, rounding_precision)
+
+    def test_gen(self):
+        """
+        This function tests that the correct values are returned in calSM['RightStaticRotOff'],
+        calSM['RightStaticPlantFlex'], calSM['LeftStaticRotOff'], calSM['LeftStaticPlantFlex'], and calSM['HeadOffset'].
+        All of these values are calculated from calls to staticCalculation and staticCalculationHead for every frame
+        in motionData
+        """
+        self.static.measurements = self.measurements_copy.copy()
+        result = self.static.get_static()
+        np.testing.assert_almost_equal(result['RightStaticRotOff'], 0.015683497632642041, rounding_precision)
+        np.testing.assert_almost_equal(result['RightStaticPlantFlex'], 0.27024179070027576, rounding_precision)
+        np.testing.assert_almost_equal(result['LeftStaticRotOff'], 0.0094029102924030206, rounding_precision)
+        np.testing.assert_almost_equal(result['LeftStaticPlantFlex'], 0.20251085737834015, rounding_precision)
+        np.testing.assert_almost_equal(result['HeadOffset'], 0.25719904693106527, rounding_precision)
