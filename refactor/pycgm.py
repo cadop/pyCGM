@@ -1363,7 +1363,7 @@ class CGM:
         return np.array([toe_jc_r, rx_axis, ry_axis, rz_axis, toe_jc_l, lx_axis, ly_axis, lz_axis])
 
     @staticmethod
-    def head_axis_calc(lfhd, rfhd, lbhd, rbhd, measurements):
+    def head_axis_calc(rfhd, lfhd, rbhd, lbhd, measurements):
         """Head Axis Calculation function
 
         Calculates the head joint center and axis and returns them.
@@ -1373,7 +1373,7 @@ class CGM:
 
         Parameters
         ----------
-        lfhd, rfhd, lbhd, rbhd : ndarray
+        rfhd, lfhd, rbhd, lbhd : ndarray
             A 1x3 ndarray of each respective marker containing the XYZ positions.
         measurements : dict
             A dictionary containing the subject measurements given from the file input.
@@ -1383,7 +1383,67 @@ class CGM:
         array
             Returns a 4x3 ndarray that contains the head origin and the
             head x, y, and z axis components.
+
+        Examples
+        --------
+        >>> import numpy as np
+        >>> from .pycgm import CGM
+        >>> measurements = {'HeadOffset': 0.2571990469310653}
+        >>> rfhd, lfhd, rbhd, lbhd = np.array([[325.82983398, 402.55450439, 1722.49816895],
+        ...                                    [184.55158997, 409.68713379, 1721.34289551],
+        ...                                    [304.39898682, 242.91339111, 1694.97497559],
+        ...                                    [197.8621521, 251.28889465, 1696.90197754]])
+        >>> CGM.head_axis_calc(rfhd, lfhd, rbhd, lbhd, measurements)
+        array([[ 255.19071197,  406.12081909, 1721.92053223],
+               [ 255.21685583,  407.11593888, 1721.82538439],
+               [ 254.19105385,  406.14680918, 1721.91767712],
+               [ 255.1903437 ,  406.21600904, 1722.91599129]])
         """
+
+        # Get Global Values
+        head_off = measurements['HeadOffset'] * -1
+
+        # get the midpoints of the head to define the sides
+        front = (rfhd + lfhd) / 2.0
+        back = (rbhd + lbhd) / 2.0
+        right = (rfhd + rbhd) / 2.0
+        left = (lfhd + lbhd) / 2.0
+        origin = front
+
+        # Get the vectors from the sides with primary x axis facing front
+        # First get the x direction
+        x_vec = front - back
+        x_vec = x_vec / np.linalg.norm(x_vec)
+
+        # get the direction of the y axis
+        y_vec = left - right
+        y_vec = y_vec / np.linalg.norm(y_vec)
+
+        # get z axis by cross-product of x axis and y axis.
+        z_vec = np.cross(x_vec, y_vec)
+        z_vec = z_vec / np.linalg.norm(z_vec)
+
+        # make sure all x,y,z axis is orthogonal each other by cross-product
+        y_vec = np.cross(z_vec, x_vec)
+        y_vec = y_vec / np.linalg.norm(y_vec)
+        x_vec = np.cross(y_vec, z_vec)
+        x_vec = x_vec / np.linalg.norm(x_vec)
+
+        # rotate the head axis around y axis about head offset angle.
+        x_vec_rot = np.array([x_vec[0] * cos(head_off) + z_vec[0] * sin(head_off),
+                              x_vec[1] * cos(head_off) + z_vec[1] * sin(head_off),
+                              x_vec[2] * cos(head_off) + z_vec[2] * sin(head_off)])
+        y_vec_rot = y_vec
+        z_vec_rot = np.array([x_vec[0] * -1 * sin(head_off) + z_vec[0] * cos(head_off),
+                              x_vec[1] * -1 * sin(head_off) + z_vec[1] * cos(head_off),
+                              x_vec[2] * -1 * sin(head_off) + z_vec[2] * cos(head_off)])
+
+        # Add the origin back to the vector to get it in the right position
+        x_axis = x_vec_rot + origin
+        y_axis = y_vec_rot + origin
+        z_axis = z_vec_rot + origin
+
+        return np.array([origin, x_axis, y_axis, z_axis])
 
     @staticmethod
     def thorax_axis_calc(clav, c7, strn, t10):
