@@ -2502,8 +2502,8 @@ class CGM:
         l_hip_angle = CGM.get_angle(hip_axis_mod, l_knee_axis_mod)
 
         # GCS fix
-        r_hip_angle = np.array([r_hip_angle[0] * -1, r_hip_angle[1], r_hip_angle[2] * -1 + 90])
-        l_hip_angle = np.array([l_hip_angle[0] * -1, l_hip_angle[1] * -1, l_hip_angle[2] - 90])
+        r_hip_angle = np.array([r_hip_angle[0] * -1, r_hip_angle[1], r_hip_angle[2] * -1 + 90.0])
+        l_hip_angle = np.array([l_hip_angle[0] * -1, l_hip_angle[1] * -1, l_hip_angle[2] - 90.0])
 
         return np.array([r_hip_angle, l_hip_angle])
 
@@ -2561,8 +2561,8 @@ class CGM:
         l_knee_angle = CGM.get_angle(l_knee_axis_mod, l_ankle_axis_mod)
 
         # GCS fix
-        r_knee_angle = np.array([r_knee_angle[0], r_knee_angle[1], r_knee_angle[2] * -1 + 90])
-        l_knee_angle = np.array([l_knee_angle[0], l_knee_angle[1] * -1, l_knee_angle[2] - 90])
+        r_knee_angle = np.array([r_knee_angle[0], r_knee_angle[1], r_knee_angle[2] * -1 + 90.0])
+        l_knee_angle = np.array([l_knee_angle[0], l_knee_angle[1] * -1, l_knee_angle[2] - 90.0])
 
         return np.array([r_knee_angle, l_knee_angle])
 
@@ -2620,8 +2620,8 @@ class CGM:
         l_ankle_angle = CGM.get_angle(l_ankle_axis_mod, l_foot_axis_mod)
 
         # GCS fix
-        r_ankle_angle = np.array([r_ankle_angle[0] * -1 - 90, r_ankle_angle[2] * -1 + 90, r_ankle_angle[1]])
-        l_ankle_angle = np.array([l_ankle_angle[0] * -1 - 90, l_ankle_angle[2] - 90, l_ankle_angle[1] * -1])
+        r_ankle_angle = np.array([r_ankle_angle[0] * -1 - 90.0, r_ankle_angle[2] * -1 + 90.0, r_ankle_angle[1]])
+        l_ankle_angle = np.array([l_ankle_angle[0] * -1 - 90.0, l_ankle_angle[2] - 90.0, l_ankle_angle[1] * -1])
 
         return np.array([r_ankle_angle, l_ankle_angle])
 
@@ -2669,8 +2669,9 @@ class CGM:
         r_global_foot_angle = CGM.get_angle(global_axis, r_foot_axis_mod)
         l_global_foot_angle = CGM.get_angle(global_axis, l_foot_axis_mod)
 
-        r_foot_angle = np.array([r_global_foot_angle[0], r_global_foot_angle[2] - 90, r_global_foot_angle[1]])
-        l_foot_angle = np.array([l_global_foot_angle[0], l_global_foot_angle[2] * -1 + 90, l_global_foot_angle[1] * -1])
+        # GCS fix
+        r_foot_angle = np.array([r_global_foot_angle[0], r_global_foot_angle[2] - 90.0, r_global_foot_angle[1]])
+        l_foot_angle = np.array([l_global_foot_angle[0], l_global_foot_angle[2] * -1 + 90.0, l_global_foot_angle[1] * -1])
 
         return np.array([r_foot_angle, l_foot_angle])
 
@@ -2698,13 +2699,15 @@ class CGM:
         head_axis_mod = CGM.subtract_origin(head_axis)
         # Old repo subtracts [0, 0, 0] from global_axis here
         global_head_angle = CGM.get_head_angle(global_axis, head_axis_mod)
+
+        # GCS fix
         head_x = global_head_angle[0] * -1
-        if head_x < -180:
-            head_x += 360
+        if head_x < -180.0:
+            head_x += 360.0
         head_y = global_head_angle[1] * -1
         head_z = global_head_angle[2]
-        if head_z < -180:
-            head_z -= 360
+        if head_z < -180.0:
+            head_z -= 360.0
 
         return np.array([head_x, head_y, head_z])
 
@@ -2728,38 +2731,205 @@ class CGM:
         --------
         """
         thorax_axis_mod = CGM.subtract_origin(thorax_axis)
-        global_axis = CGM.rotation_matrix(x=0, y=0, z=180)
+        global_axis = CGM.rotation_matrix(x=0, y=0, z=180.0)
         global_thorax_angle = CGM.get_angle(global_axis, thorax_axis_mod)
         if global_thorax_angle[0] > 0:
-            global_thorax_angle[0] -= 180
+            global_thorax_angle[0] -= 180.0
         elif global_thorax_angle[0] < 0:
-            global_thorax_angle[0] += 180
+            global_thorax_angle[0] += 180.0
 
-        thorax_x = global_thorax_angle[0]
-        thorax_y = global_thorax_angle[1]
-        thorax_z = global_thorax_angle[2] + 90
-        
-        return np.array([thorax_x, thorax_y, thorax_z])
+        # GCS fix
+        return np.array([global_thorax_angle[0], global_thorax_angle[1], global_thorax_angle[2] + 90.0])
 
     @staticmethod
-    def spine_angle_calc():
-        pass
+    def neck_angle_calc(head_axis, thorax_axis):
+        """Neck Angle Calculation function
+
+        Calculates the neck angle.
+
+        Parameters
+        ----------
+        head_axis : ndarray
+            A 4x3 ndarray containing the origin and three unit vectors of the head axis.
+        thorax_axis : ndarray
+            A 4x3 ndarray containing the origin and three unit vectors of the thorax axis.
+
+        Returns
+        -------
+        ndarray
+            A 1x3 ndarray containing the flexion, abduction, and rotation angles of the neck.
+
+        Examples
+        --------
+        """
+        head_axis_mod = CGM.subtract_origin(head_axis)
+        thorax_axis_mod = CGM.subtract_origin(thorax_axis)
+        neck_angle = CGM.get_head_angle(head_axis_mod, thorax_axis_mod)
+
+        # GCS fix
+        return np.array([180.0 - neck_angle[0], neck_angle[1], neck_angle[2] * -1])
 
     @staticmethod
-    def neck_angle_calc():
-        pass
+    def spine_angle_calc(pelvis_axis, thorax_axis):
+        """Spine Angle Calculation function
+
+        Calculates the spine angle.
+
+        Parameters
+        ----------
+        pelvis_axis : ndarray
+            A 4x3 ndarray containing the origin and three unit vectors of the pelvis axis.
+        thorax_axis : ndarray
+            A 4x3 ndarray containing the origin and three unit vectors of the thorax axis.
+
+        Returns
+        -------
+        ndarray
+            A 1x3 ndarray containing the flexion, abduction, and rotation angles of the spine.
+
+        Examples
+        --------
+        """
+        pelvis_axis_mod = CGM.subtract_origin(pelvis_axis)
+        thorax_axis_mod = CGM.subtract_origin(thorax_axis)
+        spine_angle = CGM.get_spine_angle(pelvis_axis_mod, thorax_axis_mod)
+
+        # GCS fix
+        return np.array([spine_angle[0], spine_angle[2] * -1, spine_angle[1]])
 
     @staticmethod
-    def shoulder_angle_calc():
-        pass
+    def shoulder_angle_calc(thorax_axis, elbow_axis):
+        """Shoulder Angle Calculation function
+
+        Calculates the shoulder angle.
+
+        Parameters
+        ----------
+        thorax_axis : ndarray
+            A 4x3 ndarray containing the origin and three unit vectors of the thorax axis.
+        elbow_axis : ndarray
+            An 8x3 ndarray containing the origin and three unit vectors of the right elbow axis,
+            followed by the origin and three unit vectors of the left elbow axis.
+
+        Returns
+        -------
+        ndarray
+            A 2x3 ndarray containing the flexion, abduction, and rotation angles
+            of the right and left shoulders.
+
+        Examples
+        --------
+        """
+        thorax_axis_mod = CGM.subtract_origin(thorax_axis)
+        r_elbow_axis_mod = CGM.subtract_origin(elbow_axis[:4])
+        l_elbow_axis_mod = CGM.subtract_origin(elbow_axis[4:])
+        r_shoulder_angle = CGM.get_shoulder_angle(thorax_axis_mod, r_elbow_axis_mod)
+        l_shoulder_angle = CGM.get_shoulder_angle(thorax_axis_mod, l_elbow_axis_mod)
+
+        if r_shoulder_angle[2] < 0:
+            r_shoulder_angle[2] += 180.0
+        elif r_shoulder_angle[2] > 0:
+            r_shoulder_angle[2] -= 180.0
+
+        if r_shoulder_angle[1] > 0:
+            r_shoulder_angle[1] -= 180.0
+        elif r_shoulder_angle[1] < 0:
+            r_shoulder_angle[1] = -180.0 - r_shoulder_angle[1]
+
+        if l_shoulder_angle[1] < 0:
+            l_shoulder_angle[1] += 180.0
+        elif l_shoulder_angle[1] > 0:
+            l_shoulder_angle[1] -= 180.0
+
+        # GCS fix
+        r_shoulder_angle = np.array([r_shoulder_angle[0] * -1, r_shoulder_angle[1] * -1, r_shoulder_angle[2]])
+        l_shoulder_angle = np.array([l_shoulder_angle[0] * -1, l_shoulder_angle[1], 180.0 - l_shoulder_angle[2]])
+
+        return np.array([r_shoulder_angle, l_shoulder_angle])
 
     @staticmethod
-    def elbow_angle_calc():
-        pass
+    def elbow_angle_calc(elbow_axis, wrist_axis):
+        """Elbow Angle Calculation function
+
+        Calculates the elbow angle.
+
+        Parameters
+        ----------
+        elbow_axis : ndarray
+            An 8x3 ndarray containing the origin and three unit vectors of the right elbow axis,
+            followed by the origin and three unit vectors of the left elbow axis.
+        wrist_axis : ndarray
+            An 8x3 ndarray containing the origin and three unit vectors of the right wrist axis,
+            followed by the origin and three unit vectors of the left wrist axis.
+
+        Returns
+        -------
+        ndarray
+            A 2x3 ndarray containing the flexion, abduction, and rotation angles
+            of the right and left elbows.
+
+        Examples
+        --------
+        """
+        r_elbow_axis_mod = CGM.subtract_origin(elbow_axis[:4])
+        l_elbow_axis_mod = CGM.subtract_origin(elbow_axis[4:])
+        r_wrist_axis_mod = CGM.subtract_origin(wrist_axis[:4])
+        l_wrist_axis_mod = CGM.subtract_origin(wrist_axis[4:])
+
+        r_elbow_angle = CGM.get_angle(r_elbow_axis_mod, r_wrist_axis_mod)
+        l_elbow_angle = CGM.get_angle(l_elbow_axis_mod, l_wrist_axis_mod)
+
+        r_elbow_angle = np.array([r_elbow_angle[0], r_elbow_angle[1], r_elbow_angle[2] - 90.0])
+        l_elbow_angle = np.array([l_elbow_angle[0], l_elbow_angle[1], l_elbow_angle[2] - 90.0])
+
+        return np.array([r_elbow_angle, l_elbow_angle])
 
     @staticmethod
-    def wrist_angle_calc():
-        pass
+    def wrist_angle_calc(wrist_axis, hand_axis):
+        """Wrist Angle Calculation function
+
+        Calculates the wrist angle.
+
+        Parameters
+        ----------
+        wrist_axis : ndarray
+            An 8x3 ndarray containing the origin and three unit vectors of the right wrist axis,
+            followed by the origin and three unit vectors of the left wrist axis.
+        hand_axis : ndarray
+            An 8x3 ndarray containing the origin and three unit vectors of the right hand axis,
+            followed by the origin and three unit vectors of the left hand axis.
+
+        Returns
+        -------
+        ndarray
+            A 2x3 ndarray containing the flexion, abduction, and rotation angles
+            of the right and left wrists.
+
+        Examples
+        --------
+        """
+        r_wrist_axis_mod = CGM.subtract_origin(wrist_axis[:4])
+        l_wrist_axis_mod = CGM.subtract_origin(wrist_axis[4:])
+        r_hand_axis_mod = CGM.subtract_origin(hand_axis[:4])
+        l_hand_axis_mod = CGM.subtract_origin(hand_axis[4:])
+
+        r_wrist_angle = CGM.get_angle(r_wrist_axis_mod, r_hand_axis_mod)
+        l_wrist_angle = CGM.get_angle(l_wrist_axis_mod, l_hand_axis_mod)
+
+        r_wrist_x = r_wrist_angle[0]
+        r_wrist_y = r_wrist_angle[1]
+        r_wrist_z = 90.0 - r_wrist_angle[2]
+        l_wrist_x = l_wrist_angle[0]
+        l_wrist_y = l_wrist_angle[1] * -1
+        l_wrist_z = l_wrist_angle[2] - 90.0
+
+        if l_wrist_z < -180.0:
+            l_wrist_z += 360.0
+
+        r_wrist_angle = np.array([r_wrist_x, r_wrist_y, r_wrist_z])
+        l_wrist_angle = np.array([l_wrist_x, l_wrist_y, l_wrist_z])
+
+        return np.array([r_wrist_angle, l_wrist_angle])
 
     # Center of Mass / Kinetics calculation Methods:
     @staticmethod
