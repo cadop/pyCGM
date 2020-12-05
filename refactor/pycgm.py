@@ -12,6 +12,7 @@ if sys.version_info[0] == 2:
 else:
     pyver = 3
 
+
 class CGM:
 
     def __init__(self, path_static, path_dynamic, path_measurements, path_results=None,
@@ -63,37 +64,37 @@ class CGM:
         self.axis_results = None
         self.com_results = None
         self.marker_map = {marker: marker for marker in IO.marker_keys()}
+        self.marker_data = None
+        self.marker_idx = None
+        self.measurements = None
         self.jc_idx = {}
         self.axis_idx = {}
         self.angle_idx = {}
 
         jc_labels = ['pelvis_origin', 'pelvis_x', 'pelvis_y', 'pelvis_z',
-            'thorax_origin', 'thorax_x', 'thorax_y', 'thorax_z',
-            'RHip', 'LHip', 'RKnee', 'LKnee', 'RAnkle', 'LAnkle', 'RFoot', 'LFoot',
-            'RHEE', 'LHEE', 'C7', 'CLAV', 'STRN', 'T10', 'Front_Head', 'Back_Head',
-            'RShoulder', 'LShoulder', 'RHumerus', 'LHumerus', 'RRadius', 'LRadius',
-            'RHand', 'LHand']
-        
+                     'thorax_origin', 'thorax_x', 'thorax_y', 'thorax_z',
+                     'RHip', 'LHip', 'RKnee', 'LKnee', 'RAnkle', 'LAnkle', 'RFoot', 'LFoot',
+                     'RHEE', 'LHEE', 'C7', 'CLAV', 'STRN', 'T10', 'Front_Head', 'Back_Head',
+                     'RShoulder', 'LShoulder', 'RHumerus', 'LHumerus', 'RRadius', 'LRadius',
+                     'RHand', 'LHand']
         for i, label in enumerate(jc_labels):
             self.jc_idx[label] = i
-        
-        default_axis_labels = ["PELO","PELX","PELY","PELZ","HIPO","HIPX","HIPY","HIPZ","R KNEO",
-        "R KNEX","R KNEY","R KNEZ","L KNEO","L KNEX","L KNEY","L KNEZ","R ANKO","R ANKX",
-        "R ANKY","R ANKZ","L ANKO","L ANKX","L ANKY","L ANKZ","R FOOO","R FOOX","R FOOY",
-        "R FOOZ","L FOOO","L FOOX","L FOOY","L FOOZ","HEAO","HEAX","HEAY","HEAZ","THOO",
-        "THOX","THOY","THOZ","R CLAO","R CLAX","R CLAY","R CLAZ","L CLAO","L CLAX",
-        "L CLAY","L CLAZ","R HUMO","R HUMX","R HUMY","R HUMZ","L HUMO","L HUMX","L HUMY",
-        "L HUMZ","R RADO","R RADX","R RADY","R RADZ","L RADO","L RADX","L RADY","L RADZ",
-        "R HANO","R HANX","R HANY","R HANZ","L HANO","L HANX","L HANY","L HANZ"]
 
+        default_axis_labels = ["PELO", "PELX", "PELY", "PELZ", "HIPO", "HIPX", "HIPY", "HIPZ", "R KNEO",
+                               "R KNEX", "R KNEY", "R KNEZ", "L KNEO", "L KNEX", "L KNEY", "L KNEZ", "R ANKO", "R ANKX",
+                               "R ANKY", "R ANKZ", "L ANKO", "L ANKX", "L ANKY", "L ANKZ", "R FOOO", "R FOOX", "R FOOY",
+                               "R FOOZ", "L FOOO", "L FOOX", "L FOOY", "L FOOZ", "HEAO", "HEAX", "HEAY", "HEAZ", "THOO",
+                               "THOX", "THOY", "THOZ", "R CLAO", "R CLAX", "R CLAY", "R CLAZ", "L CLAO", "L CLAX",
+                               "L CLAY", "L CLAZ", "R HUMO", "R HUMX", "R HUMY", "R HUMZ", "L HUMO", "L HUMX", "L HUMY",
+                               "L HUMZ", "R RADO", "R RADX", "R RADY", "R RADZ", "L RADO", "L RADX", "L RADY", "L RADZ",
+                               "R HANO", "R HANX", "R HANY", "R HANZ", "L HANO", "L HANX", "L HANY", "L HANZ"]
         for i, label in enumerate(default_axis_labels):
             self.axis_idx[label] = i
 
-        default_angle_labels = ['Pelvis','R Hip','L Hip','R Knee','L Knee','R Ankle',
-                                'L Ankle','R Foot','L Foot',
-                                'Head','Thorax','Neck','Spine','R Shoulder','L Shoulder',
-                                'R Elbow','L Elbow','R Wrist','L Wrist']
-
+        default_angle_labels = ['Pelvis', 'R Hip', 'L Hip', 'R Knee', 'L Knee', 'R Ankle',
+                                'L Ankle', 'R Foot', 'L Foot',
+                                'Head', 'Thorax', 'Neck', 'Spine', 'R Shoulder', 'L Shoulder',
+                                'R Elbow', 'L Elbow', 'R Wrist', 'L Wrist']
         for i, label in enumerate(default_angle_labels):
             self.angle_idx[label] = i
 
@@ -144,9 +145,10 @@ class CGM:
                     header = True
                 else:
                     row = line.rstrip('\n').split(',')
-                    seg_scale[row[0]] = {'com': float(row[1]), 'mass': float(row[2]), 'x': row[3], 'y': row[4], 'z': row[5]}
+                    seg_scale[row[0]] = {'com': float(row[1]), 'mass': float(row[2]), 'x': row[3], 'y': row[4],
+                                         'z': row[5]}
         self.marker_data, self.marker_idx = IO.load_marker_data(self.path_dynamic)
-        
+
         self.measurements = self.static.get_static()
 
         methods = [self.pelvis_axis_calc, self.hip_axis_calc, self.knee_axis_calc,
@@ -1523,9 +1525,6 @@ class CGM:
         # Set or get a marker size as mm
         marker_size = 7.0
 
-        # Temporary origin since the origin will be moved at the end
-        origin = clav
-
         # Get the midpoints of the upper and lower sections, as well as the front and back sections
         upper = (clav + c7) / 2.0
         lower = (strn + t10) / 2.0
@@ -1989,7 +1988,7 @@ class CGM:
         Returns
         -------
         com_coords : 1darray
-            Numpy array containing center of mass coordinates for the frame 
+            Numpy array containing center of mass coordinates for the frame
             of trial. The coordinate is a 1x3 array of the XYZ position of the center
             of mass.
 
@@ -2156,6 +2155,7 @@ class CGM:
 
                 com_coords = sum(vals) / body_mass
         return com_coords
+
 
 class StaticCGM:
     """
@@ -3547,21 +3547,25 @@ class StaticCGM:
             hip_axis = StaticCGM.hip_axis_calc(pelvis, cal_sm)
             hip_origin = [hip_axis[0], hip_axis[1]]
 
-            rthi, lthi, rkne, lkne = frame[self.mapping['RTHI']], frame[self.mapping['LTHI']], frame[self.mapping['RKNE']], frame[
-                self.mapping['LKNE']]
+            rthi, lthi, rkne, lkne = frame[self.mapping['RTHI']], frame[self.mapping['LTHI']], frame[
+                self.mapping['RKNE']], frame[
+                                         self.mapping['LKNE']]
             knee_axis = StaticCGM.knee_axis_calc(rthi, lthi, rkne, lkne, hip_origin, cal_sm)
             knee_origin = np.array([knee_axis[0], knee_axis[4]])
 
-            rtib, ltib, rank, lank = frame[self.mapping['RTIB']], frame[self.mapping['LTIB']], frame[self.mapping['RANK']], frame[
-                self.mapping['LANK']]
+            rtib, ltib, rank, lank = frame[self.mapping['RTIB']], frame[self.mapping['LTIB']], frame[
+                self.mapping['RANK']], frame[
+                                         self.mapping['LANK']]
             ankle_axis = StaticCGM.ankle_axis_calc(rtib, ltib, rank, lank, knee_origin, cal_sm)
 
-            rtoe, ltoe, rhee, lhee = frame[self.mapping['RTOE']], frame[self.mapping['LTOE']], frame[self.mapping['RHEE']], frame[
-                self.mapping['LHEE']]
+            rtoe, ltoe, rhee, lhee = frame[self.mapping['RTOE']], frame[self.mapping['LTOE']], frame[
+                self.mapping['RHEE']], frame[
+                                         self.mapping['LHEE']]
             angles = StaticCGM.static_calculation(rtoe, ltoe, rhee, lhee, ankle_axis, flat_foot, cal_sm)
 
-            rfhd, lfhd, rbhd, lbhd = frame[self.mapping['RFHD']], frame[self.mapping['LFHD']], frame[self.mapping['RBHD']], frame[
-                self.mapping['LBHD']]
+            rfhd, lfhd, rbhd, lbhd = frame[self.mapping['RFHD']], frame[self.mapping['LFHD']], frame[
+                self.mapping['RBHD']], frame[
+                                         self.mapping['LBHD']]
             head_axis = StaticCGM.head_axis_calc(rfhd, lfhd, rbhd, lbhd)
 
             head_angle = StaticCGM.static_calculation_head(head_axis)
