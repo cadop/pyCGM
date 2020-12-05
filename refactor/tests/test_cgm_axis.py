@@ -963,7 +963,7 @@ class TestUpperBodyAxis():
          np.array([0.0, 0.0, 1.0], dtype='float'), np.array([0.0, 1.0, 2.0], dtype='float'),
          [[1, 4.94974747, 5.94974747], [1, 4.24264069, 5.24264069], [1, 4.24264069, 6.65685425],
           [0, 4.94974747, 5.94974747]])])
-    def test_head_axis_calc(self, clav, c7, strn, t10, expected):
+    def test_thorax_axis_calc(self, clav, c7, strn, t10, expected):
         """
         This test provides coverage of the thorax_axis_calc function in the class CGM in pycgm.py, defined as
         thorax_axis_calc(clav, c7, strn, t10)
