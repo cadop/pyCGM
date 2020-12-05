@@ -1739,6 +1739,7 @@ class CGM:
         ...                     [830.9072876, 436.75341797, 1119.11901855],
         ...                     [-249.28146362, 525.32977295, 1117.09057617],
         ...                     [-311.77532959, 477.22512817, 1125.1619873]])
+        >>> rsho, lsho, relb, lelb, rwra, rwrb, lwra, lwrb = markers
         >>> thorax_axis = np.array([[256.14981023656401, 364.30906039339868, 1459.6553639290375],
         ...                         [256.23991128535846, 365.30496976939753, 1459.662169500559],
         ...                         [257.1435863244796, 364.21960599061947, 1459.5889787129829],
@@ -1747,7 +1748,8 @@ class CGM:
         ...                             [64.51952734, 274.93442161, 1463.6313334]])
         >>> measurements = {'RightElbowWidth': 74.0, 'LeftElbowWidth': 74.0,
         ...                 'RightWristWidth': 55.0, 'LeftWristWidth': 55.0}
-        >>> CGM.elbow_axis_calc(*markers, thorax_axis, shoulder_origin, measurements)
+        >>> CGM.elbow_axis_calc(rsho, lsho, relb, lelb, rwra, rwrb, lwra, lwrb, 
+        ...                     thorax_axis, shoulder_origin, measurements)
         array([[ 633.66707588,  304.95542115, 1256.07799541],
                [ 633.81070139,  303.96579005, 1256.07658507],
                [ 634.35247992,  305.05386589, 1256.79947301],
