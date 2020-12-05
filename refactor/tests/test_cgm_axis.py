@@ -834,6 +834,7 @@ class TestUpperBodyAxis():
     """
 
     nan_3d = np.array([np.nan, np.nan, np.nan])
+    rand_coor = np.array([np.random.randint(0, 10), np.random.randint(0, 10), np.random.randint(0, 10)])
 
     @pytest.mark.parametrize(["rfhd", "lfhd", "rbhd", "lbhd", "measurements", "expected"], [
         # Test from running sample data
@@ -1175,6 +1176,282 @@ class TestUpperBodyAxis():
                                        rounding_precision)
 
         # Asserting that shoulder_axis_calc returned the correct result given the return value given by mocked
+        # find_joint_center
+        np.testing.assert_almost_equal(result, expected, rounding_precision)
+
+    @pytest.mark.parametrize(
+        ["rsho", "lsho", "relb", "lelb", "rwra", "rwrb", "lwra", "lwrb", "thorax_axis", "shoulder_origin",
+         "measurements", "mock_return_val", "expected_mock_args", "expected"], [
+            # Test from running sample data
+            (np.array([428.88476562, 270.552948, 1500.73010254]), np.array([68.24668121, 269.01049805, 1510.1072998]),
+             np.array([658.90338135, 326.07580566, 1285.28515625]),
+             np.array([-156.32162476, 335.2583313, 1287.39916992]),
+             np.array([776.51898193, 495.68103027, 1108.38464355]),
+             np.array([830.9072876, 436.75341797, 1119.11901855]),
+             np.array([-249.28146362, 525.32977295, 1117.09057617]),
+             np.array([-311.77532959, 477.22512817, 1125.1619873]),
+             [[256.149810236564, 364.3090603933987, 1459.6553639290375], rand_coor,
+              [257.1435863244796, 364.21960599061947, 1459.588978712983], rand_coor],
+             np.array([[429.66951995, 275.06718615, 1453.95397813], [64.51952734, 274.93442161, 1463.6313334]]),
+             {'RightElbowWidth': 74.0, 'LeftElbowWidth': 74.0, 'RightWristWidth': 55.0, 'LeftWristWidth': 55.0},
+             [[633.66707588, 304.95542115, 1256.07799541], [-129.16952219, 316.8671644, 1258.06440717]],
+             [[[429.78392325, 96.82482443, 904.56444296], [429.66951995, 275.06718615, 1453.95397813],
+               [658.90338135, 326.07580566, 1285.28515625], -44.0],
+              [[-409.6146956, 530.62802087, 1671.68201453], [64.51952734, 274.93442161, 1463.6313334],
+               [-156.32162476, 335.2583313, 1287.39916992], 44.0]],
+             [[633.66707587, 304.95542115, 1256.07799541], [633.8107013869995, 303.96579004975194, 1256.07658506845],
+              [634.3524799178464, 305.0538658933253, 1256.799473014224],
+              [632.9532180390149, 304.85083190737765, 1256.770431750491], [-129.16952218, 316.8671644, 1258.06440717],
+              [-129.32391792749496, 315.8807291324946, 1258.008662931836],
+              [-128.45117135279028, 316.79382333592827, 1257.3726028780698],
+              [-128.49119037560908, 316.72030884193634, 1258.7843373067021]]),
+            # Test with zeros for all params
+            (np.array([0, 0, 0]), np.array([0, 0, 0]), np.array([0, 0, 0]), np.array([0, 0, 0]), np.array([0, 0, 0]),
+             np.array([0, 0, 0]), np.array([0, 0, 0]), np.array([0, 0, 0]),
+             [[0, 0, 0], rand_coor, [0, 0, 0], rand_coor],
+             np.array([[0, 0, 0], [0, 0, 0]]),
+             {'RightElbowWidth': 0.0, 'LeftElbowWidth': 0.0, 'RightWristWidth': 0.0, 'LeftWristWidth': 0.0},
+             [[0, 0, 0], [0, 0, 0]],
+             [[nan_3d, [0, 0, 0], [0, 0, 0], -7.0], [nan_3d, [0, 0, 0], [0, 0, 0], 7.0]],
+             [[0, 0, 0], nan_3d, nan_3d, nan_3d, [0, 0, 0], nan_3d, nan_3d, nan_3d]),
+            # Testing when values are added to rsho, lsho, relb, lelb, rwra, rwrb, lwra, and lwrb
+            ((np.array([9, -7, -6]), np.array([3, -8, 5]), np.array([-9, 1, -4]), np.array([-4, 1, -6]),
+              np.array([2, -3, 9]), np.array([-4, -2, -7]), np.array([-9, 1, -1]), np.array([-3, -4, -9]),
+              [[0, 0, 0], rand_coor, [0, 0, 0], rand_coor],
+              np.array([[0, 0, 0], [0, 0, 0]]),
+              {'RightElbowWidth': 0.0, 'LeftElbowWidth': 0.0, 'RightWristWidth': 0.0, 'LeftWristWidth': 0.0},
+              [[0, 0, 0], [0, 0, 0]],
+              [[[149.87576359540907, -228.48721408225754, -418.8422716102348], [0, 0, 0], [-9, 1, -4], -7.0],
+               [[282.73117218166414, -326.69276820761615, -251.76957615571214], [0, 0, 0], [-4, 1, -6], 7.0]],
+              [[0, 0, 0], nan_3d, nan_3d, nan_3d, [0, 0, 0], nan_3d, nan_3d, nan_3d])),
+            # Testing when values are added to thorax_axis
+            (np.array([0, 0, 0]), np.array([0, 0, 0]), np.array([0, 0, 0]), np.array([0, 0, 0]), np.array([0, 0, 0]),
+             np.array([0, 0, 0]), np.array([0, 0, 0]), np.array([0, 0, 0]),
+             [[-5, -2, -3], rand_coor, [-9, 5, -5], rand_coor],
+             np.array([[0, 0, 0], [0, 0, 0]]),
+             {'RightElbowWidth': 0.0, 'LeftElbowWidth': 0.0, 'RightWristWidth': 0.0, 'LeftWristWidth': 0.0},
+             [[0, 0, 0], [0, 0, 0]],
+             [[nan_3d, [0, 0, 0], [0, 0, 0], -7.0], [nan_3d, [0, 0, 0], [0, 0, 0], 7.0]],
+             [[0, 0, 0], nan_3d, nan_3d, nan_3d, [0, 0, 0], nan_3d, nan_3d, nan_3d]),
+            # Testing when values are added to shoulder_origin
+            (np.array([0, 0, 0]), np.array([0, 0, 0]), np.array([0, 0, 0]), np.array([0, 0, 0]), np.array([0, 0, 0]),
+             np.array([0, 0, 0]), np.array([0, 0, 0]), np.array([0, 0, 0]),
+             [[0, 0, 0], rand_coor, [0, 0, 0], rand_coor],
+             np.array([[-2, -8, -3], [5, -3, 2]]),
+             {'RightElbowWidth': 0.0, 'LeftElbowWidth': 0.0, 'RightWristWidth': 0.0, 'LeftWristWidth': 0.0},
+             [[0, 0, 0], [0, 0, 0]],
+             [[nan_3d, [-2, -8, -3], [0, 0, 0], -7.0], [nan_3d, [5, -3, 2], [0, 0, 0], 7.0]],
+             [[0, 0, 0], nan_3d, nan_3d, [-0.2279211529192759, -0.9116846116771036, -0.3418817293789138], [0, 0, 0],
+              nan_3d, nan_3d, [0.8111071056538127, -0.48666426339228763, 0.3244428422615251]]),
+            # Testing when values are added to measurements
+            (np.array([0, 0, 0]), np.array([0, 0, 0]), np.array([0, 0, 0]), np.array([0, 0, 0]), np.array([0, 0, 0]),
+             np.array([0, 0, 0]), np.array([0, 0, 0]), np.array([0, 0, 0]),
+             [[0, 0, 0], rand_coor, [0, 0, 0], rand_coor],
+             np.array([[0, 0, 0], [0, 0, 0]]),
+             {'RightElbowWidth': -38.0, 'LeftElbowWidth': 6.0, 'RightWristWidth': 47.0, 'LeftWristWidth': -7.0},
+             [[0, 0, 0], [0, 0, 0]],
+             [[nan_3d, [0, 0, 0], [0, 0, 0], 12.0], [nan_3d, [0, 0, 0], [0, 0, 0], 10.0]],
+             [[0, 0, 0], nan_3d, nan_3d, nan_3d, [0, 0, 0], nan_3d, nan_3d, nan_3d]),
+            # Testing when values are added to mock_return_val
+            (np.array([0, 0, 0]), np.array([0, 0, 0]), np.array([0, 0, 0]), np.array([0, 0, 0]), np.array([0, 0, 0]),
+             np.array([0, 0, 0]), np.array([0, 0, 0]), np.array([0, 0, 0]),
+             [[0, 0, 0], rand_coor, [0, 0, 0], rand_coor],
+             np.array([[0, 0, 0], [0, 0, 0]]),
+             {'RightElbowWidth': 0.0, 'LeftElbowWidth': 0.0, 'RightWristWidth': 0.0, 'LeftWristWidth': 0.0},
+             [[5, 4, -4], [6, 3, 5]],
+             [[nan_3d, [0, 0, 0], [0, 0, 0], -7.0], [nan_3d, [0, 0, 0], [0, 0, 0], 7.0]],
+             [[5, 4, -4], nan_3d, nan_3d, [4.337733821467478, 3.4701870571739826, -3.4701870571739826], [6, 3, 5],
+              nan_3d, nan_3d, [5.2828628343993635, 2.6414314171996818, 4.4023856953328036]]),
+            # Testing when values are added to rsho, lsho, relb, lelb, rwra, rwrb, lwra, lwrb, and thorax_axis
+            (np.array([9, -7, -6]), np.array([3, -8, 5]), np.array([-9, 1, -4]), np.array([-4, 1, -6]),
+             np.array([2, -3, 9]), np.array([-4, -2, -7]), np.array([-9, 1, -1]), np.array([-3, -4, -9]),
+             [[-5, -2, -3], rand_coor, [-9, 5, -5], rand_coor],
+             np.array([[0, 0, 0], [0, 0, 0]]),
+             {'RightElbowWidth': 0.0, 'LeftElbowWidth': 0.0, 'RightWristWidth': 0.0, 'LeftWristWidth': 0.0},
+             [[0, 0, 0], [0, 0, 0]],
+             [[[149.87576359540907, -228.48721408225754, -418.8422716102348], [0, 0, 0], [-9, 1, -4], -7.0],
+              [[282.73117218166414, -326.69276820761615, -251.76957615571214], [0, 0, 0], [-4, 1, -6], 7.0]],
+             [[0, 0, 0], nan_3d, nan_3d, nan_3d, [0, 0, 0], nan_3d, nan_3d, nan_3d]),
+            # Testing when values are added to rsho, lsho, relb, lelb, rwra, rwrb, lwra, lwrb, thorax_axis,
+            # and shoulder_origin
+            (np.array([9, -7, -6]), np.array([3, -8, 5]), np.array([-9, 1, -4]), np.array([-4, 1, -6]),
+             np.array([2, -3, 9]), np.array([-4, -2, -7]), np.array([-9, 1, -1]), np.array([-3, -4, -9]),
+             [[-5, -2, -3], rand_coor, [-9, 5, -5], rand_coor],
+             np.array([[-2, -8, -3], [5, -3, 2]]),
+             {'RightElbowWidth': 0.0, 'LeftElbowWidth': 0.0, 'RightWristWidth': 0.0, 'LeftWristWidth': 0.0},
+             [[0, 0, 0], [0, 0, 0]],
+             [[[-311.42865408643604, -195.76081109238007, 342.15327877363165], [-2, -8, -3], [-9, 1, -4], -7.0],
+              [[183.9753004933977, -292.7114070209339, -364.32791656553934], [5, -3, 2], [-4, 1, -6], 7.0]],
+             [[0, 0, 0], [-0.9661174276011973, 0.2554279765068226, -0.03706298561739535],
+              [0.12111591199009825, 0.3218504585188577, -0.9390118307103527],
+              [-0.2279211529192759, -0.9116846116771036, -0.3418817293789138], [0, 0, 0],
+              [-0.40160401780320154, -0.06011448807273248, 0.9138383123989052],
+              [-0.4252287337918506, -0.8715182976051595, -0.24420561192811296],
+              [0.8111071056538127, -0.48666426339228763, 0.3244428422615251]]),
+            # Testing when values are added to rsho, lsho, relb, lelb, rwra, rwrb, lwra, lwrb, thorax_axis,
+            # shoulder_origin, and measurements
+            (np.array([9, -7, -6]), np.array([3, -8, 5]), np.array([-9, 1, -4]), np.array([-4, 1, -6]),
+             np.array([2, -3, 9]), np.array([-4, -2, -7]), np.array([-9, 1, -1]), np.array([-3, -4, -9]),
+             [[-5, -2, -3], rand_coor, [-9, 5, -5], rand_coor],
+             np.array([[-2, -8, -3], [5, -3, 2]]),
+             {'RightElbowWidth': -38.0, 'LeftElbowWidth': 6.0, 'RightWristWidth': 47.0, 'LeftWristWidth': -7.0},
+             [[0, 0, 0], [0, 0, 0]],
+             [[[-311.42865408643604, -195.76081109238007, 342.15327877363165], [-2, -8, -3], [-9, 1, -4], 12.0],
+              [[183.9753004933977, -292.7114070209339, -364.32791656553934], [5, -3, 2], [-4, 1, -6], 10.0]],
+             [[0, 0, 0], [-0.9685895544902782, 0.17643783885299713, 0.17522546605219314],
+              [-0.09942948749879241, 0.3710806621909213, -0.9232621075099284],
+              [-0.2279211529192759, -0.9116846116771036, -0.3418817293789138], [0, 0, 0],
+              [-0.10295276972565287, 0.4272479327059481, 0.8982538233730544],
+              [-0.5757655689286321, -0.7619823480470763, 0.29644040025096585],
+              [0.8111071056538127, -0.48666426339228763, 0.3244428422615251]]),
+            # Testing when values are added to rsho, lsho, relb, lelb, rwra, rwrb, lwra, lwrb, thorax_axis,
+            # shoulder_origin, measurements and mock_return_val
+            (np.array([9, -7, -6]), np.array([3, -8, 5]), np.array([-9, 1, -4]), np.array([-4, 1, -6]),
+             np.array([2, -3, 9]), np.array([-4, -2, -7]), np.array([-9, 1, -1]), np.array([-3, -4, -9]),
+             [[-5, -2, -3], rand_coor, [-9, 5, -5], rand_coor],
+             np.array([[-2, -8, -3], [5, -3, 2]]),
+             {'RightElbowWidth': -38.0, 'LeftElbowWidth': 6.0, 'RightWristWidth': 47.0, 'LeftWristWidth': -7.0},
+             [[5, 4, -4], [6, 3, 5]],
+             [[[-311.42865408643604, -195.76081109238007, 342.15327877363165], [-2, -8, -3], [-9, 1, -4], 12.0],
+              [[183.9753004933977, -292.7114070209339, -364.32791656553934], [5, -3, 2], [-4, 1, -6], 10.0]],
+             [[5, 4, -4], [4.156741342815987, 4.506819397152288, -3.8209778344606247],
+              [4.809375978699987, 4.029428853750657, -4.981221904092206],
+              [4.4974292889675835, 3.138450209658714, -3.928204184138226], [6, 3, 5],
+              [6.726856988207308, 2.5997910101837682, 5.558132316896694],
+              [5.329224487433077, 2.760784472038086, 5.702022893446135],
+              [5.852558043845103, 2.1153482630706173, 4.557674131535308]]),
+            # Testing that when rsho, lsho, relb, lelb, rwra, lwra, thorax_axis, and shoulder_origin are lists of
+            # ints and measurements values are ints
+            ([9, -7, -6], [3, -8, 5], [-9, 1, -4], [-4, 1, -6], np.array([2, -3, 9]), [-4, -2, -7],
+             np.array([-9, 1, -1]), [-3, -4, -9],
+             [[-5, -2, -3], rand_coor, [-9, 5, -5], rand_coor],
+             [[-2, -8, -3], [5, -3, 2]],
+             {'RightElbowWidth': -38, 'LeftElbowWidth': 6, 'RightWristWidth': 47, 'LeftWristWidth': -7},
+             [[0, 0, 0], [0, 0, 0]],
+             [[[-311.42865408643604, -195.76081109238007, 342.15327877363165], [-2, -8, -3], [-9, 1, -4], 12.0],
+              [[183.9753004933977, -292.7114070209339, -364.32791656553934], [5, -3, 2], [-4, 1, -6], 10.0]],
+             [[0, 0, 0], [-0.9685895544902782, 0.17643783885299713, 0.17522546605219314],
+              [-0.09942948749879241, 0.3710806621909213, -0.9232621075099284],
+              [-0.2279211529192759, -0.9116846116771036, -0.3418817293789138], [0, 0, 0],
+              [-0.10295276972565287, 0.4272479327059481, 0.8982538233730544],
+              [-0.5757655689286321, -0.7619823480470763, 0.29644040025096585],
+              [0.8111071056538127, -0.48666426339228763, 0.3244428422615251]]),
+            # Testing that when rsho, lsho, relb, lelb, rwra, lwra, thorax_axis, and shoulder_origin are numpy arrays
+            #  of ints and measurements values are ints
+            (np.array([9, -7, -6], dtype='int'), np.array([3, -8, 5], dtype='int'), np.array([-9, 1, -4], dtype='int'),
+             np.array([-4, 1, -6], dtype='int'), np.array([2, -3, 9], dtype='int'), np.array([-4, -2, -7], dtype='int'),
+             np.array([-9, 1, -1], dtype='int'), np.array([-3, -4, -9], dtype='int'),
+             np.array([[-5, -2, -3], rand_coor, [-9, 5, -5], rand_coor], dtype='int'),
+             np.array([[-2, -8, -3], [5, -3, 2]], dtype='int'),
+             {'RightElbowWidth': -38, 'LeftElbowWidth': 6, 'RightWristWidth': 47, 'LeftWristWidth': -7},
+             [[5, 4, -4], [6, 3, 5]],
+             [[[-311.42865408643604, -195.76081109238007, 342.15327877363165], [-2, -8, -3], [-9, 1, -4], 12.0],
+              [[183.9753004933977, -292.7114070209339, -364.32791656553934], [5, -3, 2], [-4, 1, -6], 10.0]],
+             [[5, 4, -4], [4.156741342815987, 4.506819397152288, -3.8209778344606247],
+              [4.809375978699987, 4.029428853750657, -4.981221904092206],
+              [4.4974292889675835, 3.138450209658714, -3.928204184138226], [6, 3, 5],
+              [6.726856988207308, 2.5997910101837682, 5.558132316896694],
+              [5.329224487433077, 2.760784472038086, 5.702022893446135],
+              [5.852558043845103, 2.1153482630706173, 4.557674131535308]]),
+            # Testing that when rsho, lsho, relb, lelb, rwra, lwra, thorax_axis, and shoulder_origin are lists of
+            # floats and measurements values are floats
+            ([9.0, -7.0, -6.0], [3.0, -8.0, 5.0], [-9.0, 1.0, -4.0], [-4.0, 1.0, -6.0], np.array([2.0, -3.0, 9.0]),
+             [-4.0, -2.0, -7.0], np.array([-9.0, 1.0, -1.0]), [-3.0, -4.0, -9.0],
+             [[-5.0, -2.0, -3.0], rand_coor, [-9.0, 5.0, -5.0], rand_coor],
+             [[-2.0, -8.0, -3.0], [5.0, -3.0, 2.0]],
+             {'RightElbowWidth': -38.0, 'LeftElbowWidth': 6.0, 'RightWristWidth': 47.0, 'LeftWristWidth': -7.0},
+             [[0, 0, 0], [0, 0, 0]],
+             [[[-311.42865408643604, -195.76081109238007, 342.15327877363165], [-2, -8, -3], [-9, 1, -4], 12.0],
+              [[183.9753004933977, -292.7114070209339, -364.32791656553934], [5, -3, 2], [-4, 1, -6], 10.0]],
+             [[0, 0, 0], [-0.9685895544902782, 0.17643783885299713, 0.17522546605219314],
+              [-0.09942948749879241, 0.3710806621909213, -0.9232621075099284],
+              [-0.2279211529192759, -0.9116846116771036, -0.3418817293789138], [0, 0, 0],
+              [-0.10295276972565287, 0.4272479327059481, 0.8982538233730544],
+              [-0.5757655689286321, -0.7619823480470763, 0.29644040025096585],
+              [0.8111071056538127, -0.48666426339228763, 0.3244428422615251]]),
+            # Testing that when rsho, lsho, relb, lelb, rwra, lwra, thorax_axis, and shoulder_origin are numpy arrays
+            #  of floats and measurements values are floats
+            (np.array([9.0, -7.0, -6.0], dtype='float'), np.array([3.0, -8.0, 5.0], dtype='float'),
+             np.array([-9.0, 1.0, -4.0], dtype='float'), np.array([-4.0, 1.0, -6.0], dtype='float'),
+             np.array([2.0, -3.0, 9.0], dtype='float'), np.array([-4.0, -2.0, -7.0], dtype='float'),
+             np.array([-9.0, 1.0, -1.0], dtype='float'), np.array([-3.0, -4.0, -9.0], dtype='float'),
+             np.array([[-5.0, -2.0, -3.0], rand_coor, [-9.0, 5.0, -5.0], rand_coor], dtype='float'),
+             np.array([[-2.0, -8.0, -3.0], [5.0, -3.0, 2.0]], dtype='float'),
+             {'RightElbowWidth': -38.0, 'LeftElbowWidth': 6.0, 'RightWristWidth': 47.0, 'LeftWristWidth': -7.0},
+             [[5, 4, -4], [6, 3, 5]],
+             [[[-311.42865408643604, -195.76081109238007, 342.15327877363165], [-2, -8, -3], [-9, 1, -4], 12.0],
+              [[183.9753004933977, -292.7114070209339, -364.32791656553934], [5, -3, 2], [-4, 1, -6], 10.0]],
+             [[5, 4, -4], [4.156741342815987, 4.506819397152288, -3.8209778344606247],
+              [4.809375978699987, 4.029428853750657, -4.981221904092206],
+              [4.4974292889675835, 3.138450209658714, -3.928204184138226], [6, 3, 5],
+              [6.726856988207308, 2.5997910101837682, 5.558132316896694],
+              [5.329224487433077, 2.760784472038086, 5.702022893446135],
+              [5.852558043845103, 2.1153482630706173, 4.557674131535308]])])
+    def test_elbow_axis_calc(self, rsho, lsho, relb, lelb, rwra, rwrb, lwra, lwrb, thorax_axis, shoulder_origin,
+                             measurements, mock_return_val, expected_mock_args, expected):
+        """
+        This test provides coverage of the elbow_axis_calc function in the class CGM in pycgm.py, defined as
+        elbow_axis_calc(rsho, lsho, relb, lelb, rwra, rwrb, lwra, lwrb, thorax_axis, shoulder_origin, measurements)
+
+        This test takes 14 parameters:
+        rsho, lsho, relb, lelb, rwra, rwrb, lwra, lwrb : ndarray
+            A 1x3 ndarray of each respective marker containing the XYZ positions.
+        thorax_axis : ndarray
+            A 4x3 ndarray that contains the thorax origin and the thorax x, y, and z axis components.
+        shoulder_origin : ndarray
+            A 2x3 ndarray of the right and left shoulder origin vectors (joint centers).
+        measurements : dict
+            A dictionary containing the subject measurements given from the file input.
+        mock_return_val : list
+            The value to be returned by the mock for find_joint_center
+        expected_mock_args : list
+            The expected arguments used to call the mocked function, find_joint_center
+        expected : array
+            An 8x3 ndarray that contains the right elbow origin, right elbow x, y, and z axis components, left elbow
+            origin, and left elbow x, y, and z axis components.
+
+        This test is checking to make sure the elbow joint center and axis are calculated correctly given the input
+        parameters. This tests mocks find_joint_center to make sure the correct parameters are being passed into it
+        given the parameters passed into elbow_axis_calc, expected_mock_args, and to also ensure that elbow_axis_calc
+        returns the correct value considering the return value of find_joint_center, mock_return_val.
+
+        This unit test ensures that:
+        - the correct expected values are altered per parameter given.
+        - the resulting output is correct when rsho, lsho, relb, lelb, rwra, lwra, thorax_axis, and shoulder_origin
+        are composed of lists of ints, numpy arrays of ints, lists of floats, and numpy arrays of floats and
+        measurements values are ints and floats. rwrb and lwrb were kept as numpy arrays as lists would cause errors
+        in lines like the following in pycgm.py as lists cannot be subtracted by each other:
+        rwri = (rwra + rwrb) / 2.0
+        lwri = (lwra + lwrb) / 2.0
+        """
+        with patch.object(CGM, 'find_joint_center', side_effect=mock_return_val) as mock_find_joint_center:
+            result = CGM.elbow_axis_calc(rsho, lsho, relb, lelb, rwra, rwrb, lwra, lwrb, thorax_axis, shoulder_origin,
+                                         measurements)
+
+        # Asserting that there were only 2 calls to find_joint_center
+        np.testing.assert_equal(mock_find_joint_center.call_count, 2)
+
+        # Asserting that the correct params were sent in the 1st (right) call to find_joint_center
+        np.testing.assert_almost_equal(expected_mock_args[0][0], mock_find_joint_center.call_args_list[0][0][0],
+                                       rounding_precision)
+        np.testing.assert_almost_equal(expected_mock_args[0][1], mock_find_joint_center.call_args_list[0][0][1],
+                                       rounding_precision)
+        np.testing.assert_almost_equal(expected_mock_args[0][2], mock_find_joint_center.call_args_list[0][0][2],
+                                       rounding_precision)
+        np.testing.assert_almost_equal(expected_mock_args[0][3], mock_find_joint_center.call_args_list[0][0][3],
+                                       rounding_precision)
+
+        # Asserting that the correct params were sent in the 2nd (left) call to find_joint_center
+        np.testing.assert_almost_equal(expected_mock_args[1][0], mock_find_joint_center.call_args_list[1][0][0],
+                                       rounding_precision)
+        np.testing.assert_almost_equal(expected_mock_args[1][1], mock_find_joint_center.call_args_list[1][0][1],
+                                       rounding_precision)
+        np.testing.assert_almost_equal(expected_mock_args[1][2], mock_find_joint_center.call_args_list[1][0][2],
+                                       rounding_precision)
+        np.testing.assert_almost_equal(expected_mock_args[1][3], mock_find_joint_center.call_args_list[1][0][3],
+                                       rounding_precision)
+
+        # Asserting that elbow_axis_calc returned the correct result given the return value given by mocked
         # find_joint_center
         np.testing.assert_almost_equal(result, expected, rounding_precision)
 
