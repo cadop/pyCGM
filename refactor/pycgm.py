@@ -347,7 +347,7 @@ class CGM:
                [-2, -2, -2]])
         """
         # axis_vectors shouldn't need the array cast around it, but a lot of unit test inputs need to be fixed first
-        origin, x_axis, y_axis, z_axis = np.array([axis_vectors])
+        origin, x_axis, y_axis, z_axis = np.array(axis_vectors)
         return np.array([x_axis - origin, y_axis - origin, z_axis - origin])
 
     @staticmethod
