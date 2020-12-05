@@ -71,9 +71,9 @@ class IO:
         >>> csv_file = 'SampleData' + os.sep + 'Sample_2' + os.sep + 'RoboResults.csv'
         >>> c3d_file = 'SampleData' + os.sep + 'Sample_2' + os.sep + 'RoboStatic.c3d'
         >>> csv_data, csv_mappings = io.IO.load_marker_data(csv_file)
-        SampleData/Sample_2/RoboResults.csv
+        Sample...
         >>> c3d_data, c3d_mappings = io.IO.load_marker_data(c3d_file)
-        SampleData/Sample_2/RoboStatic.c3d
+        Sample...
 
         Testing for some values from the loaded csv file.
 
