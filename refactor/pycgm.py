@@ -66,10 +66,39 @@ class CGM:
         self.axis_results = None
         self.com_results = None
         self.marker_map = {marker: marker for marker in IO.marker_keys()}
-        self.axis_idx = {"Pelvis Axis": 0, "Hip Axis": 1, "R Knee Axis": 2, "L Knee Axis": 3,
-                         "R Ankle Axis": 4, "L Ankle Axis": 5, "R Foot Axis": 6, "L Foot Axis": 7}
+        self.jc_idx = {}
+        self.axis_idx = {}
         self.angle_idx = {}
+
+        jc_labels = ['pelvis_origin', 'pelvis_x', 'pelvis_y', 'pelvis_z',
+            'thorax_origin', 'thorax_x', 'thorax_y', 'thorax_z',
+            'RHip', 'LHip', 'RKnee', 'LKnee', 'RAnkle', 'LAnkle', 'RFoot', 'LFoot',
+            'RHEE', 'LHEE', 'C7', 'CLAV', 'STRN', 'T10', 'Front_Head', 'Back_Head',
+            'RShoulder', 'LShoulder', 'RHumerus', 'LHumerus', 'RRadius', 'LRadius',
+            'RHand', 'LHand']
         
+        for i, label in enumerate(jc_labels):
+            self.jc_idx[label] = i
+        
+        default_axis_labels = ["PELO","PELX","PELY","PELZ","HIPO","HIPX","HIPY","HIPZ","R KNEO",
+        "R KNEX","R KNEY","R KNEZ","L KNEO","L KNEX","L KNEY","L KNEZ","R ANKO","R ANKX",
+        "R ANKY","R ANKZ","L ANKO","L ANKX","L ANKY","L ANKZ","R FOOO","R FOOX","R FOOY",
+        "R FOOZ","L FOOO","L FOOX","L FOOY","L FOOZ","HEAO","HEAX","HEAY","HEAZ","THOO",
+        "THOX","THOY","THOZ","R CLAO","R CLAX","R CLAY","R CLAZ","L CLAO","L CLAX",
+        "L CLAY","L CLAZ","R HUMO","R HUMX","R HUMY","R HUMZ","L HUMO","L HUMX","L HUMY",
+        "L HUMZ","R RADO","R RADX","R RADY","R RADZ","L RADO","L RADX","L RADY","L RADZ",
+        "R HANO","R HANX","R HANY","R HANZ","L HANO","L HANX","L HANY","L HANZ"]
+
+        for i, label in enumerate(default_axis_labels):
+            self.axis_idx[label] = i
+
+        default_angle_labels = ['Pelvis','R Hip','L Hip','R Knee','L Knee','R Ankle',
+                                'L Ankle','R Foot','L Foot',
+                                'Head','Thorax','Neck','Spine','R Shoulder','L Shoulder',
+                                'R Elbow','L Elbow','R Wrist','L Wrist']
+
+        for i, label in enumerate(default_angle_labels):
+            self.angle_idx[label] = i
 
     # Customisation functions
     def remap(self, old, new):
@@ -128,7 +157,7 @@ class CGM:
                    self.ankle_axis_calc, self.foot_axis_calc,
                    self.pelvis_angle_calc, self.hip_angle_calc, self.knee_angle_calc,
                    self.ankle_angle_calc, self.foot_angle_calc]
-        mappings = [self.marker_map, self.marker_idx, self.axis_idx, self.angle_idx]
+        mappings = [self.marker_map, self.marker_idx, self.axis_idx, self.angle_idx, self.jc_idx]
         results = self.multi_calc(self.marker_data, methods, mappings, self.measurements)
         self.axis_results, self.angle_results, self.com_results = results
 
@@ -164,7 +193,7 @@ class CGM:
             by x, y, and z location.
         """
 
-        markers, marker_idx, axis_idx, angle_idx = mappings
+        markers, marker_idx, axis_idx, angle_idx, jc_idx = mappings
 
         axis_results = np.empty((len(data), len(axis_idx), 4, 3), dtype=float)
         axis_results.fill(np.nan)
@@ -218,7 +247,7 @@ class CGM:
         # marker_idx maps actual marker name from input to its index in the input
         # For example, if the input's first marker is RASIS, equivalent of RASI,
         # markers would translate RASI to RASIS and marker_idx would translate RASIS to 0
-        markers, marker_idx, axis_idx, angle_idx = mappings
+        markers, marker_idx, axis_idx, angle_idx, jc_idx = mappings
 
         axis_results = np.empty((len(axis_idx), 4, 3), dtype=float)
         axis_results.fill(np.nan)
@@ -1824,7 +1853,7 @@ class CGM:
 
     # Center of Mass / Kinetics calculation Methods:
     @staticmethod
-    def get_kinetics(joint_centers, jc_mapping, body_mass):
+    def get_kinetics(joint_centers, jc_mapping, seg_scale, body_mass):
         """Estimate center of mass values in the global coordinate system.
 
         Estimates whole body CoM in global coordinate system using PiG scaling
