@@ -17,7 +17,7 @@ class CGM:
 
     def __init__(self, path_static, path_dynamic, path_measurements, path_results=None,
                  write_axes=True, write_angles=True, write_com=True,
-                 static=None, cores=1):
+                 static=None, cores=1, start=0, end=-1):
         """Initialization of CGM object function
 
         Instantiates various class attributes based on parameters and default values.
@@ -70,6 +70,8 @@ class CGM:
         self.jc_idx = {}
         self.axis_idx = {}
         self.angle_idx = {}
+        self.start = start 
+        self.end = end
 
         jc_labels = ['pelvis_origin', 'pelvis_x', 'pelvis_y', 'pelvis_z',
                      'thorax_origin', 'thorax_x', 'thorax_y', 'thorax_z',
@@ -147,7 +149,10 @@ class CGM:
                     row = line.rstrip('\n').split(',')
                     seg_scale[row[0]] = {'com': float(row[1]), 'mass': float(row[2]), 'x': row[3], 'y': row[4],
                                          'z': row[5]}
+
         self.marker_data, self.marker_idx = IO.load_marker_data(self.path_dynamic)
+        self.end = self.end if self.end != -1 else len(marker_data) - 1
+        self.marker_data = self.marker_data[self.start:self.end]
 
         self.measurements = self.static.get_static()
 
@@ -200,7 +205,7 @@ class CGM:
         com_results = np.empty((len(data), 3), dtype=float)
         com_results.fill(np.nan)
 
-        for i, frame in enumerate(data):
+        for i, frame in enumerate(data[start:end]):
             frame_axes, frame_angles, frame_com = CGM.calc(frame, methods, mappings, measurements, seg_scale)
             axis_results[i] = frame_axes
             angle_results[i] = frame_angles
