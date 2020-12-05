@@ -135,15 +135,19 @@ class CGM:
                                          'z': row[5]}
 
         self.marker_data, self.marker_idx = IO.load_marker_data(self.path_dynamic)
-        self.end = self.end if self.end != -1 else len(self.marker_data) - 1
+        self.end = self.end if self.end != -1 else len(self.marker_data)
         self.marker_data = self.marker_data[self.start:self.end]
 
         self.measurements = self.static.get_static()
 
         methods = [self.pelvis_axis_calc, self.hip_axis_calc, self.knee_axis_calc,
                    self.ankle_axis_calc, self.foot_axis_calc,
+                   self.head_axis_calc, self.thorax_axis_calc, self.shoulder_axis_calc,
+                   self.elbow_axis_calc, self.wrist_axis_calc, self.hand_axis_calc,
                    self.pelvis_angle_calc, self.hip_angle_calc, self.knee_angle_calc,
-                   self.ankle_angle_calc, self.foot_angle_calc]
+                   self.ankle_angle_calc, self.foot_angle_calc,
+                   self.head_angle_calc, self.thorax_angle_calc, self.neck_angle_calc,
+                   self.spine_angle_calc, self.shoulder_angle_calc, self.elbow_angle_calc, self.wrist_angle_calc]
         mappings = [self.marker_map, self.marker_idx, self.axis_idx, self.angle_idx, self.jc_idx]
         results = self.multi_calc(self.marker_data, methods, mappings, self.measurements, seg_scale)
         self.axis_results, self.angle_results, self.com_results = results
@@ -254,7 +258,10 @@ class CGM:
             by x, y, and z location. Angle results are stored as a 2d ndarray of each angle by x, y, and z.
         """
 
-        pel_ax, hip_ax, kne_ax, ank_ax, foo_ax, pel_an, hip_an, kne_an, ank_an, foo_an = methods  # Add upper when impl
+        pel_ax, hip_ax, kne_ax, ank_ax, foo_ax, \
+        hea_ax, tho_ax, sho_ax, elb_ax, wri_ax, han_ax, \
+        pel_an, hip_an, kne_an, ank_an, foo_an, \
+        hea_an, tho_an, nec_an, spi_an, sho_an, elb_an, wri_an = methods  # Add upper when impl
 
         # markers maps expected marker name to its actual name in the input
         # marker_idx maps actual marker name from input to its index in the input
@@ -364,6 +371,12 @@ class CGM:
 
         rtoe = frame[marker_idx[markers["RTOE"]]]
         ltoe = frame[marker_idx[markers["LTOE"]]]
+        rhee = frame[marker_idx[markers["RHEE"]]]
+        lhee = frame[marker_idx[markers["LHEE"]]]
+        
+        # Populate RHEE and LHEE in joint_centers
+        joint_centers[jc_idx['RHEE']] = rhee
+        joint_centers[jc_idx['LHEE']] = lhee
 
         foot_axis = foo_ax(rtoe, ltoe, ankle_axis, measurements)
 
@@ -384,7 +397,136 @@ class CGM:
         joint_centers[jc_idx['RFoot']] = r_fooo
         joint_centers[jc_idx['LFoot']] = l_fooo
 
-        # Lower Body Angle calculations
+        rfhd = frame[marker_idx[markers["RFHD"]]]
+        lfhd = frame[marker_idx[markers["LFHD"]]]
+        rbhd = frame[marker_idx[markers["RBHD"]]]
+        lbhd = frame[marker_idx[markers["LBHD"]]]
+
+        # Populate Front_Head and Back_Head in joint_centers
+        joint_centers[jc_idx['Front_Head']] = np.array([(rfhd + lfhd) / 2.0])
+        joint_centers[jc_idx['Back_Head']] = np.array([(rbhd + lbhd) / 2.0])
+
+        head_axis = hea_ax(rfhd, lfhd, rbhd, lbhd, measurements)
+        heao, heax, heay, heaz = head_axis
+
+        # Populate head axis results
+        axis_results[axis_idx["HEAO"]] = heao
+        axis_results[axis_idx["HEAX"]] = heax
+        axis_results[axis_idx["HEAY"]] = heay
+        axis_results[axis_idx["HEAZ"]] = heaz
+
+        clav = frame[marker_idx[markers["CLAV"]]]
+        c7 = frame[marker_idx[markers["C7"]]]
+        strn = frame[marker_idx[markers["STRN"]]]
+        t10 = frame[marker_idx[markers["T10"]]]
+
+        # Populate C7, CLAV, STRN, and T10 in joint_centers
+        joint_centers[jc_idx["C7"]] = c7
+        joint_centers[jc_idx["CLAV"]] = clav
+        joint_centers[jc_idx["STRN"]] = strn
+        joint_centers[jc_idx["T10"]] = t10
+
+        thorax_axis = tho_ax(clav, c7, strn, t10)
+        thoo, thox, thoy, thoz = thorax_axis
+
+        # Populate thorax axis results
+        axis_results[axis_idx["THOO"]] = thoo
+        axis_results[axis_idx["THOX"]] = thox
+        axis_results[axis_idx["THOY"]] = thoy
+        axis_results[axis_idx["THOZ"]] = thoz
+
+        # Populate thorax_origin, thorax_x, thorax_y, and thorax_z in joint_centers
+        joint_centers[jc_idx["thorax_origin"]] = thoo
+        joint_centers[jc_idx["thorax_x"]] = thox
+        joint_centers[jc_idx["thorax_y"]] = thoy
+        joint_centers[jc_idx["thorax_z"]] = thoz
+
+        rsho = frame[marker_idx[markers["RSHO"]]]
+        lsho = frame[marker_idx[markers["LSHO"]]]
+
+        wand = CGM.wand_marker(rsho, lsho, thorax_axis)
+
+        shoulder_axis = sho_ax(rsho, lsho, thorax_axis[0], wand, measurements)
+        shoulder_origin = np.array([shoulder_axis[0], shoulder_axis[4]])
+        r_shoo, r_shox, r_shoy, r_shoz, l_shoo, l_shox, l_shoy, l_shoz = shoulder_axis
+
+        # Populate shoulder axis results
+        axis_results[axis_idx["R CLAO"]] = r_shoo
+        axis_results[axis_idx["R CLAX"]] = r_shox
+        axis_results[axis_idx["R CLAY"]] = r_shoy
+        axis_results[axis_idx["R CLAZ"]] = r_shoz
+        axis_results[axis_idx["L CLAO"]] = l_shoo
+        axis_results[axis_idx["L CLAX"]] = l_shox
+        axis_results[axis_idx["L CLAY"]] = l_shoy
+        axis_results[axis_idx["L CLAZ"]] = l_shoz
+
+        # Populate RShoulder and LShoulder in joint_centers
+        joint_centers[jc_idx["RShoulder"]] = r_shoo
+        joint_centers[jc_idx["LShoulder"]] = l_shoo
+
+        relb = frame[marker_idx[markers["RELB"]]]
+        lelb = frame[marker_idx[markers["LELB"]]]
+        rwra = frame[marker_idx[markers["RWRA"]]]
+        rwrb = frame[marker_idx[markers["RWRB"]]]
+        lwra = frame[marker_idx[markers["LWRA"]]]
+        lwrb = frame[marker_idx[markers["LWRB"]]]
+
+        elbow_axis = elb_ax(relb, lelb, rwra, rwrb, lwra, lwrb, shoulder_origin, measurements)
+        r_elbo, r_elbx, r_elby, r_elbz, l_elbo, l_elbx, l_elby, l_elbz = elbow_axis
+
+        # Populate elbow axis results
+        axis_results[axis_idx["R HUMO"]] = r_elbo
+        axis_results[axis_idx["R HUMX"]] = r_elbx
+        axis_results[axis_idx["R HUMY"]] = r_elby
+        axis_results[axis_idx["R HUMZ"]] = r_elbz
+        axis_results[axis_idx["L HUMO"]] = l_elbo
+        axis_results[axis_idx["L HUMX"]] = l_elbx
+        axis_results[axis_idx["L HUMY"]] = l_elby
+        axis_results[axis_idx["L HUMZ"]] = l_elbz
+
+        # Populate RHumerus and LHumers in joint_centers
+        joint_centers[jc_idx["RHumerus"]] = r_elbo
+        joint_centers[jc_idx["LHumerus"]] = l_elbo
+
+        wrist_axis = wri_ax(rwra, rwrb, lwra, lwrb, elbow_axis, measurements)
+        wrist_origin = np.array([wrist_axis[0], wrist_axis[4]])
+        r_wrio, r_wrix, r_wriy, r_wriz, l_wrio, l_wrix, l_wriy, l_wriz = wrist_axis
+
+        # Populate wrist axis results
+        axis_results[axis_idx["R RADO"]] = r_wrio
+        axis_results[axis_idx["R RADX"]] = r_wrix
+        axis_results[axis_idx["R RADY"]] = r_wriy
+        axis_results[axis_idx["R RADZ"]] = r_wriz
+        axis_results[axis_idx["L RADO"]] = l_wrio
+        axis_results[axis_idx["L RADX"]] = l_wrix
+        axis_results[axis_idx["L RADY"]] = l_wriy
+        axis_results[axis_idx["L RADZ"]] = l_wriz
+
+        # Populate RRadius and LRadius in joint_centers
+        joint_centers[jc_idx["RRadius"]] = r_wrio
+        joint_centers[jc_idx["LRadius"]] = l_wrio
+
+        rfin = frame[marker_idx[markers["RFIN"]]]
+        lfin = frame[marker_idx[markers["LFIN"]]]
+
+        hand_axis = han_ax(rwra, rwrb, lwra, lwrb, rfin, lfin, wrist_origin, measurements)
+        r_hano, r_hanx, r_hany, r_hanz, l_hano, l_hanx, l_hany, l_hanz = hand_axis
+
+        # Populate hand axis results
+        axis_results[axis_idx["R HANO"]] = r_hano
+        axis_results[axis_idx["R HANX"]] = r_hanx
+        axis_results[axis_idx["R HANY"]] = r_hany
+        axis_results[axis_idx["R HANZ"]] = r_hanz
+        axis_results[axis_idx["L HANO"]] = l_hano
+        axis_results[axis_idx["L HANX"]] = l_hanx
+        axis_results[axis_idx["L HANY"]] = l_hany
+        axis_results[axis_idx["L HANZ"]] = l_hanz
+
+        # Populate RHand and LHand in joint_centers
+        joint_centers[jc_idx["RHand"]] = r_hano
+        joint_centers[jc_idx["LHand"]] = l_hano
+
+        # Angle calculations
         # Pelvis
         pelvis_angle = pel_an(measurements['GCS'], pelvis_axis)
         angle_results[angle_idx["Pelvis"]] = pelvis_angle
@@ -406,14 +548,43 @@ class CGM:
 
         # Foot
         right_foot_angle, left_foot_angle = foo_an(measurements['GCS'], foot_axis)
-        angle_results[angle_idx["R Ankle"]] = right_foot_angle
-        angle_results[angle_idx["L Ankle"]] = left_foot_angle
+        angle_results[angle_idx["R Foot"]] = right_foot_angle
+        angle_results[angle_idx["L Foot"]] = left_foot_angle
 
-        # Upper Body Angle calculations
-        # head_angle = head_an(measurements['GCS'], head_axis)
-        # angle_results[angle_idx["Head"]] = head_angle
+        # Head
+        head_angle = hea_an(measurements['GCS'], head_axis)
+        angle_results[angle_idx["Head"]] = head_angle
+
+        # Thorax
+        thorax_angle = tho_an(thorax_axis)
+        angle_results[angle_idx["Thorax"]] = thorax_angle
+
+        # Neck
+        neck_angle = nec_an(head_axis, thorax_axis)
+        angle_results[angle_idx["Neck"]] = neck_angle
+
+        # Spine
+        spine_angle = spi_an(pelvis_axis, thorax_axis)
+        angle_results[angle_idx["Spine"]] = spine_angle
+
+        # Shoulder
+        right_shoulder_angle, left_shoulder_angle = sho_an(thorax_axis, elbow_axis)
+        angle_results[angle_idx["R Shoulder"]] = right_shoulder_angle
+        angle_results[angle_idx["L Shoulder"]] = left_shoulder_angle
+
+        # Elbow
+        right_elbow_angle, left_elbow_angle = elb_an(elbow_axis, wrist_axis)
+        angle_results[angle_idx["R Elbow"]] = right_elbow_angle
+        angle_results[angle_idx["L Elbow"]] = left_elbow_angle
+
+        # Wrist
+        right_wrist_angle, left_wrist_angle = wri_an(wrist_axis, hand_axis)
+        angle_results[angle_idx["R Wrist"]] = right_wrist_angle
+        angle_results[angle_idx["L Wrist"]] = left_wrist_angle
 
         # Center of Mass calculations
+        com_results = np.array(CGM.get_kinetics(joint_centers, jc_idx, seg_scale, measurements["Bodymass"]))
+
         return axis_results, angle_results, com_results
 
     # Utility functions
@@ -2671,7 +2842,8 @@ class CGM:
 
         # GCS fix
         r_foot_angle = np.array([r_global_foot_angle[0], r_global_foot_angle[2] - 90.0, r_global_foot_angle[1]])
-        l_foot_angle = np.array([l_global_foot_angle[0], l_global_foot_angle[2] * -1 + 90.0, l_global_foot_angle[1] * -1])
+        l_foot_angle = np.array(
+            [l_global_foot_angle[0], l_global_foot_angle[2] * -1 + 90.0, l_global_foot_angle[1] * -1])
 
         return np.array([r_foot_angle, l_foot_angle])
 
@@ -2845,6 +3017,9 @@ class CGM:
         r_shoulder_angle = np.array([r_shoulder_angle[0] * -1, r_shoulder_angle[1] * -1, r_shoulder_angle[2]])
         l_shoulder_angle = np.array([l_shoulder_angle[0] * -1, l_shoulder_angle[1], 180.0 - l_shoulder_angle[2]])
 
+        if l_shoulder_angle[2] > 180:
+            l_shoulder_angle[2] -= 360
+
         return np.array([r_shoulder_angle, l_shoulder_angle])
 
     @staticmethod
@@ -2957,7 +3132,7 @@ class CGM:
 
         Returns
         -------
-        com_coords : 1darray
+        com_coords : ndarray
             Numpy array containing center of mass coordinates for the frame
             of trial. The coordinate is a 1x3 array of the XYZ position of the center
             of mass.
