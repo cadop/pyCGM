@@ -13,6 +13,8 @@ if __name__ == "__main__":
     subject1 = CGM(static_trial, dynamic_trial, measurements)
     subject1.run()
     subject1.write_results(sample_dir + "Sample_Refactor_Results.csv")
+    print(subject1.pelvis_axes[0])
+    print(subject1.elbow_angles[0])
 
 # timeit sample
 #     setup = '''from refactor.pycgm import CGM
