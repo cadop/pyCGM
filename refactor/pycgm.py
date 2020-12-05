@@ -148,7 +148,7 @@ class CGM:
                 else:
                     row = line.rstrip('\n').split(',')
                     seg_scale[row[0]] = {'com': float(row[1]), 'mass': float(row[2]), 'x': row[3], 'y': row[4], 'z': row[5]}
-        self.marker_data, self.marker_idx = IO.load_marker_data(path_dynamic)
+        self.marker_data, self.marker_idx = IO.load_marker_data(self.path_dynamic)
         
         self.measurements = self.static.get_static(self.static.marker_data, self.static.marker_idx,
                                                    self.static.subject_measurements, False)
