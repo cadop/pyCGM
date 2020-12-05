@@ -138,7 +138,7 @@ class CGM:
 
         # Get PlugInGait scaling table from segments.csv for use in center of mass calculations
         seg_scale = {}
-        with open(os.path.dirname(os.path.abspath(__file__)) + '/refactor/segments.csv', 'r') as f:
+        with open(os.path.dirname(os.path.abspath(__file__)) + '/segments.csv', 'r') as f:
             header = False
             for line in f:
                 if not header:
@@ -156,7 +156,7 @@ class CGM:
                    self.pelvis_angle_calc, self.hip_angle_calc, self.knee_angle_calc,
                    self.ankle_angle_calc, self.foot_angle_calc]
         mappings = [self.marker_map, self.marker_idx, self.axis_idx, self.angle_idx, self.jc_idx]
-        results = self.multi_calc(self.marker_data, methods, mappings, self.measurements)
+        results = self.multi_calc(self.marker_data, methods, mappings, self.measurements, seg_scale)
         self.axis_results, self.angle_results, self.com_results = results
 
     @staticmethod
@@ -267,10 +267,11 @@ class CGM:
             pelvis_axis = pel_ax(rasi, lasi, rpsi=rpsi, lpsi=lpsi)
         else:
             raise ValueError("Required marker RPSI and LPSI, or SACR, missing")
+        
         axis_results[axis_idx["Pelvis Axis"]] = pelvis_axis
 
         hip_axis = hip_ax(pelvis_axis, measurements)
-        axis_results[axis_idx["Hip Axis"]] = hip_axis[2:]
+         axis_results[axis_idx["Hip Axis"]] = hip_axis[2:]
 
         rthi = frame[marker_idx[markers["RTHI"]]]
         lthi = frame[marker_idx[markers["LTHI"]]]
@@ -296,10 +297,36 @@ class CGM:
         foot_axis = foo_ax(rtoe, ltoe, ankle_axis, measurements)
         axis_results[axis_idx["R Foot Axis"]], axis_results[axis_idx["L Foot Axis"]] = foot_axis[:4], foot_axis[4:]
 
-        # Angle calculations
+        ### LowerBody Angle calculations
+        # Pelvis
+        pelvis_angle = pel_an(measurements['GCS'], pelvis_axis)
+        angle_results[angle_idx["Pelvis"]] = pelvis_angle
+
+        # Hip
+        right_hip_angle, left_hip_angle = hip_an(hip_axis, knee_axis)
+        angle_results[angle_idx["R Hip"]] = right_hip_angle
+        angle_results[angle_idx["L Hip"]] = left_hip_angle
+
+        # Knee
+        right_knee_angle, left_knee_angle = kne_an(knee_axis, ankle_axis)
+        angle_results[angle_idx["R Knee"]] = right_knee_angle
+        angle_results[angle_idx["L Knee"]] = left_knee_angle
+
+        # Ankle
+        right_ankle_angle, left_ankle_angle = ank_an(ankle_axis, foot_axis)
+        angle_results[angle_idx["R Ankle"]] = right_ankle_angle
+        angle_results[angle_idx["L Ankle"]] = left_ankle_angle
+
+        # Foot
+        right_foot_angle, left_foot_angle = foo_an(measurements['GCS'], foot_axis)
+        angle_results[angle_idx["R Ankle"]] = right_foot_angle
+        angle_results[angle_idx["L Ankle"]] = left_foot_angle
+
+        ### UpperBody Angle calculations
+        # head_angle = head_an(measurements['GCS'], head_axis)
+        # angle_results[angle_idx["Head"]] = head_angle
 
         # Center of Mass calculations
-
         return axis_results, angle_results, com_results
 
     # Utility functions
@@ -3564,8 +3591,7 @@ class StaticCGM:
             angles = StaticCGM.static_calculation(rtoe, ltoe, rhee, lhee, ankle_axis, flat_foot, cal_sm)
 
             rfhd, lfhd, rbhd, lbhd = frame[self.mapping['RFHD']], frame[self.mapping['LFHD']], frame[
-                self.mapping['RBHD']], frame[
-                                         self.mapping['LBHD']]
+                self.mapping['RBHD']], frame[self.mapping['LBHD']]
             head_axis = StaticCGM.head_axis_calc(rfhd, lfhd, rbhd, lbhd)
 
             head_angle = StaticCGM.static_calculation_head(head_axis)
