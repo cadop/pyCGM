@@ -21,7 +21,7 @@ dynamic_trial = sample_dir + "Sample_Dynamic.c3d"
 measurements = sample_dir + "Sample_SM.vsk"
 subject1 = CGM(static_trial, dynamic_trial, measurements)'''
     code = '''subject1.run()'''
-    print(timeit.timeit(code, setup, number=1), "sec")
+    print(timeit.timeit(code, setup, number=10), "sec")
     # print(subject1.axis_results[0])
 
     # measurements = {'MeanLegLength': 940.0, 'R_AsisToTrocanterMeasure': 72.512,
