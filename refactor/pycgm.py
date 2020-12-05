@@ -550,7 +550,7 @@ class CGM:
                 -1 * ((axis_d[1][0] * axis_p[1][0]) + (axis_d[1][1] * axis_p[1][1]) + (axis_d[1][2] * axis_p[1][2])),
                 ((axis_d[0][0] * axis_p[1][0]) + (axis_d[0][1] * axis_p[1][1]) + (axis_d[0][2] * axis_p[1][2])))
 
-        angle = np.array([beta, alpha, gamma]) * 180.0 / pi
+        angle = np.array([180.0 * beta / pi, 180.0 * alpha / pi, 180.0 * gamma / pi])
 
         return angle
 
