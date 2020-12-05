@@ -111,8 +111,7 @@ class CGM:
         Runs the dynamic trial to calculate all axes and angles.
         """
 
-        self.measurements = self.static.get_static(self.static.marker_data, self.static.marker_idx,
-                                                   self.static.subject_measurements, False)
+        self.measurements = self.static.get_static()
 
         methods = [self.pelvis_axis_calc, self.hip_axis_calc, self.knee_axis_calc,
                    self.ankle_axis_calc, self.foot_axis_calc,
