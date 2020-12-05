@@ -1735,32 +1735,6 @@ class CGM:
             wrist x, y, and z axis components.
         """
 
-    # @staticmethod
-    # def wrist_axis_calc(rsho, lsho, relb, lelb, rwra, rwrb, lwra, lwrb, elbow_axis, wand):
-    #     """Wrist Axis Calculation function
-    #
-    #     Calculates the right and left wrist joint center and axis and returns them.
-    #
-    #     Markers used: RSHO, LSHO, RELB, LELB, RWRA, RWRB, LWRA, LWRB
-    #
-    #     Parameters
-    #     ----------
-    #     rsho, lsho, relb, lelb, rwra, rwrb, lwra, lwrb : ndarray
-    #         A 1x3 ndarray of each respective marker containing the XYZ positions.
-    #     elbow_axis : ndarray
-    #         An 8x3 ndarray that contains the right elbow origin, right elbow x, y, and z
-    #         axis components, left elbow origin, and left elbow x, y, and z axis components.
-    #     wand : ndarray
-    #         A 2x3 ndarray containing the right wand marker x, y, and z positions and the
-    #         left wand marker x, y, and z positions.
-    #
-    #     Returns
-    #     --------
-    #     array
-    #         Returns an 8x3 ndarray that contains the right wrist origin, right wrist x, y, and z
-    #         axis components, left wrist origin, and left wrist x, y, and z axis components.
-    #     """
-
     @staticmethod
     def hand_axis_calc(rwra, wrb, lwra, lwrb, rfin, lfin, wrist_jc, measurements):
         """Hand Axis Calculation function
@@ -2267,8 +2241,114 @@ class CGM:
 
                 com_coords = sum(vals) / body_mass
         return com_coords
+    
+    ### Lower body properties
+    @property
+    def pelvis_axes(self):
+        pel = np.array([ self.axis_results[0:, self.axis_idx["PELO"]],
+                    self.axis_results[0:, self.axis_idx["PELX"]],
+                    self.axis_results[0:, self.axis_idx["PELY"]],
+                    self.axis_results[0:, self.axis_idx["PELZ"]]])
+        return pel
+    
+    @property
+    def pelvis_angles(self):
+        pass
 
+    @property
+    def hip_axes(self):
+        axes = []
+        return axes
 
+    @property
+    def hip_angles(self):
+        pass
+
+    @property
+    def knee_axes(self):
+        pass
+
+    @property
+    def knee_angles(self):
+        pass
+
+    @property
+    def ankle_axes(self):
+        pass
+
+    @property
+    def ankle_angles(self):
+        pass
+
+    @property
+    def foot_axes(self):
+        pass
+
+    @property
+    def foot_angles(self):
+        pass
+
+    ### Upper body properties
+    @property
+    def head_axes(self):
+        pass
+
+    @property
+    def head_angles(self):
+        pass
+
+    @property
+    def thorax_axes(self):
+        pass
+
+    @property
+    def thorax_angle(self):
+        pass
+
+    @property
+    def neck_axes(self):
+        pass
+
+    @property
+    def neck_angle(self):
+        pass
+
+    @property
+    def spine_axes(self):
+        pass
+
+    @property
+    def spine_angle(self):
+        pass
+
+    @property
+    def shoulder_axes(self):
+        pass
+
+    @property
+    def shoulder_angle(self):
+        pass
+
+    @property
+    def elbow_axes(self):
+        pass
+
+    @property
+    def elbow_angle(self):
+        pass
+
+    @property
+    def wrist_angle(self):
+        pass
+
+    @property
+    def wrist_angle(self):
+        pass
+
+class SubjectManager:
+    def __init__(self, *CGMs):
+        pass
+    
 class StaticCGM:
     """
     A class to used to calculate the offsets in a static trial and calibrate subject measurements.
