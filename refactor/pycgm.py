@@ -715,6 +715,165 @@ class CGM:
         return angle
 
     @staticmethod
+    def get_head_angle(axis_p, axis_d):
+        """Head angle calculation function
+
+        This function takes in two axes, proximal and distal, and returns three angles.
+        It uses inverse Euler rotation matrix in YXZ order.
+        The output contains the angles in degrees.
+
+        As we use arcsin, we have to care about if the angle is in area between -pi/2 to pi/2
+
+        Parameters
+        ----------
+        axis_p : nparray
+            The unit vectors of axis_p, the position of the proximal axis.
+        axis_d : nparray
+            The unit vectors of axis_d, the position of the distal axis.
+
+        Returns
+        -------
+        angle : nparray
+            Returns the flexion, abduction, and rotation angles in a 1x3 ndarray.
+
+        Examples
+        --------
+        >>> import numpy as np 
+        >>> from .pycgm import CGM
+        >>> axis_p = np.array([[  0.0464229,  0.99648672,  0.06970743],
+        ...                    [ 0.99734011, -0.04231089, -0.05935067],
+        ...                    [-0.05619277,  0.07227725, -0.99580037]])
+        >>> axis_d = np.array([[-0.18067218, -0.98329158, -0.02225371],
+        ...                    [ 0.71383942,  -0.1155303, -0.69071415],
+        ...                    [ 0.67660243,  -0.1406784,  0.7227854 ]])
+        >>> CGM.get_head_angle(axis_p, axis_d)
+        array([ 184.34816517,  -39.63221894, -190.2668477 ])
+        """
+        # This is the angle calculation, in which the order is Y-X-Z
+
+        # Alpha is abdcution angle.
+        ang = ((-1 * axis_d[2][0] * axis_p[1][0]) +
+               (-1 * axis_d[2][1] * axis_p[1][1]) +
+               (-1 * axis_d[2][2] * axis_p[1][2]))
+        alpha = np.nan
+        if -1 <= ang <= 1:
+            alpha = np.arcsin(ang)
+
+        # Check the abduction angle is in the area between -pi/2 and pi/2
+        # Beta is flexion angle
+        # Gamma is rotation angle
+
+        beta = np.arctan2(((axis_d[2][0] * axis_p[1][0]) +
+                           (axis_d[2][1] * axis_p[1][1]) +
+                           (axis_d[2][2] * axis_p[1][2])),
+                          np.sqrt(pow(axis_d[0][0] * axis_p[1][0] +
+                                      axis_d[0][1] * axis_p[1][1] +
+                                      axis_d[0][2] * axis_p[1][2], 2) +
+                                  pow(axis_d[1][0] * axis_p[1][0] +
+                                      axis_d[1][1] * axis_p[1][1] +
+                                      axis_d[1][2] * axis_p[1][2], 2)))
+
+        alpha = np.arctan2(((axis_d[2][0] * axis_p[0][0]) +
+                            (axis_d[2][1] * axis_p[0][1]) +
+                            (axis_d[2][2] * axis_p[0][2])) * -1,
+                           ((axis_d[2][0] * axis_p[2][0]) +
+                            (axis_d[2][1] * axis_p[2][1]) +
+                            (axis_d[2][2] * axis_p[2][2])))
+        gamma = np.arctan2(((axis_d[0][0] * axis_p[1][0]) +
+                            (axis_d[0][1] * axis_p[1][1]) +
+                            (axis_d[0][2] * axis_p[1][2])) * -1,
+                           ((axis_d[1][0] * axis_p[1][0]) +
+                            (axis_d[1][1] * axis_p[1][1]) +
+                            (axis_d[1][2] * axis_p[1][2])))
+
+        alpha = 180.0 * alpha / pi
+        beta = 180.0 * beta / pi
+        gamma = 180.0 * gamma / pi
+
+        beta *= -1
+
+        if alpha < 0:
+            alpha *= -1
+        elif 0 < alpha < 180:
+            alpha = 360 - alpha
+
+        if gamma > 90.0:
+            if gamma > 120:
+                gamma = 180 - gamma
+            else:
+                gamma = -180 - gamma
+        else:
+            if gamma < 0:
+                gamma = -180 - gamma
+            else:
+                gamma = -180.0 - gamma
+
+        angle = np.array([alpha, beta, gamma])
+
+        return angle
+
+    @staticmethod
+    def get_shoulder_angle(axis_p, axis_d):
+        """Shoulder angle calculation function
+
+        This function takes in two axes, proximal and distal, and returns three angles.
+        It uses inverse Euler rotation matrix in YXZ order.
+        The output contains the angles in degrees.
+
+        As we use arcsin, we have to care about if the angle is in area between -pi/2 to pi/2
+
+        Parameters
+        ----------
+        axis_p : nparray
+            The unit vectors of axis_p, the position of the proximal axis.
+        axis_d : nparray
+            The unit vectors of axis_d, the position of the distal axis.
+
+        Returns
+        -------
+        angle : nparray
+            Returns the flexion, abduction, and rotation angles in a 1x3 ndarray.
+
+        Examples
+        --------
+        >>> import numpy as np 
+        >>> from .pycgm import CGM
+        >>> axis_p = np.array([[  0.0464229,  0.99648672,  0.06970743],
+        ...                    [ 0.99734011, -0.04231089, -0.05935067],
+        ...                    [-0.05619277,  0.07227725, -0.99580037]])
+        >>> axis_d = np.array([[-0.18067218, -0.98329158, -0.02225371],
+        ...                    [ 0.71383942,  -0.1155303, -0.69071415],
+        ...                    [ 0.67660243,  -0.1406784,  0.7227854 ]])
+        >>> CGM.get_shoulder_angle(axis_p, axis_d)
+        array([  -3.3474503 , -140.28662977,  172.50982168])
+        """
+
+        # Beta is flexion/extension
+        # Gamma is adduction/abduction
+        # Alpha is internal/external rotation
+
+        # Shoulder angle calculation
+        alpha = np.arcsin(((axis_d[2][0] * axis_p[0][0]) +
+                           (axis_d[2][1] * axis_p[0][1]) +
+                           (axis_d[2][2] * axis_p[0][2])))
+        beta = np.arctan2(((axis_d[2][0] * axis_p[1][0]) +
+                           (axis_d[2][1] * axis_p[1][1]) +
+                           (axis_d[2][2] * axis_p[1][2])) * -1,
+                          ((axis_d[2][0] * axis_p[2][0]) +
+                           (axis_d[2][1] * axis_p[2][1]) +
+                           (axis_d[2][2] * axis_p[2][2])))
+        gamma = np.arctan2(((axis_d[1][0] * axis_p[0][0]) +
+                            (axis_d[1][1] * axis_p[0][1]) +
+                            (axis_d[1][2] * axis_p[0][2])) * -1,
+                           ((axis_d[0][0] * axis_p[0][0]) +
+                            (axis_d[0][1] * axis_p[0][1]) +
+                            (axis_d[0][2] * axis_p[0][2])))
+
+        angle = np.array([alpha, beta, gamma]) * 180.0 / pi
+
+        return angle
+
+    @staticmethod
     def point_to_line(point, start, end):
         """Finds the distance from a point to a line.
 
@@ -2466,8 +2625,28 @@ class CGM:
         return np.array([r_foot_angle, l_foot_angle])
 
     @staticmethod
-    def head_angle_calc():
-        pass
+    def head_angle_calc(global_axis, head_axis):
+        """Head Angle Calculation function
+
+        Calculates the global head angle.
+
+        Parameters
+        ----------
+        global_axis : ndarray
+            A 3x3 ndarray representing the global coordinate system.
+        head_axis : ndarray
+            A 4x3 ndarray containing the origin and three unit vectors of the head axis.
+
+        Returns
+        -------
+        ndarray
+            A 1x3 ndarray containing the flexion, abduction, and rotation angles of the head.
+
+        Examples
+        --------
+        """
+        head_axis_mod = CGM.subtract_origin(head_axis)
+        # needs getHeadangle impl
 
     @staticmethod
     def thorax_angle_calc():
