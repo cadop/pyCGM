@@ -42,7 +42,7 @@ jobs:
         pytest --doctest-modules --continue-on-collection-errors refactor/ --ignore=refactor/tests/
     - name: Run Unittests with pytest
       run: |
-        pytest refactor/
+        pytest refactor/ --ignore=refactor/tests/test_csv_output.py
         
   build3:
 
@@ -76,4 +76,4 @@ jobs:
         pytest --doctest-modules --continue-on-collection-errors refactor/ --ignore=refactor/tests/
     - name: Run Unittests with pytest
       run: |
-        pytest refactor/
+        pytest refactor/ --ignore=refactor/tests/test_csv_output.py

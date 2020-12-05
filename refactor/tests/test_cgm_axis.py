@@ -778,8 +778,9 @@ class TestLowerBodyAxis():
         # Testing that when rtoe, ltoe, and ankle_axis are composed of lists of floats and measurements values are
         # floats
         (np.array([4.0, 0.0, -3.0]), np.array([-1.0, 7.0, 2.0]),
-         np.array([[-3.0, 5.0, 2.0], rand_coor, [-1.0, 0.0, 2.0], rand_coor, [2.0, 3.0, 9.0], rand_coor, [9.0, 3.0, -4.0],
-          rand_coor]),
+         np.array(
+             [[-3.0, 5.0, 2.0], rand_coor, [-1.0, 0.0, 2.0], rand_coor, [2.0, 3.0, 9.0], rand_coor, [9.0, 3.0, -4.0],
+              rand_coor]),
          {'RightStaticRotOff': -12.0, 'RightStaticPlantFlex': 20.0, 'LeftStaticRotOff': 34.0,
           'LeftStaticPlantFlex': -70.0},
          np.array([[4, 0, -3], [3.08005417, 0.34770638, -2.81889243], [4.00614173, -0.44911697, -2.10654814],
@@ -822,6 +823,168 @@ class TestLowerBodyAxis():
         of ints, lists of floats, and numpy arrays of floats and measurements values are ints and floats.
         """
         result = CGM.foot_axis_calc(rtoe, ltoe, ankle_axis, measurements)
+        np.testing.assert_almost_equal(result, expected, rounding_precision)
+
+
+class TestUpperBodyAxis():
+    """
+    This class tests the upper body axis functions in the class CGM in pycgm.py:
+    head_axis_calc
+    thorax_axis_calc
+    """
+
+    nan_3d = np.array([np.nan, np.nan, np.nan])
+
+    @pytest.mark.parametrize(["rfhd", "lfhd", "rbhd", "lbhd", "measurements", "expected"], [
+        # Test from running sample data
+        (np.array([325.82983398, 402.55450439, 1722.49816895]), np.array([184.55158997, 409.68713379, 1721.34289551]),
+         np.array([304.39898682, 242.91339111, 1694.97497559]), np.array([197.8621521, 251.28889465, 1696.90197754]),
+         {'HeadOffset': 0.2571990469310653},
+         [[255.19071197509766, 406.1208190917969, 1721.9205322265625],
+          [255.21685582510975, 407.11593887758056, 1721.8253843887082],
+          [254.19105385179665, 406.146809183757, 1721.9176771191715],
+          [255.19034370229795, 406.2160090443217, 1722.9159912851449]]),
+        # Basic test with a variance of 1 in the x and y dimensions of the markers
+        (np.array([0, 1, 0]), np.array([1, 1, 0]), np.array([0, 0, 0]), np.array([1, 0, 0]),
+         {'HeadOffset': 0.0},
+         [[0.5, 1, 0], [0.5, 2, 0], [1.5, 1, 0], [0.5, 1, -1]]),
+        # Setting the markers so there's no variance in the x-dimension
+        (np.array([0, 1, 0]), np.array([0, 1, 0]), np.array([0, 0, 0]), np.array([0, 0, 0]),
+         {'HeadOffset': 0.0},
+         [[0, 1, 0], nan_3d, nan_3d, nan_3d]),
+        # Setting the markers so there's no variance in the y-dimension
+        (np.array([0, 0, 0]), np.array([1, 0, 0]), np.array([0, 0, 0]), np.array([1, 0, 0]),
+         {'HeadOffset': 0.0},
+         [[0.5, 0, 0], nan_3d, nan_3d, nan_3d]),
+        # Setting each marker in a different xy quadrant
+        (np.array([1, 1, 0]), np.array([-1, 1, 0]), np.array([1, -1, 0]), np.array([-1, -1, 0]),
+         {'HeadOffset': 0.0},
+         [[0, 1, 0], [0, 2, 0], [-1, 1, 0], [0, 1, 1]]),
+        # Setting values of the markers so that midpoints will be on diagonals
+        (np.array([1, 2, 0]), np.array([-2, 1, 0]), np.array([2, -1, 0]), np.array([-1, -2, 0]),
+         {'HeadOffset': 0.0},
+         [[-0.5, 1.5, 0], [-0.81622777, 2.4486833, 0], [-1.4486833, 1.18377223, 0], [-0.5, 1.5, 1]]),
+        # Adding the value of 1 in the z dimension for all 4 markers
+        (np.array([0, 1, 1]), np.array([1, 1, 1]), np.array([0, 0, 1]), np.array([1, 0, 1]),
+         {'HeadOffset': 0.0},
+         [[0.5, 1, 1], [0.5, 2, 1], [1.5, 1, 1], [0.5, 1, 0]]),
+        # Setting the z dimension value higher for lfhd and lbhd
+        (np.array([0, 1, 1]), np.array([1, 1, 2]), np.array([0, 0, 1]), np.array([1, 0, 2]),
+         {'HeadOffset': 0.0},
+         [[0.5, 1, 1.5], [0.5, 2, 1.5], [1.20710678, 1, 2.20710678], [1.20710678, 1, 0.79289322]]),
+        # Setting the z dimension value higher for lfhd and rfhd
+        (np.array([0, 1, 2]), np.array([1, 1, 2]), np.array([0, 0, 1]), np.array([1, 0, 1]),
+         {'HeadOffset': 0.0},
+         [[0.5, 1, 2], [0.5, 1.70710678, 2.70710678], [1.5, 1, 2], [0.5, 1.70710678, 1.29289322]]),
+        # Adding a value for HeadOffset
+        (np.array([0, 1, 0]), np.array([1, 1, 0]), np.array([0, 0, 0]), np.array([1, 0, 0]),
+         {'HeadOffset': 0.5},
+         [[0.5, 1, 0], [0.5, 1.87758256, 0.47942554], [1.5, 1, 0], [0.5, 1.47942554, -0.87758256]]),
+        # Testing that when rfhd, lfhd, rbhd, and lbhd are numpy arrays of ints and headOffset is an int
+        (np.array([0, 1, 0], dtype='int'), np.array([1, 1, 0], dtype='int'), np.array([0, 0, 0], dtype='int'),
+         np.array([1, 0, 0], dtype='int'),
+         {'HeadOffset': 1},
+         [[0.5, 1, 0], [0.5, 1.5403023058681398, 0.8414709848078965], [1.5, 1, 0],
+          [0.5, 1.8414709848078965, -0.5403023058681398]]),
+        # Testing that when rfhd, lfhd, rbhd, and lbhd are numpy arrays of floats and headOffset is a float
+        (np.array([0.0, 1.0, 0.0], dtype='float'), np.array([1.0, 1.0, 0.0], dtype='float'),
+         np.array([0.0, 0.0, 0.0], dtype='float'), np.array([1.0, 0.0, 0.0], dtype='float'),
+         {'HeadOffset': 1.0},
+         [[0.5, 1, 0], [0.5, 1.5403023058681398, 0.8414709848078965], [1.5, 1, 0],
+          [0.5, 1.8414709848078965, -0.5403023058681398]])])
+    def test_head_axis_calc(self, rfhd, lfhd, rbhd, lbhd, measurements, expected):
+        """
+        This test provides coverage of the head_axis_calc function in the class CGM in pycgm.py, defined as
+        head_axis_calc(rfhd, lfhd, rbhd, lbhd, measurements)
+
+        This test takes 6 parameters:
+        rfhd, lfhd, rbhd, lbhd : ndarray
+            A 1x3 ndarray of each respective marker containing the XYZ positions.
+        measurements : dict
+            A dictionary containing the subject measurements given from the file input.
+        expected : array
+            A 4x3 ndarray that contains the head origin and the head x, y, and z axis components.
+
+        This test is checking to make sure the head joint center and axis are calculated correctly given the input
+        parameters.
+
+        This unit test ensures that:
+        - the correct expected values are altered per parameter given.
+        - the resulting output is correct when rfhd, lfhd, rbhd, and lbhd are composed of numpy arrays of ints and
+        numpy arrays of floats and measurements values are ints and floats. The values of rfhd, lfhd, rbhd,
+        and lbhd were kept as numpy arrays as lists would cause errors from lines like the following in pycgm.py as
+        lists cannot be added together:
+        front = (rfhd + lfhd) / 2.0
+        """
+        result = CGM.head_axis_calc(rfhd, lfhd, rbhd, lbhd, measurements)
+        np.testing.assert_almost_equal(result, expected, rounding_precision)
+
+    @pytest.mark.parametrize(["clav", "c7", "strn", "t10", "expected"], [
+        # Test from running sample data
+        (np.array([256.78051758, 371.28042603, 1459.70300293]), np.array([251.22619629, 229.75683594, 1533.77624512]),
+         np.array([251.67492676, 414.10391235, 1292.08508301]), np.array([228.64323425, 192.32041931, 1279.6418457]),
+         [[256.149810236564, 364.3090603933987, 1459.6553639290375],
+          [256.23991128535846, 365.30496976939753, 1459.662169500559],
+          [257.1435863244796, 364.21960599061947, 1459.588978712983],
+          [256.0843053658035, 364.32180498523223, 1458.6575930699294]]),
+        # Basic test with a variance of 1 in the x and y dimensions of the markers
+        (np.array([1, 0, 0]), np.array([1, 1, 0]), np.array([0, 0, 0]), np.array([0, 1, 0]),
+         [[1, 7, 0], [1, 6, 0], [1, 7, 1], [0, 7, 0]]),
+        # Setting the markers so there's no variance in the x-dimension
+        (np.array([0, 0, 0]), np.array([0, 1, 0]), np.array([0, 0, 0]), np.array([0, 1, 0]),
+         [nan_3d, nan_3d, nan_3d, nan_3d]),
+        # Setting the markers so there's no variance in the y-dimension
+        (np.array([1, 0, 0]), np.array([1, 0, 0]), np.array([0, 0, 0]), np.array([0, 0, 0]),
+         [nan_3d, nan_3d, nan_3d, nan_3d]),
+        # Setting each marker in a different xy quadrant
+        (np.array([-1, -1, 0]), np.array([-1, 1, 0]), np.array([1, -1, 0]), np.array([1, 1, 0]),
+         [[-1, 6, 0], [-1, 5, 0], [-1, 6, -1], [0, 6, 0]]),
+        # Setting values of the markers so that midpoints will be on diagonals
+        (np.array([-1, -2, 0]), np.array([-2, 1, 0]), np.array([2, -1, 0]), np.array([1, 2, 0]),
+         [[-3.21359436, 4.64078309, 0], [-2.8973666, 3.69209979, 0], [-3.21359436, 4.64078309, -1],
+          [-2.26491106, 4.95701085, 0]]),
+        # Adding the value of 1 in the z dimension for all 4 markers
+        (np.array([1, 0, 1]), np.array([1, 1, 1]), np.array([0, 0, 1]), np.array([0, 1, 1]),
+         [[1, 7, 1], [1, 6, 1], [1, 7, 2], [0, 7, 1]]),
+        # Setting the z dimension value higher for C7 and CLAV
+        (np.array([1, 0, 2]), np.array([1, 1, 2]), np.array([0, 0, 1]), np.array([0, 1, 1]),
+         [[1, 7, 2], [1, 6, 2], [0.29289322, 7, 2.70710678], [0.29289322, 7, 1.29289322]]),
+        # Setting the z dimension value higher for C7 and T10
+        (np.array([1, 0, 1]), np.array([1, 1, 2]), np.array([0, 0, 1]), np.array([0, 1, 2]),
+         [[1, 4.94974747, 5.94974747], [1, 4.24264069, 5.24264069], [1, 4.24264069, 6.65685425],
+          [0, 4.94974747, 5.94974747]]),
+        # Testing that when frame is a numpy array of ints
+        (np.array([1, 0, 1], dtype='int'), np.array([1, 1, 2], dtype='int'), np.array([0, 0, 1], dtype='int'),
+         np.array([0, 1, 2], dtype='int'),
+         [[1, 4.94974747, 5.94974747], [1, 4.24264069, 5.24264069], [1, 4.24264069, 6.65685425],
+          [0, 4.94974747, 5.94974747]]),
+        # Testing that when frame is a numpy array of floats
+        (np.array([1.0, 0.0, 1.0], dtype='float'), np.array([1.0, 1.0, 2.0], dtype='float'),
+         np.array([0.0, 0.0, 1.0], dtype='float'), np.array([0.0, 1.0, 2.0], dtype='float'),
+         [[1, 4.94974747, 5.94974747], [1, 4.24264069, 5.24264069], [1, 4.24264069, 6.65685425],
+          [0, 4.94974747, 5.94974747]])])
+    def test_thorax_axis_calc(self, clav, c7, strn, t10, expected):
+        """
+        This test provides coverage of the thorax_axis_calc function in the class CGM in pycgm.py, defined as
+        thorax_axis_calc(clav, c7, strn, t10)
+
+        This test takes 6 parameters:
+        clav, c7, strn, t10 : ndarray
+            A 1x3 ndarray of each respective marker containing the XYZ positions.
+        expected : array
+            A 4x3 ndarray that contains the thorax origin and the thorax x, y, and z axis components.
+
+        This test is checking to make sure the thorax joint center and axis are calculated correctly given the input
+        parameters.
+
+        This unit test ensures that:
+        - the correct expected values are altered per parameter given.
+        - the resulting output is correct when clav, c7, strn, and t10 are composed of numpy arrays of ints and numpy
+        arrays of floats . The values of clav, c7, strn, and t10 were kept as numpy arrays as lists would cause
+        errors from lines like the following in pycgm.py as lists cannot be added together:
+        upper = (clav + c7) / 2.0
+        """
+        result = CGM.thorax_axis_calc(clav, c7, strn, t10)
         np.testing.assert_almost_equal(result, expected, rounding_precision)
 
 
