@@ -1586,7 +1586,84 @@ class CGM:
         array
             Returns an 8x3 ndarray that contains the right shoulder origin, right shoulder x, y, and z
             axis components, left shoulder origin, and left shoulder x, y, and z axis components.
+
+        Examples
+        --------
+        >>> import numpy as np
+        >>> from .pycgm import CGM
+        >>> rsho, lsho = np.array([[428.88496562, 270.552948, 1500.73010254],
+        ...                        [68.24668121, 269.01049805, 1510.1072998]])
+        >>> thorax_origin = np.array([256.14981023656401, 364.30906039339868, 1459.6553639290375])
+        >>> wand = np.array([[255.92550222678443, 364.32269504976051, 1460.6297868417887],
+        ...                  [256.42380097331767, 364.27770361353487, 1460.6165849382387]])
+        >>> measurements = {'RightShoulderOffset' : 40.0, 'LeftShoulderOffset' : 40.0}
+        >>> CGM.shoulder_axis_calc(rsho, lsho, thorax_origin, wand, measurements)
+        array([[ 429.66971693,  275.06718208, 1453.95397769],
+               [ 430.1275099 ,  275.95136234, 1454.04698775],
+               [ 429.68641377,  275.16322961, 1452.95874099],
+               [ 428.7808149 ,  275.52434742, 1453.98318456],
+               [  64.51952733,  274.93442161, 1463.63133339],
+               [  64.10400325,  275.83192827, 1463.77905454],
+               [  64.59882848,  274.80838069, 1464.62018374],
+               [  65.42564601,  275.35702721, 1463.61253313]])
+
         """
+
+        # First find the shoulder joint centers
+
+        # Get Subject Measurement Values
+        r_shoulderoffset = measurements['RightShoulderOffset']
+        l_shoulderoffset = measurements['LeftShoulderOffset']
+        mm = 7.0
+        r_delta = r_shoulderoffset + mm
+        l_delta = l_shoulderoffset + mm
+
+        # REQUIRED MARKERS:
+        # RSHO
+        # LSHO
+
+        r_wand, l_wand = wand
+
+        r_sho_jc = CGM.find_joint_center(r_wand, thorax_origin, rsho, r_delta)
+        l_sho_jc = CGM.find_joint_center(l_wand, thorax_origin, lsho, l_delta)
+
+        # Next calculate the axes
+        r_wand_direc = r_wand - thorax_origin
+        l_wand_direc = l_wand - thorax_origin
+        r_wand_direc = r_wand_direc / np.array([np.linalg.norm(r_wand_direc)])
+        l_wand_direc = l_wand_direc / np.array([np.linalg.norm(l_wand_direc)])
+
+        # Right
+        # Get the direction of the primary axis Z,X,Y
+        z_direc = thorax_origin - r_sho_jc
+        z_direc = z_direc / np.array([np.linalg.norm(z_direc)])
+        y_direc = r_wand_direc * -1
+        x_direc = np.cross(y_direc, z_direc)
+        x_direc = x_direc / np.array([np.linalg.norm(x_direc)])
+        y_direc = np.cross(z_direc, x_direc)
+        y_direc = y_direc / np.array([np.linalg.norm(y_direc)])
+
+        # backwards to account for marker size
+        r_x_axis = x_direc + r_sho_jc
+        r_y_axis = y_direc + r_sho_jc
+        r_z_axis = z_direc + r_sho_jc
+
+        # Left
+        # Get the direction of the primary axis Z,X,Y
+        z_direc = thorax_origin - l_sho_jc
+        z_direc = z_direc / np.array([np.linalg.norm(z_direc)])
+        y_direc = l_wand_direc
+        x_direc = np.cross(y_direc, z_direc)
+        x_direc = x_direc / np.array([np.linalg.norm(x_direc)])
+        y_direc = np.cross(z_direc, x_direc)
+        y_direc = y_direc / np.array([np.linalg.norm(y_direc)])
+
+        # backwards to account for marker size
+        l_x_axis = x_direc + l_sho_jc
+        l_y_axis = y_direc + l_sho_jc
+        l_z_axis = z_direc + l_sho_jc
+
+        return np.array([r_sho_jc, r_x_axis, r_y_axis, r_z_axis, l_sho_jc, l_x_axis, l_y_axis, l_z_axis])
 
     @staticmethod
     def elbow_wrist_axis_calc(rsho, lsho, relb, lelb, rwra, rwrb, lwra, lwrb,
