@@ -271,7 +271,7 @@ class CGM:
         axis_results[axis_idx["Pelvis Axis"]] = pelvis_axis
 
         hip_axis = hip_ax(pelvis_axis, measurements)
-         axis_results[axis_idx["Hip Axis"]] = hip_axis[2:]
+        axis_results[axis_idx["Hip Axis"]] = hip_axis[2:]
 
         rthi = frame[marker_idx[markers["RTHI"]]]
         lthi = frame[marker_idx[markers["LTHI"]]]
