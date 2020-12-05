@@ -14,8 +14,11 @@ class TestStaticCGMAxis:
         static_calculation_head
         pelvis_axis_calc
         hip_axis_calc
+        knee_axis_calc
         ankle_axis_calc
         foot_axis_calc
+        flat_foot_axis_calc
+        non_flat_foot_axis_calc
     """
     nan_3d = [np.nan, np.nan, np.nan]
     rand_coor = [np.random.randint(0, 10), np.random.randint(0, 10), np.random.randint(0, 10)]

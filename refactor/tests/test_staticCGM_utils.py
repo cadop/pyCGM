@@ -3,6 +3,7 @@
 
 import pytest
 import numpy as np
+import os
 from refactor.pycgm import StaticCGM, CGM
 
 rounding_precision = 6
@@ -12,6 +13,7 @@ class TestStaticCGMAxis:
     This class tests the utility functions in pycgm.StaticCGM:
         iad_calculation
         ankle_angle_calc
+        static_calculation
     """
     nan_3d = [np.nan, np.nan, np.nan]
     rand_coor = [np.random.randint(0, 10), np.random.randint(0, 10), np.random.randint(0, 10)]
@@ -224,3 +226,25 @@ class TestStaticCGMAxis:
         """
         result = StaticCGM.static_calculation(rtoe, ltoe, rhee, lhee, ankle_axis, flat_foot, measurements)
         np.testing.assert_almost_equal(result, expected, rounding_precision)
+
+
+# class TestStaticCGMGetStatic():
+#     """
+#     This class tests the getStatic method in pycgm.py's StaticCGM class.
+#     """
+#     @classmethod
+#     def setup_class(cls):
+#         """
+#         Called once for all tests. Loads filenames to be used for testing get_static() from SampleData/ROM/.
+#         """
+#         cwd = os.getcwd()
+#         if (cwd.split(os.sep)[-1] == "refactor"):
+#             parent = os.path.dirname(cwd)
+#             os.chdir(parent)
+#         cls.cwd = os.getcwd()
+
+#         static_trial = 'SampleData/ROM/Sample_Static.c3d'
+#         measurements = 'SampleData/ROM/Sample_SM.vsk'
+#         cls.motion_data = pycgmIO.loadData(os.path.join(cls.cwd, static_trial))
+#         cls.vsk_data_original = pycgmIO.loadVSK(os.path.join(cls.cwd, vsk_file), dict=False)
+#         cls.vsk_data = cls.vsk_data_original.copy()

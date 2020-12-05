@@ -2397,7 +2397,6 @@ class StaticCGM:
 
         return np.array([r_hip_jc, l_hip_jc, hip_axis_center, x_axis, y_axis, z_axis])
 
-    # Note: there are two x-axis definitions here that are different from CGM.
     @staticmethod
     def knee_axis_calc(rthi, lthi, rkne, lkne, hip_origin, measurements):
         """Knee Axis Calculation function
@@ -2707,7 +2706,6 @@ class StaticCGM:
 
     # Note: this function is equivalent to uncorrect_footaxis() in pycgmStatic.py
     # the only difference is the order in which operations were calculated.
-    # The footJointCenter() function in pycgm is not used anywhere.
     @staticmethod
     def foot_axis_calc(rtoe, ltoe, ankle_axis):
         """Foot Axis Calculation function
