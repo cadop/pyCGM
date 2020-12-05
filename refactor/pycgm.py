@@ -161,7 +161,6 @@ class CGM:
         com_results.fill(np.nan)
 
         for i, frame in enumerate(data):
-
             frame_axes, frame_angles, frame_com = CGM.calc(frame, methods, mappings, measurements)
             axis_results[i] = frame_axes
             angle_results[i] = frame_angles
@@ -348,9 +347,7 @@ class CGM:
                [-2, -2, -2]])
         """
         origin, x_axis, y_axis, z_axis = axis_vectors
-        return np.vstack([np.subtract(x_axis, origin),
-                          np.subtract(y_axis, origin),
-                          np.subtract(z_axis, origin)])
+        return np.array([x_axis - origin, y_axis - origin, z_axis - origin])
 
     @staticmethod
     def find_joint_center(a, b, c, delta):
@@ -444,7 +441,48 @@ class CGM:
         wand : ndarray
             Returns a 2x3 ndarray containing the right wand marker x, y, and z positions and the
             left wand marker x, y, and z positions.
+
+        Examples
+        --------
+        >>> import numpy as np
+        >>> from .pycgm import CGM
+        >>> rsho, lsho = np.array([[428.88496562, 270.552948, 1500.73010254],
+        ...                        [68.24668121, 269.01049805, 1510.1072998]])
+        >>> thorax_axis = np.array([[256.14981023656401, 364.30906039339868, 1459.6553639290375],
+        ...                         [256.23991128535846, 365.30496976939753, 1459.662169500559],
+        ...                         [257.1435863244796, 364.21960599061947, 1459.5889787129829],
+        ...                         [256.08430536580352, 354.32180498523223, 1458.6575930699294]])
+        >>> CGM.wand_marker(rsho, lsho, thorax_axis)
+        array([[ 255.92550246,  364.32269503, 1460.6297869 ],
+               [ 256.42380097,  364.27770361, 1460.61658494]])
         """
+
+        # REQUIRED MARKERS:
+        # RSHO
+        # LSHO
+        thor_o, thor_x, thor_y, thor_z = thorax_axis
+
+        # Calculate for getting a wand marker
+
+        # bring x axis from thorax axis
+        axis_x_vec = thor_x - thor_o
+        axis_x_vec = axis_x_vec / np.array(np.linalg.norm(axis_x_vec))
+
+        rsho_vec = rsho - thor_o
+        lsho_vec = lsho - thor_o
+        rsho_vec = rsho_vec / np.array(np.linalg.norm(rsho_vec))
+        lsho_vec = lsho_vec / np.array(np.linalg.norm(lsho_vec))
+
+        r_wand = np.cross(rsho_vec, axis_x_vec)
+        r_wand = r_wand / np.array(np.linalg.norm(r_wand))
+        r_wand = thor_o + r_wand
+
+        l_wand = np.cross(axis_x_vec, lsho_vec)
+        l_wand = l_wand / np.array(np.linalg.norm(l_wand))
+        l_wand = thor_o + l_wand
+        wand = np.array([r_wand, l_wand])
+
+        return wand
 
     @staticmethod
     def get_angle(axis_p, axis_d):
