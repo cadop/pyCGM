@@ -54,7 +54,7 @@ class CGM:
         self.jc_idx = {}
         self.axis_idx = {}
         self.angle_idx = {}
-        self.start = start 
+        self.start = start
         self.end = end
 
         jc_labels = ['pelvis_origin', 'pelvis_x', 'pelvis_y', 'pelvis_z',
@@ -167,11 +167,12 @@ class CGM:
             Boolean option to enable or disable writing of center of mass results to output file.
             True by default.
         """
-        #Ensure that write_results() is not being called before run().
+        # Ensure that write_results() is not being called before run().
         if (self.angle_results is None or self.axis_results is None or self.com_results is None):
             print("Results cannot be saved before run() is called.")
         else:
-            IO.write_result(path_results, self.angle_results, self.angle_idx, self.axis_results, self.axis_idx, self.com_results, write_angles, write_axes, write_com)
+            IO.write_result(path_results, self.angle_results, self.angle_idx, self.axis_results, self.axis_idx,
+                            self.com_results, write_angles, write_axes, write_com)
 
     @staticmethod
     def multi_calc(data, methods, mappings, measurements, seg_scale, cores=1):
@@ -284,14 +285,14 @@ class CGM:
         else:
             raise ValueError("Required marker RPSI and LPSI, or SACR, missing")
 
-        #Populate pelvis axis results
+        # Populate pelvis axis results
         pelo, pelx, pely, pelz = pelvis_axis
         axis_results[axis_idx["PELO"]] = pelo
         axis_results[axis_idx["PELX"]] = pelx
         axis_results[axis_idx["PELY"]] = pely
         axis_results[axis_idx["PELZ"]] = pelz
 
-        #Populate pelvis_origin, pelvis_x, pelvis_y, pelvis_z in joint_centers
+        # Populate pelvis_origin, pelvis_x, pelvis_y, pelvis_z in joint_centers
         joint_centers[jc_idx["pelvis_origin"]] = pelo
         joint_centers[jc_idx["pelvis_x"]] = pelx
         joint_centers[jc_idx["pelvis_y"]] = pely
@@ -299,7 +300,7 @@ class CGM:
 
         hip_axis = hip_ax(pelvis_axis, measurements)
 
-        #Populate hip axis results
+        # Populate hip axis results
         hipo, hipx, hipy, hipz = hip_axis[2:]
         axis_results[axis_idx["HIPO"]] = hipo
         axis_results[axis_idx["HIPX"]] = hipx
@@ -312,14 +313,14 @@ class CGM:
         lkne = frame[marker_idx[markers["LKNE"]]]
         hip_origin = hip_axis[:2]
 
-        #Populate LHip and RHip in joint_centers
+        # Populate LHip and RHip in joint_centers
         rhjc, lhjc = hip_origin
         joint_centers[jc_idx['RHip']] = rhjc
         joint_centers[jc_idx['LHip']] = lhjc
 
         knee_axis = kne_ax(rthi, lthi, rkne, lkne, hip_origin, measurements)
 
-        #Populate left and right knee axis results
+        # Populate left and right knee axis results
         r_kneo, r_knex, r_kney, r_knez = knee_axis[:4]
         axis_results[axis_idx["R KNEO"]] = r_kneo
         axis_results[axis_idx["R KNEX"]] = r_knex
@@ -332,7 +333,7 @@ class CGM:
         axis_results[axis_idx["L KNEY"]] = l_kney
         axis_results[axis_idx["L KNEZ"]] = l_knez
 
-        #Populate RKnee and LKnee in joint_centers
+        # Populate RKnee and LKnee in joint_centers
         joint_centers[jc_idx['RKnee']] = r_kneo
         joint_centers[jc_idx['LKnee']] = l_kneo
 
@@ -344,7 +345,7 @@ class CGM:
 
         ankle_axis = ank_ax(rtib, ltib, rank, lank, knee_origin, measurements)
 
-        #Populate left and right ankle axis results
+        # Populate left and right ankle axis results
         r_anko, r_ankx, r_anky, r_ankz = ankle_axis[:4]
         axis_results[axis_idx["R ANKO"]] = r_anko
         axis_results[axis_idx["R ANKX"]] = r_ankx
@@ -357,7 +358,7 @@ class CGM:
         axis_results[axis_idx["L ANKY"]] = l_anky
         axis_results[axis_idx["L ANKZ"]] = l_ankz
 
-        #Populate RAnkle and LAnkle in joint_centers
+        # Populate RAnkle and LAnkle in joint_centers
         joint_centers[jc_idx['RAnkle']] = r_anko
         joint_centers[jc_idx['LAnkle']] = l_anko
 
@@ -366,7 +367,7 @@ class CGM:
 
         foot_axis = foo_ax(rtoe, ltoe, ankle_axis, measurements)
 
-        #Populate left and right foot axis results
+        # Populate left and right foot axis results
         r_fooo, r_foox, r_fooy, r_fooz = foot_axis[:4]
         axis_results[axis_idx["R FOOO"]] = r_fooo
         axis_results[axis_idx["R FOOX"]] = r_foox
@@ -379,7 +380,7 @@ class CGM:
         axis_results[axis_idx["L FOOY"]] = l_fooy
         axis_results[axis_idx["L FOOZ"]] = l_fooz
 
-        #Populate RFoot and LFoot in joint_centers
+        # Populate RFoot and LFoot in joint_centers
         joint_centers[jc_idx['RFoot']] = r_fooo
         joint_centers[jc_idx['LFoot']] = l_fooo
 
@@ -1781,22 +1782,19 @@ class CGM:
         return np.array([r_sho_jc, r_x_axis, r_y_axis, r_z_axis, l_sho_jc, l_x_axis, l_y_axis, l_z_axis])
 
     @staticmethod
-    def elbow_axis_calc(rsho, lsho, relb, lelb, rwra, rwrb, lwra, lwrb,
-                        thorax_axis, shoulder_origin, measurements):
+    def elbow_axis_calc(relb, lelb, rwra, rwrb, lwra, lwrb,
+                        shoulder_origin, measurements):
         """Elbow Axis Calculation function
 
         Calculates the right and left elbow joint center and axis and returns them.
 
-        Markers used: RSHO, LSHO, RELB, LELB, RWRA, RWRB, LWRA, LWRB
+        Markers used: RELB, LELB, RWRA, RWRB, LWRA, LWRB
         Subject Measurement values used: RightElbowWidth, LeftElbowWidth
 
         Parameters
         ----------
-        rsho, lsho, relb, lelb, rwra, rwrb, lwra, lwrb : ndarray
+        relb, lelb, rwra, rwrb, lwra, lwrb : ndarray
             A 1x3 ndarray of each respective marker containing the XYZ positions.
-        thorax_axis : ndarray
-            A 4x3 ndarray that contains the thorax origin and the
-            thorax x, y, and z axis components.
         shoulder_origin : ndarray
             A 2x3 ndarray of the right and left shoulder origin vectors (joint centers).
         measurements : dict
@@ -1812,25 +1810,19 @@ class CGM:
         --------
         >>> import numpy as np
         >>> from .pycgm import CGM
-        >>> markers = np.array([[428.88496562, 270.552948, 1500.73010254],
-        ...                     [68.24668121, 269.01049805, 1510.1072998],
-        ...                     [658.90338135, 326.07580566, 1285.28515625],
+        >>> markers = np.array([[658.90338135, 326.07580566, 1285.28515625],
         ...                     [-156.32162476, 335.2593313, 1287.39916992],
         ...                     [776.51898193,495.68103027, 1108.38464355],
         ...                     [830.9072876, 436.75341797, 1119.11901855],
         ...                     [-249.28146362, 525.32977295, 1117.09057617],
         ...                     [-311.77532959, 477.22512817, 1125.1619873]])
-        >>> rsho, lsho, relb, lelb, rwra, rwrb, lwra, lwrb = markers
-        >>> thorax_axis = np.array([[256.14981023656401, 364.30906039339868, 1459.6553639290375],
-        ...                         [256.23991128535846, 365.30496976939753, 1459.662169500559],
-        ...                         [257.1435863244796, 364.21960599061947, 1459.5889787129829],
-        ...                         [256.08430536580352, 354.32180498523223, 1458.6575930699294]])
+        >>> relb, lelb, rwra, rwrb, lwra, lwrb = markers
         >>> shoulder_origin = np.array([[429.66951995, 275.06718615, 1453.953978131],
         ...                             [64.51952734, 274.93442161, 1463.6313334]])
         >>> measurements = {'RightElbowWidth': 74.0, 'LeftElbowWidth': 74.0,
         ...                 'RightWristWidth': 55.0, 'LeftWristWidth': 55.0}
-        >>> CGM.elbow_axis_calc(rsho, lsho, relb, lelb, rwra, rwrb, lwra, lwrb, 
-        ...                     thorax_axis, shoulder_origin, measurements)
+        >>> CGM.elbow_axis_calc(relb, lelb, rwra, rwrb, lwra, lwrb,
+        ...                     shoulder_origin, measurements)
         array([[ 633.66707588,  304.95542115, 1256.07799541],
                [ 633.81070139,  303.96579005, 1256.07658507],
                [ 634.35247992,  305.05386589, 1256.79947301],
@@ -1851,9 +1843,6 @@ class CGM:
 
         rwri = (rwra + rwrb) / 2.0
         lwri = (lwra + lwrb) / 2.0
-
-        # make humerus axis
-        tho_y_axis = CGM.subtract_origin(thorax_axis)
 
         # right axis
 
@@ -1902,9 +1891,7 @@ class CGM:
         x_axis = np.cross(y_axis, z_axis)
         x_axis = x_axis / np.linalg.norm(x_axis)
 
-        r_wri_x_axis = x_axis
         r_wri_y_axis = y_axis
-        r_wri_z_axis = z_axis
 
         # left
         x_axis = np.subtract(lwra, lwrb)
@@ -1919,9 +1906,7 @@ class CGM:
         x_axis = np.cross(y_axis, z_axis)
         x_axis = x_axis / np.linalg.norm(x_axis)
 
-        l_wri_x_axis = x_axis
         l_wri_y_axis = y_axis
-        l_wri_z_axis = z_axis
 
         # calculate wrist joint center for humerus
         r_wrist_thickness = measurements['RightWristWidth']
@@ -1982,27 +1967,141 @@ class CGM:
                          lejc, l_elb_x_axis, l_elb_y_axis, l_elb_z_axis])
 
     @staticmethod
-    def wrist_axis_calc(rsho, lsho, relb, lelb, rwra, rwrb, lwra, lwrb, elbow_axis):
+    def wrist_axis_calc(rwra, rwrb, lwra, lwrb, elbow_axis, measurements):
         """Wrist Axis Calculation function
 
         Calculates the right and left wrist joint center and axis and returns them.
 
-        Markers used: RSHO, LSHO, RELB, LELB, RWRA, RWRB, LWRA, LWRB
+        Markers used: RWRA, RWRB, LWRA, LWRB
 
         Parameters
         ----------
-        rsho, lsho, relb, lelb, rwra, rwrb, lwra, lwrb : ndarray
+        rwra, rwrb, lwra, lwrb : ndarray
             A 1x3 ndarray of each respective marker containing the XYZ positions.
         elbow_axis : ndarray
             An 8x3 ndarray that contains the right elbow origin, right elbow x, y, and z
             axis components, left elbow origin, and left elbow x, y, and z axis components.
+        measurements : dict
 
         Returns
         --------
         array
             Returns an 8x3 ndarray that contains the right wrist origin, right wrist x, y, and z
             axis components, left wrist origin, and left wrist x, y, and z axis components.
+
+        Examples
+        --------
+        >>> import numpy as np
+        >>> from .pycgm import CGM
+        >>> markers = np.array([[776.51898193,495.68103027, 1108.38464355],
+        ...                     [830.9072876, 436.75341797, 1119.11901855],
+        ...                     [-249.28146362, 525.32977295, 1117.09057617],
+        ...                     [-311.77532959, 477.22512817, 1125.1619873]])
+        >>> rwra, rwrb, lwra, lwrb = markers
+        >>> elbow_axis = np.array([[633.66707587, 304.95542115, 1256.07799541],
+        ...                        [633.81070138, 303.96579004, 1256.07658506],
+        ...                        [634.35247991, 305.05386589, 1256.79947301],
+        ...                        [632.95321803, 304.85083190, 1256.77043175],
+        ...                        [-129.1695218,  316.8671644, 1258.06440717],
+        ...                        [-129.3239179, 315.88072913, 1258.00866293],
+        ...                        [-128.4511713, 316.79382333, 1257.37260287],
+        ...                        [-128.4911903, 316.72030884, 1258.78337306]])
+        >>> measurements = {'RightWristWidth': 55.0, 'LeftWristWidth': 55.0}
+        >>> CGM.wrist_axis_calc(rwra, rwrb, lwra, lwrb, elbow_axis, measurements)
+        array([[ 793.32814303,  451.29134788, 1084.4325513 ],
+               [ 793.77133728,  450.44879187, 1084.12648231],
+               [ 794.01354708,  451.38979262, 1085.1540289 ],
+               [ 792.75038862,  450.76181223, 1085.05367274],
+               [-272.45941898,  485.80152212, 1091.36662383],
+               [-272.92507294,  485.0120242 , 1090.96679958],
+               [-271.74106831,  485.72818103, 1090.67481937],
+               [-271.94256434,  485.19216662, 1091.96791175]])
         """
+
+        mm = 7.0
+
+        rwri = (rwra + rwrb) / 2.0
+        lwri = (lwra + lwrb) / 2.0
+
+        # Retrieve elbow joint centers
+        rejc, lejc = elbow_axis[0], elbow_axis[4]
+
+        # Calculate wrist joint centers again
+        r_elbow_axis = elbow_axis[1:4]
+        l_elbow_axis = elbow_axis[5:]
+        r_elbow_flex = r_elbow_axis[1] - rejc
+        l_elbow_flex = l_elbow_axis[1] - lejc
+
+        # right
+        x_axis = np.subtract(rwra, rwrb)
+        x_axis = x_axis / np.linalg.norm(x_axis)
+
+        z_axis = np.subtract(rejc, rwri)
+        z_axis = z_axis / np.linalg.norm(z_axis)
+
+        y_axis = np.cross(z_axis, x_axis)
+        y_axis = y_axis / np.linalg.norm(y_axis)
+
+        r_wri_y_axis = y_axis
+
+        # left
+        x_axis = np.subtract(lwra, lwrb)
+        x_axis = x_axis / np.linalg.norm(x_axis)
+
+        z_axis = np.subtract(lejc, lwri)
+        z_axis = z_axis / np.linalg.norm(z_axis)
+
+        y_axis = np.cross(z_axis, x_axis)
+        y_axis = y_axis / np.linalg.norm(y_axis)
+
+        l_wri_y_axis = y_axis
+
+        r_wrist_thickness = measurements['RightWristWidth']
+        l_wrist_thickness = measurements['LeftWristWidth']
+        r_wrist_thickness = r_wrist_thickness / 2.0 + mm
+        l_wrist_thickness = l_wrist_thickness / 2.0 + mm
+
+        rwjc = rwri + r_wrist_thickness * r_wri_y_axis
+        lwjc = lwri - l_wrist_thickness * l_wri_y_axis
+
+        # Calculate wrist axis
+        # right
+        y_axis = r_elbow_flex
+        y_axis = y_axis / np.array([np.linalg.norm(y_axis)])
+
+        z_axis = np.subtract(rejc, rwjc)
+        z_axis = z_axis / np.array([np.linalg.norm(z_axis)])
+
+        x_axis = np.cross(y_axis, z_axis)
+        x_axis = x_axis / np.array([np.linalg.norm(x_axis)])
+
+        z_axis = np.cross(x_axis, y_axis)
+        z_axis = z_axis / np.array([np.linalg.norm(z_axis)])
+
+        # Attach all the axes to wrist joint center.
+        r_x_axis = x_axis + rwjc
+        r_y_axis = y_axis + rwjc
+        r_z_axis = z_axis + rwjc
+
+        # left
+        y_axis = l_elbow_flex
+        y_axis = y_axis / np.array([np.linalg.norm(y_axis)])
+
+        z_axis = np.subtract(lejc, lwjc)
+        z_axis = z_axis / np.array([np.linalg.norm(z_axis)])
+
+        x_axis = np.cross(y_axis, z_axis)
+        x_axis = x_axis / np.array([np.linalg.norm(x_axis)])
+
+        z_axis = np.cross(x_axis, y_axis)
+        z_axis = z_axis / np.array([np.linalg.norm(z_axis)])
+
+        # Attach all the axes to wrist joint center.
+        l_x_axis = x_axis + lwjc
+        l_y_axis = y_axis + lwjc
+        l_z_axis = z_axis + lwjc
+
+        return np.array([rwjc, r_x_axis, r_y_axis, r_z_axis, lwjc, l_x_axis, l_y_axis, l_z_axis])
 
     @staticmethod
     def hand_axis_calc(rwra, wrb, lwra, lwrb, rfin, lfin, wrist_jc, measurements):
