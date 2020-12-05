@@ -149,7 +149,7 @@ class CGM:
         self.axis_results, self.angle_results, self.com_results = results
 
     def write_results(self, path_results, write_axes=None, write_angles=None, write_com=True):
-        """Write CGM results to a csv file. 
+        """Write CGM results to a csv file.
 
         Uses IO.write_result().
 
@@ -168,7 +168,7 @@ class CGM:
             True by default.
         """
         # Ensure that write_results() is not being called before run().
-        if (self.angle_results is None or self.axis_results is None or self.com_results is None):
+        if self.angle_results is None or self.axis_results is None or self.com_results is None:
             print("Results cannot be saved before run() is called.")
         else:
             IO.write_result(path_results, self.angle_results, self.angle_idx, self.axis_results, self.axis_idx,
@@ -384,7 +384,7 @@ class CGM:
         joint_centers[jc_idx['RFoot']] = r_fooo
         joint_centers[jc_idx['LFoot']] = l_fooo
 
-        ### LowerBody Angle calculations
+        # Lower Body Angle calculations
         # Pelvis
         pelvis_angle = pel_an(measurements['GCS'], pelvis_axis)
         angle_results[angle_idx["Pelvis"]] = pelvis_angle
@@ -409,7 +409,7 @@ class CGM:
         angle_results[angle_idx["R Ankle"]] = right_foot_angle
         angle_results[angle_idx["L Ankle"]] = left_foot_angle
 
-        ### UpperBody Angle calculations
+        # Upper Body Angle calculations
         # head_angle = head_an(measurements['GCS'], head_axis)
         # angle_results[angle_idx["Head"]] = head_angle
 
@@ -1888,9 +1888,6 @@ class CGM:
         y_axis = np.cross(z_axis, x_axis)
         y_axis = y_axis / np.linalg.norm(y_axis)
 
-        x_axis = np.cross(y_axis, z_axis)
-        x_axis = x_axis / np.linalg.norm(x_axis)
-
         r_wri_y_axis = y_axis
 
         # left
@@ -1902,9 +1899,6 @@ class CGM:
 
         y_axis = np.cross(z_axis, x_axis)
         y_axis = y_axis / np.linalg.norm(y_axis)
-
-        x_axis = np.cross(y_axis, z_axis)
-        x_axis = x_axis / np.linalg.norm(x_axis)
 
         l_wri_y_axis = y_axis
 
@@ -2609,275 +2603,266 @@ class CGM:
 
                 com_coords = sum(vals) / body_mass
         return com_coords
-    
-    """
-    These are the property functions of CGM that will return all of their respective 
-    results after run is executed. They can be invoked using CGM.pelvis_axes, which
-    will return all the results of only the pelvis (including the pelvis origin and XYZ axes) 
-    for example.
-    """
-    ### Lower body properties
+
+    # Properties for accessing subsets of results
     @property
     def pelvis_axes(self):
         try:
-            pel = np.array([self.axis_results[0:, self.axis_idx["PELO"]], 
+            pel = np.array([self.axis_results[0:, self.axis_idx["PELO"]],
                             self.axis_results[0:, self.axis_idx["PELX"]],
                             self.axis_results[0:, self.axis_idx["PELY"]],
                             self.axis_results[0:, self.axis_idx["PELZ"]]])
-        except:
+        except KeyError:
             pel = None
         return pel
-    
+
     @property
     def pelvis_angles(self):
         try:
-            pel = np.array([ self.angle_results[0:, self.angle_idx["Pelvis"]]])
-        except:
+            pel = np.array([self.angle_results[0:, self.angle_idx["Pelvis"]]])
+        except KeyError:
             pel = None
         return pel
 
     @property
     def hip_axes(self):
         try:
-            hip = np.array([self.axis_results[0:, self.axis_idx["HIPO"]], 
+            hip = np.array([self.axis_results[0:, self.axis_idx["HIPO"]],
                             self.axis_results[0:, self.axis_idx["HIPX"]],
                             self.axis_results[0:, self.axis_idx["HIPY"]],
                             self.axis_results[0:, self.axis_idx["HIPZ"]]])
-        except:
+        except KeyError:
             hip = None
         return hip
 
     @property
     def hip_angles(self):
         try:
-            hip = np.array([self.angle_results[0:, self.angle_idx["R Hip"]], 
-                            self.angle_results[0:, self.angle_idx["L Hip"]] ])
-        except:
+            hip = np.array([self.angle_results[0:, self.angle_idx["R Hip"]],
+                            self.angle_results[0:, self.angle_idx["L Hip"]]])
+        except KeyError:
             hip = None
         return hip
 
     @property
     def knee_axes(self):
         try:
-            knee = np.array([self.axis_results[0:, self.axis_idx["R KNEO"]], 
+            knee = np.array([self.axis_results[0:, self.axis_idx["R KNEO"]],
                              self.axis_results[0:, self.axis_idx["R KNEX"]],
                              self.axis_results[0:, self.axis_idx["R KNEY"]],
                              self.axis_results[0:, self.axis_idx["R KNEZ"]],
-                             self.axis_results[0:, self.axis_idx["L KNEO"]], 
+                             self.axis_results[0:, self.axis_idx["L KNEO"]],
                              self.axis_results[0:, self.axis_idx["L KNEX"]],
                              self.axis_results[0:, self.axis_idx["L KNEY"]],
                              self.axis_results[0:, self.axis_idx["L KNEZ"]]])
-        except:
+        except KeyError:
             knee = None
         return knee
 
     @property
     def knee_angles(self):
         try:
-            knee = np.array([self.angle_results[0:, self.angle_idx["R Knee"]], 
-                             self.angle_results[0:, self.angle_idx["L Knee"]] ])
-        except:
+            knee = np.array([self.angle_results[0:, self.angle_idx["R Knee"]],
+                             self.angle_results[0:, self.angle_idx["L Knee"]]])
+        except KeyError:
             knee = None
         return knee
 
     @property
     def ankle_axes(self):
         try:
-            ankle = np.array([self.axis_results[0:, self.axis_idx["R ANKO"]], 
-                             self.axis_results[0:, self.axis_idx["R ANKX"]],
-                             self.axis_results[0:, self.axis_idx["R ANKY"]],
-                             self.axis_results[0:, self.axis_idx["R ANKZ"]],
-                             self.axis_results[0:, self.axis_idx["L ANKO"]], 
-                             self.axis_results[0:, self.axis_idx["L ANKX"]],
-                             self.axis_results[0:, self.axis_idx["L ANKY"]],
-                             self.axis_results[0:, self.axis_idx["L ANKZ"]]])
-        except:
+            ankle = np.array([self.axis_results[0:, self.axis_idx["R ANKO"]],
+                              self.axis_results[0:, self.axis_idx["R ANKX"]],
+                              self.axis_results[0:, self.axis_idx["R ANKY"]],
+                              self.axis_results[0:, self.axis_idx["R ANKZ"]],
+                              self.axis_results[0:, self.axis_idx["L ANKO"]],
+                              self.axis_results[0:, self.axis_idx["L ANKX"]],
+                              self.axis_results[0:, self.axis_idx["L ANKY"]],
+                              self.axis_results[0:, self.axis_idx["L ANKZ"]]])
+        except KeyError:
             ankle = None
         return ankle
 
     @property
     def ankle_angles(self):
         try:
-            ankle = np.array([self.angle_results[0:, self.angle_idx["R Ankle"]], 
-                             self.angle_results[0:, self.angle_idx["L Ankle"]] ])
-        except:
+            ankle = np.array([self.angle_results[0:, self.angle_idx["R Ankle"]],
+                              self.angle_results[0:, self.angle_idx["L Ankle"]]])
+        except KeyError:
             ankle = None
         return ankle
 
     @property
     def foot_axes(self):
         try:
-            foot = np.array([self.axis_results[0:, self.axis_idx["R FOOO"]], 
+            foot = np.array([self.axis_results[0:, self.axis_idx["R FOOO"]],
                              self.axis_results[0:, self.axis_idx["R FOOX"]],
                              self.axis_results[0:, self.axis_idx["R FOOY"]],
                              self.axis_results[0:, self.axis_idx["R FOOZ"]],
-                             self.axis_results[0:, self.axis_idx["L FOOO"]], 
+                             self.axis_results[0:, self.axis_idx["L FOOO"]],
                              self.axis_results[0:, self.axis_idx["L FOOX"]],
                              self.axis_results[0:, self.axis_idx["L FOOY"]],
                              self.axis_results[0:, self.axis_idx["L FOOZ"]]])
-        except:
+        except KeyError:
             foot = None
         return foot
 
     @property
     def foot_angles(self):
         try:
-            foot = np.array([self.angle_results[0:, self.angle_idx["R Foot"]], 
-                            self.angle_results[0:, self.angle_idx["L Foot"]] ])
-        except:
+            foot = np.array([self.angle_results[0:, self.angle_idx["R Foot"]],
+                             self.angle_results[0:, self.angle_idx["L Foot"]]])
+        except KeyError:
             foot = None
         return foot
 
-    ### Upper body properties
     @property
     def head_axes(self):
         try:
-            head = np.array([self.axis_results[0:, self.axis_idx["HEAO"]], 
+            head = np.array([self.axis_results[0:, self.axis_idx["HEAO"]],
                              self.axis_results[0:, self.axis_idx["HEAX"]],
                              self.axis_results[0:, self.axis_idx["HEAY"]],
                              self.axis_results[0:, self.axis_idx["HEAZ"]]])
-        except:
+        except KeyError:
             head = None
-        return head 
+        return head
 
     @property
     def head_angles(self):
         try:
-            head = np.array([ self.angle_results[0:, self.angle_idx["Head"]]])
-        except:
+            head = np.array([self.angle_results[0:, self.angle_idx["Head"]]])
+        except KeyError:
             head = None
         return head
 
     @property
     def thorax_axes(self):
         try:
-            thorax = np.array([self.axis_results[0:, self.axis_idx["THOO"]], 
+            thorax = np.array([self.axis_results[0:, self.axis_idx["THOO"]],
                                self.axis_results[0:, self.axis_idx["THOX"]],
                                self.axis_results[0:, self.axis_idx["THOY"]],
                                self.axis_results[0:, self.axis_idx["THOZ"]]])
-        except:
+        except KeyError:
             thorax = None
-        return thorax 
+        return thorax
 
     @property
     def thorax_angles(self):
         try:
-            thorax = np.array([ self.angle_results[0:, self.angle_idx["Thorax"]]])
-        except:
+            thorax = np.array([self.angle_results[0:, self.angle_idx["Thorax"]]])
+        except KeyError:
             thorax = None
         return thorax
 
     @property
     def neck_angles(self):
         try:
-            neck = np.array([ self.angle_results[0:, self.angle_idx["Neck"]]])
-        except:
+            neck = np.array([self.angle_results[0:, self.angle_idx["Neck"]]])
+        except KeyError:
             neck = None
         return neck
 
     @property
-    def spine_axes(self):
-        pass
-
-    @property
     def spine_angles(self):
         try:
-            spine = np.array([ self.angle_results[0:, self.angle_idx["Spine"]]])
-        except:
+            spine = np.array([self.angle_results[0:, self.angle_idx["Spine"]]])
+        except KeyError:
             spine = None
         return spine
 
     @property
     def shoulder_axes(self):
         try:
-            shoulder = np.array([self.axis_results[0:, self.axis_idx["R CLAO"]], 
+            shoulder = np.array([self.axis_results[0:, self.axis_idx["R CLAO"]],
                                  self.axis_results[0:, self.axis_idx["R CLAX"]],
                                  self.axis_results[0:, self.axis_idx["R CLAY"]],
                                  self.axis_results[0:, self.axis_idx["R CLAZ"]],
-                                 self.axis_results[0:, self.axis_idx["L CLAO"]], 
+                                 self.axis_results[0:, self.axis_idx["L CLAO"]],
                                  self.axis_results[0:, self.axis_idx["L CLAX"]],
                                  self.axis_results[0:, self.axis_idx["L CLAY"]],
                                  self.axis_results[0:, self.axis_idx["L CLAZ"]]])
-        except:
+        except KeyError:
             shoulder = None
         return shoulder
 
     @property
     def shoulder_angles(self):
         try:
-            shoulder = np.array([self.angle_results[0:, self.angle_idx["R Shoulder"]], 
-                            self.angle_results[0:, self.angle_idx["L Shoulder"]] ])
-        except:
+            shoulder = np.array([self.angle_results[0:, self.angle_idx["R Shoulder"]],
+                                 self.angle_results[0:, self.angle_idx["L Shoulder"]]])
+        except KeyError:
             shoulder = None
         return shoulder
 
     @property
     def elbow_axes(self):
         try:
-            elbow = np.array([self.axis_results[0:, self.axis_idx["R HUMO"]], 
+            elbow = np.array([self.axis_results[0:, self.axis_idx["R HUMO"]],
                               self.axis_results[0:, self.axis_idx["R HUMX"]],
                               self.axis_results[0:, self.axis_idx["R HUMY"]],
                               self.axis_results[0:, self.axis_idx["R HUMZ"]],
-                              self.axis_results[0:, self.axis_idx["L HUMO"]], 
+                              self.axis_results[0:, self.axis_idx["L HUMO"]],
                               self.axis_results[0:, self.axis_idx["L HUMX"]],
                               self.axis_results[0:, self.axis_idx["L HUMY"]],
                               self.axis_results[0:, self.axis_idx["L HUMZ"]]])
-        except:
+        except KeyError:
             elbow = None
         return elbow
 
     @property
     def elbow_angles(self):
         try:
-            elbow = np.array([self.angle_results[0:, self.angle_idx["R Elbow"]], 
-                            self.angle_results[0:, self.angle_idx["L Elbow"]] ])
-        except:
+            elbow = np.array([self.angle_results[0:, self.angle_idx["R Elbow"]],
+                              self.angle_results[0:, self.angle_idx["L Elbow"]]])
+        except KeyError:
             elbow = None
         return elbow
 
     @property
     def wrist_axes(self):
         try:
-            wrist = np.array([self.axis_results[0:, self.axis_idx["R RADO"]], 
+            wrist = np.array([self.axis_results[0:, self.axis_idx["R RADO"]],
                               self.axis_results[0:, self.axis_idx["R RADX"]],
                               self.axis_results[0:, self.axis_idx["R RADY"]],
                               self.axis_results[0:, self.axis_idx["R RADZ"]],
-                              self.axis_results[0:, self.axis_idx["L RADO"]], 
+                              self.axis_results[0:, self.axis_idx["L RADO"]],
                               self.axis_results[0:, self.axis_idx["L RADX"]],
                               self.axis_results[0:, self.axis_idx["L RADY"]],
                               self.axis_results[0:, self.axis_idx["L RADZ"]]])
-        except:
+        except KeyError:
             wrist = None
         return wrist
 
     @property
     def wrist_angles(self):
         try:
-            wrist = np.array([self.angle_results[0:, self.angle_idx["R Wrist"]], 
-                              self.angle_results[0:, self.angle_idx["L Wrist"]] ])
-        except:
+            wrist = np.array([self.angle_results[0:, self.angle_idx["R Wrist"]],
+                              self.angle_results[0:, self.angle_idx["L Wrist"]]])
+        except KeyError:
             wrist = None
         return wrist
-    
+
     @property
     def hand_axes(self):
         try:
-            hand = np.array([self.axis_results[0:, self.axis_idx["R HANO"]], 
+            hand = np.array([self.axis_results[0:, self.axis_idx["R HANO"]],
                              self.axis_results[0:, self.axis_idx["R HANX"]],
                              self.axis_results[0:, self.axis_idx["R HANY"]],
                              self.axis_results[0:, self.axis_idx["R HANZ"]],
-                             self.axis_results[0:, self.axis_idx["L HANO"]], 
+                             self.axis_results[0:, self.axis_idx["L HANO"]],
                              self.axis_results[0:, self.axis_idx["L HANX"]],
                              self.axis_results[0:, self.axis_idx["L HANY"]],
                              self.axis_results[0:, self.axis_idx["L HANZ"]]])
-        except:
+        except KeyError:
             hand = None
         return hand
 
+
 class SubjectManager:
-    def __init__(self, *CGMs):
+    def __init__(self, *subjects):
         pass
-    
+
+
 class StaticCGM:
     """
     A class to used to calculate the offsets in a static trial and calibrate subject measurements.
@@ -2891,12 +2876,9 @@ class StaticCGM:
     mapping : dict
         `mapping` is a dictionary that indicates which marker corresponds to which index
         in `motion_data[i]`.
-    subject_measurements : dict
-        A dictionary of the measurements of the subject, obtained from file input. 
+    measurements : dict
+        A dictionary of the measurements of the subject, obtained from file input.
     """
-    motion_data = None
-    mapping = None
-    measurements = None
 
     def __init__(self, path_static, path_measurements):
         """Initialization of StaticCGM object function
@@ -3790,12 +3772,12 @@ class StaticCGM:
         ...                        [97 , 219, 80],
         ...                        [98 , 219, 81]])
         >>> [np.around(arr,8) for arr in StaticCGM.non_flat_foot_axis_calc(rtoe, ltoe, rhee, lhee, ankle_axis)] #doctest: +NORMALIZE_WHITESPACE
-        [array([442., 381.,  42.]), array([442.10240005, 381.        ,  42.9947433 ]), 
-        array([441.05872081, 381.3234263 ,  42.09689639]), 
-        array([441.67827386, 380.05374664,  42.03311887]), 
-        array([ 39., 382.,  41.]), 
-        array([ 39.        , 382.02968988,  41.99955916]), 
-        array([ 38.04941082, 381.68968524,  41.00921727]), 
+        [array([442., 381.,  42.]), array([442.10240005, 381.        ,  42.9947433 ]),
+        array([441.05872081, 381.3234263 ,  42.09689639]),
+        array([441.67827386, 380.05374664,  42.03311887]),
+        array([ 39., 382.,  41.]),
+        array([ 39.        , 382.02968988,  41.99955916]),
+        array([ 38.04941082, 381.68968524,  41.00921727]),
         array([ 39.31045162, 381.04982988,  41.02822287])]
         """
         # REQUIRED MARKERS:
@@ -3896,13 +3878,13 @@ class StaticCGM:
         ...                        [98 , 219, 81]])
         >>> measurements = { 'RightSoleDelta': 0.45, 'LeftSoleDelta': 0.35}
         >>> [np.around(arr,8) for arr in StaticCGM.flat_foot_axis_calc(rtoe, ltoe, rhee, lhee, ankle_axis, measurements)] #doctest: +NORMALIZE_WHITESPACE
-        [array([442., 381.,  42.]), 
-        array([441.22996328, 381.26181249,  42.58180552]), 
-        array([441.44916239, 381.18728479,  41.18667206]), 
-        array([441.67809727, 380.05322726,  42.        ]), 
-        array([ 39., 382.,  41.]), 
-        array([ 38.67155725, 381.89268702,  41.93840785]), 
-        array([ 38.10799758, 381.70855366,  40.65447039]), 
+        [array([442., 381.,  42.]),
+        array([441.22996328, 381.26181249,  42.58180552]),
+        array([441.44916239, 381.18728479,  41.18667206]),
+        array([441.67809727, 380.05322726,  42.        ]),
+        array([ 39., 382.,  41.]),
+        array([ 38.67155725, 381.89268702,  41.93840785]),
+        array([ 38.10799758, 381.70855366,  40.65447039]),
         array([ 39.31057534, 381.04945123,  41.        ])]
         """
         r_sole_delta = measurements['RightSoleDelta']
@@ -4024,8 +4006,8 @@ class StaticCGM:
         ...                                   [197, 251, 1696]])
         >>> [np.around(arr,8) for arr in StaticCGM.head_axis_calc(rfhd, lfhd, rbhd, lbhd)] #doctest: +NORMALIZE_WHITESPACE
         [array([ 254.5,  405.5, 1721.5]), 
-        array([ 254.5248073 ,  406.48609036, 1721.66434839]), 
-        array([ 253.50032966,  405.52555761, 1721.49754796]), 
+        array([ 254.5248073 ,  406.48609036, 1721.66434839]),
+        array([ 253.50032966,  405.52555761, 1721.49754796]),
         array([ 254.49338171,  405.33576661, 1722.48639931])]
         """
         # get the midpoints of the head to define the sides
