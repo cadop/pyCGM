@@ -1463,7 +1463,62 @@ class CGM:
         array
             Returns a 4x3 ndarray that contains the thorax origin and the
             thorax x, y, and z axis components.
+
+        Examples
+        --------
+        >>> import numpy as np
+        >>> from .pycgm import CGM
+        >>> clav, c7, strn, t10 = np.array([[256.78051758, 371.28042603, 1459.70300293],
+        ...                                 [256.78051758, 371.28042603, 1459.70300293],
+        ...                                 [251.67492676, 414.10391235, 1292.08508301],
+        ...                                 [228.64323425, 192.32041931, 1279.6418457]])
+        >>> CGM.thorax_axis_calc(clav, c7, strn, t10)
+        array([[ 256.27295428,  364.79605749, 1462.29053923],
+               [ 256.34546332,  365.72239585, 1461.92089119],
+               [ 257.26637166,  364.696025  , 1462.23472346],
+               [ 256.18427318,  364.43288984, 1461.36304534]])
         """
+
+        # Set or get a marker size as mm
+        marker_size = 7.0
+
+        # Temporary origin since the origin will be moved at the end
+        origin = clav
+
+        # Get the midpoints of the upper and lower sections, as well as the front and back sections
+        upper = (clav + c7) / 2.0
+        lower = (strn + t10) / 2.0
+        front = (clav + strn) / 2.0
+        back = (t10 + c7) / 2.0
+
+        # Get the direction of the primary axis Z (facing down)
+        z_direc = lower - upper
+        z_vec = z_direc / np.array([np.linalg.norm(z_direc)])
+
+        # The secondary axis X is from back to front
+        x_direc = front - back
+        x_vec = x_direc / np.array([np.linalg.norm(x_direc)])
+
+        # make sure all the axes are orthogonal each othe by cross-product
+        y_direc = np.cross(z_vec, x_vec)
+        y_vec = y_direc / np.array([np.linalg.norm(y_direc)])
+        x_direc = np.cross(y_vec, z_vec)
+        x_vec = x_direc / np.array([np.linalg.norm(x_direc)])
+        z_direc = np.cross(x_vec, y_vec)
+        z_vec = z_direc / np.array([np.linalg.norm(z_direc)])
+
+        # move the axes about offset along the x axis.
+        offset = x_vec * marker_size
+
+        # Add the CLAV back to the vector to get it in the right position before translating it
+        origin = clav - offset
+
+        # Attach all the axes to the origin.
+        x_axis = x_vec + origin
+        y_axis = y_vec + origin
+        z_axis = z_vec + origin
+
+        return np.array([origin, x_axis, y_axis, z_axis])
 
     @staticmethod
     def shoulder_axis_calc(rsho, lsho, thorax_origin, wand, measurements):
