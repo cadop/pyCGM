@@ -151,7 +151,7 @@ class CGM:
                                          'z': row[5]}
 
         self.marker_data, self.marker_idx = IO.load_marker_data(self.path_dynamic)
-        self.end = self.end if self.end != -1 else len(marker_data) - 1
+        self.end = self.end if self.end != -1 else len(self.marker_data) - 1
         self.marker_data = self.marker_data[self.start:self.end]
 
         self.measurements = self.static.get_static()
