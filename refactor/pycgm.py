@@ -49,9 +49,6 @@ class CGM:
         >>> measurements = dir + "59993_Frame_SM.vsk"
         >>> subject1 = CGM(static_trial, dynamic_trial, measurements)
         SampleData/59993_Frame/59993_Frame_Static.c3d
-        SampleData/59993_Frame/59993_Frame_Dynamic.c3d
-        >>> subject1.marker_data[0][0]  # doctest: +NORMALIZE_WHITESPACE
-        array([  54.67363358,  156.26828003, 1474.328125  ])
         """
         self.path_static = path_static
         self.path_dynamic = path_dynamic
