@@ -15,7 +15,7 @@ else:
 
 class CGM:
 
-    def __init__(self, path_static, path_dynamic, path_measurements, static=None, cores=1):
+    def __init__(self, path_static, path_dynamic, path_measurements, static=None, cores=1, start=0, end=-1):
         """Initialization of CGM object function
 
         Instantiates various class attributes based on parameters and default values.
