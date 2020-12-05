@@ -12,9 +12,10 @@ if sys.version_info[0] == 2:
 else:
     pyver = 3
 
+
 class CGM:
 
-    def __init__(self, path_static, path_dynamic, path_measurements, static=None, cores=1):
+    def __init__(self, path_static, path_dynamic, path_measurements, static=None, cores=1, start=0, end=-1):
         """Initialization of CGM object function
 
         Instantiates various class attributes based on parameters and default values.
@@ -36,7 +37,7 @@ class CGM:
         >>> dynamic_trial = dir + "59993_Frame_Dynamic.c3d"
         >>> measurements = dir + "59993_Frame_SM.vsk"
         >>> subject1 = CGM(static_trial, dynamic_trial, measurements)
-        SampleData/59993_Frame/59993_Frame_Static.c3d
+        Sample...
         """
         self.path_static = path_static
         self.path_dynamic = path_dynamic
@@ -47,37 +48,39 @@ class CGM:
         self.axis_results = None
         self.com_results = None
         self.marker_map = {marker: marker for marker in IO.marker_keys()}
+        self.marker_data = None
+        self.marker_idx = None
+        self.measurements = None
         self.jc_idx = {}
         self.axis_idx = {}
         self.angle_idx = {}
+        self.start = start 
+        self.end = end
 
         jc_labels = ['pelvis_origin', 'pelvis_x', 'pelvis_y', 'pelvis_z',
-            'thorax_origin', 'thorax_x', 'thorax_y', 'thorax_z',
-            'RHip', 'LHip', 'RKnee', 'LKnee', 'RAnkle', 'LAnkle', 'RFoot', 'LFoot',
-            'RHEE', 'LHEE', 'C7', 'CLAV', 'STRN', 'T10', 'Front_Head', 'Back_Head',
-            'RShoulder', 'LShoulder', 'RHumerus', 'LHumerus', 'RRadius', 'LRadius',
-            'RHand', 'LHand']
-        
+                     'thorax_origin', 'thorax_x', 'thorax_y', 'thorax_z',
+                     'RHip', 'LHip', 'RKnee', 'LKnee', 'RAnkle', 'LAnkle', 'RFoot', 'LFoot',
+                     'RHEE', 'LHEE', 'C7', 'CLAV', 'STRN', 'T10', 'Front_Head', 'Back_Head',
+                     'RShoulder', 'LShoulder', 'RHumerus', 'LHumerus', 'RRadius', 'LRadius',
+                     'RHand', 'LHand']
         for i, label in enumerate(jc_labels):
             self.jc_idx[label] = i
-        
-        default_axis_labels = ["PELO","PELX","PELY","PELZ","HIPO","HIPX","HIPY","HIPZ","R KNEO",
-        "R KNEX","R KNEY","R KNEZ","L KNEO","L KNEX","L KNEY","L KNEZ","R ANKO","R ANKX",
-        "R ANKY","R ANKZ","L ANKO","L ANKX","L ANKY","L ANKZ","R FOOO","R FOOX","R FOOY",
-        "R FOOZ","L FOOO","L FOOX","L FOOY","L FOOZ","HEAO","HEAX","HEAY","HEAZ","THOO",
-        "THOX","THOY","THOZ","R CLAO","R CLAX","R CLAY","R CLAZ","L CLAO","L CLAX",
-        "L CLAY","L CLAZ","R HUMO","R HUMX","R HUMY","R HUMZ","L HUMO","L HUMX","L HUMY",
-        "L HUMZ","R RADO","R RADX","R RADY","R RADZ","L RADO","L RADX","L RADY","L RADZ",
-        "R HANO","R HANX","R HANY","R HANZ","L HANO","L HANX","L HANY","L HANZ"]
 
+        default_axis_labels = ["PELO", "PELX", "PELY", "PELZ", "HIPO", "HIPX", "HIPY", "HIPZ", "R KNEO",
+                               "R KNEX", "R KNEY", "R KNEZ", "L KNEO", "L KNEX", "L KNEY", "L KNEZ", "R ANKO", "R ANKX",
+                               "R ANKY", "R ANKZ", "L ANKO", "L ANKX", "L ANKY", "L ANKZ", "R FOOO", "R FOOX", "R FOOY",
+                               "R FOOZ", "L FOOO", "L FOOX", "L FOOY", "L FOOZ", "HEAO", "HEAX", "HEAY", "HEAZ", "THOO",
+                               "THOX", "THOY", "THOZ", "R CLAO", "R CLAX", "R CLAY", "R CLAZ", "L CLAO", "L CLAX",
+                               "L CLAY", "L CLAZ", "R HUMO", "R HUMX", "R HUMY", "R HUMZ", "L HUMO", "L HUMX", "L HUMY",
+                               "L HUMZ", "R RADO", "R RADX", "R RADY", "R RADZ", "L RADO", "L RADX", "L RADY", "L RADZ",
+                               "R HANO", "R HANX", "R HANY", "R HANZ", "L HANO", "L HANX", "L HANY", "L HANZ"]
         for i, label in enumerate(default_axis_labels):
             self.axis_idx[label] = i
 
-        default_angle_labels = ['Pelvis','R Hip','L Hip','R Knee','L Knee','R Ankle',
-                                'L Ankle','R Foot','L Foot',
-                                'Head','Thorax','Neck','Spine','R Shoulder','L Shoulder',
-                                'R Elbow','L Elbow','R Wrist','L Wrist']
-
+        default_angle_labels = ['Pelvis', 'R Hip', 'L Hip', 'R Knee', 'L Knee', 'R Ankle',
+                                'L Ankle', 'R Foot', 'L Foot',
+                                'Head', 'Thorax', 'Neck', 'Spine', 'R Shoulder', 'L Shoulder',
+                                'R Elbow', 'L Elbow', 'R Wrist', 'L Wrist']
         for i, label in enumerate(default_angle_labels):
             self.angle_idx[label] = i
 
@@ -128,9 +131,13 @@ class CGM:
                     header = True
                 else:
                     row = line.rstrip('\n').split(',')
-                    seg_scale[row[0]] = {'com': float(row[1]), 'mass': float(row[2]), 'x': row[3], 'y': row[4], 'z': row[5]}
+                    seg_scale[row[0]] = {'com': float(row[1]), 'mass': float(row[2]), 'x': row[3], 'y': row[4],
+                                         'z': row[5]}
+
         self.marker_data, self.marker_idx = IO.load_marker_data(self.path_dynamic)
-        
+        self.end = self.end if self.end != -1 else len(self.marker_data) - 1
+        self.marker_data = self.marker_data[self.start:self.end]
+
         self.measurements = self.static.get_static()
 
         methods = [self.pelvis_axis_calc, self.hip_axis_calc, self.knee_axis_calc,
@@ -276,6 +283,7 @@ class CGM:
             pelvis_axis = pel_ax(rasi, lasi, rpsi=rpsi, lpsi=lpsi)
         else:
             raise ValueError("Required marker RPSI and LPSI, or SACR, missing")
+<<<<<<< HEAD
 
         #Populate pelvis axis results
         pelo, pelx, pely, pelz = pelvis_axis
@@ -289,6 +297,10 @@ class CGM:
         joint_centers[jc_idx["pelvis_x"]] = pelx
         joint_centers[jc_idx["pelvis_y"]] = pely
         joint_centers[jc_idx["pelvis_z"]] = pelz
+=======
+        
+        axis_results[axis_idx["Pelvis Axis"]] = pelvis_axis
+>>>>>>> upstream/refactor
 
         hip_axis = hip_ax(pelvis_axis, measurements)
 
@@ -376,10 +388,36 @@ class CGM:
         joint_centers[jc_idx['RFoot']] = r_fooo
         joint_centers[jc_idx['LFoot']] = l_fooo
 
-        # Angle calculations
+        ### LowerBody Angle calculations
+        # Pelvis
+        pelvis_angle = pel_an(measurements['GCS'], pelvis_axis)
+        angle_results[angle_idx["Pelvis"]] = pelvis_angle
+
+        # Hip
+        right_hip_angle, left_hip_angle = hip_an(hip_axis, knee_axis)
+        angle_results[angle_idx["R Hip"]] = right_hip_angle
+        angle_results[angle_idx["L Hip"]] = left_hip_angle
+
+        # Knee
+        right_knee_angle, left_knee_angle = kne_an(knee_axis, ankle_axis)
+        angle_results[angle_idx["R Knee"]] = right_knee_angle
+        angle_results[angle_idx["L Knee"]] = left_knee_angle
+
+        # Ankle
+        right_ankle_angle, left_ankle_angle = ank_an(ankle_axis, foot_axis)
+        angle_results[angle_idx["R Ankle"]] = right_ankle_angle
+        angle_results[angle_idx["L Ankle"]] = left_ankle_angle
+
+        # Foot
+        right_foot_angle, left_foot_angle = foo_an(measurements['GCS'], foot_axis)
+        angle_results[angle_idx["R Ankle"]] = right_foot_angle
+        angle_results[angle_idx["L Ankle"]] = left_foot_angle
+
+        ### UpperBody Angle calculations
+        # head_angle = head_an(measurements['GCS'], head_axis)
+        # angle_results[angle_idx["Head"]] = head_angle
 
         # Center of Mass calculations
-
         return axis_results, angle_results, com_results
 
     # Utility functions
@@ -405,22 +443,25 @@ class CGM:
         --------
         >>> import numpy as np
         >>> from .pycgm import CGM
-        >>> x, y, z = 0.5, 0.3, 0.8
+        >>> np.around(CGM.rotation_matrix(), 8)
+        array([[1., 0., 0.],
+               [0., 1., 0.],
+               [0., 0., 1.]])
+        >>> x, y, z = 25, 125, 225
         >>> np.around(CGM.rotation_matrix(x, y, z), 8)
-        array([[ 0.99988882, -0.01396199,  0.00523596],
-               [ 0.01400734,  0.99986381, -0.00872642],
-               [-0.00511341,  0.00879879,  0.99994822]])
-        >>> x = 0.5
+        array([[ 0.40557979, -0.40557979,  0.81915204],
+               [-0.8856487 , -0.39606407,  0.24240388],
+               [ 0.22612258, -0.82379505, -0.51983679]])
+        >>> x = 45
         >>> np.around(CGM.rotation_matrix(x), 8)
         array([[ 1.        ,  0.        ,  0.        ],
-               [ 0.        ,  0.99996192, -0.00872654],
-               [ 0.        ,  0.00872654,  0.99996192]])
-        >>> x = 1
-        >>> y = 1
+               [ 0.        ,  0.70710678, -0.70710678],
+               [ 0.        ,  0.70710678,  0.70710678]])
+        >>> x, y = -45, -90
         >>> np.around(CGM.rotation_matrix(x, y), 8)
-        array([[ 9.9984770e-01,  0.0000000e+00,  1.7452410e-02],
-               [ 3.0459000e-04,  9.9984770e-01, -1.7449750e-02],
-               [-1.7449750e-02,  1.7452410e-02,  9.9969541e-01]])
+        array([[ 0.        ,  0.        , -1.        ],
+               [ 0.70710678,  0.70710678,  0.        ],
+               [ 0.70710678, -0.70710678,  0.        ]])
         """
         # Convert the x, y, z rotation angles from degrees to radians
         x = radians(x)
@@ -496,12 +537,12 @@ class CGM:
         --------
         >>> import numpy as np
         >>> from .pycgm import CGM
-        >>> a, b, c = np.array([[468.14532471, 325.09780884, 673.12591553],
-        ...                     [355.90861996, 365.38260964, 940.6974861 ],
-        ...                     [452.35180664, 329.0609436 , 524.77893066]])
-        >>> delta = 59.5
+        >>> a, b, c = np.array([[468, 325, 673],
+        ...                     [355, 365, 940 ],
+        ...                     [452, 329 , 524]])
+        >>> delta = 59
         >>> CGM.find_joint_center(a, b, c, delta)
-        array([396.25286248, 347.91367254, 518.63620527])
+        array([396.31601533, 347.48398669, 517.78420665])
         """
         # Make the two vector using 3 markers, which is on the same plane.
         v1 = a - c
@@ -570,15 +611,15 @@ class CGM:
         --------
         >>> import numpy as np
         >>> from .pycgm import CGM
-        >>> rsho, lsho = np.array([[428.88496562, 270.552948, 1500.73010254],
-        ...                        [68.24668121, 269.01049805, 1510.1072998]])
-        >>> thorax_axis = np.array([[256.14981023656401, 364.30906039339868, 1459.6553639290375],
-        ...                         [256.23991128535846, 365.30496976939753, 1459.662169500559],
-        ...                         [257.1435863244796, 364.21960599061947, 1459.5889787129829],
-        ...                         [256.08430536580352, 354.32180498523223, 1458.6575930699294]])
+        >>> rsho, lsho = np.array([[428, 270, 1500],
+        ...                        [68, 269, 1510]])
+        >>> thorax_axis = np.array([[256, 364, 1459],
+        ...                         [256, 365, 1459],
+        ...                         [257, 364, 1459],
+        ...                         [256, 354, 1458]])
         >>> CGM.wand_marker(rsho, lsho, thorax_axis)
-        array([[ 255.92550246,  364.32269503, 1460.6297869 ],
-               [ 256.42380097,  364.27770361, 1460.61658494]])
+        array([[ 255.76812462,  364.        , 1459.9727455 ],
+               [ 256.26181402,  364.        , 1459.96511834]])
         """
 
         # REQUIRED MARKERS:
@@ -634,14 +675,14 @@ class CGM:
         --------
         >>> import numpy as np 
         >>> from .pycgm import CGM
-        >>> axis_p = np.array([[ 0.0464229 ,   0.99648672,  0.06970743],
-        ...                    [ 0.99734011,  -0.04231089, -0.05935067],
-        ...                    [-0.05619277,   0.07227725, -0.99580037]])
-        >>> axis_d = np.array([[-0.18067218,  -0.98329158, -0.02225371],
-        ...                    [ 0.71383942,  -0.1155303 , -0.69071415],
-        ...                    [ 0.67660243,  -0.1406784 ,  0.7227854 ]])
+        >>> axis_p = np.array([[ 0.1 ,   0.5,  0.6],
+        ...                    [ 0.9,  -0.5,  -0.6],
+        ...                    [-0.1,   0.7,  -0.8]])
+        >>> axis_d = np.array([[-0.2,  -0.4,  -0.2],
+        ...                    [ 0.8,  -0.1 , -0.6],
+        ...                    [ 0.4,  -0.1 ,  0.5]])
         >>> CGM.get_angle(axis_p, axis_d)
-        array([-175.65183483,  -39.6322192 ,  100.2668477 ])
+        array([150.37625125,  -6.31531557,  82.93739733])
         """
         # This is the angle calculation, in which the order is Y-X-Z
 
@@ -757,15 +798,15 @@ class CGM:
         --------
         >>> import numpy as np
         >>> from refactor.pycgm import CGM
-        >>> lhjc = np.array([308.38050472, 322.80342417, 937.98979061])
-        >>> rhjc = np.array([182.57097863, 339.43231855, 935.529000126])
-        >>> axis = np.array([[251.60830688, 391.74131775, 1032.89349365],
-        ...                  [251.74063624, 392.72694721, 1032.78850073],
-        ...                  [250.61711554, 391.87232862, 1032.8741063 ],
-        ...                  [251.60295336, 391.84795134, 1033.88777762]])
+        >>> lhjc = np.array([308, 322, 937])
+        >>> rhjc = np.array([182, 339, 935])
+        >>> axis = np.array([[251, 391, 1032],
+        ...                  [251, 392, 1032],
+        ...                  [250, 391, 1032],
+        ...                  [251, 391, 1033]])
         >>> np.around(CGM.find_l5(lhjc, rhjc, axis), 8)
-        array([[ 245.47574168,  331.11787136,  936.75939537],
-               [ 271.52716019,  371.69050709, 1043.80997977]])
+        array([[ 245.        ,  330.5       ,  936.        ],
+               [ 271.06445299,  371.10239489, 1043.26924277]])
         """
         # The L5 position is estimated as (LHJC + RHJC)/2 +
         # (0.0, 0.0, 0.828) * Length(LHJC - RHJC), where the value 0.828
@@ -818,23 +859,23 @@ class CGM:
         --------
         >>> import numpy as np
         >>> from .pycgm import CGM
-        >>> rasi, lasi, rpsi, lpsi = np.array([[ 395.36532593,  428.09790039, 1036.82763672],
-        ...                                    [ 183.18504333,  422.78927612, 1033.07299805],
-        ...                                    [ 341.41815186,  246.72117615, 1055.99145508],
-        ...                                    [ 255.79994202,  241.42199707, 1057.30065918]])
+        >>> rasi, lasi, rpsi, lpsi = np.array([[ 395,  428, 1036],
+        ...                                    [ 183,  422, 1033],
+        ...                                    [ 341,  246, 1055],
+        ...                                    [ 255,  241, 1057]])
         >>> CGM.pelvis_axis_calc(rasi, lasi, rpsi=rpsi, lpsi=lpsi)
-        array([[ 289.27518463,  425.44358826, 1034.95031739],
-               [ 289.25243803,  426.43632163, 1034.8321521 ],
-               [ 288.27565385,  425.41858059, 1034.93263018],
-               [ 289.25467091,  425.56129577, 1035.94315379]])
-        >>> rasi, lasi, sacr = np.array([[ 395.36532593,  428.09790039, 1036.82763672],
-        ...                              [ 183.18504333,  422.78927612, 1033.07299805],
-        ...                              [ 294.60904694,  242.07158661, 1049.64605713]])
+        array([[ 289.        ,  425.        , 1034.5       ],
+               [ 288.97356163,  425.99275625, 1034.38279911],
+               [ 288.00050025,  424.97171227, 1034.48585614],
+               [ 288.98264324,  425.11676832, 1035.4930075 ]])
+        >>> rasi, lasi, sacr = np.array([[ 395,  428, 1036],
+        ...                              [ 183,  422, 1033],
+        ...                              [ 294,  242, 1049]])
         >>> CGM.pelvis_axis_calc(rasi, lasi, sacr=sacr)
-        array([[ 289.27518463,  425.44358826, 1034.95031739],
-               [ 289.25166321,  426.44012508, 1034.87056085],
-               [ 288.27565385,  425.41858059, 1034.93263018],
-               [ 289.25556415,  425.52289134, 1035.94697483]])
+        array([[ 289.        ,  425.        , 1034.5       ],
+               [ 288.97291419,  425.99651005, 1034.42104387],
+               [ 288.00050025,  424.97171227, 1034.48585614],
+               [ 288.98367201,  425.07853354, 1035.49677775]])
         """
 
         # REQUIRED MARKERS:
@@ -916,19 +957,19 @@ class CGM:
         --------
         >>> import numpy as np
         >>> from .pycgm import CGM
-        >>> pelvis_axis = np.array([[ 251.60830688, 391.74131775, 1032.89349365],
-        ...                         [ 251.74063624, 392.72694721, 1032.78850073],
-        ...                         [ 250.61711554, 391.87232862, 1032.8741063 ],
-        ...                         [ 251.60295336, 391.84795134, 1033.88777762]])
-        >>> measurements = {'MeanLegLength': 940.0, 'R_AsisToTrocanterMeasure': 72.512,
-        ...                 'L_AsisToTrocanterMeasure': 72.512, 'InterAsisDistance': 215.908996582031}
-        >>> CGM.hip_axis_calc(pelvis_axis, measurements)  # doctest: +NORMALIZE_WHITESPACE
-        array([[308.38050352, 322.80342433, 937.98979092],
-               [182.57097799, 339.43231799, 935.52900136],
-               [245.47574075, 331.11787116, 936.75939614],
-               [245.60807011, 332.10350062, 936.65440322],
-               [244.48454941, 331.24888203, 936.74000879],
-               [245.47038723, 331.22450475, 937.75368011]])
+        >>> pelvis_axis = np.array([[ 251, 391, 1032],
+        ...                         [ 251, 392, 1032],
+        ...                         [ 250, 391, 1032 ],
+        ...                         [ 251, 391, 1033]])
+        >>> measurements = {'MeanLegLength': 940, 'R_AsisToTrocanterMeasure': 72,
+        ...                 'L_AsisToTrocanterMeasure': 72, 'InterAsisDistance': 215}
+        >>> CGM.hip_axis_calc(pelvis_axis, measurements)
+        array([[314.00929545, 341.01659272, 930.14188199],
+               [187.99070455, 341.01659272, 930.14188199],
+               [251.        , 341.01659272, 930.14188199],
+               [251.        , 342.01659272, 930.14188199],
+               [250.        , 341.01659272, 930.14188199],
+               [251.        , 341.01659272, 931.14188199]])
         """
 
         # Requires
@@ -1029,22 +1070,22 @@ class CGM:
         --------
         >>> import numpy as np
         >>> from .pycgm import CGM
-        >>> rthi, lthi, rkne, lkne = np.array([[426.50338745, 262.65310669, 673.66247559],
-        ...                                    [51.93867874 , 320.01849365, 723.03186035],
-        ...                                    [416.98687744, 266.22558594, 524.04089355],
-        ...                                    [84.62355804 , 286.69122314, 529.39819336]])
-        >>> hip_origin = np.array([[309.38050472, 32280342417, 937.98979061],
-        ...                        [182.57097863, 339.43231855, 935.52900126]])
-        >>> measurements = {'RightKneeWidth': 105.0, 'LeftKneeWidth': 105.0 }
-        >>> CGM.knee_axis_calc(rthi, lthi, rkne, lkne, hip_origin, measurements)  # doctest: +NORMALIZE_WHITESPACE
-        array([[413.21007973, 266.22558784, 464.66088466],
-               [414.20806312, 266.22558785, 464.59740907],
-               [413.14660414, 266.22558786, 463.66290127],
-               [413.21007973, 267.22558784, 464.66088468],
-               [143.55478579, 279.90370346, 524.78408753],
-               [143.65611281, 280.88685896, 524.63197541],
-               [142.56434499, 280.01777942, 524.86163553],
-               [143.64837987, 280.0465038 , 525.76940383]])
+        >>> rthi, lthi, rkne, lkne = np.array([[426, 262, 673],
+        ...                                    [51 , 320, 723],
+        ...                                    [416, 266, 524],
+        ...                                    [84 , 286, 529]])
+        >>> hip_origin = np.array([[309, 322, 937],
+        ...                        [182, 339, 935]])
+        >>> measurements = {'RightKneeWidth': 105, 'LeftKneeWidth': 105 }
+        >>> CGM.knee_axis_calc(rthi, lthi, rkne, lkne, hip_origin, measurements)
+        array([[363.28036639, 292.19664005, 515.36134954],
+               [363.72612681, 293.091773  , 515.35546315],
+               [362.39432212, 292.63691972, 515.21616214],
+               [363.15299602, 292.26657445, 516.3507362 ],
+               [142.89606353, 278.88369813, 524.43251176],
+               [143.00280898, 279.86598662, 524.27851584],
+               [141.90621372, 279.00329985, 524.50927627],
+               [142.98988659, 279.0279367 , 525.41759676]])
         """
         # Get Global Values
         mm = 7.0
@@ -1157,23 +1198,23 @@ class CGM:
         --------
         >>> import numpy as np
         >>> from .pycgm import CGM
-        >>> rtib, ltib, rank, lank = np.array([[433.97537231, 211.93408203, 273.3008728 ],
-        ...                                    [50.04016495 , 235.90718079, 364.32226562],
-        ...                                    [422.77005005, 217.74053955, 92.86152649 ],
-        ...                                    [58.57380676 , 208.54806519, 86.16953278 ]])
-        >>> knee_origin = np.array([[364.17774614, 292.17051722, 515.19181496],
-        ...                         [143.55478579, 279.90370346, 524.78408753]])
-        >>> measurements = {'RightAnkleWidth': 70.0, 'LeftAnkleWidth': 70.0,
-        ...                 'RightTibialTorsion': 0.0, 'LeftTibialTorsion': 0.0}
+        >>> rtib, ltib, rank, lank = np.array([[433, 211, 273 ],
+        ...                                    [50 , 235, 364],
+        ...                                    [422, 217, 92 ],
+        ...                                    [58 , 208, 86 ]])
+        >>> knee_origin = np.array([[364, 292, 515],
+        ...                         [143, 279, 524]])
+        >>> measurements = {'RightAnkleWidth': 70, 'LeftAnkleWidth': 70,
+        ...                 'RightTibialTorsion': 0, 'LeftTibialTorsion': 0}
         >>> CGM.ankle_axis_calc(rtib, ltib, rank, lank, knee_origin, measurements)
-        array([[393.76181609, 247.67829633,  87.73775041],
-               [394.48171575, 248.37201349,  87.715368  ],
-               [393.07114385, 248.39110006,  87.61575574],
-               [393.69314056, 247.78157916,  88.73002876],
-               [ 98.74901939, 219.46930221,  80.63068161],
-               [ 98.47494966, 220.42553804,  80.52821783],
-               [ 97.79246671, 219.20927276,  80.76255902],
-               [ 98.84848169, 219.60345781,  81.61663776]])
+        array([[393.36370389, 247.2931075 ,  86.87260464],
+               [394.09205433, 247.97797298,  86.85104297],
+               [392.68188731, 248.01437196,  86.7505238 ],
+               [393.2956466 , 247.39672623,  87.86489057],
+               [ 98.11999534, 219.11196211,  80.44029928],
+               [ 97.84148846, 220.06709428,  80.33952006],
+               [ 97.16475735, 218.84739159,  80.57267311],
+               [ 98.21976663, 219.24509728,  81.42636253]])
         """
 
         # Get Global Values
@@ -1335,27 +1376,27 @@ class CGM:
         --------
         >>> import numpy as np
         >>> from .pycgm import CGM
-        >>> rtoe, ltoe = np.array([[442.81997681, 381.62280273, 42.66047668],
-        ...                        [39.43652725 , 382.44522095, 41.78911591]])
-        >>> ankle_axis = np.array([[393.76181608, 247.67829633, 87.73775041],
-        ...                        [394.4817575 , 248.37201348, 87.715368  ],
-        ...                        [393.07114384, 248.39110006, 87.61575574],
-        ...                        [393.69314056, 247.78157916, 88.73002876],
-        ...                        [98.74901939 , 219.46930221, 80.6306816 ],
-        ...                        [98.47494966 , 220.42553803, 80.52821783],
-        ...                        [97.79246671 , 219.20927275, 80.76255901],
-        ...                        [98.84848169 , 219.60345781, 81.61663775]])
-        >>> measurements = {'RightStaticRotOff': 0.015683497632642047, 'LeftStaticRotOff': 0.009402910292403012,
-        ...                 'RightStaticPlantFlex': 0.2702417907002758, 'LeftStaticPlantFlex': 0.20251085737834015}
+        >>> rtoe, ltoe = np.array([[442, 381, 42],
+        ...                        [39 , 382, 41]])
+        >>> ankle_axis = np.array([[393, 247, 87],
+        ...                        [394 , 248, 87],
+        ...                        [393, 248, 87],
+        ...                        [393, 247, 88],
+        ...                        [98 , 219, 80],
+        ...                        [98 , 220, 80],
+        ...                        [97 , 219, 80],
+        ...                        [98 , 219, 81]])
+        >>> measurements = {'RightStaticRotOff': 0.1, 'LeftStaticRotOff': 0.1,
+        ...                 'RightStaticPlantFlex': 0.3, 'LeftStaticPlantFlex': 0.2}
         >>> CGM.foot_axis_calc(rtoe, ltoe, ankle_axis, measurements)  # doctest: +NORMALIZE_WHITESPACE
-        array([[442.81997681, 381.62280273,  42.66047668],
-               [442.84624127, 381.6513024 ,  43.65972537],
-               [441.87735057, 381.9563035 ,  42.67574106],
-               [442.48716163, 380.68048378,  42.69610043],
-               [ 39.43652725, 382.44522095,  41.78911591],
-               [ 39.56652626, 382.50901001,  42.77857597],
-               [ 38.49313328, 382.14606841,  41.93234851],
-               [ 39.74166341, 381.4931502 ,  41.81040459]])
+        array([[442.        , 381.        ,  42.        ],
+               [442.54940367, 380.73530701,  42.79252333],
+               [441.29240336, 381.35704172,  42.60977717],
+               [441.55563237, 380.10419933,  42.00886416],
+               [ 39.        , 382.        ,  41.        ],
+               [ 39.06596884, 382.04580459,  41.99676981],
+               [ 38.02896253, 381.77304869,  41.0746949 ],
+               [ 39.22963959, 381.02717163,  41.02950626]])
         """
 
         # REQUIRED MARKERS:
@@ -1386,7 +1427,7 @@ class CGM:
         y_flex_r = ankle_flexion_r - ankle_jc_r
         y_flex_r = y_flex_r / np.linalg.norm(y_flex_r)
 
-        # X axis is calculated as a cross product of Z axis and ankle flexion axis.
+        # X axis is calculated as a np.cross product of Z axis and ankle flexion axis.
         r_axis_x = np.cross(y_flex_r, r_axis_z)
         r_axis_x = r_axis_x / np.linalg.norm(r_axis_x)
 
@@ -1405,7 +1446,7 @@ class CGM:
         y_flex_l = ankle_flexion_l - ankle_jc_l
         y_flex_l = y_flex_l / np.linalg.norm(y_flex_l)
 
-        # X axis is calculated as a cross product of Z axis and ankle flexion axis.
+        # X axis is calculated as a np.cross product of Z axis and ankle flexion axis.
         l_axis_x = np.cross(y_flex_l, l_axis_z)
         l_axis_x = l_axis_x / np.linalg.norm(l_axis_x)
 
@@ -1511,16 +1552,16 @@ class CGM:
         --------
         >>> import numpy as np
         >>> from .pycgm import CGM
-        >>> measurements = {'HeadOffset': 0.2571990469310653}
-        >>> rfhd, lfhd, rbhd, lbhd = np.array([[325.82983398, 402.55450439, 1722.49816895],
-        ...                                    [184.55158997, 409.68713379, 1721.34289551],
-        ...                                    [304.39898682, 242.91339111, 1694.97497559],
-        ...                                    [197.8621521, 251.28889465, 1696.90197754]])
+        >>> measurements = {'HeadOffset': 0.3}
+        >>> rfhd, lfhd, rbhd, lbhd = np.array([[325, 402, 1722],
+        ...                                    [184, 409, 1721],
+        ...                                    [304, 242, 1694],
+        ...                                    [197, 251, 1696]])
         >>> CGM.head_axis_calc(rfhd, lfhd, rbhd, lbhd, measurements)
-        array([[ 255.19071197,  406.12081909, 1721.92053223],
-               [ 255.21685583,  407.11593888, 1721.82538439],
-               [ 254.19105385,  406.14680918, 1721.91767712],
-               [ 255.1903437 ,  406.21600904, 1722.91599129]])
+        array([[ 254.5       ,  405.5       , 1721.5       ],
+               [ 254.52565516,  406.49058239, 1721.36550709],
+               [ 253.50032966,  405.52555761, 1721.49754796],
+               [ 254.50100837,  405.63451148, 1722.49091152]])
         """
 
         # Get Global Values
@@ -1542,11 +1583,11 @@ class CGM:
         y_vec = left - right
         y_vec = y_vec / np.linalg.norm(y_vec)
 
-        # get z axis by cross-product of x axis and y axis.
+        # get z axis by np.cross-product of x axis and y axis.
         z_vec = np.cross(x_vec, y_vec)
         z_vec = z_vec / np.linalg.norm(z_vec)
 
-        # make sure all x,y,z axis is orthogonal each other by cross-product
+        # make sure all x,y,z axis is orthogonal each other by np.cross-product
         y_vec = np.cross(z_vec, x_vec)
         y_vec = y_vec / np.linalg.norm(y_vec)
         x_vec = np.cross(y_vec, z_vec)
@@ -1591,22 +1632,19 @@ class CGM:
         --------
         >>> import numpy as np
         >>> from .pycgm import CGM
-        >>> clav, c7, strn, t10 = np.array([[256.78051758, 371.28042603, 1459.70300293],
-        ...                                 [256.78051758, 371.28042603, 1459.70300293],
-        ...                                 [251.67492676, 414.10391235, 1292.08508301],
-        ...                                 [228.64323425, 192.32041931, 1279.6418457]])
+        >>> clav, c7, strn, t10 = np.array([[256, 371, 1459],
+        ...                                 [256, 371, 1459],
+        ...                                 [251, 414, 1292],
+        ...                                 [228, 192, 1279]])
         >>> CGM.thorax_axis_calc(clav, c7, strn, t10)
-        array([[ 256.27295428,  364.79605749, 1462.29053923],
-               [ 256.34546332,  365.72239585, 1461.92089119],
-               [ 257.26637166,  364.696025  , 1462.23472346],
-               [ 256.18427318,  364.43288984, 1461.36304534]])
+        array([[ 255.4938561 ,  364.51623363, 1461.58932269],
+               [ 255.56616237,  365.44248597, 1461.21941945],
+               [ 256.48733126,  364.41655085, 1461.5339111 ],
+               [ 255.405658  ,  364.15275055, 1460.66190631]])
         """
 
         # Set or get a marker size as mm
         marker_size = 7.0
-
-        # Temporary origin since the origin will be moved at the end
-        origin = clav
 
         # Get the midpoints of the upper and lower sections, as well as the front and back sections
         upper = (clav + c7) / 2.0
@@ -1622,7 +1660,7 @@ class CGM:
         x_direc = front - back
         x_vec = x_direc / np.array([np.linalg.norm(x_direc)])
 
-        # make sure all the axes are orthogonal each othe by cross-product
+        # make sure all the axes are orthogonal each othe by np.cross-product
         y_direc = np.cross(z_vec, x_vec)
         y_vec = y_direc / np.array([np.linalg.norm(y_direc)])
         x_direc = np.cross(y_vec, z_vec)
@@ -1669,15 +1707,90 @@ class CGM:
         array
             Returns an 8x3 ndarray that contains the right shoulder origin, right shoulder x, y, and z
             axis components, left shoulder origin, and left shoulder x, y, and z axis components.
+
+        Examples
+        --------
+        >>> import numpy as np
+        >>> from .pycgm import CGM
+        >>> rsho, lsho = np.array([[428.88496562, 270.552948, 1500.73010254],
+        ...                        [68.24668121, 269.01049805, 1510.1072998]])
+        >>> thorax_origin = np.array([256.14981023656401, 364.30906039339868, 1459.6553639290375])
+        >>> wand = np.array([[255.92550222678443, 364.32269504976051, 1460.6297868417887],
+        ...                  [256.42380097331767, 364.27770361353487, 1460.6165849382387]])
+        >>> measurements = {'RightShoulderOffset' : 40.0, 'LeftShoulderOffset' : 40.0}
+        >>> CGM.shoulder_axis_calc(rsho, lsho, thorax_origin, wand, measurements)
+        array([[ 429.66971693,  275.06718208, 1453.95397769],
+               [ 430.1275099 ,  275.95136234, 1454.04698775],
+               [ 429.68641377,  275.16322961, 1452.95874099],
+               [ 428.7808149 ,  275.52434742, 1453.98318456],
+               [  64.51952733,  274.93442161, 1463.63133339],
+               [  64.10400325,  275.83192827, 1463.77905454],
+               [  64.59882848,  274.80838069, 1464.62018374],
+               [  65.42564601,  275.35702721, 1463.61253313]])
         """
 
-    @staticmethod
-    def elbow_wrist_axis_calc(rsho, lsho, relb, lelb, rwra, rwrb, lwra, lwrb,
-                              thorax_axis, shoulder_origin, wand, measurements):
-        """Elbow and Wrist Axis Calculation function
+        # First find the shoulder joint centers
 
-        Calculates the right and left elbow joint center and axis, and the
-        right and left wrist just center and axis, and returns them.
+        # Get Subject Measurement Values
+        r_shoulderoffset = measurements['RightShoulderOffset']
+        l_shoulderoffset = measurements['LeftShoulderOffset']
+        mm = 7.0
+        r_delta = r_shoulderoffset + mm
+        l_delta = l_shoulderoffset + mm
+
+        # REQUIRED MARKERS:
+        # RSHO
+        # LSHO
+
+        r_wand, l_wand = wand
+
+        r_sho_jc = CGM.find_joint_center(r_wand, thorax_origin, rsho, r_delta)
+        l_sho_jc = CGM.find_joint_center(l_wand, thorax_origin, lsho, l_delta)
+
+        # Next calculate the axes
+        r_wand_direc = r_wand - thorax_origin
+        l_wand_direc = l_wand - thorax_origin
+        r_wand_direc = r_wand_direc / np.array([np.linalg.norm(r_wand_direc)])
+        l_wand_direc = l_wand_direc / np.array([np.linalg.norm(l_wand_direc)])
+
+        # Right
+        # Get the direction of the primary axis Z,X,Y
+        z_direc = thorax_origin - r_sho_jc
+        z_direc = z_direc / np.array([np.linalg.norm(z_direc)])
+        y_direc = r_wand_direc * -1
+        x_direc = np.cross(y_direc, z_direc)
+        x_direc = x_direc / np.array([np.linalg.norm(x_direc)])
+        y_direc = np.cross(z_direc, x_direc)
+        y_direc = y_direc / np.array([np.linalg.norm(y_direc)])
+
+        # backwards to account for marker size
+        r_x_axis = x_direc + r_sho_jc
+        r_y_axis = y_direc + r_sho_jc
+        r_z_axis = z_direc + r_sho_jc
+
+        # Left
+        # Get the direction of the primary axis Z,X,Y
+        z_direc = thorax_origin - l_sho_jc
+        z_direc = z_direc / np.array([np.linalg.norm(z_direc)])
+        y_direc = l_wand_direc
+        x_direc = np.cross(y_direc, z_direc)
+        x_direc = x_direc / np.array([np.linalg.norm(x_direc)])
+        y_direc = np.cross(z_direc, x_direc)
+        y_direc = y_direc / np.array([np.linalg.norm(y_direc)])
+
+        # backwards to account for marker size
+        l_x_axis = x_direc + l_sho_jc
+        l_y_axis = y_direc + l_sho_jc
+        l_z_axis = z_direc + l_sho_jc
+
+        return np.array([r_sho_jc, r_x_axis, r_y_axis, r_z_axis, l_sho_jc, l_x_axis, l_y_axis, l_z_axis])
+
+    @staticmethod
+    def elbow_axis_calc(rsho, lsho, relb, lelb, rwra, rwrb, lwra, lwrb,
+                        thorax_axis, shoulder_origin, measurements):
+        """Elbow Axis Calculation function
+
+        Calculates the right and left elbow joint center and axis and returns them.
 
         Markers used: RSHO, LSHO, RELB, LELB, RWRA, RWRB, LWRA, LWRB
         Subject Measurement values used: RightElbowWidth, LeftElbowWidth
@@ -1691,46 +1804,251 @@ class CGM:
             thorax x, y, and z axis components.
         shoulder_origin : ndarray
             A 2x3 ndarray of the right and left shoulder origin vectors (joint centers).
-        wand : ndarray
-            A 2x3 ndarray containing the right wand marker x, y, and z positions and the
-            left wand marker x, y, and z positions.
         measurements : dict
             A dictionary containing the subject measurements given from the file input.
 
         Returns
         -------
         array
-            Returns a 2x8x3 ndarray, where the first index contains the right elbow origin, right elbow x, y, and z
-            axis components, left elbow origin, and left elbow x, y, and z axis components, and the second index
-            contains the right wrist origin, right wrist x, y, and z axis components, left wrist origin, and left
-            wrist x, y, and z axis components.
+            Returns an 8x3 ndarray that contains the right elbow origin, right elbow x, y, and z
+            axis components, left elbow origin, and left elbow x, y, and z axis components.
+
+        Examples
+        --------
+        >>> import numpy as np
+        >>> from .pycgm import CGM
+        >>> markers = np.array([[428.88496562, 270.552948, 1500.73010254],
+        ...                     [68.24668121, 269.01049805, 1510.1072998],
+        ...                     [658.90338135, 326.07580566, 1285.28515625],
+        ...                     [-156.32162476, 335.2593313, 1287.39916992],
+        ...                     [776.51898193,495.68103027, 1108.38464355],
+        ...                     [830.9072876, 436.75341797, 1119.11901855],
+        ...                     [-249.28146362, 525.32977295, 1117.09057617],
+        ...                     [-311.77532959, 477.22512817, 1125.1619873]])
+        >>> rsho, lsho, relb, lelb, rwra, rwrb, lwra, lwrb = markers
+        >>> thorax_axis = np.array([[256.14981023656401, 364.30906039339868, 1459.6553639290375],
+        ...                         [256.23991128535846, 365.30496976939753, 1459.662169500559],
+        ...                         [257.1435863244796, 364.21960599061947, 1459.5889787129829],
+        ...                         [256.08430536580352, 354.32180498523223, 1458.6575930699294]])
+        >>> shoulder_origin = np.array([[429.66951995, 275.06718615, 1453.953978131],
+        ...                             [64.51952734, 274.93442161, 1463.6313334]])
+        >>> measurements = {'RightElbowWidth': 74.0, 'LeftElbowWidth': 74.0,
+        ...                 'RightWristWidth': 55.0, 'LeftWristWidth': 55.0}
+        >>> CGM.elbow_axis_calc(rsho, lsho, relb, lelb, rwra, rwrb, lwra, lwrb, 
+        ...                     thorax_axis, shoulder_origin, measurements)
+        array([[ 633.66707588,  304.95542115, 1256.07799541],
+               [ 633.81070139,  303.96579005, 1256.07658507],
+               [ 634.35247992,  305.05386589, 1256.79947301],
+               [ 632.95321804,  304.8508319 , 1256.77043175],
+               [-129.16966701,  316.86794653, 1258.06440971],
+               [-129.32406616,  315.88151182, 1258.00866516],
+               [-128.45131692,  316.79460332, 1257.37260488],
+               [-128.4913352 ,  316.72108835, 1258.78433931]])
         """
 
-    # @staticmethod
-    # def wrist_axis_calc(rsho, lsho, relb, lelb, rwra, rwrb, lwra, lwrb, elbow_axis, wand):
-    #     """Wrist Axis Calculation function
-    #
-    #     Calculates the right and left wrist joint center and axis and returns them.
-    #
-    #     Markers used: RSHO, LSHO, RELB, LELB, RWRA, RWRB, LWRA, LWRB
-    #
-    #     Parameters
-    #     ----------
-    #     rsho, lsho, relb, lelb, rwra, rwrb, lwra, lwrb : ndarray
-    #         A 1x3 ndarray of each respective marker containing the XYZ positions.
-    #     elbow_axis : ndarray
-    #         An 8x3 ndarray that contains the right elbow origin, right elbow x, y, and z
-    #         axis components, left elbow origin, and left elbow x, y, and z axis components.
-    #     wand : ndarray
-    #         A 2x3 ndarray containing the right wand marker x, y, and z positions and the
-    #         left wand marker x, y, and z positions.
-    #
-    #     Returns
-    #     --------
-    #     array
-    #         Returns an 8x3 ndarray that contains the right wrist origin, right wrist x, y, and z
-    #         axis components, left wrist origin, and left wrist x, y, and z axis components.
-    #     """
+        r_elbow_width = measurements['RightElbowWidth']
+        l_elbow_width = measurements['LeftElbowWidth']
+        r_elbow_width = r_elbow_width * -1
+        l_elbow_width = l_elbow_width
+        mm = 7.0
+        r_delta = (r_elbow_width / 2.0) - mm
+        l_delta = (l_elbow_width / 2.0) + mm
+
+        rwri = (rwra + rwrb) / 2.0
+        lwri = (lwra + lwrb) / 2.0
+
+        # make humerus axis
+        tho_y_axis = CGM.subtract_origin(thorax_axis)
+
+        r_sho_mod = [(rsho[0] - r_delta * tho_y_axis[0] - relb[0]),
+                     (rsho[1] - r_delta * tho_y_axis[1] - relb[1]),
+                     (rsho[2] - r_delta * tho_y_axis[2] - relb[2])]
+        l_sho_mod = [(lsho[0] + l_delta * tho_y_axis[0] - lelb[0]),
+                     (lsho[1] + l_delta * tho_y_axis[1] - lelb[1]),
+                     (lsho[2] + l_delta * tho_y_axis[2] - lelb[2])]
+
+        # right axis
+        z_axis = r_sho_mod
+        z_axis = z_axis / np.linalg.norm(z_axis)
+
+        # this is reference axis                     double check if this whole section is even used
+        x_axis = np.subtract(rwri, relb)
+        x_axis = x_axis / np.linalg.norm(x_axis)
+
+        y_axis = np.cross(z_axis, x_axis)
+        y_axis = y_axis / np.linalg.norm(y_axis)
+
+        x_axis = np.cross(y_axis, z_axis)
+        x_axis = x_axis / np.linalg.norm(x_axis)
+
+        r_ref_x_axis = x_axis
+        r_ref_y_axis = y_axis
+        r_ref_z_axis = z_axis
+
+        # left axis
+        z_axis = np.subtract(l_sho_mod, lelb)
+        z_axis = z_axis / np.linalg.norm(z_axis)
+
+        # this is reference axis
+        x_axis = l_sho_mod
+        x_axis = x_axis / np.linalg.norm(x_axis)
+
+        y_axis = np.cross(z_axis, x_axis)
+        y_axis = y_axis / np.linalg.norm(y_axis)
+
+        x_axis = np.cross(y_axis, z_axis)
+        x_axis = x_axis / np.linalg.norm(x_axis)
+
+        l_ref_x_axis = x_axis
+        l_ref_y_axis = y_axis
+        l_ref_z_axis = z_axis
+
+        rsjc, lsjc = shoulder_origin
+
+        # make the construction vector for finding Elbow joint center
+        r_con_1 = np.subtract(rsjc, relb)
+        r_con_1 = r_con_1 / np.linalg.norm(r_con_1)
+
+        r_con_2 = np.subtract(rwri, relb)
+        r_con_2 = r_con_2 / np.linalg.norm(r_con_2)
+
+        r_cons_vec = np.cross(r_con_1, r_con_2)
+        r_cons_vec = r_cons_vec / np.linalg.norm(r_cons_vec)
+
+        r_cons_vec = r_cons_vec * 500 + relb
+
+        l_con_1 = np.subtract(lsjc, lelb)
+        l_con_1 = l_con_1 / np.linalg.norm(l_con_1)
+
+        l_con_2 = np.subtract(lwri, lelb)
+        l_con_2 = l_con_2 / np.linalg.norm(l_con_2)
+
+        l_cons_vec = np.cross(l_con_1, l_con_2)
+        l_cons_vec = l_cons_vec / np.linalg.norm(l_cons_vec)
+
+        l_cons_vec = l_cons_vec * 500 + lelb
+
+        rejc = CGM.find_joint_center(r_cons_vec, rsjc, relb, r_delta)
+        lejc = CGM.find_joint_center(l_cons_vec, lsjc, lelb, l_delta)
+
+        # this is radius axis for humerus
+        # The wrist values are calculated here because they are needed during the calculation of the elbow axes.
+        # They are calculated again in the wrist's respective function for clarity.
+
+        # right
+        x_axis = np.subtract(rwra, rwrb)
+        x_axis = x_axis / np.linalg.norm(x_axis)
+
+        z_axis = np.subtract(rejc, rwri)
+        z_axis = z_axis / np.linalg.norm(z_axis)
+
+        y_axis = np.cross(z_axis, x_axis)
+        y_axis = y_axis / np.linalg.norm(y_axis)
+
+        x_axis = np.cross(y_axis, z_axis)
+        x_axis = x_axis / np.linalg.norm(x_axis)
+
+        r_wri_x_axis = x_axis
+        r_wri_y_axis = y_axis
+        r_wri_z_axis = z_axis
+
+        # left
+        x_axis = np.subtract(lwra, lwrb)
+        x_axis = x_axis / np.linalg.norm(x_axis)
+
+        z_axis = np.subtract(lejc, lwri)
+        z_axis = z_axis / np.linalg.norm(z_axis)
+
+        y_axis = np.cross(z_axis, x_axis)
+        y_axis = y_axis / np.linalg.norm(y_axis)
+
+        x_axis = np.cross(y_axis, z_axis)
+        x_axis = x_axis / np.linalg.norm(x_axis)
+
+        l_wri_x_axis = x_axis
+        l_wri_y_axis = y_axis
+        l_wri_z_axis = z_axis
+
+        # calculate wrist joint center for humerus
+        r_wrist_thickness = measurements['RightWristWidth']
+        l_wrist_thickness = measurements['LeftWristWidth']
+        r_wrist_thickness = r_wrist_thickness / 2.0 + mm
+        l_wrist_thickness = l_wrist_thickness / 2.0 + mm
+
+        rwjc = rwri + r_wrist_thickness * r_wri_y_axis
+        lwjc = lwri - l_wrist_thickness * l_wri_y_axis
+
+        # recombine the humerus axis
+
+        # right
+        z_axis = np.subtract(rsjc, rejc)
+        z_axis = z_axis / np.linalg.norm(z_axis)
+
+        x_axis = np.subtract(rwjc, rejc)
+        x_axis = x_axis / np.linalg.norm(x_axis)
+
+        y_axis = np.cross(x_axis, z_axis)
+        y_axis = y_axis / np.linalg.norm(y_axis)
+
+        x_axis = np.cross(y_axis, z_axis)
+        x_axis = x_axis / np.linalg.norm(x_axis)
+
+        # attach each calculated elbow axis to elbow joint center.
+        x_axis += rejc
+        y_axis += rejc
+        z_axis += rejc
+
+        r_elb_x_axis = x_axis
+        r_elb_y_axis = y_axis
+        r_elb_z_axis = z_axis
+
+        # left
+        z_axis = np.subtract(lsjc, lejc)
+        z_axis = z_axis / np.linalg.norm(z_axis)
+
+        x_axis = np.subtract(lwjc, lejc)
+        x_axis = x_axis / np.linalg.norm(x_axis)
+
+        y_axis = np.cross(x_axis, z_axis)
+        y_axis = y_axis / np.linalg.norm(y_axis)
+
+        x_axis = np.cross(y_axis, z_axis)
+        x_axis = x_axis / np.linalg.norm(x_axis)
+
+        # attach each calculated elbow axis to elbow joint center.
+        x_axis += lejc
+        y_axis += lejc
+        z_axis += lejc
+
+        l_elb_x_axis = x_axis
+        l_elb_y_axis = y_axis
+        l_elb_z_axis = z_axis
+
+        return np.array([rejc, r_elb_x_axis, r_elb_y_axis, r_elb_z_axis,
+                         lejc, l_elb_x_axis, l_elb_y_axis, l_elb_z_axis])
+
+    @staticmethod
+    def wrist_axis_calc(rsho, lsho, relb, lelb, rwra, rwrb, lwra, lwrb, elbow_axis):
+        """Wrist Axis Calculation function
+
+        Calculates the right and left wrist joint center and axis and returns them.
+
+        Markers used: RSHO, LSHO, RELB, LELB, RWRA, RWRB, LWRA, LWRB
+
+        Parameters
+        ----------
+        rsho, lsho, relb, lelb, rwra, rwrb, lwra, lwrb : ndarray
+            A 1x3 ndarray of each respective marker containing the XYZ positions.
+        elbow_axis : ndarray
+            An 8x3 ndarray that contains the right elbow origin, right elbow x, y, and z
+            axis components, left elbow origin, and left elbow x, y, and z axis components.
+
+        Returns
+        --------
+        array
+            Returns an 8x3 ndarray that contains the right wrist origin, right wrist x, y, and z
+            axis components, left wrist origin, and left wrist x, y, and z axis components.
+        """
 
     @staticmethod
     def hand_axis_calc(rwra, wrb, lwra, lwrb, rfin, lfin, wrist_jc, measurements):
@@ -1781,12 +2099,12 @@ class CGM:
         >>> import numpy as np
         >>> from .pycgm import CGM
         >>> global_axis = np.array([[1, 0, 0], [0, 1, 0], [0, 0, 1]])
-        >>> pelvis_axis = np.array([[251.60830688, 391.74131774, 1032.89349365],
-        ...                         [251.74063624, 392.72694720, 1032.78850073],
-        ...                         [250.61711554, 391.87232862, 1032.87410630],
-        ...                         [251.60295335, 391.84795133, 1033.88777762]])
+        >>> pelvis_axis = np.array([[251.1, 391, 1032.3],
+        ...                         [251, 392.2, 1032.4],
+        ...                         [250, 391, 1032],
+        ...                         [251.5, 391, 1033]])
         >>> CGM.pelvis_angle_calc(global_axis, pelvis_axis)
-        array([-0.30849508, -6.12129284,  7.57143134])
+        array([29.7448813, -0.       ,  0.       ])
         """
 
         pelvis_axis_mod = CGM.subtract_origin(pelvis_axis)
@@ -1874,25 +2192,25 @@ class CGM:
         --------
         >>> import numpy as np
         >>> from .pycgm import CGM
-        >>> knee_axis = np.array([[364.17774614, 292.17051722, 515.19181496],
-        ...                       [364.61959153, 293.06758353, 515.18513093],
-        ...                       [363.29019771, 292.60656648, 515.04309095],
-        ...                       [364.04724541, 292.24216264, 516.18067112],
-        ...                       [143.55478579, 279.90370346, 524.78408753],
-        ...                       [143.65611282, 280.88685896, 524.63197541],
-        ...                       [142.56434499, 280.01777943, 524.86163553],
-        ...                       [143.64837987, 280.04650381, 525.76940383]])
-        >>> ankle_axis = np.array([[393.76181608, 247.67829633, 87.73775041],
-        ...                        [394.48171575, 248.37201348, 87.71536800],
-        ...                        [393.07114384, 248.39110006, 87.61575574],
-        ...                        [393.69314056, 247.78157916, 88.73002876],
-        ...                        [ 98.74901939, 219.46930221, 80.63068160],
-        ...                        [ 98.47494966, 220.42553803, 80.52821783],
-        ...                        [ 97.79246671, 219.20927275, 80.76255901],
-        ...                        [ 98.84848169, 219.60345781, 81.61663775]])
+        >>> knee_axis = np.array([[364.17, 292.17, 515.19],
+        ...                       [364.61, 293.06, 515.18],
+        ...                       [363.29, 292.60, 515.04],
+        ...                       [364.04, 292.24, 516.18],
+        ...                       [143.55, 279.90, 524.78],
+        ...                       [143.65, 280.88, 524.63],
+        ...                       [142.56, 280.01, 524.86],
+        ...                       [143.64, 280.04, 525.76]])
+        >>> ankle_axis = np.array([[393.76, 247.67, 87.73],
+        ...                        [394.48, 248.37, 87.71],
+        ...                        [393.07, 248.39, 87.61],
+        ...                        [393.69, 247.78, 88.73],
+        ...                        [ 98.74, 219.46, 80.63],
+        ...                        [ 98.47, 220.42, 80.52],
+        ...                        [ 97.79, 219.21, 80.76],
+        ...                        [ 98.84, 219.61, 81.61]])
         >>> CGM.knee_angle_calc(knee_axis, ankle_axis)
-        array([[  3.19436865,   2.38341045, -19.47591616],
-               [ -0.45848726,  -0.3866728 , -21.87580851]])
+        array([[  3.24601515,   2.35552002, -19.422079  ],
+               [  0.57849185,  -0.23491335, -21.5194992 ]])
         """
         r_knee_axis_mod = CGM.subtract_origin(knee_axis[:4])
         l_knee_axis_mod = CGM.subtract_origin(knee_axis[4:])
@@ -1933,25 +2251,25 @@ class CGM:
         --------
         >>> import numpy as np
         >>> from .pycgm import CGM
-        >>> ankle_axis = np.array([[393.76181608, 247.67829633, 87.73775041],
-        ...                        [394.48171575, 248.37201348, 87.71536800],
-        ...                        [393.07114384, 248.39110006, 87.61575574],
-        ...                        [393.69314056, 247.78157916, 88.73002876],
-        ...                        [ 98.74901939, 219.46930221, 80.63068160],
-        ...                        [ 98.47494966, 220.42553803, 80.52821783],
-        ...                        [ 97.79246671, 219.20927275, 80.76255901],
-        ...                        [ 98.84848169, 219.60345781, 81.61663775]])
-        >>> foot_axis = np.array([[442.81997681, 381.62280273, 42.66047668],
-        ...                       [442.84624127, 381.65130240, 43.65972538],
-        ...                       [441.87735056, 381.95630350, 42.67574106],
-        ...                       [442.48716163, 380.68048378, 42.69610044],
-        ...                       [39.43652725 , 382.44522095, 41.78911591],
-        ...                       [39.56652626 , 382.50901000, 42.77857597],
-        ...                       [38.49313328 , 382.14606841, 41.93234850],
-        ...                       [39.74166342 , 381.49315020, 41.81040458]])
-        >>> CGM.ankle_angle_calc(ankle_axis, foot_axis)
-        array([[ 2.50533765, -7.68822002, 26.4981019 ],
-               [ 4.38467038,  0.59929708, -2.37873795]])
+        >>> ankle_axis = np.array([[393, 247, 87],
+        ...                        [394, 248, 87],
+        ...                        [393, 248, 87],
+        ...                        [393, 247, 88],
+        ...                        [ 98, 219, 80],
+        ...                        [ 98, 220, 80],
+        ...                        [ 97, 219, 80],
+        ...                        [ 98, 219, 81]])
+        >>> foot_axis = np.array([[442, 381, 42],
+        ...                       [442, 381, 43],
+        ...                       [441, 381, 42],
+        ...                       [442, 380, 42],
+        ...                       [39 , 382, 41],
+        ...                       [39 , 382, 42],
+        ...                       [38 , 382, 41],
+        ...                       [39 , 381, 41]])
+        >>> CGM.ankle_angle_calc(ankle_axis, foot_axis) #doctest: +NORMALIZE_WHITESPACE
+         array([[ 0., 90., 90.],
+                [ 0.,  0., -0.]])
         """
         r_ankle_axis_mod = CGM.subtract_origin(ankle_axis[:4])
         l_ankle_axis_mod = CGM.subtract_origin(ankle_axis[4:])
@@ -1992,17 +2310,17 @@ class CGM:
         >>> import numpy as np
         >>> from .pycgm import CGM
         >>> global_axis = np.array([[1, 0, 0], [0, 1, 0], [0, 0, 1]])
-        >>> foot_axis = np.array([[442.81997681, 381.62280273, 42.66047668],
-        ...                       [442.84624127, 381.65130240, 43.65972538],
-        ...                       [441.87735056, 381.95630350, 42.67574106],
-        ...                       [442.48716163, 380.68048378, 42.69610044],
-        ...                       [39.43652725 , 382.44522095, 41.78911591],
-        ...                       [39.56652626 , 382.50901000, 42.77857597],
-        ...                       [38.49313328 , 382.14606841, 41.93234850],
-        ...                       [39.74166342 , 381.49315020, 41.81040458]])
+        >>> foot_axis = np.array([[442.81, 381.62, 42.66],
+        ...                       [442.84, 381.65, 43.65],
+        ...                       [441.87, 381.95, 42.67],
+        ...                       [442.48, 380.68, 42.69],
+        ...                       [39.43 , 382.44, 41.78],
+        ...                       [39.56 , 382.50, 42.77],
+        ...                       [38.49 , 382.14, 41.93],
+        ...                       [39.74 , 381.49, 41.81]])
         >>> CGM.foot_angle_calc(global_axis, foot_axis)
-        array([[-83.89045512,  -4.88440619,  70.44471323],
-               [ 86.00906822, 167.96294971, -72.18901201]])
+        array([[-84.80557109,  -5.19442891,  70.05155641],
+               [ 84.47245985, 168.69006753, -71.80512766]])
         """
 
         r_foot_axis_mod = CGM.subtract_origin(foot_axis[:4])
@@ -2071,7 +2389,7 @@ class CGM:
         Returns
         -------
         com_coords : 1darray
-            Numpy array containing center of mass coordinates for the frame 
+            Numpy array containing center of mass coordinates for the frame
             of trial. The coordinate is a 1x3 array of the XYZ position of the center
             of mass.
 
@@ -2239,6 +2557,7 @@ class CGM:
                 com_coords = sum(vals) / body_mass
         return com_coords
 
+
 class StaticCGM:
     """
     A class to used to calculate the offsets in a static trial and calibrate subject measurements.
@@ -2295,10 +2614,10 @@ class StaticCGM:
         --------
         >>> from numpy import around, array
         >>> from refactor import pycgm
-        >>> lasi = array([ 183.18504333,  422.78927612, 1033.07299805])
-        >>> rasi = array([ 395.36532593,  428.09790039, 1036.82763672])
+        >>> lasi = array([ 183,  422, 1033])
+        >>> rasi = array([ 395,  428, 1036])
         >>> around(pycgm.StaticCGM.iad_calculation(rasi, lasi), 2)
-        212.28
+        212.11
         """
         x_diff = rasi[0] - lasi[0]
         y_diff = rasi[1] - lasi[1]
@@ -2327,12 +2646,12 @@ class StaticCGM:
         --------
         >>> from numpy import around, array
         >>> from refactor import pycgm
-        >>> head_axis = array([[99.58366584777832, 82.79330825805664, 1483.7968139648438],
-        ...                    [100.33272997128863, 83.39303060995121, 1484.078302933558],
-        ...                    [98.9655145897623, 83.57884461044797, 1483.7681493301013],
-        ...                    [99.34535520789223, 82.64077714742746, 1484.7559501904173]])
+        >>> head_axis = array([[99, 82, 1483],
+        ...                    [100, 83, 1484],
+        ...                    [98, 83, 1483],
+        ...                    [99, 82, 1484]])
         >>> around(pycgm.StaticCGM.static_calculation_head(head_axis), 8)
-        0.28546606
+        0.78539816
         """
         head_axis = CGM.subtract_origin(head_axis)
         global_axis = np.array([[0, 1, 0], [-1, 0, 0], [0, 0, 1]])
@@ -2386,29 +2705,29 @@ class StaticCGM:
         --------
         >>> import numpy as np
         >>> from refactor.pycgm import StaticCGM
-        >>> rtoe, ltoe, rhee, lhee = np.array([[427.95211792, 437.99603271,  41.77342987],
-        ...                                    [175.78988647, 379.49987793,  42.61193085],
-        ...                                    [406.46331787, 227.56491089,  48.75952911],
-        ...                                    [223.59848022, 173.42980957,  47.92973328]])
-        >>> ankle_axis = np.array([[393.76181608, 247.67829633, 87.73775041],
-        ...                        [394.4817575, 248.37201348, 87.715368],
-        ...                        [393.07114384, 248.39110006, 87.61575574],
-        ...                        [393.69314056, 247.78157916, 88.73002876],
-        ...                        [98.74901939, 219.46930221, 80.6306816],
-        ...                        [98.47494966, 220.42553803, 80.52821783],
-        ...                        [97.79246671, 219.20927275, 80.76255901],
-        ...                        [98.84848169, 219.60345781, 81.61663775]])
+        >>> rtoe, ltoe, rhee, lhee = np.array([[427, 437,  41],
+        ...                                    [175, 379,  42],
+        ...                                    [406, 227,  48],
+        ...                                    [223, 173,  47]])
+        >>> ankle_axis = np.array([[393, 247, 87],
+        ...                        [394, 248, 87],
+        ...                        [393, 248, 87],
+        ...                        [393, 247, 88],
+        ...                        [98, 219, 80],
+        ...                        [98, 220, 80],
+        ...                        [97, 219, 80],
+        ...                        [98, 219, 81]])
         >>> flat_foot = True
-        >>> measurements = { 'RightSoleDelta': 0.4532,'LeftSoleDelta': 0.4532 }
+        >>> measurements = { 'RightSoleDelta': 0.45,'LeftSoleDelta': 0.45 }
         >>> parameters = [rtoe, ltoe, rhee, lhee, ankle_axis, flat_foot, measurements]
         >>> np.around(StaticCGM.static_calculation(*parameters),8)
-        array([[-0.08036968,  0.23192796, -0.66672181],
-               [-0.67466613,  0.21812578, -0.30207993]])
+        array([[-0.23229863,  0.0823201 ,  0.87549777],
+               [-0.65268629,  0.28720026, -0.30918223]])
         >>> flat_foot = False
         >>> parameters = [rtoe, ltoe, rhee, lhee, ankle_axis, flat_foot, measurements]
         >>> np.around(StaticCGM.static_calculation(*parameters),8)
-        array([[-0.07971346,  0.19881323, -0.15319313],
-               [-0.67470483,  0.18594096,  0.12287455]])
+        array([[-0.20601627,  0.06161168, -0.59732228],
+               [-0.65539028,  0.25761562,  0.11115736]])
         """
         # Get the each axis from the function.
         uncorrect_foot = StaticCGM.foot_axis_calc(rtoe, ltoe, ankle_axis)
@@ -2476,23 +2795,23 @@ class StaticCGM:
         --------
         >>> import numpy as np
         >>> from refactor.pycgm import StaticCGM
-        >>> rasi, lasi, rpsi, lpsi = np.array([[ 395.36532593,  428.09790039, 1036.82763672],
-        ...                                    [ 183.18504333,  422.78927612, 1033.07299805],
-        ...                                    [ 341.41815186,  246.72117615, 1055.99145508],
-        ...                                    [ 255.79994202,  241.42199707, 1057.30065918]])
+        >>> rasi, lasi, rpsi, lpsi = np.array([[ 395,  428, 1036],
+        ...                                    [ 183,  422, 1033],
+        ...                                    [ 341,  246, 1055],
+        ...                                    [ 255,  241, 1057]])
         >>> CGM.pelvis_axis_calc(rasi, lasi, rpsi=rpsi, lpsi=lpsi)
-        array([[ 289.27518463,  425.44358826, 1034.95031739],
-               [ 289.25243803,  426.43632163, 1034.8321521 ],
-               [ 288.27565385,  425.41858059, 1034.93263018],
-               [ 289.25467091,  425.56129577, 1035.94315379]])
-        >>> rasi, lasi, sacr = np.array([[ 395.36532593,  428.09790039, 1036.82763672],
-        ...                              [ 183.18504333,  422.78927612, 1033.07299805],
-        ...                              [ 294.60904694,  242.07158661, 1049.64605713]])
+        array([[ 289.        ,  425.        , 1034.5       ],
+               [ 288.97356163,  425.99275625, 1034.38279911],
+               [ 288.00050025,  424.97171227, 1034.48585614],
+               [ 288.98264324,  425.11676832, 1035.4930075 ]])
+        >>> rasi, lasi, sacr = np.array([[ 395,  428, 1036],
+        ...                              [ 183,  422, 1033],
+        ...                              [ 294,  242, 1049]])
         >>> StaticCGM.pelvis_axis_calc(rasi, lasi, sacr=sacr)
-        array([[ 289.27518463,  425.44358826, 1034.95031739],
-               [ 289.25166321,  426.44012508, 1034.87056085],
-               [ 288.27565385,  425.41858059, 1034.93263018],
-               [ 289.25556415,  425.52289134, 1035.94697483]])
+        array([[ 289.        ,  425.        , 1034.5       ],
+               [ 288.97291419,  425.99651005, 1034.42104387],
+               [ 288.00050025,  424.97171227, 1034.48585614],
+               [ 288.98367201,  425.07853354, 1035.49677775]])
         """
 
         # REQUIRED MARKERS:
@@ -2574,19 +2893,19 @@ class StaticCGM:
         --------
         >>> import numpy as np
         >>> from refactor.pycgm import StaticCGM
-        >>> pelvis_axis = np.array([[ 251.60830688, 391.74131775, 1032.89349365],
-        ...                         [ 251.74063624, 392.72694721, 1032.78850073],
-        ...                         [ 250.61711554, 391.87232862, 1032.8741063 ],
-        ...                         [ 251.60295336, 391.84795134, 1033.88777762]])
-        >>> measurements = {'MeanLegLength': 940.0, 'R_AsisToTrocanterMeasure': 72.512,
-        ...                 'L_AsisToTrocanterMeasure': 72.512, 'InterAsisDistance': 215.908996582031}
+        >>> pelvis_axis = np.array([[ 251, 391, 1032],
+        ...                         [ 251, 392, 1032],
+        ...                         [ 250, 391, 1032],
+        ...                         [ 251, 391, 1033]])
+        >>> measurements = {'MeanLegLength': 940.0, 'R_AsisToTrocanterMeasure': 72.51,
+        ...                 'L_AsisToTrocanterMeasure': 72.51, 'InterAsisDistance': 215}
         >>> StaticCGM.hip_axis_calc(pelvis_axis, measurements)  # doctest: +NORMALIZE_WHITESPACE
-        array([[308.38050352, 322.80342433, 937.98979092],
-           [182.57097799, 339.43231799, 935.52900136],
-           [245.47574075, 331.11787116, 936.75939614],
-           [245.60807011, 332.10350062, 936.65440322],
-           [244.48454941, 331.24888203, 936.74000879],
-           [245.47038723, 331.22450475, 937.75368011]])
+        array([[314.00929545, 340.53152887, 929.98436036],
+               [187.99070455, 340.53152887, 929.98436036],
+               [251.        , 340.53152887, 929.98436036],
+               [251.        , 341.53152887, 929.98436036],
+               [250.        , 340.53152887, 929.98436036],
+               [251.        , 340.53152887, 930.98436036]])
         """
 
         # Requires
@@ -2707,22 +3026,22 @@ class StaticCGM:
         --------
         >>> import numpy as np
         >>> from .pycgm import StaticCGM
-        >>> rthi, lthi, rkne, lkne = np.array([[426.50338745, 262.65310669, 673.66247559],
-        ...                                    [51.93867874 , 320.01849365, 723.03186035],
-        ...                                    [416.98687744, 266.22558594, 524.04089355],
-        ...                                    [84.62355804 , 286.69122314, 529.39819336]])
-        >>> hip_origin = np.array([[309.38050472, 32280342417, 937.98979061],
-        ...                        [182.57097863, 339.43231855, 935.52900126]])
+        >>> rthi, lthi, rkne, lkne = np.array([[426, 262, 673],
+        ...                                    [51 , 320, 723],
+        ...                                    [416, 266, 524],
+        ...                                    [84 , 286, 529]])
+        >>> hip_origin = np.array([[309, 322, 937],
+        ...                        [182, 339, 935]])
         >>> measurements = {'RightKneeWidth': 105.0, 'LeftKneeWidth': 105.0 }
         >>> StaticCGM.knee_axis_calc(rthi, lthi, rkne, lkne, hip_origin, measurements)  # doctest: +NORMALIZE_WHITESPACE
-        array([[413.21007973, 266.22558784, 464.66088466],
-               [414.20806312, 266.22558785, 464.59740907],
-               [413.14660414, 266.22558786, 463.66290127],
-               [413.21007973, 267.22558784, 464.66088468],
-               [143.55478579, 279.90370346, 524.78408753],
-               [143.65611281, 280.88685896, 524.63197541],
-               [142.56434499, 280.01777942, 524.86163553],
-               [143.64837987, 280.0465038 , 525.76940383]])
+        array([[363.28036639, 292.19664005, 515.36134954],
+               [363.72612681, 293.091773  , 515.35546315],
+               [362.39432212, 292.63691972, 515.21616214],
+               [363.15299602, 292.26657445, 516.3507362 ],
+               [142.89606353, 278.88369813, 524.43251176],
+               [143.00280898, 279.86598662, 524.27851584],
+               [141.90621372, 279.00329985, 524.50927627],
+               [142.98988659, 279.0279367 , 525.41759676]])
         """
         # Get Global Values
         mm = 7.0
@@ -2835,23 +3154,23 @@ class StaticCGM:
         --------
         >>> import numpy as np
         >>> from refactor.pycgm import StaticCGM
-        >>> rtib, ltib, rank, lank = np.array([[433.97537231, 211.93408203, 273.3008728 ],
-        ...                                    [50.04016495 , 235.90718079, 364.32226562],
-        ...                                    [422.77005005, 217.74053955, 92.86152649 ],
-        ...                                    [58.57380676 , 208.54806519, 86.16953278 ]])
-        >>> knee_origin = np.array([[364.17774614, 292.17051722, 515.19181496],
-        ...                         [143.55478579, 279.90370346, 524.78408753]])
+        >>> rtib, ltib, rank, lank = np.array([[433, 211, 273 ],
+        ...                                    [50 , 235, 364],
+        ...                                    [422, 217, 92 ],
+        ...                                    [58 , 208, 86 ]])
+        >>> knee_origin = np.array([[364, 292, 515],
+        ...                         [143, 279, 524]])
         >>> measurements = {'RightAnkleWidth': 70.0, 'LeftAnkleWidth': 70.0,
         ...                 'RightTibialTorsion': 0.0, 'LeftTibialTorsion': 0.0}
         >>> StaticCGM.ankle_axis_calc(rtib, ltib, rank, lank, knee_origin, measurements)
-        array([[393.76181609, 247.67829633,  87.73775041],
-               [394.48171575, 248.37201349,  87.715368  ],
-               [393.07114385, 248.39110006,  87.61575574],
-               [393.69314056, 247.78157916,  88.73002876],
-               [ 98.74901939, 219.46930221,  80.63068161],
-               [ 98.47494966, 220.42553804,  80.52821783],
-               [ 97.79246671, 219.20927276,  80.76255902],
-               [ 98.84848169, 219.60345781,  81.61663776]])
+        array([[393.36370389, 247.2931075 ,  86.87260464],
+               [394.09205433, 247.97797298,  86.85104297],
+               [392.68188731, 248.01437196,  86.7505238 ],
+               [393.2956466 , 247.39672623,  87.86489057],
+               [ 98.11999534, 219.11196211,  80.44029928],
+               [ 97.84148846, 220.06709428,  80.33952006],
+               [ 97.16475735, 218.84739159,  80.57267311],
+               [ 98.21976663, 219.24509728,  81.42636253]])
         """
 
         # Get Global Values
@@ -3029,25 +3348,25 @@ class StaticCGM:
         --------
         >>> import numpy as np
         >>> from refactor.pycgm import StaticCGM
-        >>> rtoe, ltoe = np.array([[442.81997681, 381.62280273, 42.66047668],
-        ...                        [39.43652725 , 382.44522095, 41.78911591]])
-        >>> ankle_axis = np.array([[393.76181608, 247.67829633, 87.73775041],
-        ...                        [394.4817575 , 248.37201348, 87.715368  ],
-        ...                        [393.07114384, 248.39110006, 87.61575574],
-        ...                        [393.69314056, 247.78157916, 88.73002876],
-        ...                        [98.74901939 , 219.46930221, 80.6306816 ],
-        ...                        [98.47494966 , 220.42553803, 80.52821783],
-        ...                        [97.79246671 , 219.20927275, 80.76255901],
-        ...                        [98.84848169 , 219.60345781, 81.61663775]])
+        >>> rtoe, ltoe = np.array([[442, 381, 42],
+        ...                        [39 , 382, 41]])
+        >>> ankle_axis = np.array([[393, 247, 87],
+        ...                        [394 , 248, 87  ],
+        ...                        [393, 248, 87],
+        ...                        [393, 247, 88],
+        ...                        [98 , 219, 80 ],
+        ...                        [98 , 220, 80],
+        ...                        [97 , 219, 80],
+        ...                        [98 , 219, 81]])
         >>> StaticCGM.foot_axis_calc(rtoe, ltoe, ankle_axis)  # doctest: +NORMALIZE_WHITESPACE
-        array([[442.81997681, 381.62280273,  42.66047668],
-           [442.93807347, 381.90040642,  43.61388602],
-           [441.882686  , 381.97104076,  42.67518049],
-           [442.49204525, 380.72744444,  42.96179781],
-           [ 39.43652725, 382.44522095,  41.78911591],
-           [ 39.50071636, 382.6986218 ,  42.7543453 ],
-           [ 38.49604413, 382.13712948,  41.93254235],
-           [ 39.77025057, 381.52823259,  42.00765902]])
+        array([[442.        , 381.        ,  42.        ],
+               [442.676405  , 381.        ,  42.73652989],
+               [441.34030115, 381.44468887,  42.60584588],
+               [441.67247336, 380.10431489,  42.30078977],
+               [ 39.        , 382.        ,  41.        ],
+               [ 39.        , 382.2326959 ,  41.97254954],
+               [ 38.05673939, 381.67706168,  41.07726745],
+               [ 39.33205333, 381.08263232,  41.21949288]])
         """
         ankle_jc_r = ankle_axis[0]
         ankle_jc_l = ankle_axis[4]
@@ -3067,12 +3386,12 @@ class StaticCGM:
         y_flex_r_div = np.linalg.norm(y_flex_r)
         y_flex_r = [y_flex_r[0] / y_flex_r_div, y_flex_r[1] / y_flex_r_div, y_flex_r[2] / y_flex_r_div]
 
-        # Calculate x axis by cross-product of ankle flexion axis and z axis.
+        # Calculate x axis by np.cross-product of ankle flexion axis and z axis.
         r_axis_x = np.cross(y_flex_r, r_axis_z)
         r_axis_x_div = np.linalg.norm(r_axis_x)
         r_axis_x = [r_axis_x[0] / r_axis_x_div, r_axis_x[1] / r_axis_x_div, r_axis_x[2] / r_axis_x_div]
 
-        # Calculate y axis by cross-product of z axis and x axis.
+        # Calculate y axis by np.cross-product of z axis and x axis.
         r_axis_y = np.cross(r_axis_z, r_axis_x)
         r_axis_y_div = np.linalg.norm(r_axis_y)
         r_axis_y = [r_axis_y[0] / r_axis_y_div, r_axis_y[1] / r_axis_y_div, r_axis_y[2] / r_axis_y_div]
@@ -3095,12 +3414,12 @@ class StaticCGM:
         y_flex_l_div = np.linalg.norm(y_flex_l)
         y_flex_l = [y_flex_l[0] / y_flex_l_div, y_flex_l[1] / y_flex_l_div, y_flex_l[2] / y_flex_l_div]
 
-        # Calculate x axis by cross-product of ankle flexion axis and z axis.
+        # Calculate x axis by np.cross-product of ankle flexion axis and z axis.
         l_axis_x = np.cross(y_flex_l, l_axis_z)
         l_axis_x_div = np.linalg.norm(l_axis_x)
         l_axis_x = [l_axis_x[0] / l_axis_x_div, l_axis_x[1] / l_axis_x_div, l_axis_x[2] / l_axis_x_div]
 
-        # Calculate y axis by cross-product of z axis and x axis.
+        # Calculate y axis by np.cross-product of z axis and x axis.
         l_axis_y = np.cross(l_axis_z, l_axis_x)
         l_axis_y_div = np.linalg.norm(l_axis_y)
         l_axis_y = [l_axis_y[0] / l_axis_y_div, l_axis_y[1] / l_axis_y_div, l_axis_y[2] / l_axis_y_div]
@@ -3138,27 +3457,26 @@ class StaticCGM:
         --------
         >>> import numpy as np
         >>> from refactor.pycgm import StaticCGM
-        >>> rhee, lhee, rtoe, ltoe = np.array([[374.01257324, 181.57929993, 49.50960922],
-        ...                                    [105.30126953, 180.2130127, 47.15660858],
-        ...                                    [442.81997681, 381.62280273, 42.66047668],
-        ...                                    [39.43652725, 382.44522095, 41.78911591]])
-        >>> ankle_axis = np.array([[393.76181608, 247.67829633, 87.73775041],
-        ...                        [394.4817575 , 248.37201348, 87.715368  ],
-        ...                        [393.07114384, 248.39110006, 87.61575574],
-        ...                        [393.69314056, 247.78157916, 88.73002876],
-        ...                        [98.74901939 , 219.46930221, 80.6306816 ],
-        ...                        [98.47494966 , 220.42553803, 80.52821783],
-        ...                        [97.79246671 , 219.20927275, 80.76255901],
-        ...                        [98.84848169 , 219.60345781, 81.61663775]])
+        >>> rhee, lhee, rtoe, ltoe = np.array([[374, 181, 49],
+        ...                                    [105, 180, 47],
+        ...                                    [442, 381, 42],
+        ...                                    [39, 382, 41]])
+        >>> ankle_axis = np.array([[393, 247, 87],
+        ...                        [394 , 248, 87  ],
+        ...                        [393, 248, 87],
+        ...                        [393, 247, 88],
+        ...                        [98 , 219, 80 ],
+        ...                        [98 , 220, 80],
+        ...                        [97 , 219, 80],
+        ...                        [98 , 219, 81]])
         >>> [np.around(arr,8) for arr in StaticCGM.non_flat_foot_axis_calc(rtoe, ltoe, rhee, lhee, ankle_axis)] #doctest: +NORMALIZE_WHITESPACE
-        [array([442.81997681, 381.62280273,  42.66047668]),
-        array([442.71651135, 381.69236202,  43.65267444]),
-        array([441.87997036, 381.94200709,  42.54007546]),
-        array([442.49488793, 380.67767307,  42.69283623]),
-        array([ 39.43652725, 382.44522095,  41.78911591]),
-        array([ 39.55544558, 382.51024763,  42.77988832]),
-        array([ 38.49311916, 382.14149804,  41.92228333]),
-        array([ 39.74610697, 381.4946822 ,  41.81434438])]
+        [array([442., 381.,  42.]), array([442.10240005, 381.        ,  42.9947433 ]), 
+        array([441.05872081, 381.3234263 ,  42.09689639]), 
+        array([441.67827386, 380.05374664,  42.03311887]), 
+        array([ 39., 382.,  41.]), 
+        array([ 39.        , 382.02968988,  41.99955916]), 
+        array([ 38.04941082, 381.68968524,  41.00921727]), 
+        array([ 39.31045162, 381.04982988,  41.02822287])]
         """
         # REQUIRED MARKERS:
         # RTOE
@@ -3244,28 +3562,28 @@ class StaticCGM:
         --------
         >>> import numpy as np
         >>> from refactor.pycgm import StaticCGM
-        >>> rtoe, ltoe, rhee, lhee = np.array([[442.81997681, 381.62280273, 42.66047668],
-        ...                                    [39.43652725, 382.44522095, 41.78911591],
-        ...                                    [374.01257324, 181.57929993, 49.50960922],
-        ...                                    [105.30126953, 180.2130127, 47.15660858]])
-        >>> ankle_axis = np.array([[393.76181608, 247.67829633, 87.73775041],
-        ...                        [394.4817575 , 248.37201348, 87.715368  ],
-        ...                        [393.07114384, 248.39110006, 87.61575574],
-        ...                        [393.69314056, 247.78157916, 88.73002876],
-        ...                        [98.74901939 , 219.46930221, 80.6306816 ],
-        ...                        [98.47494966 , 220.42553803, 80.52821783],
-        ...                        [97.79246671 , 219.20927275, 80.76255901],
-        ...                        [98.84848169 , 219.60345781, 81.61663775]])
+        >>> rtoe, ltoe, rhee, lhee = np.array([[442, 381, 42],
+        ...                                    [39, 382, 41],
+        ...                                    [374, 181, 49],
+        ...                                    [105, 180, 47]])
+        >>> ankle_axis = np.array([[393, 247, 87],
+        ...                        [394 , 248, 87  ],
+        ...                        [393, 248, 87],
+        ...                        [393, 247, 88],
+        ...                        [98 , 219, 80],
+        ...                        [98 , 220, 80],
+        ...                        [97 , 219, 80],
+        ...                        [98 , 219, 81]])
         >>> measurements = { 'RightSoleDelta': 0.45, 'LeftSoleDelta': 0.35}
         >>> [np.around(arr,8) for arr in StaticCGM.flat_foot_axis_calc(rtoe, ltoe, rhee, lhee, ankle_axis, measurements)] #doctest: +NORMALIZE_WHITESPACE
-        [array([442.81997681, 381.62280273,  42.66047668]),
-        array([442.30666241, 381.79936348,  43.50031871]),
-        array([442.02580128, 381.89596909,  42.1176458 ]),
-        array([442.49471759, 380.67717784,  42.66047668]),
-        array([ 39.43652725, 382.44522095,  41.78911591]),
-        array([ 39.23195009, 382.37859248,  42.76569608]),
-        array([ 38.5079544 , 382.14279528,  41.57396209]),
-        array([ 39.74620554, 381.49437955,  41.78911591])]
+        [array([442., 381.,  42.]), 
+        array([441.22996328, 381.26181249,  42.58180552]), 
+        array([441.44916239, 381.18728479,  41.18667206]), 
+        array([441.67809727, 380.05322726,  42.        ]), 
+        array([ 39., 382.,  41.]), 
+        array([ 38.67155725, 381.89268702,  41.93840785]), 
+        array([ 38.10799758, 381.70855366,  40.65447039]), 
+        array([ 39.31057534, 381.04945123,  41.        ])]
         """
         r_sole_delta = measurements['RightSoleDelta']
         l_sole_delta = measurements['LeftSoleDelta']
@@ -3304,7 +3622,7 @@ class StaticCGM:
                     ankle_flexion_r[2] - ankle_jc_r[2]]
         y_flex_r = y_flex_r / np.array([np.linalg.norm(y_flex_r)])
 
-        # Calculate each x,y,z axis of foot using cross-product and make sure x,y,z axis is orthogonal each other.
+        # Calculate each x,y,z axis of foot using np.cross-product and make sure x,y,z axis is orthogonal each other.
         r_axis_x = np.cross(y_flex_r, r_axis_z)
         r_axis_x = r_axis_x / np.array([np.linalg.norm(r_axis_x)])
 
@@ -3340,7 +3658,7 @@ class StaticCGM:
                     ankle_flexion_l[2] - ankle_jc_l[2]]
         y_flex_l = y_flex_l / np.array([np.linalg.norm(y_flex_l)])
 
-        # Calculate each x,y,z axis of foot using cross-product and make sure x,y,z axis is orthogonal each other.
+        # Calculate each x,y,z axis of foot using np.cross-product and make sure x,y,z axis is orthogonal each other.
         l_axis_x = np.cross(y_flex_l, l_axis_z)
         l_axis_x = l_axis_x / np.array([np.linalg.norm(l_axis_x)])
 
@@ -3380,15 +3698,15 @@ class StaticCGM:
         --------
         >>> import numpy as np
         >>> from refactor.pycgm import StaticCGM
-        >>> rfhd, lfhd, rbhd, lbhd = np.array([[325.82983398, 402.55450439, 1722.49816895],
-        ...                                   [184.55158997, 409.68713379, 1721.34289551],
-        ...                                   [304.39898682, 242.91339111, 1694.97497559],
-        ...                                   [197.8621521, 251.28889465, 1696.90197754]])
+        >>> rfhd, lfhd, rbhd, lbhd = np.array([[325, 402, 1722],
+        ...                                   [184, 409, 1721],
+        ...                                   [304, 242, 1694],
+        ...                                   [197, 251, 1696]])
         >>> [np.around(arr,8) for arr in StaticCGM.head_axis_calc(rfhd, lfhd, rbhd, lbhd)] #doctest: +NORMALIZE_WHITESPACE
-        [array([ 255.19071198,  406.12081909, 1721.92053223]),
-        array([ 255.21590218,  407.10741939, 1722.0817318 ]),
-        array([ 254.19105385,  406.14680918, 1721.91767712]),
-        array([ 255.18370553,  405.95974655, 1722.90744993])]
+        [array([ 254.5,  405.5, 1721.5]), 
+        array([ 254.5248073 ,  406.48609036, 1721.66434839]), 
+        array([ 253.50032966,  405.52555761, 1721.49754796]), 
+        array([ 254.49338171,  405.33576661, 1722.48639931])]
         """
         # get the midpoints of the head to define the sides
         front = [(lfhd[0] + rfhd[0]) / 2.0, (lfhd[1] + rfhd[1]) / 2.0, (lfhd[2] + rfhd[2]) / 2.0]
@@ -3408,12 +3726,12 @@ class StaticCGM:
         y_vec_div = np.linalg.norm(y_vec)
         y_vec = [y_vec[0] / y_vec_div, y_vec[1] / y_vec_div, y_vec[2] / y_vec_div]
 
-        # get z axis by cross-product of x axis and y axis.
+        # get z axis by np.cross-product of x axis and y axis.
         z_vec = np.cross(x_vec, y_vec)
         z_vec_div = np.linalg.norm(z_vec)
         z_vec = [z_vec[0] / z_vec_div, z_vec[1] / z_vec_div, z_vec[2] / z_vec_div]
 
-        # make sure all x,y,z axis is orthogonal each other by cross-product
+        # make sure all x,y,z axis is orthogonal each other by np.cross-product
         y_vec = np.cross(z_vec, x_vec)
         y_vec_div = np.linalg.norm(y_vec)
         y_vec = [y_vec[0] / y_vec_div, y_vec[1] / y_vec_div, y_vec[2] / y_vec_div]
@@ -3456,14 +3774,14 @@ class StaticCGM:
         --------
         >>> import numpy as np
         >>> from refactor.pycgm import StaticCGM
-        >>> axis_p = [[ 0.59327576, 0.10572786, 0.15773334],
-        ...         [-0.13176004, -0.10067464, -0.90325703],
-        ...         [0.9399765, -0.04907387, 0.75029827]]
-        >>> axis_d = [[0.16701015, 0.69080381, -0.37358145],
-        ...         [0.1433922, -0.3923507, 0.94383974],
-        ...         [-0.15507695, -0.5313784, -0.60119402]]
+        >>> axis_p = [[ 0.59, 0.15, 0.15],
+        ...         [-0.13, -0.16, -0.93],
+        ...         [0.93, -0.04, 0.75]]
+        >>> axis_d = [[0.16, 0.69, -0.37],
+        ...         [0.14, -0.39, 0.94],
+        ...         [-0.15, -0.53, -0.61]]
         >>> np.around(StaticCGM.ankle_angle_calc(axis_p,axis_d),8)
-        array([0.47919763, 0.99019921, 1.51695461])
+        array([ 0.54405441,  0.99687718, -1.4287752 ])
         """
         # make inverse matrix of axisP
         axis_p_i = np.linalg.inv(axis_p)
@@ -3629,21 +3947,24 @@ class StaticCGM:
             hip_axis = StaticCGM.hip_axis_calc(pelvis, cal_sm)
             hip_origin = [hip_axis[0], hip_axis[1]]
 
-            rthi, lthi, rkne, lkne = frame[self.mapping['RTHI']], frame[self.mapping['LTHI']], frame[self.mapping['RKNE']], frame[
-                self.mapping['LKNE']]
+            rthi, lthi, rkne, lkne = frame[self.mapping['RTHI']], frame[self.mapping['LTHI']], frame[
+                self.mapping['RKNE']], frame[
+                                         self.mapping['LKNE']]
             knee_axis = StaticCGM.knee_axis_calc(rthi, lthi, rkne, lkne, hip_origin, cal_sm)
             knee_origin = np.array([knee_axis[0], knee_axis[4]])
 
-            rtib, ltib, rank, lank = frame[self.mapping['RTIB']], frame[self.mapping['LTIB']], frame[self.mapping['RANK']], frame[
-                self.mapping['LANK']]
+            rtib, ltib, rank, lank = frame[self.mapping['RTIB']], frame[self.mapping['LTIB']], frame[
+                self.mapping['RANK']], frame[
+                                         self.mapping['LANK']]
             ankle_axis = StaticCGM.ankle_axis_calc(rtib, ltib, rank, lank, knee_origin, cal_sm)
 
-            rtoe, ltoe, rhee, lhee = frame[self.mapping['RTOE']], frame[self.mapping['LTOE']], frame[self.mapping['RHEE']], frame[
-                self.mapping['LHEE']]
+            rtoe, ltoe, rhee, lhee = frame[self.mapping['RTOE']], frame[self.mapping['LTOE']], frame[
+                self.mapping['RHEE']], frame[
+                                         self.mapping['LHEE']]
             angles = StaticCGM.static_calculation(rtoe, ltoe, rhee, lhee, ankle_axis, flat_foot, cal_sm)
 
-            rfhd, lfhd, rbhd, lbhd = frame[self.mapping['RFHD']], frame[self.mapping['LFHD']], frame[self.mapping['RBHD']], frame[
-                self.mapping['LBHD']]
+            rfhd, lfhd, rbhd, lbhd = frame[self.mapping['RFHD']], frame[self.mapping['LFHD']], frame[
+                self.mapping['RBHD']], frame[self.mapping['LBHD']]
             head_axis = StaticCGM.head_axis_calc(rfhd, lfhd, rbhd, lbhd)
 
             head_angle = StaticCGM.static_calculation_head(head_axis)
