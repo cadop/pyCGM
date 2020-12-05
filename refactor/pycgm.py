@@ -15,9 +15,7 @@ else:
 
 class CGM:
 
-    def __init__(self, path_static, path_dynamic, path_measurements, path_results=None,
-                 write_axes=True, write_angles=True, write_com=True,
-                 static=None, cores=1, start=0, end=-1):
+    def __init__(self, path_static, path_dynamic, path_measurements, static=None, cores=1, start=0, end=-1):
         """Initialization of CGM object function
 
         Instantiates various class attributes based on parameters and default values.
@@ -30,16 +28,6 @@ class CGM:
             File path of the dynamic trial in csv or c3d form
         path_measurements : str
             File path of the subject measurements in csv or vsk form
-        path_results : str, optional
-            File path of the output file in csv or c3d form
-        write_axes : bool or list, optional
-            Boolean option to enable or disable writing of axis results to output file, or list
-            of axis names to write
-        write_angles : bool or list, optional
-            Boolean option to enable or disable writing of angle results to output file, or list
-            of angle names to write
-        write_com : bool, optional
-            Boolean option to enable or disable writing of center of mass results to output file
 
         Examples
         --------
@@ -54,10 +42,6 @@ class CGM:
         self.path_static = path_static
         self.path_dynamic = path_dynamic
         self.path_measurements = path_measurements
-        self.path_results = path_results
-        self.write_axes = write_axes
-        self.write_angles = write_angles
-        self.write_com = write_com
         self.static = static if static else StaticCGM(path_static, path_measurements)
         self.cores = cores
         self.angle_results = None
@@ -164,6 +148,31 @@ class CGM:
         results = self.multi_calc(self.marker_data, methods, mappings, self.measurements, seg_scale)
         self.axis_results, self.angle_results, self.com_results = results
 
+    def write_results(self, path_results, write_axes=None, write_angles=None, write_com=True):
+        """Write CGM results to a csv file. 
+
+        Uses IO.write_result().
+
+        Parameters
+        ----------
+        path_results : str, optional
+            File path of the output file in csv or c3d form
+        write_axes : bool or list, optional
+            Boolean option to enable or disable writing of axis results to output file, or list
+            of axis names to write. If not specified or True, all axes will be written.
+        write_angles : bool or list, optional
+            Boolean option to enable or disable writing of angle results to output file, or list
+            of angle names to write. If not specified or True, all angles will be written.
+        write_com : bool, optional
+            Boolean option to enable or disable writing of center of mass results to output file.
+            True by default.
+        """
+        #Ensure that write_results() is not being called before run().
+        if (self.angle_results is None or self.axis_results is None or self.com_results is None):
+            print("Results cannot be saved before run() is called.")
+        else:
+            IO.write_result(path_results, self.angle_results, self.angle_idx, self.axis_results, self.axis_idx, self.com_results, write_angles, write_axes, write_com)
+
     @staticmethod
     def multi_calc(data, methods, mappings, measurements, seg_scale, cores=1):
         """Multiprocessing calculation handler function
@@ -198,7 +207,7 @@ class CGM:
 
         markers, marker_idx, axis_idx, angle_idx, jc_idx = mappings
 
-        axis_results = np.empty((len(data), len(axis_idx), 4, 3), dtype=float)
+        axis_results = np.empty((len(data), len(axis_idx), 3), dtype=float)
         axis_results.fill(np.nan)
         angle_results = np.empty((len(data), len(angle_idx), 3), dtype=float)
         angle_results.fill(np.nan)
@@ -252,7 +261,9 @@ class CGM:
         # markers would translate RASI to RASIS and marker_idx would translate RASIS to 0
         markers, marker_idx, axis_idx, angle_idx, jc_idx = mappings
 
-        axis_results = np.empty((len(axis_idx), 4, 3), dtype=float)
+        joint_centers = np.empty((len(jc_idx), 3), dtype=float)
+        joint_centers.fill(np.nan)
+        axis_results = np.empty((len(axis_idx), 3), dtype=float)
         axis_results.fill(np.nan)
         angle_results = np.empty((len(angle_idx), 3), dtype=float)
         angle_results.fill(np.nan)
@@ -272,11 +283,28 @@ class CGM:
             pelvis_axis = pel_ax(rasi, lasi, rpsi=rpsi, lpsi=lpsi)
         else:
             raise ValueError("Required marker RPSI and LPSI, or SACR, missing")
-        
-        axis_results[axis_idx["Pelvis Axis"]] = pelvis_axis
+
+        #Populate pelvis axis results
+        pelo, pelx, pely, pelz = pelvis_axis
+        axis_results[axis_idx["PELO"]] = pelo
+        axis_results[axis_idx["PELX"]] = pelx
+        axis_results[axis_idx["PELY"]] = pely
+        axis_results[axis_idx["PELZ"]] = pelz
+
+        #Populate pelvis_origin, pelvis_x, pelvis_y, pelvis_z in joint_centers
+        joint_centers[jc_idx["pelvis_origin"]] = pelo
+        joint_centers[jc_idx["pelvis_x"]] = pelx
+        joint_centers[jc_idx["pelvis_y"]] = pely
+        joint_centers[jc_idx["pelvis_z"]] = pelz
 
         hip_axis = hip_ax(pelvis_axis, measurements)
-        axis_results[axis_idx["Hip Axis"]] = hip_axis[2:]
+
+        #Populate hip axis results
+        hipo, hipx, hipy, hipz = hip_axis[2:]
+        axis_results[axis_idx["HIPO"]] = hipo
+        axis_results[axis_idx["HIPX"]] = hipx
+        axis_results[axis_idx["HIPY"]] = hipy
+        axis_results[axis_idx["HIPZ"]] = hipz
 
         rthi = frame[marker_idx[markers["RTHI"]]]
         lthi = frame[marker_idx[markers["LTHI"]]]
@@ -284,8 +312,29 @@ class CGM:
         lkne = frame[marker_idx[markers["LKNE"]]]
         hip_origin = hip_axis[:2]
 
+        #Populate LHip and RHip in joint_centers
+        rhjc, lhjc = hip_origin
+        joint_centers[jc_idx['RHip']] = rhjc
+        joint_centers[jc_idx['LHip']] = lhjc
+
         knee_axis = kne_ax(rthi, lthi, rkne, lkne, hip_origin, measurements)
-        axis_results[axis_idx["R Knee Axis"]], axis_results[axis_idx["L Knee Axis"]] = knee_axis[:4], knee_axis[4:]
+
+        #Populate left and right knee axis results
+        r_kneo, r_knex, r_kney, r_knez = knee_axis[:4]
+        axis_results[axis_idx["R KNEO"]] = r_kneo
+        axis_results[axis_idx["R KNEX"]] = r_knex
+        axis_results[axis_idx["R KNEY"]] = r_kney
+        axis_results[axis_idx["R KNEZ"]] = r_knez
+
+        l_kneo, l_knex, l_kney, l_knez = knee_axis[4:]
+        axis_results[axis_idx["L KNEO"]] = l_kneo
+        axis_results[axis_idx["L KNEX"]] = l_knex
+        axis_results[axis_idx["L KNEY"]] = l_kney
+        axis_results[axis_idx["L KNEZ"]] = l_knez
+
+        #Populate RKnee and LKnee in joint_centers
+        joint_centers[jc_idx['RKnee']] = r_kneo
+        joint_centers[jc_idx['LKnee']] = l_kneo
 
         rtib = frame[marker_idx[markers["RTIB"]]]
         ltib = frame[marker_idx[markers["LTIB"]]]
@@ -294,13 +343,45 @@ class CGM:
         knee_origin = np.array([knee_axis[0], knee_axis[4]])
 
         ankle_axis = ank_ax(rtib, ltib, rank, lank, knee_origin, measurements)
-        axis_results[axis_idx["R Ankle Axis"]], axis_results[axis_idx["L Ankle Axis"]] = ankle_axis[:4], ankle_axis[4:]
+
+        #Populate left and right ankle axis results
+        r_anko, r_ankx, r_anky, r_ankz = ankle_axis[:4]
+        axis_results[axis_idx["R ANKO"]] = r_anko
+        axis_results[axis_idx["R ANKX"]] = r_ankx
+        axis_results[axis_idx["R ANKY"]] = r_anky
+        axis_results[axis_idx["R ANKZ"]] = r_ankz
+
+        l_anko, l_ankx, l_anky, l_ankz = ankle_axis[4:]
+        axis_results[axis_idx["L ANKO"]] = l_anko
+        axis_results[axis_idx["L ANKX"]] = l_ankx
+        axis_results[axis_idx["L ANKY"]] = l_anky
+        axis_results[axis_idx["L ANKZ"]] = l_ankz
+
+        #Populate RAnkle and LAnkle in joint_centers
+        joint_centers[jc_idx['RAnkle']] = r_anko
+        joint_centers[jc_idx['LAnkle']] = l_anko
 
         rtoe = frame[marker_idx[markers["RTOE"]]]
         ltoe = frame[marker_idx[markers["LTOE"]]]
 
         foot_axis = foo_ax(rtoe, ltoe, ankle_axis, measurements)
-        axis_results[axis_idx["R Foot Axis"]], axis_results[axis_idx["L Foot Axis"]] = foot_axis[:4], foot_axis[4:]
+
+        #Populate left and right foot axis results
+        r_fooo, r_foox, r_fooy, r_fooz = foot_axis[:4]
+        axis_results[axis_idx["R FOOO"]] = r_fooo
+        axis_results[axis_idx["R FOOX"]] = r_foox
+        axis_results[axis_idx["R FOOY"]] = r_fooy
+        axis_results[axis_idx["R FOOZ"]] = r_fooz
+
+        l_fooo, l_foox, l_fooy, l_fooz = foot_axis[4:]
+        axis_results[axis_idx["L FOOO"]] = l_fooo
+        axis_results[axis_idx["L FOOX"]] = l_foox
+        axis_results[axis_idx["L FOOY"]] = l_fooy
+        axis_results[axis_idx["L FOOZ"]] = l_fooz
+
+        #Populate RFoot and LFoot in joint_centers
+        joint_centers[jc_idx['RFoot']] = r_fooo
+        joint_centers[jc_idx['LFoot']] = l_fooo
 
         ### LowerBody Angle calculations
         # Pelvis
