@@ -1306,7 +1306,7 @@ class CGM:
         y_flex_r = ankle_flexion_r - ankle_jc_r
         y_flex_r = y_flex_r / np.linalg.norm(y_flex_r)
 
-        # X axis is calculated as a cross product of Z axis and ankle flexion axis.
+        # X axis is calculated as a np.cross product of Z axis and ankle flexion axis.
         r_axis_x = np.cross(y_flex_r, r_axis_z)
         r_axis_x = r_axis_x / np.linalg.norm(r_axis_x)
 
@@ -1325,7 +1325,7 @@ class CGM:
         y_flex_l = ankle_flexion_l - ankle_jc_l
         y_flex_l = y_flex_l / np.linalg.norm(y_flex_l)
 
-        # X axis is calculated as a cross product of Z axis and ankle flexion axis.
+        # X axis is calculated as a np.cross product of Z axis and ankle flexion axis.
         l_axis_x = np.cross(y_flex_l, l_axis_z)
         l_axis_x = l_axis_x / np.linalg.norm(l_axis_x)
 
@@ -1462,11 +1462,11 @@ class CGM:
         y_vec = left - right
         y_vec = y_vec / np.linalg.norm(y_vec)
 
-        # get z axis by cross-product of x axis and y axis.
+        # get z axis by np.cross-product of x axis and y axis.
         z_vec = np.cross(x_vec, y_vec)
         z_vec = z_vec / np.linalg.norm(z_vec)
 
-        # make sure all x,y,z axis is orthogonal each other by cross-product
+        # make sure all x,y,z axis is orthogonal each other by np.cross-product
         y_vec = np.cross(z_vec, x_vec)
         y_vec = y_vec / np.linalg.norm(y_vec)
         x_vec = np.cross(y_vec, z_vec)
@@ -1539,7 +1539,7 @@ class CGM:
         x_direc = front - back
         x_vec = x_direc / np.array([np.linalg.norm(x_direc)])
 
-        # make sure all the axes are orthogonal each othe by cross-product
+        # make sure all the axes are orthogonal each othe by np.cross-product
         y_direc = np.cross(z_vec, x_vec)
         y_vec = y_direc / np.array([np.linalg.norm(y_direc)])
         x_direc = np.cross(y_vec, z_vec)
@@ -1606,7 +1606,6 @@ class CGM:
                [  64.10400325,  275.83192827, 1463.77905454],
                [  64.59882848,  274.80838069, 1464.62018374],
                [  65.42564601,  275.35702721, 1463.61253313]])
-
         """
 
         # First find the shoulder joint centers
@@ -1666,12 +1665,11 @@ class CGM:
         return np.array([r_sho_jc, r_x_axis, r_y_axis, r_z_axis, l_sho_jc, l_x_axis, l_y_axis, l_z_axis])
 
     @staticmethod
-    def elbow_wrist_axis_calc(rsho, lsho, relb, lelb, rwra, rwrb, lwra, lwrb,
-                              thorax_axis, shoulder_origin, wand, measurements):
-        """Elbow and Wrist Axis Calculation function
+    def elbow_axis_calc(rsho, lsho, relb, lelb, rwra, rwrb, lwra, lwrb,
+                        thorax_axis, shoulder_origin, measurements):
+        """Elbow Axis Calculation function
 
-        Calculates the right and left elbow joint center and axis, and the
-        right and left wrist just center and axis, and returns them.
+        Calculates the right and left elbow joint center and axis and returns them.
 
         Markers used: RSHO, LSHO, RELB, LELB, RWRA, RWRB, LWRA, LWRB
         Subject Measurement values used: RightElbowWidth, LeftElbowWidth
@@ -1685,46 +1683,249 @@ class CGM:
             thorax x, y, and z axis components.
         shoulder_origin : ndarray
             A 2x3 ndarray of the right and left shoulder origin vectors (joint centers).
-        wand : ndarray
-            A 2x3 ndarray containing the right wand marker x, y, and z positions and the
-            left wand marker x, y, and z positions.
         measurements : dict
             A dictionary containing the subject measurements given from the file input.
 
         Returns
         -------
         array
-            Returns a 2x8x3 ndarray, where the first index contains the right elbow origin, right elbow x, y, and z
-            axis components, left elbow origin, and left elbow x, y, and z axis components, and the second index
-            contains the right wrist origin, right wrist x, y, and z axis components, left wrist origin, and left
-            wrist x, y, and z axis components.
+            Returns an 8x3 ndarray that contains the right elbow origin, right elbow x, y, and z
+            axis components, left elbow origin, and left elbow x, y, and z axis components.
+
+        Examples
+        --------
+        >>> import numpy as np
+        >>> from .pycgm import CGM
+        >>> markers = np.array([[428.88496562, 270.552948, 1500.73010254],
+        ...                     [68.24668121, 269.01049805, 1510.1072998],
+        ...                     [658.90338135, 326.07580566, 1285.28515625],
+        ...                     [-156.32162476, 335.2593313, 1287.39916992],
+        ...                     [776.51898193,495.68103027, 1108.38464355],
+        ...                     [830.9072876, 436.75341797, 1119.11901855],
+        ...                     [-249.28146362, 525.32977295, 1117.09057617],
+        ...                     [-311.77532959, 477.22512817, 1125.1619873]])
+        >>> thorax_axis = np.array([[256.14981023656401, 364.30906039339868, 1459.6553639290375],
+        ...                         [256.23991128535846, 365.30496976939753, 1459.662169500559],
+        ...                         [257.1435863244796, 364.21960599061947, 1459.5889787129829],
+        ...                         [256.08430536580352, 354.32180498523223, 1458.6575930699294]])
+        >>> shoulder_origin = np.array([[429.66951995, 275.06718615, 1453.953978131],
+        ...                             [64.51952734, 274.93442161, 1463.6313334]])
+        >>> measurements = {'RightElbowWidth': 74.0, 'LeftElbowWidth': 74.0,
+        ...                 'RightWristWidth': 55.0, 'LeftWristWidth': 55.0}
+        >>> CGM.elbow_axis_calc(*markers, thorax_axis, shoulder_origin, measurements)
+        array([[ 633.66707588,  304.95542115, 1256.07799541],
+               [ 633.81070139,  303.96579005, 1256.07658507],
+               [ 634.35247992,  305.05386589, 1256.79947301],
+               [ 632.95321804,  304.8508319 , 1256.77043175],
+               [-129.16966701,  316.86794653, 1258.06440971],
+               [-129.32406616,  315.88151182, 1258.00866516],
+               [-128.45131692,  316.79460332, 1257.37260488],
+               [-128.4913352 ,  316.72108835, 1258.78433931]])
         """
 
-    # @staticmethod
-    # def wrist_axis_calc(rsho, lsho, relb, lelb, rwra, rwrb, lwra, lwrb, elbow_axis, wand):
-    #     """Wrist Axis Calculation function
-    #
-    #     Calculates the right and left wrist joint center and axis and returns them.
-    #
-    #     Markers used: RSHO, LSHO, RELB, LELB, RWRA, RWRB, LWRA, LWRB
-    #
-    #     Parameters
-    #     ----------
-    #     rsho, lsho, relb, lelb, rwra, rwrb, lwra, lwrb : ndarray
-    #         A 1x3 ndarray of each respective marker containing the XYZ positions.
-    #     elbow_axis : ndarray
-    #         An 8x3 ndarray that contains the right elbow origin, right elbow x, y, and z
-    #         axis components, left elbow origin, and left elbow x, y, and z axis components.
-    #     wand : ndarray
-    #         A 2x3 ndarray containing the right wand marker x, y, and z positions and the
-    #         left wand marker x, y, and z positions.
-    #
-    #     Returns
-    #     --------
-    #     array
-    #         Returns an 8x3 ndarray that contains the right wrist origin, right wrist x, y, and z
-    #         axis components, left wrist origin, and left wrist x, y, and z axis components.
-    #     """
+        r_elbow_width = measurements['RightElbowWidth']
+        l_elbow_width = measurements['LeftElbowWidth']
+        r_elbow_width = r_elbow_width * -1
+        l_elbow_width = l_elbow_width
+        mm = 7.0
+        r_delta = (r_elbow_width / 2.0) - mm
+        l_delta = (l_elbow_width / 2.0) + mm
+
+        rwri = (rwra + rwrb) / 2.0
+        lwri = (lwra + lwrb) / 2.0
+
+        # make humerus axis
+        tho_y_axis = CGM.subtract_origin(thorax_axis)
+
+        r_sho_mod = [(rsho[0] - r_delta * tho_y_axis[0] - relb[0]),
+                     (rsho[1] - r_delta * tho_y_axis[1] - relb[1]),
+                     (rsho[2] - r_delta * tho_y_axis[2] - relb[2])]
+        l_sho_mod = [(lsho[0] + l_delta * tho_y_axis[0] - lelb[0]),
+                     (lsho[1] + l_delta * tho_y_axis[1] - lelb[1]),
+                     (lsho[2] + l_delta * tho_y_axis[2] - lelb[2])]
+
+        # right axis
+        z_axis = r_sho_mod
+        z_axis = z_axis / np.linalg.norm(z_axis)
+
+        # this is reference axis                     double check if this whole section is even used
+        x_axis = np.subtract(rwri, relb)
+        x_axis = x_axis / np.linalg.norm(x_axis)
+
+        y_axis = np.cross(z_axis, x_axis)
+        y_axis = y_axis / np.linalg.norm(y_axis)
+
+        x_axis = np.cross(y_axis, z_axis)
+        x_axis = x_axis / np.linalg.norm(x_axis)
+
+        r_ref_x_axis = x_axis
+        r_ref_y_axis = y_axis
+        r_ref_z_axis = z_axis
+
+        # left axis
+        z_axis = np.subtract(l_sho_mod, lelb)
+        z_axis = z_axis / np.linalg.norm(z_axis)
+
+        # this is reference axis
+        x_axis = l_sho_mod
+        x_axis = x_axis / np.linalg.norm(x_axis)
+
+        y_axis = np.cross(z_axis, x_axis)
+        y_axis = y_axis / np.linalg.norm(y_axis)
+
+        x_axis = np.cross(y_axis, z_axis)
+        x_axis = x_axis / np.linalg.norm(x_axis)
+
+        l_ref_x_axis = x_axis
+        l_ref_y_axis = y_axis
+        l_ref_z_axis = z_axis
+
+        rsjc, lsjc = shoulder_origin
+
+        # make the construction vector for finding Elbow joint center
+        r_con_1 = np.subtract(rsjc, relb)
+        r_con_1 = r_con_1 / np.linalg.norm(r_con_1)
+
+        r_con_2 = np.subtract(rwri, relb)
+        r_con_2 = r_con_2 / np.linalg.norm(r_con_2)
+
+        r_cons_vec = np.cross(r_con_1, r_con_2)
+        r_cons_vec = r_cons_vec / np.linalg.norm(r_cons_vec)
+
+        r_cons_vec = r_cons_vec * 500 + relb
+
+        l_con_1 = np.subtract(lsjc, lelb)
+        l_con_1 = l_con_1 / np.linalg.norm(l_con_1)
+
+        l_con_2 = np.subtract(lwri, lelb)
+        l_con_2 = l_con_2 / np.linalg.norm(l_con_2)
+
+        l_cons_vec = np.cross(l_con_1, l_con_2)
+        l_cons_vec = l_cons_vec / np.linalg.norm(l_cons_vec)
+
+        l_cons_vec = l_cons_vec * 500 + lelb
+
+        rejc = CGM.find_joint_center(r_cons_vec, rsjc, relb, r_delta)
+        lejc = CGM.find_joint_center(l_cons_vec, lsjc, lelb, l_delta)
+
+        # this is radius axis for humerus
+        # The wrist values are calculated here because they are needed during the calculation of the elbow axes.
+        # They are calculated again in the wrist's respective function for clarity.
+
+        # right
+        x_axis = np.subtract(rwra, rwrb)
+        x_axis = x_axis / np.linalg.norm(x_axis)
+
+        z_axis = np.subtract(rejc, rwri)
+        z_axis = z_axis / np.linalg.norm(z_axis)
+
+        y_axis = np.cross(z_axis, x_axis)
+        y_axis = y_axis / np.linalg.norm(y_axis)
+
+        x_axis = np.cross(y_axis, z_axis)
+        x_axis = x_axis / np.linalg.norm(x_axis)
+
+        r_wri_x_axis = x_axis
+        r_wri_y_axis = y_axis
+        r_wri_z_axis = z_axis
+
+        # left
+        x_axis = np.subtract(lwra, lwrb)
+        x_axis = x_axis / np.linalg.norm(x_axis)
+
+        z_axis = np.subtract(lejc, lwri)
+        z_axis = z_axis / np.linalg.norm(z_axis)
+
+        y_axis = np.cross(z_axis, x_axis)
+        y_axis = y_axis / np.linalg.norm(y_axis)
+
+        x_axis = np.cross(y_axis, z_axis)
+        x_axis = x_axis / np.linalg.norm(x_axis)
+
+        l_wri_x_axis = x_axis
+        l_wri_y_axis = y_axis
+        l_wri_z_axis = z_axis
+
+        # calculate wrist joint center for humerus
+        r_wrist_thickness = measurements['RightWristWidth']
+        l_wrist_thickness = measurements['LeftWristWidth']
+        r_wrist_thickness = r_wrist_thickness / 2.0 + mm
+        l_wrist_thickness = l_wrist_thickness / 2.0 + mm
+
+        rwjc = rwri + r_wrist_thickness * r_wri_y_axis
+        lwjc = lwri - l_wrist_thickness * l_wri_y_axis
+
+        # recombine the humerus axis
+
+        # right
+        z_axis = np.subtract(rsjc, rejc)
+        z_axis = z_axis / np.linalg.norm(z_axis)
+
+        x_axis = np.subtract(rwjc, rejc)
+        x_axis = x_axis / np.linalg.norm(x_axis)
+
+        y_axis = np.cross(x_axis, z_axis)
+        y_axis = y_axis / np.linalg.norm(y_axis)
+
+        x_axis = np.cross(y_axis, z_axis)
+        x_axis = x_axis / np.linalg.norm(x_axis)
+
+        # attach each calculated elbow axis to elbow joint center.
+        x_axis += rejc
+        y_axis += rejc
+        z_axis += rejc
+
+        r_elb_x_axis = x_axis
+        r_elb_y_axis = y_axis
+        r_elb_z_axis = z_axis
+
+        # left
+        z_axis = np.subtract(lsjc, lejc)
+        z_axis = z_axis / np.linalg.norm(z_axis)
+
+        x_axis = np.subtract(lwjc, lejc)
+        x_axis = x_axis / np.linalg.norm(x_axis)
+
+        y_axis = np.cross(x_axis, z_axis)
+        y_axis = y_axis / np.linalg.norm(y_axis)
+
+        x_axis = np.cross(y_axis, z_axis)
+        x_axis = x_axis / np.linalg.norm(x_axis)
+
+        # attach each calculated elbow axis to elbow joint center.
+        x_axis += lejc
+        y_axis += lejc
+        z_axis += lejc
+
+        l_elb_x_axis = x_axis
+        l_elb_y_axis = y_axis
+        l_elb_z_axis = z_axis
+
+        return np.array([rejc, r_elb_x_axis, r_elb_y_axis, r_elb_z_axis,
+                         lejc, l_elb_x_axis, l_elb_y_axis, l_elb_z_axis])
+
+    @staticmethod
+    def wrist_axis_calc(rsho, lsho, relb, lelb, rwra, rwrb, lwra, lwrb, elbow_axis):
+        """Wrist Axis Calculation function
+
+        Calculates the right and left wrist joint center and axis and returns them.
+
+        Markers used: RSHO, LSHO, RELB, LELB, RWRA, RWRB, LWRA, LWRB
+
+        Parameters
+        ----------
+        rsho, lsho, relb, lelb, rwra, rwrb, lwra, lwrb : ndarray
+            A 1x3 ndarray of each respective marker containing the XYZ positions.
+        elbow_axis : ndarray
+            An 8x3 ndarray that contains the right elbow origin, right elbow x, y, and z
+            axis components, left elbow origin, and left elbow x, y, and z axis components.
+
+        Returns
+        --------
+        array
+            Returns an 8x3 ndarray that contains the right wrist origin, right wrist x, y, and z
+            axis components, left wrist origin, and left wrist x, y, and z axis components.
+        """
 
     @staticmethod
     def hand_axis_calc(rwra, wrb, lwra, lwrb, rfin, lfin, wrist_jc, measurements):
@@ -3062,12 +3263,12 @@ class StaticCGM:
         y_flex_r_div = np.linalg.norm(y_flex_r)
         y_flex_r = [y_flex_r[0] / y_flex_r_div, y_flex_r[1] / y_flex_r_div, y_flex_r[2] / y_flex_r_div]
 
-        # Calculate x axis by cross-product of ankle flexion axis and z axis.
+        # Calculate x axis by np.cross-product of ankle flexion axis and z axis.
         r_axis_x = np.cross(y_flex_r, r_axis_z)
         r_axis_x_div = np.linalg.norm(r_axis_x)
         r_axis_x = [r_axis_x[0] / r_axis_x_div, r_axis_x[1] / r_axis_x_div, r_axis_x[2] / r_axis_x_div]
 
-        # Calculate y axis by cross-product of z axis and x axis.
+        # Calculate y axis by np.cross-product of z axis and x axis.
         r_axis_y = np.cross(r_axis_z, r_axis_x)
         r_axis_y_div = np.linalg.norm(r_axis_y)
         r_axis_y = [r_axis_y[0] / r_axis_y_div, r_axis_y[1] / r_axis_y_div, r_axis_y[2] / r_axis_y_div]
@@ -3090,12 +3291,12 @@ class StaticCGM:
         y_flex_l_div = np.linalg.norm(y_flex_l)
         y_flex_l = [y_flex_l[0] / y_flex_l_div, y_flex_l[1] / y_flex_l_div, y_flex_l[2] / y_flex_l_div]
 
-        # Calculate x axis by cross-product of ankle flexion axis and z axis.
+        # Calculate x axis by np.cross-product of ankle flexion axis and z axis.
         l_axis_x = np.cross(y_flex_l, l_axis_z)
         l_axis_x_div = np.linalg.norm(l_axis_x)
         l_axis_x = [l_axis_x[0] / l_axis_x_div, l_axis_x[1] / l_axis_x_div, l_axis_x[2] / l_axis_x_div]
 
-        # Calculate y axis by cross-product of z axis and x axis.
+        # Calculate y axis by np.cross-product of z axis and x axis.
         l_axis_y = np.cross(l_axis_z, l_axis_x)
         l_axis_y_div = np.linalg.norm(l_axis_y)
         l_axis_y = [l_axis_y[0] / l_axis_y_div, l_axis_y[1] / l_axis_y_div, l_axis_y[2] / l_axis_y_div]
@@ -3299,7 +3500,7 @@ class StaticCGM:
                     ankle_flexion_r[2] - ankle_jc_r[2]]
         y_flex_r = y_flex_r / np.array([np.linalg.norm(y_flex_r)])
 
-        # Calculate each x,y,z axis of foot using cross-product and make sure x,y,z axis is orthogonal each other.
+        # Calculate each x,y,z axis of foot using np.cross-product and make sure x,y,z axis is orthogonal each other.
         r_axis_x = np.cross(y_flex_r, r_axis_z)
         r_axis_x = r_axis_x / np.array([np.linalg.norm(r_axis_x)])
 
@@ -3335,7 +3536,7 @@ class StaticCGM:
                     ankle_flexion_l[2] - ankle_jc_l[2]]
         y_flex_l = y_flex_l / np.array([np.linalg.norm(y_flex_l)])
 
-        # Calculate each x,y,z axis of foot using cross-product and make sure x,y,z axis is orthogonal each other.
+        # Calculate each x,y,z axis of foot using np.cross-product and make sure x,y,z axis is orthogonal each other.
         l_axis_x = np.cross(y_flex_l, l_axis_z)
         l_axis_x = l_axis_x / np.array([np.linalg.norm(l_axis_x)])
 
@@ -3403,12 +3604,12 @@ class StaticCGM:
         y_vec_div = np.linalg.norm(y_vec)
         y_vec = [y_vec[0] / y_vec_div, y_vec[1] / y_vec_div, y_vec[2] / y_vec_div]
 
-        # get z axis by cross-product of x axis and y axis.
+        # get z axis by np.cross-product of x axis and y axis.
         z_vec = np.cross(x_vec, y_vec)
         z_vec_div = np.linalg.norm(z_vec)
         z_vec = [z_vec[0] / z_vec_div, z_vec[1] / z_vec_div, z_vec[2] / z_vec_div]
 
-        # make sure all x,y,z axis is orthogonal each other by cross-product
+        # make sure all x,y,z axis is orthogonal each other by np.cross-product
         y_vec = np.cross(z_vec, x_vec)
         y_vec_div = np.linalg.norm(y_vec)
         y_vec = [y_vec[0] / y_vec_div, y_vec[1] / y_vec_div, y_vec[2] / y_vec_div]
