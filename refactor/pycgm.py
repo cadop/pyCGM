@@ -2695,6 +2695,15 @@ class CGM:
 
         Examples
         --------
+        >>> import numpy as np
+        >>> from refactor.pycgm import CGM
+        >>> global_axis = np.array([[1, 0, 0], [0, 1, 0], [0, 0, 1]])
+        >>> head_axis = np.array([[99.5, 82.2, 1483.8],
+        ...                    [100.2, 83.4, 1484.7],
+        ...                    [98.1, 83.6, 1483.3],
+        ...                    [99.8, 82.4, 1484.2]])
+        >>> CGM.head_angle_calc(global_axis, head_axis)
+        array([ -36.86989765,    6.19039946, -139.39870535])
         """
         head_axis_mod = CGM.subtract_origin(head_axis)
         # Old repo subtracts [0, 0, 0] from global_axis here
@@ -2729,7 +2738,15 @@ class CGM:
 
         Examples
         --------
-        """
+        >>> import numpy as np
+        >>> from refactor.pycgm import CGM
+        >>> thorax_axis = np.array([[-252.2, -364.5, -1459.1],
+        ...                         [256.4, -365.5, -1459.4],
+        ...                         [-257.1, 364.2, -1459.3],
+        ...                         [256.2, 354.7, 1458.2]])
+        >>> CGM.thorax_angle_calc(thorax_axis)
+        array([-170.114302  ,           nan,  179.92137266])
+        """#TODO - Resolve this
         thorax_axis_mod = CGM.subtract_origin(thorax_axis)
         global_axis = CGM.rotation_matrix(x=0, y=0, z=180.0)
         global_thorax_angle = CGM.get_angle(global_axis, thorax_axis_mod)
@@ -2761,6 +2778,18 @@ class CGM:
 
         Examples
         --------
+        >>> import numpy as np
+        >>> from refactor.pycgm import CGM
+        >>> head_axis = np.array([[99, 82, 1483],
+        ...                       [100, 83, 1484],
+        ...                       [98, 83, 1483],
+        ...                       [99, 82, 1484]])
+        >>> thorax_axis = np.array([[256, 364, 1459],
+        ...                         [256, 365, 1459],
+        ...                         [257, 364, 1459],
+        ...                         [256, 354, 1458]])
+        >>> CGM.neck_angle_calc(head_axis, thorax_axis)
+        array([-84.80557109,  81.95053302,  45.        ])
         """
         head_axis_mod = CGM.subtract_origin(head_axis)
         thorax_axis_mod = CGM.subtract_origin(thorax_axis)
@@ -2789,7 +2818,19 @@ class CGM:
 
         Examples
         --------
-        """
+        >>> import numpy as np
+        >>> from refactor.pycgm import CGM
+        >>> pelvis_axis = np.array([[ 251.2, 391, -1032],
+        ...                         [ 251.3, -392, 1032],
+        ...                         [ 250.1, -391.5, 1032],
+        ...                         [ 251.2, 391, -1033]])
+        >>> thorax_axis = np.array([[256, 364.5, 1459],
+        ...                         [256, 365, -1459],
+        ...                         [-257, 364.8, 1459],
+        ...                         [-256, 354.6, 1458]])
+        >>> CGM.spine_angle_calc(pelvis_axis, thorax_axis)
+        array([nan, -0., nan])
+        """#TODO - resolve this 
         pelvis_axis_mod = CGM.subtract_origin(pelvis_axis)
         thorax_axis_mod = CGM.subtract_origin(thorax_axis)
         spine_angle = CGM.get_spine_angle(pelvis_axis_mod, thorax_axis_mod)
@@ -2819,6 +2860,23 @@ class CGM:
 
         Examples
         --------
+        >>> import numpy as np
+        >>> from refactor.pycgm import CGM
+        >>> thorax_axis = np.array([[256, 364.5, 1459],
+        ...                         [256, 365, -1459],
+        ...                         [-257, 364.8, 1459],
+        ...                         [-256, 354.6, 1458]])
+        >>> elbow_axis = np.array([[433.5, 304.9, 1256],
+        ...                        [433.3, 303.8, 1256],
+        ...                        [434.8, 305.4, 1256],
+        ...                        [432, 304, 1256],
+        ...                        [-529.4,  316, 1258],
+        ...                        [-549, 315, 1258],
+        ...                        [-548, 316, 1257],
+        ...                        [-518, 316, 1258]])
+        >>> CGM.shoulder_angle_calc(thorax_axis, elbow_axis)
+        array([[ 26.74368395, 135.28459775,  24.44395478],
+               [ -0.        , -45.0558983 , 270.00981765]])
         """
         thorax_axis_mod = CGM.subtract_origin(thorax_axis)
         r_elbow_axis_mod = CGM.subtract_origin(elbow_axis[:4])
@@ -2870,7 +2928,28 @@ class CGM:
 
         Examples
         --------
-        """
+        >>> import numpy as np
+        >>> from refactor.pycgm import CGM
+        >>> elbow_axis = np.array([[433.5, 304.9, 1256],
+        ...                        [433.3, 303.8, 1256],
+        ...                        [434.8, 305.4, 1256],
+        ...                        [432, 304, 1256],
+        ...                        [-529.4,  316, 1258],
+        ...                        [-549, 315, 1258],
+        ...                        [-548, 316, 1257],
+        ...                        [-518, 316, 1258]])
+        >>> wrist_axis = np.array([[212.5, 251.9, 103],
+        ...                        [214.3, 242.8, 126],
+        ...                        [210.8, 244.4, 156],
+        ...                        [211.5, 244, 123],
+        ...                        [329.4,  316, 1258],
+        ...                        [249, 445, 214],
+        ...                        [242, 446, 217],
+        ...                        [221, 432, 258]])
+        >>> CGM.elbow_angle_calc(elbow_axis, wrist_axis)
+        array([[ -45.91665426,           nan,   20.34505085],
+               [-121.60075378,           nan, -136.39962763]])
+        """#TODO - Resolve this
         r_elbow_axis_mod = CGM.subtract_origin(elbow_axis[:4])
         l_elbow_axis_mod = CGM.subtract_origin(elbow_axis[4:])
         r_wrist_axis_mod = CGM.subtract_origin(wrist_axis[:4])
@@ -2907,7 +2986,28 @@ class CGM:
 
         Examples
         --------
-        """
+        >>> import numpy as np
+        >>> from refactor.pycgm import CGM
+        >>> wrist_axis = np.array([[433.5, 304.9, 1256],
+        ...                        [433.3, 303.8, 1256],
+        ...                        [434.8, 305.4, 1256],
+        ...                        [432, 304, 1256],
+        ...                        [-529.4,  316, 1258],
+        ...                        [-549, 315, 1258],
+        ...                        [-548, 316, 1257],
+        ...                        [-518, 316, 1258]])
+        >>> hand_axis = np.array([[212.5, 251.9, 103],
+        ...                        [214.3, 242.8, 126],
+        ...                        [210.8, 244.4, 156],
+        ...                        [211.5, 244, 123],
+        ...                        [329.4,  316, 1258],
+        ...                        [249, 445, 214],
+        ...                        [242, 446, 217],
+        ...                        [221, 432, 258]])
+        >>> CGM.wrist_angle_calc(wrist_axis, hand_axis)
+        array([[ -45.91665426,           nan,  -20.34505085],
+               [-121.60075378,           nan, -136.39962763]])
+        """#TODO - Resolve this
         r_wrist_axis_mod = CGM.subtract_origin(wrist_axis[:4])
         l_wrist_axis_mod = CGM.subtract_origin(wrist_axis[4:])
         r_hand_axis_mod = CGM.subtract_origin(hand_axis[:4])
