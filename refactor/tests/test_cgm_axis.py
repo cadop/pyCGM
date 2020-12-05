@@ -105,15 +105,13 @@ class TestLowerBodyAxis():
 
     @pytest.mark.parametrize(["pelvis_axis", "measurements", "expected"], [
         # Test from running sample data
-        (np.array([[251.608306884766, 391.741317749023, 1032.893493652344],
-                   [251.740636241119, 392.726947206848, 1032.788500732036],
-                   [250.617115540376, 391.872328624646, 1032.874106304030],
-                   [251.602953357582, 391.847951338178, 1033.887777624562]]),
+        (np.array([[251.60830688, 391.74131775, 1032.89349365], [251.74063624, 392.72694721, 1032.78850073],
+                   [250.61711554, 391.87232862, 1032.8741063], [251.60295336, 391.84795134, 1033.88777762]]),
          {'MeanLegLength': 940.0, 'R_AsisToTrocanterMeasure': 72.512, 'L_AsisToTrocanterMeasure': 72.512,
           'InterAsisDistance': 215.908996582031},
-         np.array([[308.38050472, 322.80342417, 937.98979061], [182.57097863, 339.43231855, 935.52900126],
-                   [245.47574167, 331.11787136, 936.75939593], [245.60807103, 332.10350082, 936.65440301],
-                   [244.48455033, 331.24888223, 936.74000858], [245.47038814, 331.22450495, 937.7536799]])),
+         np.array([[308.38050352, 322.80342433, 937.98979092], [182.57097799, 339.43231799, 935.52900136],
+                   [245.47574075, 331.11787116, 936.75939614], [245.60807011, 332.10350062, 936.65440322],
+                   [244.48454941, 331.24888203, 936.74000879], [245.47038723, 331.22450475, 937.75368011]])),
         # Basic test with zeros for all params
         (np.array([[0, 0, 0], [0, 0, 0], [0, 0, 0], [0, 0, 0]]),
          {'MeanLegLength': 0.0, 'R_AsisToTrocanterMeasure': 0.0, 'L_AsisToTrocanterMeasure': 0.0,
@@ -831,6 +829,8 @@ class TestUpperBodyAxis():
     This class tests the upper body axis functions in the class CGM in pycgm.py:
     head_axis_calc
     thorax_axis_calc
+    shoulder_axis_calc
+    elbow_axis_calc
     """
 
     nan_3d = np.array([np.nan, np.nan, np.nan])
@@ -946,19 +946,19 @@ class TestUpperBodyAxis():
         # Adding the value of 1 in the z dimension for all 4 markers
         (np.array([1, 0, 1]), np.array([1, 1, 1]), np.array([0, 0, 1]), np.array([0, 1, 1]),
          [[1, 7, 1], [1, 6, 1], [1, 7, 2], [0, 7, 1]]),
-        # Setting the z dimension value higher for C7 and CLAV
+        # Setting the z dimension value higher for c7 and clav
         (np.array([1, 0, 2]), np.array([1, 1, 2]), np.array([0, 0, 1]), np.array([0, 1, 1]),
          [[1, 7, 2], [1, 6, 2], [0.29289322, 7, 2.70710678], [0.29289322, 7, 1.29289322]]),
-        # Setting the z dimension value higher for C7 and T10
+        # Setting the z dimension value higher for c7 and t10
         (np.array([1, 0, 1]), np.array([1, 1, 2]), np.array([0, 0, 1]), np.array([0, 1, 2]),
          [[1, 4.94974747, 5.94974747], [1, 4.24264069, 5.24264069], [1, 4.24264069, 6.65685425],
           [0, 4.94974747, 5.94974747]]),
-        # Testing that when frame is a numpy array of ints
+        # Testing that when clav, c7, strn, and t10 are numpy arrays of ints
         (np.array([1, 0, 1], dtype='int'), np.array([1, 1, 2], dtype='int'), np.array([0, 0, 1], dtype='int'),
          np.array([0, 1, 2], dtype='int'),
          [[1, 4.94974747, 5.94974747], [1, 4.24264069, 5.24264069], [1, 4.24264069, 6.65685425],
           [0, 4.94974747, 5.94974747]]),
-        # Testing that when frame is a numpy array of floats
+        # Testing that when clav, c7, strn, and t10 are numpy arrays of floats
         (np.array([1.0, 0.0, 1.0], dtype='float'), np.array([1.0, 1.0, 2.0], dtype='float'),
          np.array([0.0, 0.0, 1.0], dtype='float'), np.array([0.0, 1.0, 2.0], dtype='float'),
          [[1, 4.94974747, 5.94974747], [1, 4.24264069, 5.24264069], [1, 4.24264069, 6.65685425],
@@ -985,6 +985,197 @@ class TestUpperBodyAxis():
         upper = (clav + c7) / 2.0
         """
         result = CGM.thorax_axis_calc(clav, c7, strn, t10)
+        np.testing.assert_almost_equal(result, expected, rounding_precision)
+
+    @pytest.mark.parametrize(
+        ["rsho", "lsho", "thorax_origin", "wand", "measurements", "mock_return_val", "expected_mock_args", "expected"],
+        [
+            # Test from running sample data
+            (np.array([428.88496562, 270.552948, 1500.73010254]),
+             np.array([68.24668121, 269.01049805, 1510.1072998]),
+             np.array([256.14981023656401, 364.30906039339868, 1459.6553639290375]),
+             np.array([[255.92550222678443, 364.32269504976051, 1460.6297868417887],
+                       [256.42380097331767, 364.27770361353487, 1460.6165849382387]]),
+             {'RightShoulderOffset': 40.0, 'LeftShoulderOffset': 40.0},
+             [[429.66971693, 275.06718208, 1453.95397769], [64.51952733, 274.93442161, 1463.63133339]],
+             [[[255.92550223, 364.32269505, 1460.62978684], [256.14981024, 364.30906039, 1459.65536393],
+               [428.88496562, 270.552948, 1500.73010254], 47.0],
+              [[256.42380097, 364.27770361, 1460.61658494], [256.14981024, 364.30906039, 1459.65536393],
+               [68.24668121, 269.01049805, 1510.1072998], 47.0]],
+             [[429.66971693, 275.06718208, 1453.95397769], [430.1275099, 275.95136234, 1454.04698775],
+              [429.68641377, 275.16322961, 1452.95874099], [428.7808149, 275.52434742, 1453.98318456],
+              [64.51952733, 274.93442161, 1463.63133339], [64.10400325, 275.83192827, 1463.77905454],
+              [64.59882848, 274.80838069, 1464.62018374], [65.42564601, 275.35702721, 1463.61253313]]),
+            # Basic test with zeros for all params
+            (np.array([0, 0, 0]), np.array([0, 0, 0]),
+             np.array([0, 0, 0]),
+             np.array([[0, 0, 0], [0, 0, 0]]),
+             {'RightShoulderOffset': 0.0, 'LeftShoulderOffset': 0.0},
+             [[0, 0, 0], [0, 0, 0]],
+             [[[0, 0, 0], [0, 0, 0], np.array([0, 0, 0]), 7.0], [[0, 0, 0], [0, 0, 0], np.array([0, 0, 0]), 7.0]],
+             [[0, 0, 0], nan_3d, nan_3d, nan_3d, [0, 0, 0], nan_3d, nan_3d, nan_3d]),
+            # Testing when values are added to rsho and lsho
+            (np.array([2, -1, 3]), np.array([-3, 1, 2]),
+             np.array([0, 0, 0]),
+             np.array([[0, 0, 0], [0, 0, 0]]),
+             {'RightShoulderOffset': 0.0, 'LeftShoulderOffset': 0.0},
+             [[0, 0, 0], [0, 0, 0]],
+             [[[0, 0, 0], [0, 0, 0], np.array([2, -1, 3]), 7.0], [[0, 0, 0], [0, 0, 0], np.array([-3, 1, 2]), 7.0]],
+             [[0, 0, 0], nan_3d, nan_3d, nan_3d, [0, 0, 0], nan_3d, nan_3d, nan_3d]),
+            # Testing when a value is added to thorax_origin
+            (np.array([0, 0, 0]), np.array([0, 0, 0]),
+             np.array([5, -2, 7]),
+             np.array([[0, 0, 0], [0, 0, 0]]),
+             {'RightShoulderOffset': 0.0, 'LeftShoulderOffset': 0.0},
+             [[0, 0, 0], [0, 0, 0]],
+             [[[0, 0, 0], [5, -2, 7], np.array([0, 0, 0]), 7.0], [[0, 0, 0], [5, -2, 7], np.array([0, 0, 0]), 7.0]],
+             [[0, 0, 0], nan_3d, nan_3d, [0.56613852, -0.22645541, 0.79259392], [0, 0, 0], nan_3d, nan_3d,
+              [0.56613852, -0.22645541, 0.79259392]]),
+            # Testing when a value is added to wand
+            (np.array([0, 0, 0]), np.array([0, 0, 0]),
+             np.array([0, 0, 0]),
+             np.array([[2, 6, -4], [-3, 5, 2]]),
+             {'RightShoulderOffset': 0.0, 'LeftShoulderOffset': 0.0},
+             [[0, 0, 0], [0, 0, 0]],
+             [[[2, 6, -4], [0, 0, 0], np.array([0, 0, 0]), 7.0], [[-3, 5, 2], [0, 0, 0], np.array([0, 0, 0]), 7.0]],
+             [[0, 0, 0], nan_3d, nan_3d, nan_3d, [0, 0, 0], nan_3d, nan_3d, nan_3d]),
+            # Testing when values are added to RightShoulderOffset and LeftShoulderOffset
+            (np.array([0, 0, 0]), np.array([0, 0, 0]),
+             np.array([0, 0, 0]),
+             np.array([[0, 0, 0], [0, 0, 0]]),
+             {'RightShoulderOffset': 20.0, 'LeftShoulderOffset': -20.0},
+             [[0, 0, 0], [0, 0, 0]],
+             [[[0, 0, 0], [0, 0, 0], np.array([0, 0, 0]), 27.0], [[0, 0, 0], [0, 0, 0], np.array([0, 0, 0]), -13.0]],
+             [[0, 0, 0], nan_3d, nan_3d, nan_3d, [0, 0, 0], nan_3d, nan_3d, nan_3d]),
+            # Testing when values are added to mock_return_val
+            (np.array([0, 0, 0]), np.array([0, 0, 0]),
+             np.array([0, 0, 0]),
+             np.array([[0, 0, 0], [0, 0, 0]]),
+             {'RightShoulderOffset': 0.0, 'LeftShoulderOffset': 0.0},
+             [[8, -1, -4], [-7, -9, -1]],
+             [[[0, 0, 0], [0, 0, 0], np.array([0, 0, 0]), 7.0], [[0, 0, 0], [0, 0, 0], np.array([0, 0, 0]), 7.0]],
+             [[8, -1, -4], nan_3d, nan_3d, [7.11111111, -0.88888889, -3.55555556], [-7, -9, -1], nan_3d, nan_3d,
+              [-6.38840716, -8.21366635, -0.91262959]]),
+            # Testing when values are added to all params
+            (np.array([3, -5, 2]), np.array([-7, 3, 9]),
+             np.array([-1, -9, -5]),
+             np.array([[-7, -1, 5], [5, -9, 2]]),
+             {'RightShoulderOffset': -6.0, 'LeftShoulderOffset': 42.0},
+             [[8, -1, -4], [-7, -9, -1]],
+             [[[-7, -1, 5], [-1, -9, -5], np.array([3, -5, 2]), 1.0],
+              [[5, -9, 2], [-1, -9, -5], np.array([-7, 3, 9]), 49.0]],
+             [[8, -1, -4], [7.57573593, -0.43431458, -4.70710678], [8.51498105, -1.49157282, -4.70224688],
+              [7.2551547, -1.66208471, -4.08276059], [-7, -9, -1], [-7, -8, -1], [-6.4452998, -9, -0.16794971],
+              [-6.16794971, -9, -1.5547002]]),
+            # Testing that when rsho, lsho, and wand are lists of ints and measurements values are ints
+            ([3, -5, 2], [-7, 3, 9],
+             np.array([-1, -9, -5]),
+             [[-7, -1, 5], [5, -9, 2]],
+             {'RightShoulderOffset': -6, 'LeftShoulderOffset': 42},
+             [[8, -1, -4], [-7, -9, -1]],
+             [[[-7, -1, 5], [-1, -9, -5], np.array([3, -5, 2]), 1.0],
+              [[5, -9, 2], [-1, -9, -5], np.array([-7, 3, 9]), 49.0]],
+             [[8, -1, -4], [7.57573593, -0.43431458, -4.70710678], [8.51498105, -1.49157282, -4.70224688],
+              [7.2551547, -1.66208471, -4.08276059], [-7, -9, -1], [-7, -8, -1], [-6.4452998, -9, -0.16794971],
+              [-6.16794971, -9, -1.5547002]]),
+            # Testing that when rsho, lsho, and wand are numpy arrays of ints and measurements values are ints
+            (np.array([3, -5, 2], dtype='int'), np.array([-7, 3, 9], dtype='int'),
+             np.array([-1, -9, -5], dtype='int'),
+             np.array([[-7, -1, 5], [5, -9, 2]], dtype='int'),
+             {'RightShoulderOffset': -6, 'LeftShoulderOffset': 42},
+             [[8, -1, -4], [-7, -9, -1]],
+             [[[-7, -1, 5], [-1, -9, -5], np.array([3, -5, 2]), 1.0],
+              [[5, -9, 2], [-1, -9, -5], np.array([-7, 3, 9]), 49.0]],
+             [[8, -1, -4], [7.57573593, -0.43431458, -4.70710678], [8.51498105, -1.49157282, -4.70224688],
+              [7.2551547, -1.66208471, -4.08276059], [-7, -9, -1], [-7, -8, -1], [-6.4452998, -9, -0.16794971],
+              [-6.16794971, -9, -1.5547002]]),
+            # Testing that when rsho, lsho, and wand are lists of floats and measurements values are floats
+            ([3.0, -5.0, 2.0], [-7.0, 3.0, 9.0],
+             np.array([-1.0, -9.0, -5.0]),
+             [[-7.0, -1.0, 5.0], [5.0, -9.0, 2.0]],
+             {'RightShoulderOffset': -6.0, 'LeftShoulderOffset': 42.0},
+             [[8, -1, -4], [-7, -9, -1]],
+             [[[-7, -1, 5], [-1, -9, -5], np.array([3, -5, 2]), 1.0],
+              [[5, -9, 2], [-1, -9, -5], np.array([-7, 3, 9]), 49.0]],
+             [[8, -1, -4], [7.57573593, -0.43431458, -4.70710678], [8.51498105, -1.49157282, -4.70224688],
+              [7.2551547, -1.66208471, -4.08276059], [-7, -9, -1], [-7, -8, -1], [-6.4452998, -9, -0.16794971],
+              [-6.16794971, -9, -1.5547002]]),
+            # Testing that when rsho, lsho, and wand are numpy arrays of floats and measurements values are floats
+            (np.array([3.0, -5.0, 2.0], dtype='float'), np.array([-7.0, 3.0, 9.0], dtype='float'),
+             np.array([-1.0, -9.0, -5.0], dtype='float'),
+             np.array([[-7.0, -1.0, 5.0], [5.0, -9.0, 2.0]], dtype='float'),
+             {'RightShoulderOffset': -6.0, 'LeftShoulderOffset': 42.0},
+             [[8, -1, -4], [-7, -9, -1]],
+             [[[-7, -1, 5], [-1, -9, -5], np.array([3, -5, 2]), 1.0],
+              [[5, -9, 2], [-1, -9, -5], np.array([-7, 3, 9]), 49.0]],
+             [[8, -1, -4], [7.57573593, -0.43431458, -4.70710678], [8.51498105, -1.49157282, -4.70224688],
+              [7.2551547, -1.66208471, -4.08276059], [-7, -9, -1], [-7, -8, -1], [-6.4452998, -9, -0.16794971],
+              [-6.16794971, -9, -1.5547002]])])
+    def test_shoulder_axis_calc(self, rsho, lsho, thorax_origin, wand, measurements, mock_return_val,
+                                expected_mock_args, expected):
+        """
+        This test provides coverage of the shoulder_axis_calc function in the class CGM in pycgm.py, defined as
+        shoulder_axis_calc(rsho, lsho, thorax_origin, wand, measurements)
+
+        This test takes 8 parameters:
+        rsho, lsho : dict
+            A 1x3 ndarray of each respective marker containing the XYZ positions.
+        thorax_origin : ndarray
+            A 1x3 ndarray of the thorax origin vector (joint center).
+        wand : ndarray
+            A 2x3 ndarray containing the right wand marker x, y, and z positions and the
+            left wand marker x, y, and z positions.
+        measurements : dict
+            A dictionary containing the subject measurements given from the file input.
+        mock_return_val : list
+            The value to be returned by the mock for find_joint_center
+        expected_mock_args : list
+            The expected arguments used to call the mocked function, find_joint_center
+        expected : array
+            An 8x3 ndarray that contains the right shoulder origin, right shoulder x, y, and z axis components,
+            left shoulder origin, and left shoulder x, y, and z axis components.
+
+        This test is checking to make sure the shoulder joint center and axis are calculated correctly given the
+        input parameters. This tests mocks find_joint_center to make sure the correct parameters are being passed
+        into it given the parameters passed into shoulder_axis_calc, expected_mock_args, and to also ensure that
+        shoulder_axis_calc returns the correct value considering the return value of find_joint_center, mock_return_val.
+
+        This unit test ensures that:
+        - the correct expected values are altered per parameter given.
+        - the resulting output is correct when rsho, lsho, and wand are composed of lists of ints, numpy arrays of
+        ints, lists of floats, and numpy arrays of floats and measurements values are ints and floats. thorax_origin
+        was kept as numpy arrays as lists would cause errors in lines like the following in pycgm.py as lists cannot
+        be subtracted by each other:
+        r_wand_direc = r_wand - thorax_origin
+        """
+        with patch.object(CGM, 'find_joint_center', side_effect=mock_return_val) as mock_find_joint_center:
+            result = CGM.shoulder_axis_calc(rsho, lsho, thorax_origin, wand, measurements)
+
+        # Asserting that there were only 2 calls to find_joint_center
+        np.testing.assert_equal(mock_find_joint_center.call_count, 2)
+
+        # Asserting that the correct params were sent in the 1st (right) call to find_joint_center
+        np.testing.assert_almost_equal(expected_mock_args[0][0], mock_find_joint_center.call_args_list[0][0][0],
+                                       rounding_precision)
+        np.testing.assert_almost_equal(expected_mock_args[0][1], mock_find_joint_center.call_args_list[0][0][1],
+                                       rounding_precision)
+        np.testing.assert_almost_equal(expected_mock_args[0][2], mock_find_joint_center.call_args_list[0][0][2],
+                                       rounding_precision)
+        np.testing.assert_almost_equal(expected_mock_args[0][3], mock_find_joint_center.call_args_list[0][0][3],
+                                       rounding_precision)
+
+        # Asserting that the correct params were sent in the 2nd (left) call to find_joint_center
+        np.testing.assert_almost_equal(expected_mock_args[1][0], mock_find_joint_center.call_args_list[1][0][0],
+                                       rounding_precision)
+        np.testing.assert_almost_equal(expected_mock_args[1][1], mock_find_joint_center.call_args_list[1][0][1],
+                                       rounding_precision)
+        np.testing.assert_almost_equal(expected_mock_args[1][2], mock_find_joint_center.call_args_list[1][0][2],
+                                       rounding_precision)
+        np.testing.assert_almost_equal(expected_mock_args[1][3], mock_find_joint_center.call_args_list[1][0][3],
+                                       rounding_precision)
+
+        # Asserting that shoulder_axis_calc returned the correct result given the return value given by mocked
+        # find_joint_center
         np.testing.assert_almost_equal(result, expected, rounding_precision)
 
 
