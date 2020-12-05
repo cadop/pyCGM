@@ -14,9 +14,7 @@ else:
 
 class CGM:
 
-    def __init__(self, path_static, path_dynamic, path_measurements, path_results=None,
-                 write_axes=True, write_angles=True, write_com=True,
-                 static=None, cores=1):
+    def __init__(self, path_static, path_dynamic, path_measurements, static=None, cores=1):
         """Initialization of CGM object function
 
         Instantiates various class attributes based on parameters and default values.
@@ -29,16 +27,6 @@ class CGM:
             File path of the dynamic trial in csv or c3d form
         path_measurements : str
             File path of the subject measurements in csv or vsk form
-        path_results : str, optional
-            File path of the output file in csv or c3d form
-        write_axes : bool or list, optional
-            Boolean option to enable or disable writing of axis results to output file, or list
-            of axis names to write
-        write_angles : bool or list, optional
-            Boolean option to enable or disable writing of angle results to output file, or list
-            of angle names to write
-        write_com : bool, optional
-            Boolean option to enable or disable writing of center of mass results to output file
 
         Examples
         --------
@@ -53,10 +41,6 @@ class CGM:
         self.path_static = path_static
         self.path_dynamic = path_dynamic
         self.path_measurements = path_measurements
-        self.path_results = path_results
-        self.write_axes = write_axes
-        self.write_angles = write_angles
-        self.write_com = write_com
         self.static = static if static else StaticCGM(path_static, path_measurements)
         self.cores = cores
         self.angle_results = None
@@ -156,6 +140,31 @@ class CGM:
         mappings = [self.marker_map, self.marker_idx, self.axis_idx, self.angle_idx, self.jc_idx]
         results = self.multi_calc(self.marker_data, methods, mappings, self.measurements, seg_scale)
         self.axis_results, self.angle_results, self.com_results = results
+
+    def write_results(self, path_results, write_axes=None, write_angles=None, write_com=True):
+        """Write CGM results to a csv file. 
+
+        Uses IO.write_result().
+
+        Parameters
+        ----------
+        path_results : str, optional
+            File path of the output file in csv or c3d form
+        write_axes : bool or list, optional
+            Boolean option to enable or disable writing of axis results to output file, or list
+            of axis names to write. If not specified or True, all axes will be written.
+        write_angles : bool or list, optional
+            Boolean option to enable or disable writing of angle results to output file, or list
+            of angle names to write. If not specified or True, all angles will be written.
+        write_com : bool, optional
+            Boolean option to enable or disable writing of center of mass results to output file.
+            True by default.
+        """
+        #Ensure that write_results() is not being called before run().
+        if (self.angle_results is None or self.axis_results is None or self.com_results is None):
+            print("Results cannot be saved before run() is called.")
+        else:
+            IO.write_result(path_results, self.angle_results, self.angle_idx, self.axis_results, self.axis_idx, self.com_results, write_angles, write_axes, write_com)
 
     @staticmethod
     def multi_calc(data, methods, mappings, measurements, seg_scale, cores=1):
@@ -367,7 +376,6 @@ class CGM:
         joint_centers[jc_idx['RFoot']] = r_fooo
         joint_centers[jc_idx['LFoot']] = l_fooo
 
-        print(joint_centers)
         # Angle calculations
 
         # Center of Mass calculations
