@@ -534,7 +534,7 @@ class CGM:
         # Beta is flexion angle
         # Gamma is rotation angle
 
-        if -1.57079633 < alpha < 1.57079633:
+        if pi / -2 < alpha < pi / 2:
             beta = np.arctan2(
                 ((axis_d[2][0] * axis_p[0][0]) + (axis_d[2][1] * axis_p[0][1]) + (axis_d[2][2] * axis_p[0][2])),
                 ((axis_d[2][0] * axis_p[2][0]) + (axis_d[2][1] * axis_p[2][1]) + (axis_d[2][2] * axis_p[2][2])))
