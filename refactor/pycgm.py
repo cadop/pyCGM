@@ -1099,7 +1099,7 @@ class CGM:
 
         r_hip_jc, l_hip_jc = hip_origin
 
-        # Determine the position of kneeJointCenter using findJointC function
+        # Determine the position of kneeJointCenter using CGM.find_joint_center function
         r_knee_jc = CGM.find_joint_center(rthi, r_hip_jc, rkne, r_delta)
         l_knee_jc = CGM.find_joint_center(lthi, l_hip_jc, lkne, l_delta)
 
@@ -1234,7 +1234,7 @@ class CGM:
         # This is Torsioned Tibia and this describes the ankle angles
         # Tibial frontal plane is being defined by ANK, TIB, and KJC
 
-        # Determine the position of ankleJointCenter using findJointC function
+        # Determine the position of ankleJointCenter using CGM.find_joint_center function
         r_ankle_jc = CGM.find_joint_center(rtib, knee_jc_r, rank, r_delta)
         l_ankle_jc = CGM.find_joint_center(ltib, knee_jc_l, lank, l_delta)
 
@@ -2098,7 +2098,7 @@ class CGM:
         return np.array([rwjc, r_x_axis, r_y_axis, r_z_axis, lwjc, l_x_axis, l_y_axis, l_z_axis])
 
     @staticmethod
-    def hand_axis_calc(rwra, wrb, lwra, lwrb, rfin, lfin, wrist_jc, measurements):
+    def hand_axis_calc(rwra, rwrb, lwra, lwrb, rfin, lfin, wrist_origin, measurements):
         """Hand Axis Calculation function
 
         Calculates the right and left hand joint center and axis and returns them.
@@ -2108,9 +2108,9 @@ class CGM:
 
         Parameters
         ----------
-        rwra, wrb, lwra, lwrb, rfin, lfin : ndarray
+        rwra, rwrb, lwra, lwrb, rfin, lfin : ndarray
             A 1x3 ndarray of each respective marker containing the XYZ positions.
-        wrist_jc : ndarray
+        wrist_origin : ndarray
             A 2x3 array containing the x,y,z position of the right and left wrist joint center.
         measurements : dict
             A dictionary containing the subject measurements given from the file input.
@@ -2120,7 +2120,91 @@ class CGM:
         array
             Returns an 8x3 ndarray that contains the right hand origin, right hand x, y, and z
             axis components, left hand origin, and left hand x, y, and z axis components.
+
+        Examples
+        --------
+        >>> import numpy as np
+        >>> from .pycgm import CGM
+        >>> markers = np.array([[776.51898193,495.68103027, 1108.38464355],
+        ...                     [830.9072876, 436.75341797, 1119.11901855],
+        ...                     [-249.28146362, 525.32977295, 1117.09057617],
+        ...                     [-311.77532959, 477.22512817, 1125.1619873],
+        ...                     [863.71374512, 524.4475708, 1074.54248047],
+        ...                     [-326.65890503, 558.34338379, 1091.04284668]])
+        >>> rwra, rwrb, lwra, lwrb, rfin, lfin = markers
+        >>> wrist_origin = np.array([[793.32814303, 451.29134788, 1084.43255130],
+        ...                          [-272.4594189, 485.80152210, 1091.36662383]])
+        >>> measurements = {'RightHandThickness': 34.0, 'LeftHandThickness': 34.0}
+        >>> CGM.hand_axis_calc(rwra, rwrb, lwra, lwrb, rfin, lfin, wrist_origin, measurements)
+        array([[ 859.80614366,  517.28239823, 1051.97278945],
+               [ 859.95675979,  517.59241232, 1052.9115152 ],
+               [ 859.07975674,  517.96120459, 1051.86516062],
+               [ 859.1355642 ,  516.61673075, 1052.30021881],
+               [-324.53477795,  551.88744292, 1068.02526836],
+               [-324.61994074,  552.15893311, 1068.9839343 ],
+               [-325.33293183,  551.29292489, 1068.12272963],
+               [-323.93837399,  551.13058006, 1068.29259013]])
         """
+
+        rwri = (rwra + rwrb) / 2.0
+        lwri = (lwra + lwrb) / 2.0
+
+        rwjc, lwjc = wrist_origin
+
+        mm = 7.0
+        r_hand_thickness = measurements['RightHandThickness']
+        l_hand_thickness = measurements['LeftHandThickness']
+
+        r_delta = (r_hand_thickness / 2.0 + mm)
+        l_delta = (l_hand_thickness / 2.0 + mm)
+
+        rhnd = CGM.find_joint_center(rwri, rwjc, rfin, r_delta)
+        lhnd = CGM.find_joint_center(lwri, lwjc, lfin, l_delta)
+
+        # Right
+        z_axis = rwjc - rhnd
+        z_axis = z_axis / np.linalg.norm(z_axis)
+
+        y_axis = rwra - rwri
+        y_axis = y_axis / np.linalg.norm(y_axis)
+
+        x_axis = np.cross(y_axis, z_axis)
+        x_axis = x_axis / np.linalg.norm(x_axis)
+
+        y_axis = np.cross(z_axis, x_axis)
+        y_axis = y_axis / np.linalg.norm(y_axis)
+
+        r_x_axis = x_axis
+        r_y_axis = y_axis
+        r_z_axis = z_axis
+
+        # Left
+        z_axis = lwjc - lhnd
+        z_axis = z_axis / np.linalg.norm(z_axis)
+
+        y_axis = lwri - lwra
+        y_axis = y_axis / np.linalg.norm(y_axis)
+
+        x_axis = np.cross(y_axis, z_axis)
+        x_axis = x_axis / np.linalg.norm(x_axis)
+
+        y_axis = np.cross(z_axis, x_axis)
+        y_axis = y_axis / np.linalg.norm(y_axis)
+
+        l_x_axis = x_axis
+        l_y_axis = y_axis
+        l_z_axis = z_axis
+
+        # Attach it to the origin.
+        r_x_axis += rhnd
+        r_y_axis += rhnd
+        r_z_axis += rhnd
+
+        l_x_axis += lhnd
+        l_y_axis += lhnd
+        l_z_axis += lhnd
+
+        return np.array([rhnd, r_x_axis, r_y_axis, r_z_axis, lhnd, l_x_axis, l_y_axis, l_z_axis])
 
     # Angle calculation functions
     @staticmethod
@@ -3361,7 +3445,7 @@ class StaticCGM:
 
         r_hip_jc, l_hip_jc = hip_origin
 
-        # Determine the position of kneeJointCenter using findJointC function
+        # Determine the position of kneeJointCenter using CGM.find_joint_center function
         r_knee_jc = CGM.find_joint_center(rthi, r_hip_jc, rkne, r_delta)
         l_knee_jc = CGM.find_joint_center(lthi, l_hip_jc, lkne, l_delta)
 
@@ -3496,7 +3580,7 @@ class StaticCGM:
         # This is Torsioned Tibia and this describes the ankle angles
         # Tibial frontal plane is being defined by ANK, TIB, and KJC
 
-        # Determine the position of ankleJointCenter using findJointC function
+        # Determine the position of ankleJointCenter using CGM.find_joint_center function
         r_ankle_jc = CGM.find_joint_center(rtib, knee_jc_r, rank, r_delta)
         l_ankle_jc = CGM.find_joint_center(ltib, knee_jc_l, lank, l_delta)
 
