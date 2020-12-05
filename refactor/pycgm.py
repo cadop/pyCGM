@@ -66,11 +66,10 @@ class CGM:
         self.axis_results = None
         self.com_results = None
         self.marker_map = {marker: marker for marker in IO.marker_keys()}
-        self.marker_data, self.marker_idx = IO.load_marker_data(path_dynamic)
         self.axis_idx = {"Pelvis Axis": 0, "Hip Axis": 1, "R Knee Axis": 2, "L Knee Axis": 3,
                          "R Ankle Axis": 4, "L Ankle Axis": 5, "R Foot Axis": 6, "L Foot Axis": 7}
         self.angle_idx = {}
-        self.measurements = IO.load_sm(path_measurements)
+        
 
     # Customisation functions
     def remap(self, old, new):
@@ -110,6 +109,18 @@ class CGM:
         Runs the dynamic trial to calculate all axes and angles.
         """
 
+        # Get PlugInGait scaling table from segments.csv for use in center of mass calculations
+        seg_scale = {}
+        with open(os.path.dirname(os.path.abspath(__file__)) + '/refactor/segments.csv', 'r') as f:
+            header = False
+            for line in f:
+                if not header:
+                    header = True
+                else:
+                    row = line.rstrip('\n').split(',')
+                    seg_scale[row[0]] = {'com': float(row[1]), 'mass': float(row[2]), 'x': row[3], 'y': row[4], 'z': row[5]}
+        self.marker_data, self.marker_idx = IO.load_marker_data(path_dynamic)
+        
         self.measurements = self.static.get_static(self.static.marker_data, self.static.marker_idx,
                                                    self.static.subject_measurements, False)
 
@@ -122,7 +133,7 @@ class CGM:
         self.axis_results, self.angle_results, self.com_results = results
 
     @staticmethod
-    def multi_calc(data, methods, mappings, measurements, cores=1):
+    def multi_calc(data, methods, mappings, measurements, seg_scale, cores=1):
         """Multiprocessing calculation handler function
 
         Takes in the necessary information for performing each frame's calculation as parameters
@@ -138,6 +149,9 @@ class CGM:
             List containing dictionary mappings for marker names and input and output indices.
         measurements : dict
             A dictionary containing the subject measurements given from the file input.
+        seg_scale : dict
+            Segment scaling factors loaded in from the segments.csv file for use in center
+            of mass calculations.
         cores : int, optional
             Number of cores to perform multiprocessing with, defaulting to 1 if not specified.
 
@@ -160,7 +174,7 @@ class CGM:
         com_results.fill(np.nan)
 
         for i, frame in enumerate(data):
-            frame_axes, frame_angles, frame_com = CGM.calc(frame, methods, mappings, measurements)
+            frame_axes, frame_angles, frame_com = CGM.calc(frame, methods, mappings, measurements, seg_scale)
             axis_results[i] = frame_axes
             angle_results[i] = frame_angles
             com_results[i] = frame_com
@@ -168,7 +182,7 @@ class CGM:
         return axis_results, angle_results, com_results
 
     @staticmethod
-    def calc(frame, methods, mappings, measurements):
+    def calc(frame, methods, mappings, measurements, seg_scale):
         """Overall axis and angle calculation function
 
         Uses the data and methods passed in to distribute the appropriate inputs to each
@@ -186,6 +200,9 @@ class CGM:
             List containing dictionary mappings for marker names and input and output indices.
         measurements : dict
             A dictionary containing the subject measurements given from the file input.
+        seg_scale : dict
+            Segment scaling factors loaded in from the segments.csv file for use in center
+            of mass calculations.
 
         Returns
         -------
