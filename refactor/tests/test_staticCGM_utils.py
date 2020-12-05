@@ -13,6 +13,8 @@ class TestStaticCGMAxis:
         iad_calculation
         ankle_angle_calc
     """
+    nan_3d = [np.nan, np.nan, np.nan]
+    rand_coor = [np.random.randint(0, 10), np.random.randint(0, 10), np.random.randint(0, 10)]
 
     @pytest.mark.parametrize(["rasi", "lasi", "expected"], [
         (np.array([0, 0, 0]), np.array([0, 0, 0]), 0),
@@ -26,13 +28,13 @@ class TestStaticCGMAxis:
         (np.array([0, 3, -6]), np.array([0, 2, -5]), 1.4142135623730951),
         (np.array([-6, 4, 0]), np.array([0, 6, -8]), 10.198039027185569),
         (np.array([7, 2, -6]), np.array([3, -7, 2]), 12.68857754044952),
-        # Testing that when frame is composed of lists of ints
+        # Testing that when the markers is composed of lists of ints
         ([7, 2, -6], [3, -7, 2], 12.68857754044952),
-        # Testing that when frame is composed of numpy arrays of ints
+        # Testing that when the markers is composed of numpy arrays of ints
         (np.array([7, 2, -6], dtype='int'), np.array([3, -7, 2], dtype='int'), 12.68857754044952),
-        # Testing that when frame is composed of lists of floats
+        # Testing that when the markers is composed of lists of floats
         ([7.0, 2.0, -6.0], [3.0, -7.0, 2.0], 12.68857754044952),
-        # Testing that when frame is composed ofe numpy arrays of floats
+        # Testing that when the markers is composed ofe numpy arrays of floats
         (np.array([7.0, 2.0, -6.0], dtype='float'), np.array([3.0, -7.0, 2.0], dtype='float'), 12.68857754044952)
     ])
     def test_iad_calculation(self, rasi, lasi, expected):
@@ -50,7 +52,7 @@ class TestStaticCGMAxis:
         - the distance is measured correctly when some coordinates are the same, all coordinates are the same, and all
         coordinates are different
         - the distance is measured correctly given positive, negative and zero values
-        - the resulting output is correct when frame is composed of lists of ints, numpy arrays of ints, lists of
+        - the resulting output is correct when the markers are composed of lists of ints, numpy arrays of ints, lists of
         floats, and numpy arrays of floats.
         """
         result = StaticCGM.iad_calculation(rasi, lasi)
@@ -98,3 +100,127 @@ class TestStaticCGMAxis:
         axis_d = CGM.rotation_matrix(0, 0, 0)
         result = StaticCGM.ankle_angle_calc(axis_p, axis_d)
         np.testing.assert_almost_equal(result, expected_results, rounding_precision)
+
+    @pytest.mark.parametrize(["rtoe", "ltoe", "rhee", "lhee", "ankle_axis", "flat_foot", "measurements", "expected"], [
+        ([ # Testing from running sample data
+        np.array([433.33508301, 354.97229004, 44.27765274]),np.array([31.77310181, 331.23657227, 42.15322876]),
+        np.array([381.88534546, 148.47607422, 49.99120331]),np.array([122.18766785, 138.55477905, 46.29433441]),
+        np.array([np.array([397.45738291, 217.50712216, 87.83068433]), np.array(rand_coor),
+        np.array([396.73749179, 218.18875543, 87.69979179]),np.array(rand_coor),
+        np.array([112.28082818, 175.83265027, 80.98477997]),np.array(rand_coor),
+        np.array([111.34886681, 175.49163538, 81.10789314]),np.array(rand_coor)]),
+        False, {},
+        np.array([[-0.015688860223839234, 0.2703999495115947, -0.15237642705642993],
+        [0.009550866847196991, 0.20242596489042683, -0.019420801722458948]])]),
+        ([ # Testing with zeros for all parameters.
+        np.array([0,0,0]),np.array([0,0,0]),
+        np.array([0,0,0]),np.array([0,0,0]),
+        np.array([np.array([0,0,0]), np.array(rand_coor),
+        np.array([0,0,0]),np.array(rand_coor),
+        np.array([0,0,0]),np.array(rand_coor),
+        np.array([0,0,0]),np.array(rand_coor)]),
+        False,
+        {},
+        np.array([nan_3d, nan_3d])]),
+        ([ # Testing marker values only
+        np.array([1, -4, -1]),np.array([1, -1, -5]),
+        np.array([1, -7, -4]),np.array([-6, -5, 1]),
+        np.array([np.array([0,0,0]), np.array(rand_coor),
+        np.array([0,0,0]),np.array(rand_coor),
+        np.array([0,0,0]),np.array(rand_coor),
+        np.array([0,0,0]),np.array(rand_coor)]),
+        False, {},
+        np.array([nan_3d, nan_3d])]),
+        ([ # Testing with ankle_axis values only
+        np.array([0,0,0]),np.array([0,0,0]),
+        np.array([0,0,0]),np.array([0,0,0]),
+        np.array([np.array([3, 3, -2]), np.array(rand_coor),
+        np.array([6, -9, 9]),np.array(rand_coor),
+        np.array([5, 9, -4]),np.array(rand_coor),
+        np.array([-5, 6, 9]),np.array(rand_coor)]),
+        False,
+        {'RightSoleDelta': 0.64, 'LeftSoleDelta': 0.19},
+        np.array([nan_3d, nan_3d])]),
+        ([ # Testing with measurement values only
+        np.array([0,0,0]),np.array([0,0,0]),
+        np.array([0,0,0]),np.array([0,0,0]),
+        np.array([np.array([0,0,0]), np.array(rand_coor),
+        np.array([0,0,0]),np.array(rand_coor),
+        np.array([0,0,0]),np.array(rand_coor),
+        np.array([0,0,0]),np.array(rand_coor)]),
+        False,
+        {},
+        np.array([nan_3d, nan_3d])]),
+        ([ # Testing with marker and ankle_axis values
+        np.array([1, -4, -1]),np.array([1, -1, -5]),
+        np.array([1, -7, -4]),np.array([-6, -5, 1]),
+        np.array([np.array([3, 3, -2]), np.array(rand_coor),
+        np.array([6, -9, 9]),np.array(rand_coor),
+        np.array([5, 9, -4]),np.array(rand_coor),
+        np.array([-5, 6, 9]),np.array(rand_coor)]),
+        False,
+        {},
+        np.array([[-0.590828, -0.802097, -0.554384], [0.955226, 0.156745, 0.166848]])]),
+        ([ # Testing with marker, ankle_axis, and measurement values
+        np.array([1, -4, -1]),np.array([1, -1, -5]),
+        np.array([1, -7, -4]),np.array([-6, -5, 1]),
+        np.array([np.array([3, 3, -2]), np.array(rand_coor),
+        np.array([6, -9, 9]),np.array(rand_coor),
+        np.array([5, 9, -4]),np.array(rand_coor),
+        np.array([-5, 6, 9]),np.array(rand_coor)]),
+        False,
+        {'RightSoleDelta': 0.64, 'LeftSoleDelta': 0.19},
+        np.array([[-0.590828, -0.802097, -0.554384], [0.955226, 0.156745, 0.166848]])]),
+        ([ # Testing with marker, ankle_axis, and measurement values and flat_foot = True
+        np.array([1, -4, -1]),np.array([1, -1, -5]),
+        np.array([1, -7, -4]),np.array([-6, -5, 1]),
+        np.array([np.array([3, 3, -2]), np.array(rand_coor),
+        np.array([6, -9, 9]),np.array(rand_coor),
+        np.array([5, 9, -4]),np.array(rand_coor),
+        np.array([-5, 6, 9]),np.array(rand_coor)]),
+        True,
+        {'RightSoleDelta': 0.64, 'LeftSoleDelta': 0.19},
+        np.array([[0.041042018208567545, -0.3065439019577841, -0.3106927663413161], [0.39326377295256626, 0.5657243847333632, 0.2128595189127902]])]),
+        ([ # Testing with all parameters as numpy arrays of floats, with flat_foot = True
+        np.array([1.0, -4.0, -1.0], dtype='float'),np.array([1.0, -1.0, -5.0], dtype='float'),
+        np.array([1.0, -7.0, -4.0], dtype='float'),np.array([-6.0, -5.0, 1.0], dtype='float'),
+        np.array([np.array([3.0, 3.0, -2.0], dtype='float'), np.array(rand_coor, dtype='float'),
+        np.array([6.0, -9.0, 9.0], dtype='float'),np.array(rand_coor, dtype='float'),
+        np.array([5.0, 9.0, -4.0], dtype='float'),np.array(rand_coor, dtype='float'),
+        np.array([-5.0, 6.0, 9.0], dtype='float'),np.array(rand_coor, dtype='float')]),
+        True,
+        {'RightSoleDelta': 1.0, 'LeftSoleDelta': -1.0},
+        np.array([[0.041042018208567545, -0.30654390195778408, -0.30110158620693045],
+          [00.3932637729525662, 0.56572438473336295, 0.22802611517428609]])])
+    ])
+    def test_static_calculation(self, rtoe, ltoe, rhee, lhee, ankle_axis, flat_foot, measurements, expected):
+        """
+        This test provides coverage of the static_calculation function in pycgm.py, 
+        defined as static_calculation(rtoe, ltoe, rhee, lhee, ankle_axis, flat_foot, measurements)
+
+        This test takes 9 parameters:
+        rtoe, ltoe, rhee, lhee : dict
+            A 1x3 ndarray of each respective marker containing the XYZ positions.
+        ankle_axis : ndarray
+            An 8x3 ndarray that contains the right ankle origin, right ankle x, y, and z
+            axis components, left ankle origin, and left ankle x, y, and z axis components.
+        flat_foot : boolean
+            A boolean indicating if the feet are flat or not.
+        measurements : dict
+            A dictionary containing the subject measurements given from the file input.
+        expected : ndarray
+            The result of static_calculation, which will be a ndarray representing the angle.
+
+        This function first calculates the anatomically incorrect foot axis by calling uncorrect_footaxis. It then
+        calculates the anatomically correct foot joint center and axis using either rotaxis_footflat or
+        rotaxis_nonfootflat depending on if foot_flat is True or False. It then does some array manipulation and calls
+        getankleangle with the anatomically correct and anatomically incorrect axes, once for the left and once for the
+        right, to calculate the offset angle between the two axes.
+
+        This test ensures that:
+        - Different offset angles are returned depending on whether flat_foot is True or not
+        - The resulting output is correct when the parameters are composed of lists of ints, numpy arrays of ints,
+        lists of floats, and numpy arrays of floats and when the vsk values are ints and floats.
+        """
+        result = StaticCGM.static_calculation(rtoe, ltoe, rhee, lhee, ankle_axis, flat_foot, measurements)
+        np.testing.assert_almost_equal(result, expected, rounding_precision)
