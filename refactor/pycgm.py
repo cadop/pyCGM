@@ -2696,11 +2696,50 @@ class CGM:
         --------
         """
         head_axis_mod = CGM.subtract_origin(head_axis)
-        # needs getHeadangle impl
+        # Old repo subtracts [0, 0, 0] from global_axis here
+        global_head_angle = CGM.get_head_angle(global_axis, head_axis_mod)
+        head_x = global_head_angle[0] * -1
+        if head_x < -180:
+            head_x += 360
+        head_y = global_head_angle[1] * -1
+        head_z = global_head_angle[2]
+        if head_z < -180:
+            head_z -= 360
+
+        return np.array([head_x, head_y, head_z])
 
     @staticmethod
-    def thorax_angle_calc():
-        pass
+    def thorax_angle_calc(thorax_axis):
+        """Thorax Angle Calculation function
+
+        Calculates the global thorax angle.
+
+        Parameters
+        ----------
+        thorax_axis : ndarray
+            A 4x3 ndarray containing the origin and three unit vectors of the thorax axis.
+
+        Returns
+        -------
+        ndarray
+            A 1x3 ndarray containing the flexion, abduction, and rotation angles of the thorax.
+
+        Examples
+        --------
+        """
+        thorax_axis_mod = CGM.subtract_origin(thorax_axis)
+        global_axis = CGM.rotation_matrix(x=0, y=0, z=180)
+        global_thorax_angle = CGM.get_angle(global_axis, thorax_axis_mod)
+        if global_thorax_angle[0] > 0:
+            global_thorax_angle[0] -= 180
+        elif global_thorax_angle[0] < 0:
+            global_thorax_angle[0] += 180
+
+        thorax_x = global_thorax_angle[0]
+        thorax_y = global_thorax_angle[1]
+        thorax_z = global_thorax_angle[2] + 90
+        
+        return np.array([thorax_x, thorax_y, thorax_z])
 
     @staticmethod
     def spine_angle_calc():
