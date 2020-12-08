@@ -3402,6 +3402,11 @@ class CGM:
         return com_coords
 
     # Properties for accessing subsets of results
+    @staticmethod
+    def repack(array):
+        # Used to combine multiple columns of data by frame
+        return np.flip(np.rot90(array), 0)
+
     @property
     def pelvis_axes(self):
         try:
@@ -3411,12 +3416,12 @@ class CGM:
                             self.axis_results[0:, self.axis_idx["PELZ"]]])
         except KeyError:
             pel = None
-        return pel
+        return self.repack(pel)
 
     @property
     def pelvis_angles(self):
         try:
-            pel = np.array([self.angle_results[0:, self.angle_idx["Pelvis"]]])
+            pel = self.angle_results[0:, self.angle_idx["Pelvis"]]
         except KeyError:
             pel = None
         return pel
@@ -3430,7 +3435,7 @@ class CGM:
                             self.axis_results[0:, self.axis_idx["HIPZ"]]])
         except KeyError:
             hip = None
-        return hip
+        return self.repack(hip)
 
     @property
     def hip_angles(self):
@@ -3439,7 +3444,7 @@ class CGM:
                             self.angle_results[0:, self.angle_idx["L Hip"]]])
         except KeyError:
             hip = None
-        return hip
+        return self.repack(hip)
 
     @property
     def knee_axes(self):
@@ -3454,7 +3459,7 @@ class CGM:
                              self.axis_results[0:, self.axis_idx["L KNEZ"]]])
         except KeyError:
             knee = None
-        return knee
+        return self.repack(knee)
 
     @property
     def knee_angles(self):
@@ -3463,7 +3468,7 @@ class CGM:
                              self.angle_results[0:, self.angle_idx["L Knee"]]])
         except KeyError:
             knee = None
-        return knee
+        return self.repack(knee)
 
     @property
     def ankle_axes(self):
@@ -3478,7 +3483,7 @@ class CGM:
                               self.axis_results[0:, self.axis_idx["L ANKZ"]]])
         except KeyError:
             ankle = None
-        return ankle
+        return self.repack(ankle)
 
     @property
     def ankle_angles(self):
@@ -3487,7 +3492,7 @@ class CGM:
                               self.angle_results[0:, self.angle_idx["L Ankle"]]])
         except KeyError:
             ankle = None
-        return ankle
+        return self.repack(ankle)
 
     @property
     def foot_axes(self):
@@ -3502,7 +3507,7 @@ class CGM:
                              self.axis_results[0:, self.axis_idx["L FOOZ"]]])
         except KeyError:
             foot = None
-        return foot
+        return self.repack(foot)
 
     @property
     def foot_angles(self):
@@ -3511,7 +3516,7 @@ class CGM:
                              self.angle_results[0:, self.angle_idx["L Foot"]]])
         except KeyError:
             foot = None
-        return foot
+        return self.repack(foot)
 
     @property
     def head_axes(self):
@@ -3522,12 +3527,12 @@ class CGM:
                              self.axis_results[0:, self.axis_idx["HEAZ"]]])
         except KeyError:
             head = None
-        return head
+        return self.repack(head)
 
     @property
     def head_angles(self):
         try:
-            head = np.array([self.angle_results[0:, self.angle_idx["Head"]]])
+            head = self.angle_results[0:, self.angle_idx["Head"]]
         except KeyError:
             head = None
         return head
@@ -3541,12 +3546,12 @@ class CGM:
                                self.axis_results[0:, self.axis_idx["THOZ"]]])
         except KeyError:
             thorax = None
-        return thorax
+        return self.repack(thorax)
 
     @property
     def thorax_angles(self):
         try:
-            thorax = np.array([self.angle_results[0:, self.angle_idx["Thorax"]]])
+            thorax = self.angle_results[0:, self.angle_idx["Thorax"]]
         except KeyError:
             thorax = None
         return thorax
@@ -3554,7 +3559,7 @@ class CGM:
     @property
     def neck_angles(self):
         try:
-            neck = np.array([self.angle_results[0:, self.angle_idx["Neck"]]])
+            neck = self.angle_results[0:, self.angle_idx["Neck"]]
         except KeyError:
             neck = None
         return neck
@@ -3562,7 +3567,7 @@ class CGM:
     @property
     def spine_angles(self):
         try:
-            spine = np.array([self.angle_results[0:, self.angle_idx["Spine"]]])
+            spine = self.angle_results[0:, self.angle_idx["Spine"]]
         except KeyError:
             spine = None
         return spine
@@ -3580,7 +3585,7 @@ class CGM:
                                  self.axis_results[0:, self.axis_idx["L CLAZ"]]])
         except KeyError:
             shoulder = None
-        return shoulder
+        return self.repack(shoulder)
 
     @property
     def shoulder_angles(self):
@@ -3589,7 +3594,7 @@ class CGM:
                                  self.angle_results[0:, self.angle_idx["L Shoulder"]]])
         except KeyError:
             shoulder = None
-        return shoulder
+        return self.repack(shoulder)
 
     @property
     def elbow_axes(self):
@@ -3604,7 +3609,7 @@ class CGM:
                               self.axis_results[0:, self.axis_idx["L HUMZ"]]])
         except KeyError:
             elbow = None
-        return elbow
+        return self.repack(elbow)
 
     @property
     def elbow_angles(self):
@@ -3613,7 +3618,7 @@ class CGM:
                               self.angle_results[0:, self.angle_idx["L Elbow"]]])
         except KeyError:
             elbow = None
-        return elbow
+        return self.repack(elbow)
 
     @property
     def wrist_axes(self):
@@ -3628,7 +3633,7 @@ class CGM:
                               self.axis_results[0:, self.axis_idx["L RADZ"]]])
         except KeyError:
             wrist = None
-        return wrist
+        return self.repack(wrist)
 
     @property
     def wrist_angles(self):
@@ -3637,7 +3642,7 @@ class CGM:
                               self.angle_results[0:, self.angle_idx["L Wrist"]]])
         except KeyError:
             wrist = None
-        return wrist
+        return self.repack(wrist)
 
     @property
     def hand_axes(self):
@@ -3652,7 +3657,7 @@ class CGM:
                              self.axis_results[0:, self.axis_idx["L HANZ"]]])
         except KeyError:
             hand = None
-        return hand
+        return self.repack(hand)
 
 
 class SubjectManager:
