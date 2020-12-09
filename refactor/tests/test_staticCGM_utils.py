@@ -63,7 +63,7 @@ class TestStaticCGMAxis:
         result = StaticCGM.iad_calculation(rasi, lasi)
         np.testing.assert_almost_equal(result, expected, rounding_precision)
 
-    @pytest.mark.parametrize(["xRot", "yRot", "zRot", "expected_results"], [
+    @pytest.mark.parametrize(["x_rot", "y_rot", "z_rot", "expected_results"], [
         (0, 0, 0, [0, 0, 0]),
         # X rotations
         (90, 0, 0, [-1.570796, 0, 0]), (30, 0, 0, [-0.523599, 0, 0]), (-30, 0, 0, [0.523599, 0, 0]),
@@ -306,7 +306,7 @@ class TestStaticCGMGetStatic:
         result = self.static.get_static()
         np.testing.assert_almost_equal(result[key], 0, rounding_precision)
 
-    @pytest.mark.parametrize(["key", "keyVal"], [
+    @pytest.mark.parametrize(["key", "val"], [
         ('Bodymass', 95),
         ('InterAsisDistance', 28),
         ('RightKneeWidth', -11),

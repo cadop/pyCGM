@@ -823,7 +823,7 @@ class TestCGMAngleUtils():
     get_angle
     """
 
-    @pytest.mark.parametrize(["xRot", "yRot", "zRot", "expected"], [
+    @pytest.mark.parametrize(["x_rot", "y_rot", "z_rot", "expected"], [
         (0, 0, 0, [0, 0, 90]),
         # X rotations
         (90, 0, 0, [0, 90, 90]), (30, 0, 0, [0, 30, 90]), (-30, 0, 0, [0, -30, 90]), (120, 0, 0, [180, 60, -90]),
