@@ -609,20 +609,20 @@ class IO:
                     output_axis_labels.append(label)
 
         header = " ,"
-        header_angs = ["Joint Angle,,,", ",,,x = flexion/extension angle", ",,,y= abudction/adduction angle",
-                       ",,,z = external/internal rotation angle", ",,,"]
-        header_axis = ["Joint Coordinate", ",,,###O = Origin", ",,,###X = X axis orientation",
-                       ",,,###Y = Y axis orientation", ",,,###Z = Z axis orientation"]
+        header_angles = ["Joint Angle,,,", ",x = flexion/extension angle", ",y = abduction/adduction angle",
+                         ",z = external/internal rotation angle", ","]
+        header_axis = ["Joint Coordinate", ",,,O = Origin", ",,,X = X axis orientation",
+                       ",,,Y = Y axis orientation", ",,,Z = Z axis orientation"]
 
         has_angle_output = len(output_angle_labels) > 0
         has_axis_output = len(output_axis_labels) > 0
         has_com = center_of_mass
 
-        for i in range(len(header_angs)):
+        for i in range(len(header_angles)):
             if has_com:
                 header += ",,,"
             if has_angle_output:
-                header += header_angs[i]
+                header += header_angles[i]
             if has_axis_output:
                 header += ',' * 3 * (len(output_angle_labels) - 1)
                 header += header_axis[i]
