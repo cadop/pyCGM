@@ -10,6 +10,7 @@ import refactor.io as IO
 
 rounding_precision = 6
 
+
 class TestStaticCGMAxis:
     """
     This class tests the utility functions in pycgm.StaticCGM:
@@ -43,7 +44,7 @@ class TestStaticCGMAxis:
     ])
     def test_iad_calculation(self, rasi, lasi, expected):
         """
-        This test provides coverage of the StaticCGM.iad_calculation, 
+        This test provides coverage of the StaticCGM.iad_calculation,
         defined as iad_calculation(rasi, lasi), where rasi and lasi are the
         arrays representing the positions of the RASI and LASI markers.
 
@@ -74,16 +75,18 @@ class TestStaticCGMAxis:
         (0, 0, 90, [0, 0, -1.570796]), (0, 0, 30, [0, 0, -0.523599]), (0, 0, -30, [0, 0, 0.523599]),
         (0, 0, 120, [0, 0, 1.047198]), (0, 0, -120, [0, 0, -1.047198]), (0, 0, 180, [0, 0, 0]),
         # Multiple Rotations
-        (150, 30, 0, [-0.447832,  0.588003,  0.281035]), (45, 0, 60, [-0.785398, -0, -1.047198]),
-        (0, 90, 120, [0, -1.570796,  1.047198]), (135, 45, 90, [-0.523599,  0.955317, -0.955317])])
-    def test_ankle_angle_calc(self, xRot, yRot, zRot, expected_results):
+        (150, 30, 0, [-0.447832, 0.588003, 0.281035]), (45, 0, 60, [-0.785398, -0, -1.047198]),
+        (0, 90, 120, [0, -1.570796, 1.047198]), (135, 45, 90, [-0.523599, 0.955317, -0.955317])])
+    def test_ankle_angle_calc(self, x_rot, y_rot, z_rot, expected_results):
         """
-        This test provides coverage of the ankle_angle_calc method in StaticCGM in the file pycgm.py, it is defined as ankle_angle_calc(axis_p, axis_d)
+        This test provides coverage of the ankle_angle_calc method in StaticCGM in the file pycgm.py, it is defined
+        as ankle_angle_calc(axis_p, axis_d)
 
         This test takes 3 parameters:
         axis_p: the unit vector of axis_p, the position of the proximal axis
         axis_d: the unit vector of axis_d, the position of the distal axis
-        expected_results: the expected result from calling ankle_angle_calc on axis_p and axis_d. This returns the x, y, z angles
+        expected_results: the expected result from calling ankle_angle_calc on axis_p and axis_d.
+        This returns thex, y, z angles
         from a XYZ Euler angle calculation from a rotational matrix. This rotational matrix is calculated by matrix
         multiplication of axis_d and the inverse of axis_p. This angle is in radians, not degrees.
 
@@ -100,106 +103,107 @@ class TestStaticCGMAxis:
         """
         # Create axis_p as a rotational matrix using the x, y, and z rotations given
         # The rotational matrix will be created using CGM's rotation_matrix.
-        axis_p = CGM.rotation_matrix(xRot, yRot, zRot)
+        axis_p = CGM.rotation_matrix(x_rot, y_rot, z_rot)
         axis_d = CGM.rotation_matrix(0, 0, 0)
         result = StaticCGM.ankle_angle_calc(axis_p, axis_d)
         np.testing.assert_almost_equal(result, expected_results, rounding_precision)
 
     @pytest.mark.parametrize(["rtoe", "ltoe", "rhee", "lhee", "ankle_axis", "flat_foot", "measurements", "expected"], [
-        ([ # Testing from running sample data
-        np.array([433.33508301, 354.97229004, 44.27765274]),np.array([31.77310181, 331.23657227, 42.15322876]),
-        np.array([381.88534546, 148.47607422, 49.99120331]),np.array([122.18766785, 138.55477905, 46.29433441]),
-        np.array([np.array([397.45738291, 217.50712216, 87.83068433]), np.array(rand_coor),
-        np.array([396.73749179, 218.18875543, 87.69979179]),np.array(rand_coor),
-        np.array([112.28082818, 175.83265027, 80.98477997]),np.array(rand_coor),
-        np.array([111.34886681, 175.49163538, 81.10789314]),np.array(rand_coor)]),
-        False, {},
-        np.array([[-0.015688860223839234, 0.2703999495115947, -0.15237642705642993],
-        [0.009550866847196991, 0.20242596489042683, -0.019420801722458948]])]),
-        ([ # Testing with zeros for all parameters.
-        np.array([0,0,0]),np.array([0,0,0]),
-        np.array([0,0,0]),np.array([0,0,0]),
-        np.array([np.array([0,0,0]), np.array(rand_coor),
-        np.array([0,0,0]),np.array(rand_coor),
-        np.array([0,0,0]),np.array(rand_coor),
-        np.array([0,0,0]),np.array(rand_coor)]),
-        False,
-        {},
-        np.array([nan_3d, nan_3d])]),
-        ([ # Testing marker values only
-        np.array([1, -4, -1]),np.array([1, -1, -5]),
-        np.array([1, -7, -4]),np.array([-6, -5, 1]),
-        np.array([np.array([0,0,0]), np.array(rand_coor),
-        np.array([0,0,0]),np.array(rand_coor),
-        np.array([0,0,0]),np.array(rand_coor),
-        np.array([0,0,0]),np.array(rand_coor)]),
-        False, {},
-        np.array([nan_3d, nan_3d])]),
-        ([ # Testing with ankle_axis values only
-        np.array([0,0,0]),np.array([0,0,0]),
-        np.array([0,0,0]),np.array([0,0,0]),
-        np.array([np.array([3, 3, -2]), np.array(rand_coor),
-        np.array([6, -9, 9]),np.array(rand_coor),
-        np.array([5, 9, -4]),np.array(rand_coor),
-        np.array([-5, 6, 9]),np.array(rand_coor)]),
-        False,
-        {'RightSoleDelta': 0.64, 'LeftSoleDelta': 0.19},
-        np.array([nan_3d, nan_3d])]),
-        ([ # Testing with measurement values only
-        np.array([0,0,0]),np.array([0,0,0]),
-        np.array([0,0,0]),np.array([0,0,0]),
-        np.array([np.array([0,0,0]), np.array(rand_coor),
-        np.array([0,0,0]),np.array(rand_coor),
-        np.array([0,0,0]),np.array(rand_coor),
-        np.array([0,0,0]),np.array(rand_coor)]),
-        False,
-        {},
-        np.array([nan_3d, nan_3d])]),
-        ([ # Testing with marker and ankle_axis values
-        np.array([1, -4, -1]),np.array([1, -1, -5]),
-        np.array([1, -7, -4]),np.array([-6, -5, 1]),
-        np.array([np.array([3, 3, -2]), np.array(rand_coor),
-        np.array([6, -9, 9]),np.array(rand_coor),
-        np.array([5, 9, -4]),np.array(rand_coor),
-        np.array([-5, 6, 9]),np.array(rand_coor)]),
-        False,
-        {},
-        np.array([[-0.590828, -0.802097, -0.554384], [0.955226, 0.156745, 0.166848]])]),
-        ([ # Testing with marker, ankle_axis, and measurement values
-        np.array([1, -4, -1]),np.array([1, -1, -5]),
-        np.array([1, -7, -4]),np.array([-6, -5, 1]),
-        np.array([np.array([3, 3, -2]), np.array(rand_coor),
-        np.array([6, -9, 9]),np.array(rand_coor),
-        np.array([5, 9, -4]),np.array(rand_coor),
-        np.array([-5, 6, 9]),np.array(rand_coor)]),
-        False,
-        {'RightSoleDelta': 0.64, 'LeftSoleDelta': 0.19},
-        np.array([[-0.590828, -0.802097, -0.554384], [0.955226, 0.156745, 0.166848]])]),
-        ([ # Testing with marker, ankle_axis, and measurement values and flat_foot = True
-        np.array([1, -4, -1]),np.array([1, -1, -5]),
-        np.array([1, -7, -4]),np.array([-6, -5, 1]),
-        np.array([np.array([3, 3, -2]), np.array(rand_coor),
-        np.array([6, -9, 9]),np.array(rand_coor),
-        np.array([5, 9, -4]),np.array(rand_coor),
-        np.array([-5, 6, 9]),np.array(rand_coor)]),
-        True,
-        {'RightSoleDelta': 0.64, 'LeftSoleDelta': 0.19},
-        np.array([[0.041042018208567545, -0.3065439019577841, -0.3106927663413161], [0.39326377295256626, 0.5657243847333632, 0.2128595189127902]])]),
-        ([ # Testing with all parameters as numpy arrays of floats, with flat_foot = True
-        np.array([1.0, -4.0, -1.0], dtype='float'),np.array([1.0, -1.0, -5.0], dtype='float'),
-        np.array([1.0, -7.0, -4.0], dtype='float'),np.array([-6.0, -5.0, 1.0], dtype='float'),
-        np.array([np.array([3.0, 3.0, -2.0], dtype='float'), np.array(rand_coor, dtype='float'),
-        np.array([6.0, -9.0, 9.0], dtype='float'),np.array(rand_coor, dtype='float'),
-        np.array([5.0, 9.0, -4.0], dtype='float'),np.array(rand_coor, dtype='float'),
-        np.array([-5.0, 6.0, 9.0], dtype='float'),np.array(rand_coor, dtype='float')]),
-        True,
-        {'RightSoleDelta': 1.0, 'LeftSoleDelta': -1.0},
-        np.array([[0.041042018208567545, -0.30654390195778408, -0.30110158620693045],
-          [00.3932637729525662, 0.56572438473336295, 0.22802611517428609]])])
+        ([  # Testing from running sample data
+            np.array([433.33508301, 354.97229004, 44.27765274]), np.array([31.77310181, 331.23657227, 42.15322876]),
+            np.array([381.88534546, 148.47607422, 49.99120331]), np.array([122.18766785, 138.55477905, 46.29433441]),
+            np.array([np.array([397.45738291, 217.50712216, 87.83068433]), np.array(rand_coor),
+                      np.array([396.73749179, 218.18875543, 87.69979179]), np.array(rand_coor),
+                      np.array([112.28082818, 175.83265027, 80.98477997]), np.array(rand_coor),
+                      np.array([111.34886681, 175.49163538, 81.10789314]), np.array(rand_coor)]),
+            False, {},
+            np.array([[-0.015688860223839234, 0.2703999495115947, -0.15237642705642993],
+                      [0.009550866847196991, 0.20242596489042683, -0.019420801722458948]])]),
+        ([  # Testing with zeros for all parameters.
+            np.array([0, 0, 0]), np.array([0, 0, 0]),
+            np.array([0, 0, 0]), np.array([0, 0, 0]),
+            np.array([np.array([0, 0, 0]), np.array(rand_coor),
+                      np.array([0, 0, 0]), np.array(rand_coor),
+                      np.array([0, 0, 0]), np.array(rand_coor),
+                      np.array([0, 0, 0]), np.array(rand_coor)]),
+            False,
+            {},
+            np.array([nan_3d, nan_3d])]),
+        ([  # Testing marker values only
+            np.array([1, -4, -1]), np.array([1, -1, -5]),
+            np.array([1, -7, -4]), np.array([-6, -5, 1]),
+            np.array([np.array([0, 0, 0]), np.array(rand_coor),
+                      np.array([0, 0, 0]), np.array(rand_coor),
+                      np.array([0, 0, 0]), np.array(rand_coor),
+                      np.array([0, 0, 0]), np.array(rand_coor)]),
+            False, {},
+            np.array([nan_3d, nan_3d])]),
+        ([  # Testing with ankle_axis values only
+            np.array([0, 0, 0]), np.array([0, 0, 0]),
+            np.array([0, 0, 0]), np.array([0, 0, 0]),
+            np.array([np.array([3, 3, -2]), np.array(rand_coor),
+                      np.array([6, -9, 9]), np.array(rand_coor),
+                      np.array([5, 9, -4]), np.array(rand_coor),
+                      np.array([-5, 6, 9]), np.array(rand_coor)]),
+            False,
+            {'RightSoleDelta': 0.64, 'LeftSoleDelta': 0.19},
+            np.array([nan_3d, nan_3d])]),
+        ([  # Testing with measurement values only
+            np.array([0, 0, 0]), np.array([0, 0, 0]),
+            np.array([0, 0, 0]), np.array([0, 0, 0]),
+            np.array([np.array([0, 0, 0]), np.array(rand_coor),
+                      np.array([0, 0, 0]), np.array(rand_coor),
+                      np.array([0, 0, 0]), np.array(rand_coor),
+                      np.array([0, 0, 0]), np.array(rand_coor)]),
+            False,
+            {},
+            np.array([nan_3d, nan_3d])]),
+        ([  # Testing with marker and ankle_axis values
+            np.array([1, -4, -1]), np.array([1, -1, -5]),
+            np.array([1, -7, -4]), np.array([-6, -5, 1]),
+            np.array([np.array([3, 3, -2]), np.array(rand_coor),
+                      np.array([6, -9, 9]), np.array(rand_coor),
+                      np.array([5, 9, -4]), np.array(rand_coor),
+                      np.array([-5, 6, 9]), np.array(rand_coor)]),
+            False,
+            {},
+            np.array([[-0.590828, -0.802097, -0.554384], [0.955226, 0.156745, 0.166848]])]),
+        ([  # Testing with marker, ankle_axis, and measurement values
+            np.array([1, -4, -1]), np.array([1, -1, -5]),
+            np.array([1, -7, -4]), np.array([-6, -5, 1]),
+            np.array([np.array([3, 3, -2]), np.array(rand_coor),
+                      np.array([6, -9, 9]), np.array(rand_coor),
+                      np.array([5, 9, -4]), np.array(rand_coor),
+                      np.array([-5, 6, 9]), np.array(rand_coor)]),
+            False,
+            {'RightSoleDelta': 0.64, 'LeftSoleDelta': 0.19},
+            np.array([[-0.590828, -0.802097, -0.554384], [0.955226, 0.156745, 0.166848]])]),
+        ([  # Testing with marker, ankle_axis, and measurement values and flat_foot = True
+            np.array([1, -4, -1]), np.array([1, -1, -5]),
+            np.array([1, -7, -4]), np.array([-6, -5, 1]),
+            np.array([np.array([3, 3, -2]), np.array(rand_coor),
+                      np.array([6, -9, 9]), np.array(rand_coor),
+                      np.array([5, 9, -4]), np.array(rand_coor),
+                      np.array([-5, 6, 9]), np.array(rand_coor)]),
+            True,
+            {'RightSoleDelta': 0.64, 'LeftSoleDelta': 0.19},
+            np.array([[0.041042018208567545, -0.3065439019577841, -0.3106927663413161],
+                      [0.39326377295256626, 0.5657243847333632, 0.2128595189127902]])]),
+        ([  # Testing with all parameters as numpy arrays of floats, with flat_foot = True
+            np.array([1.0, -4.0, -1.0], dtype='float'), np.array([1.0, -1.0, -5.0], dtype='float'),
+            np.array([1.0, -7.0, -4.0], dtype='float'), np.array([-6.0, -5.0, 1.0], dtype='float'),
+            np.array([np.array([3.0, 3.0, -2.0], dtype='float'), np.array(rand_coor, dtype='float'),
+                      np.array([6.0, -9.0, 9.0], dtype='float'), np.array(rand_coor, dtype='float'),
+                      np.array([5.0, 9.0, -4.0], dtype='float'), np.array(rand_coor, dtype='float'),
+                      np.array([-5.0, 6.0, 9.0], dtype='float'), np.array(rand_coor, dtype='float')]),
+            True,
+            {'RightSoleDelta': 1.0, 'LeftSoleDelta': -1.0},
+            np.array([[0.041042018208567545, -0.30654390195778408, -0.30110158620693045],
+                      [00.3932637729525662, 0.56572438473336295, 0.22802611517428609]])])
     ])
     def test_static_calculation(self, rtoe, ltoe, rhee, lhee, ankle_axis, flat_foot, measurements, expected):
         """
-        This test provides coverage of the static_calculation function in pycgm.py, 
+        This test provides coverage of the static_calculation function in pycgm.py,
         defined as static_calculation(rtoe, ltoe, rhee, lhee, ankle_axis, flat_foot, measurements)
 
         This test takes 9 parameters:
@@ -230,17 +234,19 @@ class TestStaticCGMAxis:
         np.testing.assert_almost_equal(result, expected, rounding_precision)
 
 
-class TestStaticCGMGetStatic():
+class TestStaticCGMGetStatic:
     """
     This class tests the get_static method in pycgm.py's StaticCGM class.
     """
+
     @classmethod
     def setup_class(self):
         """
-        Called once for all tests. Loads the measurements and motion_data to be used for testing get_static() from SampleData/ROM/.
+        Called once for all tests. Loads the measurements and motion_data to be used for testing get_static()
+        from SampleData/ROM/.
         """
         cwd = os.getcwd()
-        if (cwd.split(os.sep)[-1] == "refactor"):
+        if cwd.split(os.sep)[-1] == "refactor":
             parent = os.path.dirname(cwd)
             os.chdir(parent)
 
@@ -251,27 +257,28 @@ class TestStaticCGMGetStatic():
 
     def setup_method(self):
         """
-        Called once before all tests in test_get_static_required_markers. Resets the measurements dictionary to its original state
-        as returned from IO.py. 
+        Called once before all tests in test_get_static_required_markers.
+        Resets the measurements dictionary to its original state
+        as returned from IO.py.
         """
         self.measurements = self.measurements_copy.copy()
 
     @pytest.mark.parametrize("key", [
-        ('LeftLegLength'),
-        ('RightLegLength'),
-        ('Bodymass'),
-        ('LeftAsisTrocanterDistance'),
-        ('InterAsisDistance'),
-        ('LeftTibialTorsion'),
-        ('RightTibialTorsion'),
-        ('LeftShoulderOffset'),
-        ('RightShoulderOffset'),
-        ('LeftElbowWidth'),
-        ('RightElbowWidth'),
-        ('LeftWristWidth'),
-        ('RightWristWidth'),
-        ('LeftHandThickness'),
-        ('RightHandThickness')])
+        'LeftLegLength',
+        'RightLegLength',
+        'Bodymass',
+        'LeftAsisTrocanterDistance',
+        'InterAsisDistance',
+        'LeftTibialTorsion',
+        'RightTibialTorsion',
+        'LeftShoulderOffset',
+        'RightShoulderOffset',
+        'LeftElbowWidth',
+        'RightElbowWidth',
+        'LeftWristWidth',
+        'RightWristWidth',
+        'LeftHandThickness',
+        'RightHandThickness'])
     def test_get_static_required_markers(self, key):
         """
         This function tests that an exception is raised when removing given keys from the measurements dictionary. All
@@ -285,10 +292,10 @@ class TestStaticCGMGetStatic():
             self.static.measurements = self.measurements_copy.copy()
 
     @pytest.mark.parametrize("key", [
-        ('RightKneeWidth'),
-        ('LeftKneeWidth'),
-        ('RightAnkleWidth'),
-        ('LeftAnkleWidth')])
+        'RightKneeWidth',
+        'LeftKneeWidth',
+        'RightAnkleWidth',
+        'LeftAnkleWidth'])
     def test_get_static_zero_markers(self, key):
         """
         This function tests that when deleting given keys from the measurements dictionary, the value in the resulting
@@ -317,15 +324,15 @@ class TestStaticCGMGetStatic():
         ('LeftHandThickness', 15),
         ('RightHandThickness', -21),
         ('InterAsisDistance', -10)])
-    def test_get_static_marker_assignment(self, key, keyVal):
+    def test_get_static_marker_assignment(self, key, val):
         """
         This function tests that when assigning a value to the given keys from the measurements dictionary, the value in
         the resulting calSM corresponds. All of the tested markers are assigned to calSM in StaticCGM.get_static()
         """
-        self.static.measurements=self.measurements_copy.copy()
-        self.static.measurements[key] = keyVal
+        self.static.measurements = self.measurements_copy.copy()
+        self.static.measurements[key] = val
         result = self.static.get_static()
-        np.testing.assert_almost_equal(result[key], keyVal, rounding_precision)
+        np.testing.assert_almost_equal(result[key], val, rounding_precision)
 
     @pytest.mark.parametrize(["LeftLegLength", "RightLegLength", "MeanLegLengthExpected"], [
         (0, 0, 0),
@@ -333,16 +340,16 @@ class TestStaticCGMGetStatic():
         (-34, 0, -17),
         (-15, 15, 0),
         (5, 46, 25.5)])
-    def test_get_static_MeanLegLength(self, LeftLegLength, RightLegLength, MeanLegLengthExpected):
+    def test_get_static_MeanLegLength(self, left_leg_length, right_leg_length, mean_leg_length_expected):
         """
         This function tests that StaticCGM.get_static() properly calculates calSM['MeanLegLength'] by averaging the
         values in measurements['LeftLegLength'] and measurements['RightLegLength']
         """
         self.static.measurements = self.measurements_copy.copy()
-        self.static.measurements['LeftLegLength'] = LeftLegLength
-        self.static.measurements['RightLegLength'] = RightLegLength
+        self.static.measurements['LeftLegLength'] = left_leg_length
+        self.static.measurements['RightLegLength'] = right_leg_length
         result = self.static.get_static()
-        np.testing.assert_almost_equal(result['MeanLegLength'], MeanLegLengthExpected, rounding_precision)
+        np.testing.assert_almost_equal(result['MeanLegLength'], mean_leg_length_expected, rounding_precision)
 
     @pytest.mark.parametrize(["leftVal", "rightVal", "leftExpected", "rightExpected"], [
         # Test where left and right are 0
@@ -353,20 +360,21 @@ class TestStaticCGMGetStatic():
         (0, 61, 72.512, 72.512),
         # Test where left and right aren't 0
         (85, 61, 85, 61)])
-    def test_get_static_AsisToTrocanterMeasure(self, leftVal, rightVal, leftExpected, rightExpected):
+    def test_get_static_AsisToTrocanterMeasure(self, left_val, right_val, left_expected, right_expected):
         """
-        Tests that if LeftAsisTrocanterDistance or RightAsisTrocanterDistance are 0 in the input measurements dictionary, their
-        corresponding values in calSM will be calculated from LeftLegLength and RightLegLength, but if they both have
+        Tests that if LeftAsisTrocanterDistance or RightAsisTrocanterDistance are 0
+        in the input measurements dictionary, their corresponding values in calSM
+        will be calculated from LeftLegLength and RightLegLength, but if they both have
         values than they will be assigned from the vsk dictionary
         """
         self.static.measurements = self.measurements_copy.copy()
-        self.static.measurements['LeftAsisTrocanterDistance'] = leftVal
-        self.static.measurements['RightAsisTrocanterDistance'] = rightVal
+        self.static.measurements['LeftAsisTrocanterDistance'] = left_val
+        self.static.measurements['RightAsisTrocanterDistance'] = right_val
         result = self.static.get_static()
-        np.testing.assert_almost_equal(result['L_AsisToTrocanterMeasure'], leftExpected, rounding_precision)
-        np.testing.assert_almost_equal(result['R_AsisToTrocanterMeasure'], rightExpected, rounding_precision)
+        np.testing.assert_almost_equal(result['L_AsisToTrocanterMeasure'], left_expected, rounding_precision)
+        np.testing.assert_almost_equal(result['R_AsisToTrocanterMeasure'], right_expected, rounding_precision)
 
-    def test_get_static_InterAsisDistance(self):
+    def test_get_static_iad(self):
         """
         This function tests that when StaticCGM.get_static() is called with measurements['InterAsisDistance'] is 0, that
         the value for calSM['InterAsisDistance'] is calculated from motion_data.
