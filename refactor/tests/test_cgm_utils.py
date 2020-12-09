@@ -9,7 +9,7 @@ from refactor.pycgm import CGM
 rounding_precision = 8
 
 
-class TestCGMUtils():
+class TestCGMUtils:
     """
     This class tests the utils functions in the class CGM in pycgm.py:
     rotation_matrix

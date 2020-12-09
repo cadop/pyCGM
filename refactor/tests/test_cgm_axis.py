@@ -10,7 +10,7 @@ from refactor.pycgm import CGM
 rounding_precision = 8
 
 
-class TestLowerBodyAxis():
+class TestLowerBodyAxis:
     """
     This class tests the lower body axis functions in the class CGM in pycgm.py:
     pelvis_axis_calc
