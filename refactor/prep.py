@@ -27,6 +27,7 @@ def target_name():
         Empty list of marker names.
     """
 
+
 def target_dict():
     """Creates a dictionary of marker to segment.
 
