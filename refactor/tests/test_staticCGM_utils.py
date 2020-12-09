@@ -334,7 +334,7 @@ class TestStaticCGMGetStatic:
         result = self.static.get_static()
         np.testing.assert_almost_equal(result[key], val, rounding_precision)
 
-    @pytest.mark.parametrize(["LeftLegLength", "RightLegLength", "MeanLegLengthExpected"], [
+    @pytest.mark.parametrize(["left_leg_length", "right_leg_length", "mean_leg_length_expected"], [
         (0, 0, 0),
         (0, 40, 20),
         (-34, 0, -17),
@@ -351,7 +351,7 @@ class TestStaticCGMGetStatic:
         result = self.static.get_static()
         np.testing.assert_almost_equal(result['MeanLegLength'], mean_leg_length_expected, rounding_precision)
 
-    @pytest.mark.parametrize(["leftVal", "rightVal", "leftExpected", "rightExpected"], [
+    @pytest.mark.parametrize(["left_val", "right_val", "left_expected", "right_expected"], [
         # Test where left and right are 0
         (0, 0, 72.512, 72.512),
         # Test where left is 0
