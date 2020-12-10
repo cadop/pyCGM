@@ -18,13 +18,10 @@ class TestIO:
         Called once for all tests in IO.
         Sets rounding_precision, loads filenames to be used
         for testing load functions, and sets the python version
-        being used.
+        being used. Also sets an subject measurement dictionary
+        that is an expected return value from load_sm.
         """
         self.rounding_precision = 8
-        cwd = os.getcwd()
-        if cwd.split(os.sep)[-1] == "pyCGM_Single":
-            parent = os.path.dirname(cwd)
-            os.chdir(parent)
         self.cwd = os.getcwd()
         self.pyver = sys.version_info.major
 
@@ -113,6 +110,13 @@ class TestIO:
          np.array([52.61815643, -126.93238068, 58.56194305]))
     ])
     def test_load_c3d_data_accuracy(self, frame, data_key, expected_data):
+        """
+        This function tests IO.load_c3d(filename), where filename is the string
+        giving the path of a c3d file to load.
+
+        This function tests for several markers from different frames to ensure
+        that load_c3d works properly.
+        """
         data, mappings = IO.load_c3d(self.filename_59993_Frame)
         result_marker_data = data[frame][mappings[data_key]]
         np.testing.assert_almost_equal(result_marker_data, expected_data, self.rounding_precision)
@@ -124,6 +128,11 @@ class TestIO:
         ('HEDO', 37)
     ])
     def test_load_c3d_mapping(self, data_key, expected_index):
+        """
+        This function tests that IO.load_c3d(filename) loads marker mappings
+        properly, where the mappings indicate which index corresponds to which
+        marker in the loaded data.
+        """
         _, mappings = IO.load_c3d(self.filename_59993_Frame)
         result_index = mappings[data_key]
         assert result_index == expected_index
@@ -157,6 +166,13 @@ class TestIO:
          np.array([427.6356201, 188.9467773, 93.36354828]))
     ])
     def test_load_csv_data_accuracy(self, frame, data_key, expected_data):
+        """
+        This function tests IO.load_csv(filename), where filename is the string
+        giving the path of a csv file with marker data to load.
+
+        This function tests for several markers from different frames to ensure
+        that load_csv works properly.
+        """
         data, mappings = IO.load_csv(self.filename_Sample_Static)
         result_marker_data = data[frame][mappings[data_key]]
         np.testing.assert_almost_equal(result_marker_data, expected_data, self.rounding_precision)
@@ -168,6 +184,11 @@ class TestIO:
         ('*113', 113)
     ])
     def test_load_csv_mapping(self, data_key, expected_index):
+        """
+        This function tests that IO.load_csv(filename) loads marker mappings
+        properly, where the mappings indicate which index corresponds to which
+        marker in the loaded data.
+        """
         _, mappings = IO.load_csv(self.filename_Sample_Static)
         result_index = mappings[data_key]
         assert result_index == expected_index
@@ -188,6 +209,13 @@ class TestIO:
         (12, 'RKNE', np.array([417.5567017, 241.5111389, 523.7767334]))
     ])
     def test_load_marker_data_csv(self, frame, data_key, expected_data):
+        """
+        This function tests IO.load_marker_data(filename), where filename is
+        the string giving the path of a marker data filename to load.
+
+        This function tests that load_marker_data works correctly when loading
+        a csv file.
+        """
         data, mappings = IO.load_marker_data(self.filename_Sample_Static)
         result_data = data[frame][mappings[data_key]]
         np.testing.assert_almost_equal(result_data, expected_data, self.rounding_precision)
@@ -200,6 +228,13 @@ class TestIO:
         (12, 'RKNE', np.array([96.54218292, -111.24856567, 412.34362793]))
     ])
     def test_load_marker_data_c3d(self, frame, data_key, expected_data):
+        """
+        This function tests IO.load_marker_data(filename), where filename is
+        the string giving the path of a marker data filename to load.
+
+        This function tests that load_marker_data works correctly when loading
+        a c3d file.
+        """
         data, mappings = IO.load_marker_data(self.filename_59993_Frame)
         result_data = data[frame][mappings[data_key]]
         np.testing.assert_almost_equal(result_data, expected_data, self.rounding_precision)
@@ -212,6 +247,10 @@ class TestIO:
         assert IO.load_marker_data("NonExistentFile") is None
 
     def test_load_sm_vsk(self):
+        """
+        This function tests IO.load_sm_vsk(filename), where filename is
+        the string giving the path to a VSK file to load.
+        """
         subject_measurements = IO.load_sm_vsk(self.filename_RoboSM_vsk)
         assert isinstance(subject_measurements, dict)
         assert subject_measurements == self.expected_subject_measurements
@@ -225,6 +264,10 @@ class TestIO:
             IO.load_sm_vsk("NonExistentFilename")
 
     def test_load_sm_csv(self):
+        """
+        This function tests IO.load_sm_csv(filename), where filename is
+        the string giving the path to a csv file with subject measurements to load.
+        """
         subject_measurements = IO.load_sm_csv(self.filename_RoboSM_csv)
         assert isinstance(subject_measurements, dict)
         assert subject_measurements == self.expected_subject_measurements
@@ -238,6 +281,10 @@ class TestIO:
             IO.load_sm_csv("NonExistentFilename")
 
     def test_load_sm_calls_vsk(self):
+        """
+        This function tests that IO.load_sm(filename) properly calls
+        IO.load_sm_vsk when given a filename with a .vsk extension.
+        """
         mock_return_value = {'Bodymass': 72.0}
         with patch.object(IO, 'load_sm_vsk', return_value=mock_return_value) as mock_load_sm_vsk:
             subject_measurements = IO.load_sm(self.filename_RoboSM_vsk)
@@ -246,6 +293,10 @@ class TestIO:
             mock_load_sm_vsk.assert_called()
 
     def test_load_sm_calls_csv(self):
+        """
+        This function tests that IO.load_sm(filename) properly calls
+        IO.load_sm_csv when given a filename with a .csv extension.
+        """
         mock_return_value = {'Bodymass': 72.0}
         with patch.object(IO, 'load_sm_csv', return_value=mock_return_value) as mock_load_sm_csv:
             subject_measurements = IO.load_sm(self.filename_RoboSM_csv)
@@ -259,3 +310,25 @@ class TestIO:
         extension returns none.
         """
         assert IO.load_sm("NonExistentFile") is None
+
+    def test_load_scaling_table(self):
+        """
+        This function tests IO.load_scaling_table(), which loads segment
+        scaling factors from the segments.csv file. This test ensures that
+        the scaling factors are loaded properly.
+        """
+        result = IO.load_scaling_table()
+        expected = {
+            'Humerus': {'y': 0.322, 'mass': 0.028, 'z': 0, 'com': 0.564, 'x': 0.322}, 
+            'Head': {'y': 0.495, 'mass': 0.081, 'z': 0.495, 'com': 0.506, 'x': 0.495}, 
+            'Hand': {'y': 0.223, 'mass': 0.006, 'z': 0, 'com': 0.5, 'x': 0.223}, 
+            'Femur': {'y': 0.329, 'mass': 0.1, 'z': 0.149, 'com': 0.567, 'x': 0.329}, 
+            'Radius': {'y': 0.303, 'mass': 0.016, 'z': 0, 'com': 0.57, 'x': 0.303}, 
+            'Thorax': {'y': 0.249, 'mass': 0.355, 'z': 0.124, 'com': 0.37, 'x': 0.31}, 
+            'Foot': {'y': 0.475, 'mass': 0.0145, 'z': 0, 'com': 0.5, 'x': 0.475}, 
+            'Pelvis': {'y': 0.31, 'mass': 0.142, 'z': 0, 'com': 0.5, 'x': 0.31}, 
+            'Tibia': {'y': 0.249, 'mass': 0.0465, 'z': 0.124, 'com': 0.567, 'x': 0.255}
+        }
+        np.testing.assert_equal(result, expected)
+    
+    
