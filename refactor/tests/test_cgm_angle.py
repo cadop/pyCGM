@@ -1055,7 +1055,6 @@ class TestCGMUpperBodyAngle:
          [248, 34, 21])])
     def test_neck_angle_calc(self, head_axis, thorax_axis, mock_return_val, expected_mock_args, expected):
         """
-
         This test provides coverage of the neck_angle_calc function in the class CGM in pycgm.py, defined as
         neck_angle_calc(head_axis, thorax_axis)
 
@@ -1092,6 +1091,165 @@ class TestCGMUpperBodyAngle:
 
         # Asserting that head_angle_calc returned the correct result given the return value given by mocked
         # get_head_angle
+        np.testing.assert_almost_equal(result, expected, rounding_precision)
+
+    # TODO: spine_angle_calc
+
+    @pytest.mark.parametrize(["thorax_axis", "elbow_axis", "mock_return_val", "expected_mock_args", "expected"], [
+        # Test from running sample data
+        ([[256, 364.5, 1459], [256, 365, -1459], [-257, 364.8, 1459], [-256, 354.6, 1458]],
+         [[433.5, 304.9, 1256], [433.3, 303.8, 1256], [434.8, 305.4, 1256], [432, 304, 1256], [-529.4, 316, 1258],
+          [-549, 315, 1258], [-548, 316, 1257], [-518, 316, 1258]],
+         [[-26.74368395, -44.71540225, -155.55604522], [0, 134.9441017, -90.00981765]],
+         [[[[0, 0.5, -2918], [-513, 0.3, 0], [-512, -9.9, -1]], [[-0.2, -1.1, 0], [1.3, 0.5, 0], [-1.5, -0.9, 0]]],
+          [[[0, 0.5, -2918], [-513, 0.3, 0], [-512, -9.9, -1]], [[-19.6, -1, 0], [-18.6, 0, -1], [11.4, 0, 0]]]],
+         [[26.74368395, 135.28459775, 24.44395478], [-0., -45.0558983, -89.99018235]]),
+        # Test with zeros for all params
+        ([[0, 0, 0], [0, 0, 0], [0, 0, 0], [0, 0, 0]],
+         [[0, 0, 0], [0, 0, 0], [0, 0, 0], [0, 0, 0], [0, 0, 0], [0, 0, 0], [0, 0, 0], [0, 0, 0]],
+         [[0, 0, 0], [0, 0, 0]],
+         [[[[0, 0, 0], [0, 0, 0], [0, 0, 0]], [[0, 0, 0], [0, 0, 0], [0, 0, 0]]],
+          [[[0, 0, 0], [0, 0, 0], [0, 0, 0]], [[0, 0, 0], [0, 0, 0], [0, 0, 0]]]],
+         [[0, 0, 0], [0, 0, 180]]),
+        # Testing when values are added to thorax origin
+        ([[-9, 9, -1], [0, 0, 0], [0, 0, 0], [0, 0, 0]],
+         [[0, 0, 0], [0, 0, 0], [0, 0, 0], [0, 0, 0], [0, 0, 0], [0, 0, 0], [0, 0, 0], [0, 0, 0]],
+         [[0, 0, 0], [0, 0, 0]],
+         [[[[9, -9, 1], [9, -9, 1], [9, -9, 1]], [[0, 0, 0], [0, 0, 0], [0, 0, 0]]],
+          [[[9, -9, 1], [9, -9, 1], [9, -9, 1]], [[0, 0, 0], [0, 0, 0], [0, 0, 0]]]],
+         [[0, 0, 0], [0, 0, 180]]),
+        # Testing when values are added to thorax x, y, z axes
+        ([[0, 0, 0], [2, -9, 2], [4, 2, -4], [-6, 3, 1]],
+         [[0, 0, 0], [0, 0, 0], [0, 0, 0], [0, 0, 0], [0, 0, 0], [0, 0, 0], [0, 0, 0], [0, 0, 0]],
+         [[0, 0, 0], [0, 0, 0]],
+         [[[[2, -9, 2], [4, 2, -4], [-6, 3, 1]], [[0, 0, 0], [0, 0, 0], [0, 0, 0]]],
+          [[[2, -9, 2], [4, 2, -4], [-6, 3, 1]], [[0, 0, 0], [0, 0, 0], [0, 0, 0]]]],
+         [[0, 0, 0], [0, 0, 180]]),
+        # Testing when values are added to thorax_axis
+        ([[-9, 9, -1], [2, -9, 2], [4, 2, -4], [-6, 3, 1]],
+         [[0, 0, 0], [0, 0, 0], [0, 0, 0], [0, 0, 0], [0, 0, 0], [0, 0, 0], [0, 0, 0], [0, 0, 0]],
+         [[0, 0, 0], [0, 0, 0]],
+         [[[[11, -18, 3], [13, -7, -3], [3, -6, 2]], [[0, 0, 0], [0, 0, 0], [0, 0, 0]]],
+          [[[11, -18, 3], [13, -7, -3], [3, -6, 2]], [[0, 0, 0], [0, 0, 0], [0, 0, 0]]]],
+         [[0, 0, 0], [0, 0, 180]]),
+        # Testing when values are added to right elbow origin and x, y, z axes
+        ([[0, 0, 0], [0, 0, 0], [0, 0, 0], [0, 0, 0]],
+         [[-2, 2, 5], [-4, -6, -9], [5, -5, -3], [8, -8, -2], [0, 0, 0], [0, 0, 0], [0, 0, 0], [0, 0, 0]],
+         [[0, 0, 0], [0, 0, 0]],
+         [[[[0, 0, 0], [0, 0, 0], [0, 0, 0]], [[-2, -8, -14], [7, -7, -8], [10, -10, -7]]],
+          [[[0, 0, 0], [0, 0, 0], [0, 0, 0]], [[0, 0, 0], [0, 0, 0], [0, 0, 0]]]],
+         [[0, 0, 0], [0, 0, 180]]),
+        # Testing when values are added to left elbow origin and x, y, z axes
+        ([[0, 0, 0], [0, 0, 0], [0, 0, 0], [0, 0, 0]],
+         [[0, 0, 0], [0, 0, 0], [0, 0, 0], [0, 0, 0], [-8, 4, -7], [4, 0, -7], [-9, 4, -7], [-7, 9, 8]],
+         [[0, 0, 0], [0, 0, 0]],
+         [[[[0, 0, 0], [0, 0, 0], [0, 0, 0]], [[0, 0, 0], [0, 0, 0], [0, 0, 0]]],
+          [[[0, 0, 0], [0, 0, 0], [0, 0, 0]], [[12, -4, 0], [-1, 0, 0], [1, 5, 15]]]],
+         [[0, 0, 0], [0, 0, 180]]),
+        # Testing when values are added to elbow_axis
+        ([[0, 0, 0], [0, 0, 0], [0, 0, 0], [0, 0, 0]],
+         [[-2, 2, 5], [-4, -6, -9], [5, -5, -3], [8, -8, -2], [-8, 4, -7], [4, 0, -7], [-9, 4, -7], [-7, 9, 8]],
+         [[0, 0, 0], [0, 0, 0]],
+         [[[[0, 0, 0], [0, 0, 0], [0, 0, 0]], [[-2, -8, -14], [7, -7, -8], [10, -10, -7]]],
+          [[[0, 0, 0], [0, 0, 0], [0, 0, 0]], [[12, -4, 0], [-1, 0, 0], [1, 5, 15]]]],
+         [[0, 0, 0], [0, 0, 180]]),
+        # Testing when values are added to mock_return_val
+        ([[0, 0, 0], [0, 0, 0], [0, 0, 0], [0, 0, 0]],
+         [[0, 0, 0], [0, 0, 0], [0, 0, 0], [0, 0, 0], [0, 0, 0], [0, 0, 0], [0, 0, 0], [0, 0, 0]],
+         [[-82, 62, 152], [53, -45, 124]],
+         [[[[0, 0, 0], [0, 0, 0], [0, 0, 0]], [[0, 0, 0], [0, 0, 0], [0, 0, 0]]],
+          [[[0, 0, 0], [0, 0, 0], [0, 0, 0]], [[0, 0, 0], [0, 0, 0], [0, 0, 0]]]],
+         [[82, 118, -28], [-53, 135, 56]]),
+        # Testing when values are added to thorax_axis and elbow_axis
+        ([[-9, 9, -1], [2, -9, 2], [4, 2, -4], [-6, 3, 1]],
+         [[-2, 2, 5], [-4, -6, -9], [5, -5, -3], [8, -8, -2], [-8, 4, -7], [4, 0, -7], [-9, 4, -7], [-7, 9, 8]],
+         [[0, 0, 0], [0, 0, 0]],
+         [[[[11, -18, 3], [13, -7, -3], [3, -6, 2]], [[-2, -8, -14], [7, -7, -8], [10, -10, -7]]],
+          [[[11, -18, 3], [13, -7, -3], [3, -6, 2]], [[12, -4, 0], [-1, 0, 0], [1, 5, 15]]]],
+         [[0, 0, 0], [0, 0, 180]]),
+        # Testing when values are added to thorax_axis, elbow_axis, and mock_return_val
+        ([[-9, 9, -1], [2, -9, 2], [4, 2, -4], [-6, 3, 1]],
+         [[-2, 2, 5], [-4, -6, -9], [5, -5, -3], [8, -8, -2], [-8, 4, -7], [4, 0, -7], [-9, 4, -7], [-7, 9, 8]],
+         [[-82, 62, 152], [53, -45, 124]],
+         [[[[11, -18, 3], [13, -7, -3], [3, -6, 2]], [[-2, -8, -14], [7, -7, -8], [10, -10, -7]]],
+          [[[11, -18, 3], [13, -7, -3], [3, -6, 2]], [[12, -4, 0], [-1, 0, 0], [1, 5, 15]]]],
+         [[82, 118, -28], [-53, 135, 56]]),
+        # Testing that when thorax_axis and elbow_axis are composed of lists of ints
+        ([[-9, 9, -1], [2, -9, 2], [4, 2, -4], [-6, 3, 1]],
+         [[-2, 2, 5], [-4, -6, -9], [5, -5, -3], [8, -8, -2], [-8, 4, -7], [4, 0, -7], [-9, 4, -7], [-7, 9, 8]],
+         [[-82, 62, 152], [53, -45, 124]],
+         [[[[11, -18, 3], [13, -7, -3], [3, -6, 2]], [[-2, -8, -14], [7, -7, -8], [10, -10, -7]]],
+          [[[11, -18, 3], [13, -7, -3], [3, -6, 2]], [[12, -4, 0], [-1, 0, 0], [1, 5, 15]]]],
+         [[82, 118, -28], [-53, 135, 56]]),
+        # Testing that when thorax_axis and elbow_axis are composed of numpy arrays of ints
+        (np.array([[-9, 9, -1], [2, -9, 2], [4, 2, -4], [-6, 3, 1]], dtype='int'),
+         np.array(
+             [[-2, 2, 5], [-4, -6, -9], [5, -5, -3], [8, -8, -2], [-8, 4, -7], [4, 0, -7], [-9, 4, -7], [-7, 9, 8]],
+             dtype='int'),
+         [[-82, 62, 152], [53, -45, 124]],
+         [[[[11, -18, 3], [13, -7, -3], [3, -6, 2]], [[-2, -8, -14], [7, -7, -8], [10, -10, -7]]],
+          [[[11, -18, 3], [13, -7, -3], [3, -6, 2]], [[12, -4, 0], [-1, 0, 0], [1, 5, 15]]]],
+         [[82, 118, -28], [-53, 135, 56]]),
+        # Testing that when thorax_axis and elbow_axis are composed of lists of floats
+        ([[-9.0, 9.0, -1.0], [2.0, -9.0, 2.0], [4.0, 2.0, -4.0], [-6.0, 3.0, 1.0]],
+         [[-2.0, 2.0, 5.0], [-4.0, -6.0, -9.0], [5.0, -5.0, -3.0], [8.0, -8.0, -2.0], [-8.0, 4.0, -7.0],
+          [4.0, 0.0, -7.0], [-9.0, 4.0, -7.0], [-7.0, 9.0, 8.0]],
+         [[-82, 62, 152], [53, -45, 124]],
+         [[[[11, -18, 3], [13, -7, -3], [3, -6, 2]], [[-2, -8, -14], [7, -7, -8], [10, -10, -7]]],
+          [[[11, -18, 3], [13, -7, -3], [3, -6, 2]], [[12, -4, 0], [-1, 0, 0], [1, 5, 15]]]],
+         [[82, 118, -28], [-53, 135, 56]]),
+        # Testing that when thorax_axis and elbow_axis are composed of numpy arrays of floats
+        (np.array([[-9.0, 9.0, -1.0], [2.0, -9.0, 2.0], [4.0, 2.0, -4.0], [-6.0, 3.0, 1.0]], dtype='float'),
+         np.array([[-2.0, 2.0, 5.0], [-4.0, -6.0, -9.0], [5.0, -5.0, -3.0], [8.0, -8.0, -2.0], [-8.0, 4.0, -7.0],
+                   [4.0, 0.0, -7.0], [-9.0, 4.0, -7.0], [-7.0, 9.0, 8.0]], dtype='float'),
+         [[-82, 62, 152], [53, -45, 124]],
+         [[[[11, -18, 3], [13, -7, -3], [3, -6, 2]], [[-2, -8, -14], [7, -7, -8], [10, -10, -7]]],
+          [[[11, -18, 3], [13, -7, -3], [3, -6, 2]], [[12, -4, 0], [-1, 0, 0], [1, 5, 15]]]],
+         [[82, 118, -28], [-53, 135, 56]])])
+    def test_shoulder_angle_calc(self, thorax_axis, elbow_axis, mock_return_val, expected_mock_args, expected):
+        """
+        This test provides coverage of the shoulder_angle_calc function in the class CGM in pycgm.py, defined as
+        shoulder_angle_calc(thorax_axis, elbow_axis)
+
+        This test takes 5 parameters:
+        thorax_axis : ndarray
+            A 4x3 ndarray containing the origin and three unit vectors of the thorax axis.
+        elbow_axis : ndarray
+            An 8x3 ndarray containing the origin and three unit vectors of the right elbow axis, followed by the
+            origin and three unit vectors of the left elbow axis.
+        mock_return_val : list
+            The value to be returned by the mock for get_shoulder_angle
+        expected_mock_args : list
+            The expected arguments used to call the mocked function, get_shoulder_angle
+        expected : array
+            A 2x3 ndarray containing the flexion, abduction, and rotation angles of the right and left shoulders.
+
+        This test is checking to make sure the neck angle is calculated correctly given the input parameters. This
+        tests mocks get_shoulder_angle to make sure the correct parameters are being passed into it given the
+        parameters passed into shoulder_angle_calc, expected_mock_args, and to also ensure that shoulder_angle_calc
+        returns the correct value considering the return value of get_shoulder_angle, mock_return_val.
+
+        This unit test ensures that:
+        - the correct expected values are altered per parameter given.
+        - the resulting output is correct when thorax_axis and elbow_axis are composed of lists of ints, numpy arrays
+        of ints, list of floats, and numpy arrays of floats.
+        """
+        with patch.object(CGM, 'get_shoulder_angle', side_effect=mock_return_val) as mock_get_shoulder_angle:
+            result = CGM.shoulder_angle_calc(thorax_axis, elbow_axis)
+
+        # Asserting that there was only 1 call to get_shoulder_angle
+        np.testing.assert_equal(mock_get_shoulder_angle.call_count, 2)
+
+        # Asserting that the correct params were sent in the 1st (right) call to get_shoulder_angle
+        np.testing.assert_almost_equal(expected_mock_args[0], mock_get_shoulder_angle.call_args_list[0][0],
+                                       rounding_precision)
+
+        # Asserting that the correct params were sent in the 2nd (left) call to get_shoulder_angle
+        np.testing.assert_almost_equal(expected_mock_args[1], mock_get_shoulder_angle.call_args_list[1][0],
+                                       rounding_precision)
+
+        # Asserting that shoulder_angle_calc returned the correct result given the return value given by mocked
+        # get_shoulder_angle
         np.testing.assert_almost_equal(result, expected, rounding_precision)
 
 
