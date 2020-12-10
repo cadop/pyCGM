@@ -4,87 +4,12 @@
 import numpy as np
 
 # Gap Filling
-def target_name():
-    """Creates a list of marker names.
+def default_segment_dict():
+    """Creates a default dictionary of segments to marker names.
 
-    Returns
-    -------
-    target_names : array
-        Empty list of marker names.
-    
-    Examples
-    --------s
-    >>> target_name() #doctest: +NORMALIZE_WHITESPACE
-    ['C7', 'T10', 'CLAV', 'STRN', 'RBAK', 'LPSI', 'RPSI', 
-     'RASI', 'LASI', 'SACR', 'LKNE', 'LKNE', 'RKNE', 'RKNE', 
-     'LANK', 'RANK', 'LHEE', 'RHEE', 'LTOE', 'RTOE', 'LTHI', 
-     'RTHI', 'LTIB', 'RTIB', 'RBHD', 'RFHD', 'LBHD', 'LFHD', 
-     'RELB', 'LELB']
-    """
-    target_names =('C7,T10,CLAV,STRN,RBAK,LPSI,RPSI,RASI,LASI,SACR,'
-                    'LKNE,LKNE,RKNE,RKNE,LANK,RANK,LHEE,RHEE,LTOE,RTOE,'
-                    'LTHI,RTHI,LTIB,RTIB,'
-                    'RBHD,RFHD,LBHD,LFHD,'
-                    'RELB,LELB')
-    
-    return target_names.split(',')
-
-
-def target_dict():
-    """Creates a dictionary of marker to segment.
-
-    Returns
-    -------
-    target : dict
-        Dict of marker to segment.
-
-    Examples
-    --------
-    >>> result = target_dict()
-    >>> expected = {'LFHD': 'Head', 'LBHD': 'Head', 'RFHD': 'Head', 'RBHD': 'Head', 
-    ...             'C7': 'Trunk', 'T10': 'Trunk', 'CLAV': 'Trunk', 'STRN': 'Trunk', 
-    ...             'RBAK': 'Trunk', 'LPSI': 'Pelvis', 'RPSI': 'Pelvis', 'RASI': 'Pelvis', 
-    ...             'LASI': 'Pelvis', 'SACR': 'Pelvis', 'LKNE': 'LThigh', 'RKNE': 'RThigh', 
-    ...             'LANK': 'LShin', 'RANK': 'RShin', 'LHEE': 'LFoot', 'LTOE': 'LFoot', 
-    ...             'RHEE': 'RFoot', 'RTOE': 'RFoot', 'LTHI': 'LThigh', 'RTHI': 'RThigh', 
-    ...             'LTIB': 'LShin', 'RTIB': 'RShin', 'RELB': 'RHum', 'LELB': 'LHum'}
-    >>> result == expected
-    True
-    """
-    target = {}
-    target['LFHD'] = 'Head'
-    target['LBHD'] = 'Head'
-    target['RFHD'] = 'Head'
-    target['RBHD'] = 'Head'
-    target['C7'] = 'Trunk'
-    target['T10'] = 'Trunk'
-    target['CLAV'] = 'Trunk'
-    target['STRN'] = 'Trunk'
-    target['RBAK'] = 'Trunk'
-    target['LPSI'] = 'Pelvis'
-    target['RPSI'] = 'Pelvis'
-    target['RASI'] = 'Pelvis'
-    target['LASI'] = 'Pelvis'
-    target['SACR'] = 'Pelvis'
-    target['LKNE'] = 'LThigh' 
-    target['RKNE'] = 'RThigh'
-    target['LANK'] = 'LShin'
-    target['RANK'] = 'RShin'
-    target['LHEE'] = 'LFoot'
-    target['LTOE'] = 'LFoot'
-    target['RHEE'] = 'RFoot'
-    target['RTOE'] = 'RFoot'
-    target['LTHI'] = 'LThigh'
-    target['RTHI'] = 'RThigh'
-    target['LTIB'] = 'LShin'
-    target['RTIB'] = 'RShin'
-    target['RELB'] = 'RHum'
-    target['LELB'] = 'LHum'
-    
-    return target
-
-def segment_dict():
-    """Creates a dictionary of segments to marker names.
+    Used to determine which markers are in the same segments as each other,
+    so that they can be used for gap filling. Works with the default pycgm
+    markers.
 
     Returns
     -------
@@ -93,7 +18,7 @@ def segment_dict():
     
     Examples
     --------
-    >>> result = segment_dict()
+    >>> result = default_segment_dict()
     >>> expected = {'Head': ['RFHD', 'RBHD', 'LFHD', 'LBHD', 'REAR', 'LEAR'],  
     ...             'Trunk': ['C7', 'STRN', 'CLAV', 'T10', 'RBAK', 'RSHO', 'LSHO'], 
     ...             'Pelvis': ['SACR', 'RPSI', 'LPSI', 'LASI', 'RASI'], 
@@ -108,20 +33,20 @@ def segment_dict():
     >>> result == expected
     True
     """
-    segment = {}
-    segment['Head'] = ['RFHD','RBHD','LFHD','LBHD','REAR','LEAR'] 
-    segment['Trunk'] = ['C7','STRN','CLAV','T10','RBAK','RSHO','LSHO']
-    segment['Pelvis'] = ['SACR','RPSI','LPSI','LASI','RASI']
-    segment['RThigh'] = ['RTHI','RTH2','RTH3','RTH4']
-    segment['LThigh'] = ['LTHI','LTH2','LTH3','LTH4']
-    segment['RShin'] = ['RTIB','RSH2','RSH3','RSH4']
-    segment['LShin'] = ['LTIB','LSH2','LSH3','LSH4']
-    segment['RFoot'] = ['RLFT1','RFT2','RMFT3','RLUP']
-    segment['LFoot'] = ['LLFT1','LFT2','LMFT3','LLUP']
-    segment['RHum'] = ['RMELB','RSHO','RUPA']
-    segment['LHum'] = ['LMELB','LSHO','LUPA']
+    segment_dict = {}
+    segment_dict['Head'] = ['RFHD','RBHD','LFHD','LBHD','REAR','LEAR'] 
+    segment_dict['Trunk'] = ['C7','STRN','CLAV','T10','RBAK','RSHO','LSHO']
+    segment_dict['Pelvis'] = ['SACR','RPSI','LPSI','LASI','RASI']
+    segment_dict['RThigh'] = ['RTHI','RTH2','RTH3','RTH4']
+    segment_dict['LThigh'] = ['LTHI','LTH2','LTH3','LTH4']
+    segment_dict['RShin'] = ['RTIB','RSH2','RSH3','RSH4']
+    segment_dict['LShin'] = ['LTIB','LSH2','LSH3','LSH4']
+    segment_dict['RFoot'] = ['RLFT1','RFT2','RMFT3','RLUP']
+    segment_dict['LFoot'] = ['LLFT1','LFT2','LMFT3','LLUP']
+    segment_dict['RHum'] = ['RMELB','RSHO','RUPA']
+    segment_dict['LHum'] = ['LMELB','LSHO','LUPA']
     
-    return segment
+    return segment_dict
 
 def get_marker_location(pm, c):
     """Finds the location of the missing marker in the world frame.
@@ -258,7 +183,7 @@ def get_static_transform(p, c):
     return pm
 
 def transform_from_static(data, data_mapping, static, static_mapping, key, useables, s):
-    """Performs gap filling using static data.
+    """Performs gap filling in the dynamic trial using data from static trials.
 
     Uses static data to create an inverse transformation matrix that is stored
     between a 4 marker cluster. The matrix is then applied to estimate the position
@@ -383,7 +308,7 @@ def transform_from_mov(data, data_mapping, key, clust, last_time, i):
     
     return get_marker_location(pm, cmov)
 
-def segment_finder(key, data, data_mapping, target_dict, segment_dict, j, missings):
+def segment_finder(key, data, data_mapping, segment_dict, j, missings):
     """Find markers in the same cluster as `key` to use for gap filling.
 
     Finds markers in the same cluster as the marker `key` that have visible
@@ -401,10 +326,9 @@ def segment_finder(key, data, data_mapping, target_dict, segment_dict, j, missin
     data_mapping : dict
         Dictionary that indicates which marker corresponds to which
         index in `data`.
-    target_dict : dict
-        Dict of marker to segment.
     segment_dict : dict
-        Dictionary of segments to marker names.
+        Dictionary of segments to marker names. The marker names used in
+        `segment_dict` should exist in `data_mapping` to work properly.
     j : int
         Frame number that the marker data is missing for.
     missings : dict
@@ -426,21 +350,28 @@ def segment_finder(key, data, data_mapping, target_dict, segment_dict, j, missin
     >>> data, data_mapping = IO.load_marker_data(dynamic_trial)
     SampleData/Sample_2/RoboWalk.c3d
     >>> key = 'LFHD'
-    >>> target = target_dict()
-    >>> segment = segment_dict()
+    >>> segment = default_segment_dict()
     >>> j = 2
-    >>> missings = {'LFHD': []} #Indicates that LFHD is not missing for any other frame
-    >>> segment_finder(key, data, data_mapping, target, segment, j, missings)
+    >>> missings = {} #Indicates that we are not missing any other markers for any other frame
+    >>> segment_finder(key, data, data_mapping, segment, j, missings)
     ['RFHD', 'RBHD', 'LBHD']
-
     """
-    segment = target_dict[key]
+    #Find which other markers are in the same segment as the missing key
+    segment = []
+    for seg in segment_dict:
+        if key in segment_dict[seg]:
+            segment = segment_dict[seg]
+    
+    if len(segment) == 0:
+        print("Could not find the missing key in any segments of segment_dict.")
+        return
+
     useables = []
-    for marker in segment_dict[segment]:
+    for marker in segment:
         if marker != key:
-            if marker[1:]!='THI' or marker[1:]!='TIB':
-               if marker in missings and j in missings[marker]:
-                   continue
+            #Ensures we do not reconstruct based on other missing markers
+            if marker in missings and j in missings[marker]:
+                continue
             try:
                 if not np.isnan(data[j][data_mapping[marker]][0]):
                     useables.append(marker)
@@ -448,7 +379,7 @@ def segment_finder(key, data, data_mapping, target_dict, segment_dict, j, missin
     return useables
 
 
-def rigid_fill(data, data_mapping, static, static_mapping):
+def rigid_fill(data, data_mapping, static, static_mapping, segment_dict):
     """Fills in gaps in motion capture data.
 
     Estimates marker positions from previous marker positions
@@ -466,6 +397,10 @@ def rigid_fill(data, data_mapping, static, static_mapping):
     data_mapping, static_mapping : dict
         Dictionary that indicates which marker corresponds to which
         index in `data` or `static`.
+    segment_dict : dict
+        Dictionary of segments to marker names. The marker names used in
+        `segment_dict` should exist in `data_mapping` and `static_mapping` to 
+        work properly.
 
     Returns
     -------
