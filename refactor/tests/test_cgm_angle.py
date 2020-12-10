@@ -10,7 +10,7 @@ from refactor.pycgm import CGM
 rounding_precision = 8
 
 
-class TestCGMLowerBodyAngle():
+class TestCGMLowerBodyAngle:
     """
     This class tests the lower body angle functions in the class CGM in pycgm.py:
     pelvis_angle_calc
@@ -823,7 +823,7 @@ class TestCGMAngleUtils():
     get_angle
     """
 
-    @pytest.mark.parametrize(["xRot", "yRot", "zRot", "expected"], [
+    @pytest.mark.parametrize(["x_rot", "y_rot", "z_rot", "expected"], [
         (0, 0, 0, [0, 0, 90]),
         # X rotations
         (90, 0, 0, [0, 90, 90]), (30, 0, 0, [0, 30, 90]), (-30, 0, 0, [0, -30, 90]), (120, 0, 0, [180, 60, -90]),
@@ -837,7 +837,7 @@ class TestCGMAngleUtils():
         # Multiple Rotations
         (150, 30, 0, [146.30993247, 25.65890627, -73.89788625]), (45, 0, 60, [0, 45, 30]), (0, 90, 120, [90, 0, -30]),
         (135, 45, 90, [125.26438968, 30, -144.73561032])])
-    def test_get_angle(self, xRot, yRot, zRot, expected):
+    def test_get_angle(self, x_rot, y_rot, z_rot, expected):
         """
         This test provides coverage of the getangle function in pyCGM.py,
         defined as getangle(axisP,axisD) where axisP is the proximal axis and axisD is the distal axis
@@ -876,9 +876,9 @@ class TestCGMAngleUtils():
         120, -120, 180 degrees results in a 0, 60, 120, -30, -150, -90 degree angle in the z direction respectively.
         """
         # Create axisP as a rotatinal matrix using the x, y, and z rotations given in testcase
-        axisP = CGM.rotation_matrix(xRot, yRot, zRot)
-        axisD = CGM.rotation_matrix(0, 0, 0)
-        result = CGM.get_angle(axisP, axisD)
+        axis_p = CGM.rotation_matrix(x_rot, y_rot, z_rot)
+        axis_d = CGM.rotation_matrix(0, 0, 0)
+        result = CGM.get_angle(axis_p, axis_d)
         np.testing.assert_almost_equal(result, expected, rounding_precision)
 
     def test_get_angle_datatypes(self):
@@ -887,23 +887,23 @@ class TestCGMAngleUtils():
         It checks that the resulting output from calling getangle is correct for a list of ints, a numpy array of
         ints, a list of floats, and a numpy array of floats.
         """
-        axisD = CGM.rotation_matrix(0, 0, 0)
-        axisP_floats = CGM.rotation_matrix(90, 0, 90)
-        axisP_ints = [[int(y) for y in x] for x in axisP_floats]
+        axis_d = CGM.rotation_matrix(0, 0, 0)
+        axis_p_floats = CGM.rotation_matrix(90, 0, 90)
+        axis_p_ints = [[int(y) for y in x] for x in axis_p_floats]
         expected = [0, 90, 0]
 
         # Check that calling getangle on a list of ints yields the expected results
-        result_int_list = CGM.get_angle(axisP_ints, axisD)
+        result_int_list = CGM.get_angle(axis_p_ints, axis_d)
         np.testing.assert_almost_equal(result_int_list, expected, rounding_precision)
 
         # Check that calling getangle on a numpy array of ints yields the expected results
-        result_int_nparray = CGM.get_angle(np.array(axisP_ints, dtype='int'), np.array(axisD, dtype='int'))
+        result_int_nparray = CGM.get_angle(np.array(axis_p_ints, dtype='int'), np.array(axis_d, dtype='int'))
         np.testing.assert_almost_equal(result_int_nparray, expected, rounding_precision)
 
         # Check that calling getangle on a list of floats yields the expected results
-        result_float_list = CGM.get_angle(axisP_floats, axisD)
+        result_float_list = CGM.get_angle(axis_p_floats, axis_d)
         np.testing.assert_almost_equal(result_float_list, expected, rounding_precision)
 
         # Check that calling getangle on a numpy array of floats yields the expected results
-        result_float_nparray = CGM.get_angle(np.array(axisP_floats, dtype='float'), np.array(axisD, dtype='float'))
+        result_float_nparray = CGM.get_angle(np.array(axis_p_floats, dtype='float'), np.array(axis_d, dtype='float'))
         np.testing.assert_almost_equal(result_float_nparray, expected, rounding_precision)

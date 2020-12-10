@@ -39,10 +39,10 @@ jobs:
         flake8 . --count --exit-zero --max-complexity=10 --max-line-length=127 --statistics --exclude Multiprocessing,HPC
     - name: Test Docstrings with pytest
       run: |
-        pytest --doctest-modules --continue-on-collection-errors refactor/ --ignore=refactor/tests/
+        pytest --doctest-modules --continue-on-collection-errors  --ignore=refactor/tests/ --ignore=pyCGM_Single/tests/ --ignore=Multiprocessing/ --ignore=HPC/
     - name: Run Unittests with pytest
       run: |
-        pytest refactor/ --ignore=refactor/tests/test_csv_output.py
+        pytest
         
   build3:
 
@@ -73,7 +73,7 @@ jobs:
         flake8 . --count --exit-zero --max-complexity=10 --max-line-length=127 --statistics --exclude Multiprocessing,HPC
     - name: Test Docstrings with pytest
       run: |
-        pytest --doctest-modules --continue-on-collection-errors refactor/ --ignore=refactor/tests/
+        pytest --doctest-modules --continue-on-collection-errors  --ignore=refactor/tests/ --ignore=pyCGM_Single/tests/ --ignore=Multiprocessing/ --ignore=HPC/
     - name: Run Unittests with pytest
       run: |
-        pytest refactor/ --ignore=refactor/tests/test_csv_output.py
+        pytest
