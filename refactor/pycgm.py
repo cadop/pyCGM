@@ -239,14 +239,16 @@ class CGM:
             List containing the calculation methods to be used.
         mappings : list
             List containing dictionary mappings for marker names and input and output indices.
-        measurements : dictjoint_centers
+        measurements : dict
+            A dictionary containing the subject measurements given from the file input.
+        seg_scale : dict
             Segment scaling factors loaded in from the segments.csv file for use in center
             of mass calculations.
 
         Returns
         -------
         results : tuple
-            A tuple consisting of the axis results, angle results, and center of mass results.
+            A tuple consisting of the axis results, angle results, center of mass results, and joint centers.
             Axis results are stored as a 3d ndarray of each joint by origin and xyz unit vectors
             by x, y, and z location. Angle results are stored as a 2d ndarray of each angle by x, y, and z.
         """
@@ -3398,17 +3400,17 @@ class CGM:
                             val = vector * mass
                             seg_temp[seg]['val'] = val
 
-                vals = []
+        vals = []
+        
+        if pyver == 2:
+            for_iter = seg_temp.iteritems()
+        elif pyver == 3:
+            for_iter = seg_temp.items()
 
-                if pyver == 2:
-                    for_iter = seg_temp.iteritems()
-                elif pyver == 3:
-                    for_iter = seg_temp.items()
+        for attr, value in for_iter:
+            vals.append(value['val'])
 
-                for attr, value in for_iter:
-                    vals.append(value['val'])
-
-                com_coords = sum(vals) / body_mass
+        com_coords = sum(vals) / body_mass
         return com_coords
 
     # Properties for accessing subsets of results
