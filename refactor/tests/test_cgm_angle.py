@@ -817,6 +817,150 @@ class TestCGMLowerBodyAngle:
         np.testing.assert_almost_equal(result, expected, rounding_precision)
 
 
+class TestCGMUpperBodyAngle:
+    """
+    This class tests the upper body angle functions in the class CGM in pycgm.py:
+    head_angle_calc
+    """
+
+    @pytest.mark.parametrize(["global_axis", "head_axis", "mock_return_val", "expected_mock_args", "expected"], [
+        # Test from running sample data
+        ([[1, 0, 0], [0, 1, 0], [0, 0, 1]],
+         [[99.5, 82.2, 1483.8], [100.2, 83.4, 1484.7], [98.1, 83.6, 1483.3], [99.8, 82.4, 1484.2]],
+         [36.86989765, -6.19039946, -139.39870535],
+         [[[1, 0, 0], [0, 1, 0], [0, 0, 1]], [[0.7, 1.2, 0.9], [-1.4, 1.4, - 0.5], [0.3, 0.2, 0.4]]],
+         [-36.86989765, 6.19039946, -139.39870535]),
+        # Test with zeros for all params
+        ([[0, 0, 0], [0, 0, 0], [0, 0, 0]],
+         [[0, 0, 0], [0, 0, 0], [0, 0, 0], [0, 0, 0]],
+         [0, 0, 0],
+         [[[0, 0, 0], [0, 0, 0], [0, 0, 0]], [[0, 0, 0], [0, 0, 0], [0, 0, 0]]],
+         [0, 0, 0]),
+        # Testing when values are added to global_axis
+        ([[-4, 5, 9], [6, -8, 0], [-9, 4, -4]],
+         [[0, 0, 0], [0, 0, 0], [0, 0, 0], [0, 0, 0]],
+         [0, 0, 0],
+         [[[-4, 5, 9], [6, -8, 0], [-9, 4, -4]], [[0, 0, 0], [0, 0, 0], [0, 0, 0]]],
+         [0, 0, 0]),
+        # Testing when values are added to head origin
+        ([[0, 0, 0], [0, 0, 0], [0, 0, 0]],
+         [[-5, 3, 4], [0, 0, 0], [0, 0, 0], [0, 0, 0]],
+         [0, 0, 0],
+         [[[0, 0, 0], [0, 0, 0], [0, 0, 0]], [[5, -3, -4], [5, -3, -4], [5, -3, -4]]],
+         [0, 0, 0]),
+        # Testing when values are added to head x axis
+        ([[0, 0, 0], [0, 0, 0], [0, 0, 0]],
+         [[0, 0, 0], [0, -2, -1], [0, 0, 0], [0, 0, 0]],
+         [0, 0, 0],
+         [[[0, 0, 0], [0, 0, 0], [0, 0, 0]], [[0, -2, -1], [0, 0, 0], [0, 0, 0]]],
+         [0, 0, 0]),
+        # Testing when values are added to head y axis
+        ([[0, 0, 0], [0, 0, 0], [0, 0, 0]],
+         [[0, 0, 0], [0, 0, 0], [1, 6, -2], [0, 0, 0]],
+         [0, 0, 0],
+         [[[0, 0, 0], [0, 0, 0], [0, 0, 0]], [[0, 0, 0], [1, 6, -2], [0, 0, 0]]],
+         [0, 0, 0]),
+        # Testing when values are added to head z axis
+        ([[0, 0, 0], [0, 0, 0], [0, 0, 0]],
+         [[0, 0, 0], [0, 0, 0], [0, 0, 0], [2, 9, 0]],
+         [0, 0, 0],
+         [[[0, 0, 0], [0, 0, 0], [0, 0, 0]], [[0, 0, 0], [0, 0, 0], [2, 9, 0]]],
+         [0, 0, 0]),
+        # Testing when values are added to head x, y, z axes
+        ([[0, 0, 0], [0, 0, 0], [0, 0, 0]],
+         [[0, 0, 0], [0, -2, -1], [1, 6, -2], [2, 9, 0]],
+         [0, 0, 0],
+         [[[0, 0, 0], [0, 0, 0], [0, 0, 0]], [[0, -2, -1], [1, 6, -2], [2, 9, 0]]],
+         [0, 0, 0]),
+        # Testing when values are added to head_axis
+        ([[0, 0, 0], [0, 0, 0], [0, 0, 0]],
+         [[-5, 3, 4], [0, -2, -1], [1, 6, -2], [2, 9, 0]],
+         [0, 0, 0],
+         [[[0, 0, 0], [0, 0, 0], [0, 0, 0]], [[5, -5, -5], [6, 3, -6], [7, 6, -4]]],
+         [0, 0, 0]),
+        # Testing when values are added to mock_return_val
+        ([[0, 0, 0], [0, 0, 0], [0, 0, 0]],
+         [[0, 0, 0], [0, 0, 0], [0, 0, 0], [0, 0, 0]],
+         [-54, 71, 192],
+         [[[0, 0, 0], [0, 0, 0], [0, 0, 0]], [[0, 0, 0], [0, 0, 0], [0, 0, 0]]],
+         [54, -71, 192]),
+        # Testing when values are added to global_axis and head_axis
+        ([[-4, 5, 9], [6, -8, 0], [-9, 4, -4]],
+         [[-5, 3, 4], [0, -2, -1], [1, 6, -2], [2, 9, 0]],
+         [0, 0, 0],
+         [[[-4, 5, 9], [6, -8, 0], [-9, 4, -4]], [[5, -5, -5], [6, 3, -6], [7, 6, -4]]],
+         [0, 0, 0]),
+        # Testing when values are added to global_axis, head_axis, and mock_return_val
+        ([[-4, 5, 9], [6, -8, 0], [-9, 4, -4]],
+         [[-5, 3, 4], [0, -2, -1], [1, 6, -2], [2, 9, 0]],
+         [-54, 71, 192],
+         [[[-4, 5, 9], [6, -8, 0], [-9, 4, -4]], [[5, -5, -5], [6, 3, -6], [7, 6, -4]]],
+         [54, -71, 192]),
+        # Testing that when global_axis and head_axis are composed of lists of ints
+        ([[-4, 5, 9], [6, -8, 0], [-9, 4, -4]],
+         [[-5, 3, 4], [0, -2, -1], [1, 6, -2], [2, 9, 0]],
+         [-54, 71, 192],
+         [[[-4, 5, 9], [6, -8, 0], [-9, 4, -4]], [[5, -5, -5], [6, 3, -6], [7, 6, -4]]],
+         [54, -71, 192]),
+        # Testing that when global_axis and head_axis are composed of numpy arrays of ints
+        (np.array([[-4, 5, 9], [6, -8, 0], [-9, 4, -4]], dtype='int'),
+         np.array([[-5, 3, 4], [0, -2, -1], [1, 6, -2], [2, 9, 0]], dtype='int'),
+         [-54, 71, 192],
+         [[[-4, 5, 9], [6, -8, 0], [-9, 4, -4]], [[5, -5, -5], [6, 3, -6], [7, 6, -4]]],
+         [54, -71, 192]),
+        # Testing that when global_axis and head_axis are composed of lists of floats
+        ([[-4.0, 5.0, 9.0], [6.0, -8.0, 0.0], [-9.0, 4.0, -4.0]],
+         [[-5.0, 3.0, 4.0], [0.0, -2.0, -1.0], [1.0, 6.0, -2.0], [2.0, 9.0, 0.0]],
+         [-54, 71, 192],
+         [[[-4, 5, 9], [6, -8, 0], [-9, 4, -4]], [[5, -5, -5], [6, 3, -6], [7, 6, -4]]],
+         [54, -71, 192]),
+        # Testing that when global_axis and head_axis are composed of numpy arrays of floats
+        (np.array([[-4.0, 5.0, 9.0], [6.0, -8.0, 0.0], [-9.0, 4.0, -4.0]], dtype='float'),
+         np.array([[-5.0, 3.0, 4.0], [0.0, -2.0, -1.0], [1.0, 6.0, -2.0], [2.0, 9.0, 0.0]], dtype='float'),
+         [-54, 71, 192],
+         [[[-4, 5, 9], [6, -8, 0], [-9, 4, -4]], [[5, -5, -5], [6, 3, -6], [7, 6, -4]]],
+         [54, -71, 192])])
+    def test_head_angle_calc(self, global_axis, head_axis, mock_return_val, expected_mock_args, expected):
+        """
+        This test provides coverage of the head_angle_calc function in the class CGM in pycgm.py, defined as
+        head_angle_calc(global_axis, head_axis)
+
+        This test takes 5 parameters:
+        global_axis : ndarray
+            A 3x3 ndarray representing the global coordinate system.
+        head_axis : ndarray
+            A 4x3 ndarray containing the origin and three unit vectors of the head axis.
+        mock_return_val : list
+            The value to be returned by the mock for get_head_angle
+        expected_mock_args : list
+            The expected arguments used to call the mocked function, get_head_angle
+        expected : array
+            A 1x3 ndarray containing the flexion, abduction, and rotation angles of the head.
+
+        This test is checking to make sure the global head angle is calculated correctly given the input parameters.
+        This tests mocks get_head_angle to make sure the correct parameters are being passed into it given the
+        parameters passed into head_angle_calc, expected_mock_args, and to also ensure that head_angle_calc returns
+        the correct value considering the return value of get_head_angle, mock_return_val.
+
+        This unit test ensures that:
+        - the correct expected values are altered per parameter given.
+        - the resulting output is correct when global_axis and head_axis are composed of lists of ints, numpy arrays
+        of ints, list of floats, and numpy arrays of floats.
+        """
+        with patch.object(CGM, 'get_head_angle', return_value=mock_return_val) as mock_get_angle:
+            result = CGM.head_angle_calc(global_axis, head_axis)
+
+        # Asserting that there was only 1 call to get_head_angle
+        np.testing.assert_equal(mock_get_angle.call_count, 1)
+
+        # Asserting that the correct params were sent in the call to get_head_angle
+        np.testing.assert_almost_equal(expected_mock_args, mock_get_angle.call_args_list[0][0], rounding_precision)
+
+        # Asserting that head_angle_calc returned the correct result given the return value given by mocked
+        # get_head_angle
+        np.testing.assert_almost_equal(result, expected, rounding_precision)
+
+
 class TestCGMAngleUtils():
     """
     This class tests the angle utils functions in the class CGM in pycgm.py:
