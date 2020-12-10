@@ -345,7 +345,6 @@ def segment_finder(key, data, data_mapping, segment_dict, j, missings):
     --------
     >>> from numpy import array, nan
     >>> from refactor.io import IO
-    Using...
     >>> dynamic_trial = 'SampleData/Sample_2/RoboWalk.c3d'
     >>> data, data_mapping = IO.load_marker_data(dynamic_trial)
     SampleData/Sample_2/RoboWalk.c3d
