@@ -1,21 +1,7 @@
 #!/usr/bin/python
 # -*- coding: utf-8 -*-
 
-# Utility
-def normalize(v):
-    """Normalizes an input vector
-
-    Parameters
-    ----------
-    v : ndarray
-        Input vector. 1-D list of floating point numbers.
-
-    Returns
-    -------
-    ndarray
-        Normalized form of input vector `v`. Returns `v` if its norm is 0.
-    """
-
+import numpy as np
 
 # Gap Filling
 def target_name():
@@ -25,27 +11,116 @@ def target_name():
     -------
     target_names : array
         Empty list of marker names.
+    
+    Examples
+    --------s
+    >>> target_name() #doctest: +NORMALIZE_WHITESPACE
+    ['C7', 'T10', 'CLAV', 'STRN', 'RBAK', 'LPSI', 'RPSI', 
+     'RASI', 'LASI', 'SACR', 'LKNE', 'LKNE', 'RKNE', 'RKNE', 
+     'LANK', 'RANK', 'LHEE', 'RHEE', 'LTOE', 'RTOE', 'LTHI', 
+     'RTHI', 'LTIB', 'RTIB', 'RBHD', 'RFHD', 'LBHD', 'LFHD', 
+     'RELB', 'LELB']
     """
+    target_names =('C7,T10,CLAV,STRN,RBAK,LPSI,RPSI,RASI,LASI,SACR,'
+                    'LKNE,LKNE,RKNE,RKNE,LANK,RANK,LHEE,RHEE,LTOE,RTOE,'
+                    'LTHI,RTHI,LTIB,RTIB,'
+                    'RBHD,RFHD,LBHD,LFHD,'
+                    'RELB,LELB')
+    
+    return target_names.split(',')
 
 def target_dict():
     """Creates a dictionary of marker to segment.
 
     Returns
     -------
-    targetDict : dict
+    target : dict
         Dict of marker to segment.
-    """
 
+    Examples
+    --------
+    >>> result = target_dict()
+    >>> expected = {'LFHD': 'Head', 'LBHD': 'Head', 'RFHD': 'Head', 'RBHD': 'Head', 
+    ...             'C7': 'Trunk', 'T10': 'Trunk', 'CLAV': 'Trunk', 'STRN': 'Trunk', 
+    ...             'RBAK': 'Trunk', 'LPSI': 'Pelvis', 'RPSI': 'Pelvis', 'RASI': 'Pelvis', 
+    ...             'LASI': 'Pelvis', 'SACR': 'Pelvis', 'LKNE': 'LThigh', 'RKNE': 'RThigh', 
+    ...             'LANK': 'LShin', 'RANK': 'RShin', 'LHEE': 'LFoot', 'LTOE': 'LFoot', 
+    ...             'RHEE': 'RFoot', 'RTOE': 'RFoot', 'LTHI': 'LThigh', 'RTHI': 'RThigh', 
+    ...             'LTIB': 'LShin', 'RTIB': 'RShin', 'RELB': 'RHum', 'LELB': 'LHum'}
+    >>> result == expected
+    True
+    """
+    target = {}
+    target['LFHD'] = 'Head'
+    target['LBHD'] = 'Head'
+    target['RFHD'] = 'Head'
+    target['RBHD'] = 'Head'
+    target['C7'] = 'Trunk'
+    target['T10'] = 'Trunk'
+    target['CLAV'] = 'Trunk'
+    target['STRN'] = 'Trunk'
+    target['RBAK'] = 'Trunk'
+    target['LPSI'] = 'Pelvis'
+    target['RPSI'] = 'Pelvis'
+    target['RASI'] = 'Pelvis'
+    target['LASI'] = 'Pelvis'
+    target['SACR'] = 'Pelvis'
+    target['LKNE'] = 'LThigh' 
+    target['RKNE'] = 'RThigh'
+    target['LANK'] = 'LShin'
+    target['RANK'] = 'RShin'
+    target['LHEE'] = 'LFoot'
+    target['LTOE'] = 'LFoot'
+    target['RHEE'] = 'RFoot'
+    target['RTOE'] = 'RFoot'
+    target['LTHI'] = 'LThigh'
+    target['RTHI'] = 'RThigh'
+    target['LTIB'] = 'LShin'
+    target['RTIB'] = 'RShin'
+    target['RELB'] = 'RHum'
+    target['LELB'] = 'LHum'
+    
+    return target
 
 def segment_dict():
     """Creates a dictionary of segments to marker names.
 
     Returns
     -------
-    segmentDict : dict
+    segment : dict
         Dictionary of segments to marker names.
+    
+    Examples
+    --------
+    >>> result = segment_dict()
+    >>> expected = {'Head': ['RFHD', 'RBHD', 'LFHD', 'LBHD', 'REAR', 'LEAR'],  
+    ...             'Trunk': ['C7', 'STRN', 'CLAV', 'T10', 'RBAK', 'RSHO', 'LSHO'], 
+    ...             'Pelvis': ['SACR', 'RPSI', 'LPSI', 'LASI', 'RASI'], 
+    ...             'RThigh': ['RTHI', 'RTH2', 'RTH3', 'RTH4'], 
+    ...             'LThigh': ['LTHI', 'LTH2', 'LTH3', 'LTH4'], 
+    ...             'RShin': ['RTIB', 'RSH2', 'RSH3', 'RSH4'], 
+    ...             'LShin': ['LTIB', 'LSH2', 'LSH3', 'LSH4'], 
+    ...             'RFoot': ['RLFT1', 'RFT2', 'RMFT3', 'RLUP'], 
+    ...             'LFoot': ['LLFT1', 'LFT2', 'LMFT3', 'LLUP'], 
+    ...             'RHum': ['RMELB', 'RSHO', 'RUPA'], 
+    ...             'LHum': ['LMELB', 'LSHO', 'LUPA']}
+    >>> result == expected
+    True
     """
-
+    segment = {}
+    segment['Head'] = ['RFHD','RBHD','LFHD','LBHD','REAR','LEAR'] 
+    segment['Trunk'] = ['C7','STRN','CLAV','T10','RBAK','RSHO','LSHO']
+    segment['Pelvis'] = ['SACR','RPSI','LPSI','LASI','RASI']
+    segment['RThigh'] = ['RTHI','RTH2','RTH3','RTH4']
+    segment['LThigh'] = ['LTHI','LTH2','LTH3','LTH4']
+    segment['RShin'] = ['RTIB','RSH2','RSH3','RSH4']
+    segment['LShin'] = ['LTIB','LSH2','LSH3','LSH4']
+    segment['RFoot'] = ['RLFT1','RFT2','RMFT3','RLUP']
+    segment['LFoot'] = ['LLFT1','LFT2','LMFT3','LLUP']
+    segment['RHum'] = ['RMELB','RSHO','RUPA']
+    segment['LHum'] = ['LMELB','LSHO','LUPA']
+    
+    return segment
 
 def get_marker_location(pm, c):
     """Finds the location of the missing marker in the world frame.
@@ -65,8 +140,53 @@ def get_marker_location(pm, c):
     pw : array
         Location of the missing marker in the world frame. List of
         3 elements `[X, Y, Z]`.
+    
+    Examples
+    --------
+    >>> from numpy import array, around
+    >>> pm = [-205.14696889756505, 258.35355899445926, 3.279423067505604]
+    >>> c = [array([ 325.82983398,  402.55450439, 1722.49816895]),
+    ...      array([ 304.39898682,  242.91339111, 1694.97497559]),
+    ...      array([ 197.8621521 ,  251.28889465, 1696.90197754])]
+    >>> around(get_marker_location(pm, c), 8) #doctest: +NORMALIZE_WHITESPACE
+    array([ 187.23396416, 407.91688108, 1720.71952837])
     """
-
+    #Pm is the location of the missing marker in the cluster frame
+    # C = [origin,x_dir,y_dir] 
+    # create Tw_c is the cluster frame in the world frame
+    # find Pw, the missing marker in the world frame
+    
+    origin = c[0]
+    x_dir = c[1]
+    y_dir = c[2]
+    
+    x_vec = x_dir - origin
+    y_vec = y_dir - origin
+    x_hat = x_vec / np.linalg.norm(x_vec)
+    y_hat = y_vec / np.linalg.norm(y_vec)
+    z_vec = np.cross(x_hat,y_hat)
+    z_hat = z_vec / np.linalg.norm(z_vec)
+    
+    #Define the transformation matrix of the cluster in world space, World to Cluster
+    tw_c =np.matrix([[x_hat[0],y_hat[0],z_hat[0],origin[0]],
+                     [x_hat[1],y_hat[1],z_hat[1],origin[1]],
+                     [x_hat[2],y_hat[2],z_hat[2],origin[2]],
+                     [0       ,0       ,0       ,1        ]])
+            
+    #Define the transfomration matrix of the marker in cluster space, cluster to Marker
+    tc_m = np.matrix([[1,0,0,pm[0]],
+                      [0,1,0,pm[1]],
+                      [0,0,1,pm[2]],
+                      [0,0,0,1   ]])
+        
+    #Find Pw, the marker in world space
+    # Take the transform from world to cluster, then multiply cluster to marker
+    tw_m = tw_c * tc_m
+    
+    #The marker in the world frame
+    pw = [tw_m[0,3],tw_m[1,3],tw_m[2,3]]
+    
+    return pw
 
 def get_static_transform(p, c):
     """Finds the location of the missing marker in the cluster frame.
@@ -86,8 +206,55 @@ def get_static_transform(p, c):
     pm : array
         Location of the missing marker in the cluster frame. List of
         3 elements `[X, Y, Z]`.
+    
+    Examples
+    --------
+    >>> from numpy import array, around
+    >>> p = [173.67716164, 325.44079612, 1728.47894043]
+    >>> c = [array([314.17024414, 326.98319891, 1731.38964711]), 
+    ...      array([302.76412032, 168.80114852, 1688.1522896 ]), 
+    ...      array([193.62636014, 171.28945512, 1689.54191939])]
+    >>> around(get_static_transform(p, c), 8) #doctest: +NORMALIZE_WHITESPACE
+    array([-205.1469689 , 258.353559 , 3.27942307])
     """
+    #p = target marker
+    #C = [origin,x_dir,y_dir]
+    
+    origin = c[0]
+    x_dir = c[1]
+    y_dir = c[2]
+    
+    x_vec = x_dir - origin
+    y_vec = y_dir - origin
+    x_hat = x_vec / np.linalg.norm(x_vec)
+    y_hat = y_vec / np.linalg.norm(y_vec)
+    z_vec = np.cross(x_hat,y_hat)
+    z_hat = z_vec / np.linalg.norm(z_vec)
 
+    #If we consider the point to be a frame without rotation, it is simply calculated
+    # Consider world frame W, cluster frame C, and marker frame M
+    # We know C in relation to W (Tw_c) and we know M in relation to W (Tw_m)
+    # To find M in relation to C,  Tc_m = Tc_w * Tw_m
+    
+    #Define the transfomration matrix of the cluster in world space, World to Cluster
+    tw_c =np.matrix([[x_hat[0],y_hat[0],z_hat[0],origin[0]],
+                     [x_hat[1],y_hat[1],z_hat[1],origin[1]],
+                     [x_hat[2],y_hat[2],z_hat[2],origin[2]],
+                     [0       ,0       ,0       ,1        ]])
+    
+    #Define the transfomration matrix of the marker in world space, World to Marker
+    tw_m = np.matrix([[1,0,0,p[0]],
+                      [0,1,0,p[1]],
+                      [0,0,1,p[2]],
+                      [0,0,0,1   ]])
+       
+    #Tc_m = Tc_w * Tw_m
+    tc_m = np.linalg.inv(tw_c) * tw_m
+    
+    #The marker in the cluster frame
+    pm = [tc_m[0,3],tc_m[1,3],tc_m[2,3]]
+    
+    return pm
 
 def transform_from_static(data, data_mapping, static, static_mapping, key, useables, s):
     """Performs gap filling using static data.
@@ -119,8 +286,40 @@ def transform_from_static(data, data_mapping, static, static_mapping, key, useab
     array
         Location of the missing marker in the world frame. List of
         3 elements `[X, Y, Z]`.
+    
+    Examples
+    --------
+    >>> from numpy import around
+    >>> from refactor.io import IO
+    >>> dynamic_trial = 'SampleData/Sample_2/RoboWalk.c3d'
+    >>> static_trial = 'SampleData/Sample_2/RoboStatic.c3d'
+    >>> data, data_mapping = IO.load_marker_data(dynamic_trial)
+    SampleData/Sample_2/RoboWalk.c3d
+    >>> static, static_mapping = IO.load_marker_data(static_trial)
+    SampleData/Sample_2/RoboStatic.c3d
+    >>> key = 'LFHD'
+    >>> useables = ['RFHD', 'RBHD', 'LBHD'] #Other markers in the cluster
+    >>> s = 1
+    >>> result = transform_from_static(data, data_mapping, static, static_mapping, key, useables, s)
+    >>> around(result, 8)
+    array([-1007.73577975,    71.30567599,  1522.60563455])
     """
-
+    p = np.mean(static[:,static_mapping[key]], axis=0)
+    c = np.mean(static[:,static_mapping[useables[0]]],axis=0),\
+        np.mean(static[:,static_mapping[useables[1]]],axis=0),\
+        np.mean(static[:,static_mapping[useables[2]]],axis=0)
+    
+    for i, arr in enumerate(c):
+        if np.isnan(arr[0]):
+            print('Check static trial for gaps in',useables[i])
+            pass
+    
+    pm = get_static_transform(p, c)
+    movc = data[s][data_mapping[useables[0]]],\
+           data[s][data_mapping[useables[1]]],\
+           data[s][data_mapping[useables[2]]]
+    
+    return get_marker_location(pm, movc)
 
 def transform_from_mov(data, data_mapping, key, clust, last_time, i):
     """Performs gap filling using previous frames of motion capture data.
@@ -156,8 +355,32 @@ def transform_from_mov(data, data_mapping, key, clust, last_time, i):
     array
         Location of the missing marker in the world frame. List of
         3 elements `[X, Y, Z]`.
+    
+    Examples
+    --------
+    >>> from numpy import around
+    >>> from refactor.io import IO
+    >>> dynamic_trial = 'SampleData/Sample_2/RoboWalk.c3d'
+    >>> data, data_mapping = IO.load_marker_data(dynamic_trial)
+    SampleData/Sample_2/RoboWalk.c3d
+    >>> key = 'LFHD'
+    >>> clust = ['RFHD', 'RBHD', 'LBHD'] #Other markers in the cluster
+    >>> last_time = 1
+    >>> i = 2
+    >>> result = transform_from_mov(data, data_mapping, key, clust, last_time, i)
+    >>> around(result, 8)
+    array([-1003.42302695,    81.04948743,  1522.13413529])
     """
-
+    p = data[last_time][data_mapping[key]]
+    c = data[last_time][data_mapping[clust[0]]],\
+        data[last_time][data_mapping[clust[1]]],\
+        data[last_time][data_mapping[clust[2]]]
+    pm = get_static_transform(p, c)
+    cmov = data[i][data_mapping[clust[0]]],\
+           data[i][data_mapping[clust[1]]],\
+           data[i][data_mapping[clust[2]]] 
+    
+    return get_marker_location(pm, cmov)
 
 def segment_finder(key, data, data_mapping, target_dict, segment_dict, j, missings):
     """Find markers in the same cluster as `key` to use for gap filling.
@@ -192,7 +415,36 @@ def segment_finder(key, data, data_mapping, target_dict, segment_dict, j, missin
     useables : array
         List of marker names in the same cluster as the marker `key` that
         can be used for gap filling.
+    
+    Examples
+    --------
+    >>> from numpy import array, nan
+    >>> from refactor.io import IO
+    Using...
+    >>> dynamic_trial = 'SampleData/Sample_2/RoboWalk.c3d'
+    >>> data, data_mapping = IO.load_marker_data(dynamic_trial)
+    SampleData/Sample_2/RoboWalk.c3d
+    >>> key = 'LFHD'
+    >>> target = target_dict()
+    >>> segment = segment_dict()
+    >>> j = 2
+    >>> missings = {'LFHD': []} #Indicates that LFHD is not missing for any other frame
+    >>> segment_finder(key, data, data_mapping, target, segment, j, missings)
+    ['RFHD', 'RBHD', 'LBHD']
+
     """
+    segment = target_dict[key]
+    useables = []
+    for marker in segment_dict[segment]:
+        if marker != key:
+            if marker[1:]!='THI' or marker[1:]!='TIB':
+               if marker in missings and j in missings[marker]:
+                   continue
+            try:
+                if not np.isnan(data[j][data_mapping[marker]][0]):
+                    useables.append(marker)
+            except: continue
+    return useables
 
 
 def rigid_fill(data, data_mapping, static, static_mapping):
@@ -258,7 +510,6 @@ def butter_filter(data, cutoff_frequency, sampling_frequency):
     the number of passes.
     """
 
-
 def filt(data, cutoff_frequency, sampling_frequency):
     """Applies a Butterworth filter to `data`.
 
@@ -282,7 +533,6 @@ def filt(data, cutoff_frequency, sampling_frequency):
         2d numpy array of the same format as `data` after the Butterworth
         filter is applied.
     """
-
 
 def filtering(data, cutoff_frequency, sampling_frequency):
     """Applies a Butterworth filter to motion capture data.
