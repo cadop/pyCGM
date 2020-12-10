@@ -1051,14 +1051,14 @@ class TestCGMUpperBodyAngle:
         - the resulting output is correct when thorax_axis is composed of lists of ints, numpy arrays of ints,
         list of floats, and numpy arrays of floats.
         """
-        with patch.object(CGM, 'get_angle', return_value=mock_return_val) as mock_get_head_angle:
+        with patch.object(CGM, 'get_angle', return_value=mock_return_val) as mock_get_angle:
             result = CGM.thorax_angle_calc(thorax_axis)
 
         # Asserting that there was only 1 call to get_angle
-        np.testing.assert_equal(mock_get_head_angle.call_count, 1)
+        np.testing.assert_equal(mock_get_angle.call_count, 1)
 
         # Asserting that the correct params were sent in the call to get_angle
-        np.testing.assert_almost_equal(expected_mock_args, mock_get_head_angle.call_args_list[0][0], rounding_precision)
+        np.testing.assert_almost_equal(expected_mock_args, mock_get_angle.call_args_list[0][0], rounding_precision)
 
         # Asserting that thorax_angle_calc returned the correct result given the return value given by mocked get_angle
         np.testing.assert_almost_equal(result, expected, rounding_precision)
@@ -1194,7 +1194,131 @@ class TestCGMUpperBodyAngle:
         # get_head_angle
         np.testing.assert_almost_equal(result, expected, rounding_precision)
 
-    # TODO: spine_angle_calc
+    @pytest.mark.parametrize(["pelvis_axis", "thorax_axis", "mock_return_val", "expected_mock_args", "expected"], [
+        # Test with zeros for all params
+        ([[0, 0, 0], [0, 0, 0], [0, 0, 0], [0, 0, 0]],
+         [[0, 0, 0], [0, 0, 0], [0, 0, 0], [0, 0, 0]],
+         [0, 0, 0],
+         [[[0, 0, 0], [0, 0, 0], [0, 0, 0]], [[0, 0, 0], [0, 0, 0], [0, 0, 0]]],
+         [0, 0, 0]),
+        # Testing when values are added to pelvis origin
+        ([[7, -3, 7], [0, 0, 0], [0, 0, 0], [0, 0, 0]],
+         [[0, 0, 0], [0, 0, 0], [0, 0, 0], [0, 0, 0]],
+         [0, 0, 0],
+         [[[-7, 3, -7], [-7, 3, -7], [-7, 3, -7]], [[0, 0, 0], [0, 0, 0], [0, 0, 0]]],
+         [0, 0, 0]),
+        # Testing when values are added to pelvis x, y, z axes
+        ([[0, 0, 0], [-6, 3, 4], [-3, 5, 3], [2, 0, 6]],
+         [[0, 0, 0], [0, 0, 0], [0, 0, 0], [0, 0, 0]],
+         [0, 0, 0],
+         [[[-6, 3, 4], [-3, 5, 3], [2, 0, 6]], [[0, 0, 0], [0, 0, 0], [0, 0, 0]]],
+         [0, 0, 0]),
+        # Testing when values are added to pelvis_axis
+        ([[7, -3, 7], [-6, 3, 4], [-3, 5, 3], [2, 0, 6]],
+         [[0, 0, 0], [0, 0, 0], [0, 0, 0], [0, 0, 0]],
+         [0, 0, 0],
+         [[[-13, 6, -3], [-10, 8, -4], [-5, 3, -1]], [[0, 0, 0], [0, 0, 0], [0, 0, 0]]],
+         [0, 0, 0]),
+        # Testing when values are added to thorax origin
+        ([[0, 0, 0], [0, 0, 0], [0, 0, 0], [0, 0, 0]],
+         [[8, 9, -2], [0, 0, 0], [0, 0, 0], [0, 0, 0]],
+         [0, 0, 0],
+         [[[0, 0, 0], [0, 0, 0], [0, 0, 0]], [[-8, -9, 2], [-8, -9, 2], [-8, -9, 2]]],
+         [0, 0, 0]),
+        # Testing when values are added to thorax x, y, z axes
+        ([[0, 0, 0], [0, 0, 0], [0, 0, 0], [0, 0, 0]],
+         [[0, 0, 0], [-5, -4, 4], [4, 5, 3], [1, -5, -7]],
+         [0, 0, 0],
+         [[[0, 0, 0], [0, 0, 0], [0, 0, 0]], [[-5, -4, 4], [4, 5, 3], [1, -5, -7]]],
+         [0, 0, 0]),
+        # Testing when values are added to thorax_axis
+        ([[0, 0, 0], [0, 0, 0], [0, 0, 0], [0, 0, 0]],
+         [[8, 9, -2], [-5, -4, 4], [4, 5, 3], [1, -5, -7]],
+         [0, 0, 0],
+         [[[0, 0, 0], [0, 0, 0], [0, 0, 0]], [[-13, -13, 6], [-4, -4, 5], [-7, -14, -5]]],
+         [0, 0, 0]),
+        # Testing when values are added to mock_return_val
+        ([[0, 0, 0], [0, 0, 0], [0, 0, 0], [0, 0, 0]],
+         [[0, 0, 0], [0, 0, 0], [0, 0, 0], [0, 0, 0]],
+         [-66, 173, 61],
+         [[[0, 0, 0], [0, 0, 0], [0, 0, 0]], [[0, 0, 0], [0, 0, 0], [0, 0, 0]]],
+         [-66, -61, 173]),
+        # Testing when values are added to pelvis_axis and thorax_axis
+        ([[7, -3, 7], [-6, 3, 4], [-3, 5, 3], [2, 0, 6]],
+         [[8, 9, -2], [-5, -4, 4], [4, 5, 3], [1, -5, -7]],
+         [0, 0, 0],
+         [[[-13, 6, -3], [-10, 8, -4], [-5, 3, -1]], [[-13, -13, 6], [-4, -4, 5], [-7, -14, -5]]],
+         [0, 0, 0]),
+        # Testing when values are added to pelvis_axis, thorax_axis, and mock_return_val
+        ([[7, -3, 7], [-6, 3, 4], [-3, 5, 3], [2, 0, 6]],
+         [[8, 9, -2], [-5, -4, 4], [4, 5, 3], [1, -5, -7]],
+         [-66, 173, 61],
+         [[[-13, 6, -3], [-10, 8, -4], [-5, 3, -1]], [[-13, -13, 6], [-4, -4, 5], [-7, -14, -5]]],
+         [-66, -61, 173]),
+        # Testing that when pelvis_axis and thorax_axis are composed of lists of ints
+        ([[7, -3, 7], [-6, 3, 4], [-3, 5, 3], [2, 0, 6]],
+         [[8, 9, -2], [-5, -4, 4], [4, 5, 3], [1, -5, -7]],
+         [-66, 173, 61],
+         [[[-13, 6, -3], [-10, 8, -4], [-5, 3, -1]], [[-13, -13, 6], [-4, -4, 5], [-7, -14, -5]]],
+         [-66, -61, 173]),
+        # Testing that when pelvis_axis and thorax_axis are composed of numpy arrays of ints
+        (np.array([[7, -3, 7], [-6, 3, 4], [-3, 5, 3], [2, 0, 6]], dtype='int'),
+         np.array([[8, 9, -2], [-5, -4, 4], [4, 5, 3], [1, -5, -7]], dtype='int'),
+         [-66, 173, 61],
+         [[[-13, 6, -3], [-10, 8, -4], [-5, 3, -1]], [[-13, -13, 6], [-4, -4, 5], [-7, -14, -5]]],
+         [-66, -61, 173]),
+        # Testing that when pelvis_axis and thorax_axis are composed of lists of floats
+        ([[7.0, -3.0, 7.0], [-6.0, 3.0, 4.0], [-3.0, 5.0, 3.0], [2.0, 0.0, 6.0]],
+         [[8.0, 9.0, -2.0], [-5.0, -4.0, 4.0], [4.0, 5.0, 3.0], [1.0, -5.0, -7.0]],
+         [-66, 173, 61],
+         [[[-13, 6, -3], [-10, 8, -4], [-5, 3, -1]], [[-13, -13, 6], [-4, -4, 5], [-7, -14, -5]]],
+         [-66, -61, 173]),
+        # Testing that when pelvis_axis and thorax_axis are composed of numpy arrays of floats
+        (np.array([[7.0, -3.0, 7.0], [-6.0, 3.0, 4.0], [-3.0, 5.0, 3.0], [2.0, 0.0, 6.0]], dtype='float'),
+         np.array([[8.0, 9.0, -2.0], [-5.0, -4.0, 4.0], [4.0, 5.0, 3.0], [1.0, -5.0, -7.0]], dtype='float'),
+         [-66, 173, 61],
+         [[[-13, 6, -3], [-10, 8, -4], [-5, 3, -1]], [[-13, -13, 6], [-4, -4, 5], [-7, -14, -5]]],
+         [-66, -61, 173])])
+    def test_spine_angle_calc(self, pelvis_axis, thorax_axis, mock_return_val, expected_mock_args, expected):
+        """
+        This test provides coverage of the spine_angle_calc function in the class CGM in pycgm.py, defined as
+        spine_angle_calc(pelvis_axis, thorax_axis)
+
+        This test takes 5 parameters:
+        pelvis_axis : ndarray
+            A 4x3 ndarray containing the origin and three unit vectors of the pelvis axis.
+        thorax_axis : ndarray
+            A 4x3 ndarray containing the origin and three unit vectors of the thorax axis.
+        mock_return_val : list
+            The value to be returned by the mock for get_spine_angle.
+        expected_mock_args : list
+            The expected arguments used to call the mocked function, get_spine_angle.
+        expected : array
+            A 1x3 ndarray containing the flexion, abduction, and rotation angles of the spine.
+
+        This test is checking to make sure the neck angle is calculated correctly given the input parameters. This
+        tests mocks get_spine_angle to make sure the correct parameters are being passed into it given the parameters
+        passed into spine_angle_calc, expected_mock_args, and to also ensure that spine_angle_calc returns the correct
+        value considering the return value of get_spine_angle, mock_return_val.
+
+        This unit test ensures that:
+        - the correct expected values are altered per parameter given.
+        - the resulting output is correct when pelvis_axis and thorax_axis are composed of lists of ints, numpy arrays
+        of ints, list of floats, and numpy arrays of floats.
+        """
+        with patch.object(CGM, 'get_spine_angle', return_value=mock_return_val) as mock_get_spine_angle:
+            result = CGM.spine_angle_calc(pelvis_axis, thorax_axis)
+
+        # Asserting that there was only 1 call to mock_get_spine_angle
+        np.testing.assert_equal(mock_get_spine_angle.call_count, 1)
+
+        # Asserting that the correct params were sent in the call to mock_get_spine_angle
+        np.testing.assert_almost_equal(expected_mock_args, mock_get_spine_angle.call_args_list[0][0],
+                                       rounding_precision)
+
+        # Asserting that spine_angle_calc returned the correct result given the return value given by mocked
+        # mock_get_spine_angle
+        np.testing.assert_almost_equal(result, expected, rounding_precision)
 
     @pytest.mark.parametrize(["thorax_axis", "elbow_axis", "mock_return_val", "expected_mock_args", "expected"], [
         # Test from running sample data
