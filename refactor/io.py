@@ -57,7 +57,7 @@ class IO:
         --------
         >>> from refactor.io import IO
         >>> IO.load_scaling_table()
-        {'Pelvis': {'com': 0.5, 'mass': 0.142, 'x': '0.31', 'y': '0.31', 'z': '0'},...
+        {...
         
         Notes
         -----
@@ -72,8 +72,8 @@ class IO:
                     header = True
                 else:
                     row = line.rstrip('\n').split(',')
-                    seg_scale[row[0]] = {'com': float(row[1]), 'mass': float(row[2]), 'x': row[3], 'y': row[4],
-                                         'z': row[5]}
+                    seg_scale[row[0]] = {'com': float(row[1]), 'mass': float(row[2]), 'x': float(row[3]), 
+                                         'y': float(row[4]), 'z': float(row[5])}
         return seg_scale
     
     @staticmethod
