@@ -134,9 +134,9 @@ class TestCGMLowerBodyAngle:
         pelvis_axis : ndarray
             A 4x3 ndarray containing the origin and three unit vectors of the pelvis axis.
         mock_return_val : list
-            The value to be returned by the mock for get_angle
+            The value to be returned by the mock for get_angle.
         expected_mock_args : list
-            The expected arguments used to call the mocked function, get_angle
+            The expected arguments used to call the mocked function, get_angle.
         expected : array
             A 1x3 ndarray containing the flexion, abduction, and rotation angles of the pelvis.
 
@@ -298,9 +298,9 @@ class TestCGMLowerBodyAngle:
             An 8x3 ndarray containing the right knee origin, right knee unit vectors, left knee origin, and left knee
             unit vectors.
         mock_return_val : list
-            The value to be returned by the mock for get_angle
+            The value to be returned by the mock for get_angle.
         expected_mock_args : list
-            The expected arguments used to call the mocked function, get_angle
+            The expected arguments used to call the mocked function, get_angle.
         expected : array
             A 2x3 ndarray containing the flexion, abduction, and rotation angles of the right and left hip.
 
@@ -468,9 +468,9 @@ class TestCGMLowerBodyAngle:
             An 8x3 ndarray containing the right ankle origin, right ankle unit vectors, left ankle origin,
             and left ankle unit vectors.
         mock_return_val : list
-            The value to be returned by the mock for get_angle
+            The value to be returned by the mock for get_angle.
         expected_mock_args : list
-            The expected arguments used to call the mocked function, get_angle
+            The expected arguments used to call the mocked function, get_angle.
         expected : array
             A 2x3 ndarray containing the flexion, abduction, and rotation angles of the right and left ankle.
 
@@ -637,9 +637,9 @@ class TestCGMLowerBodyAngle:
             An 8x3 ndarray containing the right foot origin, right foot unit vectors, left foot origin, and left foot
             unit vectors.
         mock_return_val : list
-            The value to be returned by the mock for get_angle
+            The value to be returned by the mock for get_angle.
         expected_mock_args : list
-            The expected arguments used to call the mocked function, get_angle
+            The expected arguments used to call the mocked function, get_angle.
         expected : ndarray
             A 2x3 ndarray containing the flexion, abduction, and rotation angles of the right and left ankle.
 
@@ -785,9 +785,9 @@ class TestCGMLowerBodyAngle:
             An 8x3 ndarray containing the right foot origin, right foot unit vectors, left foot origin, and left foot
             unit vectors.
         mock_return_val : list
-            The value to be returned by the mock for get_angle
+            The value to be returned by the mock for get_angle.
         expected_mock_args : list
-            The expected arguments used to call the mocked function, get_angle
+            The expected arguments used to call the mocked function, get_angle.
         expected : ndarray
             A 2x3 ndarray containing the flexion, abduction, and rotation angles of the right and left foot.
 
@@ -931,9 +931,9 @@ class TestCGMUpperBodyAngle:
         head_axis : ndarray
             A 4x3 ndarray containing the origin and three unit vectors of the head axis.
         mock_return_val : list
-            The value to be returned by the mock for get_head_angle
+            The value to be returned by the mock for get_head_angle.
         expected_mock_args : list
-            The expected arguments used to call the mocked function, get_head_angle
+            The expected arguments used to call the mocked function, get_head_angle.
         expected : array
             A 1x3 ndarray containing the flexion, abduction, and rotation angles of the head.
 
@@ -960,7 +960,108 @@ class TestCGMUpperBodyAngle:
         # get_head_angle
         np.testing.assert_almost_equal(result, expected, rounding_precision)
 
-    # TODO: thorax_angle_calc
+    @pytest.mark.parametrize(["thorax_axis", "mock_return_val", "expected_mock_args", "expected"], [
+        # Test with zeros for all params
+        ([[0, 0, 0], [0, 0, 0], [0, 0, 0], [0, 0, 0]],
+         [0, 0, 0],
+         [[[-1, 0, 0], [0, -1, 0], [0, 0, 1]], [[0, 0, 0], [0, 0, 0], [0, 0, 0]]],
+         [0, 0, 90]),
+        # Testing when values are added to thorax origin
+        ([[-5, -2, -5], [0, 0, 0], [0, 0, 0], [0, 0, 0]],
+         [0, 0, 0],
+         [[[-1, 0, 0], [0, -1, 0], [0, 0, 1]], [[5, 2, 5], [5, 2, 5], [5, 2, 5]]],
+         [0, 0, 90]),
+        # Testing when values are added to thorax x axis
+        ([[0, 0, 0], [-5, 6, 5], [0, 0, 0], [0, 0, 0]],
+         [0, 0, 0],
+         [[[-1, 0, 0], [0, -1, 0], [0, 0, 1]], [[-5, 6, 5], [0, 0, 0], [0, 0, 0]]],
+         [0, 0, 90]),
+        # Testing when values are added to thorax y axis
+        ([[0, 0, 0], [0, 0, 0], [1, 2, 6], [0, 0, 0]],
+         [0, 0, 0],
+         [[[-1, 0, 0], [0, -1, 0], [0, 0, 1]], [[0, 0, 0], [1, 2, 6], [0, 0, 0]]],
+         [0, 0, 90]),
+        # Testing when values are added to thorax z axis
+        ([[0, 0, 0], [0, 0, 0], [0, 0, 0], [8, -1, 4]],
+         [0, 0, 0],
+         [[[-1, 0, 0], [0, -1, 0], [0, 0, 1]], [[0, 0, 0], [0, 0, 0], [8, -1, 4]]],
+         [0, 0, 90]),
+        # Testing when values are added to thorax x, y, z axes
+        ([[0, 0, 0], [-5, 6, 5], [1, 2, 6], [8, -1, 4]],
+         [0, 0, 0],
+         [[[-1, 0, 0], [0, -1, 0], [0, 0, 1]], [[-5, 6, 5], [1, 2, 6], [8, -1, 4]]],
+         [0, 0, 90]),
+        # Testing when values are added to thorax_axis
+        ([[-5, -2, -5], [-5, 6, 5], [1, 2, 6], [8, -1, 4]],
+         [0, 0, 0],
+         [[[-1, 0, 0], [0, -1, 0], [0, 0, 1]], [[0, 8, 10], [6, 4, 11], [13, 1, 9]]],
+         [0, 0, 90]),
+        # Testing when values are added to mock_return_val
+        ([[0, 0, 0], [0, 0, 0], [0, 0, 0], [0, 0, 0]],
+         [-23, 152, -91],
+         [[[-1, 0, 0], [0, -1, 0], [0, 0, 1]], [[0, 0, 0], [0, 0, 0], [0, 0, 0]]],
+         [157, 152, -1]),
+        # Testing when values are added to thorax_axis and mock_return_val
+        ([[-5, -2, -5], [-5, 6, 5], [1, 2, 6], [8, -1, 4]],
+         [-23, 152, -91],
+         [[[-1, 0, 0], [0, -1, 0], [0, 0, 1]], [[0, 8, 10], [6, 4, 11], [13, 1, 9]]],
+         [157, 152, -1]),
+        # Testing that when thorax_axis is composed of lists of ints
+        ([[-5, -2, -5], [-5, 6, 5], [1, 2, 6], [8, -1, 4]],
+         [-23, 152, -91],
+         [[[-1, 0, 0], [0, -1, 0], [0, 0, 1]], [[0, 8, 10], [6, 4, 11], [13, 1, 9]]],
+         [157, 152, -1]),
+        # Testing that when thorax_axis is composed of numpy arrays of ints
+        (np.array([[-5, -2, -5], [-5, 6, 5], [1, 2, 6], [8, -1, 4]], dtype='int'),
+         [-23, 152, -91],
+         [[[-1, 0, 0], [0, -1, 0], [0, 0, 1]], [[0, 8, 10], [6, 4, 11], [13, 1, 9]]],
+         [157, 152, -1]),
+        # Testing that when thorax_axis is composed of lists of floats
+        ([[-5.0, -2.0, -5.0], [-5.0, 6.0, 5.0], [1.0, 2.0, 6.0], [8.0, -1.0, 4.0]],
+         [-23, 152, -91],
+         [[[-1, 0, 0], [0, -1, 0], [0, 0, 1]], [[0, 8, 10], [6, 4, 11], [13, 1, 9]]],
+         [157, 152, -1]),
+        # Testing that when thorax_axis is composed of numpy arrays of floats
+        (np.array([[-5.0, -2.0, -5.0], [-5.0, 6.0, 5.0], [1.0, 2.0, 6.0], [8.0, -1.0, 4.0]], dtype='float'),
+         [-23, 152, -91],
+         [[[-1, 0, 0], [0, -1, 0], [0, 0, 1]], [[0, 8, 10], [6, 4, 11], [13, 1, 9]]],
+         [157, 152, -1])])
+    def test_thorax_angle_calc(self, thorax_axis, mock_return_val, expected_mock_args, expected):
+        """
+        This test provides coverage of the thorax_angle_calc function in the class CGM in pycgm.py, defined as
+        thorax_angle_calc(thorax_axis)
+
+        This test takes 5 parameters:
+        thorax_axis : ndarray
+            A 4x3 ndarray containing the origin and three unit vectors of the thorax axis.
+        mock_return_val : list
+            The value to be returned by the mock for get_angle.
+        expected_mock_args : list
+            The expected arguments used to call the mocked function, get_angle.
+        expected : array
+            A 1x3 ndarray containing the flexion, abduction, and rotation angles of the thorax.
+
+        This test is checking to make sure the thorax angle is calculated correctly given the input parameters. This
+        tests mocks get_angle to make sure the correct parameters are being passed into it given the parameters
+        passed into thorax_angle_calc, expected_mock_args, and to also ensure that thorax_angle_calc returns the
+        correct value considering the return value of get_angle, mock_return_val.
+
+        This unit test ensures that:
+        - the correct expected values are altered per parameter given.
+        - the resulting output is correct when thorax_axis is composed of lists of ints, numpy arrays of ints,
+        list of floats, and numpy arrays of floats.
+        """
+        with patch.object(CGM, 'get_angle', return_value=mock_return_val) as mock_get_head_angle:
+            result = CGM.thorax_angle_calc(thorax_axis)
+
+        # Asserting that there was only 1 call to get_angle
+        np.testing.assert_equal(mock_get_head_angle.call_count, 1)
+
+        # Asserting that the correct params were sent in the call to get_angle
+        np.testing.assert_almost_equal(expected_mock_args, mock_get_head_angle.call_args_list[0][0], rounding_precision)
+
+        # Asserting that thorax_angle_calc returned the correct result given the return value given by mocked get_angle
+        np.testing.assert_almost_equal(result, expected, rounding_precision)
 
     @pytest.mark.parametrize(["head_axis", "thorax_axis", "mock_return_val", "expected_mock_args", "expected"], [
         # Test from running sample data
@@ -1064,9 +1165,9 @@ class TestCGMUpperBodyAngle:
         thorax_axis : ndarray
             A 4x3 ndarray containing the origin and three unit vectors of the thorax axis.
         mock_return_val : list
-            The value to be returned by the mock for get_head_angle
+            The value to be returned by the mock for get_head_angle.
         expected_mock_args : list
-            The expected arguments used to call the mocked function, get_head_angle
+            The expected arguments used to call the mocked function, get_head_angle.
         expected : array
             A 1x3 ndarray containing the flexion, abduction, and rotation angles of the neck.
 
@@ -1218,9 +1319,9 @@ class TestCGMUpperBodyAngle:
             An 8x3 ndarray containing the origin and three unit vectors of the right elbow axis, followed by the
             origin and three unit vectors of the left elbow axis.
         mock_return_val : list
-            The value to be returned by the mock for get_shoulder_angle
+            The value to be returned by the mock for get_shoulder_angle.
         expected_mock_args : list
-            The expected arguments used to call the mocked function, get_shoulder_angle
+            The expected arguments used to call the mocked function, get_shoulder_angle.
         expected : array
             A 2x3 ndarray containing the flexion, abduction, and rotation angles of the right and left shoulders.
 
@@ -1251,6 +1352,10 @@ class TestCGMUpperBodyAngle:
         # Asserting that shoulder_angle_calc returned the correct result given the return value given by mocked
         # get_shoulder_angle
         np.testing.assert_almost_equal(result, expected, rounding_precision)
+
+        # TODO: elbow_angle_calc
+
+        # TODO: wrist_angle_calc
 
 
 class TestCGMAngleUtils():
