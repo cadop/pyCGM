@@ -831,6 +831,8 @@ class TestUpperBodyAxis():
     thorax_axis_calc
     shoulder_axis_calc
     elbow_axis_calc
+    wrist_axis_calc
+    hand_axis_calc
     """
 
     nan_3d = np.array([np.nan, np.nan, np.nan])
@@ -1563,6 +1565,217 @@ class TestUpperBodyAxis():
         lwri = (lwra + lwrb) / 2.0
         """
         result = CGM.wrist_axis_calc(rwra, rwrb, lwra, lwrb, elbow_axis, measurements)
+        np.testing.assert_almost_equal(result, expected, rounding_precision)
+
+    @pytest.mark.parametrize(
+        ["rwra", "rwrb", "lwra", "lwrb", "rfin", "lfin", "wrist_origin", "measurements", "mock_return_val",
+         "expected_mock_args", "expected"], [
+            # Test from running sample data
+            (
+            np.array([776.51898193, 495.68103027, 1108.38464355]), np.array([830.9072876, 436.75341797, 1119.11901855]),
+            np.array([-249.28146362, 525.32977295, 1117.09057617]),
+            np.array([-311.77532959, 477.22512817, 1125.1619873]), np.array([863.71374512, 524.4475708, 1074.54248047]),
+            np.array([-326.65890503, 558.34338379, 1091.04284668]),
+            [[793.3281430325068, 451.2913478825204, 1084.4325513020426],
+             [-272.4594189740742, 485.801522109477, 1091.3666238350822]],
+            {'RightHandThickness': 34.0, 'LeftHandThickness': 34.0},
+            np.array([[859.80614366, 517.28239823, 1051.97278945], [-324.53477798, 551.88744289, 1068.02526837]]),
+            [[[803.713134765, 466.21722411999997, 1113.75183105],
+              [793.3281430325068, 451.2913478825204, 1084.4325513020426], [863.71374512, 524.4475708, 1074.54248047],
+              24.0], [[-280.528396605, 501.27745056000003, 1121.126281735],
+                      [-272.4594189740742, 485.801522109477, 1091.3666238350822],
+                      [-326.65890503, 558.34338379, 1091.04284668], 24.0]],
+            [[859.80614366, 517.28239823, 1051.97278944], [859.9567597867737, 517.5924123242138, 1052.9115152009197],
+             [859.0797567344147, 517.9612045889317, 1051.8651606187454],
+             [859.1355641971873, 516.6167307529585, 1052.300218811959], [-324.53477798, 551.88744289, 1068.02526837],
+             [-324.61994077156373, 552.1589330842497, 1068.9839343010813],
+             [-325.3329318534787, 551.2929248618385, 1068.1227296356121],
+             [-323.938374013488, 551.1305800350597, 1068.2925901317217]]),
+            # Testing when values are added to wrist_origin
+            (np.array([0, 0, 0]), np.array([0, 0, 0]), np.array([0, 0, 0]), np.array([0, 0, 0]), np.array([0, 0, 0]),
+             np.array([0, 0, 0]),
+             [[0, 4, 3], [9, 0, -6]],
+             {'RightHandThickness': 0.0, 'LeftHandThickness': 0.0},
+             np.array([[0, 0, 0], [0, 0, 0]]),
+             [[[0, 0, 0], [0, 4, 3], [0, 0, 0], 7.0], [[0, 0, 0], [9, 0, -6], [0, 0, 0], 7.0]],
+             [[0, 0, 0], nan_3d, nan_3d, [0, 0.8, 0.6], [0, 0, 0], nan_3d, nan_3d,
+              [0.8320502943378436, 0.0, -0.554700196225229]]),
+            # Testing when values are added to rfin, lfin, and wrist_origin
+            (np.array([0, 0, 0]), np.array([0, 0, 0]), np.array([0, 0, 0]), np.array([0, 0, 0]), np.array([1, -9, 6]),
+             np.array([-6, 3, 8]),
+             [[0, 4, 3], [9, 0, -6]],
+             {'RightHandThickness': 0.0, 'LeftHandThickness': 0.0},
+             np.array([[0, 0, 0], [0, 0, 0]]),
+             [[[0, 0, 0], [0, 4, 3], [1, -9, 6], 7.0], [[0, 0, 0], [9, 0, -6], [-6, 3, 8], 7.0]],
+             [[0, 0, 0], nan_3d, nan_3d, [0, 0.8, 0.6], [0, 0, 0], nan_3d, nan_3d,
+              [0.8320502943378436, 0.0, -0.554700196225229]]),
+            # Testing when values are added to rwra, lwra, rfin, lfin, and wrist_origin
+            (np.array([4, 7, 6]), np.array([0, 0, 0]), np.array([-4, 5, 3]), np.array([0, 0, 0]), np.array([1, -9, 6]),
+             np.array([-6, 3, 8]),
+             [[0, 4, 3], [9, 0, -6]],
+             {'RightHandThickness': 0.0, 'LeftHandThickness': 0.0},
+             np.array([[0, 0, 0], [0, 0, 0]]),
+             [[[2.0, 3.5, 3.0], [0, 4, 3], [1, -9, 6], 7.0], [[-2.0, 2.5, 1.5], [9, 0, -6], [-6, 3, 8], 7.0]],
+             [[0, 0, 0], [-0.1483404529302446, -0.5933618117209785, 0.7911490822946381],
+              [0.9889363528682976, -0.08900427175814675, 0.11867236234419568], [0, 0.8, 0.6], [0, 0, 0],
+              [0.5538487756217112, -0.05538487756217114, 0.8307731634325669],
+              [-0.030722002451646625, -0.998465079678515, -0.04608300367746994],
+              [0.8320502943378436, 0.0, -0.554700196225229]]),
+            # Testing when values are added to rwra, rwrb, lwra, lwrb, rfin, lfin, and wrist_origin
+            (np.array([4, 7, 6]), np.array([0, -5, 4]), np.array([-4, 5, 3]), np.array([-3, 2, -7]),
+             np.array([1, -9, 6]), np.array([-6, 3, 8]),
+             [[0, 4, 3], [9, 0, -6]],
+             {'RightHandThickness': 0.0, 'LeftHandThickness': 0.0},
+             np.array([[0, 0, 0], [0, 0, 0]]),
+             [[[2.0, 1.0, 5.0], [0, 4, 3], [1, -9, 6], 7.0], [[-3.5, 3.5, -2.0], [9, 0, -6], [-6, 3, 8], 7.0]],
+             [[0, 0, 0], [0.813733471206735, -0.3487429162314579, 0.4649905549752772],
+              [0.5812381937190965, 0.48824008272404085, -0.650986776965388], [0.0, 0.8, 0.6], [0, 0, 0],
+              [0.19988898139583083, -0.9328152465138774, 0.2998334720937463],
+              [-0.5174328002831333, -0.3603549859114678, -0.7761492004246999],
+              [0.8320502943378436, 0.0, -0.554700196225229]]),
+            # Testing when values are added to rwra, rwrb, lwra, lwrb, rfin, lfin, wrist_origin, and measurements
+            (np.array([4, 7, 6]), np.array([0, -5, 4]), np.array([-4, 5, 3]), np.array([-3, 2, -7]),
+             np.array([1, -9, 6]), np.array([-6, 3, 8]),
+             [[0, 4, 3], [9, 0, -6]],
+             {'RightHandThickness': 36.0, 'LeftHandThickness': -9.0},
+             np.array([[0, 0, 0], [0, 0, 0]]),
+             [[[2.0, 1.0, 5.0], [0, 4, 3], [1, -9, 6], 25.0], [[-3.5, 3.5, -2.0], [9, 0, -6], [-6, 3, 8], 2.5]],
+             [[0, 0, 0], [0.813733471206735, -0.3487429162314579, 0.4649905549752772],
+              [0.5812381937190965, 0.48824008272404085, -0.650986776965388], [0.0, 0.8, 0.6], [0, 0, 0],
+              [0.19988898139583083, -0.9328152465138774, 0.2998334720937463],
+              [-0.5174328002831333, -0.3603549859114678, -0.7761492004246999],
+              [0.8320502943378436, 0.0, -0.554700196225229]]),
+            # Testing when values are added to rwra, rwrb, lwra, lwrb, rfin, lfin, wrist_origin, measurements and
+            # mock_return_val
+            (np.array([4, 7, 6]), np.array([0, -5, 4]), np.array([-4, 5, 3]), np.array([-3, 2, -7]),
+             np.array([1, -9, 6]), np.array([-6, 3, 8]),
+             [[0, 4, 3], [9, 0, -6]],
+             {'RightHandThickness': 36.0, 'LeftHandThickness': -9.0},
+             [np.array([2, 8, 1]), np.array([-6, 4, -4])],
+             [[[2.0, 1.0, 5.0], [0, 4, 3], [1, -9, 6], 25.0], [[-3.5, 3.5, -2.0], [9, 0, -6], [-6, 3, 8], 2.5]],
+             [[2, 8, 1], [2.911684611677104, 7.658118270621086, 1.227921152919276],
+              [1.9534757894800765, 8.465242105199236, 1.8839599998785472],
+              [1.5917517095361369, 7.183503419072274, 1.4082482904638631], [-6, 4, -4],
+              [-6.21615749183132, 3.059079153204844, -3.739339495144585],
+              [-6.186838410896736, 3.777824759216273, -4.9569376001580645],
+              [-5.04168515250009, 3.744449374000024, -4.127775312999988]]),
+            # Testing that when rwra, lwra, rfin, lfin, and wrist_origin are composed of lists of ints and
+            # measurements values are ints
+            ([4, 7, 6], np.array([0, -5, 4]), [-4, 5, 3], np.array([-3, 2, -7]), [1, -9, 6], [-6, 3, 8],
+             [[0, 4, 3], [9, 0, -6]],
+             {'RightHandThickness': 36, 'LeftHandThickness': -9},
+             [np.array([2, 8, 1]), np.array([-6, 4, -4])],
+             [[[2.0, 1.0, 5.0], [0, 4, 3], [1, -9, 6], 25.0], [[-3.5, 3.5, -2.0], [9, 0, -6], [-6, 3, 8], 2.5]],
+             [[2, 8, 1], [2.911684611677104, 7.658118270621086, 1.227921152919276],
+              [1.9534757894800765, 8.465242105199236, 1.8839599998785472],
+              [1.5917517095361369, 7.183503419072274, 1.4082482904638631], [-6, 4, -4],
+              [-6.21615749183132, 3.059079153204844, -3.739339495144585],
+              [-6.186838410896736, 3.777824759216273, -4.9569376001580645],
+              [-5.04168515250009, 3.744449374000024, -4.127775312999988]]),
+            # Testing that when rwra, lwra, rfin, lfin, and wrist_origin are composed of numpy arrays of ints and
+            # measurements values are ints
+            (np.array([4, 7, 6], dtype='int'), np.array([0, -5, 4], dtype='int'), np.array([-4, 5, 3], dtype='int'),
+             np.array([-3, 2, -7], dtype='int'), np.array([1, -9, 6], dtype='int'), np.array([-6, 3, 8], dtype='int'),
+             np.array([[0, 4, 3], [9, 0, -6]], dtype='int'),
+             {'RightHandThickness': 36, 'LeftHandThickness': -9},
+             [np.array([2, 8, 1]), np.array([-6, 4, -4])],
+             [[[2.0, 1.0, 5.0], [0, 4, 3], [1, -9, 6], 25.0], [[-3.5, 3.5, -2.0], [9, 0, -6], [-6, 3, 8], 2.5]],
+             [[2, 8, 1], [2.911684611677104, 7.658118270621086, 1.227921152919276],
+              [1.9534757894800765, 8.465242105199236, 1.8839599998785472],
+              [1.5917517095361369, 7.183503419072274, 1.4082482904638631], [-6, 4, -4],
+              [-6.21615749183132, 3.059079153204844, -3.739339495144585],
+              [-6.186838410896736, 3.777824759216273, -4.9569376001580645],
+              [-5.04168515250009, 3.744449374000024, -4.127775312999988]]),
+            # Testing that when rwra, lwra, rfin, lfin, and wrist_origin are composed of lists of floats and
+            # measurements values are floats
+            ([4.0, 7.0, 6.0], np.array([0.0, -5.0, 4.0]), [-4.0, 5.0, 3.0], np.array([-3.0, 2.0, -7.0]),
+             [1.0, -9.0, 6.0], [-6.0, 3.0, 8.0],
+             [[0.0, 4.0, 3.0], [9.0, 0.0, -6.0]],
+             {'RightHandThickness': 36.0, 'LeftHandThickness': -9.0},
+             [np.array([2, 8, 1]), np.array([-6, 4, -4])],
+             [[[2.0, 1.0, 5.0], [0, 4, 3], [1, -9, 6], 25.0], [[-3.5, 3.5, -2.0], [9, 0, -6], [-6, 3, 8], 2.5]],
+             [[2, 8, 1], [2.911684611677104, 7.658118270621086, 1.227921152919276],
+              [1.9534757894800765, 8.465242105199236, 1.8839599998785472],
+              [1.5917517095361369, 7.183503419072274, 1.4082482904638631], [-6, 4, -4],
+              [-6.21615749183132, 3.059079153204844, -3.739339495144585],
+              [-6.186838410896736, 3.777824759216273, -4.9569376001580645],
+              [-5.04168515250009, 3.744449374000024, -4.127775312999988]]),
+            # Testing that when rwra, lwra, rfin, lfin, and wrist_origin are composed of numpy arrays of floats and
+            # measurements values are floats
+            (np.array([4.0, 7.0, 6.0], dtype='float'), np.array([0.0, -5.0, 4.0], dtype='float'),
+             np.array([-4.0, 5.0, 3.0], dtype='float'), np.array([-3.0, 2.0, -7.0], dtype='float'),
+             np.array([1.0, -9.0, 6.0], dtype='float'), np.array([-6.0, 3.0, 8.0], dtype='float'),
+             np.array([[0.0, 4.0, 3.0], [9.0, 0.0, -6.0]], dtype='float'),
+             {'RightHandThickness': 36.0, 'LeftHandThickness': -9.0},
+             [np.array([2, 8, 1]), np.array([-6, 4, -4])],
+             [[[2.0, 1.0, 5.0], [0, 4, 3], [1, -9, 6], 25.0], [[-3.5, 3.5, -2.0], [9, 0, -6], [-6, 3, 8], 2.5]],
+             [[2, 8, 1], [2.911684611677104, 7.658118270621086, 1.227921152919276],
+              [1.9534757894800765, 8.465242105199236, 1.8839599998785472],
+              [1.5917517095361369, 7.183503419072274, 1.4082482904638631], [-6, 4, -4],
+              [-6.21615749183132, 3.059079153204844, -3.739339495144585],
+              [-6.186838410896736, 3.777824759216273, -4.9569376001580645],
+              [-5.04168515250009, 3.744449374000024, -4.127775312999988]])])
+    def test_hand_axis_calc(self, rwra, rwrb, lwra, lwrb, rfin, lfin, wrist_origin, measurements, mock_return_val,
+                            expected_mock_args, expected):
+        """
+        This test provides coverage of the hand_axis_calc function in the class CGM in pycgm.py, defined as
+        hand_axis_calc(rwra, rwrb, lwra, lwrb, rfin, lfin, wrist_origin, measurements)
+
+        This test takes 11 parameters:
+        rwra, rwrb, lwra, lwrb, rfin, lfin : ndarray
+            A 1x3 ndarray of each respective marker containing the XYZ positions.
+        wrist_origin : ndarray
+            A 2x3 array containing the x,y,z position of the right and left wrist joint center.
+        measurements : dict
+            A dictionary containing the subject measurements given from the file input.
+        mock_return_val : list
+            The value to be returned by the mock for find_joint_center
+        expected_mock_args : list
+            The expected arguments used to call the mocked function, find_joint_center
+        expected : array
+            An 8x3 ndarray that contains the right hand origin, right hand x, y, and z axis components,
+            left hand origin, and left hand x, y, and z axis components.
+
+        This test is checking to make sure the hand joint center and axis are calculated correctly given the input
+        parameters.
+
+        This unit test ensures that:
+        - the correct expected values are altered per parameter given.
+        - the resulting output is correct when rwra, lwra, rfin, lfin, and wrist_origin are composed of lists of
+        ints, numpy arrays of ints, lists of floats, and numpy arrays of floats . The values of rwrb and lwrb were
+        kept as numpy arrays as lists would cause errors from lines like the following in pycgm.py as lists cannot be
+        added together:
+        rwri = (rwra + rwrb) / 2.0
+        lwri = (lwra + lwrb) / 2.0
+        """
+        with patch.object(CGM, 'find_joint_center', side_effect=mock_return_val) as mock_find_joint_center:
+            result = CGM.hand_axis_calc(rwra, rwrb, lwra, lwrb, rfin, lfin, wrist_origin, measurements)
+
+        # Asserting that there were only 2 calls to find_joint_center
+        np.testing.assert_equal(mock_find_joint_center.call_count, 2)
+
+        # Asserting that the correct params were sent in the 1st (right) call to find_joint_center
+        np.testing.assert_almost_equal(expected_mock_args[0][0], mock_find_joint_center.call_args_list[0][0][0],
+                                       rounding_precision)
+        np.testing.assert_almost_equal(expected_mock_args[0][1], mock_find_joint_center.call_args_list[0][0][1],
+                                       rounding_precision)
+        np.testing.assert_almost_equal(expected_mock_args[0][2], mock_find_joint_center.call_args_list[0][0][2],
+                                       rounding_precision)
+        np.testing.assert_almost_equal(expected_mock_args[0][3], mock_find_joint_center.call_args_list[0][0][3],
+                                       rounding_precision)
+
+        # Asserting that the correct params were sent in the 2nd (left) call to find_joint_center
+        np.testing.assert_almost_equal(expected_mock_args[1][0], mock_find_joint_center.call_args_list[1][0][0],
+                                       rounding_precision)
+        np.testing.assert_almost_equal(expected_mock_args[1][1], mock_find_joint_center.call_args_list[1][0][1],
+                                       rounding_precision)
+        np.testing.assert_almost_equal(expected_mock_args[1][2], mock_find_joint_center.call_args_list[1][0][2],
+                                       rounding_precision)
+        np.testing.assert_almost_equal(expected_mock_args[1][3], mock_find_joint_center.call_args_list[1][0][3],
+                                       rounding_precision)
+
+        # Asserting that hand_axis_calc returned the correct result given the return value given by mocked
+        # find_joint_center
         np.testing.assert_almost_equal(result, expected, rounding_precision)
 
 
