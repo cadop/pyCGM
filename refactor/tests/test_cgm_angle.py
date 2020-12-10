@@ -947,14 +947,148 @@ class TestCGMUpperBodyAngle:
         - the resulting output is correct when global_axis and head_axis are composed of lists of ints, numpy arrays
         of ints, list of floats, and numpy arrays of floats.
         """
-        with patch.object(CGM, 'get_head_angle', return_value=mock_return_val) as mock_get_angle:
+        with patch.object(CGM, 'get_head_angle', return_value=mock_return_val) as mock_get_head_angle:
             result = CGM.head_angle_calc(global_axis, head_axis)
 
         # Asserting that there was only 1 call to get_head_angle
-        np.testing.assert_equal(mock_get_angle.call_count, 1)
+        np.testing.assert_equal(mock_get_head_angle.call_count, 1)
 
         # Asserting that the correct params were sent in the call to get_head_angle
-        np.testing.assert_almost_equal(expected_mock_args, mock_get_angle.call_args_list[0][0], rounding_precision)
+        np.testing.assert_almost_equal(expected_mock_args, mock_get_head_angle.call_args_list[0][0], rounding_precision)
+
+        # Asserting that head_angle_calc returned the correct result given the return value given by mocked
+        # get_head_angle
+        np.testing.assert_almost_equal(result, expected, rounding_precision)
+
+    # TODO: thorax_angle_calc
+
+    @pytest.mark.parametrize(["head_axis", "thorax_axis", "mock_return_val", "expected_mock_args", "expected"], [
+        # Test from running sample data
+        ([[99, 82, 1483], [100, 83, 1484], [98, 83, 1483], [99, 82, 1484]],
+         [[256, 364, 1459], [256, 365, 1459], [257, 364, 1459], [256, 354, 1458]],
+         [264.80557109, 81.95053302, - 45],
+         [[[1, 1, 1], [-1, 1, 0], [0, 0, 1]], [[0, 1, 0], [1, 0, 0], [0, -10, -1]]],
+         [-84.80557109, 81.95053302, 45]),
+        # Test with zeros for all params
+        ([[0, 0, 0], [0, 0, 0], [0, 0, 0], [0, 0, 0]],
+         [[0, 0, 0], [0, 0, 0], [0, 0, 0], [0, 0, 0]],
+         [0, 0, 0],
+         [[[0, 0, 0], [0, 0, 0], [0, 0, 0]], [[0, 0, 0], [0, 0, 0], [0, 0, 0]]],
+         [180, 0, 0]),
+        # Testing when values are added to head origin
+        ([[1, 6, -2], [0, 0, 0], [0, 0, 0], [0, 0, 0]],
+         [[0, 0, 0], [0, 0, 0], [0, 0, 0], [0, 0, 0]],
+         [0, 0, 0],
+         [[[-1, -6, 2], [-1, -6, 2], [-1, -6, 2]], [[0, 0, 0], [0, 0, 0], [0, 0, 0]]],
+         [180, 0, 0]),
+        # Testing when values are added to head x, y, z axes
+        ([[0, 0, 0], [2, 9, 0], [9, 8, 8], [9, -1, 5]],
+         [[0, 0, 0], [0, 0, 0], [0, 0, 0], [0, 0, 0]],
+         [0, 0, 0],
+         [[[2, 9, 0], [9, 8, 8], [9, -1, 5]], [[0, 0, 0], [0, 0, 0], [0, 0, 0]]],
+         [180, 0, 0]),
+        # Testing when values are added to head_axis
+        ([[1, 6, -2], [2, 9, 0], [9, 8, 8], [9, -1, 5]],
+         [[0, 0, 0], [0, 0, 0], [0, 0, 0], [0, 0, 0]],
+         [0, 0, 0],
+         [[[1, 3, 2], [8, 2, 10], [8, -7, 7]], [[0, 0, 0], [0, 0, 0], [0, 0, 0]]],
+         [180, 0, 0]),
+        # Testing when values are added to thorax origin
+        ([[0, 0, 0], [0, 0, 0], [0, 0, 0], [0, 0, 0]],
+         [[-6, 8, 9], [0, 0, 0], [0, 0, 0], [0, 0, 0]],
+         [0, 0, 0],
+         [[[0, 0, 0], [0, 0, 0], [0, 0, 0]], [[6, -8, -9], [6, -8, -9], [6, -8, -9]]],
+         [180, 0, 0]),
+        # Testing when values are added to thorax x, y, z axes
+        ([[0, 0, 0], [0, 0, 0], [0, 0, 0], [0, 0, 0]],
+         [[0, 0, 0], [7, 2, -1], [9, 4, 6], [-7, 5, -9]],
+         [0, 0, 0],
+         [[[0, 0, 0], [0, 0, 0], [0, 0, 0]], [[7, 2, -1], [9, 4, 6], [-7, 5, -9]]],
+         [180, 0, 0]),
+        # Testing when values are added to thorax_axis
+        ([[0, 0, 0], [0, 0, 0], [0, 0, 0], [0, 0, 0]],
+         [[-6, 8, 9], [7, 2, -1], [9, 4, 6], [-7, 5, -9]],
+         [0, 0, 0],
+         [[[0, 0, 0], [0, 0, 0], [0, 0, 0]], [[13, -6, -10], [15, -4, -3], [-1, -3, -18]]],
+         [180, 0, 0]),
+        # Testing when values are added to mock_return_val
+        ([[0, 0, 0], [0, 0, 0], [0, 0, 0], [0, 0, 0]],
+         [[0, 0, 0], [0, 0, 0], [0, 0, 0], [0, 0, 0]],
+         [-68, 34, -21],
+         [[[0, 0, 0], [0, 0, 0], [0, 0, 0]], [[0, 0, 0], [0, 0, 0], [0, 0, 0]]],
+         [248, 34, 21]),
+        # Testing when values are added to head_axis and thorax_axis
+        ([[1, 6, -2], [2, 9, 0], [9, 8, 8], [9, -1, 5]],
+         [[-6, 8, 9], [7, 2, -1], [9, 4, 6], [-7, 5, -9]],
+         [0, 0, 0],
+         [[[1, 3, 2], [8, 2, 10], [8, -7, 7]], [[13, -6, -10], [15, -4, -3], [-1, -3, -18]]],
+         [180, 0, 0]),
+        # Testing when values are added to head_axis, thorax_axis, and mock_return_val
+        ([[1, 6, -2], [2, 9, 0], [9, 8, 8], [9, -1, 5]],
+         [[-6, 8, 9], [7, 2, -1], [9, 4, 6], [-7, 5, -9]],
+         [-68, 34, -21],
+         [[[1, 3, 2], [8, 2, 10], [8, -7, 7]], [[13, -6, -10], [15, -4, -3], [-1, -3, -18]]],
+         [248, 34, 21]),
+        # Testing that when head_axis and thorax_axis are composed of lists of ints
+        ([[1, 6, -2], [2, 9, 0], [9, 8, 8], [9, -1, 5]],
+         [[-6, 8, 9], [7, 2, -1], [9, 4, 6], [-7, 5, -9]],
+         [-68, 34, -21],
+         [[[1, 3, 2], [8, 2, 10], [8, -7, 7]], [[13, -6, -10], [15, -4, -3], [-1, -3, -18]]],
+         [248, 34, 21]),
+        # Testing that when head_axis and thorax_axis are composed of numpy arrays of ints
+        (np.array([[1, 6, -2], [2, 9, 0], [9, 8, 8], [9, -1, 5]], dtype='int'),
+         np.array([[-6, 8, 9], [7, 2, -1], [9, 4, 6], [-7, 5, -9]], dtype='int'),
+         [-68, 34, -21],
+         [[[1, 3, 2], [8, 2, 10], [8, -7, 7]], [[13, -6, -10], [15, -4, -3], [-1, -3, -18]]],
+         [248, 34, 21]),
+        # Testing that when head_axis and thorax_axis are composed of lists of floats
+        ([[1.0, 6.0, -2.0], [2.0, 9.0, 0.0], [9.0, 8.0, 8.0], [9.0, -1.0, 5.0]],
+         [[-6.0, 8.0, 9.0], [7.0, 2.0, -1.0], [9.0, 4.0, 6.0], [-7.0, 5.0, -9.0]],
+         [-68, 34, -21],
+         [[[1, 3, 2], [8, 2, 10], [8, -7, 7]], [[13, -6, -10], [15, -4, -3], [-1, -3, -18]]],
+         [248, 34, 21]),
+        # Testing that when head_axis and thorax_axis are composed of numpy arrays of floats
+        (np.array([[1.0, 6.0, -2.0], [2.0, 9.0, 0.0], [9.0, 8.0, 8.0], [9.0, -1.0, 5.0]], dtype='float'),
+         np.array([[-6.0, 8.0, 9.0], [7.0, 2.0, -1.0], [9.0, 4.0, 6.0], [-7.0, 5.0, -9.0]], dtype='float'),
+         [-68, 34, -21],
+         [[[1, 3, 2], [8, 2, 10], [8, -7, 7]], [[13, -6, -10], [15, -4, -3], [-1, -3, -18]]],
+         [248, 34, 21])])
+    def test_neck_angle_calc(self, head_axis, thorax_axis, mock_return_val, expected_mock_args, expected):
+        """
+
+        This test provides coverage of the neck_angle_calc function in the class CGM in pycgm.py, defined as
+        neck_angle_calc(head_axis, thorax_axis)
+
+        This test takes 5 parameters:
+        head_axis : ndarray
+            A 4x3 ndarray containing the origin and three unit vectors of the head axis.
+        thorax_axis : ndarray
+            A 4x3 ndarray containing the origin and three unit vectors of the thorax axis.
+        mock_return_val : list
+            The value to be returned by the mock for get_head_angle
+        expected_mock_args : list
+            The expected arguments used to call the mocked function, get_head_angle
+        expected : array
+            A 1x3 ndarray containing the flexion, abduction, and rotation angles of the neck.
+
+        This test is checking to make sure the neck angle is calculated correctly given the input parameters. This
+        tests mocks get_head_angle to make sure the correct parameters are being passed into it given the parameters
+        passed into neck_angle_calc, expected_mock_args, and to also ensure that neck_angle_calc returns the correct
+        value considering the return value of get_head_angle, mock_return_val.
+
+        This unit test ensures that:
+        - the correct expected values are altered per parameter given.
+        - the resulting output is correct when head_axis and thorax_axis are composed of lists of ints, numpy arrays
+        of ints, list of floats, and numpy arrays of floats.
+        """
+        with patch.object(CGM, 'get_head_angle', return_value=mock_return_val) as mock_get_head_angle:
+            result = CGM.neck_angle_calc(head_axis, thorax_axis)
+
+        # Asserting that there was only 1 call to get_head_angle
+        np.testing.assert_equal(mock_get_head_angle.call_count, 1)
+
+        # Asserting that the correct params were sent in the call to get_head_angle
+        np.testing.assert_almost_equal(expected_mock_args, mock_get_head_angle.call_args_list[0][0], rounding_precision)
 
         # Asserting that head_angle_calc returned the correct result given the return value given by mocked
         # get_head_angle
