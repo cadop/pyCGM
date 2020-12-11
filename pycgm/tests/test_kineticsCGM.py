@@ -4,12 +4,36 @@
 import pytest
 import numpy as np
 from pycgm.pycgm import CGM
+from pycgm.io import IO
 import os
 
 rounding_precision = 8
 
 
 class TestKineticsCGM:
+    @classmethod
+    def setup_class(self):
+        """
+        Called once for all tests in KineticsCGM.
+        Loads one frame of data using the CGM interface for use in
+        testing get_kinetics.
+        """
+        dynamic_trial = 'SampleData/Sample_2/RoboWalk.c3d'
+        static_trial = 'SampleData/Sample_2/RoboStatic.c3d'
+        measurements = 'SampleData/Sample_2/RoboSM.vsk'
+        subject = CGM(static_trial, dynamic_trial, measurements, start = 0, end = 1)
+        subject.run()
+        self.seg_scale = IO.load_scaling_table()
+        self.jc_mapping_original = subject.jc_idx
+        self.joint_centers = subject.joint_centers[0]
+        self.body_mass = subject.measurements['Bodymass']
+    
+    def setup_method(self):
+        """
+        Called once before every test in KineticsCGM.
+        Resets jc_mapping to its original state.
+        """
+        self.jc_mapping = self.jc_mapping_original.copy()
 
     @pytest.mark.parametrize("lhjc, rhjc, axis, expected", [
         (np.array([282.57097863, 139.43231855, 435.52900012]),
@@ -46,7 +70,7 @@ class TestKineticsCGM:
     ])
     def test_find_l5(self, lhjc, rhjc, axis, expected):
         """
-        This function tests CGM.find(lhjc, rhjc, axis),
+        This function tests CGM.find_l5(lhjc, rhjc, axis),
         where lhjc and rhjc are numpy arrays that give the position of the
         LHJC and RHJC markers, and pelvis_axis gives the arrays of the pelvis
         or thorax origin,x-axis, y-axis, and z-axis.
@@ -97,3 +121,62 @@ class TestKineticsCGM:
         point, start, end = [1, 2, 3], [4, 5, 6], [0, 0, 0]
         with pytest.raises(Exception):
             CGM.point_to_line(point, start, end)
+
+    def test_get_kinetics(self):
+        """
+        This function tests CGM.get_kinetics(joint_centers, jc_mapping, seg_scale, body_mass),
+        where `joint_centers` is a 2d numpy array of joint center data, `jc_mapping` is dictionary
+        that which indices in `joint_centers` correspond to which joint centers, `seg_scale` is
+        a dictionary of segment scaling factors, and `body_mass` is the body mass of the subject
+        in kilograms.
+
+        This function tests the accuracy of get_kinetics using loaded data from files in 
+        SampleData/Sample_2/ through the CGM interface.
+        """
+        result = CGM.get_kinetics(self.joint_centers, self.jc_mapping, self.seg_scale, self.body_mass)
+        expected = np.array([-942.7636386, -3.58139618, 865.32990601])
+        np.testing.assert_almost_equal(result, expected, rounding_precision)
+
+    @pytest.mark.parametrize("key_to_remove", [
+        ('RFoot'),
+        ('LFoot'),
+        ('RHEE'),
+        ('LHEE'),
+        ('RKnee'),
+        ('LKnee'),
+        ('RAnkle'),
+        ('LAnkle'),
+        ('RHip'),
+        ('LHip'),
+        ('RShoulder'),
+        ('LShoulder'),
+        ('RHumerus'),
+        ('LHumerus'),
+        ('RRadius'),
+        ('LRadius'),
+        ('RHand'),
+        ('LHand'),
+        ('Back_Head'),
+        ('Front_Head'),
+        ('pelvis_origin'),
+        ('pelvis_x'),
+        ('pelvis_y'),
+        ('pelvis_z'),
+        ('thorax_origin'),
+        ('thorax_x'),
+        ('thorax_y'),
+        ('thorax_z'),
+        ('C7'),
+        ('CLAV'),
+        ('STRN'),
+        ('T10')
+    ])
+    def test_get_kinetics_exceptions(self, key_to_remove):
+        """
+        This function tests that removing required keys from jc_mapping
+        will raise exceptions when running get_kinetics.
+        """
+        if key_to_remove in self.jc_mapping:
+            del self.jc_mapping[key_to_remove]
+        with pytest.raises(KeyError):
+            CGM.get_kinetics(self.joint_centers, self.jc_mapping, self.seg_scale, self.body_mass)

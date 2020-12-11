@@ -8,8 +8,8 @@ import sys
 import tempfile
 from shutil import rmtree
 from pycgm.io import IO
+from pycgm.pycgm import CGM
 from mock import patch
-
 
 class TestIO:
     @classmethod
@@ -18,13 +18,13 @@ class TestIO:
         Called once for all tests in IO.
         Sets rounding_precision, loads filenames to be used
         for testing load functions, and sets the python version
-        being used.
+        being used. Also sets an subject measurement dictionary
+        that is an expected return value from load_sm.
+
+        We also run the CGM code to get a frame of output data to get
+        IO.write_result.
         """
         self.rounding_precision = 8
-        cwd = os.getcwd()
-        if cwd.split(os.sep)[-1] == "pyCGM_Single":
-            parent = os.path.dirname(cwd)
-            os.chdir(parent)
         self.cwd = os.getcwd()
         self.pyver = sys.version_info.major
 
@@ -83,14 +83,38 @@ class TestIO:
             'ThorOy': 0.0719171389937401, 'ThorOz': 499.705780029297
         }
 
-        filename_59993_Frame = 'SampleData' + os.sep + '59993_Frame' + os.sep + '59993_Frame_Static.c3d'
-        self.filename_59993_Frame = os.path.join(self.cwd, filename_59993_Frame)
-        filename_Sample_Static = 'SampleData' + os.sep + 'ROM' + os.sep + 'Sample_Static.csv'
-        self.filename_Sample_Static = os.path.join(self.cwd, filename_Sample_Static)
-        filename_RoboSM_vsk = 'SampleData' + os.sep + 'Sample_2' + os.sep + 'RoboSM.vsk'
-        self.filename_RoboSM_vsk = os.path.join(self.cwd, filename_RoboSM_vsk)
-        filename_RoboSM_csv = 'SampleData' + os.sep + 'Sample_2' + os.sep + 'RoboSM.csv'
-        self.filename_RoboSM_csv = os.path.join(self.cwd, filename_RoboSM_csv)
+        self.filename_59993_Frame = 'SampleData/59993_Frame/59993_Frame_Static.c3d'
+        self.filename_Sample_Static = 'SampleData/ROM/Sample_Static.csv'
+        self.filename_RoboSM_vsk = 'SampleData/Sample_2/RoboSM.vsk'
+        self.filename_RoboSM_csv = 'SampleData/Sample_2/RoboSM.csv'
+
+        dynamic_trial = 'SampleData/ROM/Sample_Dynamic.c3d'
+        static_trial = 'SampleData/ROM/Sample_Static.c3d'
+        measurements = 'SampleData/ROM/Sample_SM.vsk'
+        self.subject = CGM(static_trial, dynamic_trial, measurements, start = 0, end = 1)
+        self.subject.run()
+    
+    def setup_method(self):
+        """
+        Called once before every test method runs.
+        Creates a temporary directory to be used for testing 
+        functions that write to disk.
+        """
+        if (self.pyver == 2):
+            self.tmp_dir_name = tempfile.mkdtemp()
+        else:
+            self.tmp_dir = tempfile.TemporaryDirectory()
+            self.tmp_dir_name = self.tmp_dir.name
+    
+    def teardown_method(self):
+        """
+        Called once after every test method is finished running.
+        If using Python 2, perform cleanup of previously created
+        temporary directory in setup_method(). Cleanup is done
+        automatically in Python 3.
+        """
+        if (self.pyver == 2):
+            rmtree(self.tmp_dir_name)
 
     @pytest.mark.parametrize("frame, data_key, expected_data", [
         (0, 'LFHD',
@@ -113,6 +137,13 @@ class TestIO:
          np.array([52.61815643, -126.93238068, 58.56194305]))
     ])
     def test_load_c3d_data_accuracy(self, frame, data_key, expected_data):
+        """
+        This function tests IO.load_c3d(filename), where filename is the string
+        giving the path of a c3d file to load.
+
+        This function tests for several markers from different frames to ensure
+        that load_c3d works properly.
+        """
         data, mappings = IO.load_c3d(self.filename_59993_Frame)
         result_marker_data = data[frame][mappings[data_key]]
         np.testing.assert_almost_equal(result_marker_data, expected_data, self.rounding_precision)
@@ -124,6 +155,11 @@ class TestIO:
         ('HEDO', 37)
     ])
     def test_load_c3d_mapping(self, data_key, expected_index):
+        """
+        This function tests that IO.load_c3d(filename) loads marker mappings
+        properly, where the mappings indicate which index corresponds to which
+        marker in the loaded data.
+        """
         _, mappings = IO.load_c3d(self.filename_59993_Frame)
         result_index = mappings[data_key]
         assert result_index == expected_index
@@ -157,6 +193,13 @@ class TestIO:
          np.array([427.6356201, 188.9467773, 93.36354828]))
     ])
     def test_load_csv_data_accuracy(self, frame, data_key, expected_data):
+        """
+        This function tests IO.load_csv(filename), where filename is the string
+        giving the path of a csv file with marker data to load.
+
+        This function tests for several markers from different frames to ensure
+        that load_csv works properly.
+        """
         data, mappings = IO.load_csv(self.filename_Sample_Static)
         result_marker_data = data[frame][mappings[data_key]]
         np.testing.assert_almost_equal(result_marker_data, expected_data, self.rounding_precision)
@@ -168,6 +211,11 @@ class TestIO:
         ('*113', 113)
     ])
     def test_load_csv_mapping(self, data_key, expected_index):
+        """
+        This function tests that IO.load_csv(filename) loads marker mappings
+        properly, where the mappings indicate which index corresponds to which
+        marker in the loaded data.
+        """
         _, mappings = IO.load_csv(self.filename_Sample_Static)
         result_index = mappings[data_key]
         assert result_index == expected_index
@@ -188,6 +236,13 @@ class TestIO:
         (12, 'RKNE', np.array([417.5567017, 241.5111389, 523.7767334]))
     ])
     def test_load_marker_data_csv(self, frame, data_key, expected_data):
+        """
+        This function tests IO.load_marker_data(filename), where filename is
+        the string giving the path of a marker data filename to load.
+
+        This function tests that load_marker_data works correctly when loading
+        a csv file.
+        """
         data, mappings = IO.load_marker_data(self.filename_Sample_Static)
         result_data = data[frame][mappings[data_key]]
         np.testing.assert_almost_equal(result_data, expected_data, self.rounding_precision)
@@ -200,6 +255,13 @@ class TestIO:
         (12, 'RKNE', np.array([96.54218292, -111.24856567, 412.34362793]))
     ])
     def test_load_marker_data_c3d(self, frame, data_key, expected_data):
+        """
+        This function tests IO.load_marker_data(filename), where filename is
+        the string giving the path of a marker data filename to load.
+
+        This function tests that load_marker_data works correctly when loading
+        a c3d file.
+        """
         data, mappings = IO.load_marker_data(self.filename_59993_Frame)
         result_data = data[frame][mappings[data_key]]
         np.testing.assert_almost_equal(result_data, expected_data, self.rounding_precision)
@@ -212,6 +274,10 @@ class TestIO:
         assert IO.load_marker_data("NonExistentFile") is None
 
     def test_load_sm_vsk(self):
+        """
+        This function tests IO.load_sm_vsk(filename), where filename is
+        the string giving the path to a VSK file to load.
+        """
         subject_measurements = IO.load_sm_vsk(self.filename_RoboSM_vsk)
         assert isinstance(subject_measurements, dict)
         assert subject_measurements == self.expected_subject_measurements
@@ -225,6 +291,10 @@ class TestIO:
             IO.load_sm_vsk("NonExistentFilename")
 
     def test_load_sm_csv(self):
+        """
+        This function tests IO.load_sm_csv(filename), where filename is
+        the string giving the path to a csv file with subject measurements to load.
+        """
         subject_measurements = IO.load_sm_csv(self.filename_RoboSM_csv)
         assert isinstance(subject_measurements, dict)
         assert subject_measurements == self.expected_subject_measurements
@@ -238,6 +308,10 @@ class TestIO:
             IO.load_sm_csv("NonExistentFilename")
 
     def test_load_sm_calls_vsk(self):
+        """
+        This function tests that IO.load_sm(filename) properly calls
+        IO.load_sm_vsk when given a filename with a .vsk extension.
+        """
         mock_return_value = {'Bodymass': 72.0}
         with patch.object(IO, 'load_sm_vsk', return_value=mock_return_value) as mock_load_sm_vsk:
             subject_measurements = IO.load_sm(self.filename_RoboSM_vsk)
@@ -246,6 +320,10 @@ class TestIO:
             mock_load_sm_vsk.assert_called()
 
     def test_load_sm_calls_csv(self):
+        """
+        This function tests that IO.load_sm(filename) properly calls
+        IO.load_sm_csv when given a filename with a .csv extension.
+        """
         mock_return_value = {'Bodymass': 72.0}
         with patch.object(IO, 'load_sm_csv', return_value=mock_return_value) as mock_load_sm_csv:
             subject_measurements = IO.load_sm(self.filename_RoboSM_csv)
@@ -259,3 +337,77 @@ class TestIO:
         extension returns none.
         """
         assert IO.load_sm("NonExistentFile") is None
+
+    def test_load_scaling_table(self):
+        """
+        This function tests IO.load_scaling_table(), which loads segment
+        scaling factors from the segments.csv file. This test ensures that
+        the scaling factors are loaded properly.
+        """
+        result = IO.load_scaling_table()
+        expected = {
+            'Humerus': {'y': 0.322, 'mass': 0.028, 'z': 0, 'com': 0.564, 'x': 0.322}, 
+            'Head': {'y': 0.495, 'mass': 0.081, 'z': 0.495, 'com': 0.506, 'x': 0.495}, 
+            'Hand': {'y': 0.223, 'mass': 0.006, 'z': 0, 'com': 0.5, 'x': 0.223}, 
+            'Femur': {'y': 0.329, 'mass': 0.1, 'z': 0.149, 'com': 0.567, 'x': 0.329}, 
+            'Radius': {'y': 0.303, 'mass': 0.016, 'z': 0, 'com': 0.57, 'x': 0.303}, 
+            'Thorax': {'y': 0.249, 'mass': 0.355, 'z': 0.124, 'com': 0.37, 'x': 0.31}, 
+            'Foot': {'y': 0.475, 'mass': 0.0145, 'z': 0, 'com': 0.5, 'x': 0.475}, 
+            'Pelvis': {'y': 0.31, 'mass': 0.142, 'z': 0, 'com': 0.5, 'x': 0.31}, 
+            'Tibia': {'y': 0.249, 'mass': 0.0465, 'z': 0.124, 'com': 0.567, 'x': 0.255}
+        }
+        np.testing.assert_equal(result, expected)
+    
+    @pytest.mark.parametrize("angles, axis, center_of_mass, len_written, truncated_result", [
+        (True, True, True, 277, 
+         [0, 246.574667211621,	313.556623830123, 1026.56323492199,
+          -0.308494914509454, -6.12129279337001, 7.57143110215171]),
+        (True, False, False, 58, 
+         [0, -0.308494914509454, -6.12129279337001,	7.57143110215171,
+          2.91422292971666,	-6.86706898044634,	-18.8210007096431]),
+        (False, True, False, 217, 
+         [0, 251.608306884766, 391.741317749023, 1032.89349365234,
+          251.740636241119,	392.726947206848, 1032.78850073204]),
+        (False, False, True, 4, 
+         [0, 246.574667211621, 313.556623830123, 1026.56323492199]),
+        (['R Hip', 'Head'], False, False, 7, 
+         [0, 2.91422292971666, -6.86706898044634, -18.8210007096431,
+          0.0211967292758, 5.46225283664947, -91.4960853439643]),
+        (False, ['PELO', 'L RADZ'], False, 7, 
+         [0, 251.608306884766, 391.741317749023, 1032.89349365234,
+          -271.942564463838, 485.19216662335, 1091.96791187486]),
+        (['NonExistentKey'], False, False, 1, [0])
+    ])
+    def test_write_result(self, angles, axis, center_of_mass, len_written, truncated_result):
+        """
+        This function tests IO.write_result() with several different 
+        arguments giving different ways to write outputs.
+
+        This function uses previously computed kinematics and center of mass
+        data in setup_method, and writes to a temporary directory for testing.
+
+        We test for a truncated output, and the number of output values written.
+        We test writing all angles, axes, and center of mass, only angles, 
+        only axes, only center of mass, a list of angles, a list of axes, and
+        non-existent keys.
+        """
+        output_filename = os.path.join(self.tmp_dir_name, 'new_pycgm_output.csv')
+        angle_output = self.subject.angle_results
+        angle_mapping = self.subject.angle_idx
+        axis_output = self.subject.axis_results
+        axis_mapping = self.subject.axis_idx
+        center_of_mass_output = self.subject.com_results
+
+        IO.write_result(output_filename, angle_output, angle_mapping, axis_output,
+                        axis_mapping, center_of_mass_output, angles, axis, 
+                        center_of_mass)
+        with open(output_filename, 'r') as f:
+            lines = f.readlines()
+            #Skip the first 6 lines of output since they are headers
+            result = lines[7].strip().split(',')
+            array_result = np.asarray(result, dtype=np.float64)
+            len_result = len(array_result)
+            #Test that the truncated results are equal
+            np.testing.assert_almost_equal(truncated_result, array_result[:7], self.rounding_precision)
+            #Test we have written the correct number of results
+            np.testing.assert_equal(len_result, len_written)

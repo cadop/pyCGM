@@ -2,6 +2,7 @@
 # -*- coding: utf-8 -*-
 
 import numpy as np
+import os
 import sys
 import xml.etree.ElementTree as ET
 
@@ -43,6 +44,38 @@ class IO:
                 'RWRA', 'RWRB', 'LWRA', 'LWRB', 'RFIN', 'LFIN']
 
     # Reading Functions
+    @staticmethod
+    def load_scaling_table():
+        """Loads PlugInGait scaling table from segments.csv.
+
+        Returns
+        -------
+        seg_scale : dict
+            Dictionary containing segment scaling factors.
+        
+        Examples
+        --------
+        >>> from .io import IO
+        >>> IO.load_scaling_table()
+        {...
+        
+        Notes
+        -----
+        The PiG scaling factors are taken from Dempster -- they are available at:
+        http://www.c-motion.com/download/IORGaitFiles/pigmanualver1.pdf
+        """
+        seg_scale = {}
+        with open(os.path.dirname(os.path.abspath(__file__)) + '/segments.csv', 'r') as f:
+            header = False
+            for line in f:
+                if not header:
+                    header = True
+                else:
+                    row = line.rstrip('\n').split(',')
+                    seg_scale[row[0]] = {'com': float(row[1]), 'mass': float(row[2]), 'x': float(row[3]), 
+                                         'y': float(row[4]), 'z': float(row[5])}
+        return seg_scale
+    
     @staticmethod
     def load_marker_data(filename):
         """Open and load a c3d or csv file of motion capture data.

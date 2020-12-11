@@ -47,6 +47,7 @@ class CGM:
         self.angle_results = None
         self.axis_results = None
         self.com_results = None
+        self.joint_centers = None
         self.marker_map = {marker: marker for marker in IO.marker_keys()}
         self.marker_data = None
         self.marker_idx = None
@@ -123,16 +124,7 @@ class CGM:
         """
 
         # Get PlugInGait scaling table from segments.csv for use in center of mass calculations
-        seg_scale = {}
-        with open(os.path.dirname(os.path.abspath(__file__)) + '/segments.csv', 'r') as f:
-            header = False
-            for line in f:
-                if not header:
-                    header = True
-                else:
-                    row = line.rstrip('\n').split(',')
-                    seg_scale[row[0]] = {'com': float(row[1]), 'mass': float(row[2]), 'x': row[3], 'y': row[4],
-                                         'z': row[5]}
+        seg_scale = IO.load_scaling_table()
 
         self.marker_data, self.marker_idx = IO.load_marker_data(self.path_dynamic)
         self.end = self.end if self.end != -1 else len(self.marker_data)
@@ -150,7 +142,7 @@ class CGM:
                    self.spine_angle_calc, self.shoulder_angle_calc, self.elbow_angle_calc, self.wrist_angle_calc]
         mappings = [self.marker_map, self.marker_idx, self.axis_idx, self.angle_idx, self.jc_idx]
         results = self.multi_calc(self.marker_data, methods, mappings, self.measurements, seg_scale)
-        self.axis_results, self.angle_results, self.com_results = results
+        self.axis_results, self.angle_results, self.com_results, self.joint_centers = results
 
     def write_results(self, path_results, write_axes=None, write_angles=None, write_com=True):
         """Write CGM results to a csv file.
@@ -216,16 +208,19 @@ class CGM:
         axis_results.fill(np.nan)
         angle_results = np.empty((len(data), len(angle_idx), 3), dtype=float)
         angle_results.fill(np.nan)
+        joint_centers = np.empty((len(data), len(jc_idx), 3), dtype=float)
+        joint_centers.fill(np.nan)
         com_results = np.empty((len(data), 3), dtype=float)
         com_results.fill(np.nan)
 
         for i, frame in enumerate(data):
-            frame_axes, frame_angles, frame_com = CGM.calc(frame, methods, mappings, measurements, seg_scale)
+            frame_axes, frame_angles, frame_com, frame_jc = CGM.calc(frame, methods, mappings, measurements, seg_scale)
             axis_results[i] = frame_axes
             angle_results[i] = frame_angles
             com_results[i] = frame_com
+            joint_centers[i] = frame_jc
 
-        return axis_results, angle_results, com_results
+        return axis_results, angle_results, com_results, joint_centers
 
     @staticmethod
     def calc(frame, methods, mappings, measurements, seg_scale):
@@ -253,7 +248,7 @@ class CGM:
         Returns
         -------
         results : tuple
-            A tuple consisting of the axis results, angle results, and center of mass results.
+            A tuple consisting of the axis results, angle results, center of mass results, and joint centers.
             Axis results are stored as a 3d ndarray of each joint by origin and xyz unit vectors
             by x, y, and z location. Angle results are stored as a 2d ndarray of each angle by x, y, and z.
         """
@@ -585,7 +580,7 @@ class CGM:
         # Center of Mass calculations
         com_results = np.array(CGM.get_kinetics(joint_centers, jc_idx, seg_scale, measurements["Bodymass"]))
 
-        return axis_results, angle_results, com_results
+        return axis_results, angle_results, com_results, joint_centers
 
     # Utility functions
     @staticmethod
@@ -3237,10 +3232,27 @@ class CGM:
             of trial. The coordinate is a 1x3 array of the XYZ position of the center
             of mass.
 
-        Notes
-        -----
-        The PiG scaling factors are taken from Dempster -- they are available at:
-        http://www.c-motion.com/download/IORGaitFiles/pigmanualver1.pdf
+        Examples
+        --------
+        
+        This example uses the CGM interface to load inputs used in the center of
+        mass calculations for one frame in `get_kinetics`.
+
+        >>> from .pycgm import CGM
+        >>> from .io import IO
+        >>> dynamic_trial = 'SampleData/Sample_2/RoboWalk.c3d'
+        >>> static_trial = 'SampleData/Sample_2/RoboStatic.c3d'
+        >>> measurements = 'SampleData/Sample_2/RoboSM.vsk'
+        >>> subject = CGM(static_trial, dynamic_trial, measurements, start=0, end=1)
+        SampleData/Sample_2/RoboStatic.c3d
+        >>> subject.run()
+        SampleData/Sample_2/RoboWalk.c3d
+        >>> seg_scale = IO.load_scaling_table()
+        >>> jc_mapping = subject.jc_idx
+        >>> joint_centers = subject.joint_centers[0]
+        >>> body_mass = 72.0
+        >>> CGM.get_kinetics(joint_centers, jc_mapping, seg_scale, body_mass)
+        array([-942.7636386 ,   -3.58139618,  865.32990601])
         """
         # Define names of segments
         sides = ['L', 'R']
@@ -3388,17 +3400,17 @@ class CGM:
                             val = vector * mass
                             seg_temp[seg]['val'] = val
 
-                vals = []
+        vals = []
+        
+        if pyver == 2:
+            for_iter = seg_temp.iteritems()
+        elif pyver == 3:
+            for_iter = seg_temp.items()
 
-                if pyver == 2:
-                    for_iter = seg_temp.iteritems()
-                elif pyver == 3:
-                    for_iter = seg_temp.items()
+        for attr, value in for_iter:
+            vals.append(value['val'])
 
-                for attr, value in for_iter:
-                    vals.append(value['val'])
-
-                com_coords = sum(vals) / body_mass
+        com_coords = sum(vals) / body_mass
         return com_coords
 
     # Properties for accessing subsets of results
