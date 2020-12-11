@@ -373,7 +373,7 @@ class CGM:
         ltoe = frame[marker_idx[markers["LTOE"]]]
         rhee = frame[marker_idx[markers["RHEE"]]]
         lhee = frame[marker_idx[markers["LHEE"]]]
-        
+
         # Populate RHEE and LHEE in joint_centers
         joint_centers[jc_idx['RHEE']] = rhee
         joint_centers[jc_idx['LHEE']] = lhee
@@ -2918,7 +2918,7 @@ class CGM:
         ...                         [256.2, 354.7, 1458.2]])
         >>> CGM.thorax_angle_calc(thorax_axis)
         array([-170.114302  ,           nan,  179.92137266])
-        """  #TODO - Resolve this
+        """  # TODO - Resolve this
         thorax_axis_mod = CGM.subtract_origin(thorax_axis)
         global_axis = CGM.rotation_matrix(x=0, y=0, z=180.0)
         global_thorax_angle = CGM.get_angle(global_axis, thorax_axis_mod)
@@ -3002,7 +3002,7 @@ class CGM:
         ...                         [-256, 354.6, 1458]])
         >>> CGM.spine_angle_calc(pelvis_axis, thorax_axis)
         array([nan, -0., nan])
-        """  #TODO - resolve this 
+        """  # TODO - resolve this 
         pelvis_axis_mod = CGM.subtract_origin(pelvis_axis)
         thorax_axis_mod = CGM.subtract_origin(thorax_axis)
         spine_angle = CGM.get_spine_angle(pelvis_axis_mod, thorax_axis_mod)
@@ -3124,7 +3124,7 @@ class CGM:
         >>> CGM.elbow_angle_calc(elbow_axis, wrist_axis)
         array([[ -45.91665426,           nan,   20.34505085],
                [-121.60075378,           nan, -136.39962763]])
-        """  #TODO - Resolve this
+        """  # TODO - Resolve this
         r_elbow_axis_mod = CGM.subtract_origin(elbow_axis[:4])
         l_elbow_axis_mod = CGM.subtract_origin(elbow_axis[4:])
         r_wrist_axis_mod = CGM.subtract_origin(wrist_axis[:4])
@@ -3182,7 +3182,7 @@ class CGM:
         >>> CGM.wrist_angle_calc(wrist_axis, hand_axis)
         array([[ -45.91665426,           nan,  -20.34505085],
                [-121.60075378,           nan, -136.39962763]])
-        """  #TODO - Resolve this
+        """  # TODO - Resolve this
         r_wrist_axis_mod = CGM.subtract_origin(wrist_axis[:4])
         l_wrist_axis_mod = CGM.subtract_origin(wrist_axis[4:])
         r_hand_axis_mod = CGM.subtract_origin(hand_axis[:4])
@@ -3405,259 +3405,423 @@ class CGM:
     @staticmethod
     def repack(array):
         # Used to combine multiple columns of data by frame
+        # i.e., if X, Y, and Z are three different columns, repack makes them one column of XYZ
         return np.flip(np.rot90(array), 0)
 
     @property
     def pelvis_axes(self):
-        try:
-            pel = np.array([self.axis_results[0:, self.axis_idx["PELO"]],
-                            self.axis_results[0:, self.axis_idx["PELX"]],
-                            self.axis_results[0:, self.axis_idx["PELY"]],
-                            self.axis_results[0:, self.axis_idx["PELZ"]]])
-        except KeyError:
-            pel = None
+        pel = np.array([self.axis_results[0:, self.axis_idx["PELO"]],
+                        self.axis_results[0:, self.axis_idx["PELX"]],
+                        self.axis_results[0:, self.axis_idx["PELY"]],
+                        self.axis_results[0:, self.axis_idx["PELZ"]]])
         return self.repack(pel)
 
     @property
+    def pelvis_joint_centers(self):
+        return self.axis_results[0:, self.axis_idx["PELO"]]
+
+    @property
     def pelvis_angles(self):
-        try:
-            pel = self.angle_results[0:, self.angle_idx["Pelvis"]]
-        except KeyError:
-            pel = None
-        return pel
+        return self.repack(self.angle_results[0:, self.angle_idx["Pelvis"]])
+
+    @property
+    def pelvis_flexions(self):
+        return self.angle_results[0:, self.angle_idx["Pelvis"]][:, 0]
+
+    @property
+    def pelvis_abductions(self):
+        return self.angle_results[0:, self.angle_idx["Pelvis"]][:, 1]
+
+    @property
+    def pelvis_rotations(self):
+        return self.angle_results[0:, self.angle_idx["Pelvis"]][:, 2]
 
     @property
     def hip_axes(self):
-        try:
-            hip = np.array([self.axis_results[0:, self.axis_idx["HIPO"]],
-                            self.axis_results[0:, self.axis_idx["HIPX"]],
-                            self.axis_results[0:, self.axis_idx["HIPY"]],
-                            self.axis_results[0:, self.axis_idx["HIPZ"]]])
-        except KeyError:
-            hip = None
+        hip = np.array([self.axis_results[0:, self.axis_idx["HIPO"]],
+                        self.axis_results[0:, self.axis_idx["HIPX"]],
+                        self.axis_results[0:, self.axis_idx["HIPY"]],
+                        self.axis_results[0:, self.axis_idx["HIPZ"]]])
         return self.repack(hip)
+
+    @property
+    def hip_joint_centers(self):
+        return self.axis_results[0:, self.axis_idx["HIPO"]]
 
     @property
     def hip_angles(self):
-        try:
-            hip = np.array([self.angle_results[0:, self.angle_idx["R Hip"]],
-                            self.angle_results[0:, self.angle_idx["L Hip"]]])
-        except KeyError:
-            hip = None
-        return self.repack(hip)
+        hip = np.array([self.repack(self.angle_results[0:, self.angle_idx["R Hip"]]),
+                        self.repack(self.angle_results[0:, self.angle_idx["L Hip"]])])
+        return hip
+
+    @property
+    def hip_flexions(self):
+        hip = np.array([self.angle_results[0:, self.angle_idx["R Hip"]][:, 0],
+                        self.angle_results[0:, self.angle_idx["L Hip"]][:, 0]])
+        return hip
+
+    @property
+    def hip_abductions(self):
+        hip = np.array([self.angle_results[0:, self.angle_idx["R Hip"]][:, 1],
+                        self.angle_results[0:, self.angle_idx["L Hip"]][:, 1]])
+        return hip
+
+    @property
+    def hip_rotations(self):
+        hip = np.array([self.angle_results[0:, self.angle_idx["R Hip"]][:, 2],
+                        self.angle_results[0:, self.angle_idx["L Hip"]][:, 2]])
+        return hip
 
     @property
     def knee_axes(self):
-        try:
-            knee = np.array([self.axis_results[0:, self.axis_idx["R KNEO"]],
-                             self.axis_results[0:, self.axis_idx["R KNEX"]],
-                             self.axis_results[0:, self.axis_idx["R KNEY"]],
-                             self.axis_results[0:, self.axis_idx["R KNEZ"]],
-                             self.axis_results[0:, self.axis_idx["L KNEO"]],
-                             self.axis_results[0:, self.axis_idx["L KNEX"]],
-                             self.axis_results[0:, self.axis_idx["L KNEY"]],
-                             self.axis_results[0:, self.axis_idx["L KNEZ"]]])
-        except KeyError:
-            knee = None
+        knee = np.array([self.axis_results[0:, self.axis_idx["R KNEO"]],
+                         self.axis_results[0:, self.axis_idx["R KNEX"]],
+                         self.axis_results[0:, self.axis_idx["R KNEY"]],
+                         self.axis_results[0:, self.axis_idx["R KNEZ"]],
+                         self.axis_results[0:, self.axis_idx["L KNEO"]],
+                         self.axis_results[0:, self.axis_idx["L KNEX"]],
+                         self.axis_results[0:, self.axis_idx["L KNEY"]],
+                         self.axis_results[0:, self.axis_idx["L KNEZ"]]])
         return self.repack(knee)
+
+    @property
+    def knee_joint_centers(self):
+        return np.array([self.axis_results[0:, self.axis_idx["R KNEO"]],
+                         self.axis_results[0:, self.axis_idx["L KNEO"]]])
 
     @property
     def knee_angles(self):
-        try:
-            knee = np.array([self.angle_results[0:, self.angle_idx["R Knee"]],
-                             self.angle_results[0:, self.angle_idx["L Knee"]]])
-        except KeyError:
-            knee = None
-        return self.repack(knee)
+        knee = np.array([self.repack(self.angle_results[0:, self.angle_idx["R Knee"]]),
+                         self.repack(self.angle_results[0:, self.angle_idx["L Knee"]])])
+        return knee
+
+    @property
+    def knee_flexions(self):
+        knee = np.array([self.angle_results[0:, self.angle_idx["R Knee"]][:, 0],
+                         self.angle_results[0:, self.angle_idx["L Knee"]][:, 0]])
+        return knee
+
+    @property
+    def knee_abductions(self):
+        knee = np.array([self.angle_results[0:, self.angle_idx["R Knee"]][:, 1],
+                         self.angle_results[0:, self.angle_idx["L Knee"]][:, 1]])
+        return knee
+
+    @property
+    def knee_rotations(self):
+        knee = np.array([self.angle_results[0:, self.angle_idx["R Knee"]][:, 2],
+                         self.angle_results[0:, self.angle_idx["L Knee"]][:, 2]])
+        return knee
 
     @property
     def ankle_axes(self):
-        try:
-            ankle = np.array([self.axis_results[0:, self.axis_idx["R ANKO"]],
-                              self.axis_results[0:, self.axis_idx["R ANKX"]],
-                              self.axis_results[0:, self.axis_idx["R ANKY"]],
-                              self.axis_results[0:, self.axis_idx["R ANKZ"]],
-                              self.axis_results[0:, self.axis_idx["L ANKO"]],
-                              self.axis_results[0:, self.axis_idx["L ANKX"]],
-                              self.axis_results[0:, self.axis_idx["L ANKY"]],
-                              self.axis_results[0:, self.axis_idx["L ANKZ"]]])
-        except KeyError:
-            ankle = None
+        ankle = np.array([self.axis_results[0:, self.axis_idx["R ANKO"]],
+                          self.axis_results[0:, self.axis_idx["R ANKX"]],
+                          self.axis_results[0:, self.axis_idx["R ANKY"]],
+                          self.axis_results[0:, self.axis_idx["R ANKZ"]],
+                          self.axis_results[0:, self.axis_idx["L ANKO"]],
+                          self.axis_results[0:, self.axis_idx["L ANKX"]],
+                          self.axis_results[0:, self.axis_idx["L ANKY"]],
+                          self.axis_results[0:, self.axis_idx["L ANKZ"]]])
         return self.repack(ankle)
+
+    @property
+    def ankle_joint_centers(self):
+        return np.array([self.axis_results[0:, self.axis_idx["R ANKO"]],
+                         self.axis_results[0:, self.axis_idx["L ANKO"]]])
 
     @property
     def ankle_angles(self):
-        try:
-            ankle = np.array([self.angle_results[0:, self.angle_idx["R Ankle"]],
-                              self.angle_results[0:, self.angle_idx["L Ankle"]]])
-        except KeyError:
-            ankle = None
-        return self.repack(ankle)
+        ankle = np.array([self.repack(self.angle_results[0:, self.angle_idx["R Ankle"]]),
+                          self.repack(self.angle_results[0:, self.angle_idx["L Ankle"]])])
+        return ankle
+
+    @property
+    def ankle_flexions(self):
+        ankle = np.array([self.angle_results[0:, self.angle_idx["R Ankle"]][:, 0],
+                          self.angle_results[0:, self.angle_idx["L Ankle"]][:, 0]])
+        return ankle
+
+    @property
+    def ankle_abductions(self):
+        ankle = np.array([self.angle_results[0:, self.angle_idx["R Ankle"]][:, 1],
+                          self.angle_results[0:, self.angle_idx["L Ankle"]][:, 1]])
+        return ankle
+
+    @property
+    def ankle_rotations(self):
+        ankle = np.array([self.angle_results[0:, self.angle_idx["R Ankle"]][:, 2],
+                          self.angle_results[0:, self.angle_idx["L Ankle"]][:, 2]])
+        return ankle
 
     @property
     def foot_axes(self):
-        try:
-            foot = np.array([self.axis_results[0:, self.axis_idx["R FOOO"]],
-                             self.axis_results[0:, self.axis_idx["R FOOX"]],
-                             self.axis_results[0:, self.axis_idx["R FOOY"]],
-                             self.axis_results[0:, self.axis_idx["R FOOZ"]],
-                             self.axis_results[0:, self.axis_idx["L FOOO"]],
-                             self.axis_results[0:, self.axis_idx["L FOOX"]],
-                             self.axis_results[0:, self.axis_idx["L FOOY"]],
-                             self.axis_results[0:, self.axis_idx["L FOOZ"]]])
-        except KeyError:
-            foot = None
+        foot = np.array([self.axis_results[0:, self.axis_idx["R FOOO"]],
+                         self.axis_results[0:, self.axis_idx["R FOOX"]],
+                         self.axis_results[0:, self.axis_idx["R FOOY"]],
+                         self.axis_results[0:, self.axis_idx["R FOOZ"]],
+                         self.axis_results[0:, self.axis_idx["L FOOO"]],
+                         self.axis_results[0:, self.axis_idx["L FOOX"]],
+                         self.axis_results[0:, self.axis_idx["L FOOY"]],
+                         self.axis_results[0:, self.axis_idx["L FOOZ"]]])
         return self.repack(foot)
+
+    @property
+    def foot_joint_centers(self):
+        return np.array([self.axis_results[0:, self.axis_idx["R FOOO"]],
+                         self.axis_results[0:, self.axis_idx["L FOOO"]]])
 
     @property
     def foot_angles(self):
-        try:
-            foot = np.array([self.angle_results[0:, self.angle_idx["R Foot"]],
-                             self.angle_results[0:, self.angle_idx["L Foot"]]])
-        except KeyError:
-            foot = None
-        return self.repack(foot)
+        foot = np.array([self.repack(self.angle_results[0:, self.angle_idx["R Foot"]]),
+                         self.repack(self.angle_results[0:, self.angle_idx["L Foot"]])])
+        return foot
+
+    @property
+    def foot_flexions(self):
+        foot = np.array([self.angle_results[0:, self.angle_idx["R Foot"]][:, 0],
+                         self.angle_results[0:, self.angle_idx["L Foot"]][:, 0]])
+        return foot
+
+    @property
+    def foot_abductions(self):
+        foot = np.array([self.angle_results[0:, self.angle_idx["R Foot"]][:, 1],
+                         self.angle_results[0:, self.angle_idx["L Foot"]][:, 1]])
+        return foot
+
+    @property
+    def foot_rotations(self):
+        foot = np.array([self.angle_results[0:, self.angle_idx["R Foot"]][:, 2],
+                         self.angle_results[0:, self.angle_idx["L Foot"]][:, 2]])
+        return foot
 
     @property
     def head_axes(self):
-        try:
-            head = np.array([self.axis_results[0:, self.axis_idx["HEAO"]],
-                             self.axis_results[0:, self.axis_idx["HEAX"]],
-                             self.axis_results[0:, self.axis_idx["HEAY"]],
-                             self.axis_results[0:, self.axis_idx["HEAZ"]]])
-        except KeyError:
-            head = None
+        head = np.array([self.axis_results[0:, self.axis_idx["HEAO"]],
+                         self.axis_results[0:, self.axis_idx["HEAX"]],
+                         self.axis_results[0:, self.axis_idx["HEAY"]],
+                         self.axis_results[0:, self.axis_idx["HEAZ"]]])
         return self.repack(head)
 
     @property
+    def head_joint_center(self):
+        return self.axis_results[0:, self.axis_idx["HEAO"]]
+
+    @property
     def head_angles(self):
-        try:
-            head = self.angle_results[0:, self.angle_idx["Head"]]
-        except KeyError:
-            head = None
-        return head
+        return self.repack(self.angle_results[0:, self.angle_idx["Head"]])
+
+    @property
+    def head_flexions(self):
+        return self.angle_results[0:, self.angle_idx["Head"]][:, 0]
+
+    @property
+    def head_abductions(self):
+        return self.angle_results[0:, self.angle_idx["Head"]][:, 1]
+
+    @property
+    def head_rotations(self):
+        return self.angle_results[0:, self.angle_idx["Head"]][:, 2]
 
     @property
     def thorax_axes(self):
-        try:
-            thorax = np.array([self.axis_results[0:, self.axis_idx["THOO"]],
-                               self.axis_results[0:, self.axis_idx["THOX"]],
-                               self.axis_results[0:, self.axis_idx["THOY"]],
-                               self.axis_results[0:, self.axis_idx["THOZ"]]])
-        except KeyError:
-            thorax = None
+        thorax = np.array([self.axis_results[0:, self.axis_idx["THOO"]],
+                           self.axis_results[0:, self.axis_idx["THOX"]],
+                           self.axis_results[0:, self.axis_idx["THOY"]],
+                           self.axis_results[0:, self.axis_idx["THOZ"]]])
         return self.repack(thorax)
 
     @property
+    def thorax_joint_center(self):
+        return self.axis_results[0:, self.axis_idx["THOO"]]
+
+    @property
     def thorax_angles(self):
-        try:
-            thorax = self.angle_results[0:, self.angle_idx["Thorax"]]
-        except KeyError:
-            thorax = None
-        return thorax
+        return self.repack(self.angle_results[0:, self.angle_idx["Thorax"]])
+
+    @property
+    def thorax_flexions(self):
+        return self.angle_results[0:, self.angle_idx["Thorax"]][:, 0]
+
+    @property
+    def thorax_abductions(self):
+        return self.angle_results[0:, self.angle_idx["Thorax"]][:, 1]
+
+    @property
+    def thorax_rotations(self):
+        return self.angle_results[0:, self.angle_idx["Thorax"]][:, 2]
 
     @property
     def neck_angles(self):
-        try:
-            neck = self.angle_results[0:, self.angle_idx["Neck"]]
-        except KeyError:
-            neck = None
-        return neck
+        return self.repack(self.angle_results[0:, self.angle_idx["Neck"]])
+
+    @property
+    def neck_flexions(self):
+        return self.angle_results[0:, self.angle_idx["Neck"]][:, 0]
+
+    @property
+    def neck_abductions(self):
+        return self.angle_results[0:, self.angle_idx["Neck"]][:, 1]
+
+    @property
+    def neck_rotations(self):
+        return self.angle_results[0:, self.angle_idx["Neck"]][:, 2]
 
     @property
     def spine_angles(self):
-        try:
-            spine = self.angle_results[0:, self.angle_idx["Spine"]]
-        except KeyError:
-            spine = None
-        return spine
+        return self.repack(self.angle_results[0:, self.angle_idx["Spine"]])
+
+    @property
+    def spine_flexions(self):
+        return self.angle_results[0:, self.angle_idx["Spine"]][:, 0]
+
+    @property
+    def spine_abductions(self):
+        return self.angle_results[0:, self.angle_idx["Spine"]][:, 1]
+
+    @property
+    def spine_rotations(self):
+        return self.angle_results[0:, self.angle_idx["Spine"]][:, 2]
 
     @property
     def shoulder_axes(self):
-        try:
-            shoulder = np.array([self.axis_results[0:, self.axis_idx["R CLAO"]],
-                                 self.axis_results[0:, self.axis_idx["R CLAX"]],
-                                 self.axis_results[0:, self.axis_idx["R CLAY"]],
-                                 self.axis_results[0:, self.axis_idx["R CLAZ"]],
-                                 self.axis_results[0:, self.axis_idx["L CLAO"]],
-                                 self.axis_results[0:, self.axis_idx["L CLAX"]],
-                                 self.axis_results[0:, self.axis_idx["L CLAY"]],
-                                 self.axis_results[0:, self.axis_idx["L CLAZ"]]])
-        except KeyError:
-            shoulder = None
+        shoulder = np.array([self.axis_results[0:, self.axis_idx["R CLAO"]],
+                             self.axis_results[0:, self.axis_idx["R CLAX"]],
+                             self.axis_results[0:, self.axis_idx["R CLAY"]],
+                             self.axis_results[0:, self.axis_idx["R CLAZ"]],
+                             self.axis_results[0:, self.axis_idx["L CLAO"]],
+                             self.axis_results[0:, self.axis_idx["L CLAX"]],
+                             self.axis_results[0:, self.axis_idx["L CLAY"]],
+                             self.axis_results[0:, self.axis_idx["L CLAZ"]]])
         return self.repack(shoulder)
+
+    @property
+    def shoulder_joint_centers(self):
+        return np.array([self.axis_results[0:, self.axis_idx["R CLAO"]],
+                         self.axis_results[0:, self.axis_idx["L CLAO"]]])
 
     @property
     def shoulder_angles(self):
-        try:
-            shoulder = np.array([self.angle_results[0:, self.angle_idx["R Shoulder"]],
-                                 self.angle_results[0:, self.angle_idx["L Shoulder"]]])
-        except KeyError:
-            shoulder = None
-        return self.repack(shoulder)
+        shoulder = np.array([self.repack(self.angle_results[0:, self.angle_idx["R Shoulder"]]),
+                             self.repack(self.angle_results[0:, self.angle_idx["L Shoulder"]])])
+        return shoulder
+
+    @property
+    def shoulder_flexions(self):
+        shoulder = np.array([self.angle_results[0:, self.angle_idx["R Shoulder"]][:, 0],
+                             self.angle_results[0:, self.angle_idx["L Shoulder"]][:, 0]])
+        return shoulder
+
+    @property
+    def shoulder_abductions(self):
+        shoulder = np.array([self.angle_results[0:, self.angle_idx["R Shoulder"]][:, 1],
+                             self.angle_results[0:, self.angle_idx["L Shoulder"]][:, 1]])
+        return shoulder
+
+    @property
+    def shoulder_rotations(self):
+        shoulder = np.array([self.angle_results[0:, self.angle_idx["R Shoulder"]][:, 2],
+                             self.angle_results[0:, self.angle_idx["L Shoulder"]][:, 2]])
+        return shoulder
 
     @property
     def elbow_axes(self):
-        try:
-            elbow = np.array([self.axis_results[0:, self.axis_idx["R HUMO"]],
-                              self.axis_results[0:, self.axis_idx["R HUMX"]],
-                              self.axis_results[0:, self.axis_idx["R HUMY"]],
-                              self.axis_results[0:, self.axis_idx["R HUMZ"]],
-                              self.axis_results[0:, self.axis_idx["L HUMO"]],
-                              self.axis_results[0:, self.axis_idx["L HUMX"]],
-                              self.axis_results[0:, self.axis_idx["L HUMY"]],
-                              self.axis_results[0:, self.axis_idx["L HUMZ"]]])
-        except KeyError:
-            elbow = None
+        elbow = np.array([self.axis_results[0:, self.axis_idx["R HUMO"]],
+                          self.axis_results[0:, self.axis_idx["R HUMX"]],
+                          self.axis_results[0:, self.axis_idx["R HUMY"]],
+                          self.axis_results[0:, self.axis_idx["R HUMZ"]],
+                          self.axis_results[0:, self.axis_idx["L HUMO"]],
+                          self.axis_results[0:, self.axis_idx["L HUMX"]],
+                          self.axis_results[0:, self.axis_idx["L HUMY"]],
+                          self.axis_results[0:, self.axis_idx["L HUMZ"]]])
         return self.repack(elbow)
+
+    @property
+    def elbow_joint_centers(self):
+        return np.array([self.axis_results[0:, self.axis_idx["R HUMO"]],
+                         self.axis_results[0:, self.axis_idx["L HUMO"]]])
 
     @property
     def elbow_angles(self):
-        try:
-            elbow = np.array([self.angle_results[0:, self.angle_idx["R Elbow"]],
-                              self.angle_results[0:, self.angle_idx["L Elbow"]]])
-        except KeyError:
-            elbow = None
-        return self.repack(elbow)
+        elbow = np.array([self.repack(self.angle_results[0:, self.angle_idx["R Elbow"]]),
+                          self.repack(self.angle_results[0:, self.angle_idx["L Elbow"]])])
+        return elbow
+
+    @property
+    def elbow_flexions(self):
+        elbow = np.array([self.angle_results[0:, self.angle_idx["R Elbow"]][:, 0],
+                          self.angle_results[0:, self.angle_idx["L Elbow"]][:, 0]])
+        return elbow
+
+    @property
+    def elbow_abductions(self):
+        elbow = np.array([self.angle_results[0:, self.angle_idx["R Elbow"]][:, 1],
+                          self.angle_results[0:, self.angle_idx["L Elbow"]][:, 1]])
+        return elbow
+
+    @property
+    def elbow_rotations(self):
+        elbow = np.array([self.angle_results[0:, self.angle_idx["R Elbow"]][:, 2],
+                          self.angle_results[0:, self.angle_idx["L Elbow"]][:, 2]])
+        return elbow
 
     @property
     def wrist_axes(self):
-        try:
-            wrist = np.array([self.axis_results[0:, self.axis_idx["R RADO"]],
-                              self.axis_results[0:, self.axis_idx["R RADX"]],
-                              self.axis_results[0:, self.axis_idx["R RADY"]],
-                              self.axis_results[0:, self.axis_idx["R RADZ"]],
-                              self.axis_results[0:, self.axis_idx["L RADO"]],
-                              self.axis_results[0:, self.axis_idx["L RADX"]],
-                              self.axis_results[0:, self.axis_idx["L RADY"]],
-                              self.axis_results[0:, self.axis_idx["L RADZ"]]])
-        except KeyError:
-            wrist = None
+        wrist = np.array([self.axis_results[0:, self.axis_idx["R RADO"]],
+                          self.axis_results[0:, self.axis_idx["R RADX"]],
+                          self.axis_results[0:, self.axis_idx["R RADY"]],
+                          self.axis_results[0:, self.axis_idx["R RADZ"]],
+                          self.axis_results[0:, self.axis_idx["L RADO"]],
+                          self.axis_results[0:, self.axis_idx["L RADX"]],
+                          self.axis_results[0:, self.axis_idx["L RADY"]],
+                          self.axis_results[0:, self.axis_idx["L RADZ"]]])
         return self.repack(wrist)
+
+    @property
+    def wrist_joint_centers(self):
+        return np.array([self.axis_results[0:, self.axis_idx["R RADO"]],
+                         self.axis_results[0:, self.axis_idx["L RADO"]]])
 
     @property
     def wrist_angles(self):
-        try:
-            wrist = np.array([self.angle_results[0:, self.angle_idx["R Wrist"]],
-                              self.angle_results[0:, self.angle_idx["L Wrist"]]])
-        except KeyError:
-            wrist = None
-        return self.repack(wrist)
+        wrist = np.array([self.repack(self.angle_results[0:, self.angle_idx["R Wrist"]]),
+                          self.repack(self.angle_results[0:, self.angle_idx["L Wrist"]])])
+        return wrist
+
+    @property
+    def wrist_flexions(self):
+        wrist = np.array([self.angle_results[0:, self.angle_idx["R Wrist"]][:, 0],
+                          self.angle_results[0:, self.angle_idx["L Wrist"]][:, 0]])
+        return wrist
+
+    @property
+    def wrist_abductions(self):
+        wrist = np.array([self.angle_results[0:, self.angle_idx["R Wrist"]][:, 1],
+                          self.angle_results[0:, self.angle_idx["L Wrist"]][:, 1]])
+        return wrist
+
+    @property
+    def wrist_rotations(self):
+        wrist = np.array([self.angle_results[0:, self.angle_idx["R Wrist"]][:, 2],
+                          self.angle_results[0:, self.angle_idx["L Wrist"]][:, 2]])
+        return wrist
 
     @property
     def hand_axes(self):
-        try:
-            hand = np.array([self.axis_results[0:, self.axis_idx["R HANO"]],
-                             self.axis_results[0:, self.axis_idx["R HANX"]],
-                             self.axis_results[0:, self.axis_idx["R HANY"]],
-                             self.axis_results[0:, self.axis_idx["R HANZ"]],
-                             self.axis_results[0:, self.axis_idx["L HANO"]],
-                             self.axis_results[0:, self.axis_idx["L HANX"]],
-                             self.axis_results[0:, self.axis_idx["L HANY"]],
-                             self.axis_results[0:, self.axis_idx["L HANZ"]]])
-        except KeyError:
-            hand = None
+        hand = np.array([self.axis_results[0:, self.axis_idx["R HANO"]],
+                         self.axis_results[0:, self.axis_idx["R HANX"]],
+                         self.axis_results[0:, self.axis_idx["R HANY"]],
+                         self.axis_results[0:, self.axis_idx["R HANZ"]],
+                         self.axis_results[0:, self.axis_idx["L HANO"]],
+                         self.axis_results[0:, self.axis_idx["L HANX"]],
+                         self.axis_results[0:, self.axis_idx["L HANY"]],
+                         self.axis_results[0:, self.axis_idx["L HANZ"]]])
         return self.repack(hand)
+
+    @property
+    def hand_joint_centers(self):
+        return np.array([self.axis_results[0:, self.axis_idx["R HANO"]],
+                         self.axis_results[0:, self.axis_idx["L HANO"]]])
 
 
 class SubjectManager:
