@@ -8,6 +8,7 @@ import sys
 import tempfile
 from shutil import rmtree
 from pycgm.io import IO
+from pycgm.pycgm import CGM
 from mock import patch
 
 class TestIO:
