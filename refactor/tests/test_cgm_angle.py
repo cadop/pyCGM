@@ -821,6 +821,12 @@ class TestCGMUpperBodyAngle:
     """
     This class tests the upper body angle functions in the class CGM in pycgm.py:
     head_angle_calc
+    thorax_angle_calc
+    neck_angle_calc
+    spine_angle_calc
+    shoulder_angle_calc
+    elbow_angle_calc
+    wrist_angle_calc
     """
 
     @pytest.mark.parametrize(["global_axis", "head_axis", "mock_return_val", "expected_mock_args", "expected"], [
