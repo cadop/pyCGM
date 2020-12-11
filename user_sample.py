@@ -12,9 +12,7 @@ if __name__ == "__main__":
     subject1.run()
     subject1.write_results(sample_dir + "Sample_Refactor_Results.csv")
 
-    #print("Pelvis origin (joint center) at first frame")
-    #print(subject1.pelvis_axes[0][0])
-    print("hgead angles")
-    print(subject1.head_angles)
-    print("r ankle flexion")
-    print(subject1.ankle_flexions[0])
+    print("pelvis jc")
+    print(subject1.pelvis_joint_centers)
+    print("pelvis axes")
+    print(subject1.pelvis_axes)

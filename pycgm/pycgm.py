@@ -3414,7 +3414,7 @@ class CGM:
                         self.axis_results[0:, self.axis_idx["PELX"]],
                         self.axis_results[0:, self.axis_idx["PELY"]],
                         self.axis_results[0:, self.axis_idx["PELZ"]]])
-        return self.repack(pel)
+        return pel
 
     @property
     def pelvis_joint_centers(self):
@@ -3442,7 +3442,7 @@ class CGM:
                         self.axis_results[0:, self.axis_idx["HIPX"]],
                         self.axis_results[0:, self.axis_idx["HIPY"]],
                         self.axis_results[0:, self.axis_idx["HIPZ"]]])
-        return self.repack(hip)
+        return hip
 
     @property
     def hip_joint_centers(self):
@@ -3474,15 +3474,15 @@ class CGM:
 
     @property
     def knee_axes(self):
-        knee = np.array([self.axis_results[0:, self.axis_idx["R KNEO"]],
+        knee = np.array([[self.axis_results[0:, self.axis_idx["R KNEO"]],
                          self.axis_results[0:, self.axis_idx["R KNEX"]],
                          self.axis_results[0:, self.axis_idx["R KNEY"]],
-                         self.axis_results[0:, self.axis_idx["R KNEZ"]],
-                         self.axis_results[0:, self.axis_idx["L KNEO"]],
+                         self.axis_results[0:, self.axis_idx["R KNEZ"]]],
+                         [self.axis_results[0:, self.axis_idx["L KNEO"]],
                          self.axis_results[0:, self.axis_idx["L KNEX"]],
                          self.axis_results[0:, self.axis_idx["L KNEY"]],
-                         self.axis_results[0:, self.axis_idx["L KNEZ"]]])
-        return self.repack(knee)
+                         self.axis_results[0:, self.axis_idx["L KNEZ"]]]])
+        return knee
 
     @property
     def knee_joint_centers(self):
@@ -3515,15 +3515,15 @@ class CGM:
 
     @property
     def ankle_axes(self):
-        ankle = np.array([self.axis_results[0:, self.axis_idx["R ANKO"]],
+        ankle = np.array([[self.axis_results[0:, self.axis_idx["R ANKO"]],
                           self.axis_results[0:, self.axis_idx["R ANKX"]],
                           self.axis_results[0:, self.axis_idx["R ANKY"]],
-                          self.axis_results[0:, self.axis_idx["R ANKZ"]],
-                          self.axis_results[0:, self.axis_idx["L ANKO"]],
+                          self.axis_results[0:, self.axis_idx["R ANKZ"]]],
+                          [self.axis_results[0:, self.axis_idx["L ANKO"]],
                           self.axis_results[0:, self.axis_idx["L ANKX"]],
                           self.axis_results[0:, self.axis_idx["L ANKY"]],
-                          self.axis_results[0:, self.axis_idx["L ANKZ"]]])
-        return self.repack(ankle)
+                          self.axis_results[0:, self.axis_idx["L ANKZ"]]]])
+        return ankle
 
     @property
     def ankle_joint_centers(self):
@@ -3556,15 +3556,15 @@ class CGM:
 
     @property
     def foot_axes(self):
-        foot = np.array([self.axis_results[0:, self.axis_idx["R FOOO"]],
+        foot = np.array([[self.axis_results[0:, self.axis_idx["R FOOO"]],
                          self.axis_results[0:, self.axis_idx["R FOOX"]],
                          self.axis_results[0:, self.axis_idx["R FOOY"]],
-                         self.axis_results[0:, self.axis_idx["R FOOZ"]],
-                         self.axis_results[0:, self.axis_idx["L FOOO"]],
+                         self.axis_results[0:, self.axis_idx["R FOOZ"]]],
+                         [self.axis_results[0:, self.axis_idx["L FOOO"]],
                          self.axis_results[0:, self.axis_idx["L FOOX"]],
                          self.axis_results[0:, self.axis_idx["L FOOY"]],
-                         self.axis_results[0:, self.axis_idx["L FOOZ"]]])
-        return self.repack(foot)
+                         self.axis_results[0:, self.axis_idx["L FOOZ"]]]])
+        return foot
 
     @property
     def foot_joint_centers(self):
@@ -3601,7 +3601,7 @@ class CGM:
                          self.axis_results[0:, self.axis_idx["HEAX"]],
                          self.axis_results[0:, self.axis_idx["HEAY"]],
                          self.axis_results[0:, self.axis_idx["HEAZ"]]])
-        return self.repack(head)
+        return head
 
     @property
     def head_joint_center(self):
@@ -3629,7 +3629,7 @@ class CGM:
                            self.axis_results[0:, self.axis_idx["THOX"]],
                            self.axis_results[0:, self.axis_idx["THOY"]],
                            self.axis_results[0:, self.axis_idx["THOZ"]]])
-        return self.repack(thorax)
+        return thorax
 
     @property
     def thorax_joint_center(self):
@@ -3685,15 +3685,15 @@ class CGM:
 
     @property
     def shoulder_axes(self):
-        shoulder = np.array([self.axis_results[0:, self.axis_idx["R CLAO"]],
+        shoulder = np.array([[self.axis_results[0:, self.axis_idx["R CLAO"]],
                              self.axis_results[0:, self.axis_idx["R CLAX"]],
                              self.axis_results[0:, self.axis_idx["R CLAY"]],
-                             self.axis_results[0:, self.axis_idx["R CLAZ"]],
-                             self.axis_results[0:, self.axis_idx["L CLAO"]],
+                             self.axis_results[0:, self.axis_idx["R CLAZ"]]],
+                             [self.axis_results[0:, self.axis_idx["L CLAO"]],
                              self.axis_results[0:, self.axis_idx["L CLAX"]],
                              self.axis_results[0:, self.axis_idx["L CLAY"]],
-                             self.axis_results[0:, self.axis_idx["L CLAZ"]]])
-        return self.repack(shoulder)
+                             self.axis_results[0:, self.axis_idx["L CLAZ"]]]])
+        return shoulder
 
     @property
     def shoulder_joint_centers(self):
@@ -3726,15 +3726,15 @@ class CGM:
 
     @property
     def elbow_axes(self):
-        elbow = np.array([self.axis_results[0:, self.axis_idx["R HUMO"]],
+        elbow = np.array([[self.axis_results[0:, self.axis_idx["R HUMO"]],
                           self.axis_results[0:, self.axis_idx["R HUMX"]],
                           self.axis_results[0:, self.axis_idx["R HUMY"]],
-                          self.axis_results[0:, self.axis_idx["R HUMZ"]],
-                          self.axis_results[0:, self.axis_idx["L HUMO"]],
+                          self.axis_results[0:, self.axis_idx["R HUMZ"]]],
+                          [self.axis_results[0:, self.axis_idx["L HUMO"]],
                           self.axis_results[0:, self.axis_idx["L HUMX"]],
                           self.axis_results[0:, self.axis_idx["L HUMY"]],
-                          self.axis_results[0:, self.axis_idx["L HUMZ"]]])
-        return self.repack(elbow)
+                          self.axis_results[0:, self.axis_idx["L HUMZ"]]]])
+        return elbow
 
     @property
     def elbow_joint_centers(self):
@@ -3767,15 +3767,15 @@ class CGM:
 
     @property
     def wrist_axes(self):
-        wrist = np.array([self.axis_results[0:, self.axis_idx["R RADO"]],
+        wrist = np.array([[self.axis_results[0:, self.axis_idx["R RADO"]],
                           self.axis_results[0:, self.axis_idx["R RADX"]],
                           self.axis_results[0:, self.axis_idx["R RADY"]],
-                          self.axis_results[0:, self.axis_idx["R RADZ"]],
-                          self.axis_results[0:, self.axis_idx["L RADO"]],
+                          self.axis_results[0:, self.axis_idx["R RADZ"]]],
+                          [self.axis_results[0:, self.axis_idx["L RADO"]],
                           self.axis_results[0:, self.axis_idx["L RADX"]],
                           self.axis_results[0:, self.axis_idx["L RADY"]],
-                          self.axis_results[0:, self.axis_idx["L RADZ"]]])
-        return self.repack(wrist)
+                          self.axis_results[0:, self.axis_idx["L RADZ"]]]])
+        return wrist
 
     @property
     def wrist_joint_centers(self):
@@ -3808,15 +3808,15 @@ class CGM:
 
     @property
     def hand_axes(self):
-        hand = np.array([self.axis_results[0:, self.axis_idx["R HANO"]],
+        hand = np.array([[self.axis_results[0:, self.axis_idx["R HANO"]],
                          self.axis_results[0:, self.axis_idx["R HANX"]],
                          self.axis_results[0:, self.axis_idx["R HANY"]],
-                         self.axis_results[0:, self.axis_idx["R HANZ"]],
-                         self.axis_results[0:, self.axis_idx["L HANO"]],
+                         self.axis_results[0:, self.axis_idx["R HANZ"]]],
+                         [self.axis_results[0:, self.axis_idx["L HANO"]],
                          self.axis_results[0:, self.axis_idx["L HANX"]],
                          self.axis_results[0:, self.axis_idx["L HANY"]],
-                         self.axis_results[0:, self.axis_idx["L HANZ"]]])
-        return self.repack(hand)
+                         self.axis_results[0:, self.axis_idx["L HANZ"]]]])
+        return hand
 
     @property
     def hand_joint_centers(self):
