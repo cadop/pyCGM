@@ -666,7 +666,7 @@ class CGM:
         Examples
         --------
         >>> import numpy as np
-        >>> from pycgm.pycgm import CGM
+        >>> from .pycgm import CGM
         >>> origin = [1, 2, 3]
         >>> x_axis = [4, 4, 4]
         >>> y_axis = [9, 9, 9]
@@ -1119,7 +1119,7 @@ class CGM:
         Examples
         --------
         >>> import numpy as np
-        >>> from pycgm.pycgm import CGM
+        >>> from .pycgm import CGM
         >>> point = np.array([1, 2, 3])
         >>> start = np.array([4, 5, 6])
         >>> end = np.array([7, 8, 9])
@@ -1173,7 +1173,7 @@ class CGM:
         Examples
         --------
         >>> import numpy as np
-        >>> from pycgm.pycgm import CGM
+        >>> from .pycgm import CGM
         >>> lhjc = np.array([308, 322, 937])
         >>> rhjc = np.array([182, 339, 935])
         >>> axis = np.array([[251, 391, 1032],
@@ -2868,7 +2868,7 @@ class CGM:
         Examples
         --------
         >>> import numpy as np
-        >>> from pycgm.pycgm import CGM
+        >>> from .pycgm import CGM
         >>> global_axis = np.array([[1, 0, 0], [0, 1, 0], [0, 0, 1]])
         >>> head_axis = np.array([[99.5, 82.2, 1483.8],
         ...                    [100.2, 83.4, 1484.7],
@@ -2911,7 +2911,7 @@ class CGM:
         Examples
         --------
         >>> import numpy as np
-        >>> from pycgm.pycgm import CGM
+        >>> from .pycgm import CGM
         >>> thorax_axis = np.array([[-252.2, -364.5, -1459.1],
         ...                         [256.4, -365.5, -1459.4],
         ...                         [-257.1, 364.2, -1459.3],
@@ -2951,7 +2951,7 @@ class CGM:
         Examples
         --------
         >>> import numpy as np
-        >>> from pycgm.pycgm import CGM
+        >>> from .pycgm import CGM
         >>> head_axis = np.array([[99, 82, 1483],
         ...                       [100, 83, 1484],
         ...                       [98, 83, 1483],
@@ -2991,7 +2991,7 @@ class CGM:
         Examples
         --------
         >>> import numpy as np
-        >>> from pycgm.pycgm import CGM
+        >>> from .pycgm import CGM
         >>> pelvis_axis = np.array([[ 251.2, 391, -1032],
         ...                         [ 251.3, -392, 1032],
         ...                         [ 250.1, -391.5, 1032],
@@ -3033,7 +3033,7 @@ class CGM:
         Examples
         --------
         >>> import numpy as np
-        >>> from pycgm.pycgm import CGM
+        >>> from .pycgm import CGM
         >>> thorax_axis = np.array([[256, 364.5, 1459],
         ...                         [256, 365, -1459],
         ...                         [-257, 364.8, 1459],
@@ -3104,7 +3104,7 @@ class CGM:
         Examples
         --------
         >>> import numpy as np
-        >>> from pycgm.pycgm import CGM
+        >>> from .pycgm import CGM
         >>> elbow_axis = np.array([[433.5, 304.9, 1256],
         ...                        [433.3, 303.8, 1256],
         ...                        [434.8, 305.4, 1256],
@@ -3162,7 +3162,7 @@ class CGM:
         Examples
         --------
         >>> import numpy as np
-        >>> from pycgm.pycgm import CGM
+        >>> from .pycgm import CGM
         >>> wrist_axis = np.array([[433.5, 304.9, 1256],
         ...                        [433.3, 303.8, 1256],
         ...                        [434.8, 305.4, 1256],
@@ -3717,10 +3717,10 @@ class StaticCGM:
         Examples
         --------
         >>> from numpy import around, array
-        >>> from pycgm import pycgm
+        >>> from .pycgm import StaticCGM
         >>> lasi = array([ 183,  422, 1033])
         >>> rasi = array([ 395,  428, 1036])
-        >>> around(pycgm.StaticCGM.iad_calculation(rasi, lasi), 2)
+        >>> around(StaticCGM.iad_calculation(rasi, lasi), 2)
         212.11
         """
         x_diff = rasi[0] - lasi[0]
@@ -3749,12 +3749,12 @@ class StaticCGM:
         Examples
         --------
         >>> from numpy import around, array
-        >>> from pycgm import pycgm
+        >>> from .pycgm import StaticCGM
         >>> head_axis = array([[99, 82, 1483],
         ...                    [100, 83, 1484],
         ...                    [98, 83, 1483],
         ...                    [99, 82, 1484]])
-        >>> around(pycgm.StaticCGM.static_calculation_head(head_axis), 8)
+        >>> around(StaticCGM.static_calculation_head(head_axis), 8)
         0.78539816
         """
         head_axis = CGM.subtract_origin(head_axis)
@@ -3808,7 +3808,7 @@ class StaticCGM:
         Examples
         --------
         >>> import numpy as np
-        >>> from pycgm.pycgm import StaticCGM
+        >>> from .pycgm import StaticCGM
         >>> rtoe, ltoe, rhee, lhee = np.array([[427, 437,  41],
         ...                                    [175, 379,  42],
         ...                                    [406, 227,  48],
@@ -3898,7 +3898,7 @@ class StaticCGM:
         Examples
         --------
         >>> import numpy as np
-        >>> from pycgm.pycgm import StaticCGM
+        >>> from .pycgm import StaticCGM
         >>> rasi, lasi, rpsi, lpsi = np.array([[ 395,  428, 1036],
         ...                                    [ 183,  422, 1033],
         ...                                    [ 341,  246, 1055],
@@ -3996,7 +3996,7 @@ class StaticCGM:
         Examples
         --------
         >>> import numpy as np
-        >>> from pycgm.pycgm import StaticCGM
+        >>> from .pycgm import StaticCGM
         >>> pelvis_axis = np.array([[ 251, 391, 1032],
         ...                         [ 251, 392, 1032],
         ...                         [ 250, 391, 1032],
@@ -4257,7 +4257,7 @@ class StaticCGM:
         Examples
         --------
         >>> import numpy as np
-        >>> from pycgm.pycgm import StaticCGM
+        >>> from .pycgm import StaticCGM
         >>> rtib, ltib, rank, lank = np.array([[433, 211, 273 ],
         ...                                    [50 , 235, 364],
         ...                                    [422, 217, 92 ],
@@ -4451,7 +4451,7 @@ class StaticCGM:
         Examples
         --------
         >>> import numpy as np
-        >>> from pycgm.pycgm import StaticCGM
+        >>> from .pycgm import StaticCGM
         >>> rtoe, ltoe = np.array([[442, 381, 42],
         ...                        [39 , 382, 41]])
         >>> ankle_axis = np.array([[393, 247, 87],
@@ -4560,7 +4560,7 @@ class StaticCGM:
         Examples
         --------
         >>> import numpy as np
-        >>> from pycgm.pycgm import StaticCGM
+        >>> from .pycgm import StaticCGM
         >>> rhee, lhee, rtoe, ltoe = np.array([[374, 181, 49],
         ...                                    [105, 180, 47],
         ...                                    [442, 381, 42],
@@ -4665,7 +4665,7 @@ class StaticCGM:
         Examples
         --------
         >>> import numpy as np
-        >>> from pycgm.pycgm import StaticCGM
+        >>> from .pycgm import StaticCGM
         >>> rtoe, ltoe, rhee, lhee = np.array([[442, 381, 42],
         ...                                    [39, 382, 41],
         ...                                    [374, 181, 49],
@@ -4801,7 +4801,7 @@ class StaticCGM:
         Examples
         --------
         >>> import numpy as np
-        >>> from pycgm.pycgm import StaticCGM
+        >>> from .pycgm import StaticCGM
         >>> rfhd, lfhd, rbhd, lbhd = np.array([[325, 402, 1722],
         ...                                   [184, 409, 1721],
         ...                                   [304, 242, 1694],
@@ -4877,7 +4877,7 @@ class StaticCGM:
         Examples
         --------
         >>> import numpy as np
-        >>> from pycgm.pycgm import StaticCGM
+        >>> from .pycgm import StaticCGM
         >>> axis_p = [[ 0.59, 0.15, 0.15],
         ...         [-0.13, -0.16, -0.93],
         ...         [0.93, -0.04, 0.75]]
@@ -4926,7 +4926,7 @@ class StaticCGM:
 
         Examples
         --------
-        >>> from pycgm.pycgm import StaticCGM
+        >>> from .pycgm import StaticCGM
         >>> static = StaticCGM('SampleData/ROM/Sample_Static.c3d', 'SampleData/ROM/Sample_SM.vsk')
         Sample...
         >>> static.measurements['HeadOffset']
