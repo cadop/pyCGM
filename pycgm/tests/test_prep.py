@@ -568,7 +568,7 @@ class TestPrepGapFilling:
         exist.
         """
         data = self.data
-        mapping = self.data_mapping
+        data_mapping = self.data_mapping
         segment_dict = prep.default_segment_dict()
         with pytest.raises(Exception):
             prep.segment_finder(key, data, data_mapping, segment_dict, j, missings) 
