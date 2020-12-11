@@ -12,8 +12,9 @@
 #
 import os
 import sys
-sys.path.insert(0, os.path.abspath('../../pyCGM_Single')) #TODO this will need to be updated when folder changes
+from pycgm import _about
 
+sys.path.insert(0, os.path.abspath('../../pycgm'))
 
 # -- Project information -----------------------------------------------------
 
@@ -22,18 +23,14 @@ copyright = '2020, Mathew Schwartz'
 author = 'Mathew Schwartz'
 
 # The full version, including alpha/beta/rc tags
-release = '1.0.0'
-
-# TODO Switch to this
-# from pycgm import _about
-# release = _about.__version__
+release = _about.__version__
 
 # -- General configuration ---------------------------------------------------
 
 # Add any Sphinx extension module names here, as strings. They can be
 # extensions coming with Sphinx (named 'sphinx.ext.*') or your custom
 # ones.
-extensions = ['sphinx.ext.autodoc', 'sphinx.ext.imgmath', 'numpydoc', 
+extensions = ['sphinx.ext.autodoc', 'sphinx.ext.imgmath', 'numpydoc',
               'sphinx.ext.intersphinx', 'sphinx.ext.coverage',
               'sphinx.ext.autosummary', 'sphinx.ext.doctest']
 
@@ -60,7 +57,6 @@ autosummary_imported_members = True
 autosummary_generate = True
 autosummary_generate_overwrite = True
 numpydoc_show_class_members = False
-
 
 # -- Options for HTML output -------------------------------------------------
 
