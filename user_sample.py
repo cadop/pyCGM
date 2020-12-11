@@ -2,7 +2,7 @@
 # -*- coding: utf-8 -*-
 
 from pycgm.pycgm import CGM
-from customizations import CustomCGM1, CustomCGM2
+from pycgm.customizations import CustomCGM1, CustomCGM2
 
 if __name__ == "__main__":
     sample_dir = "SampleData/ROM/"

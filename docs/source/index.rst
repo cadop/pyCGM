@@ -1,8 +1,3 @@
-.. pycgm documentation master file, created by
-   sphinx-quickstart on Tue Sep 29 07:14:02 2020.
-   You can adapt this file completely to your liking, but it should at least
-   contain the root `toctree` directive.
-
 Welcome to pycgm's documentation!
 =================================
 
@@ -11,6 +6,7 @@ Welcome to pycgm's documentation!
    :caption: Contents:
       
    install.rst
+   getting_started.rst
    API.rst
 
 

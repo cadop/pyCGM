@@ -53,7 +53,7 @@ autodoc_member_order = 'groupwise'
 # Autosummary
 # -----------------------------------------------------------------------------
 
-autosummary_imported_members = True
+autosummary_imported_members = False
 autosummary_generate = True
 autosummary_generate_overwrite = True
 numpydoc_show_class_members = False

@@ -4,7 +4,6 @@
 from .io import IO
 from math import cos, sin, acos, degrees, radians, sqrt, pi
 import numpy as np
-import os
 import sys
 
 if sys.version_info[0] == 2:
