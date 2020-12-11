@@ -254,7 +254,7 @@ def transform_from_mov(data, data_mapping, key, clust, last_time, i):
 
     Uses previous frames of motion capture data to create an inverse
     transformation matrix that is stored between a 4 marker cluster.
-    The matrix is then applied to estimate the positionof the missing
+    The matrix is then applied to estimate the position of the missing
     marker `key`.
 
     Parameters
