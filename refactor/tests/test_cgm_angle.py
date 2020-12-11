@@ -1627,7 +1627,154 @@ class TestCGMUpperBodyAngle:
         # Asserting that elbow_angle_calc returned the correct result given the return value given by mocked get_angle
         np.testing.assert_almost_equal(result, expected, rounding_precision)
 
-        # TODO: wrist_angle_calc
+    @pytest.mark.parametrize(["wrist_axis", "hand_axis", "mock_return_val", "expected_mock_args", "expected"], [
+        # Test with zeros for all params
+        ([[0, 0, 0], [0, 0, 0], [0, 0, 0], [0, 0, 0], [0, 0, 0], [0, 0, 0], [0, 0, 0], [0, 0, 0]],
+         [[0, 0, 0], [0, 0, 0], [0, 0, 0], [0, 0, 0], [0, 0, 0], [0, 0, 0], [0, 0, 0], [0, 0, 0]],
+         [[0, 0, 0], [0, 0, 0]],
+         [[[[0, 0, 0], [0, 0, 0], [0, 0, 0]], [[0, 0, 0], [0, 0, 0], [0, 0, 0]]],
+          [[[0, 0, 0], [0, 0, 0], [0, 0, 0]], [[0, 0, 0], [0, 0, 0], [0, 0, 0]]]],
+         [[0, 0, 90], [0, 0, -90]]),
+        # Testing when values are added to right wrist origin and x, y, z axes
+        ([[4, 4, 6], [9, -5, -2], [-8, 8, -1], [2, -6, -6], [0, 0, 0], [0, 0, 0], [0, 0, 0], [0, 0, 0]],
+         [[0, 0, 0], [0, 0, 0], [0, 0, 0], [0, 0, 0], [0, 0, 0], [0, 0, 0], [0, 0, 0], [0, 0, 0]],
+         [[0, 0, 0], [0, 0, 0]],
+         [[[[5, -9, -8], [-12, 4, -7], [-2, -10, -12]], [[0, 0, 0], [0, 0, 0], [0, 0, 0]]],
+          [[[0, 0, 0], [0, 0, 0], [0, 0, 0]], [[0, 0, 0], [0, 0, 0], [0, 0, 0]]]],
+         [[0, 0, 90], [0, 0, -90]]),
+        # Testing when values are added to left wrist origin and x, y, z axes
+        ([[0, 0, 0], [0, 0, 0], [0, 0, 0], [0, 0, 0], [4, 5, 6], [3, 9, -7], [-7, -5, -8], [3, -2, -1]],
+         [[0, 0, 0], [0, 0, 0], [0, 0, 0], [0, 0, 0], [0, 0, 0], [0, 0, 0], [0, 0, 0], [0, 0, 0]],
+         [[0, 0, 0], [0, 0, 0]],
+         [[[[0, 0, 0], [0, 0, 0], [0, 0, 0]], [[0, 0, 0], [0, 0, 0], [0, 0, 0]]],
+          [[[-1, 4, -13], [-11, -10, -14], [-1, -7, -7]], [[0, 0, 0], [0, 0, 0], [0, 0, 0]]]],
+         [[0, 0, 90], [0, 0, -90]]),
+        # Testing when values are added to wrist_axis
+        ([[4, 4, 6], [9, -5, -2], [-8, 8, -1], [2, -6, -6], [4, 5, 6], [3, 9, -7], [-7, -5, -8], [3, -2, -1]],
+         [[0, 0, 0], [0, 0, 0], [0, 0, 0], [0, 0, 0], [0, 0, 0], [0, 0, 0], [0, 0, 0], [0, 0, 0]],
+         [[0, 0, 0], [0, 0, 0]],
+         [[[[5, -9, -8], [-12, 4, -7], [-2, -10, -12]], [[0, 0, 0], [0, 0, 0], [0, 0, 0]]],
+          [[[-1, 4, -13], [-11, -10, -14], [-1, -7, -7]], [[0, 0, 0], [0, 0, 0], [0, 0, 0]]]],
+         [[0, 0, 90], [0, 0, -90]]),
+        # Testing when values are added to right hand origin and x, y, z axes
+        ([[0, 0, 0], [0, 0, 0], [0, 0, 0], [0, 0, 0], [0, 0, 0], [0, 0, 0], [0, 0, 0], [0, 0, 0]],
+         [[6, 2, 8], [7, 0, -8], [-6, -1, 5], [-6, -2, -3], [0, 0, 0], [0, 0, 0], [0, 0, 0], [0, 0, 0]],
+         [[0, 0, 0], [0, 0, 0]],
+         [[[[0, 0, 0], [0, 0, 0], [0, 0, 0]], [[1, -2, -16], [-12, -3, -3], [-12, -4, -11]]],
+          [[[0, 0, 0], [0, 0, 0], [0, 0, 0]], [[0, 0, 0], [0, 0, 0], [0, 0, 0]]]],
+         [[0, 0, 90], [0, 0, -90]]),
+        # Testing when values are added to left hand origin and x, y, z axes
+        ([[0, 0, 0], [0, 0, 0], [0, 0, 0], [0, 0, 0], [0, 0, 0], [0, 0, 0], [0, 0, 0], [0, 0, 0]],
+         [[0, 0, 0], [0, 0, 0], [0, 0, 0], [0, 0, 0], [6, 7, -9], [7, -5, 9], [2, -5, -8], [2, 6, 8]],
+         [[0, 0, 0], [0, 0, 0]],
+         [[[[0, 0, 0], [0, 0, 0], [0, 0, 0]], [[0, 0, 0], [0, 0, 0], [0, 0, 0]]],
+          [[[0, 0, 0], [0, 0, 0], [0, 0, 0]], [[1, -12, 18], [-4, -12, 1], [-4, -1, 17]]]],
+         [[0, 0, 90], [0, 0, -90]]),
+        # Testing when values are added to hand_axis
+        ([[0, 0, 0], [0, 0, 0], [0, 0, 0], [0, 0, 0], [0, 0, 0], [0, 0, 0], [0, 0, 0], [0, 0, 0]],
+         [[6, 2, 8], [7, 0, -8], [-6, -1, 5], [-6, -2, -3], [6, 7, -9], [7, -5, 9], [2, -5, -8], [2, 6, 8]],
+         [[0, 0, 0], [0, 0, 0]],
+         [[[[0, 0, 0], [0, 0, 0], [0, 0, 0]], [[1, -2, -16], [-12, -3, -3], [-12, -4, -11]]],
+          [[[0, 0, 0], [0, 0, 0], [0, 0, 0]], [[1, -12, 18], [-4, -12, 1], [-4, -1, 17]]]],
+         [[0, 0, 90], [0, 0, -90]]),
+        # Testing when values are added to mock_return_val
+        ([[0, 0, 0], [0, 0, 0], [0, 0, 0], [0, 0, 0], [0, 0, 0], [0, 0, 0], [0, 0, 0], [0, 0, 0]],
+         [[0, 0, 0], [0, 0, 0], [0, 0, 0], [0, 0, 0], [0, 0, 0], [0, 0, 0], [0, 0, 0], [0, 0, 0]],
+         [[88, -65, -159], [27, -13, 92]],
+         [[[[0, 0, 0], [0, 0, 0], [0, 0, 0]], [[0, 0, 0], [0, 0, 0], [0, 0, 0]]],
+          [[[0, 0, 0], [0, 0, 0], [0, 0, 0]], [[0, 0, 0], [0, 0, 0], [0, 0, 0]]]],
+         [[88, -65, 249], [27, 13, 2]]),
+        # Testing when values are added to wrist_axis and hand_axis
+        ([[4, 4, 6], [9, -5, -2], [-8, 8, -1], [2, -6, -6], [4, 5, 6], [3, 9, -7], [-7, -5, -8], [3, -2, -1]],
+         [[6, 2, 8], [7, 0, -8], [-6, -1, 5], [-6, -2, -3], [6, 7, -9], [7, -5, 9], [2, -5, -8], [2, 6, 8]],
+         [[0, 0, 0], [0, 0, 0]],
+         [[[[5, -9, -8], [-12, 4, -7], [-2, -10, -12]], [[1, -2, -16], [-12, -3, -3], [-12, -4, -11]]],
+          [[[-1, 4, -13], [-11, -10, -14], [-1, -7, -7]], [[1, -12, 18], [-4, -12, 1], [-4, -1, 17]]]],
+         [[0, 0, 90], [0, 0, -90]]),
+        # Testing when values are added to wrist_axis, hand_axis, and mock_return_val
+        ([[4, 4, 6], [9, -5, -2], [-8, 8, -1], [2, -6, -6], [4, 5, 6], [3, 9, -7], [-7, -5, -8], [3, -2, -1]],
+         [[6, 2, 8], [7, 0, -8], [-6, -1, 5], [-6, -2, -3], [6, 7, -9], [7, -5, 9], [2, -5, -8], [2, 6, 8]],
+         [[88, -65, -159], [27, -13, 92]],
+         [[[[5, -9, -8], [-12, 4, -7], [-2, -10, -12]], [[1, -2, -16], [-12, -3, -3], [-12, -4, -11]]],
+          [[[-1, 4, -13], [-11, -10, -14], [-1, -7, -7]], [[1, -12, 18], [-4, -12, 1], [-4, -1, 17]]]],
+         [[88, -65, 249], [27, 13, 2]]),
+        # Testing that when wrist_axis and hand_axis are composed of lists of ints
+        ([[4, 4, 6], [9, -5, -2], [-8, 8, -1], [2, -6, -6], [4, 5, 6], [3, 9, -7], [-7, -5, -8], [3, -2, -1]],
+         [[6, 2, 8], [7, 0, -8], [-6, -1, 5], [-6, -2, -3], [6, 7, -9], [7, -5, 9], [2, -5, -8], [2, 6, 8]],
+         [[88, -65, -159], [27, -13, 92]],
+         [[[[5, -9, -8], [-12, 4, -7], [-2, -10, -12]], [[1, -2, -16], [-12, -3, -3], [-12, -4, -11]]],
+          [[[-1, 4, -13], [-11, -10, -14], [-1, -7, -7]], [[1, -12, 18], [-4, -12, 1], [-4, -1, 17]]]],
+         [[88, -65, 249], [27, 13, 2]]),
+        # Testing that when wrist_axis and hand_axis are composed of numpy arrays of ints
+        (np.array([[4, 4, 6], [9, -5, -2], [-8, 8, -1], [2, -6, -6], [4, 5, 6], [3, 9, -7], [-7, -5, -8], [3, -2, -1]],
+                  dtype='int'),
+         np.array([[6, 2, 8], [7, 0, -8], [-6, -1, 5], [-6, -2, -3], [6, 7, -9], [7, -5, 9], [2, -5, -8], [2, 6, 8]],
+                  dtype='int'),
+         [[88, -65, -159], [27, -13, 92]],
+         [[[[5, -9, -8], [-12, 4, -7], [-2, -10, -12]], [[1, -2, -16], [-12, -3, -3], [-12, -4, -11]]],
+          [[[-1, 4, -13], [-11, -10, -14], [-1, -7, -7]], [[1, -12, 18], [-4, -12, 1], [-4, -1, 17]]]],
+         [[88, -65, 249], [27, 13, 2]]),
+        # Testing that when wrist_axis and hand_axis are composed of lists of floats
+        ([[4.0, 4.0, 6.0], [9.0, -5.0, -2.0], [-8.0, 8.0, -1.0], [2.0, -6.0, -6.0], [4.0, 5.0, 6.0], [3.0, 9.0, -7.0],
+          [-7.0, -5.0, -8.0], [3.0, -2.0, -1.0]],
+         [[6.0, 2.0, 8.0], [7.0, 0.0, -8.0], [-6.0, -1.0, 5.0], [-6.0, -2.0, -3.0], [6.0, 7.0, -9.0], [7.0, -5.0, 9.0],
+          [2.0, -5.0, -8.0], [2.0, 6.0, 8.0]],
+         [[88, -65, -159], [27, -13, 92]],
+         [[[[5, -9, -8], [-12, 4, -7], [-2, -10, -12]], [[1, -2, -16], [-12, -3, -3], [-12, -4, -11]]],
+          [[[-1, 4, -13], [-11, -10, -14], [-1, -7, -7]], [[1, -12, 18], [-4, -12, 1], [-4, -1, 17]]]],
+         [[88, -65, 249], [27, 13, 2]]),
+        # Testing that when wrist_axis and hand_axis are composed of numpy arrays of floats
+        (np.array([[4.0, 4.0, 6.0], [9.0, -5.0, -2.0], [-8.0, 8.0, -1.0], [2.0, -6.0, -6.0], [4.0, 5.0, 6.0],
+                   [3.0, 9.0, -7.0], [-7.0, -5.0, -8.0], [3.0, -2.0, -1.0]], dtype='float'),
+         np.array([[6.0, 2.0, 8.0], [7.0, 0.0, -8.0], [-6.0, -1.0, 5.0], [-6.0, -2.0, -3.0], [6.0, 7.0, -9.0],
+                   [7.0, -5.0, 9.0], [2.0, -5.0, -8.0], [2.0, 6.0, 8.0]], dtype='float'),
+         [[88, -65, -159], [27, -13, 92]],
+         [[[[5, -9, -8], [-12, 4, -7], [-2, -10, -12]], [[1, -2, -16], [-12, -3, -3], [-12, -4, -11]]],
+          [[[-1, 4, -13], [-11, -10, -14], [-1, -7, -7]], [[1, -12, 18], [-4, -12, 1], [-4, -1, 17]]]],
+         [[88, -65, 249], [27, 13, 2]])])
+    def test_wrist_angle_calc(self, wrist_axis, hand_axis, mock_return_val, expected_mock_args, expected):
+        """
+        This test provides coverage of the wrist_angle_calc function in the class CGM in pycgm.py, defined as
+        wrist_angle_calc(wrist_axis, hand_axis)
+
+        This test takes 5 parameters:
+        wrist_axis : ndarray
+            An 8x3 ndarray containing the origin and three unit vectors of the right wrist axis, followed by the
+            origin and three unit vectors of the left wrist axis.
+        hand_axis : ndarray
+            An 8x3 ndarray containing the origin and three unit vectors of the right hand axis, followed by the
+            origin and three unit vectors of the left hand axis.
+        mock_return_val : list
+            The value to be returned by the mock for get_angle.
+        expected_mock_args : list
+            The expected arguments used to call the mocked function, get_angle.
+        expected : array
+            A 2x3 ndarray containing the flexion, abduction, and rotation angles of the right and left wrists.
+
+        This test is checking to make sure the elbow angle is calculated correctly given the input parameters. This
+        tests mocks get_angle to make sure the correct parameters are being passed into it given the parameters
+        passed into wrist_angle_calc, expected_mock_args, and to also ensure that wrist_angle_calc returns the
+        correct value considering the return value of get_angle, mock_return_val.
+
+        This unit test ensures that:
+        - the correct expected values are altered per parameter given.
+        - the resulting output is correct when wrist_axis and hand_axis are composed of lists of ints, numpy arrays
+        of ints, list of floats, and numpy arrays of floats.
+        """
+        with patch.object(CGM, 'get_angle', side_effect=mock_return_val) as mock_get_angle:
+            result = CGM.wrist_angle_calc(wrist_axis, hand_axis)
+
+        # Asserting that there was only 1 call to get_angle
+        np.testing.assert_equal(mock_get_angle.call_count, 2)
+
+        # Asserting that the correct params were sent in the 1st (right) call to get_angle
+        np.testing.assert_almost_equal(expected_mock_args[0], mock_get_angle.call_args_list[0][0], rounding_precision)
+
+        # Asserting that the correct params were sent in the 2nd (left) call to get_angle
+        np.testing.assert_almost_equal(expected_mock_args[1], mock_get_angle.call_args_list[1][0], rounding_precision)
+
+        # Asserting that wrist_angle_calc returned the correct result given the return value given by mocked get_angle
+        np.testing.assert_almost_equal(result, expected, rounding_precision)
 
 
 class TestCGMAngleUtils():
