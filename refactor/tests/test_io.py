@@ -8,8 +8,8 @@ import sys
 import tempfile
 from shutil import rmtree
 from refactor.io import IO
+from refactor.pycgm import CGM
 from mock import patch
-
 
 class TestIO:
     @classmethod
@@ -20,6 +20,9 @@ class TestIO:
         for testing load functions, and sets the python version
         being used. Also sets an subject measurement dictionary
         that is an expected return value from load_sm.
+
+        We also run the CGM code to get a frame of output data to get
+        IO.write_result.
         """
         self.rounding_precision = 8
         self.cwd = os.getcwd()
@@ -80,14 +83,38 @@ class TestIO:
             'ThorOy': 0.0719171389937401, 'ThorOz': 499.705780029297
         }
 
-        filename_59993_Frame = 'SampleData' + os.sep + '59993_Frame' + os.sep + '59993_Frame_Static.c3d'
-        self.filename_59993_Frame = os.path.join(self.cwd, filename_59993_Frame)
-        filename_Sample_Static = 'SampleData' + os.sep + 'ROM' + os.sep + 'Sample_Static.csv'
-        self.filename_Sample_Static = os.path.join(self.cwd, filename_Sample_Static)
-        filename_RoboSM_vsk = 'SampleData' + os.sep + 'Sample_2' + os.sep + 'RoboSM.vsk'
-        self.filename_RoboSM_vsk = os.path.join(self.cwd, filename_RoboSM_vsk)
-        filename_RoboSM_csv = 'SampleData' + os.sep + 'Sample_2' + os.sep + 'RoboSM.csv'
-        self.filename_RoboSM_csv = os.path.join(self.cwd, filename_RoboSM_csv)
+        self.filename_59993_Frame = 'SampleData/59993_Frame/59993_Frame_Static.c3d'
+        self.filename_Sample_Static = 'SampleData/ROM/Sample_Static.csv'
+        self.filename_RoboSM_vsk = 'SampleData/Sample_2/RoboSM.vsk'
+        self.filename_RoboSM_csv = 'SampleData/Sample_2/RoboSM.csv'
+
+        dynamic_trial = 'SampleData/ROM/Sample_Dynamic.c3d'
+        static_trial = 'SampleData/ROM/Sample_Static.c3d'
+        measurements = 'SampleData/ROM/Sample_SM.vsk'
+        self.subject = CGM(static_trial, dynamic_trial, measurements, start = 0, end = 1)
+        self.subject.run()
+    
+    def setup_method(self):
+        """
+        Called once before every test method runs.
+        Creates a temporary directory to be used for testing 
+        functions that write to disk.
+        """
+        if (self.pyver == 2):
+            self.tmp_dir_name = tempfile.mkdtemp()
+        else:
+            self.tmp_dir = tempfile.TemporaryDirectory()
+            self.tmp_dir_name = self.tmp_dir.name
+    
+    def teardown_method(self):
+        """
+        Called once after every test method is finished running.
+        If using Python 2, perform cleanup of previously created
+        temporary directory in setup_method(). Cleanup is done
+        automatically in Python 3.
+        """
+        if (self.pyver == 2):
+            rmtree(self.tmp_dir_name)
 
     @pytest.mark.parametrize("frame, data_key, expected_data", [
         (0, 'LFHD',
@@ -331,4 +358,56 @@ class TestIO:
         }
         np.testing.assert_equal(result, expected)
     
-    
+    @pytest.mark.parametrize("angles, axis, center_of_mass, len_written, truncated_result", [
+        (True, True, True, 277, 
+         [0, 246.574667211621,	313.556623830123, 1026.56323492199,
+          -0.308494914509454, -6.12129279337001, 7.57143110215171]),
+        (True, False, False, 58, 
+         [0, -0.308494914509454, -6.12129279337001,	7.57143110215171,
+          2.91422292971666,	-6.86706898044634,	-18.8210007096431]),
+        (False, True, False, 217, 
+         [0, 251.608306884766, 391.741317749023, 1032.89349365234,
+          251.740636241119,	392.726947206848, 1032.78850073204]),
+        (False, False, True, 4, 
+         [0, 246.574667211621, 313.556623830123, 1026.56323492199]),
+        (['R Hip', 'Head'], False, False, 7, 
+         [0, 2.91422292971666, -6.86706898044634, -18.8210007096431,
+          0.0211967292758, 5.46225283664947, -91.4960853439643]),
+        (False, ['PELO', 'L RADZ'], False, 7, 
+         [0, 251.608306884766, 391.741317749023, 1032.89349365234,
+          -271.942564463838, 485.19216662335, 1091.96791187486]),
+        (['NonExistentKey'], False, False, 1, [0])
+    ])
+    def test_write_result(self, angles, axis, center_of_mass, len_written, truncated_result):
+        """
+        This function tests IO.write_result() with several different 
+        arguments giving different ways to write outputs.
+
+        This function uses previously computed kinematics and center of mass
+        data in setup_method, and writes to a temporary directory for testing.
+
+        We test for a truncated output, and the number of output values written.
+        We test writing all angles, axes, and center of mass, only angles, 
+        only axes, only center of mass, a list of angles, a list of axes, and
+        non-existent keys.
+        """
+        output_filename = os.path.join(self.tmp_dir_name, 'new_pycgm_output.csv')
+        angle_output = self.subject.angle_results
+        angle_mapping = self.subject.angle_idx
+        axis_output = self.subject.axis_results
+        axis_mapping = self.subject.axis_idx
+        center_of_mass_output = self.subject.com_results
+
+        IO.write_result(output_filename, angle_output, angle_mapping, axis_output,
+                        axis_mapping, center_of_mass_output, angles, axis, 
+                        center_of_mass)
+        with open(output_filename, 'r') as f:
+            lines = f.readlines()
+            #Skip the first 6 lines of output since they are headers
+            result = lines[7].strip().split(',')
+            array_result = np.asarray(result, dtype=np.float64)
+            len_result = len(array_result)
+            #Test that the truncated results are equal
+            np.testing.assert_almost_equal(truncated_result, array_result[:7], self.rounding_precision)
+            #Test we have written the correct number of results
+            np.testing.assert_equal(len_result, len_written)
