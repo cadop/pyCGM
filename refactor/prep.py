@@ -671,7 +671,6 @@ def filtering(data, cutoff_frequency, sampling_frequency):
     Examples
     --------
     >>> from refactor.io import IO
-    Using...
     >>> dynamic_trial = 'SampleData/ROM/Sample_Dynamic.c3d'
     >>> data, data_mapping = IO.load_marker_data(dynamic_trial)
     SampleData/ROM/Sample_Dynamic.c3d
@@ -685,9 +684,9 @@ def filtering(data, cutoff_frequency, sampling_frequency):
            [ 278.06911338,  293.22769152, 1612.49060244],
            [ 277.6663783 ,  293.88056206, 1612.55739277]])
     """
-    data_copy = np.empty(np.shape(data))
-    for i in range(len(data_copy[0])):
+    filtered_data = np.empty(np.shape(data))
+    for i in range(len(filtered_data[0])):
         result = filt(data[:,i], cutoff_frequency, sampling_frequency)
         for j in range(len(result)):
-            data_copy[j][i] = result[j]
-    return data_copy
+            filtered_data[j][i] = result[j]
+    return filtered_data
