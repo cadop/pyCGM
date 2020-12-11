@@ -3238,8 +3238,8 @@ class CGM:
         This example uses the CGM interface to load inputs used in the center of
         mass calculations for one frame in `get_kinetics`.
 
-        >>> from refactor.pycgm import CGM
-        >>> from refactor.io import IO
+        >>> from pycgm.pycgm import CGM
+        >>> from pycgm.io import IO
         >>> dynamic_trial = 'SampleData/Sample_2/RoboWalk.c3d'
         >>> static_trial = 'SampleData/Sample_2/RoboStatic.c3d'
         >>> measurements = 'SampleData/Sample_2/RoboSM.vsk'

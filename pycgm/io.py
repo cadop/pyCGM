@@ -55,7 +55,7 @@ class IO:
         
         Examples
         --------
-        >>> from refactor.io import IO
+        >>> from pycgm.io import IO
         >>> IO.load_scaling_table()
         {...
         
