@@ -13,7 +13,7 @@ An example of more advanced settings and customizations that pycgm offers.
 
     Basic CGM object created and run in the normal way, except only the first 5 frames are calculated.
 
-    >>> subject1 = CGM(static_trial, dynamic_trial, measurements, start=0, end=5)
+    >>> subject1 = CGM(static_trial, dynamic_trial, measurements, start=0, end=5)  # doctest: +SKIP
     >>> subject1.run()
 
     Various types of output data in arrays, indexable by frame.
@@ -35,7 +35,7 @@ An example of more advanced settings and customizations that pycgm offers.
 
     Custom CGM object with a different pelvis calculation is created in the same manner as the default.
 
-    >>> subject2 = CustomCGM1(static_trial, dynamic_trial, measurements, start=0, end=5)
+    >>> subject2 = CustomCGM1(static_trial, dynamic_trial, measurements, start=0, end=5)  # doctest: +SKIP
     >>> subject2.run()
 
     Compare the outputs of only the affected values, in this case the pelvis joint center.
@@ -47,7 +47,7 @@ An example of more advanced settings and customizations that pycgm offers.
 
     Custom CGM object that also comes with a custom static calculation, with the result modifying the CGM's output.
 
-    >>> subject3 = CustomCGM2(static_trial, dynamic_trial, measurements, start=0, end=5)
+    >>> subject3 = CustomCGM2(static_trial, dynamic_trial, measurements, start=0, end=5)  # doctest: +SKIP
     >>> subject3.run()
 
     Compare the outputs of only the affected values, in this case the entire hip axis.
