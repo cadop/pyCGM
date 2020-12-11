@@ -55,7 +55,7 @@ class IO:
         
         Examples
         --------
-        >>> from pycgm.io import IO
+        >>> from .io import IO
         >>> IO.load_scaling_table()
         {...
         
