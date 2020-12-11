@@ -7,7 +7,7 @@ import os
 import sys
 import tempfile
 from shutil import rmtree
-from refactor.io import IO
+from pycgm.io import IO
 from mock import patch
 
 

@@ -4,7 +4,7 @@
 import timeit
 
 if __name__ == "__main__":
-    from refactor.pycgm import CGM
+    from pycgm.pycgm import CGM
 
     sample_dir = "../SampleData/ROM/"
     static_trial = sample_dir + "Sample_Static.c3d"

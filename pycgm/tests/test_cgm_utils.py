@@ -4,7 +4,7 @@
 import numpy as np
 import pytest
 
-from refactor.pycgm import CGM
+from pycgm.pycgm import CGM
 
 rounding_precision = 8
 

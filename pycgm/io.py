@@ -66,7 +66,7 @@ class IO:
 
         Examples
         --------
-        >>> from refactor import io
+        >>> from pycgm import io
         >>> import os
         >>> csv_file = 'SampleData' + os.sep + 'Sample_2' + os.sep + 'RoboResults.csv'
         >>> c3d_file = 'SampleData' + os.sep + 'Sample_2' + os.sep + 'RoboStatic.c3d'
@@ -116,7 +116,7 @@ class IO:
         Examples
         --------
         >>> from numpy import around, array, shape
-        >>> from refactor import io
+        >>> from pycgm import io
         >>> import os
         >>> filename = 'SampleData' + os.sep + 'ROM' + os.sep + 'Sample_Static.csv'
         >>> data, mappings = io.IO.load_csv(filename)
@@ -243,7 +243,7 @@ class IO:
         Examples
         --------
         >>> from numpy import around, array, shape
-        >>> from refactor import io
+        >>> from pycgm import io
         >>> import os
         >>> filename = 'SampleData' + os.sep + '59993_Frame' + os.sep + '59993_Frame_Static.c3d'
         >>> data, mappings = io.IO.load_c3d(filename)
@@ -317,7 +317,7 @@ class IO:
 
         Examples
         --------
-        >>> from refactor import io
+        >>> from pycgm import io
         >>> import os
         >>> vsk_filename = 'SampleData' + os.sep + 'Sample_2' + os.sep + 'RoboSM.vsk'
         >>> csv_filename = 'SampleData' + os.sep + 'Sample_2' + os.sep + 'RoboSM.csv'
@@ -360,7 +360,7 @@ class IO:
 
         Examples
         --------
-        >>> from refactor import io
+        >>> from pycgm import io
         >>> import os
         >>> filename = 'SampleData' + os.sep + 'Sample_2' + os.sep + 'RoboSM.vsk'
         >>> subject_measurements = io.IO.load_sm_vsk(filename)
@@ -422,7 +422,7 @@ class IO:
 
         Examples
         --------
-        >>> from refactor import io
+        >>> from pycgm import io
         >>> import os
         >>> filename = 'SampleData' + os.sep + 'Sample_2' + os.sep + 'RoboSM.csv'
         >>> subject_measurements = io.IO.load_sm_csv(filename)
@@ -487,7 +487,7 @@ class IO:
         >>> from shutil import rmtree
         >>> import tempfile
         >>> tmp_dir_name = tempfile.mkdtemp()
-        >>> from refactor.io import IO
+        >>> from pycgm.io import IO
 
         Prepare data to write to csv.
 

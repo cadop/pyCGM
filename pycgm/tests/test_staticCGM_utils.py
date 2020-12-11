@@ -5,8 +5,8 @@ import pytest
 import numpy as np
 import os
 import sys
-from refactor.pycgm import StaticCGM, CGM
-import refactor.io as IO
+from pycgm.pycgm import StaticCGM, CGM
+import pycgm.io as IO
 
 rounding_precision = 6
 
