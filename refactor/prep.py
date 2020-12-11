@@ -2,6 +2,8 @@
 # -*- coding: utf-8 -*-
 
 import numpy as np
+import itertools
+from scipy.signal import butter, filtfilt
 
 # Gap Filling
 def default_segment_dict():
@@ -362,8 +364,7 @@ def segment_finder(key, data, data_mapping, segment_dict, j, missings):
             segment = segment_dict[seg]
     
     if len(segment) == 0:
-        print("Could not find the missing key in any segments of segment_dict.")
-        return
+        return []
 
     useables = []
     for marker in segment:
@@ -406,8 +407,93 @@ def rigid_fill(data, data_mapping, static, static_mapping, segment_dict):
     3darray
         3d numpy array of the same format as `data` after gap filling
         has been performed.
-    """
+    
+    Examples
+    --------
+    >>> from refactor.io import IO
+    >>> from numpy import array, nan, around
+    >>> dynamic_trial = 'SampleData/Sample_2/RoboWalk.c3d'
+    >>> static_trial = 'SampleData/Sample_2/RoboStatic.c3d'
+    >>> data, data_mapping = IO.load_marker_data(dynamic_trial)
+    SampleData/Sample_2/RoboWalk.c3d
+    >>> static, static_mapping = IO.load_marker_data(static_trial)
+    SampleData/Sample_2/RoboStatic.c3d
+    >>> segment_dict = default_segment_dict()
 
+    Testing gap filling.
+
+    >>> data[2][data_mapping['LFHD']]
+    array([-1003.42358398,    81.05059814,  1522.13598633])
+    >>> data[2][data_mapping['LFHD']] = array([nan, nan, nan]) #Clear one frame to test gap filling
+    >>> data = rigid_fill(data, data_mapping, static, static_mapping, segment_dict)
+    >>> around(data[2][data_mapping['LFHD']], 8)
+    array([-1003.42302695,    81.04948743,  1522.13413529])
+    """
+    data_copy = data.copy()
+    missings = {}
+    for key in data_mapping:
+        traj = data_copy[:,data_mapping[key]]
+        gap_bool = False
+        last_time = None
+
+        missings[key] = []
+        for i, val in enumerate(traj):
+            if not np.isnan(val[0]):
+                gap_bool = False
+                last_time = None
+                continue
+            
+            if not gap_bool:
+                gap_bool = True
+                j = i
+
+                while j >= 0:
+                    if np.isnan(data_copy[j][data_mapping[key]][0]):
+                        j -= 1
+                        continue
+
+                    useables_last = segment_finder(key, data_copy, data_mapping, segment_dict, j, missings)
+
+                    if len(useables_last) < 3:
+                        j -= 1
+                        continue
+
+                    last_time = j
+                    
+                    break
+
+            if last_time:
+                useables_current = segment_finder(key, data_copy, data_mapping, segment_dict, j, missings)
+                useables = list(set(useables_last).intersection(useables_current))
+
+                if len(useables) < 3:
+                    print('Not enough cluster markers')
+                
+                opts = []
+                perms = list(itertools.permutations(useables))
+
+                for p in perms:
+                    subset = list(p)
+                    try:
+                        est_pos = transform_from_mov(data_copy, data_mapping, key, subset, last_time, i)
+                        opts.append([subset,np.mean(abs(est_pos - data_copy[last_time][data_mapping[key]]))])
+                    except: pass
+
+                useables = min(opts, key = lambda t: t[1])[0]
+
+                data_copy[i][data_mapping[key]] = transform_from_mov(data_copy, data_mapping, key, useables, last_time, i)
+                continue
+
+            if not last_time:
+                useables = segment_finder(key, data_copy, data_mapping, segment_dict, i, missings)
+                if len(useables) < 3:
+                    continue
+
+                data_copy[i][data_mapping[key]] = transform_from_static(data_copy, data_mapping, static, static_mapping, key, useables, i)
+
+            missings[key].append(i)
+
+    return data_copy    
 
 # Filtering
 def butter_filter(data, cutoff_frequency, sampling_frequency):
@@ -443,7 +529,61 @@ def butter_filter(data, cutoff_frequency, sampling_frequency):
     correction factor to the cuttoff frequency to compensate. Correction
     factor C = square root of 2 to the power of 1/n - 1, where n is equal to
     the number of passes.
+
+    Examples
+    --------
+    First, we create a sin wave and add noise to it.
+
+    >>> from numpy import arange, around, pi, random, shape, sin
+    >>> sampling_frequency = 360.0
+    >>> t = 1
+    >>> x = arange(0,t,1/sampling_frequency)
+    >>> f = 10
+    >>> y = sin(2*pi*f*x)
+    >>> around(y, 8)
+    array([ 0.        ,  0.17364818,  0.34202014,  0.5       ,  0.64278761,
+            0.76604444,  0.8660254 ,  0.93969262,  0.98480775,  1.        ,
+            0.98480775,  0.93969262,  0.8660254 ,  0.76604444,  0.64278761,
+            0.5       ,  0.34202014,  0.17364818,  0.        , -0.17364818,
+           -0.34202014, -0.5       , -0.64278761, -0.76604444, -0.8660254 ,
+           -0.93969262, -0.98480775, -1.        , -0.98480775, -0.93969262,
+           -0.8660254 , -0.76604444, -0.64278761, -0.5       , -0.34202014,
+           -0.17364818, -0.        ,...
+    
+    Add noise.
+
+    >>> noise = random.normal(0, 0.1, shape(y))
+    >>> y += noise 
+    >>> around(y, 8) #doctest: +SKIP
+    array([ 0.07311482,  0.10988896,  0.25388809,  0.34281796,  0.63076505,
+            0.80085072,  0.80731281,  1.00976795,  0.98101546,  1.09391764,
+            0.94797884,  0.86082217,  0.74357311,  0.77169265,  0.62679276,
+            0.58882546,  0.09397977,  0.17420432,  0.05079215, -0.16508813,
+           -0.30257866, -0.59281001, -0.73830443, -0.75690063, -0.69030496,
+           -0.90486956, -0.93386976, -0.77240548, -0.95216637, -0.89735706,
+           -0.9181403 , -0.83423091, -0.53978573, -0.51704481, -0.32342007,
+           -0.09202642,  0.18458246,...
+    
+    Filter the signal.
+
+    >>> filtered = butter_filter(y, 10, sampling_frequency)
+    >>> filtered #doctest: +SKIP
+    array([ 0.08064958,  0.2200619 ,  0.3571366 ,  0.48750588,  0.6068546 ,
+            0.71108837,  0.79649951,  0.85992252,  0.89887073,  0.91164625,
+            0.89741714,  0.85625827,  0.78915455,  0.69796821,  0.58537283,
+            0.45475822,  0.31011048,  0.15587271, -0.00320784, -0.1622398 ,
+           -0.31634916, -0.46083652, -0.59132481, -0.70389233, -0.79518671,
+           -0.86251753, -0.90392645, -0.91823542, -0.9050733 , -0.86488133,
+           -0.79889735, -0.7091183 , -0.59824082, -0.46958083, -0.32697445,
+           -0.17466424, -0.01717538,...
     """
+    #calculate correction factor for number of passes
+    c = (2**0.25-1)**0.25
+    #b,a are filter coefficient calculated by scipy butter(). See scipy docs for
+    #more information
+    b, a = butter(4, (cutoff_frequency/c) / (sampling_frequency/2.0), btype = 'low')
+    
+    return filtfilt(b,a,data,axis = 0)
 
 def filt(data, cutoff_frequency, sampling_frequency):
     """Applies a Butterworth filter to `data`.
@@ -467,7 +607,42 @@ def filt(data, cutoff_frequency, sampling_frequency):
     filtered_data : 2darray
         2d numpy array of the same format as `data` after the Butterworth
         filter is applied.
+
+    Examples
+    --------
+    >>> from numpy import array
+    >>> data = array([[1, 2, 3], [2, 3, 4], [1, 2, 3], [2, 3, 4],
+    ...               [3, 4, 5], [4, 5, 6], [5, 6, 7], [4, 5, 6],
+    ...               [5, 6, 7], [6, 7, 8], [7, 8, 9], [6, 7, 8],
+    ...               [5, 6, 7], [4, 5, 6], [5, 6, 7], [2, 3, 4]])
+    >>> cutoff_frequency = 20
+    >>> sampling_frequency = 120
+    >>> filt(data, cutoff_frequency, sampling_frequency) #doctest: +NORMALIZE_WHITESPACE
+    array([[0.99944536, 1.99944536, 2.99944536],
+           [1.4397879 , 2.4397879 , 3.4397879 ],
+           [1.51018336, 2.51018336, 3.51018336],
+           [1.83504387, 2.83504387, 3.83504387],
+           [2.97438913, 3.97438913, 4.97438913],
+           [4.21680949, 5.21680949, 6.21680949],
+           [4.55481712, 5.55481712, 6.55481712],
+           [4.35880481, 5.35880481, 6.35880481],
+           [4.88555132, 5.88555132, 6.88555132],
+           [6.17293824, 7.17293824, 8.17293824],
+           [6.7577089 , 7.7577089 , 8.7577089 ],
+           [5.96477386, 6.96477386, 7.96477386],
+           [4.99909317, 5.99909317, 6.99909317],
+           [4.72228036, 5.72228036, 6.72228036],
+           [4.01838019, 5.01838019, 6.01838019],
+           [1.99933043, 2.99933043, 3.99933043]])
     """
+    #Create empty array of the shape of data to populate with filtered data
+    filtered = np.empty([len(data), np.shape(data)[1]])
+    
+    #iterate through each column of array and apply butter_filter()
+    for i in range(np.shape(data)[1]):
+        filtered[:,i] = butter_filter(data[:,i], cutoff_frequency, sampling_frequency)
+    
+    return filtered
 
 def filtering(data, cutoff_frequency, sampling_frequency):
     """Applies a Butterworth filter to motion capture data.
@@ -492,4 +667,27 @@ def filtering(data, cutoff_frequency, sampling_frequency):
     filtered_data : 3darray
         3d numpy array of the same format as `data` after the Butterworth
         filter is applied.
+    
+    Examples
+    --------
+    >>> from refactor.io import IO
+    Using...
+    >>> dynamic_trial = 'SampleData/ROM/Sample_Dynamic.c3d'
+    >>> data, data_mapping = IO.load_marker_data(dynamic_trial)
+    SampleData/ROM/Sample_Dynamic.c3d
+    >>> filtered_data = filtering(data, 20, 120)
+    >>> filtered_data[:,data_mapping['HEDO']]
+    array([[ 250.34095219,  207.52056544, 1612.1177957 ],
+           [ 250.3693486 ,  207.63396643, 1612.14030924],
+           [ 250.39784291,  207.74607438, 1612.16076916],
+           ...,
+           [ 278.45835242,  292.56967662, 1612.41087668],
+           [ 278.06911338,  293.22769152, 1612.49060244],
+           [ 277.6663783 ,  293.88056206, 1612.55739277]])
     """
+    data_copy = np.empty(np.shape(data))
+    for i in range(len(data_copy[0])):
+        result = filt(data[:,i], cutoff_frequency, sampling_frequency)
+        for j in range(len(result)):
+            data_copy[j][i] = result[j]
+    return data_copy
