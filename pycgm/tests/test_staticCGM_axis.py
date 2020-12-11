@@ -4,7 +4,7 @@
 from mock import patch
 import pytest
 import numpy as np
-from refactor.pycgm import StaticCGM, CGM 
+from pycgm.pycgm import StaticCGM, CGM 
 
 
 rounding_precision = 8

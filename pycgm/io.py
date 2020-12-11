@@ -99,13 +99,13 @@ class IO:
 
         Examples
         --------
-        >>> from refactor import io
+        >>> from .io import IO
         >>> import os
         >>> csv_file = 'SampleData' + os.sep + 'Sample_2' + os.sep + 'RoboResults.csv'
         >>> c3d_file = 'SampleData' + os.sep + 'Sample_2' + os.sep + 'RoboStatic.c3d'
-        >>> csv_data, csv_mappings = io.IO.load_marker_data(csv_file)
+        >>> csv_data, csv_mappings = IO.load_marker_data(csv_file)
         Sample...
-        >>> c3d_data, c3d_mappings = io.IO.load_marker_data(c3d_file)
+        >>> c3d_data, c3d_mappings = IO.load_marker_data(c3d_file)
         Sample...
 
         Testing for some values from the loaded csv file.
@@ -149,10 +149,10 @@ class IO:
         Examples
         --------
         >>> from numpy import around, array, shape
-        >>> from refactor import io
+        >>> from .io import IO
         >>> import os
         >>> filename = 'SampleData' + os.sep + 'ROM' + os.sep + 'Sample_Static.csv'
-        >>> data, mappings = io.IO.load_csv(filename)
+        >>> data, mappings = IO.load_csv(filename)
 
         Test for the shape of data.
 
@@ -276,10 +276,10 @@ class IO:
         Examples
         --------
         >>> from numpy import around, array, shape
-        >>> from refactor import io
+        >>> from .io import IO
         >>> import os
         >>> filename = 'SampleData' + os.sep + '59993_Frame' + os.sep + '59993_Frame_Static.c3d'
-        >>> data, mappings = io.IO.load_c3d(filename)
+        >>> data, mappings = IO.load_c3d(filename)
 
         Test for the shape of data.
 
@@ -350,12 +350,12 @@ class IO:
 
         Examples
         --------
-        >>> from refactor import io
+        >>> from .io import IO
         >>> import os
         >>> vsk_filename = 'SampleData' + os.sep + 'Sample_2' + os.sep + 'RoboSM.vsk'
         >>> csv_filename = 'SampleData' + os.sep + 'Sample_2' + os.sep + 'RoboSM.csv'
-        >>> vsk_subject_measurements = io.IO.load_sm(vsk_filename)
-        >>> csv_subject_measurements = io.IO.load_sm(csv_filename)
+        >>> vsk_subject_measurements = IO.load_sm(vsk_filename)
+        >>> csv_subject_measurements = IO.load_sm(csv_filename)
 
         Testing for some values from loaded vsk file.
 
@@ -393,10 +393,10 @@ class IO:
 
         Examples
         --------
-        >>> from refactor import io
+        >>> from .io import IO
         >>> import os
         >>> filename = 'SampleData' + os.sep + 'Sample_2' + os.sep + 'RoboSM.vsk'
-        >>> subject_measurements = io.IO.load_sm_vsk(filename)
+        >>> subject_measurements = IO.load_sm_vsk(filename)
         >>> subject_measurements['Bodymass']
         72.0
         >>> subject_measurements['RightStaticPlantFlex']
@@ -455,10 +455,10 @@ class IO:
 
         Examples
         --------
-        >>> from refactor import io
+        >>> from .io import IO
         >>> import os
         >>> filename = 'SampleData' + os.sep + 'Sample_2' + os.sep + 'RoboSM.csv'
-        >>> subject_measurements = io.IO.load_sm_csv(filename)
+        >>> subject_measurements = IO.load_sm_csv(filename)
         >>> subject_measurements['Bodymass']
         72.0
         >>> subject_measurements['RightStaticPlantFlex']
@@ -520,7 +520,7 @@ class IO:
         >>> from shutil import rmtree
         >>> import tempfile
         >>> tmp_dir_name = tempfile.mkdtemp()
-        >>> from refactor.io import IO
+        >>> from .io import IO
 
         Prepare data to write to csv.
 
