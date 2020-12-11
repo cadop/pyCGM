@@ -1,7 +1,7 @@
 #!/usr/bin/python
 # -*- coding: utf-8 -*-
 
-from pycgm.io import IO
+from .io import IO
 from math import cos, sin, acos, degrees, radians, sqrt, pi
 import numpy as np
 import os
