@@ -538,6 +538,7 @@ class TestPrepGapFilling:
         ('LFHD', 10, {'LBHD':[10], 'RFHD':[10], 'RBHD':[10]},[]),
         ('C7',   10, {}, ['STRN', 'CLAV', 'T10', 'RBAK', 'RSHO', 'LSHO']),
         ('RPSI', 10, {},['LPSI', 'LASI', 'RASI']),
+        ('InvalidKey', 10, {}, [])
     ])
     def test_segment_finder_accuracy(self, key, j, missings, expected):
         """
@@ -557,21 +558,6 @@ class TestPrepGapFilling:
         segment_dict = prep.default_segment_dict()
         result = prep.segment_finder(key, data, data_mapping, segment_dict, j, missings)
         assert result == expected
-    
-    @pytest.mark.parametrize("key,j,missings", [
-        #Test that the marker name must exist
-        ('InvalidKey',10,{})
-    ])
-    def test_segment_finder_exceptions(self, key, j, missings):
-        """
-        We test the exception that is raised when the marker name does not
-        exist.
-        """
-        data = self.data
-        data_mapping = self.data_mapping
-        segment_dict = prep.default_segment_dict()
-        with pytest.raises(Exception):
-            prep.segment_finder(key, data, data_mapping, segment_dict, j, missings) 
     
     def test_rigid_fill_transform_from_static(self):
         """

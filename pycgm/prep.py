@@ -365,6 +365,9 @@ def segment_finder(key, data, data_mapping, segment_dict, j, missings):
     
     if len(segment) == 0:
         return []
+    
+    if key not in data_mapping:
+        return []
 
     useables = []
     for marker in segment:
