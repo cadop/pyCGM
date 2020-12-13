@@ -255,7 +255,7 @@ class CGM:
         pel_ax, hip_ax, kne_ax, ank_ax, foo_ax, \
         hea_ax, tho_ax, sho_ax, elb_ax, wri_ax, han_ax, \
         pel_an, hip_an, kne_an, ank_an, foo_an, \
-        hea_an, tho_an, nec_an, spi_an, sho_an, elb_an, wri_an = methods  # Add upper when impl
+        hea_an, tho_an, nec_an, spi_an, sho_an, elb_an, wri_an = methods
 
         # markers maps expected marker name to its actual name in the input
         # marker_idx maps actual marker name from input to its index in the input

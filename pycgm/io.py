@@ -44,6 +44,33 @@ class IO:
                 'RHEE', 'LHEE', 'CLAV', 'C7', 'STRN', 'T10', 'RSHO', 'LSHO', 'RELB', 'LELB',
                 'RWRA', 'RWRB', 'LWRA', 'LWRB', 'RFIN', 'LFIN']
 
+    @staticmethod
+    def joint_markers(marker_idx):
+        """Returns a pairing of which joints require which markers.
+
+        Returns
+        -------
+        dictionary
+            Dictionary mapping a joint's name for lookup to the marker indices it requires.
+        """
+        names = {'Pelvis': 'RASI LASI'.split(),
+                 'Hip': [],
+                 'Knee': 'RTHI LTHI RKNE LKNE'.split(),
+                 'Ankle': 'RTIB LTIB RANK LANK'.split(),
+                 'Foot': 'RTOE LTOE'.split(),
+                 'Head': 'RFHD LFHD RBHD LBHD'.split(),
+                 'Thorax': 'CLAV C7 STRN T10'.split(),
+                 'Shoulder': 'RSHO LSHO'.split(),
+                 'Elbow': 'RELB LELB RWRA RWRB LWRA LWRB'.split(),
+                 'Wrist': 'RWRA RWRB LWRA LWRB'.split(),
+                 'Hand': 'RWRA RWRB LWRA LWRB RFIN LFIN'.split()}
+        if 'SACR' in marker_idx:
+            names['Pelvis'].append('SACR')
+        elif 'RPSI' in marker_idx and 'LPSI' in marker_idx:
+            names['Pelvis'].extend('RPSI LPSI'.split())
+
+        return {joint: [marker_idx[x] for x in names[joint]] for joint in names}
+
     # Reading Functions
     @staticmethod
     def load_scaling_table():
