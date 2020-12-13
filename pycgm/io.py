@@ -577,7 +577,7 @@ class IO:
                                "L HUMZ", "R RADO", "R RADX", "R RADY", "R RADZ", "L RADO", "L RADX", "L RADY", "L RADZ",
                                "R HANO", "R HANX", "R HANY", "R HANZ", "L HANO", "L HANX", "L HANY", "L HANZ"]
 
-        if not angles and not axis and not center_of_mass:
+        if angles is False and axis is False and center_of_mass is False:
             return
 
         # Populate data_to_write
@@ -594,7 +594,7 @@ class IO:
                 for label in angles:
                     if label in angle_mapping:
                         temp.extend(angle_output[i][angle_mapping[label]])
-            elif angles is None or angles:
+            elif angles is None or angles is True:
                 # Write all keys in default_angle_labels
                 for label in default_angle_labels:
                     if label in angle_mapping:
@@ -606,7 +606,7 @@ class IO:
                 for label in axis:
                     if label in axis_mapping:
                         temp.extend(axis_output[i][axis_mapping[label]])
-            elif axis is None or axis:
+            elif axis is None or axis is True:
                 # Write all keys in default_axis_labels
                 for label in default_axis_labels:
                     if label in axis_mapping:
@@ -623,7 +623,7 @@ class IO:
             for label in angles:
                 if label in angle_mapping:
                     output_angle_labels.append(label)
-        elif angles is None or angles:
+        elif angles is None or angles is True:
             for label in default_angle_labels:
                 if label in angle_mapping:
                     output_angle_labels.append(label)
@@ -633,7 +633,7 @@ class IO:
             for label in axis:
                 if label in axis_mapping:
                     output_axis_labels.append(label)
-        elif axis is None or axis:
+        elif axis is None or axis is True:
             for label in default_axis_labels:
                 if label in axis_mapping:
                     output_axis_labels.append(label)
