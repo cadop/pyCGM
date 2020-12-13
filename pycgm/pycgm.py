@@ -47,25 +47,22 @@ class CGM:
         self.axis_results = None
         self.com_results = None
         self.joint_centers = None
-        self.marker_map = {marker: marker for marker in IO.marker_keys()}
+        self.marker_map = {marker: marker for marker in IO.marker_keys()}  # TODO: test if renamed sacrum breaks
         self.marker_data = None
         self.marker_idx = None
         self.measurements = None
-        self.jc_idx = {}
-        self.axis_idx = {}
-        self.angle_idx = {}
         self.start = start
         self.end = end
 
-        jc_labels = ['pelvis_origin', 'pelvis_x', 'pelvis_y', 'pelvis_z',
+        jc_labels = ['pelvis_origin', 'pelvis_x', 'pelvis_y', 'pelvis_z',  # TODO: will be deprecated
                      'thorax_origin', 'thorax_x', 'thorax_y', 'thorax_z',
                      'RHip', 'LHip', 'RKnee', 'LKnee', 'RAnkle', 'LAnkle', 'RFoot', 'LFoot',
                      'RHEE', 'LHEE', 'C7', 'CLAV', 'STRN', 'T10', 'Front_Head', 'Back_Head',
                      'RShoulder', 'LShoulder', 'RHumerus', 'LHumerus', 'RRadius', 'LRadius',
                      'RHand', 'LHand']
-        for i, label in enumerate(jc_labels):
-            self.jc_idx[label] = i
+        self.jc_idx = {label: i for i, label in enumerate(jc_labels)}
 
+        # TODO: axis labels may need to change to different format, consider moving these definitions to IO
         default_axis_labels = ["PELO", "PELX", "PELY", "PELZ", "HIPO", "HIPX", "HIPY", "HIPZ", "R KNEO",
                                "R KNEX", "R KNEY", "R KNEZ", "L KNEO", "L KNEX", "L KNEY", "L KNEZ", "R ANKO", "R ANKX",
                                "R ANKY", "R ANKZ", "L ANKO", "L ANKX", "L ANKY", "L ANKZ", "R FOOO", "R FOOX", "R FOOY",
@@ -74,15 +71,13 @@ class CGM:
                                "L CLAY", "L CLAZ", "R HUMO", "R HUMX", "R HUMY", "R HUMZ", "L HUMO", "L HUMX", "L HUMY",
                                "L HUMZ", "R RADO", "R RADX", "R RADY", "R RADZ", "L RADO", "L RADX", "L RADY", "L RADZ",
                                "R HANO", "R HANX", "R HANY", "R HANZ", "L HANO", "L HANX", "L HANY", "L HANZ"]
-        for i, label in enumerate(default_axis_labels):
-            self.axis_idx[label] = i
+        self.axis_idx = {label: i for i, label in enumerate(default_axis_labels)}
 
         default_angle_labels = ['Pelvis', 'R Hip', 'L Hip', 'R Knee', 'L Knee', 'R Ankle',
                                 'L Ankle', 'R Foot', 'L Foot',
                                 'Head', 'Thorax', 'Neck', 'Spine', 'R Shoulder', 'L Shoulder',
                                 'R Elbow', 'L Elbow', 'R Wrist', 'L Wrist']
-        for i, label in enumerate(default_angle_labels):
-            self.angle_idx[label] = i
+        self.angle_idx = {label: i for i, label in enumerate(default_angle_labels)}
 
     # Customisation functions
     def remap(self, old, new):
@@ -111,6 +106,19 @@ class CGM:
             name and each value is a string of the new marker name.
         """
         self.marker_map = mapping
+
+    def set_marker_prefix(self, prefix):
+        """Add a prefix to all of pycgm's expected markers to match the input.
+
+        Uses the passed prefix to add to the front of the string of each existing mapping.
+
+        Parameters
+        ----------
+        prefix: str
+            A string value representing the common prefix between all markers that is not present in
+            pycgm's expected marker set.
+        """
+        self.marker_map = {marker: prefix + marker for marker in self.marker_map}
 
     # Input and output handlers
     def run(self):
