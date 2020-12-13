@@ -1,11 +1,12 @@
 #!/usr/bin/python
 # -*- coding: utf-8 -*-
 
-# import pycgm
-from pycgm.io import IO
+from pycgm import io
 from math import cos, sin, acos, degrees, radians, sqrt, pi
 import numpy as np
 import sys
+
+IO = io.IO
 
 if sys.version_info[0] == 2:
     pyver = 2
