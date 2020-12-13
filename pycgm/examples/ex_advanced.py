@@ -7,7 +7,7 @@ An example of more advanced settings and customizations that pycgm offers.
     >>> from pycgm.pycgm import CGM
     >>> from pycgm.customizations import CustomCGM1, CustomCGM2
     >>> import pycgm
-    >>> import matplotlib.pyplot as plt
+    >>> import matplotlib.pyplot as plt  # doctest: +SKIP
     >>> static_trial, dynamic_trial, measurements = pycgm.get_rom_data()
 
     Basic CGM object created and run, but using optional parameters to specify a range of frames.
@@ -38,7 +38,7 @@ An example of more advanced settings and customizations that pycgm offers.
     >>> plt.plot(subject2.pelvis_joint_centers[:, 2])  # doctest: +SKIP
     >>> plt.xlabel('Frame')  # doctest: +SKIP
     >>> plt.ylabel('Pelvis Joint Centers')  # doctest: +SKIP
-    >>> plt.tight_layout()
+    >>> plt.tight_layout()  # doctest: +SKIP
     >>> plt.show()  # doctest: +SKIP
 
     Custom CGM object that also comes with a custom static calculation, which stores an extra value as a measurement.
@@ -56,7 +56,7 @@ An example of more advanced settings and customizations that pycgm offers.
     >>> plt.plot(subject3.hip_axes[0][:, 0])  # doctest: +SKIP
     >>> plt.xlabel('Frame')  # doctest: +SKIP
     >>> plt.ylabel('Hip Axes')  # doctest: +SKIP
-    >>> plt.tight_layout()
+    >>> plt.tight_layout()  # doctest: +SKIP
     >>> plt.show()  # doctest: +SKIP
 
     # TODO: Need examples with: renaming markers, adding/removing markers, adding additional joint outputs,

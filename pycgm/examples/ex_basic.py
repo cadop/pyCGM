@@ -6,7 +6,7 @@ An example of the most basic use case of pycgm to perform joint angle calculatio
 
     >>> from pycgm.pycgm import CGM
     >>> import pycgm
-    >>> import matplotlib.pyplot as plt
+    >>> import matplotlib.pyplot as plt  # doctest: +SKIP
 
     After importing, locate the input files (Static trial, Dynamic trial and Subject Measurements).
 
@@ -26,7 +26,7 @@ An example of the most basic use case of pycgm to perform joint angle calculatio
     >>> plt.plot(head_flex)  # doctest: +SKIP
     >>> plt.xlabel('Frame')  # doctest: +SKIP
     >>> plt.ylabel('Head Flexion Angle')  # doctest: +SKIP
-    >>> plt.tight_layout()
+    >>> plt.tight_layout()  # doctest: +SKIP
     >>> plt.show()  # doctest: +SKIP
 
     # TODO: Show accessing output
