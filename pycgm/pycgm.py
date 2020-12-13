@@ -33,7 +33,7 @@ class CGM:
 
         Examples
         --------
-        >>> from pycgm.pycgm import CGM
+        >>> from pycgm import pycgm
         >>> import pycgm
         >>> static_trial, dynamic_trial, measurements = pycgm.get_rom_data()
         >>> subject1 = CGM(static_trial, dynamic_trial, measurements)
@@ -603,7 +603,7 @@ class CGM:
         Examples
         --------
         >>> import numpy as np
-        >>> from pycgm.pycgm import CGM
+        >>> from pycgm import pycgm
         >>> np.around(CGM.rotation_matrix(), 8)
         array([[1., 0., 0.],
                [0., 1., 0.],
@@ -660,7 +660,7 @@ class CGM:
         Examples
         --------
         >>> import numpy as np
-        >>> from pycgm.pycgm import CGM
+        >>> from pycgm import pycgm
         >>> origin = [1, 2, 3]
         >>> x_axis = [4, 4, 4]
         >>> y_axis = [9, 9, 9]
@@ -697,7 +697,7 @@ class CGM:
         Examples
         --------
         >>> import numpy as np
-        >>> from pycgm.pycgm import CGM
+        >>> from pycgm import pycgm
         >>> a, b, c = np.array([[468, 325, 673],
         ...                     [355, 365, 940 ],
         ...                     [452, 329 , 524]])
@@ -771,7 +771,7 @@ class CGM:
         Examples
         --------
         >>> import numpy as np
-        >>> from pycgm.pycgm import CGM
+        >>> from pycgm import pycgm
         >>> rsho, lsho = np.array([[428, 270, 1500],
         ...                        [68, 269, 1510]])
         >>> thorax_axis = np.array([[256, 364, 1459],
@@ -835,7 +835,7 @@ class CGM:
         Examples
         --------
         >>> import numpy as np
-        >>> from pycgm.pycgm import CGM
+        >>> from pycgm import pycgm
         >>> axis_p = np.array([[ 0.1 ,   0.5,  0.6],
         ...                    [ 0.9,  -0.5,  -0.6],
         ...                    [-0.1,   0.7,  -0.8]])
@@ -904,7 +904,7 @@ class CGM:
         Examples
         --------
         >>> import numpy as np 
-        >>> from pycgm.pycgm import CGM
+        >>> from pycgm import pycgm
         >>> axis_p = np.array([[  0.04,  0.99,  0.06],
         ...                    [ 0.99, -0.04, -0.05],
         ...                    [-0.05,  0.07, -0.99]])
@@ -1002,7 +1002,7 @@ class CGM:
         Examples
         --------
         >>> import numpy as np 
-        >>> from pycgm.pycgm import CGM
+        >>> from pycgm import pycgm
         >>> axis_p = np.array([[  0.04,  0.99,  0.06],
         ...                    [ 0.99, -0.04, -0.05],
         ...                    [-0.05,  0.07, -0.99]])
@@ -1063,7 +1063,7 @@ class CGM:
         Examples
         --------
         >>> import numpy as np 
-        >>> from pycgm.pycgm import CGM
+        >>> from pycgm import pycgm
         >>> axis_p = np.array([[  0.04,  0.99,  0.06],
         ...                    [ 0.42, -0.04, -0.05],
         ...                    [-0.26,  0.07, -0.99]])
@@ -1113,7 +1113,7 @@ class CGM:
         Examples
         --------
         >>> import numpy as np
-        >>> from pycgm.pycgm import CGM
+        >>> from pycgm import pycgm
         >>> point = np.array([1, 2, 3])
         >>> start = np.array([4, 5, 6])
         >>> end = np.array([7, 8, 9])
@@ -1167,7 +1167,7 @@ class CGM:
         Examples
         --------
         >>> import numpy as np
-        >>> from pycgm.pycgm import CGM
+        >>> from pycgm import pycgm
         >>> lhjc = np.array([308, 322, 937])
         >>> rhjc = np.array([182, 339, 935])
         >>> axis = np.array([[251, 391, 1032],
@@ -1228,7 +1228,7 @@ class CGM:
         Examples
         --------
         >>> import numpy as np
-        >>> from pycgm.pycgm import CGM
+        >>> from pycgm import pycgm
         >>> rasi, lasi, rpsi, lpsi = np.array([[ 395,  428, 1036],
         ...                                    [ 183,  422, 1033],
         ...                                    [ 341,  246, 1055],
@@ -1326,7 +1326,7 @@ class CGM:
         Examples
         --------
         >>> import numpy as np
-        >>> from pycgm.pycgm import CGM
+        >>> from pycgm import pycgm
         >>> pelvis_axis = np.array([[ 251, 391, 1032],
         ...                         [ 251, 392, 1032],
         ...                         [ 250, 391, 1032 ],
@@ -1439,7 +1439,7 @@ class CGM:
         Examples
         --------
         >>> import numpy as np
-        >>> from pycgm.pycgm import CGM
+        >>> from pycgm import pycgm
         >>> rthi, lthi, rkne, lkne = np.array([[426, 262, 673],
         ...                                    [51 , 320, 723],
         ...                                    [416, 266, 524],
@@ -1567,7 +1567,7 @@ class CGM:
         Examples
         --------
         >>> import numpy as np
-        >>> from pycgm.pycgm import CGM
+        >>> from pycgm import pycgm
         >>> rtib, ltib, rank, lank = np.array([[433, 211, 273 ],
         ...                                    [50 , 235, 364],
         ...                                    [422, 217, 92 ],
@@ -1745,7 +1745,7 @@ class CGM:
         Examples
         --------
         >>> import numpy as np
-        >>> from pycgm.pycgm import CGM
+        >>> from pycgm import pycgm
         >>> rtoe, ltoe = np.array([[442, 381, 42],
         ...                        [39 , 382, 41]])
         >>> ankle_axis = np.array([[393, 247, 87],
@@ -1921,7 +1921,7 @@ class CGM:
         Examples
         --------
         >>> import numpy as np
-        >>> from pycgm.pycgm import CGM
+        >>> from pycgm import pycgm
         >>> measurements = {'HeadOffset': 0.3}
         >>> rfhd, lfhd, rbhd, lbhd = np.array([[325, 402, 1722],
         ...                                    [184, 409, 1721],
@@ -2001,7 +2001,7 @@ class CGM:
         Examples
         --------
         >>> import numpy as np
-        >>> from pycgm.pycgm import CGM
+        >>> from pycgm import pycgm
         >>> clav, c7, strn, t10 = np.array([[256, 371, 1459],
         ...                                 [256, 371, 1459],
         ...                                 [251, 414, 1292],
@@ -2081,7 +2081,7 @@ class CGM:
         Examples
         --------
         >>> import numpy as np
-        >>> from pycgm.pycgm import CGM
+        >>> from pycgm import pycgm
         >>> rsho, lsho = np.array([[428, 270, 1500],
         ...                        [68, 269, 1510]])
         >>> thorax_origin = np.array([256, 364, 1459])
@@ -2183,7 +2183,7 @@ class CGM:
         Examples
         --------
         >>> import numpy as np
-        >>> from pycgm.pycgm import CGM
+        >>> from pycgm import pycgm
         >>> markers = np.array([[658, 326, 1285],
         ...                     [-156, 335, 1287],
         ...                     [776,495, 1108],
@@ -2360,7 +2360,7 @@ class CGM:
         Examples
         --------
         >>> import numpy as np
-        >>> from pycgm.pycgm import CGM
+        >>> from pycgm import pycgm
         >>> markers = np.array([[776,495, 1108],
         ...                     [830, 436, 1119],
         ...                     [-249, 525, 1117],
@@ -2498,7 +2498,7 @@ class CGM:
         Examples
         --------
         >>> import numpy as np
-        >>> from pycgm.pycgm import CGM
+        >>> from pycgm import pycgm
         >>> markers = np.array([[776,495, 1108],
         ...                     [830, 436, 1119],
         ...                     [-249, 525, 1117],
@@ -2602,7 +2602,7 @@ class CGM:
         Examples
         --------
         >>> import numpy as np
-        >>> from pycgm.pycgm import CGM
+        >>> from pycgm import pycgm
         >>> global_axis = np.array([[1, 0, 0], [0, 1, 0], [0, 0, 1]])
         >>> pelvis_axis = np.array([[251.1, 391, 1032.3],
         ...                         [251, 392.2, 1032.4],
@@ -2639,7 +2639,7 @@ class CGM:
         Examples
         --------
         >>> import numpy as np
-        >>> from pycgm.pycgm import CGM
+        >>> from pycgm import pycgm
         >>> hip_axis = np.array([[np.nan, np.nan, np.nan],
         ...                      [np.nan, np.nan, np.nan],
         ...                      [245, 331, 936],
@@ -2696,7 +2696,7 @@ class CGM:
         Examples
         --------
         >>> import numpy as np
-        >>> from pycgm.pycgm import CGM
+        >>> from pycgm import pycgm
         >>> knee_axis = np.array([[364.17, 292.17, 515.19],
         ...                       [364.61, 293.06, 515.18],
         ...                       [363.29, 292.60, 515.04],
@@ -2755,7 +2755,7 @@ class CGM:
         Examples
         --------
         >>> import numpy as np
-        >>> from pycgm.pycgm import CGM
+        >>> from pycgm import pycgm
         >>> ankle_axis = np.array([[393, 247, 87],
         ...                        [394, 248, 87],
         ...                        [393, 248, 87],
@@ -2813,7 +2813,7 @@ class CGM:
         Examples
         --------
         >>> import numpy as np
-        >>> from pycgm.pycgm import CGM
+        >>> from pycgm import pycgm
         >>> global_axis = np.array([[1, 0, 0], [0, 1, 0], [0, 0, 1]])
         >>> foot_axis = np.array([[442.81, 381.62, 42.66],
         ...                       [442.84, 381.65, 43.65],
@@ -2862,7 +2862,7 @@ class CGM:
         Examples
         --------
         >>> import numpy as np
-        >>> from pycgm.pycgm import CGM
+        >>> from pycgm import pycgm
         >>> global_axis = np.array([[1, 0, 0], [0, 1, 0], [0, 0, 1]])
         >>> head_axis = np.array([[99.5, 82.2, 1483.8],
         ...                    [100.2, 83.4, 1484.7],
@@ -2905,7 +2905,7 @@ class CGM:
         Examples
         --------
         >>> import numpy as np
-        >>> from pycgm.pycgm import CGM
+        >>> from pycgm import pycgm
         >>> thorax_axis = np.array([[-252.2, -364.5, -1459.1],
         ...                         [256.4, -365.5, -1459.4],
         ...                         [-257.1, 364.2, -1459.3],
@@ -2945,7 +2945,7 @@ class CGM:
         Examples
         --------
         >>> import numpy as np
-        >>> from pycgm.pycgm import CGM
+        >>> from pycgm import pycgm
         >>> head_axis = np.array([[99, 82, 1483],
         ...                       [100, 83, 1484],
         ...                       [98, 83, 1483],
@@ -2985,7 +2985,7 @@ class CGM:
         Examples
         --------
         >>> import numpy as np
-        >>> from pycgm.pycgm import CGM
+        >>> from pycgm import pycgm
         >>> pelvis_axis = np.array([[ 251.2, 391, -1032],
         ...                         [ 251.3, -392, 1032],
         ...                         [ 250.1, -391.5, 1032],
@@ -3027,7 +3027,7 @@ class CGM:
         Examples
         --------
         >>> import numpy as np
-        >>> from pycgm.pycgm import CGM
+        >>> from pycgm import pycgm
         >>> thorax_axis = np.array([[256, 364.5, 1459],
         ...                         [256, 365, -1459],
         ...                         [-257, 364.8, 1459],
@@ -3098,7 +3098,7 @@ class CGM:
         Examples
         --------
         >>> import numpy as np
-        >>> from pycgm.pycgm import CGM
+        >>> from pycgm import pycgm
         >>> elbow_axis = np.array([[433.5, 304.9, 1256],
         ...                        [433.3, 303.8, 1256],
         ...                        [434.8, 305.4, 1256],
@@ -3156,7 +3156,7 @@ class CGM:
         Examples
         --------
         >>> import numpy as np
-        >>> from pycgm.pycgm import CGM
+        >>> from pycgm import pycgm
         >>> wrist_axis = np.array([[433.5, 304.9, 1256],
         ...                        [433.3, 303.8, 1256],
         ...                        [434.8, 305.4, 1256],
@@ -3237,9 +3237,9 @@ class CGM:
         This example uses the CGM interface to load inputs used in the center of
         mass calculations for one frame in `get_kinetics`.
 
-        >>> from pycgm.pycgm import CGM
+        >>> from pycgm import pycgm
         >>> import pycgm
-        >>> from pycgm.io import IO
+        >>> from pycgm import io
         >>> static_trial, dynamic_trial, measurements = pycgm.get_robo_data()
         >>> subject = CGM(static_trial, dynamic_trial, measurements, start=0, end=1)
         >>> subject.run()
