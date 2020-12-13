@@ -1,4 +1,6 @@
 from ._about import __version__
+import pycgm.pycgm
+import pycgm.io
 import os
 
 
