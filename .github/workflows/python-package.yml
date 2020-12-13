@@ -39,10 +39,10 @@ jobs:
         flake8 . --count --exit-zero --max-complexity=10 --max-line-length=127 --statistics
     - name: Test Docstrings with pytest
       run: |
-        pytest --doctest-modules --continue-on-collection-errors  --ignore=pycgm/tests/
+        python -m pytest --doctest-modules --continue-on-collection-errors  --ignore=pycgm/tests/
     - name: Run Unittests with pytest
       run: |
-        pytest
+        python -m pytest
         
   build3:
 
@@ -73,7 +73,7 @@ jobs:
         flake8 . --count --exit-zero --max-complexity=10 --max-line-length=127 --statistics
     - name: Test Docstrings with pytest
       run: |
-        pytest --doctest-modules --continue-on-collection-errors  --ignore=pycgm/tests/
+        python -m pytest --doctest-modules --continue-on-collection-errors  --ignore=pycgm/tests/
     - name: Run Unittests with pytest
       run: |
-        pytest
+        python -m pytest
