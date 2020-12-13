@@ -13,7 +13,7 @@ if sys.version_info[0] == 2:
     print("Using python 2 c3d loader")
 
 else:
-    from . import c3dpy3 as c3d
+    from pycgm import c3dpy3 as c3d
 
     pyver = 3
     print("Using python 3 c3d loader - c3dpy3")
@@ -55,7 +55,7 @@ class IO:
 
         Examples
         --------
-        >>> from .io import IO
+        >>> from pycgm.io import IO
         >>> IO.load_scaling_table()
         {...
 
@@ -100,7 +100,7 @@ class IO:
 
         Examples
         --------
-        >>> from .io import IO
+        >>> from pycgm.io import IO
         >>> import os
         >>> csv_file = 'SampleData' + os.sep + 'Sample_2' + os.sep + 'RoboResults.csv'
         >>> c3d_file = 'SampleData' + os.sep + 'Sample_2' + os.sep + 'RoboStatic.c3d'
@@ -148,7 +148,7 @@ class IO:
         Examples
         --------
         >>> from numpy import around, array, shape
-        >>> from .io import IO
+        >>> from pycgm.io import IO
         >>> import os
         >>> filename = 'SampleData' + os.sep + 'ROM' + os.sep + 'Sample_Static.csv'
         >>> data, mappings = IO.load_csv(filename)
@@ -275,7 +275,7 @@ class IO:
         Examples
         --------
         >>> from numpy import around, array, shape
-        >>> from .io import IO
+        >>> from pycgm.io import IO
         >>> import os
         >>> filename = 'SampleData' + os.sep + '59993_Frame' + os.sep + '59993_Frame_Static.c3d'
         >>> data, mappings = IO.load_c3d(filename)
@@ -349,7 +349,7 @@ class IO:
 
         Examples
         --------
-        >>> from .io import IO
+        >>> from pycgm.io import IO
         >>> import os
         >>> vsk_filename = 'SampleData' + os.sep + 'Sample_2' + os.sep + 'RoboSM.vsk'
         >>> csv_filename = 'SampleData' + os.sep + 'Sample_2' + os.sep + 'RoboSM.csv'
@@ -392,7 +392,7 @@ class IO:
 
         Examples
         --------
-        >>> from .io import IO
+        >>> from pycgm.io import IO
         >>> import os
         >>> filename = 'SampleData' + os.sep + 'Sample_2' + os.sep + 'RoboSM.vsk'
         >>> subject_measurements = IO.load_sm_vsk(filename)
@@ -454,7 +454,7 @@ class IO:
 
         Examples
         --------
-        >>> from .io import IO
+        >>> from pycgm.io import IO
         >>> import os
         >>> filename = 'SampleData' + os.sep + 'Sample_2' + os.sep + 'RoboSM.csv'
         >>> subject_measurements = IO.load_sm_csv(filename)
@@ -519,7 +519,7 @@ class IO:
         >>> from shutil import rmtree
         >>> import tempfile
         >>> tmp_dir_name = tempfile.mkdtemp()
-        >>> from .io import IO
+        >>> from pycgm.io import IO
 
         Prepare data to write to csv.
 

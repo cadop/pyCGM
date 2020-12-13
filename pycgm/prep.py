@@ -217,7 +217,7 @@ def transform_from_static(data, data_mapping, static, static_mapping, key, useab
     Examples
     --------
     >>> from numpy import around
-    >>> from .io import IO
+    >>> from pycgm.io import IO
     >>> dynamic_trial = 'SampleData/Sample_2/RoboWalk.c3d'
     >>> static_trial = 'SampleData/Sample_2/RoboStatic.c3d'
     >>> data, data_mapping = IO.load_marker_data(dynamic_trial)
@@ -283,7 +283,7 @@ def transform_from_mov(data, data_mapping, key, clust, last_time, i):
     Examples
     --------
     >>> from numpy import around
-    >>> from .io import IO
+    >>> from pycgm.io import IO
     >>> dynamic_trial = 'SampleData/Sample_2/RoboWalk.c3d'
     >>> data, data_mapping = IO.load_marker_data(dynamic_trial)
     >>> key = 'LFHD'
@@ -340,7 +340,7 @@ def segment_finder(key, data, data_mapping, segment_dict, j, missings):
     Examples
     --------
     >>> from numpy import array, nan
-    >>> from .io import IO
+    >>> from pycgm.io import IO
     >>> dynamic_trial = 'SampleData/Sample_2/RoboWalk.c3d'
     >>> data, data_mapping = IO.load_marker_data(dynamic_trial)
     >>> key = 'LFHD'
@@ -407,7 +407,7 @@ def rigid_fill(data, data_mapping, static, static_mapping, segment_dict):
 
     Examples
     --------
-    >>> from .io import IO
+    >>> from pycgm.io import IO
     >>> from numpy import array, nan, around
     >>> dynamic_trial = 'SampleData/Sample_2/RoboWalk.c3d'
     >>> static_trial = 'SampleData/Sample_2/RoboStatic.c3d'
@@ -671,7 +671,7 @@ def filtering(data, cutoff_frequency, sampling_frequency):
 
     Examples
     --------
-    >>> from .io import IO
+    >>> from pycgm.io import IO
     >>> dynamic_trial = 'SampleData/ROM/Sample_Dynamic.c3d'
     >>> data, data_mapping = IO.load_marker_data(dynamic_trial)
     >>> filtered_data = filtering(data, 20, 120)

@@ -2,8 +2,6 @@
 # -*- coding: utf-8 -*-
 
 from pycgm.pycgm import CGM, StaticCGM
-from math import sin, cos
-import numpy as np
 
 
 class CustomCGM1(CGM):

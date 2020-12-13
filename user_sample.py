@@ -16,15 +16,15 @@ if __name__ == "__main__":
     print(subject1.pelvis_joint_centers[:, 0])
     print(subject1.head_flexions)
 
-    # subject2 = CustomCGM1(static_trial, dynamic_trial, measurements, start=0, end=5)
-    # subject2.run()
-    # print("pelvis jc custom")
-    # print(subject2.pelvis_joint_centers)
-    # 
-    # subject3 = CustomCGM2(static_trial, dynamic_trial, measurements, start=0, end=5)
-    # subject3.run()
-    # print("hip axis standard")
-    # print(subject1.hip_axes[0])
-    # 
-    # print("hip axis custom")
-    # print(subject3.hip_axes[0])
+    subject2 = CustomCGM1(static_trial, dynamic_trial, measurements, start=0, end=5)
+    subject2.run()
+    print("pelvis jc custom")
+    print(subject2.pelvis_joint_centers)
+
+    subject3 = CustomCGM2(static_trial, dynamic_trial, measurements, start=0, end=5)
+    subject3.run()
+    print("hip axis standard")
+    print(subject1.hip_axes[0])
+
+    print("hip axis custom")
+    print(subject3.hip_axes[0])
