@@ -10,19 +10,19 @@ if sys.version_info[0] == 2:
     import c3d
 
     pyver = 2
-    print("Using python 2 c3d loader")
+    # print("Using python 2 c3d loader")
 
 else:
     from pycgm import c3dpy3 as c3d
 
     pyver = 3
-    print("Using python 3 c3d loader - c3dpy3")
+    # print("Using python 3 c3d loader - c3dpy3")
 
 try:
     from ezc3d import c3d as ezc
 
     useEZC3D = True
-    print("EZC3D Found, using instead of Python c3d")
+    # print("EZC3D Found, using instead of Python c3d")
 except ImportError:
     useEZC3D = False
 
@@ -101,9 +101,9 @@ class IO:
         Examples
         --------
         >>> from pycgm.io import IO
-        >>> import os
-        >>> csv_file = 'SampleData' + os.sep + 'Sample_2' + os.sep + 'RoboResults.csv'
-        >>> c3d_file = 'SampleData' + os.sep + 'Sample_2' + os.sep + 'RoboStatic.c3d'
+        >>> import pycgm
+        >>> csv_file = pycgm.get_robo_results()
+        >>> c3d_file = pycgm.get_robo_data()[0]
         >>> csv_data, csv_mappings = IO.load_marker_data(csv_file)
         >>> c3d_data, c3d_mappings = IO.load_marker_data(c3d_file)
 
@@ -149,13 +149,13 @@ class IO:
         --------
         >>> from numpy import around, array, shape
         >>> from pycgm.io import IO
-        >>> import os
-        >>> filename = 'SampleData' + os.sep + 'ROM' + os.sep + 'Sample_Static.csv'
+        >>> import pycgm
+        >>> filename = pycgm.get_rom_csv()
         >>> data, mappings = IO.load_csv(filename)
 
         Test for the shape of data.
 
-        >>> shape(data) #Indicates 275 frames, 141 points of data, 3 coordinates per point
+        >>> shape(data)  # Indicates 275 frames, 141 points of data, 3 coordinates per point
         (275, 141, 3)
 
         Testing for some values from 59993_Frame_Static.c3d.
@@ -276,8 +276,8 @@ class IO:
         --------
         >>> from numpy import around, array, shape
         >>> from pycgm.io import IO
-        >>> import os
-        >>> filename = 'SampleData' + os.sep + '59993_Frame' + os.sep + '59993_Frame_Static.c3d'
+        >>> import pycgm
+        >>> filename = pycgm.get_59993_data()[0]
         >>> data, mappings = IO.load_c3d(filename)
 
         Test for the shape of data.
@@ -307,7 +307,6 @@ class IO:
         reader = c3d.Reader(open(filename, 'rb'))
         labels = reader.get('POINT:LABELS').string_array
         markers = [str(label.rstrip()) for label in labels]
-        num_markers = len(markers)
         for i in range(len(markers)):
             marker = markers[i]
             if marker in expected_markers:
@@ -350,9 +349,8 @@ class IO:
         Examples
         --------
         >>> from pycgm.io import IO
-        >>> import os
-        >>> vsk_filename = 'SampleData' + os.sep + 'Sample_2' + os.sep + 'RoboSM.vsk'
-        >>> csv_filename = 'SampleData' + os.sep + 'Sample_2' + os.sep + 'RoboSM.csv'
+        >>> import pycgm
+        >>> vsk_filename, csv_filename = pycgm.get_robo_measurements()
         >>> vsk_subject_measurements = IO.load_sm(vsk_filename)
         >>> csv_subject_measurements = IO.load_sm(csv_filename)
 
@@ -393,8 +391,8 @@ class IO:
         Examples
         --------
         >>> from pycgm.io import IO
-        >>> import os
-        >>> filename = 'SampleData' + os.sep + 'Sample_2' + os.sep + 'RoboSM.vsk'
+        >>> import pycgm
+        >>> filename = pycgm.get_robo_measurements()[0]
         >>> subject_measurements = IO.load_sm_vsk(filename)
         >>> subject_measurements['Bodymass']
         72.0
@@ -455,8 +453,8 @@ class IO:
         Examples
         --------
         >>> from pycgm.io import IO
-        >>> import os
-        >>> filename = 'SampleData' + os.sep + 'Sample_2' + os.sep + 'RoboSM.csv'
+        >>> import pycgm
+        >>> filename = pycgm.get_robo_measurements()[1]
         >>> subject_measurements = IO.load_sm_csv(filename)
         >>> subject_measurements['Bodymass']
         72.0
@@ -579,7 +577,7 @@ class IO:
                                "L HUMZ", "R RADO", "R RADX", "R RADY", "R RADZ", "L RADO", "L RADX", "L RADY", "L RADZ",
                                "R HANO", "R HANX", "R HANY", "R HANZ", "L HANO", "L HANX", "L HANY", "L HANZ"]
 
-        if angles == False and axis == False and center_of_mass == False:
+        if not angles and not axis and not center_of_mass:
             return
 
         # Populate data_to_write
@@ -608,7 +606,7 @@ class IO:
                 for label in axis:
                     if label in axis_mapping:
                         temp.extend(axis_output[i][axis_mapping[label]])
-            elif axis is None or axis == True:
+            elif axis is None or axis:
                 # Write all keys in default_axis_labels
                 for label in default_axis_labels:
                     if label in axis_mapping:

@@ -33,10 +33,8 @@ class CGM:
         Examples
         --------
         >>> from pycgm.pycgm import CGM
-        >>> dir = "SampleData/59993_Frame/"
-        >>> static_trial = dir + "59993_Frame_Static.c3d"
-        >>> dynamic_trial = dir + "59993_Frame_Dynamic.c3d"
-        >>> measurements = dir + "59993_Frame_SM.vsk"
+        >>> import pycgm
+        >>> static_trial, dynamic_trial, measurements = pycgm.get_rom_data()
         >>> subject1 = CGM(static_trial, dynamic_trial, measurements)
         """
         self.path_static = path_static
@@ -3240,9 +3238,8 @@ class CGM:
 
         >>> from pycgm.pycgm import CGM
         >>> from pycgm.io import IO
-        >>> dynamic_trial = 'SampleData/Sample_2/RoboWalk.c3d'
-        >>> static_trial = 'SampleData/Sample_2/RoboStatic.c3d'
-        >>> measurements = 'SampleData/Sample_2/RoboSM.vsk'
+        >>> import pycgm
+        >>> static_trial, dynamic_trial, measurements = pycgm.get_robo_data()
         >>> subject = CGM(static_trial, dynamic_trial, measurements, start=0, end=1)
         >>> subject.run()
         >>> seg_scale = IO.load_scaling_table()
@@ -5101,7 +5098,9 @@ class StaticCGM:
         Examples
         --------
         >>> from pycgm.pycgm import StaticCGM
-        >>> static = StaticCGM('SampleData/ROM/Sample_Static.c3d', 'SampleData/ROM/Sample_SM.vsk')
+        >>> import pycgm
+        >>> static_trial, dynamic_trial, measurements = pycgm.get_rom_data()
+        >>> static = StaticCGM(static_trial, measurements)
         >>> static.measurements['HeadOffset']
         0.0
         >>> cal_sm = static.get_static()

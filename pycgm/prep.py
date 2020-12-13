@@ -218,8 +218,8 @@ def transform_from_static(data, data_mapping, static, static_mapping, key, useab
     --------
     >>> from numpy import around
     >>> from pycgm.io import IO
-    >>> dynamic_trial = 'SampleData/Sample_2/RoboWalk.c3d'
-    >>> static_trial = 'SampleData/Sample_2/RoboStatic.c3d'
+    >>> import pycgm
+    >>> static_trial, dynamic_trial = pycgm.get_robo_data()[:2]
     >>> data, data_mapping = IO.load_marker_data(dynamic_trial)
     >>> static, static_mapping = IO.load_marker_data(static_trial)
     >>> key = 'LFHD'
@@ -284,7 +284,8 @@ def transform_from_mov(data, data_mapping, key, clust, last_time, i):
     --------
     >>> from numpy import around
     >>> from pycgm.io import IO
-    >>> dynamic_trial = 'SampleData/Sample_2/RoboWalk.c3d'
+    >>> import pycgm
+    >>> dynamic_trial = pycgm.get_robo_data()[1]
     >>> data, data_mapping = IO.load_marker_data(dynamic_trial)
     >>> key = 'LFHD'
     >>> clust = ['RFHD', 'RBHD', 'LBHD'] #Other markers in the cluster
@@ -341,7 +342,8 @@ def segment_finder(key, data, data_mapping, segment_dict, j, missings):
     --------
     >>> from numpy import array, nan
     >>> from pycgm.io import IO
-    >>> dynamic_trial = 'SampleData/Sample_2/RoboWalk.c3d'
+    >>> import pycgm
+    >>> dynamic_trial = pycgm.get_robo_data()[1]
     >>> data, data_mapping = IO.load_marker_data(dynamic_trial)
     >>> key = 'LFHD'
     >>> segment = default_segment_dict()
@@ -409,8 +411,8 @@ def rigid_fill(data, data_mapping, static, static_mapping, segment_dict):
     --------
     >>> from pycgm.io import IO
     >>> from numpy import array, nan, around
-    >>> dynamic_trial = 'SampleData/Sample_2/RoboWalk.c3d'
-    >>> static_trial = 'SampleData/Sample_2/RoboStatic.c3d'
+    >>> import pycgm
+    >>> static_trial, dynamic_trial = pycgm.get_robo_data()[:2]
     >>> data, data_mapping = IO.load_marker_data(dynamic_trial)
     >>> static, static_mapping = IO.load_marker_data(static_trial)
     >>> segment_dict = default_segment_dict()
@@ -672,7 +674,8 @@ def filtering(data, cutoff_frequency, sampling_frequency):
     Examples
     --------
     >>> from pycgm.io import IO
-    >>> dynamic_trial = 'SampleData/ROM/Sample_Dynamic.c3d'
+    >>> import pycgm
+    >>> dynamic_trial = pycgm.get_rom_data()[1]
     >>> data, data_mapping = IO.load_marker_data(dynamic_trial)
     >>> filtered_data = filtering(data, 20, 120)
     >>> filtered_data[:,data_mapping['HEDO']]

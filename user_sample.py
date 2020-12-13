@@ -3,12 +3,10 @@
 
 from pycgm.pycgm import CGM
 from pycgm.customizations import CustomCGM1, CustomCGM2
+import pycgm
 
 if __name__ == "__main__":
-    sample_dir = "SampleData/ROM/"
-    static_trial = sample_dir + "Sample_Static.c3d"
-    dynamic_trial = sample_dir + "Sample_Dynamic.c3d"
-    measurements = sample_dir + "Sample_SM.vsk"
+    static_trial, dynamic_trial, measurements = pycgm.get_rom_data()
     subject1 = CGM(static_trial, dynamic_trial, measurements, start=0, end=5)
     subject1.run()
     # subject1.write_results(sample_dir + "Sample_Refactor_Results.csv")

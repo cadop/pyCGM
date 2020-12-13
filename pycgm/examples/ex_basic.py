@@ -42,3 +42,4 @@ if __name__ == "__main__":
     measurements = sample_dir + "Sample_SM.vsk"
     subject1 = CGM(static_trial, dynamic_trial, measurements, start=0, end=5)
     subject1.run()
+    # TODO: update code samples in here and ex_advanced
