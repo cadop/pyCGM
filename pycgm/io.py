@@ -65,7 +65,7 @@ class IO:
         http://www.c-motion.com/download/IORGaitFiles/pigmanualver1.pdf
         """
         seg_scale = {}
-        with open(os.path.dirname(os.path.abspath(__file__)) + '/segments.csv', 'r') as f:
+        with open(os.path.dirname(os.path.abspath(__file__)) + '/segments.csv', 'r') as f:  # TODO: use __init__ file for this
             header = False
             for line in f:
                 if not header:
@@ -122,7 +122,7 @@ class IO:
         >>> c3d_data[0][c3d_mappings['C7']] #doctest: +NORMALIZE_WHITESPACE
         array([-2.20681717e+02, -1.07236075e+00, 1.45551550e+03])
         """
-        print(filename)
+        # print(filename)
         if str(filename).endswith('.c3d'):
             return IO.load_c3d(filename)
         elif str(filename).endswith('.csv'):

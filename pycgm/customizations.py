@@ -37,3 +37,5 @@ class CustomStaticCGM(StaticCGM):
         cal_sm = super().get_static(flat_foot, gcs)
         cal_sm['multiplier'] = 2.0
         return cal_sm
+
+

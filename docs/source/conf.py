@@ -32,7 +32,8 @@ release = _about.__version__
 # ones.
 extensions = ['sphinx.ext.autodoc', 'sphinx.ext.imgmath', 'numpydoc',
               'sphinx.ext.intersphinx', 'sphinx.ext.coverage',
-              'sphinx.ext.autosummary', 'sphinx.ext.doctest']
+              'sphinx.ext.autosummary', 'sphinx.ext.doctest',
+              'matplotlib.sphinxext.plot_directive']
 
 # Add any paths that contain templates here, relative to this directory.
 templates_path = ['_templates']
@@ -56,7 +57,7 @@ autodoc_member_order = 'groupwise'
 autosummary_imported_members = False
 autosummary_generate = True
 autosummary_generate_overwrite = True
-numpydoc_show_class_members = False
+# numpydoc_show_class_members = False
 
 # -- Options for HTML output -------------------------------------------------
 
@@ -68,4 +69,16 @@ html_theme = 'alabaster'
 # Add any paths that contain custom static files (such as style sheets) here,
 # relative to this directory. They are copied after the builtin static files,
 # so a file named "default.css" will overwrite the builtin "default.css".
-html_static_path = ['_static']
+# html_static_path = ['_static']
+
+# ------------------------------------------------------------------------------
+# Plot style
+# ------------------------------------------------------------------------------
+
+plot_pre_code = """
+import numpy as np
+import scipy as sp
+np.random.seed(123)
+"""
+plot_include_source = True
+plot_html_show_formats = False

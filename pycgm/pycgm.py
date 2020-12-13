@@ -12,6 +12,9 @@ else:
     pyver = 3
 
 
+__all__ = ['CGM', 'StaticCGM', 'SubjectManager']
+
+
 class CGM:
 
     def __init__(self, path_static, path_dynamic, path_measurements, static=None, cores=1, start=0, end=-1):
@@ -274,7 +277,7 @@ class CGM:
 
         # Axis calculations
 
-        rasi = frame[marker_idx[markers["RASI"]]]
+        rasi = frame[marker_idx[markers["RASI"]]]  # TODO: use this to figure out arbitrary marker counts
         lasi = frame[marker_idx[markers["LASI"]]]
         if "SACR" in markers:
             sacr = frame[marker_idx[markers["SACR"]]]
@@ -834,7 +837,7 @@ class CGM:
 
         Examples
         --------
-        >>> import numpy as np 
+        >>> import numpy as np
         >>> from .pycgm import CGM
         >>> axis_p = np.array([[ 0.1 ,   0.5,  0.6],
         ...                    [ 0.9,  -0.5,  -0.6],
@@ -2666,7 +2669,7 @@ class CGM:
         r_hip_angle = CGM.get_angle(hip_axis_mod, r_knee_axis_mod)
         l_hip_angle = CGM.get_angle(hip_axis_mod, l_knee_axis_mod)
 
-        # GCS fix
+        # GCS fix  # TODO: don't assume it's GCS related
         r_hip_angle = np.array([r_hip_angle[0] * -1, r_hip_angle[1], r_hip_angle[2] * -1 + 90.0])
         l_hip_angle = np.array([l_hip_angle[0] * -1, l_hip_angle[1] * -1, l_hip_angle[2] - 90.0])
 
