@@ -55,8 +55,7 @@ class IO:
 
         Examples
         --------
-        >>> from __future__ import absolute_import
-        >>> from pycgm import io
+        >>> from pycgm.io import IO
         >>> IO.load_scaling_table()
         {...
 
@@ -102,7 +101,7 @@ class IO:
         Examples
         --------
         >>> import pycgm
-        >>> from pycgm import io
+        >>> from pycgm.io import IO
         >>> csv_file = pycgm.get_robo_results()
         >>> c3d_file = pycgm.get_robo_data()[0]
         >>> csv_data, csv_mappings = IO.load_marker_data(csv_file)
@@ -150,7 +149,7 @@ class IO:
         --------
         >>> from numpy import around, array, shape
         >>> import pycgm
-        >>> from pycgm import io
+        >>> from pycgm.io import IO
         >>> filename = pycgm.get_rom_csv()
         >>> data, mappings = IO.load_csv(filename)
 
@@ -277,7 +276,7 @@ class IO:
         --------
         >>> from numpy import around, array, shape
         >>> import pycgm
-        >>> from pycgm import io
+        >>> from pycgm.io import IO
         >>> filename = pycgm.get_59993_data()[0]
         >>> data, mappings = IO.load_c3d(filename)
 
@@ -350,7 +349,7 @@ class IO:
         Examples
         --------
         >>> import pycgm
-        >>> from pycgm import io
+        >>> from pycgm.io import IO
         >>> vsk_filename, csv_filename = pycgm.get_robo_measurements()
         >>> vsk_subject_measurements = IO.load_sm(vsk_filename)
         >>> csv_subject_measurements = IO.load_sm(csv_filename)
@@ -392,7 +391,7 @@ class IO:
         Examples
         --------
         >>> import pycgm
-        >>> from pycgm import io
+        >>> from pycgm.io import IO
         >>> filename = pycgm.get_robo_measurements()[0]
         >>> subject_measurements = IO.load_sm_vsk(filename)
         >>> subject_measurements['Bodymass']
@@ -454,7 +453,7 @@ class IO:
         Examples
         --------
         >>> import pycgm
-        >>> from pycgm import io
+        >>> from pycgm.io import IO
         >>> filename = pycgm.get_robo_measurements()[1]
         >>> subject_measurements = IO.load_sm_csv(filename)
         >>> subject_measurements['Bodymass']
@@ -519,7 +518,7 @@ class IO:
         >>> import tempfile
         >>> tmp_dir_name = tempfile.mkdtemp()
         >>> import pycgm
-        >>> from pycgm import io
+        >>> from pycgm.io import IO
 
         Prepare data to write to csv.
 
