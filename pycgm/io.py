@@ -165,7 +165,7 @@ class IO:
 
         Returns
         -------
-        data, mappings : tuple
+        data, mappings : tuple  # TODO: update mappings desc
             `data` is a 3d numpy array. Each index `i` corresponds to frame `i`
             of trial. `data[i]` contains a list of coordinate values for each marker.
             Each coordinate value is a 1x3 list: [X, Y, Z].
@@ -279,7 +279,7 @@ class IO:
             print("Consider renaming the markers or adding the expected markers to the c3d file if they are missing.")
 
         data = np.array(data)
-        return data, mappings
+        return data, IO.joint_markers(mappings)
 
     @staticmethod
     def load_c3d(filename):
@@ -292,7 +292,7 @@ class IO:
 
         Returns
         -------
-        data, mappings : tuple
+        data, mappings : tuple  # TODO: update mappings desc
             `data` is a 3d numpy array. Each index `i` corresponds to frame `i`
             of trial. `data[i]` contains a list of coordinate values for each marker.
             Each coordinate value is a 1x3 list: [X, Y, Z].
@@ -353,7 +353,7 @@ class IO:
             print("Consider renaming the markers or adding the expected markers to the c3d file if they are missing.")
 
         data = np.array(data)
-        return data, mappings
+        return data, IO.joint_markers(mappings)
 
     @staticmethod
     def load_sm(filename):
