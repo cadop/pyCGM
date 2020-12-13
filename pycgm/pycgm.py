@@ -3238,7 +3238,7 @@ class CGM:
         mass calculations for one frame in `get_kinetics`.
 
         >>> from pycgm.pycgm import CGM
-        >>> >>> from __future__ import absolute_import
+        >>> from __future__ import absolute_import
         >>> from pycgm.io import IO
         >>> import pycgm
         >>> static_trial, dynamic_trial, measurements = pycgm.get_robo_data()

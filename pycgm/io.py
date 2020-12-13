@@ -150,7 +150,8 @@ class IO:
         Examples
         --------
         >>> from numpy import around, array, shape
-        >>> from __future__ import absolute_import>>> from pycgm.io import IO
+        >>> from __future__ import absolute_import
+        >>> from pycgm.io import IO
         >>> import pycgm
         >>> filename = pycgm.get_rom_csv()
         >>> data, mappings = IO.load_csv(filename)

@@ -3,7 +3,7 @@ import setuptools
 from pycgm._about import __version__
 from io import open
 
-sys.path.append('./pycgm')
+#sys.path.append('./pycgm')
 
 with open("README.md", "r", encoding="utf8") as fh:
     long_description = fh.read()
