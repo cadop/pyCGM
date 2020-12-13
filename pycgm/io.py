@@ -149,7 +149,7 @@ class IO:
         Examples
         --------
         >>> from numpy import around, array, shape
-        >>> >>> import pycgm
+        >>> import pycgm
         >>> from pycgm.io import IO
         >>> filename = pycgm.get_rom_csv()
         >>> data, mappings = IO.load_csv(filename)
