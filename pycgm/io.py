@@ -52,30 +52,31 @@ class IO:
         -------
         seg_scale : dict
             Dictionary containing segment scaling factors.
-        
+
         Examples
         --------
         >>> from .io import IO
         >>> IO.load_scaling_table()
         {...
-        
+
         Notes
         -----
         The PiG scaling factors are taken from Dempster -- they are available at:
         http://www.c-motion.com/download/IORGaitFiles/pigmanualver1.pdf
         """
         seg_scale = {}
-        with open(os.path.dirname(os.path.abspath(__file__)) + '/segments.csv', 'r') as f:  # TODO: use __init__ file for this
+        with open(os.path.dirname(os.path.abspath(__file__)) + '/segments.csv',
+                  'r') as f:  # TODO: use __init__ file for this
             header = False
             for line in f:
                 if not header:
                     header = True
                 else:
                     row = line.rstrip('\n').split(',')
-                    seg_scale[row[0]] = {'com': float(row[1]), 'mass': float(row[2]), 'x': float(row[3]), 
+                    seg_scale[row[0]] = {'com': float(row[1]), 'mass': float(row[2]), 'x': float(row[3]),
                                          'y': float(row[4]), 'z': float(row[5])}
         return seg_scale
-    
+
     @staticmethod
     def load_marker_data(filename):
         """Open and load a c3d or csv file of motion capture data.
@@ -104,9 +105,7 @@ class IO:
         >>> csv_file = 'SampleData' + os.sep + 'Sample_2' + os.sep + 'RoboResults.csv'
         >>> c3d_file = 'SampleData' + os.sep + 'Sample_2' + os.sep + 'RoboStatic.c3d'
         >>> csv_data, csv_mappings = IO.load_marker_data(csv_file)
-        Sample...
         >>> c3d_data, c3d_mappings = IO.load_marker_data(c3d_file)
-        Sample...
 
         Testing for some values from the loaded csv file.
 

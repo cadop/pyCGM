@@ -11,7 +11,6 @@ if sys.version_info[0] == 2:
 else:
     pyver = 3
 
-
 __all__ = ['CGM', 'StaticCGM', 'SubjectManager']
 
 
@@ -39,7 +38,6 @@ class CGM:
         >>> dynamic_trial = dir + "59993_Frame_Dynamic.c3d"
         >>> measurements = dir + "59993_Frame_SM.vsk"
         >>> subject1 = CGM(static_trial, dynamic_trial, measurements)
-        Sample...
         """
         self.path_static = path_static
         self.path_dynamic = path_dynamic
@@ -3236,7 +3234,7 @@ class CGM:
 
         Examples
         --------
-        
+
         This example uses the CGM interface to load inputs used in the center of
         mass calculations for one frame in `get_kinetics`.
 
@@ -3246,9 +3244,7 @@ class CGM:
         >>> static_trial = 'SampleData/Sample_2/RoboStatic.c3d'
         >>> measurements = 'SampleData/Sample_2/RoboSM.vsk'
         >>> subject = CGM(static_trial, dynamic_trial, measurements, start=0, end=1)
-        SampleData/Sample_2/RoboStatic.c3d
         >>> subject.run()
-        SampleData/Sample_2/RoboWalk.c3d
         >>> seg_scale = IO.load_scaling_table()
         >>> jc_mapping = subject.jc_idx
         >>> joint_centers = subject.joint_centers[0]
@@ -3403,7 +3399,7 @@ class CGM:
                             seg_temp[seg]['val'] = val
 
         vals = []
-        
+
         if pyver == 2:
             for_iter = seg_temp.iteritems()
         elif pyver == 3:
@@ -3489,13 +3485,13 @@ class CGM:
     @property
     def knee_axes(self):
         knee = np.array([[self.axis_results[0:, self.axis_idx["R KNEO"]],
-                         self.axis_results[0:, self.axis_idx["R KNEX"]],
-                         self.axis_results[0:, self.axis_idx["R KNEY"]],
-                         self.axis_results[0:, self.axis_idx["R KNEZ"]]],
+                          self.axis_results[0:, self.axis_idx["R KNEX"]],
+                          self.axis_results[0:, self.axis_idx["R KNEY"]],
+                          self.axis_results[0:, self.axis_idx["R KNEZ"]]],
                          [self.axis_results[0:, self.axis_idx["L KNEO"]],
-                         self.axis_results[0:, self.axis_idx["L KNEX"]],
-                         self.axis_results[0:, self.axis_idx["L KNEY"]],
-                         self.axis_results[0:, self.axis_idx["L KNEZ"]]]])
+                          self.axis_results[0:, self.axis_idx["L KNEX"]],
+                          self.axis_results[0:, self.axis_idx["L KNEY"]],
+                          self.axis_results[0:, self.axis_idx["L KNEZ"]]]])
         return knee
 
     @property
@@ -3530,13 +3526,13 @@ class CGM:
     @property
     def ankle_axes(self):
         ankle = np.array([[self.axis_results[0:, self.axis_idx["R ANKO"]],
-                          self.axis_results[0:, self.axis_idx["R ANKX"]],
-                          self.axis_results[0:, self.axis_idx["R ANKY"]],
-                          self.axis_results[0:, self.axis_idx["R ANKZ"]]],
+                           self.axis_results[0:, self.axis_idx["R ANKX"]],
+                           self.axis_results[0:, self.axis_idx["R ANKY"]],
+                           self.axis_results[0:, self.axis_idx["R ANKZ"]]],
                           [self.axis_results[0:, self.axis_idx["L ANKO"]],
-                          self.axis_results[0:, self.axis_idx["L ANKX"]],
-                          self.axis_results[0:, self.axis_idx["L ANKY"]],
-                          self.axis_results[0:, self.axis_idx["L ANKZ"]]]])
+                           self.axis_results[0:, self.axis_idx["L ANKX"]],
+                           self.axis_results[0:, self.axis_idx["L ANKY"]],
+                           self.axis_results[0:, self.axis_idx["L ANKZ"]]]])
         return ankle
 
     @property
@@ -3571,13 +3567,13 @@ class CGM:
     @property
     def foot_axes(self):
         foot = np.array([[self.axis_results[0:, self.axis_idx["R FOOO"]],
-                         self.axis_results[0:, self.axis_idx["R FOOX"]],
-                         self.axis_results[0:, self.axis_idx["R FOOY"]],
-                         self.axis_results[0:, self.axis_idx["R FOOZ"]]],
+                          self.axis_results[0:, self.axis_idx["R FOOX"]],
+                          self.axis_results[0:, self.axis_idx["R FOOY"]],
+                          self.axis_results[0:, self.axis_idx["R FOOZ"]]],
                          [self.axis_results[0:, self.axis_idx["L FOOO"]],
-                         self.axis_results[0:, self.axis_idx["L FOOX"]],
-                         self.axis_results[0:, self.axis_idx["L FOOY"]],
-                         self.axis_results[0:, self.axis_idx["L FOOZ"]]]])
+                          self.axis_results[0:, self.axis_idx["L FOOX"]],
+                          self.axis_results[0:, self.axis_idx["L FOOY"]],
+                          self.axis_results[0:, self.axis_idx["L FOOZ"]]]])
         return foot
 
     @property
@@ -3700,13 +3696,13 @@ class CGM:
     @property
     def shoulder_axes(self):
         shoulder = np.array([[self.axis_results[0:, self.axis_idx["R CLAO"]],
-                             self.axis_results[0:, self.axis_idx["R CLAX"]],
-                             self.axis_results[0:, self.axis_idx["R CLAY"]],
-                             self.axis_results[0:, self.axis_idx["R CLAZ"]]],
+                              self.axis_results[0:, self.axis_idx["R CLAX"]],
+                              self.axis_results[0:, self.axis_idx["R CLAY"]],
+                              self.axis_results[0:, self.axis_idx["R CLAZ"]]],
                              [self.axis_results[0:, self.axis_idx["L CLAO"]],
-                             self.axis_results[0:, self.axis_idx["L CLAX"]],
-                             self.axis_results[0:, self.axis_idx["L CLAY"]],
-                             self.axis_results[0:, self.axis_idx["L CLAZ"]]]])
+                              self.axis_results[0:, self.axis_idx["L CLAX"]],
+                              self.axis_results[0:, self.axis_idx["L CLAY"]],
+                              self.axis_results[0:, self.axis_idx["L CLAZ"]]]])
         return shoulder
 
     @property
@@ -3741,13 +3737,13 @@ class CGM:
     @property
     def elbow_axes(self):
         elbow = np.array([[self.axis_results[0:, self.axis_idx["R HUMO"]],
-                          self.axis_results[0:, self.axis_idx["R HUMX"]],
-                          self.axis_results[0:, self.axis_idx["R HUMY"]],
-                          self.axis_results[0:, self.axis_idx["R HUMZ"]]],
+                           self.axis_results[0:, self.axis_idx["R HUMX"]],
+                           self.axis_results[0:, self.axis_idx["R HUMY"]],
+                           self.axis_results[0:, self.axis_idx["R HUMZ"]]],
                           [self.axis_results[0:, self.axis_idx["L HUMO"]],
-                          self.axis_results[0:, self.axis_idx["L HUMX"]],
-                          self.axis_results[0:, self.axis_idx["L HUMY"]],
-                          self.axis_results[0:, self.axis_idx["L HUMZ"]]]])
+                           self.axis_results[0:, self.axis_idx["L HUMX"]],
+                           self.axis_results[0:, self.axis_idx["L HUMY"]],
+                           self.axis_results[0:, self.axis_idx["L HUMZ"]]]])
         return elbow
 
     @property
@@ -3782,13 +3778,13 @@ class CGM:
     @property
     def wrist_axes(self):
         wrist = np.array([[self.axis_results[0:, self.axis_idx["R RADO"]],
-                          self.axis_results[0:, self.axis_idx["R RADX"]],
-                          self.axis_results[0:, self.axis_idx["R RADY"]],
-                          self.axis_results[0:, self.axis_idx["R RADZ"]]],
+                           self.axis_results[0:, self.axis_idx["R RADX"]],
+                           self.axis_results[0:, self.axis_idx["R RADY"]],
+                           self.axis_results[0:, self.axis_idx["R RADZ"]]],
                           [self.axis_results[0:, self.axis_idx["L RADO"]],
-                          self.axis_results[0:, self.axis_idx["L RADX"]],
-                          self.axis_results[0:, self.axis_idx["L RADY"]],
-                          self.axis_results[0:, self.axis_idx["L RADZ"]]]])
+                           self.axis_results[0:, self.axis_idx["L RADX"]],
+                           self.axis_results[0:, self.axis_idx["L RADY"]],
+                           self.axis_results[0:, self.axis_idx["L RADZ"]]]])
         return wrist
 
     @property
@@ -3823,13 +3819,13 @@ class CGM:
     @property
     def hand_axes(self):
         hand = np.array([[self.axis_results[0:, self.axis_idx["R HANO"]],
-                         self.axis_results[0:, self.axis_idx["R HANX"]],
-                         self.axis_results[0:, self.axis_idx["R HANY"]],
-                         self.axis_results[0:, self.axis_idx["R HANZ"]]],
+                          self.axis_results[0:, self.axis_idx["R HANX"]],
+                          self.axis_results[0:, self.axis_idx["R HANY"]],
+                          self.axis_results[0:, self.axis_idx["R HANZ"]]],
                          [self.axis_results[0:, self.axis_idx["L HANO"]],
-                         self.axis_results[0:, self.axis_idx["L HANX"]],
-                         self.axis_results[0:, self.axis_idx["L HANY"]],
-                         self.axis_results[0:, self.axis_idx["L HANZ"]]]])
+                          self.axis_results[0:, self.axis_idx["L HANX"]],
+                          self.axis_results[0:, self.axis_idx["L HANY"]],
+                          self.axis_results[0:, self.axis_idx["L HANZ"]]]])
         return hand
 
     @property
@@ -5106,7 +5102,6 @@ class StaticCGM:
         --------
         >>> from .pycgm import StaticCGM
         >>> static = StaticCGM('SampleData/ROM/Sample_Static.c3d', 'SampleData/ROM/Sample_SM.vsk')
-        Sample...
         >>> static.measurements['HeadOffset']
         0.0
         >>> cal_sm = static.get_static()
