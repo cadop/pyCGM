@@ -55,6 +55,7 @@ class IO:
 
         Examples
         --------
+        >>> from __future__ import absolute_import
         >>> from pycgm.io import IO
         >>> IO.load_scaling_table()
         {...
@@ -100,6 +101,7 @@ class IO:
 
         Examples
         --------
+        >>> from __future__ import absolute_import
         >>> from pycgm.io import IO
         >>> import pycgm
         >>> csv_file = pycgm.get_robo_results()
@@ -148,7 +150,7 @@ class IO:
         Examples
         --------
         >>> from numpy import around, array, shape
-        >>> from pycgm.io import IO
+        >>> from __future__ import absolute_import>>> from pycgm.io import IO
         >>> import pycgm
         >>> filename = pycgm.get_rom_csv()
         >>> data, mappings = IO.load_csv(filename)
@@ -275,6 +277,7 @@ class IO:
         Examples
         --------
         >>> from numpy import around, array, shape
+        >>> from __future__ import absolute_import
         >>> from pycgm.io import IO
         >>> import pycgm
         >>> filename = pycgm.get_59993_data()[0]
@@ -348,6 +351,7 @@ class IO:
 
         Examples
         --------
+        >>> from __future__ import absolute_import
         >>> from pycgm.io import IO
         >>> import pycgm
         >>> vsk_filename, csv_filename = pycgm.get_robo_measurements()
@@ -390,6 +394,7 @@ class IO:
 
         Examples
         --------
+        >>> from __future__ import absolute_import
         >>> from pycgm.io import IO
         >>> import pycgm
         >>> filename = pycgm.get_robo_measurements()[0]
@@ -452,6 +457,7 @@ class IO:
 
         Examples
         --------
+        >>> from __future__ import absolute_import
         >>> from pycgm.io import IO
         >>> import pycgm
         >>> filename = pycgm.get_robo_measurements()[1]
@@ -517,6 +523,7 @@ class IO:
         >>> from shutil import rmtree
         >>> import tempfile
         >>> tmp_dir_name = tempfile.mkdtemp()
+        >>> from __future__ import absolute_import
         >>> from pycgm.io import IO
 
         Prepare data to write to csv.
