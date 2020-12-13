@@ -1,7 +1,7 @@
 #!/usr/bin/python
 # -*- coding: utf-8 -*-
 
-from __future__ import absolute_import
+# import pycgm
 from pycgm.io import IO
 from math import cos, sin, acos, degrees, radians, sqrt, pi
 import numpy as np
@@ -3238,9 +3238,8 @@ class CGM:
         mass calculations for one frame in `get_kinetics`.
 
         >>> from pycgm.pycgm import CGM
-        >>> from __future__ import absolute_import
-        >>> from pycgm.io import IO
         >>> import pycgm
+        >>> from pycgm.io import IO
         >>> static_trial, dynamic_trial, measurements = pycgm.get_robo_data()
         >>> subject = CGM(static_trial, dynamic_trial, measurements, start=0, end=1)
         >>> subject.run()
