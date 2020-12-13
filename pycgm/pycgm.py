@@ -13,6 +13,7 @@ else:
     pyver = 3
 
 __all__ = ['CGM', 'StaticCGM', 'SubjectManager']
+__package__ = None
 
 
 class CGM:
