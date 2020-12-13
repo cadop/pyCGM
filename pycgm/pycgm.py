@@ -2666,7 +2666,6 @@ class CGM:
         r_hip_angle = CGM.get_angle(hip_axis_mod, r_knee_axis_mod)
         l_hip_angle = CGM.get_angle(hip_axis_mod, l_knee_axis_mod)
 
-        # GCS fix  # TODO: don't assume it's GCS related
         r_hip_angle = np.array([r_hip_angle[0] * -1, r_hip_angle[1], r_hip_angle[2] * -1 + 90.0])
         l_hip_angle = np.array([l_hip_angle[0] * -1, l_hip_angle[1] * -1, l_hip_angle[2] - 90.0])
 
@@ -2725,7 +2724,6 @@ class CGM:
         r_knee_angle = CGM.get_angle(r_knee_axis_mod, r_ankle_axis_mod)
         l_knee_angle = CGM.get_angle(l_knee_axis_mod, l_ankle_axis_mod)
 
-        # GCS fix
         r_knee_angle = np.array([r_knee_angle[0], r_knee_angle[1], r_knee_angle[2] * -1 + 90.0])
         l_knee_angle = np.array([l_knee_angle[0], l_knee_angle[1] * -1, l_knee_angle[2] - 90.0])
 
@@ -2784,7 +2782,6 @@ class CGM:
         r_ankle_angle = CGM.get_angle(r_ankle_axis_mod, r_foot_axis_mod)
         l_ankle_angle = CGM.get_angle(l_ankle_axis_mod, l_foot_axis_mod)
 
-        # GCS fix
         r_ankle_angle = np.array([r_ankle_angle[0] * -1 - 90.0, r_ankle_angle[2] * -1 + 90.0, r_ankle_angle[1]])
         l_ankle_angle = np.array([l_ankle_angle[0] * -1 - 90.0, l_ankle_angle[2] - 90.0, l_ankle_angle[1] * -1])
 
@@ -2834,7 +2831,6 @@ class CGM:
         r_global_foot_angle = CGM.get_angle(global_axis, r_foot_axis_mod)
         l_global_foot_angle = CGM.get_angle(global_axis, l_foot_axis_mod)
 
-        # GCS fix
         r_foot_angle = np.array([r_global_foot_angle[0], r_global_foot_angle[2] - 90.0, r_global_foot_angle[1]])
         l_foot_angle = np.array(
             [l_global_foot_angle[0], l_global_foot_angle[2] * -1 + 90.0, l_global_foot_angle[1] * -1])
@@ -2875,7 +2871,6 @@ class CGM:
         # Old repo subtracts [0, 0, 0] from global_axis here
         global_head_angle = CGM.get_head_angle(global_axis, head_axis_mod)
 
-        # GCS fix
         head_x = global_head_angle[0] * -1
         if head_x < -180.0:
             head_x += 360.0
@@ -2921,7 +2916,6 @@ class CGM:
         elif global_thorax_angle[0] < 0:
             global_thorax_angle[0] += 180.0
 
-        # GCS fix
         return np.array([global_thorax_angle[0], global_thorax_angle[1], global_thorax_angle[2] + 90.0])
 
     @staticmethod
@@ -2961,7 +2955,6 @@ class CGM:
         thorax_axis_mod = CGM.subtract_origin(thorax_axis)
         neck_angle = CGM.get_head_angle(head_axis_mod, thorax_axis_mod)
 
-        # GCS fix
         return np.array([180.0 - neck_angle[0], neck_angle[1], neck_angle[2] * -1])
 
     @staticmethod
@@ -3001,7 +2994,6 @@ class CGM:
         thorax_axis_mod = CGM.subtract_origin(thorax_axis)
         spine_angle = CGM.get_spine_angle(pelvis_axis_mod, thorax_axis_mod)
 
-        # GCS fix
         return np.array([spine_angle[0], spine_angle[2] * -1, spine_angle[1]])
 
     @staticmethod
@@ -3065,7 +3057,6 @@ class CGM:
         elif l_shoulder_angle[1] > 0:
             l_shoulder_angle[1] -= 180.0
 
-        # GCS fix
         r_shoulder_angle = np.array([r_shoulder_angle[0] * -1, r_shoulder_angle[1] * -1, r_shoulder_angle[2]])
         l_shoulder_angle = np.array([l_shoulder_angle[0] * -1, l_shoulder_angle[1], 180.0 - l_shoulder_angle[2]])
 

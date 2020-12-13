@@ -4,6 +4,7 @@
 import numpy as np
 import os
 import sys
+import pycgm
 import xml.etree.ElementTree as ET
 
 if sys.version_info[0] == 2:
@@ -65,8 +66,7 @@ class IO:
         http://www.c-motion.com/download/IORGaitFiles/pigmanualver1.pdf
         """
         seg_scale = {}
-        with open(os.path.dirname(os.path.abspath(__file__)) + '/segments.csv',
-                  'r') as f:  # TODO: use __init__ file for this
+        with open(pycgm.get_data_dir() + '/segments.csv', 'r') as f:
             header = False
             for line in f:
                 if not header:
