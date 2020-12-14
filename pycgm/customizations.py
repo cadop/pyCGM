@@ -2,7 +2,6 @@
 # -*- coding: utf-8 -*-
 
 from pycgm.pycgm import CGM, StaticCGM
-from pycgm.io import IO
 import numpy as np
 
 
@@ -10,8 +9,8 @@ class CustomCGM1(CGM):
     """Sample custom class that doubles the values of all the pelvis axes."""
 
     @staticmethod
-    def pelvis_axis_calc(rasi, lasi, rpsi=None, lpsi=None, sacr=None):
-        pelvis_axis = super(CustomCGM1, CustomCGM1).pelvis_axis_calc(rasi, lasi, rpsi, lpsi, sacr)
+    def pelvis_axis_calc(markers, sacr):
+        pelvis_axis = super(CustomCGM1, CustomCGM1).pelvis_axis_calc(markers, sacr)
         return pelvis_axis * 2.0
 
 
@@ -19,9 +18,10 @@ class CustomCGM2(CGM):
     """Sample custom class that uses a custom static class to get a new value in measurements
     and use it within a customized calculation method."""
 
-    def __init__(self, path_static, path_dynamic, path_measurements, cores=1, start=0, end=-1):
-        static = CustomStaticCGM1(path_static, path_measurements)
-        super().__init__(path_static, path_dynamic, path_measurements, static, cores, start, end)
+    def __init__(self, path_static, path_dynamic, path_measurements,
+                 static=None, override_static=True, cores=1, start=0, end=-1):
+        super().__init__(path_static, path_dynamic, path_measurements, CustomStaticCGM1,
+                         override_static, cores, start, end)
 
     @staticmethod
     def hip_axis_calc(pelvis_axis, measurements):
