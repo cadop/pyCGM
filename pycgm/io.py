@@ -37,10 +37,26 @@ class IO:
         This needs to happen as part of the data loading process because this is the only time at which
         the indices of the markers found from the input are known, by design.
 
+        Parameters
+        ----------
+        marker_idx : dictionary
+            A mapping of each marker's name to its index in the loaded marker data.
+        names : dictionary
+            A mapping of each joint name to a list of names of markers associated with that joint.
+
         Returns
         -------
         dictionary
-            Dictionary mapping a joint's name for lookup to the marker indices it requires.
+            A mapping of each joint name to a list of indices of the markers associated with that joint. The
+            order of the interior list values maintains the order that was originally defined in `names`.
+
+        Examples
+        --------
+        >>> from pycgm.io import IO
+        >>> marker_idx = {"RFHD": 2, "LFHD": 0, "RBHD": 3, "LBHD": 1}
+        >>> names = {"Head": "RFHD LFHD RBHD LBHD".split()}
+        >>> IO.joint_marker_idx(marker_idx, names)
+        {'Head': [2, 0, 3, 1]}
         """
 
         return {joint: [marker_idx[x] for x in names[joint]] for joint in names}
@@ -89,14 +105,20 @@ class IO:
         ----------
         filename : str
             Path of the csv or c3d file to be loaded.
+        marker_map : dict
+            A mapping of the marker's expected name in the default pycgm implementation to what will be searched
+            within the loaded data. By default, the value of each key is the same as the key, but this may
+            be overridden by the user when using any marker-changing functionality.
+        names : dict
+            A mapping of each joint's name to a list of markers associated with that joint.
 
         Returns
         -------
-        data, mappings : tuple
+        data, joint_idx : tuple
             `data` is a 3d numpy array. Each index `i` corresponds to frame `i`
             of trial. `data[i]` contains a list of coordinate values for each marker.
-            Each coordinate value is a 1x3 list: [X, Y, Z].
-            `mappings` is a dictionary that indicates which marker corresponds to which index
+            Each coordinate value is a 1x3 array: [X, Y, Z].
+            `joint_idx` is a dictionary that indicates which joint corresponds to which indices
             in `data[i]`.
 
         Examples
@@ -107,22 +129,22 @@ class IO:
         >>> cgm = CGM(None, None, None)
         >>> csv_file = pycgm.get_robo_results()
         >>> c3d_file = pycgm.get_robo_data()[0]
-        >>> marker_map = IO.marker_map()
-        >>> csv_data, csv_mappings = IO.load_marker_data(csv_file, marker_map, cgm.names)
-        >>> c3d_data, c3d_mappings = IO.load_marker_data(c3d_file, marker_map, cgm.names)
+        >>> marker_map = cgm.marker_map
+        >>> csv_data, csv_joint_idx = IO.load_marker_data(csv_file, marker_map, cgm.names)
+        >>> c3d_data, c3d_joint_idx = IO.load_marker_data(c3d_file, marker_map, cgm.names)
 
         Testing for some values from the loaded csv file.
 
-        >>> csv_data[0][csv_mappings['Knee'][0]] #doctest: +NORMALIZE_WHITESPACE
+        >>> csv_data[0][csv_joint_idx['Knee'][0]] #doctest: +NORMALIZE_WHITESPACE
         array([-926.0578  , -196.980865,  666.045349])
-        >>> csv_data[0][csv_mappings['Thorax'][1]] #doctest: +NORMALIZE_WHITESPACE
+        >>> csv_data[0][csv_joint_idx['Thorax'][1]] #doctest: +NORMALIZE_WHITESPACE
         array([-1010.098999, 3.508968, 1336.794434])
 
         Testing for some values from the loaded c3d file.
 
-        >>> c3d_data[0][c3d_mappings['Knee'][0]] #doctest: +NORMALIZE_WHITESPACE
+        >>> c3d_data[0][c3d_joint_idx['Knee'][0]] #doctest: +NORMALIZE_WHITESPACE
         array([ -71.86657715, -195.74610901,  762.24456787])
-        >>> c3d_data[0][c3d_mappings['Thorax'][1]] #doctest: +NORMALIZE_WHITESPACE
+        >>> c3d_data[0][c3d_joint_idx['Thorax'][1]] #doctest: +NORMALIZE_WHITESPACE
         array([-2.20681717e+02, -1.07236075e+00, 1.45551550e+03])
         """
         # print(filename)
@@ -139,14 +161,20 @@ class IO:
         ----------
         filename : str
             Path of the csv file to be loaded.
+        marker_map : dict
+            A mapping of the marker's expected name in the default pycgm implementation to what will be searched
+            within the loaded data. By default, the value of each key is the same as the key, but this may
+            be overridden by the user when using any marker-changing functionality.
+        names : dict
+            A mapping of each joint's name to a list of markers associated with that joint.
 
         Returns
         -------
-        data, mappings : tuple  # TODO: update doctest and desc
+        data, joint_idx : tuple
             `data` is a 3d numpy array. Each index `i` corresponds to frame `i`
             of trial. `data[i]` contains a list of coordinate values for each marker.
             Each coordinate value is a 1x3 list: [X, Y, Z].
-            `mappings` is a dictionary that indicates which marker corresponds to which index
+            `joint_idx` is a dictionary that indicates which joint corresponds to which indices
             in `data[i]`.
 
         Examples
@@ -157,8 +185,8 @@ class IO:
         >>> from pycgm.pycgm import CGM
         >>> cgm = CGM(None, None, None)
         >>> filename = pycgm.get_rom_csv()
-        >>> marker_map = IO.marker_map()
-        >>> data, mappings = IO.load_csv(filename, marker_map, cgm.names)
+        >>> marker_map = cgm.marker_map
+        >>> data, joint_idx = IO.load_csv(filename, marker_map, cgm.names)
 
         Test for the shape of data.
 
@@ -167,16 +195,16 @@ class IO:
 
         Testing for some values from 59993_Frame_Static.c3d.
 
-        >>> around(data[0][mappings['Knee']][0], 8)
+        >>> around(data[0][joint_idx['Knee']][0], 8)
         array([427.9638367, 237.3843689, 673.7296753])
-        >>> around(data[0][mappings['Thorax']][1], 8)
+        >>> around(data[0][joint_idx['Thorax']][1], 8)
         array([ 250.765976,  165.616333, 1528.094116])
 
-        Testing for correct mappings.
+        Testing for correct joint_idx.
 
-        >>> mappings['Knee']
+        >>> joint_idx['Knee']
         [29, 23, 30, 24]
-        >>> mappings['Thorax']
+        >>> joint_idx['Thorax']
         [6, 4, 7, 5]
         """
         expected_markers = set(marker_map.values())
@@ -210,7 +238,7 @@ class IO:
 
         def parse_trajectories(fh):
             data = []
-            mappings = {}
+            marker_idx = {}
 
             delimiter = ','
             if pyver == 2:
@@ -226,13 +254,13 @@ class IO:
                 label = labels[i]
                 if label in expected_markers:
                     expected_markers.remove(label)
-                mappings[label] = i
+                marker_idx[label] = i
 
             for row in fh:
                 row = split_line(row)[1:]
                 frame = row_to_array(row)
                 data.append(frame)
-            return data, mappings
+            return data, marker_idx
 
         # Find the trajectories
         for i in fh:
@@ -248,7 +276,7 @@ class IO:
                     rows.append(j)
                 break
         rows = iter(rows)
-        data, mappings = parse_trajectories(rows)
+        data, marker_idx = parse_trajectories(rows)
 
         if len(expected_markers) > 0:
             print("The following expected pycgm markers were not found in", filename, ":")
@@ -258,7 +286,7 @@ class IO:
                   "the expected markers to the c3d file if they are missing.")
 
         data = np.array(data)
-        return np.array(data), IO.joint_marker_idx(mappings, names)
+        return np.array(data), IO.joint_marker_idx(marker_idx, names)
 
     @staticmethod
     def load_c3d(filename, marker_map, names):
@@ -268,14 +296,20 @@ class IO:
         ----------
         filename : str
             Path of the c3d file to be loaded.
+        marker_map : dict
+            A mapping of the marker's expected name in the default pycgm implementation to what will be searched
+            within the loaded data. By default, the value of each key is the same as the key, but this may
+            be overridden by the user when using any marker-changing functionality.
+        names : dict
+            A mapping of each joint's name to a list of markers associated with that joint.
 
         Returns
         -------
-        data, mappings : tuple  # TODO: update doctest and desc
+        data, joint_idx : tuple
             `data` is a 3d numpy array. Each index `i` corresponds to frame `i`
             of trial. `data[i]` contains a list of coordinate values for each marker.
             Each coordinate value is a 1x3 list: [X, Y, Z].
-            `mappings` is a dictionary that indicates which marker corresponds to which index
+            `joint_idx` is a dictionary that indicates which joint corresponds to which indices
             in `data[i]`.
 
         Examples
@@ -286,8 +320,8 @@ class IO:
         >>> from pycgm.pycgm import CGM
         >>> cgm = CGM(None, None, None)
         >>> filename = pycgm.get_59993_data()[0]
-        >>> marker_map = IO.marker_map()
-        >>> data, mappings = IO.load_c3d(filename, marker_map, cgm.names)
+        >>> marker_map = cgm.marker_map
+        >>> data, joint_idx = IO.load_c3d(filename, marker_map, cgm.names)
 
         Test for the shape of data.
 
@@ -296,20 +330,20 @@ class IO:
 
         Testing for some values from 59993_Frame_Static.c3d.
 
-        >>> around(data[0][mappings['Knee']][0], 8)
+        >>> around(data[0][joint_idx['Knee']][0], 8)
         array([156.91352844, -21.0939312 , 602.64331055])
-        >>> around(data[0][mappings['Thorax']][1], 8)
+        >>> around(data[0][joint_idx['Thorax']][1], 8)
         array([ -29.57296562,   -9.34280109, 1300.86730957])
 
-        Testing for correct mappings.
+        Testing for correct joint_idx.
 
-        >>> mappings['Knee']
+        >>> joint_idx['Knee']
         [29, 23, 30, 24]
-        >>> mappings['Thorax']
+        >>> joint_idx['Thorax']
         [6, 4, 7, 5]
         """
         data = []
-        mappings = {}
+        joint_idx = {}
         expected_markers = set(marker_map.values())
         reader = c3d.Reader(open(filename, 'rb'))
         labels = reader.get('POINT:LABELS').string_array
@@ -319,7 +353,7 @@ class IO:
             marker = markers[i]
             if marker in expected_markers:
                 expected_markers.remove(marker)
-            mappings[marker] = i
+            joint_idx[marker] = i
 
         for frame_no, points, analog in reader.read_frames(True, True):
             frame = []
@@ -334,7 +368,7 @@ class IO:
             print("Make sure the markers are renamed correectly, or add "
                   "the expected markers to the c3d file if they are missing.")
 
-        return np.array(data), IO.joint_marker_idx(mappings, names)
+        return np.array(data), IO.joint_marker_idx(joint_idx, names)
 
     @staticmethod
     def load_sm(filename):

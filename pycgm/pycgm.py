@@ -12,10 +12,9 @@ else:
     pyver = 3
 
 __all__ = ['CGM', 'StaticCGM', 'SubjectManager']
-__package__ = None
 
 
-class CGM:
+class CGM:  # TODO: CGM class needs docstring
 
     def __init__(self, path_static, path_dynamic, path_measurements,
                  static=None, override_static=True, cores=1, start=0, end=-1):
@@ -31,28 +30,56 @@ class CGM:
             File path of the dynamic trial in csv or c3d form
         path_measurements : str
             File path of the subject measurements in csv or vsk form
+        static : class or instance of StaticCGM, optional
+            This parameter initially contains the StaticCGM class, one of its children,
+            an instance of the StaticCGM class, or an instance of one of its children. In the
+            case that `static` is an instance, it will be converted to its class type before
+            being stored in `self.static`, otherwise it will be directly stored there. Providing
+            a non-class object will raise a `TypeError` and providing `None` or omitting the
+            parameter will cause it to default to the StaticCGM class.
+        override_static : boolean, optional
+            This parameter defines whether or not the current CGM instance will force its contained
+            StaticCGM instance to match its marker mappings and joint-marker names. Setting it
+            to True or omitting it will cause the override to occur, and the StaticCGM instance
+            will not be instantiated until the CGM.run() is called. Setting it to False will prevent
+            the override from happening, and the StaticCGM instance will be instantiated inside __init__.
+        cores : int, optional
+            The number of cores to run multiprocessing with if possible; defaults to 1.
+        start : int, optional
+            The starting frame of the input to calculate from. Defaults to 0.
+        end : int, optional
+            The ending frame of the input to calculate up to, exclusive. Defaults to -1. Behavior
+            when `end` is equal to -1 causes `end` to be inclusive rather than exclusive.
 
         Examples
         --------
         >>> from pycgm.pycgm import CGM
         >>> import pycgm
         >>> static_trial, dynamic_trial, measurements = pycgm.get_rom_data()
-        >>> subject1 = CGM(static_trial, dynamic_trial, measurements)
+        >>> subject1 = CGM(static_trial, dynamic_trial, measurements, end=5)
+        >>> subject1.path_static[-17:]
+        'Sample_Static.c3d'
+        >>> type(subject1.static)
+        <class 'type'>
+        >>> subject1.cores
+        1
         """
+        # Fields from parameters
         self.path_static = path_static
         self.path_dynamic = path_dynamic
         self.path_measurements = path_measurements
+        self.override = override_static
         self.cores = cores
+        self.start = start
+        self.end = end
+        # Fields to be instantiated later
         self.angle_results = None
         self.axis_results = None
         self.com_results = None
-        self.joint_centers = None
+        self.joint_centers = None  # this is referring to the kinetics
         self.marker_data = None
-        self.marker_idx = None
+        self.joint_idx = None
         self.measurements = None
-        self.override = override_static
-        self.start = start
-        self.end = end
         # Fields that are built off of property values
         self.marker_map = {marker: marker for marker in self.marker_keys}
         self.names = self.joint_marker_names
@@ -78,11 +105,11 @@ class CGM:
     # Properties for default values. Can be overridden, or modified using methods.
     @property
     def marker_keys(self):
-        """Returns a list of marker names that pycgm uses.
+        """The default list of marker names that pycgm expects.
 
         Returns
         -------
-        markers : list
+        list
             List of marker names.
         """
         return ['RASI', 'LASI', 'RPSI', 'LPSI', 'RTHI', 'LTHI', 'RKNE', 'LKNE', 'RTIB',
@@ -92,7 +119,17 @@ class CGM:
 
     @property
     def jc_labels(self):
-        return ['pelvis_origin', 'pelvis_x', 'pelvis_y', 'pelvis_z',  # TODO: will be deprecated
+        """The default list of labels for the kinetics input.
+
+        This function will be deprecated when kinetics input is modified to pull directly
+        from the current frame's axis results.
+
+        Returns
+        -------
+        list
+            List of kinetics inputs; a combination of joint centers, axes, and markers.
+        """
+        return ['pelvis_origin', 'pelvis_x', 'pelvis_y', 'pelvis_z',
                 'thorax_origin', 'thorax_x', 'thorax_y', 'thorax_z',
                 'RHip', 'LHip', 'RKnee', 'LKnee', 'RAnkle', 'LAnkle', 'RFoot', 'LFoot',
                 'RHEE', 'LHEE', 'C7', 'CLAV', 'STRN', 'T10', 'Front_Head', 'Back_Head',
@@ -101,6 +138,13 @@ class CGM:
 
     @property
     def axis_labels(self):
+        """The default list of labels for the axis outputs.
+
+        Returns
+        -------
+        list
+            List of axis labels.
+        """
         return ["PELO", "PELX", "PELY", "PELZ", "HIPO", "HIPX", "HIPY", "HIPZ", "R KNEO",
                 "R KNEX", "R KNEY", "R KNEZ", "L KNEO", "L KNEX", "L KNEY", "L KNEZ", "R ANKO", "R ANKX",
                 "R ANKY", "R ANKZ", "L ANKO", "L ANKX", "L ANKY", "L ANKZ", "R FOOO", "R FOOX", "R FOOY",
@@ -112,6 +156,13 @@ class CGM:
 
     @property
     def angle_labels(self):
+        """The default list of labels for the angle outputs.
+
+        Returns
+        -------
+        list
+            List of angle labels.
+        """
         return ['Pelvis', 'R Hip', 'L Hip', 'R Knee', 'L Knee', 'R Ankle',
                 'L Ankle', 'R Foot', 'L Foot',
                 'Head', 'Thorax', 'Neck', 'Spine', 'R Shoulder', 'L Shoulder',
@@ -119,6 +170,15 @@ class CGM:
 
     @property
     def joint_marker_names(self):
+        """The default mapping of joint names to the markers associated with that joint.
+
+        Returns
+        -------
+        dict
+            Mapping dictionary containing each joint, along with a few other names
+            reserved for non-joint functions that require any amount of markers, as each key,
+            and the associated list of markers as each value.
+        """
         names = {'Pelvis': 'RASI LASI'.split(),
                  'Hip': [],
                  'Knee': 'RTHI LTHI RKNE LKNE'.split(),
@@ -148,14 +208,40 @@ class CGM:
 
     # Customisation functions
     def update_joint(self, joint_name, assoc_markers):
+        """Edit joint-marker naming function
+
+        Given a joint name to update, replaces the list of associated markers with the provided input.
+
+        Parameters
+        ----------
+        joint_name : str
+            The name of the joint whose associations are being modified.
+        assoc_markers : list or str
+            The new list of associated markers for the joint. If a string is given instead,
+            the function will automatically split it.
+
+        Examples
+        --------
+        >>> from pycgm.pycgm import CGM
+        >>> cgm = CGM(None, None, None)
+        >>> cgm.names['Wrist']
+        ['RWRA', 'RWRB', 'LWRA', 'LWRB']
+        >>> cgm.update_joint('Wrist', ['RWRI', 'LWRI'])
+        >>> cgm.names['Wrist']
+        ['RWRI', 'LWRI']
+        >>> cgm.update_joint('Wrist', 'RWRA RWRB LWRA LWRB')
+        >>> cgm.names['Wrist']
+        ['RWRA', 'RWRB', 'LWRA', 'LWRB']
+        """
         if isinstance(assoc_markers, str):
             assoc_markers = assoc_markers.split()
         self.names[joint_name] = assoc_markers
 
     def rename_marker(self, old, new):
-        """Remap marker function
+        """Rename marker function
 
-        Remaps a single marker from the expected name in CGM to a new one, using `old` and `new`.
+        Renames a single marker from the expected name in CGM to a new one, using `old` and `new`,
+        by updating the mapping of the appropriate marker.
 
         Parameters
         ----------
@@ -163,23 +249,44 @@ class CGM:
             String containing the marker name that pycgm currently expects.
         new : str
             String containing the marker name to map `old` to.
+
+        Examples
+        --------
+        >>> from pycgm.pycgm import CGM
+        >>> cgm = CGM(None, None, None)
+        >>> cgm.marker_map['RHEE']
+        'RHEE'
+        >>> cgm.rename_marker('RHEE', 'R_HEEL')
+        >>> cgm.marker_map['RHEE']
+        'R_HEEL'
         """
         self.marker_map[old] = new
 
     def rename_markers(self, mapping):
-        """Remap multiple markers function
+        """Rename multiple markers function
 
-        Uses the passed dictionary and combines it into the existing mapping.
+        Uses the passed dictionary of default marker to desired marker
+        and combines it into the existing mapping.
 
         Parameters
         ----------
-        mapping: dict
+        mapping : dict
             Dictionary where each key is a string of pycgm's expected marker
             name and each value is a string of the new marker name.
+
+        Examples
+        --------
+        >>> from pycgm.pycgm import CGM
+        >>> cgm = CGM(None, None, None)
+        >>> cgm.marker_map['RHEE'], cgm.marker_map['LHEE']
+        ('RHEE', 'LHEE')
+        >>> cgm.rename_markers({'RHEE': 'R_HEEL', 'LHEE': 'L_HEEL'})
+        >>> cgm.marker_map['RHEE'], cgm.marker_map['LHEE']
+        ('R_HEEL', 'L_HEEL')
         """
         self.marker_map.update(mapping)
 
-    def marker_prefix(self, prefix):
+    def add_marker_prefix(self, prefix):
         """Add a prefix to all of pycgm's expected markers to match the input.
 
         Uses the passed prefix to add to the front of the string of each existing mapping.
@@ -189,18 +296,95 @@ class CGM:
         prefix: str
             A string value representing the common prefix between all markers that is not present in
             pycgm's expected marker set.
+
+        Examples
+        --------
+        >>> from pycgm.pycgm import CGM
+        >>> cgm = CGM(None, None, None)
+        >>> cgm.marker_map['RHEE'], cgm.marker_map['LHEE']
+        ('RHEE', 'LHEE')
+        >>> cgm.add_marker_prefix('x')
+        >>> cgm.marker_map['RHEE'], cgm.marker_map['LHEE']
+        ('xRHEE', 'xLHEE')
         """
         self.marker_map = {marker: prefix + self.marker_map[marker] for marker in self.marker_map}
 
     def rename_static_marker(self, old, new):
+        """Rename static trial marker function
+
+        Renames a single marker from the expected name in CGM's contained StaticCGM to a new one,
+        using `old` and `new`, by updating the mapping of the appropriate marker.
+        The function is only intended for use when the `override` attribute of the CGM class
+        is set to False; otherwise, any changes made by this function would be overwritten later.
+
+        Parameters
+        ----------
+        old : str
+            String containing the marker name that pycgm currently expects.
+        new : str
+            String containing the marker name to map `old` to.
+
+        Examples
+        --------
+        >>> from pycgm.pycgm import CGM
+        >>> cgm = CGM(None, None, None, override_static=False)
+        >>> cgm.static.marker_map['RHEE']
+        'RHEE'
+        >>> cgm.rename_static_marker('RHEE', 'R_HEEL')
+        >>> cgm.static.marker_map['RHEE']
+        'R_HEEL'
+        """
         self.check_static()
         self.static.marker_map[old] = new
 
     def rename_static_markers(self, mapping):
+        """Rename static trial markers function
+
+        Renames multiple markers from the expected names in CGM's contained StaticCGM to new ones,
+        by updating the marker mapping of the StaticCGM using `mapping`.
+        The function is only intended for use when the `override` attribute of the CGM class
+        is set to False; otherwise, any changes made by this function would be overwritten later.
+
+        Parameters
+        ----------
+        mapping : dict
+            Dictionary where each key is a string of pycgm's expected marker
+            name and each value is a string of the new marker name.
+
+        Examples
+        --------
+        >>> from pycgm.pycgm import CGM
+        >>> cgm = CGM(None, None, None, override_static=False)
+        >>> cgm.static.marker_map['RHEE'], cgm.static.marker_map['LHEE']
+        ('RHEE', 'LHEE')
+        >>> cgm.rename_static_markers({'RHEE': 'R_HEEL', 'LHEE': 'L_HEEL'})
+        >>> cgm.static.marker_map['RHEE'], cgm.static.marker_map['LHEE']
+        ('R_HEEL', 'L_HEEL')
+        """
         self.check_static()
         self.static.marker_map.update(mapping)
 
     def static_marker_prefix(self, prefix):
+        """Add a prefix to all of pycgm static's expected markers to match the input.
+
+        Uses the passed prefix to add to the front of the string of each existing mapping.
+
+        Parameters
+        ----------
+        prefix: str
+            A string value representing the common prefix between all markers that is not present in
+            pycgm static's expected marker set.
+
+        Examples
+        --------
+        >>> from pycgm.pycgm import CGM
+        >>> cgm = CGM(None, None, None, override_static=False)
+        >>> cgm.static.marker_map['RHEE'], cgm.static.marker_map['LHEE']
+        ('RHEE', 'LHEE')
+        >>> cgm.static_marker_prefix('x')
+        >>> cgm.static.marker_map['RHEE'], cgm.static.marker_map['LHEE']
+        ('xRHEE', 'xLHEE')
+        """
         self.check_static()
         self.static.marker_map = {marker: prefix + self.static.marker_map[marker] for marker in self.static.marker_map}
 
@@ -211,7 +395,7 @@ class CGM:
         Loads in appropriate data from IO using paths.
         Performs any necessary prep on data.
         Runs the static calibration trial.
-        Runs the dynamic trial to calculate all axes and angles.
+        Runs the dynamic trial to calculate all axes, angles, and center of mass.
         """
 
         # Get PlugInGait scaling table from segments.csv for use in center of mass calculations
@@ -222,7 +406,7 @@ class CGM:
         # Repopulate self.names with the actual marker map names
         self.names = {joint: [self.marker_map[marker] for marker in self.names[joint]] for joint in self.names}
 
-        self.marker_data, self.marker_idx = IO.load_marker_data(self.path_dynamic, self.marker_map, self.names)
+        self.marker_data, self.joint_idx = IO.load_marker_data(self.path_dynamic, self.marker_map, self.names)
         self.end = self.end if self.end != -1 else len(self.marker_data)
         self.marker_data = self.marker_data[self.start:self.end]
 
@@ -241,16 +425,28 @@ class CGM:
                    self.ankle_angle_calc, self.foot_angle_calc,
                    self.head_angle_calc, self.thorax_angle_calc, self.neck_angle_calc,
                    self.spine_angle_calc, self.shoulder_angle_calc, self.elbow_angle_calc, self.wrist_angle_calc]
-        mappings = [self.marker_map, self.names, self.marker_idx,
+        mappings = [self.marker_map, self.names, self.joint_idx,
                     self.axis_idx, self.angle_idx, self.jc_idx]
         results = self.multi_calc(self.marker_data, methods, mappings, self.measurements, seg_scale)
         self.axis_results, self.angle_results, self.com_results, self.joint_centers = results
 
     def check_static(self):
+        """Instantiate self.static if  trying to access it and not already done so.
+
+        This function should have no effect under normal circumstances. It is only called in the
+        various static marker renaming functions, which are only intended for use when self.override
+        is set to False.
+        When it is False, the self.static object is already instantiated during the
+        initialization of the CGM object, meaning neither if condition will pass.
+        When True, the warning is displayed explaining that changing markers in
+        self.static with the override setting left on will cause the changes to be voided,
+        and since the self.static object is not instantiated in that scenario, it is done
+        here so that the marker changes can happen, even though doing so accomplishes nothing.
+        """
         if self.override:
             print("Warning: changing marker names or joint-marker pairings independently in the StaticCGM "
                   "with the override static option enabled will replace those definitions with the "
-                  "ones from the current CGM at runtime")
+                  "ones from the current CGM at runtime, effectively voiding those changes")
         if not isinstance(self.static, StaticCGM):
             self.static = self.static(self.path_static, self.path_measurements)
 
@@ -294,7 +490,7 @@ class CGM:
         methods : list
             List containing the calculation methods to be used.
         mappings : list
-            List containing dictionary mappings for marker names and input and output indices.
+            List containing dictionary mappings for marker names, joint pairings, and input and output indices.
         measurements : dict
             A dictionary containing the subject measurements given from the file input.
         seg_scale : dict
@@ -312,7 +508,7 @@ class CGM:
             by x, y, and z location.
         """
 
-        markers, marker_names, marker_idx, axis_idx, angle_idx, jc_idx = mappings
+        markers, marker_names, joint_idx, axis_idx, angle_idx, jc_idx = mappings
 
         axis_results = np.empty((len(data), len(axis_idx), 3), dtype=float)
         axis_results.fill(np.nan)
@@ -348,7 +544,7 @@ class CGM:
         methods : list
             List containing the calculation methods to be used.
         mappings : list
-            List containing dictionary mappings for marker names and input and output indices.
+            List containing dictionary mappings for marker names, joint pairings, and input and output indices.
         measurements : dict
             A dictionary containing the subject measurements given from the file input.
         seg_scale : dict
@@ -368,11 +564,7 @@ class CGM:
         pel_an, hip_an, kne_an, ank_an, foo_an, \
         hea_an, tho_an, nec_an, spi_an, sho_an, elb_an, wri_an = methods
 
-        # markers maps expected marker name to its actual name in the input
-        # marker_idx maps actual marker name from input to its index in the input
-        # For example, if the input's first marker is RASIS, equivalent of RASI,
-        # markers would translate RASI to RASIS and marker_idx would translate RASIS to 0
-        markers, marker_names, marker_idx, axis_idx, angle_idx, jc_idx = mappings
+        markers, marker_names, joint_idx, axis_idx, angle_idx, jc_idx = mappings
 
         joint_centers = np.empty((len(jc_idx), 3), dtype=float)
         joint_centers.fill(np.nan)
@@ -385,7 +577,7 @@ class CGM:
 
         # Axis calculations
 
-        pelvis_axis = pel_ax(frame[marker_idx['Pelvis']], "SACR" in marker_names['Pelvis'])
+        pelvis_axis = pel_ax(frame[joint_idx['Pelvis']], "SACR" in marker_names['Pelvis'])
 
         # Populate pelvis axis results
         pelo, pelx, pely, pelz = pelvis_axis
@@ -416,7 +608,7 @@ class CGM:
         joint_centers[jc_idx['RHip']] = rhjc
         joint_centers[jc_idx['LHip']] = lhjc
 
-        knee_axis = kne_ax(frame[marker_idx['Knee']], hip_origin, measurements)
+        knee_axis = kne_ax(frame[joint_idx['Knee']], hip_origin, measurements)
 
         # Populate left and right knee axis results
         r_kneo, r_knex, r_kney, r_knez = knee_axis[:4]
@@ -437,7 +629,7 @@ class CGM:
 
         knee_origin = np.array([knee_axis[0], knee_axis[4]])
 
-        ankle_axis = ank_ax(frame[marker_idx['Ankle']], knee_origin, measurements)
+        ankle_axis = ank_ax(frame[joint_idx['Ankle']], knee_origin, measurements)
 
         # Populate left and right ankle axis results
         r_anko, r_ankx, r_anky, r_ankz = ankle_axis[:4]
@@ -456,13 +648,13 @@ class CGM:
         joint_centers[jc_idx['RAnkle']] = r_anko
         joint_centers[jc_idx['LAnkle']] = l_anko
 
-        rhee, lhee = frame[marker_idx['Kinetics']][:2]  # TODO: remove when joint_centers fixed
+        rhee, lhee = frame[joint_idx['Kinetics']][:2]  # TODO: remove when joint_centers fixed
 
         # Populate RHEE and LHEE in joint_centers
         joint_centers[jc_idx['RHEE']] = rhee
         joint_centers[jc_idx['LHEE']] = lhee
 
-        foot_axis = foo_ax(frame[marker_idx['Foot']], ankle_axis, measurements)
+        foot_axis = foo_ax(frame[joint_idx['Foot']], ankle_axis, measurements)
 
         # Populate left and right foot axis results
         r_fooo, r_foox, r_fooy, r_fooz = foot_axis[:4]
@@ -481,13 +673,13 @@ class CGM:
         joint_centers[jc_idx['RFoot']] = r_fooo
         joint_centers[jc_idx['LFoot']] = l_fooo
 
-        rfhd, lfhd, rbhd, lbhd = frame[marker_idx['Kinetics']][2:6]  # TODO: remove when joint_centers fixed
+        rfhd, lfhd, rbhd, lbhd = frame[joint_idx['Kinetics']][2:6]  # TODO: remove when joint_centers fixed
 
         # Populate Front_Head and Back_Head in joint_centers
-        joint_centers[jc_idx['Front_Head']] = np.array([(rfhd + lfhd) / 2.0])  # TODO: this avg should be in kinetics
+        joint_centers[jc_idx['Front_Head']] = np.array([(rfhd + lfhd) / 2.0])  # TODO: this should be done in kinetics
         joint_centers[jc_idx['Back_Head']] = np.array([(rbhd + lbhd) / 2.0])
 
-        head_axis = hea_ax(frame[marker_idx['Head']], measurements)
+        head_axis = hea_ax(frame[joint_idx['Head']], measurements)
         heao, heax, heay, heaz = head_axis
 
         # Populate head axis results
@@ -496,7 +688,7 @@ class CGM:
         axis_results[axis_idx["HEAY"]] = heay
         axis_results[axis_idx["HEAZ"]] = heaz
 
-        clav, c7, strn, t10 = frame[marker_idx['Kinetics']][6:]  # TODO: remove when joint_centers fixed
+        clav, c7, strn, t10 = frame[joint_idx['Kinetics']][6:]  # TODO: remove when joint_centers fixed
 
         # Populate C7, CLAV, STRN, and T10 in joint_centers
         joint_centers[jc_idx["C7"]] = c7
@@ -504,7 +696,7 @@ class CGM:
         joint_centers[jc_idx["STRN"]] = strn
         joint_centers[jc_idx["T10"]] = t10
 
-        thorax_axis = tho_ax(frame[marker_idx['Thorax']])
+        thorax_axis = tho_ax(frame[joint_idx['Thorax']])
         thoo, thox, thoy, thoz = thorax_axis
 
         # Populate thorax axis results
@@ -519,9 +711,9 @@ class CGM:
         joint_centers[jc_idx["thorax_y"]] = thoy
         joint_centers[jc_idx["thorax_z"]] = thoz
 
-        wand = CGM.wand_marker(frame[marker_idx['Shoulder']], thorax_axis)
+        wand = CGM.wand_marker(frame[joint_idx['Shoulder']], thorax_axis)
 
-        shoulder_axis = sho_ax(frame[marker_idx['Shoulder']], thorax_axis[0], wand, measurements)
+        shoulder_axis = sho_ax(frame[joint_idx['Shoulder']], thorax_axis[0], wand, measurements)
         shoulder_origin = np.array([shoulder_axis[0], shoulder_axis[4]])
         r_shoo, r_shox, r_shoy, r_shoz, l_shoo, l_shox, l_shoy, l_shoz = shoulder_axis
 
@@ -539,7 +731,7 @@ class CGM:
         joint_centers[jc_idx["RShoulder"]] = r_shoo
         joint_centers[jc_idx["LShoulder"]] = l_shoo
 
-        elbow_axis = elb_ax(frame[marker_idx['Elbow']], shoulder_origin, measurements)
+        elbow_axis = elb_ax(frame[joint_idx['Elbow']], shoulder_origin, measurements)
         r_elbo, r_elbx, r_elby, r_elbz, l_elbo, l_elbx, l_elby, l_elbz = elbow_axis
 
         # Populate elbow axis results
@@ -556,7 +748,7 @@ class CGM:
         joint_centers[jc_idx["RHumerus"]] = r_elbo
         joint_centers[jc_idx["LHumerus"]] = l_elbo
 
-        wrist_axis = wri_ax(frame[marker_idx['Wrist']], elbow_axis, measurements)
+        wrist_axis = wri_ax(frame[joint_idx['Wrist']], elbow_axis, measurements)
         wrist_origin = np.array([wrist_axis[0], wrist_axis[4]])
         r_wrio, r_wrix, r_wriy, r_wriz, l_wrio, l_wrix, l_wriy, l_wriz = wrist_axis
 
@@ -574,7 +766,7 @@ class CGM:
         joint_centers[jc_idx["RRadius"]] = r_wrio
         joint_centers[jc_idx["LRadius"]] = l_wrio
 
-        hand_axis = han_ax(frame[marker_idx['Hand']], wrist_origin, measurements)
+        hand_axis = han_ax(frame[joint_idx['Hand']], wrist_origin, measurements)
         r_hano, r_hanx, r_hany, r_hanz, l_hano, l_hanx, l_hany, l_hanz = hand_axis
 
         # Populate hand axis results
@@ -3482,8 +3674,28 @@ class CGM:
     # Properties for accessing subsets of results
     @staticmethod
     def repack(array):
-        # Used to combine multiple columns of data by frame
-        # i.e., if X, Y, and Z are three different columns, repack makes them one column of XYZ
+        """ Used to combine multiple columns of data by frame
+        i.e., if X, Y, and Z are three different columns, repack makes them one column of XYZ
+
+        Parameters
+        ----------
+        array : ndarray
+            An ndarray containing columns of data, where the desired array is grouping each column's
+            nth index as a row instead.
+
+        Examples
+        --------
+        >>> from pycgm.pycgm import CGM
+        >>> import numpy as np
+        >>> data = np.array([[1, 3, 5, 7, 9],
+        ...                  [0, 1, 2, 3, 4],
+        ...                  [5, 4, 3, 2, 1]])
+        array([[1, 0, 5],
+               [3, 1, 4],
+               [5, 2, 3],
+               [7, 3, 2],
+               [9, 4, 1]])
+        """
         return np.flip(np.rot90(array), 0)
 
     @property
@@ -3935,6 +4147,11 @@ class StaticCGM:
             File path of the static trial in csv or c3d form
         path_measurements : str
             File path of the subject measurements in csv or vsk form
+        fields : list, optional
+            If the containing CGM class is set to override the marker mapping and joint pairing,
+            `fields` will contain a list containing those two dictionaries. Otherwise, it is
+            set to `None` by default. StaticCGM does the overriding based on whether the
+            list was passed or not.
         """
         self.path_static = path_static
         self.path_measurements = path_measurements
@@ -3948,12 +4165,34 @@ class StaticCGM:
         self.measurements = None
 
     def run(self):
+        """Loads the static trial marker data and subject measurements.
+
+        The function additionally performs some minor data preparation within the
+        self.marker_map and self.names fields to ensure valid inputs are sent
+        to the IO function.
+        """
         self.marker_map.update({m: m for m in set(self.marker_map.values()).difference(set(self.marker_map.keys()))})
         self.names = {joint: [self.marker_map[marker] for marker in self.names[joint]] for joint in self.names}
         self.motion_data, self.mapping = IO.load_marker_data(self.path_static, self.marker_map, self.names)
         self.measurements = IO.load_sm(self.path_measurements)
 
     def override(self, fields):
+        """Replaces the `marker_map` and `names` attributes to the contents of `fields`.
+
+        Parameters
+        ----------
+        fields : list
+            A list containing two dictionaries; the marker to marker mapping, and the joint to marker names
+            mapping, both provided to __init__ by the containing CGM class.
+
+        Examples
+        --------
+        >>> from pycgm.pycgm import CGM
+        >>> import pycgm
+        >>> static, dynamic, measurements = pycgm.get_rom_data()
+        >>> cgm = CGM(static, dynamic, measurements)
+        >>> cgm.rename_marker('C7', 'C7000')
+        """
         self.marker_map, self.names = fields
 
     @property
@@ -5237,6 +5476,7 @@ class StaticCGM:
         >>> import pycgm
         >>> static_trial, dynamic_trial, measurements = pycgm.get_rom_data()
         >>> static = StaticCGM(static_trial, measurements)
+        >>> static.run()
         >>> static.measurements['HeadOffset']
         0.0
         >>> cal_sm = static.get_static()

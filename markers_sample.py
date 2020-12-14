@@ -41,13 +41,23 @@ if __name__ == "__main__":
     print("head jc with renamed dynamic only")
     print(subject4.head_joint_centers[0])
 
+    dynamic_trial_prefix = dynamic_trial[:-4] + "_Prefix.c3d"
+    # Dynamic trial only has all markers prefixed with "x"
+    subject5 = CGM(static_trial, dynamic_trial_prefix, measurements, override_static=False, end=5)
+    subject5.add_marker_prefix("x")
+    subject5.run()
+    print("head jc with prefixed dynamic trial")
+    print(subject5.head_joint_centers[0])
+
+    print("\n")
+
     dynamic_trial_extra = dynamic_trial[:-4] + "_Extra.c3d"
     static_trial_extra = static_trial[:-4] + "_Extra.c3d"
     # Dynamic trial now contains fake markers RWRI and LWRI which replace their respective calculations
-    subject5 = CustomCGM3(static_trial_extra, dynamic_trial_extra, measurements, end=5)
-    subject5.rename_markers({"RWRI": "RWRI", "LWRI": "LWRI"})  # Must define new markers
-    subject5.run()
+    subject6 = CustomCGM3(static_trial_extra, dynamic_trial_extra, measurements, end=5)
+    subject6.rename_markers({"RWRI": "RWRI", "LWRI": "LWRI"})  # Must define new markers
+    subject6.run()
     print("wrist jc standard")
     print(subject1.wrist_joint_centers[0])
     print("wrist jc extra markers")
-    print(subject5.wrist_joint_centers[0])
+    print(subject6.wrist_joint_centers[0])
