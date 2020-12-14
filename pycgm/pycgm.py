@@ -41,19 +41,27 @@ class CGM:
         self.path_static = path_static
         self.path_dynamic = path_dynamic
         self.path_measurements = path_measurements
-        self.static = static if static else StaticCGM(path_static, path_measurements)
         self.cores = cores
         self.angle_results = None
         self.axis_results = None
         self.com_results = None
         self.joint_centers = None
-        self.marker_map = {marker: marker for marker in IO.marker_keys()}  # TODO: test if renamed sacrum breaks
+        self.marker_map = IO.marker_map()  # TODO: test if renamed sacrum breaks
         self.marker_data = None
         self.marker_names = None
         self.marker_idx = None
         self.measurements = None
         self.start = start
         self.end = end
+        if isinstance(static, StaticCGM):
+            self.static = type(StaticCGM)  # Want class, not instance
+        elif isinstance(static, type):
+            self.static = static
+        elif static is None:
+            self.static = StaticCGM
+        else:
+            self.static = None
+            raise ValueError(f"Provided static parameter of type {type(static)} was incompatible")
 
         jc_labels = ['pelvis_origin', 'pelvis_x', 'pelvis_y', 'pelvis_z',  # TODO: will be deprecated
                      'thorax_origin', 'thorax_x', 'thorax_y', 'thorax_z',
@@ -134,10 +142,11 @@ class CGM:
         # Get PlugInGait scaling table from segments.csv for use in center of mass calculations
         seg_scale = IO.load_scaling_table()
 
-        self.marker_data, self.marker_names, self.marker_idx = IO.load_marker_data(self.path_dynamic)
+        self.marker_data, self.marker_names, self.marker_idx = IO.load_marker_data(self.path_dynamic, self.marker_map)
         self.end = self.end if self.end != -1 else len(self.marker_data)
         self.marker_data = self.marker_data[self.start:self.end]
 
+        self.static = self.static(self.path_static, self.path_measurements, self.marker_map)
         self.measurements = self.static.get_static()
 
         methods = [self.pelvis_axis_calc, self.hip_axis_calc, self.knee_axis_calc,
@@ -3822,7 +3831,7 @@ class StaticCGM:
         A dictionary of the measurements of the subject, obtained from file input.
     """
 
-    def __init__(self, path_static, path_measurements):
+    def __init__(self, path_static, path_measurements, marker_map):
         """Initialization of StaticCGM object function
 
         Instantiates various class attributes based on parameters and default values.
@@ -3834,10 +3843,7 @@ class StaticCGM:
         path_measurements : str
             File path of the subject measurements in csv or vsk form
         """
-        self.motion_data, self.names, self.mapping = IO.load_marker_data(path_static)
-
-        # if type(self.motion_data) != np.ndarray:
-        #     raise ValueError(f"wtf? {type(self.motion_data)}")
+        self.motion_data, self.names, self.mapping = IO.load_marker_data(path_static, marker_map)
         self.measurements = IO.load_sm(path_measurements)
 
     @staticmethod

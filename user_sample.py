@@ -27,9 +27,10 @@ if __name__ == "__main__":
     # print("hip axis custom")
     # print(subject3.hip_axes[0])
 
-    static_trial_csv = static_trial[:-3] + "csv"
+    static_trial_renamed = static_trial[:-4] + "_Renamed.csv"
+    dynamic_trial_renamed = dynamic_trial[:-4] + "_Renamed.c3d"
     # Static trial csv contains markers RFHD, LFHD, RBHD, and LBHD renamed to xxHead
-    subject4 = CGM(static_trial_csv, dynamic_trial, measurements, start=0, end=5)
+    subject4 = CGM(static_trial_renamed, dynamic_trial_renamed, measurements, start=0, end=5)
     subject4.remap('RFHD', 'RFHead')
     subject4.remap('LFHD', 'LFHead')
     subject4.remap('RBHD', 'RBHead')
