@@ -31,10 +31,10 @@ if __name__ == "__main__":
     dynamic_trial_renamed = dynamic_trial[:-4] + "_Renamed.c3d"
     # Static and Dynamic trial contain the four xxHD markers renamed to xxHead format
     subject4 = CGM(static_trial_renamed, dynamic_trial_renamed, measurements, start=0, end=5)
-    subject4.remap('RFHD', 'RFHead')
-    subject4.remap('LFHD', 'LFHead')
-    subject4.remap('RBHD', 'RBHead')
-    subject4.remap('LBHD', 'LBHead')
+    subject4.rename_marker('RFHD', 'RFHead')
+    subject4.rename_marker('LFHD', 'LFHead')
+    subject4.rename_marker('RBHD', 'RBHead')
+    subject4.rename_marker('LBHD', 'LBHead')
     subject4.run()
     print("head jc with renamed head markers")
     print(subject4.head_joint_centers[:, 0])

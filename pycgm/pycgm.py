@@ -54,13 +54,13 @@ class CGM:
         self.start = start
         self.end = end
         # Fields that are built off of property values
-        # TODO: functions to edit w/o subclass for self.names
         self.marker_map = {marker: marker for marker in self.marker_keys}
         self.names = self.joint_marker_names
         self.jc_idx = {label: i for i, label in enumerate(self.jc_labels)}
         self.axis_idx = {label: i for i, label in enumerate(self.axis_labels)}
         self.angle_idx = {label: i for i, label in enumerate(self.angle_labels)}
 
+        # Normalize static to be the StaticCGM class or a derivative
         if isinstance(static, StaticCGM):
             self.static = type(StaticCGM)  # Need class itself, not instance
         elif isinstance(static, type):
@@ -71,11 +71,9 @@ class CGM:
             self.static = None
             raise TypeError(f"Provided static parameter of type {type(static)} was incompatible")
 
-        # Aliases
-        self.rename_marker = self.remap
-        self.rename_markers = self.bulk_remap
-        self.rename_all_markers = self.full_remap
-        self.prefix = self.set_marker_prefix
+        # Static must be instantiated here if we are not overriding
+        if not self.override:
+            self.static = self.static(self.path_static, self.path_measurements)
 
     # Properties for default values. Can be overridden, or modified using methods.
     @property
@@ -154,7 +152,7 @@ class CGM:
             assoc_markers = assoc_markers.split()
         self.names[joint_name] = assoc_markers
 
-    def remap(self, old, new):
+    def rename_marker(self, old, new):
         """Remap marker function
 
         Remaps a single marker from the expected name in CGM to a new one, using `old` and `new`.
@@ -168,20 +166,7 @@ class CGM:
         """
         self.marker_map[old] = new
 
-    def full_remap(self, mapping):
-        """Remap all markers function
-
-        Uses the passed dictionary as the mapping for all markers.
-
-        Parameters
-        ----------
-        mapping: dict
-            Dictionary where each key is a string of pycgm's expected marker
-            name and each value is a string of the new marker name.
-        """
-        self.marker_map = mapping
-
-    def bulk_remap(self, mapping):
+    def rename_markers(self, mapping):
         """Remap multiple markers function
 
         Uses the passed dictionary and combines it into the existing mapping.
@@ -194,7 +179,7 @@ class CGM:
         """
         self.marker_map.update(mapping)
 
-    def set_marker_prefix(self, prefix):
+    def marker_prefix(self, prefix):
         """Add a prefix to all of pycgm's expected markers to match the input.
 
         Uses the passed prefix to add to the front of the string of each existing mapping.
@@ -205,11 +190,19 @@ class CGM:
             A string value representing the common prefix between all markers that is not present in
             pycgm's expected marker set.
         """
-        self.marker_map = {marker: prefix + marker for marker in self.marker_map}
+        self.marker_map = {marker: prefix + self.marker_map[marker] for marker in self.marker_map}
 
-    def static_remap(self, old, new):
+    def rename_static_marker(self, old, new):
         self.check_static()
         self.static.marker_map[old] = new
+
+    def rename_static_markers(self, mapping):
+        self.check_static()
+        self.static.marker_map.update(mapping)
+
+    def static_marker_prefix(self, prefix):
+        self.check_static()
+        self.static.marker_map = {marker: prefix + self.static.marker_map[marker] for marker in self.static.marker_map}
 
     # Input and output handlers
     def run(self):
@@ -233,15 +226,11 @@ class CGM:
         self.end = self.end if self.end != -1 else len(self.marker_data)
         self.marker_data = self.marker_data[self.start:self.end]
 
-        # Static may already be instantiated if we had to modify its markers/joint naming independently from Dynamic
+        # Static must be instantiated here if we are overriding
         if self.override:
-            if not isinstance(self.static, StaticCGM):
-                self.static = self.static(self.path_static, self.path_measurements,
-                                          [self.marker_map, self.names])
-            else:
-                self.static.override([self.marker_map, self.names])
-        else:
-            self.check_static()
+            self.static = self.static(self.path_static, self.path_measurements,
+                                      [self.marker_map, self.names])
+        self.static.run()
         self.measurements = self.static.get_static()
 
         methods = [self.pelvis_axis_calc, self.hip_axis_calc, self.knee_axis_calc,
@@ -262,7 +251,7 @@ class CGM:
             print("Warning: changing marker names or joint-marker pairings independently in the StaticCGM "
                   "with the override static option enabled will replace those definitions with the "
                   "ones from the current CGM at runtime")
-        if not isinstance(self.static, StaticCGM):  # Not yet instantiated
+        if not isinstance(self.static, StaticCGM):
             self.static = self.static(self.path_static, self.path_measurements)
 
     def write_results(self, path_results, write_axes=None, write_angles=None, write_com=True):
@@ -3947,13 +3936,22 @@ class StaticCGM:
         path_measurements : str
             File path of the subject measurements in csv or vsk form
         """
+        self.path_static = path_static
+        self.path_measurements = path_measurements
         if fields is None:
             self.marker_map = {marker: marker for marker in self.marker_keys}
             self.names = self.joint_marker_names
         else:
             self.override(fields)
-        self.motion_data, self.mapping = IO.load_marker_data(path_static, self.marker_map, self.names)
-        self.measurements = IO.load_sm(path_measurements)
+        self.motion_data = None
+        self.mapping = None
+        self.measurements = None
+
+    def run(self):
+        self.marker_map.update({m: m for m in set(self.marker_map.values()).difference(set(self.marker_map.keys()))})
+        self.names = {joint: [self.marker_map[marker] for marker in self.names[joint]] for joint in self.names}
+        self.motion_data, self.mapping = IO.load_marker_data(self.path_static, self.marker_map, self.names)
+        self.measurements = IO.load_sm(self.path_measurements)
 
     def override(self, fields):
         self.marker_map, self.names = fields

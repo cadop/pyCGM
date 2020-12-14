@@ -254,7 +254,7 @@ class IO:
             print("The following expected pycgm markers were not found in", filename, ":")
             print(expected_markers)
             print("pycgm functions may not work properly as a result.")
-            print("Make sure the markers are renamed correectly, or add "
+            print("Make sure the markers are renamed correctly, or add "
                   "the expected markers to the c3d file if they are missing.")
 
         data = np.array(data)
