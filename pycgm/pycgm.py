@@ -1203,7 +1203,7 @@ class CGM:
         ...                     [ 183,  422, 1033],
         ...                     [ 341,  246, 1055],
         ...                     [ 255,  241, 1057]])
-        >>> CGM.pelvis_axis_calc(markers)
+        >>> CGM.pelvis_axis_calc(markers, False)
         array([[ 289.        ,  425.        , 1034.5       ],
                [ 288.97356163,  425.99275625, 1034.38279911],
                [ 288.00050025,  424.97171227, 1034.48585614],
@@ -1211,7 +1211,7 @@ class CGM:
         >>> markers = np.array([[ 395,  428, 1036],
         ...                     [ 183,  422, 1033],
         ...                     [ 294,  242, 1049]])
-        >>> CGM.pelvis_axis_calc(markers)
+        >>> CGM.pelvis_axis_calc(markers, True)
         array([[ 289.        ,  425.        , 1034.5       ],
                [ 288.97291419,  425.99651005, 1034.42104387],
                [ 288.00050025,  424.97171227, 1034.48585614],
@@ -3966,17 +3966,14 @@ class StaticCGM:
         ...                        [98, 219, 81]])
         >>> flat_foot = True
         >>> measurements = { 'RightSoleDelta': 0.45,'LeftSoleDelta': 0.45 }
-        >>> parameters = [markers, ankle_axis, flat_foot, measurements]
-        >>> np.around(StaticCGM.static_calculation(*parameters),8)
+        >>> np.around(StaticCGM.static_calculation(markers, ankle_axis, flat_foot, measurements),8)
         array([[-0.23229863,  0.0823201 ,  0.87549777],
                [-0.65268629,  0.28720026, -0.30918223]])
         >>> flat_foot = False
-        >>> parameters = [markers, ankle_axis, flat_foot, measurements]
-        >>> np.around(StaticCGM.static_calculation(*parameters),8)
+        >>> np.around(StaticCGM.static_calculation(markers, ankle_axis, flat_foot, measurements),8)
         array([[-0.20601627,  0.06161168, -0.59732228],
                [-0.65539028,  0.25761562,  0.11115736]])
         """
-        rtoe, ltoe, rhee, lhee = markers
         # Get the each axis from the function.
         uncorrect_foot = StaticCGM.foot_axis_calc(markers[:2], ankle_axis)
 
@@ -4047,7 +4044,7 @@ class StaticCGM:
         ...                     [ 183,  422, 1033],
         ...                     [ 341,  246, 1055],
         ...                     [ 255,  241, 1057]])
-        >>> CGM.pelvis_axis_calc(markers, False)
+        >>> StaticCGM.pelvis_axis_calc(markers, False)
         array([[ 289.        ,  425.        , 1034.5       ],
                [ 288.97356163,  425.99275625, 1034.38279911],
                [ 288.00050025,  424.97171227, 1034.48585614],
@@ -4709,10 +4706,10 @@ class StaticCGM:
         --------
         >>> import numpy as np
         >>> from pycgm.pycgm import StaticCGM
-        >>> markers = np.array([[374, 181, 49],
-        ...                     [105, 180, 47],
-        ...                     [442, 381, 42],
-        ...                     [39, 382, 41]])
+        >>> markers = np.array([[442, 381, 42],
+        ...                     [ 39, 382, 41],
+        ...                     [374, 181, 49],
+        ...                     [105, 180, 47]])
         >>> ankle_axis = np.array([[393, 247, 87],
         ...                        [394 , 248, 87  ],
         ...                        [393, 248, 87],
@@ -5133,7 +5130,6 @@ class StaticCGM:
                 # average each frame
                 for frame in self.motion_data:
                     rkne, lkne, rmkn, lmkn = frame[self.mapping['StaticKnee']]
-
                     rdst = np.linalg.norm(rkne - rmkn)
                     ldst = np.linalg.norm(lkne - lmkn)
                     rwidth.append(rdst)
@@ -5152,7 +5148,7 @@ class StaticCGM:
 
         if cal_sm['RightAnkleWidth'] == 0:
             # Is this supposed to check for _MKN and not _MMA? Old repo does the same thing
-            if 'RMKN' in self.names['StaticAnkle'] and 'LMKN' in self.names['StaticAnkle']:
+            if 'RMKN' in self.names['StaticKnee'] and 'LMKN' in self.names['StaticKnee']:
                 # medial knee markers are available
                 rwidth = []
                 lwidth = []

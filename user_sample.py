@@ -37,4 +37,3 @@ if __name__ == "__main__":
     subject4.run()
     print("head jc with renamed head markers")
     print(subject4.head_joint_centers[:, 0])
-

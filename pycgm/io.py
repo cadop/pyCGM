@@ -76,7 +76,7 @@ class IO:
 
         if 'RMKN' in mapping and 'LMKN' in mapping:
             names['StaticKnee'].extend('RMKN LMKN'.split())
-            names['StaticAnkle'].extend('RMKN LMKN'.split())
+            names['StaticAnkle'].extend('RMMA LMMA'.split())
 
         return names
 
@@ -152,22 +152,26 @@ class IO:
         >>> from pycgm.io import IO
         >>> csv_file = pycgm.get_robo_results()
         >>> c3d_file = pycgm.get_robo_data()[0]
-        >>> csv_data, csv_mappings = IO.load_marker_data(csv_file)
-        >>> c3d_data, c3d_mappings = IO.load_marker_data(c3d_file)
+        >>> csv_data, csv_names, csv_mappings = IO.load_marker_data(csv_file)
+        >>> c3d_data, c3d_names, c3d_mappings = IO.load_marker_data(c3d_file)
 
         Testing for some values from the loaded csv file.
 
-        >>> csv_data[0][csv_mappings['RHNO']] #doctest: +NORMALIZE_WHITESPACE
-        array([-772.184937, -312.352295, 589.815308])
-        >>> csv_data[0][csv_mappings['C7']] #doctest: +NORMALIZE_WHITESPACE
+        >>> csv_data[0][csv_mappings['Knee'][0]] #doctest: +NORMALIZE_WHITESPACE
+        array([-926.0578  , -196.980865,  666.045349])
+        >>> csv_data[0][csv_mappings['Thorax'][1]] #doctest: +NORMALIZE_WHITESPACE
         array([-1010.098999, 3.508968, 1336.794434])
+        >>> 'RFHD' in csv_names['Head'], 'UnkownMarker' in csv_names['Ankle']
+        (True, False)
 
         Testing for some values from the loaded c3d file.
 
-        >>> c3d_data[0][c3d_mappings['RHNO']] #doctest: +NORMALIZE_WHITESPACE
-        array([-259.45016479, -844.99560547, 1464.26330566])
-        >>> c3d_data[0][c3d_mappings['C7']] #doctest: +NORMALIZE_WHITESPACE
+        >>> c3d_data[0][c3d_mappings['Knee'][0]] #doctest: +NORMALIZE_WHITESPACE
+        array([ -71.86657715, -195.74610901,  762.24456787])
+        >>> c3d_data[0][c3d_mappings['Thorax'][1]] #doctest: +NORMALIZE_WHITESPACE
         array([-2.20681717e+02, -1.07236075e+00, 1.45551550e+03])
+        >>> 'RFHD' in c3d_names['Head'], 'UnkownMarker' in c3d_names['Ankle']
+        (True, False)
         """
         # print(filename)
         if str(filename).endswith('.c3d'):
@@ -199,7 +203,7 @@ class IO:
         >>> import pycgm
         >>> from pycgm.io import IO
         >>> filename = pycgm.get_rom_csv()
-        >>> data, mappings = IO.load_csv(filename)
+        >>> data, names, mappings = IO.load_csv(filename)
 
         Test for the shape of data.
 
@@ -208,19 +212,17 @@ class IO:
 
         Testing for some values from 59993_Frame_Static.c3d.
 
-        >>> around(data[0][mappings['RHNO']], 8)
-        array([ 811.9591064,  677.3413696, 1055.390991 ])
-        >>> around(data[0][mappings['C7']], 8)
+        >>> around(data[0][mappings['Knee']][0], 8)
+        array([427.9638367, 237.3843689, 673.7296753])
+        >>> around(data[0][mappings['Thorax']][1], 8)
         array([ 250.765976,  165.616333, 1528.094116])
-        >>> around(data[0][mappings['*113']], 8)
-        array([ -82.65164185,  232.3781891 , 1361.853638  ])
 
         Testing for correct mappings.
 
-        >>> mappings['RFHD']
-        1
-        >>> mappings['*113'] #unlabeled marker
-        113
+        >>> mappings['Knee']
+        [29, 23, 30, 24]
+        >>> mappings['Thorax']
+        [6, 4, 7, 5]
         """
         expected_markers = IO.marker_keys()
         fh = open(filename, 'r')
@@ -327,7 +329,7 @@ class IO:
         >>> import pycgm
         >>> from pycgm.io import IO
         >>> filename = pycgm.get_59993_data()[0]
-        >>> data, mappings = IO.load_c3d(filename)
+        >>> data, names, mappings = IO.load_c3d(filename)
 
         Test for the shape of data.
 
@@ -336,19 +338,17 @@ class IO:
 
         Testing for some values from 59993_Frame_Static.c3d.
 
-        >>> around(data[0][mappings['RHNO']], 8)
-        array([ 555.46948242, -559.36499023, 1252.84216309])
-        >>> around(data[0][mappings['C7']], 8)
+        >>> around(data[0][mappings['Knee']][0], 8)
+        array([156.91352844, -21.0939312 , 602.64331055])
+        >>> around(data[0][mappings['Thorax']][1], 8)
         array([ -29.57296562,   -9.34280109, 1300.86730957])
-        >>> around(data[0][mappings['*113']], 8)
-        array([-173.22341919,  166.87660217, 1273.29980469])
 
         Testing for correct mappings.
 
-        >>> mappings['RFHD']
-        1
-        >>> mappings['*113']  # unlabeled marker
-        113
+        >>> mappings['Knee']
+        [29, 23, 30, 24]
+        >>> mappings['Thorax']
+        [6, 4, 7, 5]
         """
         data = []
         mappings = {}
