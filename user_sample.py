@@ -10,8 +10,8 @@ if __name__ == "__main__":
     subject1 = CGM(static_trial, dynamic_trial, measurements, start=0, end=5)
     subject1.run()
     # subject1.write_results(sample_dir + "Sample_Refactor_Results.csv")
-    print("pelvis jc standard")
-    print(subject1.pelvis_joint_centers[:, 0])
+    print("head jc standard")
+    print(subject1.head_joint_centers[:, 0])
     # print(subject1.head_flexions)
     # 
     # subject2 = CustomCGM1(static_trial, dynamic_trial, measurements, start=0, end=5)
@@ -26,3 +26,15 @@ if __name__ == "__main__":
     # 
     # print("hip axis custom")
     # print(subject3.hip_axes[0])
+
+    static_trial_csv = static_trial[:-3] + "csv"
+    # Static trial csv contains markers RFHD, LFHD, RBHD, and LBHD renamed to xxHead
+    subject4 = CGM(static_trial_csv, dynamic_trial, measurements, start=0, end=5)
+    subject4.remap('RFHD', 'RFHead')
+    subject4.remap('LFHD', 'LFHead')
+    subject4.remap('RBHD', 'RBHead')
+    subject4.remap('LBHD', 'LBHead')
+    subject4.run()
+    print("head jc with renamed head markers")
+    print(subject4.head_joint_centers[:, 0])
+

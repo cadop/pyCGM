@@ -3580,7 +3580,7 @@ class CGM:
         return head
 
     @property
-    def head_joint_center(self):
+    def head_joint_centers(self):
         return self.axis_results[0:, self.axis_idx["HEAO"]]
 
     @property
