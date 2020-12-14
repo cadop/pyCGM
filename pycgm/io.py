@@ -31,28 +31,11 @@ except ImportError:
 class IO:
     # Utility Functions
     @staticmethod
-    def marker_keys():
-        """Returns a list of marker names that pycgm uses.
-
-        Returns
-        -------
-        markers : list
-            List of marker names.
-        """
-        return ['RASI', 'LASI', 'RPSI', 'LPSI', 'RTHI', 'LTHI', 'RKNE', 'LKNE', 'RTIB',
-                'LTIB', 'RANK', 'LANK', 'RTOE', 'LTOE', 'LFHD', 'RFHD', 'LBHD', 'RBHD',
-                'RHEE', 'LHEE', 'CLAV', 'C7', 'STRN', 'T10', 'RSHO', 'LSHO', 'RELB', 'LELB',
-                'RWRA', 'RWRB', 'LWRA', 'LWRB', 'RFIN', 'LFIN']
-
-    @staticmethod
-    def marker_map():
-        """Returns a marker:marker mapping of the expected marker names from marker_keys().
-        """
-        return {marker: marker for marker in IO.marker_keys()}
-
-    @staticmethod
     def joint_marker_idx(marker_idx, names):
         """Converts the joint marker to name mapping to use indices instead of string names.
+
+        This needs to happen as part of the data loading process because this is the only time at which
+        the indices of the markers found from the input are known, by design.
 
         Returns
         -------
@@ -96,7 +79,7 @@ class IO:
         return seg_scale
 
     @staticmethod
-    def load_marker_data(filename, marker_map, joint_marker_names):
+    def load_marker_data(filename, marker_map, names):
         """Open and load a c3d or csv file of motion capture data.
 
         `filename` can be either a c3d or csv file. Depending on the file
@@ -125,8 +108,8 @@ class IO:
         >>> csv_file = pycgm.get_robo_results()
         >>> c3d_file = pycgm.get_robo_data()[0]
         >>> marker_map = IO.marker_map()
-        >>> csv_data, csv_mappings = IO.load_marker_data(csv_file, marker_map, cgm.joint_marker_names)
-        >>> c3d_data, c3d_mappings = IO.load_marker_data(c3d_file, marker_map, cgm.joint_marker_names)
+        >>> csv_data, csv_mappings = IO.load_marker_data(csv_file, marker_map, cgm.names)
+        >>> c3d_data, c3d_mappings = IO.load_marker_data(c3d_file, marker_map, cgm.names)
 
         Testing for some values from the loaded csv file.
 
@@ -144,12 +127,12 @@ class IO:
         """
         # print(filename)
         if str(filename).endswith('.c3d'):
-            return IO.load_c3d(filename, marker_map, joint_marker_names)
+            return IO.load_c3d(filename, marker_map, names)
         elif str(filename).endswith('.csv'):
-            return IO.load_csv(filename, marker_map, joint_marker_names)
+            return IO.load_csv(filename, marker_map, names)
 
     @staticmethod
-    def load_csv(filename, marker_map, joint_marker_names):
+    def load_csv(filename, marker_map, names):
         """Open and load a csv file of motion capture data.
 
         Parameters
@@ -175,7 +158,7 @@ class IO:
         >>> cgm = CGM(None, None, None)
         >>> filename = pycgm.get_rom_csv()
         >>> marker_map = IO.marker_map()
-        >>> data, mappings = IO.load_csv(filename, marker_map, cgm.joint_marker_names)
+        >>> data, mappings = IO.load_csv(filename, marker_map, cgm.names)
 
         Test for the shape of data.
 
@@ -196,8 +179,7 @@ class IO:
         >>> mappings['Thorax']
         [6, 4, 7, 5]
         """
-        # expected_markers = IO.marker_keys()
-        expected_markers = list(marker_map.values())
+        expected_markers = set(marker_map.values())
         fh = open(filename, 'r')
         fh = iter(fh)
         delimiter = ','
@@ -276,10 +258,10 @@ class IO:
                   "the expected markers to the c3d file if they are missing.")
 
         data = np.array(data)
-        return np.array(data), IO.joint_marker_idx(mappings, joint_marker_names)
+        return np.array(data), IO.joint_marker_idx(mappings, names)
 
     @staticmethod
-    def load_c3d(filename, marker_map, joint_marker_names):
+    def load_c3d(filename, marker_map, names):
         """Open and load a c3d file of motion capture data.
 
         Parameters
@@ -305,7 +287,7 @@ class IO:
         >>> cgm = CGM(None, None, None)
         >>> filename = pycgm.get_59993_data()[0]
         >>> marker_map = IO.marker_map()
-        >>> data, mappings = IO.load_c3d(filename, marker_map, cgm.joint_marker_names)
+        >>> data, mappings = IO.load_c3d(filename, marker_map, cgm.names)
 
         Test for the shape of data.
 
@@ -328,8 +310,7 @@ class IO:
         """
         data = []
         mappings = {}
-        # expected_markers = IO.marker_keys()
-        expected_markers = list(marker_map.values())
+        expected_markers = set(marker_map.values())
         reader = c3d.Reader(open(filename, 'rb'))
         labels = reader.get('POINT:LABELS').string_array
         markers = [str(label.rstrip()) for label in labels]
@@ -353,7 +334,7 @@ class IO:
             print("Make sure the markers are renamed correectly, or add "
                   "the expected markers to the c3d file if they are missing.")
 
-        return np.array(data), IO.joint_marker_idx(mappings, joint_marker_names)
+        return np.array(data), IO.joint_marker_idx(mappings, names)
 
     @staticmethod
     def load_sm(filename):

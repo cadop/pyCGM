@@ -17,7 +17,8 @@ __package__ = None
 
 class CGM:
 
-    def __init__(self, path_static, path_dynamic, path_measurements, static=None, cores=1, start=0, end=-1):
+    def __init__(self, path_static, path_dynamic, path_measurements,
+                 static=None, override_static=True, cores=1, start=0, end=-1):
         """Initialization of CGM object function
 
         Instantiates various class attributes based on parameters and default values.
@@ -49,27 +50,48 @@ class CGM:
         self.marker_data = None
         self.marker_idx = None
         self.measurements = None
-        self.marker_map = IO.marker_map()
+        self.override = override_static
         self.start = start
         self.end = end
+        # Fields that are built off of property values
+        # TODO: functions to edit w/o subclass for self.names
+        self.marker_map = {marker: marker for marker in self.marker_keys}
+        self.names = self.joint_marker_names
+        self.jc_idx = {label: i for i, label in enumerate(self.jc_labels)}
+        self.axis_idx = {label: i for i, label in enumerate(self.axis_labels)}
+        self.angle_idx = {label: i for i, label in enumerate(self.angle_labels)}
 
         if isinstance(static, StaticCGM):
-            self.static = type(StaticCGM)  # Want class, not instance
+            self.static = type(StaticCGM)  # Need class itself, not instance
         elif isinstance(static, type):
             self.static = static
         elif static is None:
             self.static = StaticCGM
         else:
             self.static = None
-            raise ValueError(f"Provided static parameter of type {type(static)} was incompatible")
+            raise TypeError(f"Provided static parameter of type {type(static)} was incompatible")
 
-        self.jc_idx = {label: i for i, label in enumerate(self.jc_labels)}
+        # Aliases
+        self.rename_marker = self.remap
+        self.rename_markers = self.bulk_remap
+        self.rename_all_markers = self.full_remap
+        self.prefix = self.set_marker_prefix
 
-        self.axis_idx = {label: i for i, label in enumerate(self.axis_labels)}
+    # Properties for default values. Can be overridden, or modified using methods.
+    @property
+    def marker_keys(self):
+        """Returns a list of marker names that pycgm uses.
 
-        self.angle_idx = {label: i for i, label in enumerate(self.angle_labels)}
+        Returns
+        -------
+        markers : list
+            List of marker names.
+        """
+        return ['RASI', 'LASI', 'RPSI', 'LPSI', 'RTHI', 'LTHI', 'RKNE', 'LKNE', 'RTIB',
+                'LTIB', 'RANK', 'LANK', 'RTOE', 'LTOE', 'LFHD', 'RFHD', 'LBHD', 'RBHD',
+                'RHEE', 'LHEE', 'CLAV', 'C7', 'STRN', 'T10', 'RSHO', 'LSHO', 'RELB', 'LELB',
+                'RWRA', 'RWRB', 'LWRA', 'LWRB', 'RFIN', 'LFIN']
 
-    # Properties for default values
     @property
     def jc_labels(self):
         return ['pelvis_origin', 'pelvis_x', 'pelvis_y', 'pelvis_z',  # TODO: will be deprecated
@@ -127,6 +149,11 @@ class CGM:
         return {name: [self.marker_map[marker] for marker in names[name]] for name in names}
 
     # Customisation functions
+    def update_joint(self, joint_name, assoc_markers):
+        if isinstance(assoc_markers, str):
+            assoc_markers = assoc_markers.split()
+        self.names[joint_name] = assoc_markers
+
     def remap(self, old, new):
         """Remap marker function
 
@@ -180,6 +207,10 @@ class CGM:
         """
         self.marker_map = {marker: prefix + marker for marker in self.marker_map}
 
+    def static_remap(self, old, new):
+        self.check_static()
+        self.static.marker_map[old] = new
+
     # Input and output handlers
     def run(self):
         """Execute the CGM calculations function
@@ -193,12 +224,25 @@ class CGM:
         # Get PlugInGait scaling table from segments.csv for use in center of mass calculations
         seg_scale = IO.load_scaling_table()
 
-        self.marker_data, self.marker_idx = IO.load_marker_data(self.path_dynamic, self.marker_map,
-                                                                self.joint_marker_names)
+        # Ensure that new markers can be referenced within custom code by adding them as keys
+        self.marker_map.update({m: m for m in set(self.marker_map.values()).difference(set(self.marker_map.keys()))})
+        # Repopulate self.names with the actual marker map names
+        self.names = {joint: [self.marker_map[marker] for marker in self.names[joint]] for joint in self.names}
+
+        self.marker_data, self.marker_idx = IO.load_marker_data(self.path_dynamic, self.marker_map, self.names)
         self.end = self.end if self.end != -1 else len(self.marker_data)
         self.marker_data = self.marker_data[self.start:self.end]
 
-        self.run_static()
+        # Static may already be instantiated if we had to modify its markers/joint naming independently from Dynamic
+        if self.override:
+            if not isinstance(self.static, StaticCGM):
+                self.static = self.static(self.path_static, self.path_measurements,
+                                          [self.marker_map, self.names])
+            else:
+                self.static.override([self.marker_map, self.names])
+        else:
+            self.check_static()
+        self.measurements = self.static.get_static()
 
         methods = [self.pelvis_axis_calc, self.hip_axis_calc, self.knee_axis_calc,
                    self.ankle_axis_calc, self.foot_axis_calc,
@@ -208,14 +252,18 @@ class CGM:
                    self.ankle_angle_calc, self.foot_angle_calc,
                    self.head_angle_calc, self.thorax_angle_calc, self.neck_angle_calc,
                    self.spine_angle_calc, self.shoulder_angle_calc, self.elbow_angle_calc, self.wrist_angle_calc]
-        mappings = [self.marker_map, self.joint_marker_names, self.marker_idx,
+        mappings = [self.marker_map, self.names, self.marker_idx,
                     self.axis_idx, self.angle_idx, self.jc_idx]
         results = self.multi_calc(self.marker_data, methods, mappings, self.measurements, seg_scale)
         self.axis_results, self.angle_results, self.com_results, self.joint_centers = results
 
-    def run_static(self):
-        self.static = self.static(self.path_static, self.path_measurements, self.marker_map)
-        self.measurements = self.static.get_static()
+    def check_static(self):
+        if self.override:
+            print("Warning: changing marker names or joint-marker pairings independently in the StaticCGM "
+                  "with the override static option enabled will replace those definitions with the "
+                  "ones from the current CGM at runtime")
+        if not isinstance(self.static, StaticCGM):  # Not yet instantiated
+            self.static = self.static(self.path_static, self.path_measurements)
 
     def write_results(self, path_results, write_axes=None, write_angles=None, write_com=True):
         """Write CGM results to a csv file.
@@ -3887,7 +3935,7 @@ class StaticCGM:
         A dictionary of the measurements of the subject, obtained from file input.
     """
 
-    def __init__(self, path_static, path_measurements, marker_map=None, joint_marker_names=None):
+    def __init__(self, path_static, path_measurements, fields=None):
         """Initialization of StaticCGM object function
 
         Instantiates various class attributes based on parameters and default values.
@@ -3899,13 +3947,19 @@ class StaticCGM:
         path_measurements : str
             File path of the subject measurements in csv or vsk form
         """
-        self.marker_map = IO.marker_map() if marker_map is None else marker_map
-        # self.joint_marker_names = self.joint_marker_names if joint_marker_names is None else joint_marker_names
-        self.motion_data, self.mapping = IO.load_marker_data(path_static, marker_map, self.joint_marker_names)
+        if fields is None:
+            self.marker_map = {marker: marker for marker in self.marker_keys}
+            self.names = self.joint_marker_names
+        else:
+            self.override(fields)
+        self.motion_data, self.mapping = IO.load_marker_data(path_static, self.marker_map, self.names)
         self.measurements = IO.load_sm(path_measurements)
 
+    def override(self, fields):
+        self.marker_map, self.names = fields
+
     @property
-    def joint_marker_names(self):  # TODO: Make properties exist here by default but use init to optionally override
+    def joint_marker_names(self):
         names = {'Pelvis': 'RASI LASI'.split(),
                  'Hip': [],
                  'Knee': 'RTHI LTHI RKNE LKNE'.split(),
@@ -3932,6 +3986,20 @@ class StaticCGM:
             names['StaticAnkle'].extend('RMMA LMMA'.split())
 
         return {name: [self.marker_map[marker] for marker in names[name]] for name in names}
+
+    @property
+    def marker_keys(self):
+        """Returns a list of marker names that pycgm uses.
+
+        Returns
+        -------
+        markers : list
+            List of marker names.
+        """
+        return ['RASI', 'LASI', 'RPSI', 'LPSI', 'RTHI', 'LTHI', 'RKNE', 'LKNE', 'RTIB',
+                'LTIB', 'RANK', 'LANK', 'RTOE', 'LTOE', 'LFHD', 'RFHD', 'LBHD', 'RBHD',
+                'RHEE', 'LHEE', 'CLAV', 'C7', 'STRN', 'T10', 'RSHO', 'LSHO', 'RELB', 'LELB',
+                'RWRA', 'RWRB', 'LWRA', 'LWRB', 'RFIN', 'LFIN']
 
     @staticmethod
     def iad_calculation(markers):
