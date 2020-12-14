@@ -45,13 +45,13 @@ class IO:
                 'RWRA', 'RWRB', 'LWRA', 'LWRB', 'RFIN', 'LFIN']
 
     @staticmethod
-    def joint_markers(marker_idx):
+    def joint_marker_names(mapping):
         """Returns a pairing of which joints require which markers.
 
         Returns
         -------
-        dictionary
-            Dictionary mapping a joint's name for lookup to the marker indices it requires.
+        names: dictionary
+            Dictionary mapping a joint's name for lookup to the marker names from expected names it requires.
         """
         names = {'Pelvis': 'RASI LASI'.split(),
                  'Hip': [],
@@ -60,14 +60,35 @@ class IO:
                  'Foot': 'RTOE LTOE'.split(),
                  'Head': 'RFHD LFHD RBHD LBHD'.split(),
                  'Thorax': 'CLAV C7 STRN T10'.split(),
-                 'Shoulder': 'RSHO LSHO'.split(),
+                 'Shoulder': 'RSHO LSHO'.split(),  # Also used in wand
                  'Elbow': 'RELB LELB RWRA RWRB LWRA LWRB'.split(),
                  'Wrist': 'RWRA RWRB LWRA LWRB'.split(),
-                 'Hand': 'RWRA RWRB LWRA LWRB RFIN LFIN'.split()}
-        if 'SACR' in marker_idx:
+                 'Hand': 'RWRA RWRB LWRA LWRB RFIN LFIN'.split(),
+                 'Kinetics': 'RHEE LHEE RFHD LFHD RBHD LBHD CLAV C7 STRN T10'.split(),
+                 'IAD': 'RASI LASI'.split(),
+                 'StaticKnee': 'RKNE LKNE'.split(),
+                 'StaticAnkle': 'RANK LANK'.split(),
+                 'StaticFoot': 'RTOE LTOE RHEE LHEE'.split()}
+        if 'SACR' in mapping:
             names['Pelvis'].append('SACR')
-        elif 'RPSI' in marker_idx and 'LPSI' in marker_idx:
+        elif 'RPSI' in mapping and 'LPSI' in mapping:
             names['Pelvis'].extend('RPSI LPSI'.split())
+
+        if 'RMKN' in mapping and 'LMKN' in mapping:
+            names['StaticKnee'].extend('RMKN LMKN'.split())
+            names['StaticAnkle'].extend('RMKN LMKN'.split())
+
+        return names
+
+    @staticmethod
+    def joint_marker_idx(marker_idx, names):
+        """Converts the joint marker to name mapping to use indices instead of string names.
+
+        Returns
+        -------
+        dictionary
+            Dictionary mapping a joint's name for lookup to the marker indices it requires.
+        """
 
         return {joint: [marker_idx[x] for x in names[joint]] for joint in names}
 
@@ -165,7 +186,7 @@ class IO:
 
         Returns
         -------
-        data, mappings : tuple  # TODO: update mappings desc
+        data, mappings : tuple  # TODO: update doctest and desc
             `data` is a 3d numpy array. Each index `i` corresponds to frame `i`
             of trial. `data[i]` contains a list of coordinate values for each marker.
             Each coordinate value is a 1x3 list: [X, Y, Z].
@@ -279,7 +300,8 @@ class IO:
             print("Consider renaming the markers or adding the expected markers to the c3d file if they are missing.")
 
         data = np.array(data)
-        return data, IO.joint_markers(mappings)
+        names = IO.joint_marker_names(mappings)
+        return np.array(data), names, IO.joint_marker_idx(mappings, names)
 
     @staticmethod
     def load_c3d(filename):
@@ -292,7 +314,7 @@ class IO:
 
         Returns
         -------
-        data, mappings : tuple  # TODO: update mappings desc
+        data, mappings : tuple  # TODO: update doctest and desc
             `data` is a 3d numpy array. Each index `i` corresponds to frame `i`
             of trial. `data[i]` contains a list of coordinate values for each marker.
             Each coordinate value is a 1x3 list: [X, Y, Z].
@@ -352,8 +374,8 @@ class IO:
             print("pycgm functions may not work properly as a result.")
             print("Consider renaming the markers or adding the expected markers to the c3d file if they are missing.")
 
-        data = np.array(data)
-        return data, IO.joint_markers(mappings)
+        names = IO.joint_marker_names(mappings)
+        return np.array(data), names, IO.joint_marker_idx(mappings, names)
 
     @staticmethod
     def load_sm(filename):

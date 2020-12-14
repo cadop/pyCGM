@@ -49,6 +49,7 @@ class CGM:
         self.joint_centers = None
         self.marker_map = {marker: marker for marker in IO.marker_keys()}  # TODO: test if renamed sacrum breaks
         self.marker_data = None
+        self.marker_names = None
         self.marker_idx = None
         self.measurements = None
         self.start = start
@@ -133,7 +134,7 @@ class CGM:
         # Get PlugInGait scaling table from segments.csv for use in center of mass calculations
         seg_scale = IO.load_scaling_table()
 
-        self.marker_data, self.marker_idx = IO.load_marker_data(self.path_dynamic)
+        self.marker_data, self.marker_names, self.marker_idx = IO.load_marker_data(self.path_dynamic)
         self.end = self.end if self.end != -1 else len(self.marker_data)
         self.marker_data = self.marker_data[self.start:self.end]
 
@@ -147,7 +148,7 @@ class CGM:
                    self.ankle_angle_calc, self.foot_angle_calc,
                    self.head_angle_calc, self.thorax_angle_calc, self.neck_angle_calc,
                    self.spine_angle_calc, self.shoulder_angle_calc, self.elbow_angle_calc, self.wrist_angle_calc]
-        mappings = [self.marker_map, self.marker_idx, self.axis_idx, self.angle_idx, self.jc_idx]
+        mappings = [self.marker_map, self.marker_names, self.marker_idx, self.axis_idx, self.angle_idx, self.jc_idx]
         results = self.multi_calc(self.marker_data, methods, mappings, self.measurements, seg_scale)
         self.axis_results, self.angle_results, self.com_results, self.joint_centers = results
 
@@ -209,7 +210,7 @@ class CGM:
             by x, y, and z location.
         """
 
-        markers, marker_idx, axis_idx, angle_idx, jc_idx = mappings
+        markers, marker_names, marker_idx, axis_idx, angle_idx, jc_idx = mappings
 
         axis_results = np.empty((len(data), len(axis_idx), 3), dtype=float)
         axis_results.fill(np.nan)
@@ -269,7 +270,7 @@ class CGM:
         # marker_idx maps actual marker name from input to its index in the input
         # For example, if the input's first marker is RASIS, equivalent of RASI,
         # markers would translate RASI to RASIS and marker_idx would translate RASIS to 0
-        markers, marker_idx, axis_idx, angle_idx, jc_idx = mappings
+        markers, marker_names, marker_idx, axis_idx, angle_idx, jc_idx = mappings
 
         joint_centers = np.empty((len(jc_idx), 3), dtype=float)
         joint_centers.fill(np.nan)
@@ -282,17 +283,7 @@ class CGM:
 
         # Axis calculations
 
-        rasi = frame[marker_idx[markers["RASI"]]]  # TODO: use this to figure out arbitrary marker counts
-        lasi = frame[marker_idx[markers["LASI"]]]
-        if "SACR" in markers:
-            sacr = frame[marker_idx[markers["SACR"]]]
-            pelvis_axis = pel_ax(rasi, lasi, sacr=sacr)
-        elif "RPSI" in markers and "LPSI" in markers:
-            rpsi = frame[marker_idx[markers["RPSI"]]]
-            lpsi = frame[marker_idx[markers["LPSI"]]]
-            pelvis_axis = pel_ax(rasi, lasi, rpsi=rpsi, lpsi=lpsi)
-        else:
-            raise ValueError("Required marker RPSI and LPSI, or SACR, missing")
+        pelvis_axis = pel_ax(frame[marker_idx['Pelvis']], "SACR" in marker_names['Pelvis'])
 
         # Populate pelvis axis results
         pelo, pelx, pely, pelz = pelvis_axis
@@ -316,10 +307,6 @@ class CGM:
         axis_results[axis_idx["HIPY"]] = hipy
         axis_results[axis_idx["HIPZ"]] = hipz
 
-        rthi = frame[marker_idx[markers["RTHI"]]]
-        lthi = frame[marker_idx[markers["LTHI"]]]
-        rkne = frame[marker_idx[markers["RKNE"]]]
-        lkne = frame[marker_idx[markers["LKNE"]]]
         hip_origin = hip_axis[:2]
 
         # Populate LHip and RHip in joint_centers
@@ -327,7 +314,7 @@ class CGM:
         joint_centers[jc_idx['RHip']] = rhjc
         joint_centers[jc_idx['LHip']] = lhjc
 
-        knee_axis = kne_ax(rthi, lthi, rkne, lkne, hip_origin, measurements)
+        knee_axis = kne_ax(frame[marker_idx['Knee']], hip_origin, measurements)
 
         # Populate left and right knee axis results
         r_kneo, r_knex, r_kney, r_knez = knee_axis[:4]
@@ -346,13 +333,9 @@ class CGM:
         joint_centers[jc_idx['RKnee']] = r_kneo
         joint_centers[jc_idx['LKnee']] = l_kneo
 
-        rtib = frame[marker_idx[markers["RTIB"]]]
-        ltib = frame[marker_idx[markers["LTIB"]]]
-        rank = frame[marker_idx[markers["RANK"]]]
-        lank = frame[marker_idx[markers["LANK"]]]
         knee_origin = np.array([knee_axis[0], knee_axis[4]])
 
-        ankle_axis = ank_ax(rtib, ltib, rank, lank, knee_origin, measurements)
+        ankle_axis = ank_ax(frame[marker_idx['Ankle']], knee_origin, measurements)
 
         # Populate left and right ankle axis results
         r_anko, r_ankx, r_anky, r_ankz = ankle_axis[:4]
@@ -371,16 +354,13 @@ class CGM:
         joint_centers[jc_idx['RAnkle']] = r_anko
         joint_centers[jc_idx['LAnkle']] = l_anko
 
-        rtoe = frame[marker_idx[markers["RTOE"]]]
-        ltoe = frame[marker_idx[markers["LTOE"]]]
-        rhee = frame[marker_idx[markers["RHEE"]]]
-        lhee = frame[marker_idx[markers["LHEE"]]]
+        rhee, lhee = frame[marker_idx['Kinetics']][:2]  # TODO: remove when joint_centers fixed
 
         # Populate RHEE and LHEE in joint_centers
         joint_centers[jc_idx['RHEE']] = rhee
         joint_centers[jc_idx['LHEE']] = lhee
 
-        foot_axis = foo_ax(rtoe, ltoe, ankle_axis, measurements)
+        foot_axis = foo_ax(frame[marker_idx['Foot']], ankle_axis, measurements)
 
         # Populate left and right foot axis results
         r_fooo, r_foox, r_fooy, r_fooz = foot_axis[:4]
@@ -399,16 +379,13 @@ class CGM:
         joint_centers[jc_idx['RFoot']] = r_fooo
         joint_centers[jc_idx['LFoot']] = l_fooo
 
-        rfhd = frame[marker_idx[markers["RFHD"]]]
-        lfhd = frame[marker_idx[markers["LFHD"]]]
-        rbhd = frame[marker_idx[markers["RBHD"]]]
-        lbhd = frame[marker_idx[markers["LBHD"]]]
+        rfhd, lfhd, rbhd, lbhd = frame[marker_idx['Kinetics']][2:6]  # TODO: remove when joint_centers fixed
 
         # Populate Front_Head and Back_Head in joint_centers
-        joint_centers[jc_idx['Front_Head']] = np.array([(rfhd + lfhd) / 2.0])
+        joint_centers[jc_idx['Front_Head']] = np.array([(rfhd + lfhd) / 2.0])  # TODO: this avg should be in kinetics
         joint_centers[jc_idx['Back_Head']] = np.array([(rbhd + lbhd) / 2.0])
 
-        head_axis = hea_ax(rfhd, lfhd, rbhd, lbhd, measurements)
+        head_axis = hea_ax(frame[marker_idx['Head']], measurements)
         heao, heax, heay, heaz = head_axis
 
         # Populate head axis results
@@ -417,10 +394,7 @@ class CGM:
         axis_results[axis_idx["HEAY"]] = heay
         axis_results[axis_idx["HEAZ"]] = heaz
 
-        clav = frame[marker_idx[markers["CLAV"]]]
-        c7 = frame[marker_idx[markers["C7"]]]
-        strn = frame[marker_idx[markers["STRN"]]]
-        t10 = frame[marker_idx[markers["T10"]]]
+        clav, c7, strn, t10 = frame[marker_idx['Kinetics']][6:]  # TODO: remove when joint_centers fixed
 
         # Populate C7, CLAV, STRN, and T10 in joint_centers
         joint_centers[jc_idx["C7"]] = c7
@@ -428,7 +402,7 @@ class CGM:
         joint_centers[jc_idx["STRN"]] = strn
         joint_centers[jc_idx["T10"]] = t10
 
-        thorax_axis = tho_ax(clav, c7, strn, t10)
+        thorax_axis = tho_ax(frame[marker_idx['Thorax']])
         thoo, thox, thoy, thoz = thorax_axis
 
         # Populate thorax axis results
@@ -443,12 +417,9 @@ class CGM:
         joint_centers[jc_idx["thorax_y"]] = thoy
         joint_centers[jc_idx["thorax_z"]] = thoz
 
-        rsho = frame[marker_idx[markers["RSHO"]]]
-        lsho = frame[marker_idx[markers["LSHO"]]]
+        wand = CGM.wand_marker(frame[marker_idx['Shoulder']], thorax_axis)
 
-        wand = CGM.wand_marker(rsho, lsho, thorax_axis)
-
-        shoulder_axis = sho_ax(rsho, lsho, thorax_axis[0], wand, measurements)
+        shoulder_axis = sho_ax(frame[marker_idx['Shoulder']], thorax_axis[0], wand, measurements)
         shoulder_origin = np.array([shoulder_axis[0], shoulder_axis[4]])
         r_shoo, r_shox, r_shoy, r_shoz, l_shoo, l_shox, l_shoy, l_shoz = shoulder_axis
 
@@ -466,14 +437,7 @@ class CGM:
         joint_centers[jc_idx["RShoulder"]] = r_shoo
         joint_centers[jc_idx["LShoulder"]] = l_shoo
 
-        relb = frame[marker_idx[markers["RELB"]]]
-        lelb = frame[marker_idx[markers["LELB"]]]
-        rwra = frame[marker_idx[markers["RWRA"]]]
-        rwrb = frame[marker_idx[markers["RWRB"]]]
-        lwra = frame[marker_idx[markers["LWRA"]]]
-        lwrb = frame[marker_idx[markers["LWRB"]]]
-
-        elbow_axis = elb_ax(relb, lelb, rwra, rwrb, lwra, lwrb, shoulder_origin, measurements)
+        elbow_axis = elb_ax(frame[marker_idx['Elbow']], shoulder_origin, measurements)
         r_elbo, r_elbx, r_elby, r_elbz, l_elbo, l_elbx, l_elby, l_elbz = elbow_axis
 
         # Populate elbow axis results
@@ -490,7 +454,7 @@ class CGM:
         joint_centers[jc_idx["RHumerus"]] = r_elbo
         joint_centers[jc_idx["LHumerus"]] = l_elbo
 
-        wrist_axis = wri_ax(rwra, rwrb, lwra, lwrb, elbow_axis, measurements)
+        wrist_axis = wri_ax(frame[marker_idx['Wrist']], elbow_axis, measurements)
         wrist_origin = np.array([wrist_axis[0], wrist_axis[4]])
         r_wrio, r_wrix, r_wriy, r_wriz, l_wrio, l_wrix, l_wriy, l_wriz = wrist_axis
 
@@ -508,10 +472,7 @@ class CGM:
         joint_centers[jc_idx["RRadius"]] = r_wrio
         joint_centers[jc_idx["LRadius"]] = l_wrio
 
-        rfin = frame[marker_idx[markers["RFIN"]]]
-        lfin = frame[marker_idx[markers["LFIN"]]]
-
-        hand_axis = han_ax(rwra, rwrb, lwra, lwrb, rfin, lfin, wrist_origin, measurements)
+        hand_axis = han_ax(frame[marker_idx['Hand']], wrist_origin, measurements)
         r_hano, r_hanx, r_hany, r_hanz, l_hano, l_hanx, l_hany, l_hanz = hand_axis
 
         # Populate hand axis results
@@ -753,7 +714,7 @@ class CGM:
         return mr
 
     @staticmethod
-    def wand_marker(rsho, lsho, thorax_axis):
+    def wand_marker(markers, thorax_axis):
         """Wand Marker Calculation function
 
         Takes in a dictionary of x,y,z positions and marker names.
@@ -780,16 +741,17 @@ class CGM:
         --------
         >>> import numpy as np
         >>> from pycgm.pycgm import CGM
-        >>> rsho, lsho = np.array([[428, 270, 1500],
-        ...                        [68, 269, 1510]])
+        >>> markers = np.array([[428, 270, 1500],
+        ...                     [68, 269, 1510]])
         >>> thorax_axis = np.array([[256, 364, 1459],
         ...                         [256, 365, 1459],
         ...                         [257, 364, 1459],
         ...                         [256, 354, 1458]])
-        >>> CGM.wand_marker(rsho, lsho, thorax_axis)
+        >>> CGM.wand_marker(markers, thorax_axis)
         array([[ 255.76812462,  364.        , 1459.9727455 ],
                [ 256.26181402,  364.        , 1459.96511834]])
         """
+        rsho, lsho = markers
 
         # REQUIRED MARKERS:
         # RSHO
@@ -1201,7 +1163,7 @@ class CGM:
 
     # Axis calculation functions
     @staticmethod
-    def pelvis_axis_calc(rasi, lasi, rpsi=None, lpsi=None, sacr=None):
+    def pelvis_axis_calc(markers, sacr):
         """Pelvis Axis Calculation function
 
         Calculates the pelvis joint center and axis and returns them.
@@ -1237,19 +1199,19 @@ class CGM:
         --------
         >>> import numpy as np
         >>> from pycgm.pycgm import CGM
-        >>> rasi, lasi, rpsi, lpsi = np.array([[ 395,  428, 1036],
-        ...                                    [ 183,  422, 1033],
-        ...                                    [ 341,  246, 1055],
-        ...                                    [ 255,  241, 1057]])
-        >>> CGM.pelvis_axis_calc(rasi, lasi, rpsi=rpsi, lpsi=lpsi)
+        >>> markers = np.array([[ 395,  428, 1036],
+        ...                     [ 183,  422, 1033],
+        ...                     [ 341,  246, 1055],
+        ...                     [ 255,  241, 1057]])
+        >>> CGM.pelvis_axis_calc(markers)
         array([[ 289.        ,  425.        , 1034.5       ],
                [ 288.97356163,  425.99275625, 1034.38279911],
                [ 288.00050025,  424.97171227, 1034.48585614],
                [ 288.98264324,  425.11676832, 1035.4930075 ]])
-        >>> rasi, lasi, sacr = np.array([[ 395,  428, 1036],
-        ...                              [ 183,  422, 1033],
-        ...                              [ 294,  242, 1049]])
-        >>> CGM.pelvis_axis_calc(rasi, lasi, sacr=sacr)
+        >>> markers = np.array([[ 395,  428, 1036],
+        ...                     [ 183,  422, 1033],
+        ...                     [ 294,  242, 1049]])
+        >>> CGM.pelvis_axis_calc(markers)
         array([[ 289.        ,  425.        , 1034.5       ],
                [ 288.97291419,  425.99651005, 1034.42104387],
                [ 288.00050025,  424.97171227, 1034.48585614],
@@ -1262,12 +1224,14 @@ class CGM:
         # RPSI
         # LPSI
 
+        rasi, lasi = markers[:2]
+
         # If sacrum marker is present, use it
-        if sacr is not None:
-            sacrum = sacr
+        if sacr:
+            sacrum = markers[2]
         # Otherwise mean of posterior markers is used as the sacrum
         else:
-            sacrum = (rpsi + lpsi) / 2.0
+            sacrum = sum(markers[2:]) / 2.0
 
         # REQUIRED LANDMARKS:
         # origin
@@ -1409,7 +1373,7 @@ class CGM:
         return np.array([r_hip_jc, l_hip_jc, hip_axis_center, x_axis, y_axis, z_axis])
 
     @staticmethod
-    def knee_axis_calc(rthi, lthi, rkne, lkne, hip_origin, measurements):
+    def knee_axis_calc(markers, hip_origin, measurements):
         """Knee Axis Calculation function
 
         Calculates the right and left knee joint center and axis and returns them.
@@ -1448,14 +1412,14 @@ class CGM:
         --------
         >>> import numpy as np
         >>> from pycgm.pycgm import CGM
-        >>> rthi, lthi, rkne, lkne = np.array([[426, 262, 673],
-        ...                                    [51 , 320, 723],
-        ...                                    [416, 266, 524],
-        ...                                    [84 , 286, 529]])
+        >>> markers = np.array([[426, 262, 673],
+        ...                     [51 , 320, 723],
+        ...                     [416, 266, 524],
+        ...                     [84 , 286, 529]])
         >>> hip_origin = np.array([[309, 322, 937],
         ...                        [182, 339, 935]])
         >>> measurements = {'RightKneeWidth': 105, 'LeftKneeWidth': 105 }
-        >>> CGM.knee_axis_calc(rthi, lthi, rkne, lkne, hip_origin, measurements)
+        >>> CGM.knee_axis_calc(markers, hip_origin, measurements)
         array([[363.28036639, 292.19664005, 515.36134954],
                [363.72612681, 293.091773  , 515.35546315],
                [362.39432212, 292.63691972, 515.21616214],
@@ -1465,6 +1429,8 @@ class CGM:
                [141.90621372, 279.00329985, 524.50927627],
                [142.98988659, 279.0279367 , 525.41759676]])
         """
+        rthi, lthi, rkne, lkne = markers
+
         # Get Global Values
         mm = 7.0
         r_knee_width = measurements['RightKneeWidth']
@@ -1541,7 +1507,7 @@ class CGM:
         return np.array([r_knee_jc, rx_axis, ry_axis, rz_axis, l_knee_jc, lx_axis, ly_axis, lz_axis])
 
     @staticmethod
-    def ankle_axis_calc(rtib, ltib, rank, lank, knee_origin, measurements):
+    def ankle_axis_calc(markers, knee_origin, measurements):
         """Ankle Axis Calculation function
 
         Calculates the right and left ankle joint center and axis and returns them.
@@ -1576,15 +1542,15 @@ class CGM:
         --------
         >>> import numpy as np
         >>> from pycgm.pycgm import CGM
-        >>> rtib, ltib, rank, lank = np.array([[433, 211, 273 ],
-        ...                                    [50 , 235, 364],
-        ...                                    [422, 217, 92 ],
-        ...                                    [58 , 208, 86 ]])
+        >>> markers = np.array([[433, 211, 273 ],
+        ...                     [50 , 235, 364],
+        ...                     [422, 217, 92 ],
+        ...                     [58 , 208, 86 ]])
         >>> knee_origin = np.array([[364, 292, 515],
         ...                         [143, 279, 524]])
         >>> measurements = {'RightAnkleWidth': 70, 'LeftAnkleWidth': 70,
         ...                 'RightTibialTorsion': 0, 'LeftTibialTorsion': 0}
-        >>> CGM.ankle_axis_calc(rtib, ltib, rank, lank, knee_origin, measurements)
+        >>> CGM.ankle_axis_calc(markers, knee_origin, measurements)
         array([[393.36370389, 247.2931075 ,  86.87260464],
                [394.09205433, 247.97797298,  86.85104297],
                [392.68188731, 248.01437196,  86.7505238 ],
@@ -1594,6 +1560,7 @@ class CGM:
                [ 97.16475735, 218.84739159,  80.57267311],
                [ 98.21976663, 219.24509728,  81.42636253]])
         """
+        rtib, ltib, rank, lank = markers
 
         # Get Global Values
         r_ankle_width = measurements['RightAnkleWidth']
@@ -1702,7 +1669,7 @@ class CGM:
         return np.array([r_ankle_jc, rx_axis, ry_axis, rz_axis, l_ankle_jc, lx_axis, ly_axis, lz_axis])
 
     @staticmethod
-    def foot_axis_calc(rtoe, ltoe, ankle_axis, measurements):
+    def foot_axis_calc(markers, ankle_axis, measurements):
         """Foot Axis Calculation function
 
         Calculates the right and left foot joint axis by rotating uncorrect foot joint axes about offset angle.
@@ -1754,8 +1721,8 @@ class CGM:
         --------
         >>> import numpy as np
         >>> from pycgm.pycgm import CGM
-        >>> rtoe, ltoe = np.array([[442, 381, 42],
-        ...                        [39 , 382, 41]])
+        >>> markers = np.array([[442, 381, 42],
+        ...                     [39 , 382, 41]])
         >>> ankle_axis = np.array([[393, 247, 87],
         ...                        [394 , 248, 87],
         ...                        [393, 248, 87],
@@ -1766,7 +1733,7 @@ class CGM:
         ...                        [98 , 219, 81]])
         >>> measurements = {'RightStaticRotOff': 0.1, 'LeftStaticRotOff': 0.1,
         ...                 'RightStaticPlantFlex': 0.3, 'LeftStaticPlantFlex': 0.2}
-        >>> CGM.foot_axis_calc(rtoe, ltoe, ankle_axis, measurements)  # doctest: +NORMALIZE_WHITESPACE
+        >>> CGM.foot_axis_calc(markers, ankle_axis, measurements)  # doctest: +NORMALIZE_WHITESPACE
         array([[442.        , 381.        ,  42.        ],
                [442.54940367, 380.73530701,  42.79252333],
                [441.29240336, 381.35704172,  42.60977717],
@@ -1776,6 +1743,7 @@ class CGM:
                [ 38.02896253, 381.77304869,  41.0746949 ],
                [ 39.22963959, 381.02717163,  41.02950626]])
         """
+        rtoe, ltoe = markers
 
         # REQUIRED MARKERS:
         # RTOE
@@ -1905,7 +1873,7 @@ class CGM:
         return np.array([toe_jc_r, rx_axis, ry_axis, rz_axis, toe_jc_l, lx_axis, ly_axis, lz_axis])
 
     @staticmethod
-    def head_axis_calc(rfhd, lfhd, rbhd, lbhd, measurements):
+    def head_axis_calc(markers, measurements):
         """Head Axis Calculation function
 
         Calculates the head joint center and axis and returns them.
@@ -1931,16 +1899,17 @@ class CGM:
         >>> import numpy as np
         >>> from pycgm.pycgm import CGM
         >>> measurements = {'HeadOffset': 0.3}
-        >>> rfhd, lfhd, rbhd, lbhd = np.array([[325, 402, 1722],
-        ...                                    [184, 409, 1721],
-        ...                                    [304, 242, 1694],
-        ...                                    [197, 251, 1696]])
-        >>> CGM.head_axis_calc(rfhd, lfhd, rbhd, lbhd, measurements)
+        >>> markers = np.array([[325, 402, 1722],
+        ...                     [184, 409, 1721],
+        ...                     [304, 242, 1694],
+        ...                     [197, 251, 1696]])
+        >>> CGM.head_axis_calc(markers, measurements)
         array([[ 254.5       ,  405.5       , 1721.5       ],
                [ 254.52565516,  406.49058239, 1721.36550709],
                [ 253.50032966,  405.52555761, 1721.49754796],
                [ 254.50100837,  405.63451148, 1722.49091152]])
         """
+        rfhd, lfhd, rbhd, lbhd = markers
 
         # Get Global Values
         head_off = measurements['HeadOffset'] * -1
@@ -1988,7 +1957,7 @@ class CGM:
         return np.array([origin, x_axis, y_axis, z_axis])
 
     @staticmethod
-    def thorax_axis_calc(clav, c7, strn, t10):
+    def thorax_axis_calc(markers):
         """Thorax Axis Calculation function
 
         Calculates the thorax joint center and axis and returns them.
@@ -2010,16 +1979,17 @@ class CGM:
         --------
         >>> import numpy as np
         >>> from pycgm.pycgm import CGM
-        >>> clav, c7, strn, t10 = np.array([[256, 371, 1459],
-        ...                                 [256, 371, 1459],
-        ...                                 [251, 414, 1292],
-        ...                                 [228, 192, 1279]])
-        >>> CGM.thorax_axis_calc(clav, c7, strn, t10)
+        >>> markers = np.array([[256, 371, 1459],
+        ...                     [256, 371, 1459],
+        ...                     [251, 414, 1292],
+        ...                     [228, 192, 1279]])
+        >>> CGM.thorax_axis_calc(markers)
         array([[ 255.4938561 ,  364.51623363, 1461.58932269],
                [ 255.56616237,  365.44248597, 1461.21941945],
                [ 256.48733126,  364.41655085, 1461.5339111 ],
                [ 255.405658  ,  364.15275055, 1460.66190631]])
         """
+        clav, c7, strn, t10 = markers
 
         # Set or get a marker size as mm
         marker_size = 7.0
@@ -2060,7 +2030,7 @@ class CGM:
         return np.array([origin, x_axis, y_axis, z_axis])
 
     @staticmethod
-    def shoulder_axis_calc(rsho, lsho, thorax_origin, wand, measurements):
+    def shoulder_axis_calc(markers, thorax_origin, wand, measurements):
         """Shoulder Axis Calculation function
 
         Calculates the right and left shoulder joint center and axis and returns them.
@@ -2090,13 +2060,13 @@ class CGM:
         --------
         >>> import numpy as np
         >>> from pycgm.pycgm import CGM
-        >>> rsho, lsho = np.array([[428, 270, 1500],
-        ...                        [68, 269, 1510]])
+        >>> markers = np.array([[428, 270, 1500],
+        ...                     [68, 269, 1510]])
         >>> thorax_origin = np.array([256, 364, 1459])
         >>> wand = np.array([[255, 364, 1460],
         ...                  [256, 364, 1460]])
         >>> measurements = {'RightShoulderOffset' : 40, 'LeftShoulderOffset' : 40}
-        >>> CGM.shoulder_axis_calc(rsho, lsho, thorax_origin, wand, measurements)
+        >>> CGM.shoulder_axis_calc(markers, thorax_origin, wand, measurements)
         array([[ 434.48959862,  286.3674038 , 1456.42256085],
                [ 434.86398178,  287.21574011, 1456.79694401],
                [ 434.62767518,  286.71564644, 1455.4953813 ],
@@ -2106,6 +2076,7 @@ class CGM:
                [  67.22214085,  268.60693287, 1464.0082569 ],
                [  68.09759081,  269.0493145 , 1462.98949007]])
         """
+        rsho, lsho = markers
 
         # First find the shoulder joint centers
 
@@ -2164,8 +2135,7 @@ class CGM:
         return np.array([r_sho_jc, r_x_axis, r_y_axis, r_z_axis, l_sho_jc, l_x_axis, l_y_axis, l_z_axis])
 
     @staticmethod
-    def elbow_axis_calc(relb, lelb, rwra, rwrb, lwra, lwrb,
-                        shoulder_origin, measurements):
+    def elbow_axis_calc(markers, shoulder_origin, measurements):
         """Elbow Axis Calculation function
 
         Calculates the right and left elbow joint center and axis and returns them.
@@ -2198,13 +2168,11 @@ class CGM:
         ...                     [830, 436, 1119],
         ...                     [-249, 525, 1117],
         ...                     [-311, 477, 1125]])
-        >>> relb, lelb, rwra, rwrb, lwra, lwrb = markers
         >>> shoulder_origin = np.array([[429, 275, 1453],
         ...                             [64, 274, 1463]])
         >>> measurements = {'RightElbowWidth': 74, 'LeftElbowWidth': 74,
         ...                 'RightWristWidth': 55, 'LeftWristWidth': 55}
-        >>> CGM.elbow_axis_calc(relb, lelb, rwra, rwrb, lwra, lwrb,
-        ...                     shoulder_origin, measurements)
+        >>> CGM.elbow_axis_calc(markers, shoulder_origin, measurements)
         array([[ 632.87661106,  304.71333701, 1255.816215  ],
                [ 633.02165895,  303.72391276, 1255.81709122],
                [ 633.56063358,  304.81425332, 1256.5386616 ],
@@ -2214,6 +2182,7 @@ class CGM:
                [-128.11677323,  316.54239358, 1256.98230612],
                [-128.15958175,  316.4638212 , 1258.39368623]])
         """
+        relb, lelb, rwra, rwrb, lwra, lwrb = markers
 
         r_elbow_width = measurements['RightElbowWidth']
         l_elbow_width = measurements['LeftElbowWidth']
@@ -2343,7 +2312,7 @@ class CGM:
                          lejc, l_elb_x_axis, l_elb_y_axis, l_elb_z_axis])
 
     @staticmethod
-    def wrist_axis_calc(rwra, rwrb, lwra, lwrb, elbow_axis, measurements):
+    def wrist_axis_calc(markers, elbow_axis, measurements):
         """Wrist Axis Calculation function
 
         Calculates the right and left wrist joint center and axis and returns them.
@@ -2373,7 +2342,6 @@ class CGM:
         ...                     [830, 436, 1119],
         ...                     [-249, 525, 1117],
         ...                     [-311, 477, 1125]])
-        >>> rwra, rwrb, lwra, lwrb = markers
         >>> elbow_axis = np.array([[633, 304, 1256],
         ...                        [633, 303, 1256],
         ...                        [634, 305, 1256],
@@ -2383,7 +2351,7 @@ class CGM:
         ...                        [-128, 316, 1257],
         ...                        [-128, 316, 1258]])
         >>> measurements = {'RightWristWidth': 55.0, 'LeftWristWidth': 55.0}
-        >>> CGM.wrist_axis_calc(rwra, rwrb, lwra, lwrb, elbow_axis, measurements)
+        >>> CGM.wrist_axis_calc(markers, elbow_axis, measurements)
         array([[ 792.63409644,  450.54752412, 1084.18751958],
                [ 793.34017987,  449.84144069, 1084.24130037],
                [ 793.34120322,  451.2546309 , 1084.18751958],
@@ -2393,6 +2361,7 @@ class CGM:
                [-271.1872693 ,  485.56813908, 1090.52031306],
                [-271.3353054 ,  484.95586468, 1091.78649052]])
         """
+        rwra, rwrb, lwra, lwrb = markers
 
         mm = 7.0
 
@@ -2480,7 +2449,7 @@ class CGM:
         return np.array([rwjc, r_x_axis, r_y_axis, r_z_axis, lwjc, l_x_axis, l_y_axis, l_z_axis])
 
     @staticmethod
-    def hand_axis_calc(rwra, rwrb, lwra, lwrb, rfin, lfin, wrist_origin, measurements):
+    def hand_axis_calc(markers, wrist_origin, measurements):
         """Hand Axis Calculation function
 
         Calculates the right and left hand joint center and axis and returns them.
@@ -2513,11 +2482,10 @@ class CGM:
         ...                     [-311, 477, 1125],
         ...                     [863, 524, 1074],
         ...                     [-326, 558, 1091]])
-        >>> rwra, rwrb, lwra, lwrb, rfin, lfin = markers
         >>> wrist_origin = np.array([[793, 451, 1084],
         ...                          [-272, 485, 1091]])
         >>> measurements = {'RightHandThickness': 34.0, 'LeftHandThickness': 34.0}
-        >>> CGM.hand_axis_calc(rwra, rwrb, lwra, lwrb, rfin, lfin, wrist_origin, measurements)
+        >>> CGM.hand_axis_calc(markers, wrist_origin, measurements)
         array([[ 859.03526827,  516.82158979, 1051.4444834 ],
                [ 859.18590744,  517.13431139, 1052.38230696],
                [ 858.30712092,  517.49833553, 1051.33577905],
@@ -2527,6 +2495,7 @@ class CGM:
                [-324.92945279,  550.89937566, 1068.07086319],
                [-323.53496076,  550.73341496, 1068.23774345]])
         """
+        rwra, rwrb, lwra, lwrb, rfin, lfin = markers
 
         rwri = (rwra + rwrb) / 2.0
         lwri = (lwra + lwrb) / 2.0
@@ -3865,11 +3834,14 @@ class StaticCGM:
         path_measurements : str
             File path of the subject measurements in csv or vsk form
         """
-        self.motion_data, self.mapping = IO.load_marker_data(path_static)
+        self.motion_data, self.names, self.mapping = IO.load_marker_data(path_static)
+
+        # if type(self.motion_data) != np.ndarray:
+        #     raise ValueError(f"wtf? {type(self.motion_data)}")
         self.measurements = IO.load_sm(path_measurements)
 
     @staticmethod
-    def iad_calculation(rasi, lasi):
+    def iad_calculation(markers):
         """Calculates the Inter ASIS Distance.
         Given the markers RASI and LASI, the Inter ASIS Distance is defined as:
         .. math::
@@ -3889,11 +3861,11 @@ class StaticCGM:
         --------
         >>> from numpy import around, array
         >>> from pycgm.pycgm import StaticCGM
-        >>> lasi = array([ 183,  422, 1033])
-        >>> rasi = array([ 395,  428, 1036])
-        >>> around(StaticCGM.iad_calculation(rasi, lasi), 2)
+        >>> markers = array([[ 183,  422, 1033], [ 395,  428, 1036]])
+        >>> around(StaticCGM.iad_calculation(markers), 2)
         212.11
         """
+        rasi, lasi = markers
         x_diff = rasi[0] - lasi[0]
         y_diff = rasi[1] - lasi[1]
         z_diff = rasi[2] - lasi[2]
@@ -3943,7 +3915,7 @@ class StaticCGM:
         return offset
 
     @staticmethod
-    def static_calculation(rtoe, ltoe, rhee, lhee, ankle_axis, flat_foot, measurements):
+    def static_calculation(markers, ankle_axis, flat_foot, measurements):
         """The Static Angle Calculation function
 
         Takes in anatomical uncorrect axis and anatomical correct axis.
@@ -3980,10 +3952,10 @@ class StaticCGM:
         --------
         >>> import numpy as np
         >>> from pycgm.pycgm import StaticCGM
-        >>> rtoe, ltoe, rhee, lhee = np.array([[427, 437,  41],
-        ...                                    [175, 379,  42],
-        ...                                    [406, 227,  48],
-        ...                                    [223, 173,  47]])
+        >>> markers = np.array([[427, 437,  41],
+        ...                     [175, 379,  42],
+        ...                     [406, 227,  48],
+        ...                     [223, 173,  47]])
         >>> ankle_axis = np.array([[393, 247, 87],
         ...                        [394, 248, 87],
         ...                        [393, 248, 87],
@@ -3994,25 +3966,26 @@ class StaticCGM:
         ...                        [98, 219, 81]])
         >>> flat_foot = True
         >>> measurements = { 'RightSoleDelta': 0.45,'LeftSoleDelta': 0.45 }
-        >>> parameters = [rtoe, ltoe, rhee, lhee, ankle_axis, flat_foot, measurements]
+        >>> parameters = [markers, ankle_axis, flat_foot, measurements]
         >>> np.around(StaticCGM.static_calculation(*parameters),8)
         array([[-0.23229863,  0.0823201 ,  0.87549777],
                [-0.65268629,  0.28720026, -0.30918223]])
         >>> flat_foot = False
-        >>> parameters = [rtoe, ltoe, rhee, lhee, ankle_axis, flat_foot, measurements]
+        >>> parameters = [markers, ankle_axis, flat_foot, measurements]
         >>> np.around(StaticCGM.static_calculation(*parameters),8)
         array([[-0.20601627,  0.06161168, -0.59732228],
                [-0.65539028,  0.25761562,  0.11115736]])
         """
+        rtoe, ltoe, rhee, lhee = markers
         # Get the each axis from the function.
-        uncorrect_foot = StaticCGM.foot_axis_calc(rtoe, ltoe, ankle_axis)
+        uncorrect_foot = StaticCGM.foot_axis_calc(markers[:2], ankle_axis)
 
         rf1_r_axis = CGM.subtract_origin(uncorrect_foot[:4])
         rf1_l_axis = CGM.subtract_origin(uncorrect_foot[4:])
 
         # Check if it is flat foot or not.
         if not flat_foot:
-            rf_axis2 = StaticCGM.non_flat_foot_axis_calc(rtoe, ltoe, rhee, lhee, ankle_axis)
+            rf_axis2 = StaticCGM.non_flat_foot_axis_calc(markers, ankle_axis)
             # make the array to same format for calculating angle.
             rf2_r_axis = CGM.subtract_origin(rf_axis2[:4])
             rf2_l_axis = CGM.subtract_origin(rf_axis2[4:])
@@ -4021,7 +3994,7 @@ class StaticCGM:
             l_ankle_flex_angle = StaticCGM.ankle_angle_calc(rf1_l_axis, rf2_l_axis)
 
         else:
-            rf_axis3 = StaticCGM.flat_foot_axis_calc(rtoe, ltoe, rhee, lhee, ankle_axis, measurements)
+            rf_axis3 = StaticCGM.flat_foot_axis_calc(markers, ankle_axis, measurements)
             # make the array to same format for calculating angle.
             rf3_r_axis = CGM.subtract_origin(rf_axis3[:4])
             rf3_l_axis = CGM.subtract_origin(rf_axis3[4:])
@@ -4034,7 +4007,7 @@ class StaticCGM:
         return angle
 
     @staticmethod
-    def pelvis_axis_calc(rasi, lasi, rpsi=None, lpsi=None, sacr=None):
+    def pelvis_axis_calc(markers, sacr):
         """Pelvis Axis Calculation function
 
         Calculates the pelvis joint center and axis and returns them.
@@ -4070,19 +4043,19 @@ class StaticCGM:
         --------
         >>> import numpy as np
         >>> from pycgm.pycgm import StaticCGM
-        >>> rasi, lasi, rpsi, lpsi = np.array([[ 395,  428, 1036],
-        ...                                    [ 183,  422, 1033],
-        ...                                    [ 341,  246, 1055],
-        ...                                    [ 255,  241, 1057]])
-        >>> CGM.pelvis_axis_calc(rasi, lasi, rpsi=rpsi, lpsi=lpsi)
+        >>> markers = np.array([[ 395,  428, 1036],
+        ...                     [ 183,  422, 1033],
+        ...                     [ 341,  246, 1055],
+        ...                     [ 255,  241, 1057]])
+        >>> CGM.pelvis_axis_calc(markers, False)
         array([[ 289.        ,  425.        , 1034.5       ],
                [ 288.97356163,  425.99275625, 1034.38279911],
                [ 288.00050025,  424.97171227, 1034.48585614],
                [ 288.98264324,  425.11676832, 1035.4930075 ]])
-        >>> rasi, lasi, sacr = np.array([[ 395,  428, 1036],
-        ...                              [ 183,  422, 1033],
-        ...                              [ 294,  242, 1049]])
-        >>> StaticCGM.pelvis_axis_calc(rasi, lasi, sacr=sacr)
+        >>> markers = np.array([[ 395,  428, 1036],
+        ...                     [ 183,  422, 1033],
+        ...                     [ 294,  242, 1049]])
+        >>> StaticCGM.pelvis_axis_calc(markers, True)
         array([[ 289.        ,  425.        , 1034.5       ],
                [ 288.97291419,  425.99651005, 1034.42104387],
                [ 288.00050025,  424.97171227, 1034.48585614],
@@ -4095,12 +4068,14 @@ class StaticCGM:
         # RPSI
         # LPSI
 
+        rasi, lasi = markers[:2]
+
         # If sacrum marker is present, use it
-        if sacr is not None:
-            sacrum = sacr
+        if sacr:
+            sacrum = markers[2]
         # Otherwise mean of posterior markers is used as the sacrum
         else:
-            sacrum = (rpsi + lpsi) / 2.0
+            sacrum = sum(markers[2:]) / 2.0
 
         # REQUIRED LANDMARKS:
         # origin
@@ -4266,7 +4241,7 @@ class StaticCGM:
         return np.array([r_hip_jc, l_hip_jc, hip_axis_center, x_axis, y_axis, z_axis])
 
     @staticmethod
-    def knee_axis_calc(rthi, lthi, rkne, lkne, hip_origin, measurements):
+    def knee_axis_calc(markers, hip_origin, measurements):
         """Knee Axis Calculation function
 
         Calculates the right and left knee joint center and axis and returns them.
@@ -4301,14 +4276,14 @@ class StaticCGM:
         --------
         >>> import numpy as np
         >>> from pycgm.pycgm import StaticCGM
-        >>> rthi, lthi, rkne, lkne = np.array([[426, 262, 673],
-        ...                                    [51 , 320, 723],
-        ...                                    [416, 266, 524],
-        ...                                    [84 , 286, 529]])
+        >>> markers = np.array([[426, 262, 673],
+        ...                     [51 , 320, 723],
+        ...                     [416, 266, 524],
+        ...                     [84 , 286, 529]])
         >>> hip_origin = np.array([[309, 322, 937],
         ...                        [182, 339, 935]])
         >>> measurements = {'RightKneeWidth': 105.0, 'LeftKneeWidth': 105.0 }
-        >>> StaticCGM.knee_axis_calc(rthi, lthi, rkne, lkne, hip_origin, measurements)  # doctest: +NORMALIZE_WHITESPACE
+        >>> StaticCGM.knee_axis_calc(markers, hip_origin, measurements)  # doctest: +NORMALIZE_WHITESPACE
         array([[363.28036639, 292.19664005, 515.36134954],
                [363.72612681, 293.091773  , 515.35546315],
                [362.39432212, 292.63691972, 515.21616214],
@@ -4318,6 +4293,7 @@ class StaticCGM:
                [141.90621372, 279.00329985, 524.50927627],
                [142.98988659, 279.0279367 , 525.41759676]])
         """
+        rthi, lthi, rkne, lkne = markers
         # Get Global Values
         mm = 7.0
         r_knee_width = measurements['RightKneeWidth']
@@ -4394,7 +4370,7 @@ class StaticCGM:
         return np.array([r_knee_jc, rx_axis, ry_axis, rz_axis, l_knee_jc, lx_axis, ly_axis, lz_axis])
 
     @staticmethod
-    def ankle_axis_calc(rtib, ltib, rank, lank, knee_origin, measurements):
+    def ankle_axis_calc(markers, knee_origin, measurements):
         """Ankle Axis Calculation function
 
         Calculates the right and left ankle joint center and axis and returns them.
@@ -4429,7 +4405,7 @@ class StaticCGM:
         --------
         >>> import numpy as np
         >>> from pycgm.pycgm import StaticCGM
-        >>> rtib, ltib, rank, lank = np.array([[433, 211, 273 ],
+        >>> markers = np.array([[433, 211, 273 ],
         ...                                    [50 , 235, 364],
         ...                                    [422, 217, 92 ],
         ...                                    [58 , 208, 86 ]])
@@ -4437,7 +4413,7 @@ class StaticCGM:
         ...                         [143, 279, 524]])
         >>> measurements = {'RightAnkleWidth': 70.0, 'LeftAnkleWidth': 70.0,
         ...                 'RightTibialTorsion': 0.0, 'LeftTibialTorsion': 0.0}
-        >>> StaticCGM.ankle_axis_calc(rtib, ltib, rank, lank, knee_origin, measurements)
+        >>> StaticCGM.ankle_axis_calc(markers, knee_origin, measurements)
         array([[393.36370389, 247.2931075 ,  86.87260464],
                [394.09205433, 247.97797298,  86.85104297],
                [392.68188731, 248.01437196,  86.7505238 ],
@@ -4447,7 +4423,7 @@ class StaticCGM:
                [ 97.16475735, 218.84739159,  80.57267311],
                [ 98.21976663, 219.24509728,  81.42636253]])
         """
-
+        rtib, ltib, rank, lank = markers
         # Get Global Values
         r_ankle_width = measurements['RightAnkleWidth']
         l_ankle_width = measurements['LeftAnkleWidth']
@@ -4575,7 +4551,7 @@ class StaticCGM:
     # Note: this function is equivalent to uncorrect_footaxis() in pycgmStatic.py
     # the only difference is the order in which operations were calculated.
     @staticmethod
-    def foot_axis_calc(rtoe, ltoe, ankle_axis):
+    def foot_axis_calc(markers, ankle_axis):
         """Foot Axis Calculation function
 
         Calculates the right and left foot joint axis by rotating uncorrect foot joint axes about offset angle.
@@ -4623,8 +4599,8 @@ class StaticCGM:
         --------
         >>> import numpy as np
         >>> from pycgm.pycgm import StaticCGM
-        >>> rtoe, ltoe = np.array([[442, 381, 42],
-        ...                        [39 , 382, 41]])
+        >>> markers = np.array([[442, 381, 42],
+        ...                     [39 , 382, 41]])
         >>> ankle_axis = np.array([[393, 247, 87],
         ...                        [394 , 248, 87  ],
         ...                        [393, 248, 87],
@@ -4633,7 +4609,7 @@ class StaticCGM:
         ...                        [98 , 220, 80],
         ...                        [97 , 219, 80],
         ...                        [98 , 219, 81]])
-        >>> StaticCGM.foot_axis_calc(rtoe, ltoe, ankle_axis)  # doctest: +NORMALIZE_WHITESPACE
+        >>> StaticCGM.foot_axis_calc(markers, ankle_axis)  # doctest: +NORMALIZE_WHITESPACE
         array([[442.        , 381.        ,  42.        ],
                [442.676405  , 381.        ,  42.73652989],
                [441.34030115, 381.44468887,  42.60584588],
@@ -4643,6 +4619,7 @@ class StaticCGM:
                [ 38.05673939, 381.67706168,  41.07726745],
                [ 39.33205333, 381.08263232,  41.21949288]])
         """
+        rtoe, ltoe = markers
         ankle_jc_r = ankle_axis[0]
         ankle_jc_l = ankle_axis[4]
         ankle_flexion_r = ankle_axis[2]
@@ -4707,7 +4684,7 @@ class StaticCGM:
         return np.array([rtoe, r_axis_x, r_axis_y, r_axis_z, ltoe, l_axis_x, l_axis_y, l_axis_z])
 
     @staticmethod
-    def non_flat_foot_axis_calc(rtoe, ltoe, rhee, lhee, ankle_axis):
+    def non_flat_foot_axis_calc(markers, ankle_axis):
         """Non-Flat Foot Axis Calculation function
 
         Calculate the anatomical correct foot axis for non-foot flat.
@@ -4732,10 +4709,10 @@ class StaticCGM:
         --------
         >>> import numpy as np
         >>> from pycgm.pycgm import StaticCGM
-        >>> rhee, lhee, rtoe, ltoe = np.array([[374, 181, 49],
-        ...                                    [105, 180, 47],
-        ...                                    [442, 381, 42],
-        ...                                    [39, 382, 41]])
+        >>> markers = np.array([[374, 181, 49],
+        ...                     [105, 180, 47],
+        ...                     [442, 381, 42],
+        ...                     [39, 382, 41]])
         >>> ankle_axis = np.array([[393, 247, 87],
         ...                        [394 , 248, 87  ],
         ...                        [393, 248, 87],
@@ -4744,7 +4721,7 @@ class StaticCGM:
         ...                        [98 , 220, 80],
         ...                        [97 , 219, 80],
         ...                        [98 , 219, 81]])
-        >>> [np.around(arr,8) for arr in StaticCGM.non_flat_foot_axis_calc(rtoe, ltoe, rhee, lhee, ankle_axis)] #doctest: +NORMALIZE_WHITESPACE
+        >>> [np.around(arr,8) for arr in StaticCGM.non_flat_foot_axis_calc(markers, ankle_axis)] #doctest: +NORMALIZE_WHITESPACE
         [array([442., 381.,  42.]), array([442.10240005, 381.        ,  42.9947433 ]),
         array([441.05872081, 381.3234263 ,  42.09689639]),
         array([441.67827386, 380.05374664,  42.03311887]),
@@ -4753,6 +4730,7 @@ class StaticCGM:
         array([ 38.04941082, 381.68968524,  41.00921727]),
         array([ 39.31045162, 381.04982988,  41.02822287])]
         """
+        rtoe, ltoe, rhee, lhee = markers
         # REQUIRED MARKERS:
         # RTOE
         # LTOE
@@ -4810,7 +4788,7 @@ class StaticCGM:
         return np.array([rtoe, r_axis_x, r_axis_y, r_axis_z, ltoe, l_axis_x, l_axis_y, l_axis_z])
 
     @staticmethod
-    def flat_foot_axis_calc(rtoe, ltoe, rhee, lhee, ankle_axis, measurements):
+    def flat_foot_axis_calc(markers, ankle_axis, measurements):
         """Flat Foot Axis Calculation function
 
         Calculate the anatomical correct foot axis for non-foot flat.
@@ -4837,10 +4815,10 @@ class StaticCGM:
         --------
         >>> import numpy as np
         >>> from pycgm.pycgm import StaticCGM
-        >>> rtoe, ltoe, rhee, lhee = np.array([[442, 381, 42],
-        ...                                    [39, 382, 41],
-        ...                                    [374, 181, 49],
-        ...                                    [105, 180, 47]])
+        >>> markers = np.array([[442, 381, 42],
+        ...                     [39, 382, 41],
+        ...                     [374, 181, 49],
+        ...                     [105, 180, 47]])
         >>> ankle_axis = np.array([[393, 247, 87],
         ...                        [394 , 248, 87  ],
         ...                        [393, 248, 87],
@@ -4850,7 +4828,7 @@ class StaticCGM:
         ...                        [97 , 219, 80],
         ...                        [98 , 219, 81]])
         >>> measurements = { 'RightSoleDelta': 0.45, 'LeftSoleDelta': 0.35}
-        >>> [np.around(arr,8) for arr in StaticCGM.flat_foot_axis_calc(rtoe, ltoe, rhee, lhee, ankle_axis, measurements)] #doctest: +NORMALIZE_WHITESPACE
+        >>> [np.around(arr,8) for arr in StaticCGM.flat_foot_axis_calc(markers, ankle_axis, measurements)] #doctest: +NORMALIZE_WHITESPACE
         [array([442., 381.,  42.]),
         array([441.22996328, 381.26181249,  42.58180552]),
         array([441.44916239, 381.18728479,  41.18667206]),
@@ -4860,6 +4838,7 @@ class StaticCGM:
         array([ 38.10799758, 381.70855366,  40.65447039]),
         array([ 39.31057534, 381.04945123,  41.        ])]
         """
+        rtoe, ltoe, rhee, lhee = markers
         r_sole_delta = measurements['RightSoleDelta']
         l_sole_delta = measurements['LeftSoleDelta']
 
@@ -4951,7 +4930,7 @@ class StaticCGM:
         return np.array([rtoe, r_axis_x, r_axis_y, r_axis_z, ltoe, l_axis_x, l_axis_y, l_axis_z])
 
     @staticmethod
-    def head_axis_calc(rfhd, lfhd, rbhd, lbhd):
+    def head_axis_calc(markers):
         """Head Axis Calculation function
 
         Calculates the head joint center and axis and returns them.
@@ -4973,16 +4952,17 @@ class StaticCGM:
         --------
         >>> import numpy as np
         >>> from pycgm.pycgm import StaticCGM
-        >>> rfhd, lfhd, rbhd, lbhd = np.array([[325, 402, 1722],
-        ...                                   [184, 409, 1721],
-        ...                                   [304, 242, 1694],
-        ...                                   [197, 251, 1696]])
-        >>> [np.around(arr,8) for arr in StaticCGM.head_axis_calc(rfhd, lfhd, rbhd, lbhd)] #doctest: +NORMALIZE_WHITESPACE
+        >>> markers = np.array([[325, 402, 1722],
+        ...                     [184, 409, 1721],
+        ...                     [304, 242, 1694],
+        ...                     [197, 251, 1696]])
+        >>> [np.around(arr,8) for arr in StaticCGM.head_axis_calc(markers)] #doctest: +NORMALIZE_WHITESPACE
         [array([ 254.5,  405.5, 1721.5]), 
         array([ 254.5248073 ,  406.48609036, 1721.66434839]),
         array([ 253.50032966,  405.52555761, 1721.49754796]),
         array([ 254.49338171,  405.33576661, 1722.48639931])]
         """
+        rfhd, lfhd, rbhd, lbhd = markers
         # get the midpoints of the head to define the sides
         front = [(lfhd[0] + rfhd[0]) / 2.0, (lfhd[1] + rfhd[1]) / 2.0, (lfhd[2] + rfhd[2]) / 2.0]
         back = [(lbhd[0] + rbhd[0]) / 2.0, (lbhd[1] + rbhd[1]) / 2.0, (lbhd[2] + rbhd[2]) / 2.0]
@@ -5131,8 +5111,7 @@ class StaticCGM:
             cal_sm['InterAsisDistance'] = self.measurements['InterAsisDistance']
         else:
             for frame in self.motion_data:
-                rasi, lasi = frame[self.mapping['RASI']], frame[self.mapping['LASI']]
-                iad_calc = StaticCGM.iad_calculation(rasi, lasi)
+                iad_calc = StaticCGM.iad_calculation(frame[self.mapping['IAD']])
                 iad.append(iad_calc)
             inter_asis_distance = np.average(iad)
             cal_sm['InterAsisDistance'] = inter_asis_distance
@@ -5147,17 +5126,13 @@ class StaticCGM:
             cal_sm['LeftKneeWidth'] = 0
 
         if cal_sm['RightKneeWidth'] == 0:
-            if 'RMKN' in self.mapping:
+            if 'RMKN' in self.names['StaticKnee'] and 'LMKN' in self.names['StaticKnee']:
                 # medial knee markers are available
                 rwidth = []
                 lwidth = []
                 # average each frame
                 for frame in self.motion_data:
-                    rmkn = frame[self.mapping['RMKN']]
-                    lmkn = frame[self.mapping['LMKN']]
-
-                    rkne = frame[self.mapping['RKNE']]
-                    lkne = frame[self.mapping['LKNE']]
+                    rkne, lkne, rmkn, lmkn = frame[self.mapping['StaticKnee']]
 
                     rdst = np.linalg.norm(rkne - rmkn)
                     ldst = np.linalg.norm(lkne - lmkn)
@@ -5176,17 +5151,14 @@ class StaticCGM:
             cal_sm['LeftAnkleWidth'] = 0
 
         if cal_sm['RightAnkleWidth'] == 0:
-            if 'RMKN' in self.mapping:
+            # Is this supposed to check for _MKN and not _MMA? Old repo does the same thing
+            if 'RMKN' in self.names['StaticAnkle'] and 'LMKN' in self.names['StaticAnkle']:
                 # medial knee markers are available
                 rwidth = []
                 lwidth = []
                 # average each frame
                 for frame in self.motion_data:
-                    rmma = frame[self.mapping['RMMA']]
-                    lmma = frame[self.mapping['LMMA']]
-
-                    rank = frame[self.mapping['RANK']]
-                    lank = frame[self.mapping['LANK']]
+                    rank, lank, rmma, lmma = frame[self.mapping['StaticAnkle']]
 
                     rdst = np.linalg.norm(rmma - rank)
                     ldst = np.linalg.norm(lmma - lank)
@@ -5211,37 +5183,25 @@ class StaticCGM:
         cal_sm['LeftHandThickness'] = self.measurements['LeftHandThickness']
 
         for frame in self.motion_data:
-            rasi, lasi = frame[self.mapping['RASI']], frame[self.mapping['LASI']]
-            rpsi, lpsi, sacr = None, None, None
-            try:
-                sacr = frame[self.mapping['SACR']]
-            except KeyError:
-                rpsi = frame[self.mapping['RPSI']]
-                lpsi = frame[self.mapping['LPSI']]
-            pelvis = StaticCGM.pelvis_axis_calc(rasi, lasi, rpsi, lpsi, sacr)
+
+            markers = frame[self.mapping['Pelvis']]
+            pelvis = StaticCGM.pelvis_axis_calc(markers, 'SACR' in self.names['Pelvis'])
 
             hip_axis = StaticCGM.hip_axis_calc(pelvis, cal_sm)
             hip_origin = [hip_axis[0], hip_axis[1]]
 
-            rthi, lthi, rkne, lkne = frame[self.mapping['RTHI']], frame[self.mapping['LTHI']], frame[
-                self.mapping['RKNE']], frame[
-                                         self.mapping['LKNE']]
-            knee_axis = StaticCGM.knee_axis_calc(rthi, lthi, rkne, lkne, hip_origin, cal_sm)
+            markers = frame[self.mapping['Knee']]
+            knee_axis = StaticCGM.knee_axis_calc(markers, hip_origin, cal_sm)
             knee_origin = np.array([knee_axis[0], knee_axis[4]])
 
-            rtib, ltib, rank, lank = frame[self.mapping['RTIB']], frame[self.mapping['LTIB']], frame[
-                self.mapping['RANK']], frame[
-                                         self.mapping['LANK']]
-            ankle_axis = StaticCGM.ankle_axis_calc(rtib, ltib, rank, lank, knee_origin, cal_sm)
+            markers = frame[self.mapping['Ankle']]
+            ankle_axis = StaticCGM.ankle_axis_calc(markers, knee_origin, cal_sm)
 
-            rtoe, ltoe, rhee, lhee = frame[self.mapping['RTOE']], frame[self.mapping['LTOE']], frame[
-                self.mapping['RHEE']], frame[
-                                         self.mapping['LHEE']]
-            angles = StaticCGM.static_calculation(rtoe, ltoe, rhee, lhee, ankle_axis, flat_foot, cal_sm)
+            markers = frame[self.mapping['StaticFoot']]
+            angles = StaticCGM.static_calculation(markers, ankle_axis, flat_foot, cal_sm)
 
-            rfhd, lfhd, rbhd, lbhd = frame[self.mapping['RFHD']], frame[self.mapping['LFHD']], frame[
-                self.mapping['RBHD']], frame[self.mapping['LBHD']]
-            head_axis = StaticCGM.head_axis_calc(rfhd, lfhd, rbhd, lbhd)
+            markers = frame[self.mapping['Head']]
+            head_axis = StaticCGM.head_axis_calc(markers)
 
             head_angle = StaticCGM.static_calculation_head(head_axis)
 
