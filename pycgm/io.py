@@ -51,44 +51,6 @@ class IO:
         return {marker: marker for marker in IO.marker_keys()}
 
     @staticmethod
-    def joint_marker_names(mapping, marker_map):
-        """Returns a pairing of which joints require which markers.
-
-        Returns
-        -------
-        names: dictionary
-            Dictionary mapping a joint's name for lookup to the marker names from expected names it requires.
-        """
-        names = {'Pelvis': 'RASI LASI'.split(),
-                 'Hip': [],
-                 'Knee': 'RTHI LTHI RKNE LKNE'.split(),
-                 'Ankle': 'RTIB LTIB RANK LANK'.split(),
-                 'Foot': 'RTOE LTOE'.split(),
-                 'Head': 'RFHD LFHD RBHD LBHD'.split(),
-                 'Thorax': 'CLAV C7 STRN T10'.split(),
-                 'Shoulder': 'RSHO LSHO'.split(),  # Also used in wand
-                 'Elbow': 'RELB LELB RWRA RWRB LWRA LWRB'.split(),
-                 'Wrist': 'RWRA RWRB LWRA LWRB'.split(),
-                 'Hand': 'RWRA RWRB LWRA LWRB RFIN LFIN'.split(),
-                 'Kinetics': 'RHEE LHEE RFHD LFHD RBHD LBHD CLAV C7 STRN T10'.split(),
-                 'IAD': 'RASI LASI'.split(),
-                 'StaticKnee': 'RKNE LKNE'.split(),
-                 'StaticAnkle': 'RANK LANK'.split(),
-                 'StaticFoot': 'RTOE LTOE RHEE LHEE'.split()}
-        if 'SACR' in mapping:
-            names['Pelvis'].append('SACR')
-        elif 'RPSI' in mapping and 'LPSI' in mapping:
-            names['Pelvis'].extend('RPSI LPSI'.split())
-
-        if 'RMKN' in mapping and 'LMKN' in mapping:
-            names['StaticKnee'].extend('RMKN LMKN'.split())
-            names['StaticAnkle'].extend('RMMA LMMA'.split())
-
-        names = {name: [marker_map[marker] for marker in names[name]] for name in names}
-
-        return names
-
-    @staticmethod
     def joint_marker_idx(marker_idx, names):
         """Converts the joint marker to name mapping to use indices instead of string names.
 
@@ -134,7 +96,7 @@ class IO:
         return seg_scale
 
     @staticmethod
-    def load_marker_data(filename, marker_map):
+    def load_marker_data(filename, marker_map, joint_marker_names):
         """Open and load a c3d or csv file of motion capture data.
 
         `filename` can be either a c3d or csv file. Depending on the file
@@ -158,11 +120,13 @@ class IO:
         --------
         >>> import pycgm
         >>> from pycgm.io import IO
+        >>> from pycgm.pycgm import CGM
+        >>> cgm = CGM(None, None, None)
         >>> csv_file = pycgm.get_robo_results()
         >>> c3d_file = pycgm.get_robo_data()[0]
         >>> marker_map = IO.marker_map()
-        >>> csv_data, csv_names, csv_mappings = IO.load_marker_data(csv_file, marker_map)
-        >>> c3d_data, c3d_names, c3d_mappings = IO.load_marker_data(c3d_file, marker_map)
+        >>> csv_data, csv_mappings = IO.load_marker_data(csv_file, marker_map, cgm.joint_marker_names)
+        >>> c3d_data, c3d_mappings = IO.load_marker_data(c3d_file, marker_map, cgm.joint_marker_names)
 
         Testing for some values from the loaded csv file.
 
@@ -170,8 +134,6 @@ class IO:
         array([-926.0578  , -196.980865,  666.045349])
         >>> csv_data[0][csv_mappings['Thorax'][1]] #doctest: +NORMALIZE_WHITESPACE
         array([-1010.098999, 3.508968, 1336.794434])
-        >>> 'RFHD' in csv_names['Head'], 'UnkownMarker' in csv_names['Ankle']
-        (True, False)
 
         Testing for some values from the loaded c3d file.
 
@@ -179,17 +141,15 @@ class IO:
         array([ -71.86657715, -195.74610901,  762.24456787])
         >>> c3d_data[0][c3d_mappings['Thorax'][1]] #doctest: +NORMALIZE_WHITESPACE
         array([-2.20681717e+02, -1.07236075e+00, 1.45551550e+03])
-        >>> 'RFHD' in c3d_names['Head'], 'UnkownMarker' in c3d_names['Ankle']
-        (True, False)
         """
         # print(filename)
         if str(filename).endswith('.c3d'):
-            return IO.load_c3d(filename, marker_map)
+            return IO.load_c3d(filename, marker_map, joint_marker_names)
         elif str(filename).endswith('.csv'):
-            return IO.load_csv(filename, marker_map)
+            return IO.load_csv(filename, marker_map, joint_marker_names)
 
     @staticmethod
-    def load_csv(filename, marker_map):
+    def load_csv(filename, marker_map, joint_marker_names):
         """Open and load a csv file of motion capture data.
 
         Parameters
@@ -211,9 +171,11 @@ class IO:
         >>> from numpy import around, array, shape
         >>> import pycgm
         >>> from pycgm.io import IO
+        >>> from pycgm.pycgm import CGM
+        >>> cgm = CGM(None, None, None)
         >>> filename = pycgm.get_rom_csv()
         >>> marker_map = IO.marker_map()
-        >>> data, names, mappings = IO.load_csv(filename)
+        >>> data, mappings = IO.load_csv(filename, marker_map, cgm.joint_marker_names)
 
         Test for the shape of data.
 
@@ -314,11 +276,10 @@ class IO:
                   "the expected markers to the c3d file if they are missing.")
 
         data = np.array(data)
-        names = IO.joint_marker_names(mappings, marker_map)
-        return np.array(data), names, IO.joint_marker_idx(mappings, names)
+        return np.array(data), IO.joint_marker_idx(mappings, joint_marker_names)
 
     @staticmethod
-    def load_c3d(filename, marker_map):
+    def load_c3d(filename, marker_map, joint_marker_names):
         """Open and load a c3d file of motion capture data.
 
         Parameters
@@ -340,9 +301,11 @@ class IO:
         >>> from numpy import around, array, shape
         >>> import pycgm
         >>> from pycgm.io import IO
+        >>> from pycgm.pycgm import CGM
+        >>> cgm = CGM(None, None, None)
         >>> filename = pycgm.get_59993_data()[0]
         >>> marker_map = IO.marker_map()
-        >>> data, names, mappings = IO.load_c3d(filename)
+        >>> data, mappings = IO.load_c3d(filename, marker_map, cgm.joint_marker_names)
 
         Test for the shape of data.
 
@@ -390,8 +353,7 @@ class IO:
             print("Make sure the markers are renamed correectly, or add "
                   "the expected markers to the c3d file if they are missing.")
 
-        names = IO.joint_marker_names(mappings, marker_map)
-        return np.array(data), names, IO.joint_marker_idx(mappings, names)
+        return np.array(data), IO.joint_marker_idx(mappings, joint_marker_names)
 
     @staticmethod
     def load_sm(filename):

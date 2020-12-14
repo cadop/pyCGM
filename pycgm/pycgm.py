@@ -46,13 +46,13 @@ class CGM:
         self.axis_results = None
         self.com_results = None
         self.joint_centers = None
-        self.marker_map = IO.marker_map()  # TODO: test if renamed sacrum breaks
         self.marker_data = None
-        self.marker_names = None
         self.marker_idx = None
         self.measurements = None
+        self.marker_map = IO.marker_map()
         self.start = start
         self.end = end
+
         if isinstance(static, StaticCGM):
             self.static = type(StaticCGM)  # Want class, not instance
         elif isinstance(static, type):
@@ -63,30 +63,68 @@ class CGM:
             self.static = None
             raise ValueError(f"Provided static parameter of type {type(static)} was incompatible")
 
-        jc_labels = ['pelvis_origin', 'pelvis_x', 'pelvis_y', 'pelvis_z',  # TODO: will be deprecated
-                     'thorax_origin', 'thorax_x', 'thorax_y', 'thorax_z',
-                     'RHip', 'LHip', 'RKnee', 'LKnee', 'RAnkle', 'LAnkle', 'RFoot', 'LFoot',
-                     'RHEE', 'LHEE', 'C7', 'CLAV', 'STRN', 'T10', 'Front_Head', 'Back_Head',
-                     'RShoulder', 'LShoulder', 'RHumerus', 'LHumerus', 'RRadius', 'LRadius',
-                     'RHand', 'LHand']
-        self.jc_idx = {label: i for i, label in enumerate(jc_labels)}
+        self.jc_idx = {label: i for i, label in enumerate(self.jc_labels)}
 
-        # TODO: axis labels may need to change to different format, consider moving these definitions to IO
-        default_axis_labels = ["PELO", "PELX", "PELY", "PELZ", "HIPO", "HIPX", "HIPY", "HIPZ", "R KNEO",
-                               "R KNEX", "R KNEY", "R KNEZ", "L KNEO", "L KNEX", "L KNEY", "L KNEZ", "R ANKO", "R ANKX",
-                               "R ANKY", "R ANKZ", "L ANKO", "L ANKX", "L ANKY", "L ANKZ", "R FOOO", "R FOOX", "R FOOY",
-                               "R FOOZ", "L FOOO", "L FOOX", "L FOOY", "L FOOZ", "HEAO", "HEAX", "HEAY", "HEAZ", "THOO",
-                               "THOX", "THOY", "THOZ", "R CLAO", "R CLAX", "R CLAY", "R CLAZ", "L CLAO", "L CLAX",
-                               "L CLAY", "L CLAZ", "R HUMO", "R HUMX", "R HUMY", "R HUMZ", "L HUMO", "L HUMX", "L HUMY",
-                               "L HUMZ", "R RADO", "R RADX", "R RADY", "R RADZ", "L RADO", "L RADX", "L RADY", "L RADZ",
-                               "R HANO", "R HANX", "R HANY", "R HANZ", "L HANO", "L HANX", "L HANY", "L HANZ"]
-        self.axis_idx = {label: i for i, label in enumerate(default_axis_labels)}
+        self.axis_idx = {label: i for i, label in enumerate(self.axis_labels)}
 
-        default_angle_labels = ['Pelvis', 'R Hip', 'L Hip', 'R Knee', 'L Knee', 'R Ankle',
-                                'L Ankle', 'R Foot', 'L Foot',
-                                'Head', 'Thorax', 'Neck', 'Spine', 'R Shoulder', 'L Shoulder',
-                                'R Elbow', 'L Elbow', 'R Wrist', 'L Wrist']
-        self.angle_idx = {label: i for i, label in enumerate(default_angle_labels)}
+        self.angle_idx = {label: i for i, label in enumerate(self.angle_labels)}
+
+    # Properties for default values
+    @property
+    def jc_labels(self):
+        return ['pelvis_origin', 'pelvis_x', 'pelvis_y', 'pelvis_z',  # TODO: will be deprecated
+                'thorax_origin', 'thorax_x', 'thorax_y', 'thorax_z',
+                'RHip', 'LHip', 'RKnee', 'LKnee', 'RAnkle', 'LAnkle', 'RFoot', 'LFoot',
+                'RHEE', 'LHEE', 'C7', 'CLAV', 'STRN', 'T10', 'Front_Head', 'Back_Head',
+                'RShoulder', 'LShoulder', 'RHumerus', 'LHumerus', 'RRadius', 'LRadius',
+                'RHand', 'LHand']
+
+    @property
+    def axis_labels(self):
+        return ["PELO", "PELX", "PELY", "PELZ", "HIPO", "HIPX", "HIPY", "HIPZ", "R KNEO",
+                "R KNEX", "R KNEY", "R KNEZ", "L KNEO", "L KNEX", "L KNEY", "L KNEZ", "R ANKO", "R ANKX",
+                "R ANKY", "R ANKZ", "L ANKO", "L ANKX", "L ANKY", "L ANKZ", "R FOOO", "R FOOX", "R FOOY",
+                "R FOOZ", "L FOOO", "L FOOX", "L FOOY", "L FOOZ", "HEAO", "HEAX", "HEAY", "HEAZ", "THOO",
+                "THOX", "THOY", "THOZ", "R CLAO", "R CLAX", "R CLAY", "R CLAZ", "L CLAO", "L CLAX",
+                "L CLAY", "L CLAZ", "R HUMO", "R HUMX", "R HUMY", "R HUMZ", "L HUMO", "L HUMX", "L HUMY",
+                "L HUMZ", "R RADO", "R RADX", "R RADY", "R RADZ", "L RADO", "L RADX", "L RADY", "L RADZ",
+                "R HANO", "R HANX", "R HANY", "R HANZ", "L HANO", "L HANX", "L HANY", "L HANZ"]
+
+    @property
+    def angle_labels(self):
+        return ['Pelvis', 'R Hip', 'L Hip', 'R Knee', 'L Knee', 'R Ankle',
+                'L Ankle', 'R Foot', 'L Foot',
+                'Head', 'Thorax', 'Neck', 'Spine', 'R Shoulder', 'L Shoulder',
+                'R Elbow', 'L Elbow', 'R Wrist', 'L Wrist']
+
+    @property
+    def joint_marker_names(self):
+        names = {'Pelvis': 'RASI LASI'.split(),
+                 'Hip': [],
+                 'Knee': 'RTHI LTHI RKNE LKNE'.split(),
+                 'Ankle': 'RTIB LTIB RANK LANK'.split(),
+                 'Foot': 'RTOE LTOE'.split(),
+                 'Head': 'RFHD LFHD RBHD LBHD'.split(),
+                 'Thorax': 'CLAV C7 STRN T10'.split(),
+                 'Shoulder': 'RSHO LSHO'.split(),  # Also used in wand
+                 'Elbow': 'RELB LELB RWRA RWRB LWRA LWRB'.split(),
+                 'Wrist': 'RWRA RWRB LWRA LWRB'.split(),
+                 'Hand': 'RWRA RWRB LWRA LWRB RFIN LFIN'.split(),
+                 'Kinetics': 'RHEE LHEE RFHD LFHD RBHD LBHD CLAV C7 STRN T10'.split(),
+                 'IAD': 'RASI LASI'.split(),
+                 'StaticKnee': 'RKNE LKNE'.split(),
+                 'StaticAnkle': 'RANK LANK'.split(),
+                 'StaticFoot': 'RTOE LTOE RHEE LHEE'.split()}
+        if 'SACR' in self.marker_map:
+            names['Pelvis'].append('SACR')
+        elif 'RPSI' in self.marker_map and 'LPSI' in self.marker_map:
+            names['Pelvis'].extend('RPSI LPSI'.split())
+
+        if 'RMKN' in self.marker_map and 'LMKN' in self.marker_map:
+            names['StaticKnee'].extend('RMKN LMKN'.split())
+            names['StaticAnkle'].extend('RMMA LMMA'.split())
+
+        return {name: [self.marker_map[marker] for marker in names[name]] for name in names}
 
     # Customisation functions
     def remap(self, old, new):
@@ -116,6 +154,19 @@ class CGM:
         """
         self.marker_map = mapping
 
+    def bulk_remap(self, mapping):
+        """Remap multiple markers function
+
+        Uses the passed dictionary and combines it into the existing mapping.
+
+        Parameters
+        ----------
+        mapping: dict
+            Dictionary where each key is a string of pycgm's expected marker
+            name and each value is a string of the new marker name.
+        """
+        self.marker_map.update(mapping)
+
     def set_marker_prefix(self, prefix):
         """Add a prefix to all of pycgm's expected markers to match the input.
 
@@ -142,12 +193,12 @@ class CGM:
         # Get PlugInGait scaling table from segments.csv for use in center of mass calculations
         seg_scale = IO.load_scaling_table()
 
-        self.marker_data, self.marker_names, self.marker_idx = IO.load_marker_data(self.path_dynamic, self.marker_map)
+        self.marker_data, self.marker_idx = IO.load_marker_data(self.path_dynamic, self.marker_map,
+                                                                self.joint_marker_names)
         self.end = self.end if self.end != -1 else len(self.marker_data)
         self.marker_data = self.marker_data[self.start:self.end]
 
-        self.static = self.static(self.path_static, self.path_measurements, self.marker_map)
-        self.measurements = self.static.get_static()
+        self.run_static()
 
         methods = [self.pelvis_axis_calc, self.hip_axis_calc, self.knee_axis_calc,
                    self.ankle_axis_calc, self.foot_axis_calc,
@@ -157,9 +208,14 @@ class CGM:
                    self.ankle_angle_calc, self.foot_angle_calc,
                    self.head_angle_calc, self.thorax_angle_calc, self.neck_angle_calc,
                    self.spine_angle_calc, self.shoulder_angle_calc, self.elbow_angle_calc, self.wrist_angle_calc]
-        mappings = [self.marker_map, self.marker_names, self.marker_idx, self.axis_idx, self.angle_idx, self.jc_idx]
+        mappings = [self.marker_map, self.joint_marker_names, self.marker_idx,
+                    self.axis_idx, self.angle_idx, self.jc_idx]
         results = self.multi_calc(self.marker_data, methods, mappings, self.measurements, seg_scale)
         self.axis_results, self.angle_results, self.com_results, self.joint_centers = results
+
+    def run_static(self):
+        self.static = self.static(self.path_static, self.path_measurements, self.marker_map)
+        self.measurements = self.static.get_static()
 
     def write_results(self, path_results, write_axes=None, write_angles=None, write_com=True):
         """Write CGM results to a csv file.
@@ -3831,7 +3887,7 @@ class StaticCGM:
         A dictionary of the measurements of the subject, obtained from file input.
     """
 
-    def __init__(self, path_static, path_measurements, marker_map):
+    def __init__(self, path_static, path_measurements, marker_map=None, joint_marker_names=None):
         """Initialization of StaticCGM object function
 
         Instantiates various class attributes based on parameters and default values.
@@ -3843,8 +3899,39 @@ class StaticCGM:
         path_measurements : str
             File path of the subject measurements in csv or vsk form
         """
-        self.motion_data, self.names, self.mapping = IO.load_marker_data(path_static, marker_map)
+        self.marker_map = IO.marker_map() if marker_map is None else marker_map
+        # self.joint_marker_names = self.joint_marker_names if joint_marker_names is None else joint_marker_names
+        self.motion_data, self.mapping = IO.load_marker_data(path_static, marker_map, self.joint_marker_names)
         self.measurements = IO.load_sm(path_measurements)
+
+    @property
+    def joint_marker_names(self):  # TODO: Make properties exist here by default but use init to optionally override
+        names = {'Pelvis': 'RASI LASI'.split(),
+                 'Hip': [],
+                 'Knee': 'RTHI LTHI RKNE LKNE'.split(),
+                 'Ankle': 'RTIB LTIB RANK LANK'.split(),
+                 'Foot': 'RTOE LTOE'.split(),
+                 'Head': 'RFHD LFHD RBHD LBHD'.split(),
+                 'Thorax': 'CLAV C7 STRN T10'.split(),
+                 'Shoulder': 'RSHO LSHO'.split(),  # Also used in wand
+                 'Elbow': 'RELB LELB RWRA RWRB LWRA LWRB'.split(),
+                 'Wrist': 'RWRA RWRB LWRA LWRB'.split(),
+                 'Hand': 'RWRA RWRB LWRA LWRB RFIN LFIN'.split(),
+                 'Kinetics': 'RHEE LHEE RFHD LFHD RBHD LBHD CLAV C7 STRN T10'.split(),
+                 'IAD': 'RASI LASI'.split(),
+                 'StaticKnee': 'RKNE LKNE'.split(),
+                 'StaticAnkle': 'RANK LANK'.split(),
+                 'StaticFoot': 'RTOE LTOE RHEE LHEE'.split()}
+        if 'SACR' in self.marker_map:
+            names['Pelvis'].append('SACR')
+        elif 'RPSI' in self.marker_map and 'LPSI' in self.marker_map:
+            names['Pelvis'].extend('RPSI LPSI'.split())
+
+        if 'RMKN' in self.marker_map and 'LMKN' in self.marker_map:
+            names['StaticKnee'].extend('RMKN LMKN'.split())
+            names['StaticAnkle'].extend('RMMA LMMA'.split())
+
+        return {name: [self.marker_map[marker] for marker in names[name]] for name in names}
 
     @staticmethod
     def iad_calculation(markers):
@@ -5129,7 +5216,7 @@ class StaticCGM:
             cal_sm['LeftKneeWidth'] = 0
 
         if cal_sm['RightKneeWidth'] == 0:
-            if 'RMKN' in self.names['StaticKnee'] and 'LMKN' in self.names['StaticKnee']:
+            if 'RMKN' in self.joint_marker_names['StaticKnee'] and 'LMKN' in self.joint_marker_names['StaticKnee']:
                 # medial knee markers are available
                 rwidth = []
                 lwidth = []
@@ -5154,7 +5241,7 @@ class StaticCGM:
 
         if cal_sm['RightAnkleWidth'] == 0:
             # Is this supposed to check for _MKN and not _MMA? Old repo does the same thing
-            if 'RMKN' in self.names['StaticKnee'] and 'LMKN' in self.names['StaticKnee']:
+            if 'RMKN' in self.joint_marker_names['StaticKnee'] and 'LMKN' in self.joint_marker_names['StaticKnee']:
                 # medial knee markers are available
                 rwidth = []
                 lwidth = []
@@ -5187,7 +5274,7 @@ class StaticCGM:
         for frame in self.motion_data:
 
             markers = frame[self.mapping['Pelvis']]
-            pelvis = StaticCGM.pelvis_axis_calc(markers, 'SACR' in self.names['Pelvis'])
+            pelvis = StaticCGM.pelvis_axis_calc(markers, 'SACR' in self.joint_marker_names['Pelvis'])
 
             hip_axis = StaticCGM.hip_axis_calc(pelvis, cal_sm)
             hip_origin = [hip_axis[0], hip_axis[1]]

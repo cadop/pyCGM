@@ -29,7 +29,7 @@ if __name__ == "__main__":
 
     static_trial_renamed = static_trial[:-4] + "_Renamed.csv"
     dynamic_trial_renamed = dynamic_trial[:-4] + "_Renamed.c3d"
-    # Static trial csv contains markers RFHD, LFHD, RBHD, and LBHD renamed to xxHead
+    # Static and Dynamic trial contain the four xxHD markers renamed to xxHead format
     subject4 = CGM(static_trial_renamed, dynamic_trial_renamed, measurements, start=0, end=5)
     subject4.remap('RFHD', 'RFHead')
     subject4.remap('LFHD', 'LFHead')
