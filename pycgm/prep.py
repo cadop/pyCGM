@@ -218,10 +218,12 @@ def transform_from_static(data, data_mapping, static, static_mapping, key, useab
     --------
     >>> from numpy import around
     >>> from pycgm.io import IO
+    >>> from pycgm.pycgm import CGM
     >>> import pycgm
+    >>> cgm = CGM(None, None, None)
     >>> static_trial, dynamic_trial = pycgm.get_robo_data()[:2]
-    >>> data, data_mapping = IO.load_marker_data(dynamic_trial)
-    >>> static, static_mapping = IO.load_marker_data(static_trial)
+    >>> data, data_mapping = IO.load_marker_data(dynamic_trial, cgm.marker_map, cgm.names, True)
+    >>> static, static_mapping = IO.load_marker_data(static_trial, cgm.marker_map, cgm.names, True)
     >>> key = 'LFHD'
     >>> useables = ['RFHD', 'RBHD', 'LBHD']  # Other markers in the cluster
     >>> s = 1
@@ -284,11 +286,13 @@ def transform_from_mov(data, data_mapping, key, clust, last_time, i):
     --------
     >>> from numpy import around
     >>> from pycgm.io import IO
+    >>> from pycgm.pycgm import CGM
     >>> import pycgm
+    >>> cgm = CGM(None, None, None)
     >>> dynamic_trial = pycgm.get_robo_data()[1]
-    >>> data, data_mapping = IO.load_marker_data(dynamic_trial)
+    >>> data, data_mapping = IO.load_marker_data(dynamic_trial, cgm.marker_map, cgm.names, True)
     >>> key = 'LFHD'
-    >>> clust = ['RFHD', 'RBHD', 'LBHD'] #Other markers in the cluster
+    >>> clust = ['RFHD', 'RBHD', 'LBHD']  # Other markers in the cluster
     >>> last_time = 1
     >>> i = 2
     >>> result = transform_from_mov(data, data_mapping, key, clust, last_time, i)
@@ -342,13 +346,15 @@ def segment_finder(key, data, data_mapping, segment_dict, j, missings):
     --------
     >>> from numpy import array, nan
     >>> from pycgm.io import IO
+    >>> from pycgm.pycgm import CGM
     >>> import pycgm
+    >>> cgm = CGM(None, None, None)
     >>> dynamic_trial = pycgm.get_robo_data()[1]
-    >>> data, data_mapping = IO.load_marker_data(dynamic_trial)
+    >>> data, data_mapping = IO.load_marker_data(dynamic_trial, cgm.marker_map, cgm.names, True)
     >>> key = 'LFHD'
     >>> segment = default_segment_dict()
     >>> j = 2
-    >>> missings = {} #Indicates that we are not missing any other markers for any other frame
+    >>> missings = {}  # Indicates that we are not missing any other markers for any other frame
     >>> segment_finder(key, data, data_mapping, segment, j, missings)
     ['RFHD', 'RBHD', 'LBHD']
     """
@@ -410,11 +416,13 @@ def rigid_fill(data, data_mapping, static, static_mapping, segment_dict):
     Examples
     --------
     >>> from pycgm.io import IO
+    >>> from pycgm.pycgm import CGM
     >>> from numpy import array, nan, around
     >>> import pycgm
+    >>> cgm = CGM(None, None, None)
     >>> static_trial, dynamic_trial = pycgm.get_robo_data()[:2]
-    >>> data, data_mapping = IO.load_marker_data(dynamic_trial)
-    >>> static, static_mapping = IO.load_marker_data(static_trial)
+    >>> data, data_mapping = IO.load_marker_data(dynamic_trial, cgm.marker_map, cgm.names, True)
+    >>> static, static_mapping = IO.load_marker_data(static_trial, cgm.marker_map, cgm.names, True)
     >>> segment_dict = default_segment_dict()
 
     Testing gap filling.
@@ -674,18 +682,20 @@ def filtering(data, cutoff_frequency, sampling_frequency):
     Examples
     --------
     >>> from pycgm.io import IO
+    >>> from pycgm.pycgm import CGM
     >>> import pycgm
+    >>> cgm = CGM(None, None, None)
     >>> dynamic_trial = pycgm.get_rom_data()[1]
-    >>> data, data_mapping = IO.load_marker_data(dynamic_trial)
+    >>> data, data_mapping = IO.load_marker_data(dynamic_trial, cgm.marker_map, cgm.names)
     >>> filtered_data = filtering(data, 20, 120)
-    >>> filtered_data[:,data_mapping['HEDO']]
-    array([[ 250.34095219,  207.52056544, 1612.1177957 ],
-           [ 250.3693486 ,  207.63396643, 1612.14030924],
-           [ 250.39784291,  207.74607438, 1612.16076916],
+    >>> filtered_data[:,data_mapping['Head'][0]]
+    array([[ 325.82985131,  402.55452959, 1722.49816649],
+           [ 325.82239927,  402.7092935 , 1722.4895936 ],
+           [ 325.8188844 ,  402.85926354, 1722.4811006 ],
            ...,
-           [ 278.45835242,  292.56967662, 1612.41087668],
-           [ 278.06911338,  293.22769152, 1612.49060244],
-           [ 277.6663783 ,  293.88056206, 1612.55739277]])
+           [ 356.23936279,  489.52553157, 1716.66274129],
+           [ 356.09556012,  490.25882782, 1716.46975059],
+           [ 355.96620168,  490.96540702, 1716.28897971]])
     """
     filtered_data = np.empty(np.shape(data))
     for i in range(len(filtered_data[0])):

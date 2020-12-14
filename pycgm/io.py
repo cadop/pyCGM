@@ -95,7 +95,7 @@ class IO:
         return seg_scale
 
     @staticmethod
-    def load_marker_data(filename, marker_map, names):
+    def load_marker_data(filename, marker_map, names, raw=False):
         """Open and load a c3d or csv file of motion capture data.
 
         `filename` can be either a c3d or csv file. Depending on the file
@@ -111,6 +111,8 @@ class IO:
             be overridden by the user when using any marker-changing functionality.
         names : dict
             A mapping of each joint's name to a list of markers associated with that joint.
+        raw : bool, optional
+            When True, returns a mapping of each frame to its index instead of each joint to multiple indices.
 
         Returns
         -------
@@ -149,12 +151,12 @@ class IO:
         """
         # print(filename)
         if str(filename).endswith('.c3d'):
-            return IO.load_c3d(filename, marker_map, names)
+            return IO.load_c3d(filename, marker_map, names, raw)
         elif str(filename).endswith('.csv'):
-            return IO.load_csv(filename, marker_map, names)
+            return IO.load_csv(filename, marker_map, names, raw)
 
     @staticmethod
-    def load_csv(filename, marker_map, names):
+    def load_csv(filename, marker_map, names, raw=False):
         """Open and load a csv file of motion capture data.
 
         Parameters
@@ -167,6 +169,8 @@ class IO:
             be overridden by the user when using any marker-changing functionality.
         names : dict
             A mapping of each joint's name to a list of markers associated with that joint.
+        raw : bool, optional
+            When True, returns a mapping of each frame to its index instead of each joint to multiple indices.
 
         Returns
         -------
@@ -285,11 +289,12 @@ class IO:
             print("Make sure the markers are renamed correctly, or add "
                   "the expected markers to the c3d file if they are missing.")
 
-        data = np.array(data)
+        if raw:
+            return np.array(data), marker_idx
         return np.array(data), IO.joint_marker_idx(marker_idx, names)
 
     @staticmethod
-    def load_c3d(filename, marker_map, names):
+    def load_c3d(filename, marker_map, names, raw=False):
         """Open and load a c3d file of motion capture data.
 
         Parameters
@@ -302,6 +307,8 @@ class IO:
             be overridden by the user when using any marker-changing functionality.
         names : dict
             A mapping of each joint's name to a list of markers associated with that joint.
+        raw : bool, optional
+            When True, returns a mapping of each frame to its index instead of each joint to multiple indices.
 
         Returns
         -------
@@ -343,7 +350,7 @@ class IO:
         [6, 4, 7, 5]
         """
         data = []
-        joint_idx = {}
+        marker_idx = {}
         expected_markers = set(marker_map.values())
         reader = c3d.Reader(open(filename, 'rb'))
         labels = reader.get('POINT:LABELS').string_array
@@ -353,7 +360,7 @@ class IO:
             marker = markers[i]
             if marker in expected_markers:
                 expected_markers.remove(marker)
-            joint_idx[marker] = i
+            marker_idx[marker] = i
 
         for frame_no, points, analog in reader.read_frames(True, True):
             frame = []
@@ -368,7 +375,9 @@ class IO:
             print("Make sure the markers are renamed correectly, or add "
                   "the expected markers to the c3d file if they are missing.")
 
-        return np.array(data), IO.joint_marker_idx(joint_idx, names)
+        if raw:
+            return np.array(data), marker_idx
+        return np.array(data), IO.joint_marker_idx(marker_idx, names)
 
     @staticmethod
     def load_sm(filename):
