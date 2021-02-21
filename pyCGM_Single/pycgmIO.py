@@ -86,19 +86,19 @@ def createMotionDataDict(labels, data):
 
 	>>> from numpy import array, array_equal
 	>>> labels = ['LFHD', 'RFHD', 'LBHD']
-	>>> data = [[array([184.55160796, 409.68716101, 1721.34289625]),
-	...          array([325.82985131, 402.55452959, 1722.49816649]),
-	...          array([197.8621642 , 251.28892152, 1696.90197756])],
-	...         [array([185.55160796, 408.68716101, 1722.34289625]),
-	...          array([326.82985131, 403.55452959, 1723.49816649]),
-	...          array([198.8621642 , 252.28892152, 1697.90197756])]]
+	>>> data = [[array([184, 409, 1721]),
+	...          array([325, 402, 1722]),
+	...          array([197, 251, 1696])],
+	...         [array([185, 408, 1722]),
+	...          array([326, 403, 1723]),
+	...          array([198, 252, 1697])]]
 	>>> result = createMotionDataDict(labels, data)
-	>>> expected = [{'RFHD': array([325.82985131, 402.55452959, 1722.49816649]),
-	...              'LBHD': array([197.8621642 , 251.28892152, 1696.90197756]),
-	...              'LFHD': array([184.55160796, 409.68716101, 1721.34289625])},
-	...             {'RFHD': array([326.82985131, 403.55452959, 1723.49816649]),
-	...              'LBHD': array([198.8621642 , 252.28892152, 1697.90197756]),
-	...              'LFHD': array([185.55160796, 408.68716101, 1722.34289625])}]
+	>>> expected = [{'LFHD': array([184, 409, 1721]),
+	...              'RFHD': array([325, 402, 1722]),
+	...              'LBHD': array([197, 251, 1696])},
+	...             {'LFHD': array([185, 408, 1722]),
+	...              'RFHD': array([326, 403, 1723]),
+	...              'LBHD': array([198, 252, 1697])}]
 
 	>>> flag = True #False if any values are not equal
 	>>> for i in range(len(result)):
@@ -140,22 +140,22 @@ def splitMotionDataDict(motiondata):
     Example for three markers and two frames of trial.
 
     >>> from numpy import array
-    >>> motiondata = [{'RFHD': array([325.82985131, 402.55452959, 1722.49816649]),
-    ...                'LFHD': array([184.55160796, 409.68716101, 1721.34289625]),
-    ...                'LBHD': array([197.8621642 , 251.28892152, 1696.90197756])},
-    ...               {'RFHD': array([326.82985131, 403.55452959, 1723.49816649]),
-    ...                'LFHD': array([185.55160796, 408.68716101, 1722.34289625]),
-    ...                'LBHD': array([198.8621642 , 252.28892152, 1697.90197756])}]
+    >>> motiondata = [{'RFHD': array([325, 402, 1722]),
+    ...                'LFHD': array([184, 409, 1721]),
+    ...                'LBHD': array([197, 251, 1696])},
+    ...               {'RFHD': array([326, 403, 1723]),
+    ...                'LFHD': array([185, 408, 1722]),
+    ...                'LBHD': array([198, 252, 1697])}]
     >>> labels, data = splitMotionDataDict(motiondata)
     >>> labels
     ['RFHD', 'LFHD', 'LBHD']
     >>> data #doctest: +NORMALIZE_WHITESPACE
-    array([[[ 325.82985131,  402.55452959, 1722.49816649],
-            [ 184.55160796,  409.68716101, 1721.34289625],
-            [ 197.8621642 ,  251.28892152, 1696.90197756]],
-           [[ 326.82985131,  403.55452959, 1723.49816649],
-            [ 185.55160796,  408.68716101, 1722.34289625],
-            [ 198.8621642 ,  252.28892152, 1697.90197756]]])
+    array([[[ 325, 402, 1722],
+            [ 184, 409, 1721],
+            [ 197, 251, 1696]],
+           [[ 326, 403, 1723],
+            [ 185, 408, 1722],
+            [ 198, 252, 1697]]])
     """
     if pyver == 2:
         labels=motiondata[0].keys()
@@ -215,7 +215,7 @@ def splitVskDataDict(vsk):
     Parameters
     ----------
     vsk : dict
-        dictionary of vsk file values. Dictionary keys correspond to
+        Dictionary of vsk file values. Dictionary keys correspond to
         names in `labels` and dictionary values correspond to values in
         `data`.
 
@@ -327,7 +327,7 @@ def loadC3D(filename):
     >>> around(data[0]['C7'], 8) #doctest: +NORMALIZE_WHITESPACE
     array([ -29.57296562, -9.34280109, 1300.86730957])
     >>> dataunlabeled[4] #doctest: +NORMALIZE_WHITESPACE
-    {'*113': array([-172.66630554,  167.2040863 , 1273.71594238]),
+    {'*113': array([-172.66630554, 167.2040863 , 1273.71594238]),
      '*114': array([ 169.18231201, -227.13475037, 1264.34912109])}
     >>> markers
     ['LFHD', 'RFHD', 'LBHD', ...]
@@ -448,14 +448,14 @@ def loadCSV(filename):
         the order of dictionary elements.
 
         >>> from numpy import array, array_equal
-        >>> row = ['-1003.583618', '81.007614', '1522.236938',
-        ...        '-1022.270447', '-47.190071', '1519.680420',
-        ...        '-833.953979', '40.892181', '1550.325562']
+        >>> row = ['-1003', '81', '1522',
+        ...        '-1022', '-47', '1519',
+        ...        '-833', '40', '1550']
         >>> labels = ['LFHD', 'RFHD', 'LBHD']
         >>> dict, unlabeleddict = rowToDict(row, labels)
-        >>> expectedDict = {'LFHD': array([-1003.583618, 81.007614, 1522.236938]),
-        ...                 'RFHD': array([-1022.270447, -47.190071, 1519.68042]),
-        ...                 'LBHD': array([-833.953979, 40.892181, 1550.325562])}
+        >>> expectedDict = {'LFHD': array([-1003, 81, 1522]),
+        ...                 'RFHD': array([-1022, -47, 1519]),
+        ...                 'LBHD': array([-833, 40, 1550])}
         >>> unlabeleddict #No unlabeled values are expected for this example
         {}
         >>> flag = True #False if any values are not equal
@@ -502,9 +502,9 @@ def loadCSV(filename):
 
         Examples
         --------
-        >>> line = '-772.184937, -312.352295, 589.815308'
+        >>> line = '-772, -312, 589'
         >>> split_line(line)
-        ['-772.184937', ' -312.352295', ' 589.815308']
+        ['-772', ' -312', ' 589']
         """
         if pyver == 2: line = asbytes(line).strip(asbytes('\r\n'))
         elif pyver == 3: line = line.strip('\r\n')
@@ -548,17 +548,17 @@ def loadCSV(filename):
 
         # Rows will hold frequency, headers, fields, and one row of data
         >>> rows = [None, None, None, None]
-        >>> rows[0] = '240.000000,Hz\n'
+        >>> rows[0] = '240,Hz\n'
         >>> rows[1] = ',LFHD,,,RFHD\n'
         >>> rows[2] = 'Field #,X,Y,Z,X,Y,Z\n'
-        >>> rows[3] = '1,-1003.583618,81.007614,1522.236938,-1022.270447,-47.190071,1519.680420\n'
+        >>> rows[3] = '1, -1003, 81, 1522, -1022, -47, 1519\n'
         >>> fh = iter(rows)
         >>> framesNumber = 1 #Indicates one row of data
         >>> labels, rows, rowsUnlabeled, freq = parseTrajectories(fh, framesNumber)
         >>> labels
         ['LFHD', 'RFHD']
-        >>> expectedRows = [{'LFHD': array([-1003.583618,  81.007614, 1522.236938]),
-        ...                  'RFHD': array([-1022.270447, -47.190071, 1519.68042 ])}]
+        >>> expectedRows = [{'LFHD': array([-1003, 81, 1522]),
+        ...                  'RFHD': array([-1022, -47, 1519])}]
 
         >>> flag = True #False if any values are not equal
         >>> for i in range(len(expectedRows)):
@@ -705,13 +705,13 @@ def dataAsArray(data):
     one frame of trial.
 
     >>> from numpy import array, array_equal
-    >>> data = {'RFHD': [array([325.82985131]), array([402.55452959]), array([1722.49816649])],
-    ...         'LFHD': [array([184.55160796]), array([409.68716101]), array([1721.34289625])],
-    ...         'LBHD': [array([197.8621642]) , array([251.28892152]), array([1696.90197756])]}
+    >>> data = {'RFHD': [array([325]), array([402]), array([1722])],
+    ...         'LFHD': [array([184]), array([409]), array([1721])],
+    ...         'LBHD': [array([197]) , array([251]), array([1696])]}
     >>> result = dataAsArray(data)
-    >>> expected = [{'RFHD': array([325.82985131, 402.55452959, 1722.49816649]),
-    ...              'LFHD': array([184.55160796, 409.68716101, 1721.34289625]),
-    ...              'LBHD': array([197.8621642, 251.28892152, 1696.90197756])}]
+    >>> expected = [{'RFHD': array([325, 402, 1722]),
+    ...              'LFHD': array([184, 409, 1721]),
+    ...              'LBHD': array([197, 251, 1696])}]
     >>> flag = True #False if any values are not equal
     >>> for i in range(len(result)):
     ...     for key in result[i]:
@@ -769,19 +769,19 @@ def dataAsDict(data, npArray=False):
     the order of dictionary elements.
 
     >>> from numpy import array, array_equal
-    >>> data = [{'RFHD': array([325.82985131, 402.55452959, 1722.49816649]),
-    ...          'LFHD': array([184.55160796, 409.68716101, 1721.34289625]),
-    ...          'LBHD': array([197.8621642 , 251.28892152, 1696.90197756])},
-    ...         {'RFHD': array([326.82985131, 403.55452959, 1723.49816649]),
-    ...          'LFHD': array([185.55160796, 408.68716101, 1722.34289625]),
-    ...          'LBHD': array([198.8621642 , 252.28892152, 1697.90197756])}]
+    >>> data = [{'RFHD': array([325, 402, 1722]),
+    ...          'LFHD': array([184, 409, 1721]),
+    ...          'LBHD': array([197, 251, 1696])},
+    ...         {'RFHD': array([326, 403, 1723]),
+    ...          'LFHD': array([185, 408, 1722]),
+    ...          'LBHD': array([198, 252, 1697])}]
     >>> result = dataAsDict(data, True) #return as numpy array
-    >>> expected = {'RFHD': array([[ 325.82985131,  402.55452959, 1722.49816649],
-    ...                            [ 326.82985131,  403.55452959, 1723.49816649]]),
-    ...             'LFHD': array([[ 184.55160796,  409.68716101, 1721.34289625],
-    ...                            [ 185.55160796,  408.68716101, 1722.34289625]]),
-    ...             'LBHD': array([[ 197.8621642 ,  251.28892152, 1696.90197756],
-    ...                            [ 198.8621642 ,  252.28892152, 1697.90197756]])}
+    >>> expected = {'RFHD': array([[ 325, 402, 1722],
+    ...                            [ 326, 403, 1723]]),
+    ...             'LFHD': array([[ 184, 409, 1721],
+    ...                            [ 185, 408, 1722]]),
+    ...             'LBHD': array([[ 197, 251, 1696],
+    ...                            [ 198, 252, 1697]])}
     >>> flag = True #False if any values are not equal
     >>> for marker in result:
     ...     if (not array_equal(result[marker], expected[marker])):
@@ -821,14 +821,14 @@ def writeKinetics(CoM_output, kinetics):
     >>> import os
     >>> from shutil import rmtree
     >>> CoM_output = os.path.join(tmpdirName, 'CoM')
-    >>> kinetics = [[246.57466721, 313.55662383, 1026.56323492],
-    ...             [246.59137623, 313.6216639, 1026.56440096],
-    ...             [246.60850798, 313.6856272, 1026.56531282]]
+    >>> kinetics = [[246, 313, 1026],
+    ...             [246, 313, 1026],
+    ...             [246, 313, 1026]]
     >>> writeKinetics(CoM_output, kinetics)
     >>> load(CoM_output + '.npy') #doctest: +NORMALIZE_WHITESPACE
-    array([[ 246.57466721, 313.55662383, 1026.56323492],
-           [ 246.59137623, 313.6216639 , 1026.56440096],
-           [ 246.60850798, 313.6856272 , 1026.56531282]])
+    array([[ 246, 313, 1026],
+           [ 246, 313, 1026],
+           [ 246, 313, 1026]])
     >>> rmtree(tmpdirName)
     """
     np.save(CoM_output,kinetics)
@@ -876,10 +876,10 @@ def writeResult(data, filename, **kargs):
         for the first joint, the pelvis, and axis values for the pelvis origin, PELO.
 
         >>> frame = zeros(273)
-        >>> angles = array([-0.308494914509454, -6.12129279337001, 7.57143110215171])
+        >>> angles = array([-0, -6, 7])
         >>> for i in range(len(angles)):
         ...     frame[i] = angles[i]
-        >>> axis = array([-934.314880371094, -4.44443511962891, 852.837829589844])
+        >>> axis = array([-934, -4, 852])
         >>> for i in range(len(axis)):
         ...     frame[i+57] = axis[i]
         >>> data = [frame]
@@ -892,8 +892,8 @@ def writeResult(data, filename, **kargs):
         ...     lines = file.readlines()
         >>> result = lines[7].strip().split(',')
         >>> result #doctest: +NORMALIZE_WHITESPACE
-        ['0.000000000000000',
-         '-0.308494914509454', '-6.121292793370010', '7.571431102151710',...]
+        ['0',
+         '-0', '-6', '7',...]
 
         Writing axis only.
 
@@ -903,8 +903,8 @@ def writeResult(data, filename, **kargs):
         ...     lines = file.readlines()
         >>> result = lines[7].strip().split(',')
         >>> result #doctest: +NORMALIZE_WHITESPACE
-        ['0.000000000000000',
-         '-934.314880371093977', '-4.444435119628910', '852.837829589843977',...]
+        ['0',
+         '-934', '-4', '852',...]
         >>> rmtree(tmpdirName)
         """
         labelsAngs =['Pelvis','R Hip','L Hip','R Knee','L Knee','R Ankle',
@@ -1140,22 +1140,22 @@ def splitDataDict(motionData):
     Example for three markers and two frames of trial.
 
     >>> from numpy import array
-    >>> motionData = [{'RFHD': array([325.82985131, 402.55452959, 1722.49816649]),
-    ...                'LFHD': array([184.55160796, 409.68716101, 1721.34289625]),
-    ...                'LBHD': array([197.8621642 , 251.28892152, 1696.90197756])},
-    ...               {'RFHD': array([326.82985131, 403.55452959, 1723.49816649]),
-    ...                'LFHD': array([185.55160796, 408.68716101, 1722.34289625]),
-    ...                'LBHD': array([198.8621642 , 252.28892152, 1697.90197756])}]
+    >>> motionData = [{'RFHD': array([325, 402, 1722]),
+    ...                'LFHD': array([184, 409, 1721]),
+    ...                'LBHD': array([197, 251, 1696])},
+    ...               {'RFHD': array([326, 403, 1723]),
+    ...                'LFHD': array([185, 408, 1722]),
+    ...                'LBHD': array([198, 252, 1697])}]
     >>> values, labels = splitDataDict(motionData)
     >>> labels
     ['RFHD', 'LFHD', 'LBHD']
     >>> values #doctest: +NORMALIZE_WHITESPACE
-    [array([[ 325.82985131,  402.55452959, 1722.49816649],
-            [ 184.55160796,  409.68716101, 1721.34289625],
-            [ 197.8621642 ,  251.28892152, 1696.90197756]]),
-     array([[ 326.82985131,  403.55452959, 1723.49816649],
-            [ 185.55160796,  408.68716101, 1722.34289625],
-            [ 198.8621642 ,  252.28892152, 1697.90197756]])]
+    [array([[ 325, 402, 1722],
+            [ 184, 409, 1721],
+            [ 197, 251, 1696]]),
+     array([[ 326, 403, 1723],
+            [ 185, 408, 1722],
+            [ 198, 252, 1697]])]
     """
     if pyver == 2:
         labels = motionData[0].keys()
@@ -1197,19 +1197,19 @@ def combineDataDict(values, labels):
 
     >>> from numpy import array_equal
     >>> labels = ['RFHD', 'LFHD', 'LBHD']
-    >>> values = [[[ 325.82985131,  402.55452959, 1722.49816649],
-    ...            [ 184.55160796,  409.68716101, 1721.34289625],
-    ...            [ 197.8621642 ,  251.28892152, 1696.90197756]],
-    ...           [[ 326.82985131,  403.55452959, 1723.49816649],
-    ...            [ 185.55160796,  408.68716101, 1722.34289625],
-    ...            [ 198.8621642 ,  252.28892152, 1697.90197756]]]
+    >>> values = [[[ 325, 402, 1722],
+    ...            [ 184, 409, 1721],
+    ...            [ 197, 251, 1696]],
+    ...           [[ 326, 403, 1723],
+    ...            [ 185, 408, 1722],
+    ...            [ 198, 252, 1697]]]
     >>> result = combineDataDict(values, labels)
-    >>> expected = [{'RFHD': [325.82985131, 402.55452959, 1722.49816649],
-    ...              'LFHD': [184.55160796, 409.68716101, 1721.34289625],
-    ...              'LBHD': [197.8621642, 251.28892152, 1696.90197756]},
-    ...              {'RFHD': [326.82985131, 403.55452959, 1723.49816649],
-    ...              'LFHD': [185.55160796, 408.68716101, 1722.34289625],
-    ...              'LBHD': [198.8621642, 252.28892152, 1697.90197756]}]
+    >>> expected = [{'RFHD': [325, 402, 1722],
+    ...              'LFHD': [184, 409, 1721],
+    ...              'LBHD': [197, 251, 1696]},
+    ...              {'RFHD': [326, 403, 1723],
+    ...              'LFHD': [185, 408, 1722],
+    ...              'LBHD': [198, 252, 1697]}]
     >>> flag = True #False if any values are not equal
     >>> for i in range(len(result)):
     ...     for key in result[i]:
