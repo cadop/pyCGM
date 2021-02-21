@@ -707,7 +707,7 @@ def dataAsArray(data):
     >>> from numpy import array, array_equal
     >>> data = {'RFHD': [array([325]), array([402]), array([1722])],
     ...         'LFHD': [array([184]), array([409]), array([1721])],
-    ...         'LBHD': [array([197]) , array([251]), array([1696])]}
+    ...         'LBHD': [array([197]), array([251]), array([1696])]}
     >>> result = dataAsArray(data)
     >>> expected = [{'RFHD': array([325, 402, 1722]),
     ...              'LFHD': array([184, 409, 1721]),
