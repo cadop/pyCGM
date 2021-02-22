@@ -140,22 +140,22 @@ def splitMotionDataDict(motiondata):
     Example for three markers and two frames of trial.
 
     >>> from numpy import array
-    >>> motiondata = [{'RFHD': array([325, 402, 1722]),
-    ...                'LFHD': array([184, 409, 1721]),
-    ...                'LBHD': array([197, 251, 1696])},
-    ...               {'RFHD': array([326, 403, 1723]),
-    ...                'LFHD': array([185, 408, 1722]),
-    ...                'LBHD': array([198, 252, 1697])}]
+    >>> motiondata = [{'RFHD': array([325.1, 402.1, 1722.1]),
+    ...                'LFHD': array([184.1, 409.1, 1721.1]),
+    ...                'LBHD': array([197.1, 251.1, 1696.1])},
+    ...               {'RFHD': array([326.1, 403.1, 1723.1]),
+    ...                'LFHD': array([185.1, 408.1, 1722.1]),
+    ...                'LBHD': array([198.1, 252.1, 1697.1])}]
     >>> labels, data = splitMotionDataDict(motiondata)
     >>> labels
     ['RFHD', 'LFHD', 'LBHD']
     >>> data #doctest: +NORMALIZE_WHITESPACE
-    array([[[ 325, 402, 1722],
-            [ 184, 409, 1721],
-            [ 197, 251, 1696]],
-           [[ 326, 403, 1723],
-            [ 185, 408, 1722],
-            [ 198, 252, 1697]]])
+    array([[[ 325.1, 402.1, 1722.1],
+            [ 184.1, 409.1, 1721.1],
+            [ 197.1, 251.1, 1696.1]],
+           [[ 326.1, 403.1, 1723.1],
+            [ 185.1, 408.1, 1722.1],
+            [ 198.1, 252.1, 1697.1]]])
     """
     if pyver == 2:
         labels=motiondata[0].keys()
@@ -876,7 +876,7 @@ def writeResult(data, filename, **kargs):
         for the first joint, the pelvis, and axis values for the pelvis origin, PELO.
 
         >>> frame = zeros(273)
-        >>> angles = array([-0, -6, 7])
+        >>> angles = array([-0.308494914509454, -6.12129279337001, 7.57143110215171])
         >>> for i in range(len(angles)):
         ...     frame[i] = angles[i]
         >>> axis = array([-934, -4, 852])
@@ -892,8 +892,8 @@ def writeResult(data, filename, **kargs):
         ...     lines = file.readlines()
         >>> result = lines[7].strip().split(',')
         >>> result #doctest: +NORMALIZE_WHITESPACE
-        ['0',
-         '-0', '-6', '7',...]
+        ['0.000000000000000',
+         '-0.308494914509454', '-6.12129279337001', '7.57143110215171',...]
 
         Writing axis only.
 
@@ -903,8 +903,8 @@ def writeResult(data, filename, **kargs):
         ...     lines = file.readlines()
         >>> result = lines[7].strip().split(',')
         >>> result #doctest: +NORMALIZE_WHITESPACE
-        ['0',
-         '-934', '-4', '852',...]
+        ['0.000000000000000',
+         '-934.314880371093977', '-4.444435119628910', '852.837829589843977',...]
         >>> rmtree(tmpdirName)
         """
         labelsAngs =['Pelvis','R Hip','L Hip','R Knee','L Knee','R Ankle',
