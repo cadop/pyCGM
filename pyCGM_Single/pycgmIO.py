@@ -48,14 +48,14 @@ import xml.etree.ElementTree as ET
 import os
 import errno
 
-#Used to split the arrays with angles and axis
-#Start Joint Angles
+# Used to split the arrays with angles and axis
+# Start Joint Angles
 SJA=0
-#End Joint Angles
+# End Joint Angles
 EJA=SJA+19*3
-#Start Axis
+# Start Axis
 SA=EJA
-#End Axis
+# End Axis
 EA=SA+72*3
 
 def createMotionDataDict(labels, data):
@@ -100,7 +100,7 @@ def createMotionDataDict(labels, data):
 	...              'RFHD': array([326, 403, 1723]),
 	...              'LBHD': array([198, 252, 1697])}]
 
-	>>> flag = True #False if any values are not equal
+	>>> flag = True # False if any values are not equal
 	>>> for i in range(len(result)):
 	...     for key in result[i]:
 	...         if (not array_equal(result[i][key], expected[i][key])):
@@ -227,11 +227,11 @@ def splitVskDataDict(vsk):
 
     Examples
     --------
-    >>> from numpy import array, array_equal #used to compare numpy arrays
+    >>> from numpy import array, array_equal # Used to compare numpy arrays
     >>> import sys
     >>> vsk = {'MeanLegLength':940.0, 'LeftKneeWidth':105.0, 'RightAnkleWidth':70.0}
     >>> labels, data = splitVskDataDict(vsk)
-    >>> flag = True #False if any values do not match
+    >>> flag = True # False if any values do not match
     >>> for i in range(len(labels)):
     ...     if (vsk[labels[i]] != data[i]):
     ...         flag = False
@@ -276,7 +276,7 @@ def loadEZC3D(filename):
     [data, None, None] : array
         `data` is the array representation of the loaded c3d file.
     """
-    #Relative import mod for python 2 and 3
+    # Relative import mod for python 2 and 3
     try: from . import c3dez
     except: import c3dez
 
@@ -355,7 +355,7 @@ def loadC3D(filename):
 
     for frame_no, points, analog in reader.read_frames(True,True):
         for label, point in zip(markers, points):
-            #Create a dictionary with format LFHDX: 123
+            # Create a dictionary with format LFHDX: 123
             if label[0]=='*':
                 if point[0]!=np.nan:
                     mydictunlabeled[label]=point
@@ -415,7 +415,7 @@ def loadCSV(filename):
     if filename == '':
         self.returnedData.emit(None)
     import numpy as np
-    from numpy.compat import asbytes #probably not needed
+    from numpy.compat import asbytes # Probably not needed
 
     fh = open(filename,'r')
 
@@ -456,9 +456,9 @@ def loadCSV(filename):
         >>> expectedDict = {'LFHD': array([-1003, 81, 1522]),
         ...                 'RFHD': array([-1022, -47, 1519]),
         ...                 'LBHD': array([-833, 40, 1550])}
-        >>> unlabeleddict #No unlabeled values are expected for this example
+        >>> unlabeleddict # No unlabeled values are expected for this example
         {}
-        >>> flag = True #False if any values are not equal
+        >>> flag = True # False if any values are not equal
         >>> for marker in dict:
         ...     if (not array_equal(dict[marker], expectedDict[marker])):
         ...         flag = False
@@ -471,7 +471,7 @@ def loadCSV(filename):
         if pyver == 3: row=list(zip(row[0::3],row[1::3],row[2::3]))
         empty=np.asarray([np.nan,np.nan,np.nan],dtype=np.float64)
         for coordinates,label in zip(row,labels):
-            #unlabeled data goes to a different dictionary
+            # Unlabeled data goes to a different dictionary
             if label[0]=="*":
                 try:
                     unlabeleddic[label]=np.float64(coordinates)
@@ -481,7 +481,7 @@ def loadCSV(filename):
                 try:
                     dic[label]=np.float64(coordinates)
                 except:
-                    #Missing data from labeled marker is NaN
+                    # Missing data from labeled marker is NaN
                     dic[label]=empty.copy()
         return dic,unlabeleddic
 
@@ -553,14 +553,14 @@ def loadCSV(filename):
         >>> rows[2] = 'Field #,X,Y,Z,X,Y,Z\n'
         >>> rows[3] = '1, -1003, 81, 1522, -1022, -47, 1519\n'
         >>> fh = iter(rows)
-        >>> framesNumber = 1 #Indicates one row of data
+        >>> framesNumber = 1 # Indicates one row of data
         >>> labels, rows, rowsUnlabeled, freq = parseTrajectories(fh, framesNumber)
         >>> labels
         ['LFHD', 'RFHD']
         >>> expectedRows = [{'LFHD': array([-1003, 81, 1522]),
         ...                  'RFHD': array([-1022, -47, 1519])}]
 
-        >>> flag = True #False if any values are not equal
+        >>> flag = True # False if any values are not equal
         >>> for i in range(len(expectedRows)):
         ...     for key in rows[i]:
         ...         if (not array_equal(rows[i][key], expectedRows[i][key])):
@@ -602,11 +602,11 @@ def loadCSV(filename):
         return labels,rows,rowsUnlabeled,freq
 
     ###############################################
-    ### Find the trajectories
+    # Find the trajectories
     framesNumber=0
     for i in fh:
         if i.startswith("TRAJECTORIES"):
-            #First elements with freq,labels,fields
+            # First elements with freq,labels,fields
             if pyver == 2: rows=[fh.next(),fh.next(),fh.next()]
             if pyver == 3: rows=[next(fh),next(fh),next(fh)]
             for j in fh:
@@ -667,7 +667,7 @@ def loadData(filename, rawData=True):
         if str(filename).endswith('.c3d'):
 
                 data = loadC3D(filename)[0]
-                #add any missing keys
+                # Add any missing keys
                 keys = markerKeys()
                 for frame in data:
                     for key in keys:
@@ -712,7 +712,7 @@ def dataAsArray(data):
     >>> expected = [{'RFHD': array([325, 402, 1722]),
     ...              'LFHD': array([184, 409, 1721]),
     ...              'LBHD': array([197, 251, 1696])}]
-    >>> flag = True #False if any values are not equal
+    >>> flag = True # False if any values are not equal
     >>> for i in range(len(result)):
     ...     for key in result[i]:
     ...         if (not array_equal(result[i][key], expected[i][key])):
@@ -723,13 +723,13 @@ def dataAsArray(data):
     names = list(data.keys())
     dataArray = []
 
-    #make the marker arrays a better format
+    # Make the marker arrays a better format
     for marker in data:
-        #Turn multi array into single
+        # Turn multi array into single
         xyz = [ np.array(x) for x in zip( data[marker][0],data[marker][1],data[marker][2] ) ]
         data[marker] = xyz
 
-    #use the first marker to get the length of frames
+    # Use the first marker to get the length of frames
     datalen = len( data[names[0]] )
 
     for i in range(datalen):
@@ -775,14 +775,14 @@ def dataAsDict(data, npArray=False):
     ...         {'RFHD': array([326, 403, 1723]),
     ...          'LFHD': array([185, 408, 1722]),
     ...          'LBHD': array([198, 252, 1697])}]
-    >>> result = dataAsDict(data, True) #return as numpy array
+    >>> result = dataAsDict(data, True) # Return as numpy array
     >>> expected = {'RFHD': array([[ 325, 402, 1722],
     ...                            [ 326, 403, 1723]]),
     ...             'LFHD': array([[ 184, 409, 1721],
     ...                            [ 185, 408, 1722]]),
     ...             'LBHD': array([[ 197, 251, 1696],
     ...                            [ 198, 252, 1697]])}
-    >>> flag = True #False if any values are not equal
+    >>> flag = True # False if any values are not equal
     >>> for marker in result:
     ...     if (not array_equal(result[marker], expected[marker])):
     ...         flag = False
@@ -994,16 +994,16 @@ def writeResult(data, filename, **kargs):
         else:
             xyz="frame num,"+"X,Y,Z,"*(len(dataFilter[0])//3)
         header=header+labels+xyz
-        #Creates the frame numbers
+        # Creates the frame numbers
         frames=np.arange(len(dataFilter),dtype=dataFilter[0].dtype)
-        #Put the frame numbers in the first dimension of the data
+        # Put the frame numbers in the first dimension of the data
         dataFilter=np.column_stack((frames,dataFilter))
         start = 1500
         end = 3600
-        #dataFilter = dataFilter[start:]
+        # dataFilter = dataFilter[start:]
         np.savetxt(filename+'.csv', dataFilter, delimiter=delimiter,header=header,fmt="%.15f")
-        #np.savetxt(filename, dataFilter, delimiter=delimiter,fmt="%.15f")
-        #np.savez_compressed(filename,dataFilter)
+        # np.savetxt(filename, dataFilter, delimiter=delimiter,fmt="%.15f")
+        # np.savez_compressed(filename,dataFilter)
 
 def smKeys():
     """A list of segment labels.
@@ -1085,8 +1085,8 @@ def loadVSK(filename, dict=True):
         >>> result['RightStaticPlantFlex']
         0.17637075483799
         """
-        #Check if the filename is valid
-        #if not, return None
+        # Check if the filename is valid
+        # If not, return None
         if filename == '':
                 return None
 
@@ -1094,14 +1094,14 @@ def loadVSK(filename, dict=True):
         viconVSK = {}
         vskMarkers = []
 
-        #Create an XML tree from file
+        # Create an XML tree from file
         tree = ET.parse(filename)
-        #Get the root of the file
+        # Get the root of the file
         # <KinematicModel>
         root = tree.getroot()
 
-        #Store the values of each parameter in a dictionary
-        # the format is (NAME,VALUE)
+        # Store the values of each parameter in a dictionary
+        # The format is (NAME,VALUE)
         vsk_keys=[r.get('NAME') for r in root[0]]
         vsk_data = []
         for R in root[0]:
@@ -1110,8 +1110,8 @@ def loadVSK(filename, dict=True):
                 val = 0
             vsk_data.append(float(val))
 
-        #vsk_data=np.asarray([float(R.get('VALUE')) for R in root[0]])
-        #print vsk_keys
+        # vsk_data=np.asarray([float(R.get('VALUE')) for R in root[0]])
+        # Print vsk_keys
         if dict==False: return createVskDataDict(vsk_keys,vsk_data) 
 
         return [vsk_keys,vsk_data]
@@ -1210,7 +1210,7 @@ def combineDataDict(values, labels):
     ...              {'RFHD': [326, 403, 1723],
     ...              'LFHD': [185, 408, 1722],
     ...              'LBHD': [198, 252, 1697]}]
-    >>> flag = True #False if any values are not equal
+    >>> flag = True # False if any values are not equal
     >>> for i in range(len(result)):
     ...     for key in result[i]:
     ...         if (not array_equal(result[i][key], expected[i][key])):
