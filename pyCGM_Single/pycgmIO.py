@@ -879,7 +879,7 @@ def writeResult(data, filename, **kargs):
         >>> angles = array([-0.308494914509454, -6.12129279337001, 7.57143110215171])
         >>> for i in range(len(angles)):
         ...     frame[i] = angles[i]
-        >>> axis = array([-934, -4, 852])
+        >>> axis = array(['-934.314880371093977', '-4.444435119628910', '852.837829589843977'])
         >>> for i in range(len(axis)):
         ...     frame[i+57] = axis[i]
         >>> data = [frame]
@@ -893,7 +893,7 @@ def writeResult(data, filename, **kargs):
         >>> result = lines[7].strip().split(',')
         >>> result #doctest: +NORMALIZE_WHITESPACE
         ['0.000000000000000',
-         '-0.308494914509454', '-6.12129279337001', '7.57143110215171',...]
+         '-0.308494914509454', '-6.121292793370010', '7.571431102151710',...]
 
         Writing axis only.
 
