@@ -66,15 +66,15 @@ def createMotionDataDict(labels, data):
 	labels : array
 	    List of marker position names.
 	data : array
-	    List of xyz coordinates corresponding to the marker names in `labels`.
-	    Indices of `data` correspond to frames in the trial.
+	    List of x, y, and z coordinate values corresponding to the marker names
+            in `labels`. Indices of `data` correspond to frames in the trial.
 
 	Returns
 	-------
 	motiondata : array
 	    List of dict. Indices of `motiondata` correspond to frames
 	    in the trial. Keys in the dictionary are marker names and
-	    values are xyz coordinates of the corresponding marker.
+	    values are x, y, and z coordinates of the corresponding marker.
 
 	Examples
 	--------
@@ -124,16 +124,16 @@ def splitMotionDataDict(motiondata):
     ----------
     motiondata : array
         List of dict. Indices of `motiondata` correspond to frames
-        in the trial. Keys in the dictionary are marker names and
-        values are xyz coordinates of the corresponding marker.
+        in the trial. Keys in the dictionary are marker names and values
+        are x, y, and z coordinates of the corresponding marker.
 
     Returns
     -------
     labels, data : tuple
         `labels` is a list of marker position names from the dictionary
-        keys in `motiondata`. `data` is a list of xyz coordinate
-        positions corresponding to the marker names in `labels`.
-        Indices of `data` correspond to frames in the trial.
+        keys in `motiondata`. `data` is a list of x, y, and z coordinate
+        values corresponding to the marker names in `labels`. Indices of
+        `data` correspond to frames in the trial.
 
     Examples
     --------
@@ -215,9 +215,9 @@ def splitVskDataDict(vsk):
     Parameters
     ----------
     vsk : dict
-        Dictionary of vsk file values. Dictionary keys correspond to
-        names in `labels` and dictionary values correspond to values in
-        `data`.
+        Dictionary of subject measurement values. Dictionary keys
+        correspond to names in `labels` and dictionary values
+        correspond to values in `data`.
 
     Returns
     -------
@@ -430,7 +430,7 @@ def loadCSV(filename):
         Parameters
         ----------
         row : array
-            List of marker data.
+            List of x, y, and z coordinate values.
         labels : array
             List of marker names.
 
@@ -531,8 +531,9 @@ def loadCSV(filename):
         Returns
         -------
         labels, rows, rowsUnlabeled, freq : tuple
-            `labels` is a list of marker names.
+            `labels` is a list of marker and angle names.
             `rows` is a list of dict of motion capture data.
+            Indices of `rows` correspond to frames in the trial. 
             `rowsUnlabeled` is of the same type as `rows`, but for
             unlabeled data.
             `freq` is the frequency in Hz.
@@ -678,22 +679,24 @@ def loadData(filename, rawData=True):
                 return loadCSV(filename)[0]
 
 def dataAsArray(data):
-    """Converts a dictionary of markers with xyz data to an array
-    of dictionaries.
+    """Converts a dictionary of markers and their corresponding
+    x, y, and z coordinate values to an array of dictionaries.
 
     Assumes all markers have the same length of data.
 
     Parameters
     ----------
     data : dict
-        Dictionary of marker data. Keys are marker names. Values are
-        arrays of 3 elements, each of which is an array of x, y, and z
-        coordinate values respectively. ``data[marker] = array([x, y, z])``
+        Dictionary of motion capture data. Each key is a marker name
+        and each value is a list of x, y, and z coordinate arrays.
+        Indices of each value correspond to frames in the trial.
 
     Returns
     -------
     dataArray : array
-        List of dictionaries.
+        List of dictionaries. Indices of 'dataArray' correspond to frames
+        in the trial. Keys are marker names, and values are markers'
+        x, y, and z coordinates in that frame.
 
     Examples
     --------
@@ -744,15 +747,14 @@ def dataAsArray(data):
     return dataArray
 
 def dataAsDict(data, npArray=False):
-    """Converts the frame by frame based data to a dictionary of keys
-    with all motion data as an array per key.
-
+    """Converts frame-by-frame motion capture data to a dictionary.
+ 
     Parameters
     ----------
     data : array
         List of dict. Indices of `data` correspond to frames
         in the trial. Keys in the dictionary are marker names and
-        values are xyz coordinates of the corresponding marker.
+        values are x, y, and z coordinates of the corresponding marker.
     npArray : bool, optional
         False by default. If set to true, the function will return
         a numpy array for each key instead of a list.
@@ -760,7 +762,9 @@ def dataAsDict(data, npArray=False):
     Returns
     -------
     dataDict : dict
-        Dictionary of the motion capture data from `data`.
+        Dictionary of the motion capture data from `data`. Each key is a
+        marker name and each value is a list of x, y, and z coordinate arrays.
+        Indices of each value correspond to frames in the trial.
 
     Examples
     --------
@@ -1124,15 +1128,15 @@ def splitDataDict(motionData):
     ----------
     motionData : array
         List of dict. Indices of `motionData` correspond to frames
-        in the trial. Keys in the dictionary are marker names and
-        values are xyz coordinates of the corresponding marker.
+        in the trial. Keys in the dictionary are marker names and values
+        are x, y, and z coordinates of the corresponding marker.
 
     Returns
     -------
     labels, data : tuple
         `labels` is a list of marker position names from the dictionary
-        keys in `motiondata`. `data` is a list of xyz coordinate
-        positions corresponding to the marker names in `labels`.
+        keys in `motiondata`. `data` is a list of x, y, and z coordinate
+        values corresponding to the marker names in `labels`.
         Indices of `data` correspond to frames in the trial.
 
     Examples
@@ -1180,7 +1184,8 @@ def combineDataDict(values, labels):
     ----------
     values : array
         Array of motion data values. Indices of `values` correspond to
-        frames in the trial. Each element is an array of xyz coordinates.
+        frames in the trial. Each element is an array of x, y, and z
+        coordinate values.
     labels : array
         List of marker names.
 
@@ -1188,8 +1193,8 @@ def combineDataDict(values, labels):
     -------
     data : array
         Array of dictionaries of motion capture data. Keys are marker
-        names and values are arrays of xyz values. [x, y, z]. Array
-        indices correspond to frames of the trial.
+        names and values are arrays of x, y, and z coordinate values.
+        Array indices correspond to frames of the trial.
 
     Examples
     --------
