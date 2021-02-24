@@ -23,9 +23,9 @@ def normalize(v):
     Examples
     --------
     >>> from numpy import array, around
-    >>> v = np.array([1.0, 2.0, 3.0])
-    >>> around(normalize(v), 8)
-    array([0.26726124, 0.53452248, 0.80178373])
+    >>> v = array([1.0, 2.0, 3.0])
+    >>> around(normalize(v), 2)
+    array([0.27, 0.53, 0.8 ])
 
     >>> v = np.array([0, 0, 0])
     >>> normalize(v)
@@ -61,7 +61,7 @@ def printMat(M):
 
 
 def getMarkerLocation(Pm,C):
-    """Finds the missing marker in the world frame
+    """Finds the missing marker in the world frame.
 
     Parameters
     ----------
@@ -80,12 +80,12 @@ def getMarkerLocation(Pm,C):
     Examples
     --------
     >>> from numpy import array, around
-    >>> Pm = [-205.14696889756505, 258.35355899445926, 3.279423067505604]
-    >>> C = [array([ 325.82983398,  402.55450439, 1722.49816895]),
-    ...      array([ 304.39898682,  242.91339111, 1694.97497559]),
-    ...      array([ 197.8621521 ,  251.28889465, 1696.90197754])]
-    >>> around(getMarkerLocation(Pm, C), 8) #doctest: +NORMALIZE_WHITESPACE
-    array([ 187.23396416, 407.91688108, 1720.71952837])
+    >>> Pm = [-205.14, 258.35, 3.27]
+    >>> C = [array([ 325.82,  402.55, 1722.49]),
+    ...      array([ 304.39,  242.91, 1694.97]),
+    ...      array([ 197.86,  251.28, 1696.90])]
+    >>> around(getMarkerLocation(Pm, C), 2) #doctest: +NORMALIZE_WHITESPACE
+    array([ 187.23,  407.9 , 1720.72])
     """
     #Pm is the location of the missing marker in the cluster frame
     # C = [origin,x_dir,y_dir]
@@ -126,7 +126,7 @@ def getMarkerLocation(Pm,C):
 
 
 def getStaticTransform(p,C):
-    """Find the location of the missing marker in the cluster frame
+    """Find the location of the missing marker in the cluster frame.
 
     Parameters
     ----------
@@ -145,12 +145,12 @@ def getStaticTransform(p,C):
     Examples
     --------
     >>> from numpy import array, around
-    >>> p = [173.67716164, 325.44079612, 1728.47894043]
-    >>> C = [array([314.17024414, 326.98319891, 1731.38964711]), 
-    ...      array([302.76412032, 168.80114852, 1688.1522896 ]), 
-    ...      array([193.62636014, 171.28945512, 1689.54191939])]
-    >>> around(getStaticTransform(p, C), 8) #doctest: +NORMALIZE_WHITESPACE
-    array([-205.1469689 , 258.353559 , 3.27942307])
+    >>> p = [173.67, 325.44, 1728.47]
+    >>> C = [array([314.17, 326.98, 1731.38]),
+    ...      array([302.76, 168.80, 1688.15]),
+    ...      array([193.62, 171.28, 1689.54])]
+    >>> around(getStaticTransform(p, C), 2) #doctest: +NORMALIZE_WHITESPACE
+    array([-205.16,  258.37,    3.28])
     """
     #p = target marker
     #C = [origin,x_dir,y_dir]
@@ -192,12 +192,12 @@ def getStaticTransform(p,C):
     return Pm
 
 def targetName():
-    """Creates an empty list of marker names.
+    """Creates a list of marker names.
 
     Returns
     -------
     target_names : array
-        Empty list of marker names.
+        A list of marker names.
 
     Examples
     --------

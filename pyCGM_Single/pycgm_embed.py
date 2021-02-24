@@ -22,10 +22,10 @@
 # OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN
 # THE SOFTWARE.
 
-###########
-#This file is an example of how to call the pycgm code without a console, or more likely, as a
-# way to integrate the code into your own system/software
-##########
+"""
+This file is an example of how to call the pycgm code without a console, or 
+more likely, as a way to integrate the code into your own system/software
+"""
 
 import sys
 import os
@@ -41,6 +41,16 @@ except:
     import pyCGM_Single.pycgmCalc as pycgmCalc
 
 def getfilenames():
+    """Gets the filenames of the dynamic trial, static trial, vsk file, and
+    output file and returns their file paths. The example filenames below
+    are found in the SampleData folder in the git repository.
+
+    Returns
+    -------
+    tuple
+        Returns a tuple of four strings that includes the paths to
+        dynamic_trial, static_trial, vsk_file, and outputFile
+    """
     scriptdir = os.path.dirname(os.path.abspath(__file__))
     os.chdir( scriptdir )
     os.chdir( ".." ) #relative to github
@@ -55,6 +65,18 @@ def getfilenames():
     return dynamic_trial,static_trial,vsk_file,outputfile
 
 def loadData(dynamic_trial,static_trial,vsk_file):
+    """Loads the data given the paths to the dynamic trial, the static
+    trial, and the vsk file. Calls to pycgmIO are made to load in the
+    data.
+
+    Returns
+    -------
+    tuple
+        Returns a tuple of three arrays that pertain to the motion data,
+        the vsk file, and the static data. These arrays are then directly
+        used to compute the joint angles. To see how these arrays are
+        made, please refer to pycgmIO.
+    """
     #load the data, usually there is some checks in here to make sure we loaded
     # correctly, but for now we assume its loaded
     motionData  = pycgmIO.loadData(dynamic_trial)
@@ -67,6 +89,14 @@ def loadData(dynamic_trial,static_trial,vsk_file):
     return motionData,vsk,staticData
 
 def main():
+    """Take in the paths to the trials, the vsk file, and the output file,
+    and load the data in. Calibrate the measurements using pycgmStatic's
+    getStatic() function, and calculate the angles using pycgmCalc's
+    calcAngles() function.
+
+    The result of the calcAngles() function are written through pycgmIO's
+    writeResult() function.
+    """
     #Load the filenames
     dynamic_trial,static_trial,vsk_file,outputfile = getfilenames()
     #Load a dynamic trial, static trial, and vsk (subject measurements)
