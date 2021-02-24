@@ -48,7 +48,7 @@ def getfilenames():
     Returns
     -------
     tuple
-        Returns a tuple of four strings that includes the paths to
+        A tuple of four strings that includes the paths to
         dynamic_trial, static_trial, vsk_file, and outputFile
     """
     scriptdir = os.path.dirname(os.path.abspath(__file__))

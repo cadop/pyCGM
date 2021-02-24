@@ -192,7 +192,7 @@ def prep(trajs):
     Returns
     -------
     frames : list
-        Returns a list with multiple dictionaries.
+        A list with multiple dictionaries.
 
     Examples
     --------
@@ -237,7 +237,7 @@ def clearMarker(data,name):
     Returns
     -------
     data : dict
-        Returns the original data dictionary with the cleared marker.
+        The original data dictionary with the cleared marker.
 
     Examples
     --------
@@ -273,7 +273,7 @@ def filtering(Data):
     Returns
     -------
     data : dict
-        Returns a copy of the inputted dictionary with the butterwise
+        A copy of the inputted dictionary with the butterwise
         filter applied to each element.
 
     Examples
