@@ -72,7 +72,7 @@ def loadData(dynamic_trial,static_trial,vsk_file):
     Returns
     -------
     tuple
-        Returns a tuple of three arrays that pertain to the motion data,
+        A tuple of three arrays that pertain to the motion data,
         the vsk file, and the static data. These arrays are then directly
         used to compute the joint angles. To see how these arrays are
         made, please refer to pycgmIO.

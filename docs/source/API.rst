@@ -14,5 +14,3 @@ API for pycgm
    pycgmCalc
    pycgmStatic
    clusterCalc
-   runpyCGM
-   pycgm_embed
