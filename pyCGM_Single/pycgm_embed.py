@@ -23,7 +23,7 @@
 # THE SOFTWARE.
 
 ###########
-#This file is an example of how to call the pycgm code without a console, or more likely, as a 
+#This file is an example of how to call the pycgm code without a console, or more likely, as a
 # way to integrate the code into your own system/software
 ##########
 
@@ -43,27 +43,27 @@ except:
 def getfilenames():
     scriptdir = os.path.dirname(os.path.abspath(__file__))
     os.chdir( scriptdir )
-    os.chdir( ".." ) #relative to github
-    os.chdir( "./SampleData/59993_Frame/" ) #Directory from github
+    os.chdir( ".." ) # relative to github
+    os.chdir( "./SampleData/59993_Frame/" ) # Directory from github
     dir = os.getcwd() + os.sep
-    dynamic_trial = dir+'59993_Frame_Dynamic.c3d' 
-    static_trial = dir+'59993_Frame_Static.c3d' 
-    vsk_file = dir+'59993_Frame_SM.vsk'     
+    dynamic_trial = dir+'59993_Frame_Dynamic.c3d'
+    static_trial = dir+'59993_Frame_Static.c3d'
+    vsk_file = dir+'59993_Frame_SM.vsk'
     outputfile = dir+'pycgm_results.csv'
     os.chdir( scriptdir )
-    
+
     return dynamic_trial,static_trial,vsk_file,outputfile
-    
+
 def loadData(dynamic_trial,static_trial,vsk_file):
     #load the data, usually there is some checks in here to make sure we loaded
     # correctly, but for now we assume its loaded
-    motionData  = pycgmIO.loadData(dynamic_trial) 
+    motionData  = pycgmIO.loadData(dynamic_trial)
     vskdata = pycgmIO.loadVSK(vsk_file)
     staticData = pycgmIO.loadData(static_trial)
     #The vsk is loaded, but for some reasons the return is split, so we combine
-    vsk = pycgmIO.createVskDataDict(vskdata[0],vskdata[1]) 
+    vsk = pycgmIO.createVskDataDict(vskdata[0],vskdata[1])
     print("Motion Data Length:",len(motionData))
-    
+
     return motionData,vsk,staticData
 
 def main():
@@ -71,16 +71,16 @@ def main():
     dynamic_trial,static_trial,vsk_file,outputfile = getfilenames()
     #Load a dynamic trial, static trial, and vsk (subject measurements)
     motionData,vskData,staticData = loadData(dynamic_trial,static_trial,vsk_file)
-    
+
     #Calculate the static offsets
     flat_foot = False
     calibratedMeasurements = pycgmStatic.getStatic(staticData,vskData,flat_foot)
 	#Calculate the dynamic trial
-    # passing the calibrated subject measurements 
+    # passing the calibrated subject measurements
     motionData = motionData[:500] #temporary, just to speed up the calculation
     result=pycgmCalc.calcAngles(motionData,start=None,end=None,vsk=calibratedMeasurements,splitAnglesAxis=False,formatData=False)
 
-    #Write the results to a csv file, if wanted, 
+    #Write the results to a csv file, if wanted,
     # otherwise could just return the angles/axis to some other function
     pycgmIO.writeResult(result,outputfile)
 
