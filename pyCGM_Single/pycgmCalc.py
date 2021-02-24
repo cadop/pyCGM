@@ -26,7 +26,7 @@
 from .pyCGM import *
 from .pycgmKinetics import getKinetics
 import sys
-if sys.version_info[0] == 2:
+if sys.version_info[0]==2:
     pyver = 2
 else:
     pyver = 3
