@@ -58,7 +58,7 @@ SA=EJA
 #End Axis
 EA=SA+72*3
 
-def createMotionDataDict(labels, data):
+def createMotionDataDict(labels,data):
 	"""Creates an array of motion capture data given labels and data.
 
 	Parameters
@@ -174,7 +174,7 @@ def splitMotionDataDict(motiondata):
             counter+=1
         return labels,data
 
-def createVskDataDict(labels, data):
+def createVskDataDict(labels,data):
 	"""Creates a dictionary of vsk file values from labels and data.
 
 	Parameters
@@ -422,7 +422,7 @@ def loadCSV(filename):
     fh=iter(fh)
     delimiter=','
 
-    def rowToDict(row, labels):
+    def rowToDict(row,labels):
         """Convert a row and labels to a dictionary.
 
         This function is only in scope from within `loadCSV`.
@@ -513,7 +513,7 @@ def loadCSV(filename):
         else:
             return []
 
-    def parseTrajectories(fh, framesNumber):
+    def parseTrajectories(fh,framesNumber):
         r"""Converts rows of motion capture data into a dictionary
 
         This function is only in scope from within `loadCSV`.
@@ -602,7 +602,7 @@ def loadCSV(filename):
         return labels,rows,rowsUnlabeled,freq
 
     ###############################################
-    ### Find the trajectories
+    ###Find the trajectories
     framesNumber=0
     for i in fh:
         if i.startswith("TRAJECTORIES"):
@@ -620,7 +620,7 @@ def loadCSV(filename):
 
     return [motionData,unlabeledMotionData,labels]
 
-def loadData(filename, rawData=True):
+def loadData(filename,rawData=True):
         """Loads motion capture data from a csv or c3d file.
 
         Either a csv or c3d file of motion capture data can be used.
@@ -743,7 +743,7 @@ def dataAsArray(data):
 
     return dataArray
 
-def dataAsDict(data, npArray=False):
+def dataAsDict(data,npArray=False):
     """Converts the frame by frame based data to a dictionary of keys
     with all motion data as an array per key.
 
@@ -802,7 +802,7 @@ def dataAsDict(data, npArray=False):
 
     return dataDict
 
-def writeKinetics(CoM_output, kinetics):
+def writeKinetics(CoM_output,kinetics):
     """Uses numpy.save to write kinetics data as an .npy file.
 
     Parameters
@@ -833,7 +833,7 @@ def writeKinetics(CoM_output, kinetics):
     """
     np.save(CoM_output,kinetics)
 
-def writeResult(data, filename, **kargs):
+def writeResult(data,filename,**kargs):
         """Writes the result of the calculation into a csv file.
 
         Lines 0-6 of the output csv are headers. Lines 7 and onwards
@@ -1039,7 +1039,7 @@ def smKeys():
             ]
     return keys
 
-def loadVSK(filename, dict=True):
+def loadVSK(filename,dict=True):
         """Open and load a vsk file.
 
         Parameters
@@ -1090,18 +1090,18 @@ def loadVSK(filename, dict=True):
         if filename == '':
                 return None
 
-        # Create Dictionary to store values from VSK file
+        #Create Dictionary to store values from VSK file
         viconVSK = {}
         vskMarkers = []
 
         #Create an XML tree from file
         tree = ET.parse(filename)
         #Get the root of the file
-        # <KinematicModel>
+        #<KinematicModel>
         root = tree.getroot()
 
         #Store the values of each parameter in a dictionary
-        # the format is (NAME,VALUE)
+        #the format is (NAME,VALUE)
         vsk_keys=[r.get('NAME') for r in root[0]]
         vsk_data = []
         for R in root[0]:
@@ -1173,7 +1173,7 @@ def splitDataDict(motionData):
 
         return values,labels
 
-def combineDataDict(values, labels):
+def combineDataDict(values,labels):
     """Converts two lists of values and labels to a dictionary.
 
     Parameters
