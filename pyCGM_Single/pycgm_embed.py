@@ -43,8 +43,8 @@ except:
 def getfilenames():
     scriptdir = os.path.dirname(os.path.abspath(__file__))
     os.chdir( scriptdir )
-    os.chdir( ".." ) # relative to github
-    os.chdir( "./SampleData/59993_Frame/" ) # Directory from github
+    os.chdir( ".." ) #relative to github
+    os.chdir( "./SampleData/59993_Frame/" ) #Directory from github
     dir = os.getcwd() + os.sep
     dynamic_trial = dir+'59993_Frame_Dynamic.c3d'
     static_trial = dir+'59993_Frame_Static.c3d'

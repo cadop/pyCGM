@@ -170,7 +170,7 @@ def filt(data, cutoff, Fs):
            [-1002.31267097, 81.30982637, 1521.78437862]])
     """
 
-    # Empty array to populate
+    #empty array to populate
     filtered = np.empty([len(data), np.shape(data)[1]])
     
     #iterate through each column of array and apply butterFilter(), which is 
@@ -538,7 +538,7 @@ def rigid_fill(Data,static):
     removedMarkers = [name for name in missingMarkerName if name not in data.keys()]
 
     for key in removedMarkers:
-        # data[key] = np.empty(shape=(len(data[data.keys()[0]]),3))*np.nan
+        #data[key] = np.empty(shape=(len(data[data.keys()[0]]),3))*np.nan
         data[key] = np.empty(shape=(len(data[list(data.keys())[0]]),3))*np.nan
 
     #always use transform from static for removed markers (new one for every 
@@ -620,7 +620,7 @@ def rigid_fill(Data,static):
 
                     useables = min(opts, key = lambda t: t[1])[0]
 
-                    # print('using new clust',useables,'for key')
+                    #print('using new clust',useables,'for key')
                     data[key][i] = transform_from_mov(data,key,useables,last_time,i)
                     continue
 
@@ -635,8 +635,8 @@ def rigid_fill(Data,static):
 
                     data[key][i] = transform_from_static(data,static,key,useables,i)
 
-                        # print transform_from_static(data,static,key,useables,i)
-                # record reconstructed frames
+                        #print transform_from_static(data,static,key,useables,i)
+                #record reconstructed frames
                 missings[key].append(i)
 
     return data
