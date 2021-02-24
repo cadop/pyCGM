@@ -1,4 +1,4 @@
-# pyCGM
+#pyCGM
 
 # Copyright (c) 2015 Mathew Schwartz <umcadop@gmail.com>
 # Core Developers: Seungeun Yeon, Mathew Schwartz
@@ -31,15 +31,15 @@ if sys.version_info[0]==2:
 else:
     pyver = 3
 
-# Used to split the arrays with angles and axis
-# Start Joint Angles
-SJA = 0
-# End Joint Angles
-EJA = SJA+19*3
-# Start Axis
-SA = EJA
-# End Axis
-EA = SA+72*3
+#Used to split the arrays with angles and axis
+#Start Joint Angles
+SJA=0
+#End Joint Angles
+EJA=SJA+19*3
+#Start Axis
+SA=EJA
+#End Axis
+EA=SA+72*3
 
 
 def calcKinetics(data, Bodymass):
@@ -56,7 +56,7 @@ def calcKinetics(data, Bodymass):
     return r
 
 
-def calcAngles(data, **kargs):
+def calcAngles(data,**kargs):
     """Calculates the joint angles and axis.
 
     By default, the function will calculate all the data and return angles
@@ -156,81 +156,81 @@ def calcAngles(data, **kargs):
     -0.45646046
     """
 
-    start = 0
-    end = len(data)
-    vsk = None
-    returnangles = True
-    returnaxis = True
-    returnjoints = False
-    splitAnglesAxis = True
-    formatData = True
+    start=0
+    end=len(data)
+    vsk=None
+    returnangles=True
+    returnaxis=True
+    returnjoints=False
+    splitAnglesAxis=True
+    formatData=True
 
-    # modified to work between python 2 and 3
+    #modified to work between python 2 and 3
     # used to rely on .has_key()
-    if 'start' in kargs and kargs['start'] != None:
-        start = kargs['start']
-        if start < 0 and start != None:
+    if 'start' in kargs and kargs['start']!=None:
+        start=kargs['start']
+        if start <0 and start!=None:
             raise Exception("Start can not be negative")
     if 'end' in kargs and kargs['end'] != None:
-        end = kargs['end']
-        if start > end:
+        end=kargs['end']
+        if start>end:
             raise Exception("Start can not be larger than end")
         if end > len(data):
             raise Exception("Range cannot be larger than data length")
     if 'frame' in kargs:
-        start = kargs['frame']
-        end = kargs['frame']+1
+        start=kargs['frame']
+        end=kargs['frame']+1
     if 'vsk' in kargs:
-        vsk = kargs['vsk']
+        vsk=kargs['vsk']
     if 'angles' in kargs:
-        returnangles = kargs['angles']
+        returnangles=kargs['angles']
     if 'axis' in kargs:
-        returnaxis = kargs['axis']
+        returnaxis=kargs['axis']
     if 'splitAnglesAxis' in kargs:
-        splitAnglesAxis = kargs['splitAnglesAxis']
+        splitAnglesAxis=kargs['splitAnglesAxis']
     if 'formatData' in kargs:
-        formatData = kargs['formatData']
+        formatData=kargs['formatData']
     if 'returnjoints' in kargs:
-        returnjoints = kargs['returnjoints']
+        returnjoints=kargs['returnjoints']
 
-    r = None
-    r, jcs = Calc(start, end, data, vsk)
+    r=None
+    r,jcs=Calc(start, end, data, vsk)
 
-    if formatData == True:
-        r = np.transpose(r)
-        angles = r[SJA:EJA]
-        axis = r[SA:EA]
-        angles = np.transpose(angles)
-        axis = np.transpose(axis)
+    if formatData==True:
+        r=np.transpose(r)
+        angles=r[SJA:EJA]
+        axis=r[SA:EA]
+        angles=np.transpose(angles)
+        axis=np.transpose(axis)
 
-        s = np.shape(angles)
+        s=np.shape(angles)
         if pyver == 2:
-            angles = np.reshape(angles, (s[0], s[1]/3, 3))
+            angles=np.reshape(angles, (s[0], s[1]/3, 3))
         else:
-            angles = np.reshape(angles, (s[0], s[1]//3, 3))
+            angles=np.reshape(angles, (s[0], s[1]//3, 3))
 
-        s = np.shape(axis)
+        s=np.shape(axis)
         if pyver == 2:
-            axis = np.reshape(axis, (s[0], s[1]/12, 4, 3))
+            axis=np.reshape(axis,(s[0],s[1]/12,4,3))
         else:
-            axis = np.reshape(axis, (s[0], s[1]//12, 4, 3))
+            axis=np.reshape(axis, (s[0],s[1]//12,4,3))
 
         return [angles, axis]
 
-    if splitAnglesAxis == True:
-        r = np.transpose(r)
-        angles = r[SJA:EJA]
-        axis = r[SA:EA]
-        if returnangles == True and returnaxis == True:
+    if splitAnglesAxis==True:
+        r=np.transpose(r)
+        angles=r[SJA:EJA]
+        axis=r[SA:EA]
+        if returnangles==True and returnaxis==True:
             return [angles, axis]
-        elif returnangles == True and returnaxis == False:
+        elif returnangles==True and returnaxis==False:
             return angles
         else:
             return axis
-    if returnjoints == False:
+    if returnjoints==False:
         return r
     else:
-        return r, jcs
+        return r,jcs
 
 
 def Calc(start, end, data, vsk):
@@ -300,8 +300,8 @@ def Calc(start, end, data, vsk):
     >>> around(jcs[1]['Pelvis'], 8) #doctest: +NORMALIZE_WHITESPACE
     array([ 246.16200256, 353.27105713, 1031.71856689])
     """
-    d = data[start:end]
-    angles, jcs = calcFrames(d, vsk)
+    d=data[start:end]
+    angles,jcs=calcFrames(d, vsk)
 
     return angles, jcs
 
@@ -351,16 +351,16 @@ def calcFrames(data, vsk):
     >>> around(joints[0]['Pelvis'], 8) #doctest: +NORMALIZE_WHITESPACE
     array([ 246.152565 , 353.26243591, 1031.71362305])
     """
-    angles = []
-    joints = []  # added this here for normal data
-    if type(data[0]) != type({}):
-        data = createMotionDataDict(data[0], data[1])
-    if type(vsk) != type({}):
-        vsk = createVskDataDict(vsk[0], vsk[1])
+    angles=[]
+    joints=[]  #added this here for normal data
+    if type(data[0])!=type({}):
+        data=createMotionDataDict(data[0], data[1])
+    if type(vsk)!=type({}):
+        vsk=createVskDataDict(vsk[0], vsk[1])
 
     # just accept that the data is missing
     for frame in data:
-        angle, jcs = JointAngleCalc(frame, vsk)
+        angle,jcs=JointAngleCalc(frame,vsk)
         angles.append(angle)
         joints.append(jcs)
     return angles, joints
