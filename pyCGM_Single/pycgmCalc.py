@@ -215,7 +215,7 @@ def calcAngles(data,**kargs):
         else:
             axis=np.reshape(axis,(s[0],s[1]//12,4,3))
 
-        return [angles, axis]
+        return [angles,axis]
 
     if splitAnglesAxis==True:
         r=np.transpose(r)
@@ -351,13 +351,13 @@ def calcFrames(data, vsk):
     array([ 246.152565 , 353.26243591, 1031.71362305])
     """
     angles=[]
-    joints=[]  #added this here for normal data
+    joints=[] #added this here for normal data
     if type(data[0])!=type({}):
         data=createMotionDataDict(data[0], data[1])
     if type(vsk)!=type({}):
         vsk=createVskDataDict(vsk[0], vsk[1])
 
-    # just accept that the data is missing
+    #just accept that the data is missing
     for frame in data:
         angle,jcs = JointAngleCalc(frame,vsk)
         angles.append(angle)
