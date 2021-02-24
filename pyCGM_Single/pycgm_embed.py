@@ -54,7 +54,7 @@ def getfilenames():
 
     return dynamic_trial,static_trial,vsk_file,outputfile
 
-def loadData(dynamic_trial,static_trial,vsk_file):
+def loadData(dynamic_trial, static_trial, vsk_file):
     #load the data, usually there is some checks in here to make sure we loaded
     # correctly, but for now we assume its loaded
     motionData  = pycgmIO.loadData(dynamic_trial)
