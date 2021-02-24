@@ -24,7 +24,7 @@
 
 ###########
 #To Run, Copy the sample files into the same directory as the code, then in a terminal type:
-# python runpyCGM.py -i ReplicateRobotGait01.c3d -o test -v Jisub.vsk --staticinput "Jisub Cal 01.c3d" 
+# python runpyCGM.py -i ReplicateRobotGait01.c3d -o test -v Jisub.vsk --staticinput "Jisub Cal 01.c3d"
 #This will output a test.csv file with the results
 ##########
 
@@ -39,7 +39,7 @@ def main(argv):
     """
     Take in motion data file, time span
     returns output file of angles
-    pyCGM.py -i <motionFile> -o <outputfile> -s <start> -e <end> 
+    pyCGM.py -i <motionFile> -o <outputfile> -s <start> -e <end>
     """
     flat_foot = False
     global vskdata
@@ -49,7 +49,7 @@ def main(argv):
     except getopt.GetoptError:
         print('pyCGM.py -i <motionFile> -o <outputfile> -s <start> -e <end>')
         sys.exit(2)
-          
+
     for opt, arg in opts:
         if opt == '-h':
                 print('pyCGM.py -i <motionFile> -o <outputfile> -s <start> -e <end>')
@@ -67,23 +67,23 @@ def main(argv):
         elif opt in ("-x","--staticinput"):
                 staticfile = arg
 
-#TODO -x is not working for input
-    
+# TODO -x is not working for input
+
     filename = './'+inputfile
-    motionData  = pycgmIO.loadData(filename) 
+    motionData  = pycgmIO.loadData(filename)
     if len(motionData) == 0 or motionData == None:
         print("No Data Loaded")
         sys.exit()
-    
+
     if inputvsk != None:
         vskdata = pycgmIO.loadVSK(inputvsk)
         if vskdata!=None:
                 vsk = pycgmIO.createVskDataDict(vskdata[0],vskdata[1])
-        
+
     if staticfile != None:
         staticData = pycgmIO.loadData(staticfile)
         calibratedMeasurements = pycgmStatic.getStatic(staticData,vsk,flat_foot)
-		
+
     result=pycgmCalc.calcAngles(motionData,start=start,end=end,vsk=calibratedMeasurements,splitAnglesAxis=False,formatData=False)
 
     pycgmIO.writeResult(result,outputfile)
