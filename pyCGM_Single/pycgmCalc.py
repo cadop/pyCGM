@@ -233,8 +233,6 @@ def calcAngles(data,**kargs):
 
         return [angles,axis]
 
-        return [angles, axis]
-
     if splitAnglesAxis==True:
         r=np.transpose(r)
         angles=r[SJA:EJA]
