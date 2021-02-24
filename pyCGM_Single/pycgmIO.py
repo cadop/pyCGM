@@ -602,7 +602,7 @@ def loadCSV(filename):
         return labels,rows,rowsUnlabeled,freq
 
     ###############################################
-    ###Find the trajectories
+    ### Find the trajectories
     framesNumber=0
     for i in fh:
         if i.startswith("TRAJECTORIES"):
@@ -1090,18 +1090,18 @@ def loadVSK(filename,dict=True):
         if filename == '':
                 return None
 
-        #Create Dictionary to store values from VSK file
+        # Create Dictionary to store values from VSK file
         viconVSK = {}
         vskMarkers = []
 
         #Create an XML tree from file
         tree = ET.parse(filename)
         #Get the root of the file
-        #<KinematicModel>
+        # <KinematicModel>
         root = tree.getroot()
 
         #Store the values of each parameter in a dictionary
-        #the format is (NAME,VALUE)
+        # the format is (NAME,VALUE)
         vsk_keys=[r.get('NAME') for r in root[0]]
         vsk_data = []
         for R in root[0]:
