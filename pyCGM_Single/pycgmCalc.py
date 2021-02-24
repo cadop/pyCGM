@@ -187,11 +187,11 @@ def calcAngles(data,**kargs):
         start=kargs['start']
         if start <0 and start!=None:
             raise Exception("Start can not be negative")
-    if 'end' in kargs and kargs['end'] != None:
+    if 'end' in kargs and kargs['end']!=None:
         end=kargs['end']
         if start>end:
             raise Exception("Start can not be larger than end")
-        if end > len(data):
+        if end>len(data):
             raise Exception("Range cannot be larger than data length")
     if 'frame' in kargs:
         start=kargs['frame']
@@ -210,7 +210,7 @@ def calcAngles(data,**kargs):
         returnjoints=kargs['returnjoints']
 
     r=None
-    r,jcs=Calc(start, end, data, vsk)
+    r,jcs=Calc(start,end,data,vsk)
 
     if formatData==True:
         r=np.transpose(r)
@@ -221,7 +221,7 @@ def calcAngles(data,**kargs):
 
         s=np.shape(angles)
         if pyver == 2:
-            angles=np.reshape(angles, (s[0], s[1]/3, 3))
+            angles=np.reshape(angles,(s[0],s[1]/3,3))
         else:
             angles=np.reshape(angles,(s[0],s[1]//3,3))
 
@@ -240,7 +240,7 @@ def calcAngles(data,**kargs):
         angles=r[SJA:EJA]
         axis=r[SA:EA]
         if returnangles==True and returnaxis==True:
-            return [angles, axis]
+            return [angles,axis]
         elif returnangles==True and returnaxis==False:
             return angles
         else:
@@ -250,8 +250,7 @@ def calcAngles(data,**kargs):
     else:
         return r,jcs
 
-
-def Calc(start, end, data, vsk):
+def Calc(start,end,data,vsk):
     """Calculates angles and joint values for marker data in a given range
 
     This function is a wrapper around `calcFrames`. It calls `calcFrames`
@@ -378,7 +377,7 @@ def calcFrames(data,vsk):
 
     #just accept that the data is missing
     for frame in data:
-        angle,jcs=JointAngleCalc(frame,vsk)
+        angle,jcs = JointAngleCalc(frame,vsk)
         angles.append(angle)
         joints.append(jcs)
     return angles, joints
