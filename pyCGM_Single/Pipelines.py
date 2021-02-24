@@ -96,10 +96,10 @@ def butterFilter(data, cutoff, Fs):
            -0.17466424, -0.01717538,...
     """
 
-    # Calculate correction factor for number of passes
+    #calculate correction factor for number of passes
     C = (2**0.25-1)**0.25
-    # b,a are filter coefficient calculated by scipy butter(). See scipy docs for
-    # more information
+    #b,a are filter coefficient calculated by scipy butter(). See scipy docs for
+    #more information
     b,a = butter(4, (cutoff/C) / (Fs/2), btype = 'low')
 
     return filtfilt(b,a,data, axis = 0)
@@ -173,8 +173,8 @@ def filt(data, cutoff, Fs):
     # Empty array to populate
     filtered = np.empty([len(data), np.shape(data)[1]])
     
-    # Iterate through each column of array and apply butterFilter(), which is 
-    # Found in Utilities
+    #iterate through each column of array and apply butterFilter(), which is 
+    #found in Utilities
     for i in range(np.shape(data)[1]):
         filtered[:,i] = butterFilter(data[:,i], cutoff, Fs)
 
@@ -221,7 +221,7 @@ def prep(trajs):
 
     return frames
 
-def clearMarker(data, name):
+def clearMarker(data,name):
     """Clear Markers function
 
     Clears the markers in a given dictionary for a given name.
@@ -303,7 +303,7 @@ def filtering(Data):
     return data
 
 
-def transform_from_static(data, static, key, useables, s):
+def transform_from_static(data,static,key,useables,s):
     """Use static data for gap filling.
 
     Uses data from static and clusters to fill estimate
@@ -365,7 +365,7 @@ def transform_from_static(data, static, key, useables, s):
     return getMarkerLocation(Pm,movC)
 
 
-def transform_from_mov(data, key, clust, last_time, i):
+def transform_from_mov(data,key,clust,last_time,i):
     """Use motion data for gap filling.
 
     Uses previous positions of markers to estimate locations
@@ -417,7 +417,7 @@ def transform_from_mov(data, key, clust, last_time, i):
     return getMarkerLocation(Pm,Cmov)
 
 
-def segmentFinder(key, data, targetDict, segmentDict, j, missings):
+def segmentFinder(key,data,targetDict,segmentDict,j,missings):
     """Find markers in the same cluster as `key`.
 
     Parameters
@@ -464,8 +464,8 @@ def segmentFinder(key, data, targetDict, segmentDict, j, missings):
     useables=[]
     for mrker in segmentDict[segment]:
         if mrker != key:
-            # This ensures we don't reconstruct a marker based on another
-            # Reconstructed marker
+            #this ensures we don't reconstruct a marker based on another
+            #reconstructed marker
             if mrker[1:]!='THI' or mrker[1:]!='TIB':
                if mrker in missings and j in missings[mrker]:
                    continue
@@ -477,7 +477,7 @@ def segmentFinder(key, data, targetDict, segmentDict, j, missings):
     return useables
 
 
-def rigid_fill(Data, static):
+def rigid_fill(Data,static):
     """Fills gaps in motion capture data.
 
     Estimates marker positions from previous marker positions
@@ -530,7 +530,7 @@ def rigid_fill(Data, static):
 
     missings={}
 
-    # Need to do something like this to avoid issues with CGM variants
+    #Need to do something like this to avoid issues with CGM variants
     # missingMarkerName.remove('LPSI')
     # missingMarkerName.remove('RPSI')
     # missingMarkerName.remove('SACR')
@@ -541,8 +541,8 @@ def rigid_fill(Data, static):
         # data[key] = np.empty(shape=(len(data[data.keys()[0]]),3))*np.nan
         data[key] = np.empty(shape=(len(data[list(data.keys())[0]]),3))*np.nan
 
-    # Always use transform from static for removed markers (new one for every 
-    # frame)
+    #always use transform from static for removed markers (new one for every 
+    #frame)
     if pyver == 2:
         forIter = data.iteritems()
     if pyver == 3:
@@ -563,8 +563,8 @@ def rigid_fill(Data, static):
                     # try: data[key][i] = transform_from_static(data,static,key,useables,i)
                     # except: pass #key might not be used which is why it is missing i.e., LPSI vs SACR
 
-        # Use last known marker position (start of every gap) for transform
-        # during movement trial gaps
+        #use last known marker position (start of every gap) for transform
+        #during movement trial gaps
         if key in missingMarkerName and key not in removedMarkers:
             traj = data[key]
             gap_bool = False
@@ -597,10 +597,10 @@ def rigid_fill(Data, static):
 
                         break
 
-                    # print('The target marker',key,' was visible at',last_time)
+                    #print('The target marker',key,' was visible at',last_time)
 
                 if last_time:
-                    # if np.isnan(data[useables[0]][i][0]) or np.isnan(data[useables[1]][i][0]) or np.isnan(data[useables[2]][i][0]):
+                    #if np.isnan(data[useables[0]][i][0]) or np.isnan(data[useables[1]][i][0]) or np.isnan(data[useables[2]][i][0]):
                          #print('current clust',useables,'invalid for',key,'at frame',i)
                     useables_current = segmentFinder(key,data,targetDict,segmentDict,i,missings)
                     useables = list(set(useables_last).intersection(useables_current))

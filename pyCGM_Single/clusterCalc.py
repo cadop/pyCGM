@@ -4,7 +4,7 @@ in the case of a missing marker.
 It is currently imported directly in pycgmClusters.py and Pipelines.py.
 """
 
-# Plotting 
+#plotting 
 import numpy as np
 
 def normalize(v):
@@ -37,7 +37,7 @@ def normalize(v):
        return v
     return v / norm
 
-# Print matrix
+#Print matrix
 def printMat(M):
 	"""Prints a matrix.
 
@@ -60,7 +60,7 @@ def printMat(M):
 		print(row)
 
 
-def getMarkerLocation(Pm, C):
+def getMarkerLocation(Pm,C):
     """Finds the missing marker in the world frame.
 
     Parameters
@@ -87,7 +87,7 @@ def getMarkerLocation(Pm, C):
     >>> around(getMarkerLocation(Pm, C), 2) #doctest: +NORMALIZE_WHITESPACE
     array([ 187.23,  407.9 , 1720.72])
     """
-    # Pm is the location of the missing marker in the cluster frame
+    #Pm is the location of the missing marker in the cluster frame
     # C = [origin,x_dir,y_dir]
     # create Tw_c is the cluster frame in the world frame
     # find Pw, the missing marker in the world frame
@@ -103,7 +103,7 @@ def getMarkerLocation(Pm, C):
     z_vec = np.cross(x_hat,y_hat)
     z_hat = normalize(z_vec)
 
-    # Define the transformation matrix of the cluster in world space, World to Cluster
+    #Define the transformation matrix of the cluster in world space, World to Cluster
     Tw_c =np.matrix([[x_hat[0],y_hat[0],z_hat[0],origin[0]],
                      [x_hat[1],y_hat[1],z_hat[1],origin[1]],
                      [x_hat[2],y_hat[2],z_hat[2],origin[2]],
@@ -115,17 +115,17 @@ def getMarkerLocation(Pm, C):
                       [0,0,1,Pm[2]],
                       [0,0,0,1   ]])
 
-    # Find Pw, the marker in world space
+    #Find Pw, the marker in world space
     # Take the transform from world to cluster, then multiply cluster to marker
     Tw_m = Tw_c * Tc_m
 
-    # The marker in the world frame
+    #The marker in the world frame
     Pw = [Tw_m[0,3],Tw_m[1,3],Tw_m[2,3]]
 
     return Pw
 
 
-def getStaticTransform(p, C):
+def getStaticTransform(p,C):
     """Find the location of the missing marker in the cluster frame.
 
     Parameters
@@ -152,8 +152,8 @@ def getStaticTransform(p, C):
     >>> around(getStaticTransform(p, C), 2) #doctest: +NORMALIZE_WHITESPACE
     array([-205.16,  258.37,    3.28])
     """
-    # p = target marker
-    # C = [origin,x_dir,y_dir]
+    #p = target marker
+    #C = [origin,x_dir,y_dir]
 
     origin = C[0]
     x_dir = C[1]
@@ -166,38 +166,38 @@ def getStaticTransform(p, C):
     z_vec = np.cross(x_hat,y_hat)
     z_hat = normalize(z_vec)
 
-    # If we consider the point to be a frame without rotation, it is simply calculated
+    #If we consider the point to be a frame without rotation, it is simply calculated
     # Consider world frame W, cluster frame C, and marker frame M
     # We know C in relation to W (Tw_c) and we know M in relation to W (Tw_m)
     # To find M in relation to C,  Tc_m = Tc_w * Tw_m
 
-    # Define the transfomration matrix of the cluster in world space, World to Cluster
+    #Define the transfomration matrix of the cluster in world space, World to Cluster
     Tw_c =np.matrix([[x_hat[0],y_hat[0],z_hat[0],origin[0]],
                      [x_hat[1],y_hat[1],z_hat[1],origin[1]],
                      [x_hat[2],y_hat[2],z_hat[2],origin[2]],
                      [0       ,0       ,0       ,1        ]])
 
-    # Define the transfomration matrix of the marker in world space, World to Marker
+    #Define the transfomration matrix of the marker in world space, World to Marker
     Tw_m = np.matrix([[1,0,0,p[0]],
                       [0,1,0,p[1]],
                       [0,0,1,p[2]],
                       [0,0,0,1   ]])
 
-    # Tc_m = Tc_w * Tw_m
+    #Tc_m = Tc_w * Tw_m
     Tc_m = np.linalg.inv(Tw_c) * Tw_m
 
-    # The marker in the cluster frame
+    #The marker in the cluster frame
     Pm = [Tc_m[0,3],Tc_m[1,3],Tc_m[2,3]]
 
     return Pm
 
 def targetName():
-    """Creates an a list of marker names.
+    """Creates an empty list of marker names.
 
     Returns
     -------
     target_names : array
-        A list of marker names.
+        Empty list of marker names.
 
     Examples
     --------

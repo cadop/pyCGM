@@ -67,7 +67,7 @@ def main(argv):
         elif opt in ("-x","--staticinput"):
                 staticfile = arg
 
-# TODO -x is not working for input
+#TODO -x is not working for input
 
     filename = './'+inputfile
     motionData  = pycgmIO.loadData(filename)
