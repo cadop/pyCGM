@@ -13,6 +13,5 @@ API for pycgm
    pyCGM_Helpers
    pycgmCalc
    pycgmStatic
-   pyCGMClusters
    clusterCalc
    pycgmClusters

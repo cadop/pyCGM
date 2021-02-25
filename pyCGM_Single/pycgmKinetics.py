@@ -90,7 +90,6 @@ def length(v):
 
     Examples
     --------
-    >>> import numpy as np
     >>> from .pycgmKinetics import length
     >>> v = [1,2,3]
     >>> np.around(length(v), 2)
@@ -104,9 +103,9 @@ def vector(b,e):
 
     Parameters
     ----------
-    `v` : list
+    v : list
         First 3D vector.
-    `e` : list
+    e : list
         Second 3D vector.
 
     Returns
@@ -141,7 +140,6 @@ def unit(v):
 
     Examples
     --------
-    >>> import numpy as np
     >>> from .pycgmKinetics import unit
     >>> v = [1,2,3]
     >>> np.around(unit(v), 2)
@@ -168,7 +166,6 @@ def distance(p0,p1):
 
     Examples
     --------
-    >>> import numpy as np
     >>> from .pycgmKinetics import distance
     >>> p0 = [1,2,3]
     >>> p1 = [4,5,6]
@@ -254,7 +251,6 @@ def pnt2line(pnt, start, end):
 
     Examples
     --------
-    >>> import numpy as np
     >>> from .pycgmKinetics import pnt2line
     >>> pnt = [1, 2, 3]
     >>> start = [4, 2, 3]
@@ -301,7 +297,7 @@ def findL5_Pelvis(frame):
 
     Parameters
     ----------
-    `frame` : dict
+    frame : dict
         Dictionaries of marker lists.
 
     Returns
@@ -351,7 +347,7 @@ def findL5_Thorax(frame):
 
     Parameters
     ----------
-    `frame` : dict
+    frame : dict
         Dictionaries of marker lists.
 
     Returns
@@ -399,17 +395,17 @@ def getKinetics(data, Bodymass):
 
     Parameters
     -----------
-    `data` : array
+    data : array
         Array of joint centres in the global coordinate system. List indices correspond
         to each frame of trial. Dict keys correspond to name of each joint center,
         dict values are arrays of (x, y, z) coordinates for each joint
         centre.
-    `Bodymass` : float
+    Bodymass : float
         Total bodymass (kg) of subject
 
     Returns
     -------
-    `CoM_coords` : 3D numpy array
+    CoM_coords : 3D numpy array
         CoM trajectory in the global coordinate system.
 
     Notes

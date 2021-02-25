@@ -106,7 +106,7 @@ def calcAngles(data,**kargs):
     Returns
     -------
     r, jcs : array_like
-        `r` is a list of joint angle values for each frame.
+        `r is a list of joint angle values for each frame.
         `jcs` is a list of dictionaries, each of which holds joint
         center locations for each frame. Returned only if returnjoints
         is True.
