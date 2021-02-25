@@ -687,8 +687,8 @@ def dataAsArray(data):
     Parameters
     ----------
     data : dict
-        Dictionary of motion capture data. Each key is a marker name
-        and each value is a list of x, y, and z coordinate arrays.
+        Dictionary of motion capture data. Keys are marker names
+        and values are lists of x, y, and z coordinate arrays.
         Indices of each value correspond to frames in the trial.
 
     Returns
@@ -762,8 +762,8 @@ def dataAsDict(data, npArray=False):
     Returns
     -------
     dataDict : dict
-        Dictionary of the motion capture data from `data`. Each key is a
-        marker name and each value is a list of x, y, and z coordinate arrays.
+        Dictionary of the motion capture data from `data`. Keys are marker
+        names and values are lists of x, y, and z coordinate arrays.
         Indices of each value correspond to frames in the trial.
 
     Examples
