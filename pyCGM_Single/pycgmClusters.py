@@ -57,7 +57,7 @@ def calcFramesClusters(data,vsk):
 
         for item in removedMarkers:
             frame[item] = (float('nan'),float('nan'),float('nan'))
-
+        
         # for each marker that is missing, find the nearest previous frame that the
         # cluster and marker exists and calculate the transform
         markers = {k:frame[k] for k in missingMarkerName}
@@ -103,8 +103,8 @@ def calcFramesClusters(data,vsk):
                 for clust in cluster_ver: #incase there are multiple options
                     #Pm is marker that is missing, C is cluster
                     Cname = clusters[clust]
-                
-                
+                    
+                    
                     #if last_time is None, it means we couldn't find a recent useable frame,
                     # so we will use the static trial
                     if last_time == None:
