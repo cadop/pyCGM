@@ -59,7 +59,6 @@ def calcKinetics(data, Bodymass):
     r = getKinetics(data, Bodymass)
     return r
 
-
 def calcAngles(data,**kargs):
     """Calculates the joint angles and axis.
 
@@ -227,7 +226,7 @@ def calcAngles(data,**kargs):
         angles=r[SJA:EJA]
         axis=r[SA:EA]
         if returnangles==True and returnaxis==True:
-            return [angles, axis]
+            return [angles,axis]
         elif returnangles==True and returnaxis==False:
             return angles
         else:
@@ -236,7 +235,6 @@ def calcAngles(data,**kargs):
         return r
     else:
         return r,jcs
-
 
 def Calc(start,end,data,vsk):
     """Calculates angles and joint values for marker data in a given range
@@ -310,7 +308,6 @@ def Calc(start,end,data,vsk):
 
     return angles,jcs
 
-
 def calcFrames(data, vsk):
     """Calculates angles and joint values for given marker data
 
@@ -369,3 +366,6 @@ def calcFrames(data, vsk):
         angles.append(angle)
         joints.append(jcs)
     return angles,joints
+
+
+

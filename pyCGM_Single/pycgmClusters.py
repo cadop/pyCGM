@@ -22,13 +22,13 @@ def calcFramesClusters(data,vsk):
         Returns the joint angles for the right and left pelvis, hip, knee, and ankle
     """
     angles=[]
-    joints = []  # temp solution
+    joints = [] #temp solution
     if type(data[0])!=type({}):
         data=createMotionDataDict(data[0], data[1])
     if type(vsk)!=type({}):
         vsk=createVskDataDict(vsk[0], vsk[1])
 
-    from .clusterCalc import targetName, getMarkerLocation, targetDict, groupInClustDict, getStaticTransform
+    from .clusterCalc import targetName, getMarkerLocation, targetDict, groupInClustDict,getStaticTransform
     missingMarkerName = targetName()
     targets = targetDict()
     clusters = groupInClustDict()
@@ -97,6 +97,7 @@ def calcFramesClusters(data,vsk):
                         break
 
                 #print('found the last time the target marker',key,' was visible',last_time)
+
 
                 clust_bool = True
                 for clust in cluster_ver: #incase there are multiple options
