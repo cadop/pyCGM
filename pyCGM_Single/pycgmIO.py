@@ -327,7 +327,7 @@ def loadC3D(filename):
     >>> around(data[0]['C7'], 8) #doctest: +NORMALIZE_WHITESPACE
     array([ -29.57296562, -9.34280109, 1300.86730957])
     >>> dataunlabeled[4] #doctest: +NORMALIZE_WHITESPACE
-    {'*113': array([-172.66630554, 167.2040863 , 1273.71594238]),
+    {'*113': array([-172.66630554,  167.2040863 , 1273.71594238]),
      '*114': array([ 169.18231201, -227.13475037, 1264.34912109])}
     >>> markers
     ['LFHD', 'RFHD', 'LBHD', ...]
@@ -883,7 +883,7 @@ def writeResult(data, filename, **kargs):
         >>> angles = array([-0.308494914509454, -6.12129279337001, 7.57143110215171])
         >>> for i in range(len(angles)):
         ...     frame[i] = angles[i]
-        >>> axis = array(['-934.314880371094', '-4.44443511962891', '852.837829589844'])
+        >>> axis = array([-934.314880371094, -4.44443511962891, 852.837829589844])
         >>> for i in range(len(axis)):
         ...     frame[i+57] = axis[i]
         >>> data = [frame]
