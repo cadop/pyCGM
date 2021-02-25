@@ -355,7 +355,7 @@ def loadC3D(filename):
 
     for frame_no, points, analog in reader.read_frames(True,True):
         for label, point in zip(markers, points):
-            #Create a dictionary with format LFHDX: 123 
+            #Create a dictionary with format LFHDX: 123
             if label[0]=='*':
                 if point[0]!=np.nan:
                     mydictunlabeled[label]=point
@@ -728,7 +728,7 @@ def dataAsArray(data):
 
     #make the marker arrays a better format
     for marker in data:
-        # Turn multi array into single
+        #Turn multi array into single
         xyz = [ np.array(x) for x in zip( data[marker][0],data[marker][1],data[marker][2] ) ]
         data[marker] = xyz
 
