@@ -50,9 +50,9 @@ def getfilenames(x=1):
     
     if x == 1:
         dir = 'SampleData/59993_Frame/'
-        dynamic_trial = dir+'59993_Frame_Dynamic.c3d'
-        static_trial =  dir+'59993_Frame_Static.c3d'
-        vsk_file =      dir+'59993_Frame_SM.vsk'
+        dynamic_trial = dir+'59993_Frame_Dynamic.c3d' 
+        static_trial =  dir+'59993_Frame_Static.c3d' 
+        vsk_file =      dir+'59993_Frame_SM.vsk'     
         outputfile =    dir+'pycgm_results.csv'
         CoM_output =    dir+'CoM'
         

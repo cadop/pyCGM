@@ -374,7 +374,7 @@ def findL5_Thorax(frame):
     else:
         C7 = C7_ + 7 * norm_dir_y
         
-    norm_dir = np.array(unit(z_axis))
+    norm_dir = np.array(unit(z_axis))   
     LHJC = frame['LHip']
     RHJC = frame['RHip']
     midHip = (LHJC+RHJC)/2
@@ -535,12 +535,12 @@ def getKinetics(data, Bodymass):
                     segTemp[s+seg]['Dist'] = frame[s+'Radius'] 
                     
                 if seg == 'Hand':
-                    segTemp[s+seg]['Prox'] = frame[s+'Radius'] 
+                    segTemp[s+seg]['Prox'] = frame[s+'Radius']  
                     segTemp[s+seg]['Dist'] = frame[s+'Hand'] 
 
                 if seg == 'Head':
-                    segTemp[seg]['Prox'] = frame['Back_Head'] 
-                    segTemp[seg]['Dist'] = frame['Front_Head'] 
+                    segTemp[seg]['Prox'] = frame['Back_Head']
+                    segTemp[seg]['Dist'] = frame['Front_Head']
                     
                     
                 #iterate through csv scaling values 
@@ -561,7 +561,7 @@ def getKinetics(data, Bodymass):
                             length = prox - dist
                             
                             #segment CoM
-                            CoM = dist + length * scale
+                            CoM = dist + length * scale 
                             
                             #CoM = prox + length * scale
                             segTemp[s+seg]['CoM'] = CoM
@@ -606,8 +606,8 @@ def getKinetics(data, Bodymass):
                             Vector = np.array(vector(([0,0,0]), CoM))
                             val = Vector*mass
                             segTemp[seg]['val'] = val
-
-
+                                
+                            
         keylabels  = ['LHand', 'RTibia', 'Head', 'LRadius', 'RFoot', 'RRadius', 'LFoot', 'RHumerus', 'LTibia', 'LHumerus', 'Pelvis', 'RHand', 'RFemur', 'Thorax', 'LFemur']
         # print(segTemp['RFoot'])
         

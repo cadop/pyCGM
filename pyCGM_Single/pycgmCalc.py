@@ -58,7 +58,7 @@ def calcKinetics(data, Bodymass):
     """
     r = getKinetics(data, Bodymass)
     return r
-
+    
 
 def calcAngles(data,**kargs):
     """Calculates the joint angles and axis.
@@ -152,7 +152,7 @@ def calcAngles(data,**kargs):
     -0.456
     >>> around(joint_centers[0]['Pelvis'], 2) #doctest: +NORMALIZE_WHITESPACE
     array([246.15, 353.26, 1031.71])
-
+    
     Example without returning joints.
 
     >>> kinematics = calcAngles(data, vsk=vsk, splitAnglesAxis=False, formatData=False,returnjoints=False)
@@ -308,7 +308,7 @@ def Calc(start,end,data,vsk):
     
     return angles,jcs
 
-def calcFrames(data, vsk):
+def calcFrames(data,vsk):
     """Calculates angles and joint values for given marker data
     
     Parameters
@@ -322,7 +322,7 @@ def calcFrames(data, vsk):
     vsk : dict or array
         Dictionary containing subject measurement values, or array of labels 
         and data `[labels, data]`. 
-
+ 
     Returns
     -------
     angles, joints : tuple
