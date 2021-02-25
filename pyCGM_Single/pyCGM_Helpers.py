@@ -1,21 +1,26 @@
 import os
+
+
 def getfilenames(x=1):
-    """ Get Filenames function
+    """ Get Filenames for sample data.
 
     Parameters
     ----------
-    x : int, optional
-        A flag that denotes which variation of files to retrieve.
-        Only works in the inclusive range of 1-3.
+    `x` : int, optional
+        A flag (1, 2, or 3) that denotes which variation of files to retrieve.
         Default is 1 if not given.
+        1 denotes the files in the `59993_Frame` directory.
+        2 denotes the files in the `ROM` directory.
+        3 denotes the files in the `Sample_2` directory.
 
     Returns
     -------
-    dynamic_trial, static_trial, vsk_file, outputfile, CoM_output : tuple
+    `dynamic_trial`, `static_trial`, `vsk_file`, `outputfile`, `CoM_output` : tuple
         Returns the respective filenames in the relative path.
 
     Example
     -------
+    >>> import os
     >>> from .pyCGM_Helpers import getfilenames
     >>> import os
     >>> getfilenames() #doctest: +NORMALIZE_WHITESPACE

@@ -1,4 +1,4 @@
-#pyCGM
+# pyCGM
 
 # This module was contributed by Neil M. Thomas
 # the CoM calculation is not an exact clone of PiG,
@@ -11,7 +11,7 @@ import os
 import numpy as np
 import sys
 
-if sys.version_info[0]==2:
+if sys.version_info[0] == 2:
     pyver = 2
 else:
     pyver = 3
@@ -19,17 +19,19 @@ else:
 #helper functions useful for dealing with frames of data, i.e. 1d arrays of (x,y,z)
 #coordinate. Also in Utilities but need to clean everything up somewhat!
 def f(p, x):
-    """
+    """ Helper function for working with frames of data.
+
     Parameters
     ----------
-    p : list
-        A that has a length of at least 2.
-    x : int or float
-        Scaling factor for the first variable in p.
+    `p` : list
+        A list of at least length 2.
+    `x` : int or float
+        Scaling factor.
+
     Returns
     -------
     int or float
-        Returns the first value in p scaled by x, aded by the second value in p.
+        Returns the first value in `p` scaled by `x`, added by the second value in `p`.
 
     Examples
     --------
@@ -39,27 +41,23 @@ def f(p, x):
     >>> x = 10
     >>> f(p, x)
     12
-    >>> p = np.array([5.16312215, 8.79307163])
-    >>> x = 2.0
-    >>> np.around(f(p, x),8)
-    19.11931593
     """
     return (p[0] * x) + p[1]
 
 def dot(v,w):
-    """Calculate the Dot Product function.
+    """Calculate dot product of two points.
 
     Parameters
     ----------
-    v : list
-        First 3-element list.
-    w : list
-        Second 3-element list.
+    `v` : list
+        An (x, y, z) coordinate.
+    `w` : list
+        An (x, y, z) coordinate.
 
     Returns
     -------
     int or float
-        The quotient of the dot product of vectors v and w.
+        Returns the dot product of vectors `v` and `w`.
 
     Examples
     --------
@@ -69,56 +67,49 @@ def dot(v,w):
     >>> w = [4, 5, 6]
     >>> dot(v,w)
     32
-    >>> v = np.array([6.56643344, 6.23972959, 2.83918231])
-    >>> w = np.array([5.53732499, 7.61560881, 6.2563037])
-    >>> np.around(dot(v,w),8)
-    101.64260241
     """
-    x,y,z = v
-    X,Y,Z = w
+    x, y, z = v
+    X, Y, Z = w
     return x*X + y*Y + z*Z
 
 def length(v):
-    """Calculate Length of a 3D Vector function.
+    """Calculate length of a 3D vector.
 
     Parameters
     ----------
-    v : list
-        A 3-element list.
+    `v` : list
+        A 3D vector.
 
     Returns
     -------
     float
-        Returns the length of a 3D vector.
+        Returns the length of `v`.
 
     Examples
     --------
     >>> import numpy as np
     >>> from .pycgmKinetics import length
     >>> v = [1,2,3]
-    >>> np.around(length(v),8)
+    >>> length(v)
     3.74165739
-    >>> v = np.array([6.56643344, 6.23972959, 2.83918231])
-    >>> np.around(length(v),8)
-    9.49279883
     """
-    x,y,z = v
+    x, y, z = v
     return np.sqrt(x*x + y*y + z*z)
 
 def vector(b,e):
-    """Vector Subtraction function.
+    """Subtracts two vectors.
 
     Parameters
     ----------
-    v : list
+    `v` : list
         First 3D vector.
-    e : list
+    `e` : list
         Second 3D vector.
 
     Returns
     -------
     tuple
-        Returns the vector of e - v.
+        Returns the vector `e` - `v`.
 
     Examples
     --------
@@ -128,57 +119,50 @@ def vector(b,e):
     >>> e = [4,5,6]
     >>> vector(v, e)
     (3, 3, 3)
-    >>> v = np.array([5.10897693, 6.18161923, 9.44221215])
-    >>> e = np.array([3.68040209, 9.92542233, 5.38362424])
-    >>> vector(v, e)
-    (-1.42857484, 3.7438031, -4.05858791)
     """
-    x,y,z = b
-    X,Y,Z = e
+    x, y, z = b
+    X, Y, Z = e
     return (X-x, Y-y, Z-z)
 
 def unit(v):
-    """Create Unit Vector function.
+    """Calculate unit vector.
 
     Parameters
     ----------
-    v : list
-        A 3-element list.
+    `v` : list
+        A 3D vector.
 
     Returns
     -------
     tuple
-        Returns the unit vector of a given vector.
+        Returns the unit vector of `v`.
 
     Examples
     --------
     >>> import numpy as np
     >>> from .pycgmKinetics import unit
     >>> v = [1,2,3]
-    >>> np.around(unit(v),8)
-    array([0.26726124, 0.53452248, 0.80178373])
-    >>> v = np.array([6.56643344, 6.23972959, 2.83918231])
-    >>> np.around(unit(v),8)
-    array([0.69172786, 0.6573119 , 0.29908801])
+    >>> unit(v)
+    [0.26726124, 0.53452248, 0.80178373]
     """
-    x,y,z = v
+    x, y, z = v
     mag = length(v)
     return (x/mag, y/mag, z/mag)
 
 def distance(p0,p1):
-    """Calculate Distance function.
+    """Calculate distance between two points
 
     Parameters
     ----------
-    p0 : list
-        First x,y,z coordinate point.
-    p1 : list
-        Second x,y,z coordinate point.
+    `p0` : list
+        An x, y, z coordinate point.
+    `p1` : list
+        An x, y, z coordinate point.
 
     Returns
     -------
     float
-        Returns distance between points p0 and p1.
+        Returns distance between `p0` and `p1`.
 
     Examples
     --------
@@ -186,29 +170,25 @@ def distance(p0,p1):
     >>> from .pycgmKinetics import distance
     >>> p0 = [1,2,3]
     >>> p1 = [4,5,6]
-    >>> np.around(distance(p0,p1),8)
+    >>> distance(p0,p1)
     5.19615242
-    >>> p0 = np.array([6.56643344, 6.23972959, 2.83918231])
-    >>> p1 = np.array([1.25539445, 4.44290559, 0.80470151])
-    >>> np.around(distance(p0,p1),8)
-    5.96446341
     """
     return length(vector(p0,p1))
 
 def scale(v,sc):
-    """Create Scaled Vector function.
+    """Scale a vector.
 
     Parameters
     ----------
-    v : list
-        A 3-element list.
-    sc : int or float
-        The scaling factor.
+    `v` : list
+        A 3D vector.
+    `sc` : int or float
+        A scaling factor.
 
     Returns
     -------
     tuple
-        Returns the given vector scaled by scaling factor.
+        Returns `v` scaled by `sc`.
 
     Examples
     --------
@@ -218,28 +198,24 @@ def scale(v,sc):
     >>> sc = 2
     >>> scale(v, sc)
     (2, 4, 6)
-    >>> v = np.array([0.5664332, 0.23972959, 0.83918231])
-    >>> sc = 10.0
-    >>> scale(v, sc)
-    (5.664332, 2.3972959, 8.3918231)
     """
-    x,y,z = v
+    x, y, z = v
     return (x * sc, y * sc, z * sc)
 
 def add(v,w):
-    """Vector Addition function.
+    """Add two vectors.
 
     Parameters
     ----------
-    v : list
-        First 3-element list.
-    w : list
-        Second 3-element list.
+    `v` : list
+        A 3D vector.
+    `w` : list
+        A 3D vector.
 
     Returns
     -------
     tuple
-        Returns the sum of the two given vectors.
+        Returns the `v` + `w`.
 
     Examples
     --------
@@ -249,37 +225,32 @@ def add(v,w):
     >>> w = [4, 5, 6]
     >>> add(v, w)
     (5, 7, 9)
-    >>> v = np.array([3.98527165, 5.52526792, 4.34518370])
-    >>> w = np.array([5.82147992, 7.87348922, 2.61204120])
-    >>> add(v, w)
-    (9.80675157, 13.39875714, 6.9572249)
     """
-    x,y,z = v
-    X,Y,Z = w
+    x, y, z = v
+    X, Y, Z = w
     return (x+X, y+Y, z+Z)
 
-def pnt2line(pnt, start, end):
-    """Calculate Point-Line Distance function
 
-    This function calculates the distance from a given point, pnt, to a line.
-    The line is represented by two other points, start and end.
+def pnt2line(pnt, start, end):
+    """Calculate shortest distance between a point and line.
+
+    The line is represented by the points `start` and `end`.
 
     Parameters
     ----------
-    pnt : list
-        An x,y,z point on the same plane.
-    start : list
-        First x,y,z point on the line.
-    end : list
-        Second x,y,z point on the line.
+    `pnt` : list
+        An (x, y, z) coordinate point.
+    `start` : list
+        An (x, y, z) point on the line.
+    `end` : list
+        An (x, y, z) point on the line.
 
     Returns
     -------
-    dist, nearest, pnt : tuple
-        Returns dist, the closest distance from the point to the line,
-        Returns nearest, the closest point on the line from the given pnt as a 1x3 array,
-        Returns pnt, the original given pnt as a 1x3 array.
-        All of these are returned in a single tuple.
+    `dist`, `nearest`, `pnt` : tuple (float, list, list)
+        Returns `dist`, the closest distance from the point to the line,
+        Returns `nearest`, the closest point on the line from the given pnt as a 1x3 array,
+        Returns `pnt`, the original given pnt as a 1x3 array.
 
     Examples
     --------
@@ -288,15 +259,8 @@ def pnt2line(pnt, start, end):
     >>> pnt = [1, 2, 3]
     >>> start = [4, 5, 6]
     >>> end = [7, 8, 9]
-    >>> [np.around(arr,8) for arr in pnt2line(pnt, start, end)]
-    [5.19615242, array([4., 5., 6.]), array([1, 2, 3])]
-    >>> pnt = np.array([9.82004519, 6.7344815, 0.94587439])
-    >>> start = np.array([3.89481034, 4.02115225, 4.3075406])
-    >>> end = np.array([7.56622188, 3.58992166, 8.2749309])
-    >>> [np.around(arr,8) for arr in pnt2line(pnt, start, end)] #doctest: +NORMALIZE_WHITESPACE
-    [7.21009005,
-    array([4.79961726, 3.91487693, 5.28529048]),
-    array([9.82004519, 6.7344815 , 0.94587439])]
+    >>> pnt2line(pnt, start, end)
+    (5.196152422706632, (4.0, 5.0, 6.0), [1, 2, 3])
     """
     lineVec = vector(start, end)
 
@@ -333,32 +297,34 @@ def findL5_Pelvis(frame):
 
     Markers used: LHip, RHip, Pelvis_axis
 
+    Markers used: `LHip`, `RHip`, `Pelvis_axis`
+
     Parameters
     ----------
-    frame : dict
+    `frame` : dict
         Dictionaries of marker lists.
-            { [], [], [], ... }
 
     Returns
     -------
-    midHip, L5 : tuple
-        Returns the x,y,z marker positions of the midHip (1x3 array) and L5 (1x3 array) in a tuple.
+    `midHip`, `L5` : tuple
+        Returns the (x, y, z) marker positions of the midHip (1x3 array)
+        and L5 (1x3 array) in a tuple.
 
     Examples
     --------
     >>> import numpy as np
     >>> from .pycgmKinetics import findL5_Pelvis
-    >>> Pelvis_axis = [np.array([251.60830688, 391.74131775, 1032.89349365]),
-    ...                np.array([[251.74063624, 392.72694721, 1032.78850073],
-    ...                    [250.61711554, 391.87232862, 1032.8741063],
-    ...                    [251.60295336, 391.84795134, 1033.88777762]]),
-    ...                np.array([231.57849121, 210.25262451, 1052.24969482])]
-    >>> LHip = np.array([308.38050472, 322.80342417, 937.98979061])
-    >>> RHip = np.array([182.57097863, 339.43231855, 935.529000126])
+    >>> Pelvis_axis = [np.array([251, 391, 1032]),
+    ...                np.array([[251, 392, 1032],
+    ...                    [250, 391, 1032],
+    ...                    [251, 391, 1033]]),
+    ...                np.array([231, 210, 1052])]
+    >>> LHip = np.array([308, 322, 937])
+    >>> RHip = np.array([182, 339, 935])
     >>> frame = { 'Pelvis_axis': Pelvis_axis, 'RHip': RHip, 'LHip': LHip}
-    >>> np.around(findL5_Pelvis(frame),8)
-    array([[ 245.47574168,  331.11787136,  936.75939537],
-           [ 271.52716019,  371.69050709, 1043.80997977]])
+    >>> findL5_Pelvis(frame)
+    (array([245, 330.5, 936]),
+    array([271.06445299, 371.10239489, 1043.26924277]))
     """
     #The L5 position is estimated as (LHJC + RHJC)/2 +
     #(0.0, 0.0, 0.828) * Length(LHJC - RHJC), where the value 0.828
@@ -377,35 +343,36 @@ def findL5_Pelvis(frame):
 
     return midHip, L5#midHip + ([0.0, 0.0, zOffset])
 
-def findL5_Thorax(frame):
-    """Calculate L5 Markers Given Thorax function
 
-    Markers used: C7, RHip, LHip, Thorax_axis
+def findL5_Thorax(frame):
+    """Calculate L5 Markers Given Thorax function.
+
+    Markers used: `C7`, `RHip`, `LHip`, `Thorax_axis`
 
     Parameters
     ----------
-    frame : dict
+    `frame` : dict
         Dictionaries of marker lists.
 
     Returns
     -------
-    L5 : array
-        Returns the x,y,z marker positions of the L5 in a 1x3 array.
+    `L5` : array
+        Returns the (x, y, z) marker positions of the L5 in a 1x3 array.
 
     Examples
     --------
     >>> from .pycgmKinetics import findL5_Thorax
     >>> import numpy as np
-    >>> Thorax_axis = [[[256.3454633226447, 365.7223958512035, 1461.920891187948],
-    ...               [257.26637166499415, 364.69602499862503, 1462.2347234647593],
-    ...               [256.1842731803127, 364.4328898435265, 1461.363045336319]],
-    ...               [256.2729542797522, 364.79605748807074, 1462.2905392309394]]
-    >>> C7 = np.array([256.78051758, 371.28042603, 1459.70300293])
-    >>> LHip = np.array([308.38050472, 322.80342417, 937.98979061])
-    >>> RHip = np.array([182.57097863, 339.43231855, 935.529000126])
+    >>> Thorax_axis = [[[256, 365, 1461],
+    ...               [257, 364, 1462],
+    ...               [256, 364, 1461]],
+    ...               [256, 364, 1462]]
+    >>> C7 = np.array([256, 371, 1459])
+    >>> LHip = np.array([308, 322, 937])
+    >>> RHip = np.array([182, 339, 935])
     >>> frame = { 'C7': C7, 'RHip': RHip, 'LHip': LHip, 'Thorax_axis': Thorax_axis}
-    >>> np.around(findL5_Thorax(frame),8)
-    array([ 265.16356015,  359.12462014, 1049.065471  ])
+    >>> findL5_Thorax(frame)
+    [264.71548741  358.53295866 1048.51690277]
     """
     C7_ = frame['C7']
     x_axis,y_axis,z_axis = frame['Thorax_axis'][0]
@@ -432,17 +399,17 @@ def getKinetics(data, Bodymass):
 
     Parameters
     -----------
-    data : array
+    `data` : array
         Array of joint centres in the global coordinate system. List indices correspond
-        to each frame of trial. Dict keys correspond to name of each joint centre,
-        dict values are arrays ([],[],[]) of x,y,z coordinates for each joint
+        to each frame of trial. Dict keys correspond to name of each joint center,
+        dict values are arrays of (x, y, z) coordinates for each joint
         centre.
-    Bodymass : float
+    `Bodymass` : float
         Total bodymass (kg) of subject
 
     Returns
     -------
-    CoM_coords : 3D numpy array
+    `CoM_coords` : 3D numpy array
         CoM trajectory in the global coordinate system.
 
     Notes
@@ -450,22 +417,12 @@ def getKinetics(data, Bodymass):
     The PiG scaling factors are taken from Dempster -- they are available at:
     http://www.c-motion.com/download/IORGaitFiles/pigmanualver1.pdf
 
-
-    Todo
-    ----
-    Tidy up and optimise code
-
-    Joint moments etc.
-
-    Figure out weird offset
-
     Examples
     --------
     >>> from .pyCGM_Helpers import getfilenames
     >>> from .pycgmIO import loadData, loadVSK
     >>> from .pycgmStatic import getStatic
     >>> from .pycgmCalc import calcAngles
-    >>> from numpy import around
     >>> dynamic_trial,static_trial,vsk_file,_,_ = getfilenames(x=3)
     >>> motionData  = loadData(dynamic_trial)
     SampleData/Sample_2/RoboWalk.c3d
@@ -476,7 +433,7 @@ def getKinetics(data, Bodymass):
     >>> _,joint_centers=calcAngles(motionData,start=None,end=None,vsk=calSM,
     ...                            splitAnglesAxis=False,formatData=False,returnjoints=True)
     >>> CoM_coords = getKinetics(joint_centers, calSM['Bodymass'])
-    >>> around(CoM_coords[0], 8) #doctest: +NORMALIZE_WHITESPACE
+    >>> CoM_coords[0]
     array([-942.7636386 , -3.58139618, 865.32990601])
     """
 
@@ -485,7 +442,7 @@ def getKinetics(data, Bodymass):
     #                    '/segments.xls', skiprows = 0)
 
     segScale = {}
-    with open(os.path.dirname(os.path.abspath(__file__)) +'/segments.csv','r') as f:
+    with open(os.path.dirname(os.path.abspath(__file__)) + '/segments.csv', 'r') as f:
         header = False
         for line in f:
             if header == False:
@@ -510,7 +467,7 @@ def getKinetics(data, Bodymass):
 
         for s in sides:
             for seg in segments:
-                if seg!='Pelvis' and seg!='Thorax' and seg!='Head':
+                if seg != 'Pelvis' and seg != 'Thorax' and seg != 'Head':
                     segTemp[s+seg] = {}
                 else:
                     segTemp[seg] = {}
@@ -519,7 +476,8 @@ def getKinetics(data, Bodymass):
                 if seg == 'Foot':
                     #segTemp[s+seg]['Prox'] = frame[s+'Ankle']
                     #segTemp[s+seg]['Dist'] = frame[s+'Foot']
-                    segTemp[s+seg]['Prox'] = frame[s+'Foot'] #should be heel to toe?
+                    # should be heel to toe?
+                    segTemp[s+seg]['Prox'] = frame[s+'Foot']
                     segTemp[s+seg]['Dist'] = frame[s+'HEE']
 
                 if seg == 'Tibia':
@@ -551,9 +509,9 @@ def getKinetics(data, Bodymass):
 
                     #y_axis = frame['Thorax_axis'][0][0]
                     #norm_dir_y = np.array(unit(y_axis))
-                    #if C7_[1] >= 0:
+                    # if C7_[1] >= 0:
                     #    C7 = C7_ + 100000 * norm_dir_y
-                    #else:
+                    # else:
                     #    C7 = C7_ + 100000 * norm_dir_y.flip()
 
                     #C7 = C7_ + 100 * -norm_dir_y
@@ -596,8 +554,8 @@ def getKinetics(data, Bodymass):
 
                 #iterate through csv scaling values
                 for row in list(segScale.keys()):
-                    #if row[0] == seg:
-                    #scale = row[1] #row[1] contains segment names
+                    # if row[0] == seg:
+                    # scale = row[1] #row[1] contains segment names
                     # print(seg,row,segScale[row]['mass'])
                     scale = segScale[row]['com']
                     mass = segScale[row]['mass']
@@ -663,12 +621,12 @@ def getKinetics(data, Bodymass):
         # print(segTemp['RFoot'])
 
         # for key in keylabels:
-            # print(key,segTemp[key]['val'])
+        # print(key,segTemp[key]['val'])
 
         vals = []
 
         # for seg in list(segTemp.keys()):
-            # vals.append(segTemp[seg]['val'])
+        # vals.append(segTemp[seg]['val'])
         if pyver == 2:
             forIter = segTemp.iteritems()
         if pyver == 3:
@@ -683,7 +641,7 @@ def getKinetics(data, Bodymass):
         #add all torques and masses
         #torques = []
         #masses = []
-        #for attr, value in segTemp.iteritems():
+        # for attr, value in segTemp.iteritems():
         #    torques.append(value['Torque'])
         #    masses.append(value['Mass'])
 
@@ -691,15 +649,3 @@ def getKinetics(data, Bodymass):
         #CoM_coords[ind,:] = sum(torques) / sum(masses)
 
     return CoM_coords
-
-
-
-
-
-
-
-
-
-
-
-
