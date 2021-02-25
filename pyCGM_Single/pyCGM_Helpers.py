@@ -19,7 +19,7 @@ def getfilenames(x=1):
 
     Returns
     -------
-    `dynamic_trial`, `static_trial`, `vsk_file`, `outputfile`, `CoM_output` : tuple
+    dynamic_trial, static_trial, vsk_file, outputfile, CoM_output : tuple
         Returns the respective filenames in the relative path.
 
     Example
