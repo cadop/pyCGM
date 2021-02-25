@@ -48,14 +48,14 @@ import xml.etree.ElementTree as ET
 import os
 import errno
 
-# Used to split the arrays with angles and axis
-# Start Joint Angles
+#Used to split the arrays with angles and axis
+#Start Joint Angles
 SJA=0
-# End Joint Angles
+#End Joint Angles
 EJA=SJA+19*3
-# Start Axis
+#Start Axis
 SA=EJA
-# End Axis
+#End Axis
 EA=SA+72*3
 
 def createMotionDataDict(labels, data):
@@ -140,22 +140,22 @@ def splitMotionDataDict(motiondata):
     Example for three markers and two frames of trial.
 
     >>> from numpy import array
-    >>> motiondata = [{'RFHD': array([325.1, 402.1, 1722.1]),
-    ...                'LFHD': array([184.1, 409.1, 1721.1]),
-    ...                'LBHD': array([197.1, 251.1, 1696.1])},
-    ...               {'RFHD': array([326.1, 403.1, 1723.1]),
-    ...                'LFHD': array([185.1, 408.1, 1722.1]),
-    ...                'LBHD': array([198.1, 252.1, 1697.1])}]
+    >>> motiondata = [{'RFHD': array([325.83, 402.55, 1722.51]),
+    ...                'LFHD': array([184.55, 409.69, 1721.34]),
+    ...                'LBHD': array([197.86, 251.29, 1696.91])},
+    ...               {'RFHD': array([326.83, 403.55, 1723.51]),
+    ...                'LFHD': array([185.55, 408.69, 1722.34]),
+    ...                'LBHD': array([198.86, 252.29, 1697.91])}]
     >>> labels, data = splitMotionDataDict(motiondata)
     >>> labels
     ['RFHD', 'LFHD', 'LBHD']
     >>> data #doctest: +NORMALIZE_WHITESPACE
-    array([[[ 325.1, 402.1, 1722.1],
-            [ 184.1, 409.1, 1721.1],
-            [ 197.1, 251.1, 1696.1]],
-           [[ 326.1, 403.1, 1723.1],
-            [ 185.1, 408.1, 1722.1],
-            [ 198.1, 252.1, 1697.1]]])
+    array([[[ 325.83, 402.55, 1722.51],
+            [ 184.55, 409.69, 1721.34],
+            [ 197.86, 251.29, 1696.91]],
+           [[ 326.83, 403.55, 1723.51],
+            [ 185.55, 408.69, 1722.34],
+            [ 198.86, 252.29, 1697.91]]])
     """
     if pyver == 2:
         labels=motiondata[0].keys()
@@ -276,7 +276,7 @@ def loadEZC3D(filename):
     [data, None, None] : array
         `data` is the array representation of the loaded c3d file.
     """
-    # Relative import mod for python 2 and 3
+    #Relative import mod for python 2 and 3
     try: from . import c3dez
     except: import c3dez
 
@@ -355,7 +355,7 @@ def loadC3D(filename):
 
     for frame_no, points, analog in reader.read_frames(True,True):
         for label, point in zip(markers, points):
-            # Create a dictionary with format LFHDX: 123
+            #Create a dictionary with format LFHDX: 123 
             if label[0]=='*':
                 if point[0]!=np.nan:
                     mydictunlabeled[label]=point
@@ -415,7 +415,7 @@ def loadCSV(filename):
     if filename == '':
         self.returnedData.emit(None)
     import numpy as np
-    from numpy.compat import asbytes # Probably not needed
+    from numpy.compat import asbytes #probably not needed
 
     fh = open(filename,'r')
 
@@ -471,7 +471,7 @@ def loadCSV(filename):
         if pyver == 3: row=list(zip(row[0::3],row[1::3],row[2::3]))
         empty=np.asarray([np.nan,np.nan,np.nan],dtype=np.float64)
         for coordinates,label in zip(row,labels):
-            # Unlabeled data goes to a different dictionary
+            #unlabeled data goes to a different dictionary
             if label[0]=="*":
                 try:
                     unlabeleddic[label]=np.float64(coordinates)
@@ -481,7 +481,7 @@ def loadCSV(filename):
                 try:
                     dic[label]=np.float64(coordinates)
                 except:
-                    # Missing data from labeled marker is NaN
+                    #Missing data from labeled marker is NaN
                     dic[label]=empty.copy()
         return dic,unlabeleddic
 
@@ -531,7 +531,7 @@ def loadCSV(filename):
         Returns
         -------
         labels, rows, rowsUnlabeled, freq : tuple
-            `labels` is a list of marker and angle names.
+            `labels` is a list of marker names.
             `rows` is a list of dict of motion capture data.
             Indices of `rows` correspond to frames in the trial. 
             `rowsUnlabeled` is of the same type as `rows`, but for
@@ -603,11 +603,11 @@ def loadCSV(filename):
         return labels,rows,rowsUnlabeled,freq
 
     ###############################################
-    # Find the trajectories
+    ### Find the trajectories
     framesNumber=0
     for i in fh:
         if i.startswith("TRAJECTORIES"):
-            # First elements with freq,labels,fields
+            #First elements with freq,labels,fields
             if pyver == 2: rows=[fh.next(),fh.next(),fh.next()]
             if pyver == 3: rows=[next(fh),next(fh),next(fh)]
             for j in fh:
@@ -668,7 +668,7 @@ def loadData(filename, rawData=True):
         if str(filename).endswith('.c3d'):
 
                 data = loadC3D(filename)[0]
-                # Add any missing keys
+                #add any missing keys
                 keys = markerKeys()
                 for frame in data:
                     for key in keys:
@@ -694,7 +694,7 @@ def dataAsArray(data):
     Returns
     -------
     dataArray : array
-        List of dictionaries. Indices of 'dataArray' correspond to frames
+        List of dictionaries. Indices of `dataArray` correspond to frames
         in the trial. Keys are marker names, and values are markers'
         x, y, and z coordinates in that frame.
 
@@ -726,13 +726,13 @@ def dataAsArray(data):
     names = list(data.keys())
     dataArray = []
 
-    # Make the marker arrays a better format
+    #make the marker arrays a better format
     for marker in data:
         # Turn multi array into single
         xyz = [ np.array(x) for x in zip( data[marker][0],data[marker][1],data[marker][2] ) ]
         data[marker] = xyz
 
-    # Use the first marker to get the length of frames
+    #use the first marker to get the length of frames
     datalen = len( data[names[0]] )
 
     for i in range(datalen):
@@ -880,10 +880,10 @@ def writeResult(data, filename, **kargs):
         for the first joint, the pelvis, and axis values for the pelvis origin, PELO.
 
         >>> frame = zeros(273)
-        >>> angles = array([-0.308494914509454, -6.12129279337001, 7.57143110215171])
+        >>> angles = array([-0.31, -6.12, 7.57])
         >>> for i in range(len(angles)):
         ...     frame[i] = angles[i]
-        >>> axis = array(['-934.314880371093977', '-4.444435119628910', '852.837829589843977'])
+        >>> axis = array(['-934.31', '-4.44', '852.84'])
         >>> for i in range(len(axis)):
         ...     frame[i+57] = axis[i]
         >>> data = [frame]
@@ -897,7 +897,7 @@ def writeResult(data, filename, **kargs):
         >>> result = lines[7].strip().split(',')
         >>> result #doctest: +NORMALIZE_WHITESPACE
         ['0.000000000000000',
-         '-0.308494914509454', '-6.121292793370010', '7.571431102151710',...]
+         '-0.31', '-6.12', '7.57',...]
 
         Writing axis only.
 
@@ -908,7 +908,7 @@ def writeResult(data, filename, **kargs):
         >>> result = lines[7].strip().split(',')
         >>> result #doctest: +NORMALIZE_WHITESPACE
         ['0.000000000000000',
-         '-934.314880371093977', '-4.444435119628910', '852.837829589843977',...]
+         '-934.31', '-4.44', '852.84',...]
         >>> rmtree(tmpdirName)
         """
         labelsAngs =['Pelvis','R Hip','L Hip','R Knee','L Knee','R Ankle',
@@ -998,16 +998,16 @@ def writeResult(data, filename, **kargs):
         else:
             xyz="frame num,"+"X,Y,Z,"*(len(dataFilter[0])//3)
         header=header+labels+xyz
-        # Creates the frame numbers
+        #Creates the frame numbers
         frames=np.arange(len(dataFilter),dtype=dataFilter[0].dtype)
-        # Put the frame numbers in the first dimension of the data
+        #Put the frame numbers in the first dimension of the data
         dataFilter=np.column_stack((frames,dataFilter))
         start = 1500
         end = 3600
-        # dataFilter = dataFilter[start:]
+        #dataFilter = dataFilter[start:]
         np.savetxt(filename+'.csv', dataFilter, delimiter=delimiter,header=header,fmt="%.15f")
-        # np.savetxt(filename, dataFilter, delimiter=delimiter,fmt="%.15f")
-        # np.savez_compressed(filename,dataFilter)
+        #np.savetxt(filename, dataFilter, delimiter=delimiter,fmt="%.15f")
+        #np.savez_compressed(filename,dataFilter)
 
 def smKeys():
     """A list of segment labels.
@@ -1089,8 +1089,8 @@ def loadVSK(filename, dict=True):
         >>> result['RightStaticPlantFlex']
         0.17637075483799
         """
-        # Check if the filename is valid
-        # If not, return None
+        #Check if the filename is valid
+        #if not, return None
         if filename == '':
                 return None
 
@@ -1098,14 +1098,14 @@ def loadVSK(filename, dict=True):
         viconVSK = {}
         vskMarkers = []
 
-        # Create an XML tree from file
+        #Create an XML tree from file
         tree = ET.parse(filename)
-        # Get the root of the file
+        #Get the root of the file
         # <KinematicModel>
         root = tree.getroot()
 
-        # Store the values of each parameter in a dictionary
-        # The format is (NAME,VALUE)
+        #Store the values of each parameter in a dictionary
+        # the format is (NAME,VALUE)
         vsk_keys=[r.get('NAME') for r in root[0]]
         vsk_data = []
         for R in root[0]:
@@ -1114,8 +1114,8 @@ def loadVSK(filename, dict=True):
                 val = 0
             vsk_data.append(float(val))
 
-        # vsk_data=np.asarray([float(R.get('VALUE')) for R in root[0]])
-        # Print vsk_keys
+        #vsk_data=np.asarray([float(R.get('VALUE')) for R in root[0]])
+        #print vsk_keys
         if dict==False: return createVskDataDict(vsk_keys,vsk_data) 
 
         return [vsk_keys,vsk_data]
