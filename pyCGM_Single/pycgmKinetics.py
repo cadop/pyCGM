@@ -15,7 +15,7 @@ import os
 import numpy as np
 import sys
 
-if sys.version_info[0] == 2:
+if sys.version_info[0]==2:
     pyver = 2
 else:
     pyver = 3
@@ -71,8 +71,8 @@ def dot(v,w):
     >>> dot(v,w)
     32
     """
-    x, y, z = v
-    X, Y, Z = w
+    x,y,z = v
+    X,Y,Z = w
     return x*X + y*Y + z*Z
 
 def length(v):
@@ -95,7 +95,7 @@ def length(v):
     >>> length(v)
     3.74
     """
-    x, y, z = v
+    x,y,z = v
     return np.sqrt(x*x + y*y + z*z)
 
 def vector(b,e):
@@ -121,8 +121,8 @@ def vector(b,e):
     >>> vector(v, e)
     (3, 3, 3)
     """
-    x, y, z = b
-    X, Y, Z = e
+    x,y,z = b
+    X,Y,Z = e
     return (X-x, Y-y, Z-z)
 
 def unit(v):
@@ -145,7 +145,7 @@ def unit(v):
     >>> unit(v)
     [0.26, 0.53, 0.80]
     """
-    x, y, z = v
+    x,y,z = v
     mag = length(v)
     return (x/mag, y/mag, z/mag)
 
@@ -197,7 +197,7 @@ def scale(v,sc):
     >>> scale(v, sc)
     (2, 4, 6)
     """
-    x, y, z = v
+    x,y,z = v
     return (x * sc, y * sc, z * sc)
 
 def add(v,w):
@@ -223,8 +223,8 @@ def add(v,w):
     >>> add(v, w)
     (5, 7, 9)
     """
-    x, y, z = v
-    X, Y, Z = w
+    x,y,z = v
+    X,Y,Z = w
     return (x+X, y+Y, z+Z)
 
 
@@ -427,7 +427,7 @@ def getKinetics(data, Bodymass):
     >>> _,joint_centers=calcAngles(motionData,start=None,end=None,vsk=calSM,
     ...                            splitAnglesAxis=False,formatData=False,returnjoints=True)
     >>> CoM_coords = getKinetics(joint_centers, calSM['Bodymass'])
-    >>> CoM_coords[0]
+    >>> CoM_coords[0] #doctest: +NORMALIZE_WHITESPACE
     array([-942.76 , -3.58, 865.32])
     """
 
@@ -436,7 +436,7 @@ def getKinetics(data, Bodymass):
     #                    '/segments.xls', skiprows = 0)
 
     segScale = {}
-    with open(os.path.dirname(os.path.abspath(__file__)) + '/segments.csv', 'r') as f:
+    with open(os.path.dirname(os.path.abspath(__file__)) +'/segments.csv','r') as f:
         header = False
         for line in f:
             if header == False:
@@ -461,7 +461,7 @@ def getKinetics(data, Bodymass):
 
         for s in sides:
             for seg in segments:
-                if seg != 'Pelvis' and seg != 'Thorax' and seg != 'Head':
+                if seg!='Pelvis' and seg!='Thorax' and seg!='Head':
                     segTemp[s+seg] = {}
                 else:
                     segTemp[seg] = {}
@@ -470,8 +470,7 @@ def getKinetics(data, Bodymass):
                 if seg == 'Foot':
                     #segTemp[s+seg]['Prox'] = frame[s+'Ankle']
                     #segTemp[s+seg]['Dist'] = frame[s+'Foot']
-                    # should be heel to toe?
-                    segTemp[s+seg]['Prox'] = frame[s+'Foot']
+                    segTemp[s+seg]['Prox'] = frame[s+'Foot'] #should be heel to toe?
                     segTemp[s+seg]['Dist'] = frame[s+'HEE']
 
                 if seg == 'Tibia':
@@ -503,9 +502,9 @@ def getKinetics(data, Bodymass):
 
                     #y_axis = frame['Thorax_axis'][0][0]
                     #norm_dir_y = np.array(unit(y_axis))
-                    # if C7_[1] >= 0:
+                    #if C7_[1] >= 0:
                     #    C7 = C7_ + 100000 * norm_dir_y
-                    # else:
+                    #else:
                     #    C7 = C7_ + 100000 * norm_dir_y.flip()
 
                     #C7 = C7_ + 100 * -norm_dir_y
@@ -548,8 +547,8 @@ def getKinetics(data, Bodymass):
 
                 #iterate through csv scaling values
                 for row in list(segScale.keys()):
-                    # if row[0] == seg:
-                    # scale = row[1] #row[1] contains segment names
+                    #if row[0] == seg:
+                    #scale = row[1] #row[1] contains segment names
                     # print(seg,row,segScale[row]['mass'])
                     scale = segScale[row]['com']
                     mass = segScale[row]['mass']
@@ -609,18 +608,16 @@ def getKinetics(data, Bodymass):
                             Vector = np.array(vector(([0,0,0]), CoM))
                             val = Vector*mass
                             segTemp[seg]['val'] = val
-
-
         keylabels  = ['LHand', 'RTibia', 'Head', 'LRadius', 'RFoot', 'RRadius', 'LFoot', 'RHumerus', 'LTibia', 'LHumerus', 'Pelvis', 'RHand', 'RFemur', 'Thorax', 'LFemur']
         # print(segTemp['RFoot'])
 
         # for key in keylabels:
-        # print(key,segTemp[key]['val'])
+            # print(key,segTemp[key]['val'])
 
         vals = []
 
         # for seg in list(segTemp.keys()):
-        # vals.append(segTemp[seg]['val'])
+            # vals.append(segTemp[seg]['val'])
         if pyver == 2:
             forIter = segTemp.iteritems()
         if pyver == 3:
@@ -635,7 +632,7 @@ def getKinetics(data, Bodymass):
         #add all torques and masses
         #torques = []
         #masses = []
-        # for attr, value in segTemp.iteritems():
+        #for attr, value in segTemp.iteritems():
         #    torques.append(value['Torque'])
         #    masses.append(value['Mass'])
 

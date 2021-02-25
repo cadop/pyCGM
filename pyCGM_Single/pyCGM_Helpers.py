@@ -3,8 +3,6 @@ This file is used to get sample data.
 """
 
 import os
-
-
 def getfilenames(x=1):
     """ Get Filenames for sample data.
 

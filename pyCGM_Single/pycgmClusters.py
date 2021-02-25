@@ -21,12 +21,12 @@ def calcFramesClusters(data,vsk):
     angles, joints : tuple(list, list)
         Returns the joint angles for the right and left pelvis, hip, knee, and ankle
     """
-    angles = []
+    angles=[]
     joints = []  # temp solution
-    if type(data[0]) != type({}):
-        data = createMotionDataDict(data[0], data[1])
-    if type(vsk) != type({}):
-        vsk = createVskDataDict(vsk[0], vsk[1])
+    if type(data[0])!=type({}):
+        data=createMotionDataDict(data[0], data[1])
+    if type(vsk)!=type({}):
+        vsk=createVskDataDict(vsk[0], vsk[1])
 
     from .clusterCalc import targetName, getMarkerLocation, targetDict, groupInClustDict, getStaticTransform
     missingMarkerName = targetName()
@@ -41,27 +41,26 @@ def calcFramesClusters(data,vsk):
         #I thought there are two cases, but now can only think of one:
         # the marker is missing in the dynamic trial and should be calculated with the offset
         # or ???
-        # Since it is missing in the dynamic trial, there is no key for it,
+        #Since it is missing in the dynamic trial, there is no key for it,
         # usually when loading if the data is missing, the key exists but data is gone
         # so we enter a nan key, and then in the loop it will calculate the transform
 
         #list_check = [name for name in missingMarkerName if name in frame ]
-        # assign the missing marker names to only the ones that are in the trial
+        #assign the missing marker names to only the ones that are in the trial
         #missingMarkerName = list_check
 
         #get list of markers that are not in the dynamic
         removedMarkers = [name for name in missingMarkerName if name not in frame ]
 
         # get list of markers that are not in the dynamic
-        removedMarkers = [
-            name for name in missingMarkerName if name not in frame]
+        removedMarkers = [name for name in missingMarkerName if name not in frame]
 
         for item in removedMarkers:
             frame[item] = (float('nan'),float('nan'),float('nan'))
 
         # for each marker that is missing, find the nearest previous frame that the
         # cluster and marker exists and calculate the transform
-        markers = {k: frame[k] for k in missingMarkerName}
+        markers = {k:frame[k] for k in missingMarkerName}
         if np.any(np.isnan(list(markers.values()))):
             for key in markers:
                 if np.isnan(markers[key][0]) == False: continue
@@ -80,7 +79,7 @@ def calcFramesClusters(data,vsk):
                 last_time = None
                 if key not in removedMarkers:
                     j = i
-                    while j >= 0:
+                    while j >=0:
                         if np.isnan(data[j][key][0]):
                             j -= 1
                             continue
@@ -93,15 +92,15 @@ def calcFramesClusters(data,vsk):
                         if cm1 or cm2 or cm3:
                             j -= 1
                             continue
-                        # if everything is there, we can use this frame to calculate transform
+                        #if everything is there, we can use this frame to calculate transform
                         last_time = j
                         break
 
                 #print('found the last time the target marker',key,' was visible',last_time)
 
                 clust_bool = True
-                for clust in cluster_ver:  # incase there are multiple options
-                    # Pm is marker that is missing, C is cluster
+                for clust in cluster_ver: #incase there are multiple options
+                    #Pm is marker that is missing, C is cluster
                     Cname = clusters[clust]
 
 
@@ -109,7 +108,7 @@ def calcFramesClusters(data,vsk):
                     # so we will use the static trial
                     if last_time == None:
                         Pm = vsk['clusterLJMU'][clust]
-                    # otherwise we can calculate Pm from the data of that previous frame
+                    #otherwise we can calculate Pm from the data of that previous frame
                     else:
                         tmp_frame = data[last_time]
                         p = tmp_frame[key]
@@ -128,7 +127,7 @@ def calcFramesClusters(data,vsk):
                 #set the marker in this frame to the estimated position
                 frame[key] = est_pos
 
-        angle, jcs = JointAngleCalc(frame, vsk)
+        angle,jcs = JointAngleCalc(frame,vsk)
         angles.append(angle)
         joints.append(jcs)
-    return angles, joints
+    return angles,joints
