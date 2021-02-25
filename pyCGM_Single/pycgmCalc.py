@@ -60,7 +60,7 @@ def calcKinetics(data, Bodymass):
     """
     r = getKinetics(data, Bodymass)
     return r
-
+    
 
 def calcAngles(data,**kargs):
     """Calculates the joint angles and axis.
@@ -335,7 +335,7 @@ def calcFrames(data,vsk):
     vsk : dict or array
         Dictionary containing subject measurement values, or array of labels 
         and data `[labels, data]`. 
-
+ 
     Returns
     -------
     angles, joints : tuple
