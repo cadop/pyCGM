@@ -15,7 +15,7 @@ import os
 import numpy as np
 import sys
 
-if sys.version_info[0]==2:
+if sys.version_info[0] == 2:
     pyver = 2
 else:
     pyver = 3
@@ -71,8 +71,8 @@ def dot(v,w):
     >>> dot(v,w)
     32
     """
-    x,y,z = v
-    X,Y,Z = w
+    x, y, z = v
+    X, Y, Z = w
     return x*X + y*Y + z*Z
 
 def length(v):
@@ -96,7 +96,7 @@ def length(v):
     >>> np.around(length(v), 2)
     3.74
     """
-    x,y,z = v
+    x, y, z = v
     return np.sqrt(x*x + y*y + z*z)
 
 def vector(b,e):
@@ -104,9 +104,9 @@ def vector(b,e):
 
     Parameters
     ----------
-    v : list
+    `v` : list
         First 3D vector.
-    e : list
+    `e` : list
         Second 3D vector.
 
     Returns
@@ -122,8 +122,8 @@ def vector(b,e):
     >>> vector(v, e)
     (3, 3, 3)
     """
-    x,y,z = b
-    X,Y,Z = e
+    x, y, z = b
+    X, Y, Z = e
     return (X-x, Y-y, Z-z)
 
 def unit(v):
@@ -147,7 +147,7 @@ def unit(v):
     >>> np.around(unit(v), 2)
     array([0.27, 0.53, 0.8 ])
     """
-    x,y,z = v
+    x, y, z = v
     mag = length(v)
     return (x/mag, y/mag, z/mag)
 
@@ -200,7 +200,7 @@ def scale(v,sc):
     >>> scale(v, sc)
     (2, 4, 6)
     """
-    x,y,z = v
+    x, y, z = v
     return (x * sc, y * sc, z * sc)
 
 def add(v,w):
@@ -226,9 +226,10 @@ def add(v,w):
     >>> add(v, w)
     (5, 7, 9)
     """
-    x,y,z = v
-    X,Y,Z = w
+    x, y, z = v
+    X, Y, Z = w
     return (x+X, y+Y, z+Z)
+
 
 def pnt2line(pnt, start, end):
     """Calculate shortest distance between a point and line.
@@ -296,9 +297,11 @@ def findL5_Pelvis(frame):
 
     Markers used: `LHip`, `RHip`, `Pelvis_axis`
 
+    Markers used: `LHip`, `RHip`, `Pelvis_axis`
+
     Parameters
     ----------
-    frame : dict
+    `frame` : dict
         Dictionaries of marker lists.
 
     Returns
@@ -340,6 +343,7 @@ def findL5_Pelvis(frame):
 
     return midHip, L5#midHip + ([0.0, 0.0, zOffset])
 
+
 def findL5_Thorax(frame):
     """Calculate L5 Markers Given Thorax function.
 
@@ -347,7 +351,7 @@ def findL5_Thorax(frame):
 
     Parameters
     ----------
-    frame : dict
+    `frame` : dict
         Dictionaries of marker lists.
 
     Returns
@@ -395,17 +399,17 @@ def getKinetics(data, Bodymass):
 
     Parameters
     -----------
-    data : array
+    `data` : array
         Array of joint centres in the global coordinate system. List indices correspond
         to each frame of trial. Dict keys correspond to name of each joint center,
         dict values are arrays of (x, y, z) coordinates for each joint
         centre.
-    Bodymass : float
+    `Bodymass` : float
         Total bodymass (kg) of subject
 
     Returns
     -------
-    CoM_coords : 3D numpy array
+    `CoM_coords` : 3D numpy array
         CoM trajectory in the global coordinate system.
 
     Notes
@@ -427,7 +431,6 @@ def getKinetics(data, Bodymass):
     >>> from .pycgmIO import loadData, loadVSK
     >>> from .pycgmStatic import getStatic
     >>> from .pycgmCalc import calcAngles
-    >>> from numpy import around
     >>> dynamic_trial,static_trial,vsk_file,_,_ = getfilenames(x=3)
     >>> motionData  = loadData(dynamic_trial)
     SampleData/Sample_2/RoboWalk.c3d
@@ -447,7 +450,7 @@ def getKinetics(data, Bodymass):
     #                    '/segments.xls', skiprows = 0)
 
     segScale = {}
-    with open(os.path.dirname(os.path.abspath(__file__)) +'/segments.csv','r') as f:
+    with open(os.path.dirname(os.path.abspath(__file__)) + '/segments.csv', 'r') as f:
         header = False
         for line in f:
             if header == False:
@@ -472,7 +475,7 @@ def getKinetics(data, Bodymass):
 
         for s in sides:
             for seg in segments:
-                if seg!='Pelvis' and seg!='Thorax' and seg!='Head':
+                if seg != 'Pelvis' and seg != 'Thorax' and seg != 'Head':
                     segTemp[s+seg] = {}
                 else:
                     segTemp[seg] = {}
@@ -481,7 +484,8 @@ def getKinetics(data, Bodymass):
                 if seg == 'Foot':
                     #segTemp[s+seg]['Prox'] = frame[s+'Ankle']
                     #segTemp[s+seg]['Dist'] = frame[s+'Foot']
-                    segTemp[s+seg]['Prox'] = frame[s+'Foot'] #should be heel to toe?
+                    # should be heel to toe?
+                    segTemp[s+seg]['Prox'] = frame[s+'Foot']
                     segTemp[s+seg]['Dist'] = frame[s+'HEE']
 
                 if seg == 'Tibia':
@@ -513,9 +517,9 @@ def getKinetics(data, Bodymass):
 
                     #y_axis = frame['Thorax_axis'][0][0]
                     #norm_dir_y = np.array(unit(y_axis))
-                    #if C7_[1] >= 0:
+                    # if C7_[1] >= 0:
                     #    C7 = C7_ + 100000 * norm_dir_y
-                    #else:
+                    # else:
                     #    C7 = C7_ + 100000 * norm_dir_y.flip()
 
                     #C7 = C7_ + 100 * -norm_dir_y
@@ -558,8 +562,8 @@ def getKinetics(data, Bodymass):
 
                 #iterate through csv scaling values
                 for row in list(segScale.keys()):
-                    #if row[0] == seg:
-                    #scale = row[1] #row[1] contains segment names
+                    # if row[0] == seg:
+                    # scale = row[1] #row[1] contains segment names
                     # print(seg,row,segScale[row]['mass'])
                     scale = segScale[row]['com']
                     mass = segScale[row]['mass']
@@ -625,12 +629,12 @@ def getKinetics(data, Bodymass):
         # print(segTemp['RFoot'])
 
         # for key in keylabels:
-            # print(key,segTemp[key]['val'])
+        # print(key,segTemp[key]['val'])
 
         vals = []
 
         # for seg in list(segTemp.keys()):
-            # vals.append(segTemp[seg]['val'])
+        # vals.append(segTemp[seg]['val'])
         if pyver == 2:
             forIter = segTemp.iteritems()
         if pyver == 3:
@@ -645,7 +649,7 @@ def getKinetics(data, Bodymass):
         #add all torques and masses
         #torques = []
         #masses = []
-        #for attr, value in segTemp.iteritems():
+        # for attr, value in segTemp.iteritems():
         #    torques.append(value['Torque'])
         #    masses.append(value['Mass'])
 
