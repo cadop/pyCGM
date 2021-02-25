@@ -1,3 +1,7 @@
+"""
+This file is used to get sample data.
+"""
+
 import os
 
 
@@ -6,7 +10,7 @@ def getfilenames(x=1):
 
     Parameters
     ----------
-    `x` : int, optional
+    x : int, optional
         A flag (1, 2, or 3) that denotes which variation of files to retrieve.
         Default is 1 if not given.
         1 denotes the files in the `59993_Frame` directory.
@@ -15,7 +19,7 @@ def getfilenames(x=1):
 
     Returns
     -------
-    `dynamic_trial`, `static_trial`, `vsk_file`, `outputfile`, `CoM_output` : tuple
+    dynamic_trial, static_trial, vsk_file, outputfile, CoM_output : tuple
         Returns the respective filenames in the relative path.
 
     Example
@@ -29,15 +33,13 @@ def getfilenames(x=1):
     'SampleData/59993_Frame/59993_Frame_SM.vsk',
     'SampleData/59993_Frame/pycgm_results.csv',
     'SampleData/59993_Frame/CoM')
-    >>> x = 2
-    >>> getfilenames(x) #doctest: +NORMALIZE_WHITESPACE
+    >>> getfilenames(2) #doctest: +NORMALIZE_WHITESPACE
     ('SampleData/ROM/Sample_Dynamic.c3d',
     'SampleData/ROM/Sample_Static.c3d',
     'SampleData/ROM/Sample_SM.vsk',
     'SampleData/ROM/pycgm_results.csv',
     'SampleData/ROM/CoM')
-    >>> x = 3
-    >>> getfilenames(x) #doctest: +NORMALIZE_WHITESPACE
+    >>> getfilenames(3) #doctest: +NORMALIZE_WHITESPACE
     ('SampleData/Sample_2/RoboWalk.c3d',
     'SampleData/Sample_2/RoboStatic.c3d',
     'SampleData/Sample_2/RoboSM.vsk',

@@ -1,3 +1,7 @@
+"""
+This file uses the input data to perform angle and joint calculations.
+"""
+
 # pyCGM
 
 # Copyright (c) 2015 Mathew Schwartz <umcadop@gmail.com>
@@ -67,7 +71,7 @@ def calcAngles(data,**kargs):
     Parameters
     ----------
     data : array
-        Joint centres in the global coordinate system. List indices correspond
+        Joint centers in the global coordinate system. List indices correspond
         to each frame of trial. Dict keys correspond to name of each joint center,
         dict values are arrays ([],[],[]) of x,y,z coordinates for each joint
         centre.
@@ -83,24 +87,24 @@ def calcAngles(data,**kargs):
         vsk : dict, required
             Subject measurement values as a dictionary or labels and data.
         angles : bool, optional
-            If true, the function will return the angles. True by default.
+            If true, the function will return `angles`. True by default.
         axis : bool, optional
-            If true, the function will return the axis. True by default.
+            If true, the function will return `axis`. True by default.
         splitAnglesAxis : bool, optional
-            If true, the function will return the angles and axis as
+            If true, the function will return `angles` and `axis` as
             separate arrays. If false, it will be the same array. True
             by default.
         returnjoints : bool, optional
-            If true, the function will return the joint centers. False
+            If true, the function will return `returnjoints`. False
             by default.
         formatData : bool, optional
-            If true, the function will return the angles and axis
+            If true, the function will return `angles` and `axis`
             in one array. True by default.
 
     Returns
     -------
     r, jcs : array_like
-        `r` is a list of joint angle values for each frame.
+        `r is a list of joint angle values for each frame.
         `jcs` is a list of dictionaries, each of which holds joint
         center locations for each frame. Returned only if returnjoints
         is True.
@@ -135,11 +139,11 @@ def calcAngles(data,**kargs):
     >>> result = calcAngles(data, vsk=vsk)
     >>> around(result[0], 3) #Array of joint angles
     array([[[-0.456,  -5.762,   4.806],...]]])
-    >>> around(result[1], 3) #Array of axis values
-    array([[[[ 246.152,  353.262, 1031.713],
-             [ 246.237,  354.253, 1031.614],
-             [ 245.156,  353.345, 1031.697],
-             [ 246.144,  353.362, 1032.708]],...]]]])
+    >>> around(result[1], 2) #Array of axis values
+    array([[[[ 246.15,  353.26, 1031.71],
+             [ 246.23,  354.25, 1031.61],
+             [ 245.15,  353.34, 1031.69],
+             [ 246.14,  353.36, 1032.70]],...]]]])
 
     Example of returning as a tuple.
 
@@ -147,15 +151,15 @@ def calcAngles(data,**kargs):
     ... vsk=vsk, splitAnglesAxis=False, formatData=False,returnjoints=True)
     >>> around(kinematics[0][0], 3)
     -0.456
-    >>> around(joint_centers[0]['Pelvis'], 3) #doctest: +NORMALIZE_WHITESPACE
-    array([ 246.152, 353.262, 1031.713])
+    >>> around(joint_centers[0]['Pelvis'], 2) #doctest: +NORMALIZE_WHITESPACE
+    array([246.15, 353.26, 1031.71])
 
     Example without returning joints.
 
     >>> kinematics = calcAngles(data, vsk=vsk, splitAnglesAxis=False,
     ... formatData=False,returnjoints=False)
-    >>> around(kinematics[0][0], 3)
-    -0.456
+    >>> around(kinematics[0][0], 2)
+    -0.45
     """
 
     start = 0
@@ -292,17 +296,17 @@ def Calc(start, end, data, vsk):
     >>> start = 0
     >>> end = 3
     >>> angles, jcs = Calc(start, end, data, vsk)
-    >>> around(angles[0][0], 3) #Frame 0
-    -0.456
-    >>> around(angles[1][0], 3) #Frame 1
-    -0.457
-    >>> around(angles[2][0], 3) #Frame 2
-    -0.456
+    >>> around(angles[0][0], 2) #Frame 0
+    -0.45
+    >>> around(angles[1][0], 2) #Frame 1
+    -0.45
+    >>> around(angles[2][0], 2) #Frame 2
+    -0.45
 
-    >>> around(jcs[0]['Pelvis'], 3)
-    array([246.152, 353.262, 1031.713])
-    >>> around(jcs[1]['Pelvis'], 3)
-    array([246.162, 353.271, 1031.718])
+    >>> around(jcs[0]['Pelvis'], 2)
+    array([246.15, 353.26, 1031.71])
+    >>> around(jcs[1]['Pelvis'], 2)
+    array([246.16, 353.27, 1031.71])
     """
     d=data[start:end]
     angles,jcs=calcFrames(d,vsk)
@@ -350,10 +354,10 @@ def calcFrames(data, vsk):
     >>> vskData = loadVSK(vskFile, False)
     >>> vsk = getStatic(data,vskData,flat_foot=False)
     >>> angles, joints = calcFrames(data, vsk)
-    >>> around(angles[0][0], 3)
+    >>> around(angles[0][0], 2)
     -0.456
     >>> around(joints[0]['Pelvis'], 3)
-    array([ 246.152, 353.262, 1031.713])
+    array([246.15, 353.26, 1031.71])
     """
     angles=[]
     joints=[] #added this here for normal data

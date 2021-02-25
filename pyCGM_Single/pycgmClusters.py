@@ -1,3 +1,6 @@
+"""
+This file is used to calculate frames for gap filling.
+"""
 
 # flake8: noqa # Ignore this file for now
 
@@ -7,10 +10,10 @@ def calcFramesClusters(data,vsk):
     Parameters
     ----------
     data : list
-        First element is a list of lables.
+        First element is a list of marker lables.
         Second element is a list of data.
     vsk : list
-        First element is a list of lables.
+        First element is a list of marker lables.
         Second element is a list of data.
 
     Returns
