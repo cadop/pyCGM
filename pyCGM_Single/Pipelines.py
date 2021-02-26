@@ -285,14 +285,14 @@ def filtering(Data):
     >>> motionData = loadData(getfilenames(x=2)[0])
     SampleData/ROM/Sample_Dynamic.c3d
     >>> motionDataDict = dataAsDict(motionData,npArray=True)
-    >>> filtering(motionDataDict)['HEDO'] #doctest: +NORMALIZE_WHITESPACE
-    array([[ 250.34095219,  207.52056544, 1612.1177957 ],
-           [ 250.3693486 ,  207.63396643, 1612.14030924],
-           [ 250.39784291,  207.74607438, 1612.16076916],
+    >>> np.around(filtering(motionDataDict)['HEDO'], 2) #doctest: +NORMALIZE_WHITESPACE
+    array([[ 250.34,  207.52, 1612.12],
+           [ 250.37,  207.63, 1612.14],
+           [ 250.4 ,  207.75, 1612.16],
            ...,
-           [ 278.45835242,  292.56967662, 1612.41087668],
-           [ 278.06911338,  293.22769152, 1612.49060244],
-           [ 277.6663783 ,  293.88056206, 1612.55739277]])
+           [ 278.46,  292.57, 1612.41],
+           [ 278.07,  293.23, 1612.49],
+           [ 277.67,  293.88, 1612.56]])
     """
     data = Data.copy()
 
@@ -342,8 +342,8 @@ def transform_from_static(data,static,key,useables,s):
     >>> dynamic_trial,static_trial,_,_,_ = getfilenames(x=3)
     >>> motionData = loadData(dynamic_trial)
     SampleData/Sample_2/RoboWalk.c3d
-    >>> motionData[1]['LFHD'] #doctest: +NORMALIZE_WHITESPACE
-    array([-1003.50396729, 81.02921295, 1522.18493652])
+    >>> around(motionData[1]['LFHD'], 2) #doctest: +NORMALIZE_WHITESPACE
+    array([-1003.5 ,    81.03,  1522.18])
     >>> motionData = clearMarker(motionData, 'LFHD') #clear LFHD to test gap filling
     >>> staticData = loadData(static_trial)
     SampleData/Sample_2/RoboStatic.c3d
@@ -402,8 +402,8 @@ def transform_from_mov(data,key,clust,last_time,i):
     >>> dynamic_trial,static_trial,_,_,_ = getfilenames(x=3)
     >>> motionData = loadData(dynamic_trial)
     SampleData/Sample_2/RoboWalk.c3d
-    >>> motionData[2]['LFHD'] #doctest: +NORMALIZE_WHITESPACE
-    array([-1003.42358398, 81.05059814, 1522.13598633])
+    >>> around(motionData[2]['LFHD'], 2) #doctest: +NORMALIZE_WHITESPACE
+    array([-1003.42, 81.05, 1522.14])
     >>> motionData[2]['LFHD'] = array([nan, nan, nan]) #clear one frame to test gap filling
     >>> data = dataAsDict(motionData,npArray=True)
     >>> key = 'LFHD'
@@ -519,8 +519,8 @@ def rigid_fill(Data,static):
     Testing gap filling.
 
     >>> Data = dataAsDict(motionData,npArray=True)
-    >>> Data['LFHD'][2] #doctest: +NORMALIZE_WHITESPACE
-    array([-1003.42358398, 81.05059814, 1522.13598633])
+    >>> around(Data['LFHD'][2], 2) #doctest: +NORMALIZE_WHITESPACE
+    array([-1003.42, 81.05, 1522.14])
     >>> Data['LFHD'][2] = array([nan, nan, nan]) #clear one frame to test gap filling
     >>> static = dataAsDict(staticData,npArray=True)
     >>> data = rigid_fill(Data, static)
