@@ -90,6 +90,7 @@ def length(v):
 
     Examples
     --------
+    >>> import numpy as np
     >>> from .pycgmKinetics import length
     >>> v = [1,2,3]
     >>> np.around(length(v), 2)
@@ -140,6 +141,7 @@ def unit(v):
 
     Examples
     --------
+    >>> import numpy as np
     >>> from .pycgmKinetics import unit
     >>> v = [1,2,3]
     >>> np.around(unit(v), 2)
@@ -166,6 +168,7 @@ def distance(p0,p1):
 
     Examples
     --------
+    >>> import numpy as np
     >>> from .pycgmKinetics import distance
     >>> p0 = [1,2,3]
     >>> p1 = [4,5,6]
@@ -250,6 +253,7 @@ def pnt2line(pnt, start, end):
 
     Examples
     --------
+    >>> import numpy as np
     >>> from .pycgmKinetics import pnt2line
     >>> pnt = [1, 2, 3]
     >>> start = [4, 2, 3]
@@ -333,7 +337,7 @@ def findL5_Pelvis(frame):
     
     offset = distance(RHJC,LHJC) * .925
     z_axis = frame['Pelvis_axis'][1][2] 
-    norm_dir = np.array(unit(z_axis))
+    norm_dir = np.array(unit(z_axis))   
     L5 = midHip + offset * norm_dir
 
     return midHip, L5#midHip + ([0.0, 0.0, zOffset])
@@ -376,7 +380,7 @@ def findL5_Thorax(frame):
     else:
         C7 = C7_ + 7 * norm_dir_y
         
-    norm_dir = np.array(unit(z_axis))   
+    norm_dir = np.array(unit(z_axis))
     LHJC = frame['LHip']
     RHJC = frame['RHip']
     midHip = (LHJC+RHJC)/2
@@ -425,6 +429,7 @@ def getKinetics(data, Bodymass):
     >>> from .pycgmIO import loadData, loadVSK
     >>> from .pycgmStatic import getStatic
     >>> from .pycgmCalc import calcAngles
+    >>> from numpy import around
     >>> dynamic_trial,static_trial,vsk_file,_,_ = getfilenames(x=3)
     >>> motionData  = loadData(dynamic_trial)
     SampleData/Sample_2/RoboWalk.c3d

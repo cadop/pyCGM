@@ -73,7 +73,7 @@ def calcAngles(data,**kargs):
     Parameters
     ----------
     data : array
-        Joint centers in the global coordinate system. List indices correspond
+        Joint centers in the global coordinate system. List indices correspond 
         to each frame of trial. Dict keys correspond to name of each joint center,
         dict values are arrays ([],[],[]) of x,y,z coordinates for each joint
         center.
@@ -106,8 +106,8 @@ def calcAngles(data,**kargs):
     Returns
     -------
     r, jcs : array_like
-        `r is a list of joint angle values for each frame.
-        `jcs` is a list of dictionaries, each of which holds joint
+        `r` is a list of joint angle values for each frame.
+        `jcs` is a list of dictionaries, each of which holds joint 
         center locations for each frame. Returned only if returnjoints
         is True.
 
@@ -227,7 +227,7 @@ def calcAngles(data,**kargs):
             
         s=np.shape(axis)
         if pyver == 2:
-            axis=np.reshape(axis, (s[0], s[1]/12,4,3))
+            axis=np.reshape(axis,(s[0],s[1]/12,4,3))
         else:
             axis=np.reshape(axis,(s[0],s[1]//12,4,3))
             
