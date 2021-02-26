@@ -45,7 +45,6 @@ SA=EJA
 #End Axis
 EA=SA+72*3
 
-
 def calcKinetics(data, Bodymass):
     """Calculates center of mass values. 
 
@@ -71,9 +70,9 @@ def calcAngles(data,**kargs):
     Parameters
     ----------
     data : array
-        Joint centers in the global coordinate system. List indices correspond
+        Joint centers in the global coordinate system. List indices correspond 
         to each frame of trial. Dict keys correspond to name of each joint center,
-        dict values are arrays ([],[],[]) of x,y,z coordinates for each joint
+        dict values are arrays ([],[],[]) of x,y,z coordinates for each joint 
         centre.
     **kargs : keyword arguments
         start : int, optional
@@ -98,14 +97,14 @@ def calcAngles(data,**kargs):
             If true, the function will return `returnjoints`. False
             by default.
         formatData : bool, optional
-            If true, the function will return `angles` and `axis`
+            If true, the function will return `angles` and `axis` 
             in one array. True by default.
     
     Returns
     -------
     r, jcs : array_like
-        `r is a list of joint angle values for each frame.
-        `jcs` is a list of dictionaries, each of which holds joint
+        `r` is a list of joint angle values for each frame.
+        `jcs` is a list of dictionaries, each of which holds joint 
         center locations for each frame. Returned only if returnjoints
         is True.
 
@@ -137,8 +136,8 @@ def calcAngles(data,**kargs):
     Example of default behavior.
 
     >>> result = calcAngles(data, vsk=vsk)
-    >>> around(result[0], 3) #Array of joint angles
-    array([[[-0.456,  -5.762,   4.806],...]]])
+    >>> around(result[0], 2) #Array of joint angles
+    array([[[-0.45, -5.76, 4.80],...]]])
     >>> around(result[1], 2) #Array of axis values
     array([[[[ 246.15,  353.26, 1031.71],
              [ 246.23,  354.25, 1031.61],
@@ -148,8 +147,8 @@ def calcAngles(data,**kargs):
     Example of returning as a tuple.
 
     >>> kinematics, joint_centers = calcAngles(data, start=None, end=None, vsk=vsk, splitAnglesAxis=False, formatData=False,returnjoints=True)
-    >>> around(kinematics[0][0], 3)
-    -0.456
+    >>> around(kinematics[0][0], 2)
+    -0.45
     >>> around(joint_centers[0]['Pelvis'], 2) #doctest: +NORMALIZE_WHITESPACE
     array([246.15, 353.26, 1031.71])
     
@@ -215,7 +214,7 @@ def calcAngles(data,**kargs):
             
         s=np.shape(axis)
         if pyver == 2:
-            axis=np.reshape(axis, (s[0], s[1]/12,4,3))
+            axis=np.reshape(axis,(s[0],s[1]/12,4,3))
         else:
             axis=np.reshape(axis,(s[0],s[1]//12,4,3))
             
@@ -349,8 +348,8 @@ def calcFrames(data,vsk):
     >>> vsk = getStatic(data,vskData,flat_foot=False)
     >>> angles, joints = calcFrames(data, vsk)
     >>> around(angles[0][0], 2)
-    -0.456
-    >>> around(joints[0]['Pelvis'], 3)
+    -0.45
+    >>> around(joints[0]['Pelvis'], 2)
     array([246.15, 353.26, 1031.71])
     """
     angles=[]

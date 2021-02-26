@@ -90,9 +90,10 @@ def length(v):
 
     Examples
     --------
+    >>> import numpy as np
     >>> from .pycgmKinetics import length
     >>> v = [1,2,3]
-    >>> length(v)
+    >>> np.around(length(v), 2)
     3.74
     """
     x,y,z = v
@@ -140,10 +141,11 @@ def unit(v):
 
     Examples
     --------
+    >>> import numpy as np
     >>> from .pycgmKinetics import unit
     >>> v = [1,2,3]
-    >>> unit(v)
-    [0.26, 0.53, 0.80]
+    >>> np.around(unit(v), 2)
+    array([0.26, 0.53, 0.80])
     """
     x,y,z = v
     mag = length(v)
@@ -166,10 +168,11 @@ def distance(p0,p1):
 
     Examples
     --------
+    >>> import numpy as np
     >>> from .pycgmKinetics import distance
     >>> p0 = [1,2,3]
     >>> p1 = [4,5,6]
-    >>> distance(p0,p1)
+    >>> np.around(distance(p0,p1), 2)
     5.19
     """
     return length(vector(p0,p1))
@@ -250,11 +253,12 @@ def pnt2line(pnt, start, end):
 
     Examples
     --------
+    >>> import numpy as np
     >>> from .pycgmKinetics import pnt2line
     >>> pnt = [1, 2, 3]
     >>> start = [4, 5, 6]
     >>> end = [7, 8, 9]
-    >>> pnt2line(pnt, start, end)
+    >>> np.around(pnt2line(pnt, start, end), 2)
     (5.19, (4.0, 5.0, 6.0), [1, 2, 3])
     """
     lineVec = vector(start, end)
@@ -278,7 +282,6 @@ def pnt2line(pnt, start, end):
     nearest = add(nearest, start)
     
     return dist, nearest, pnt
- 
   
 #def norm3d(v): 
 #    try:
@@ -315,9 +318,9 @@ def findL5_Pelvis(frame):
     >>> LHip = np.array([308, 322, 937])
     >>> RHip = np.array([182, 339, 935])
     >>> frame = { 'Pelvis_axis': Pelvis_axis, 'RHip': RHip, 'LHip': LHip}
-    >>> findL5_Pelvis(frame)
-    (array([245, 330.5, 936]),
-    array([271.06, 371.10, 1043.26]))
+    >>> np.around(findL5_Pelvis(frame), 2)
+    (array([245., 330.5, 936.]),
+    array([271.06, 371.1, 1043.27]))
     """
     #The L5 position is estimated as (LHJC + RHJC)/2 + 
     #(0.0, 0.0, 0.828) * Length(LHJC - RHJC), where the value 0.828 
@@ -331,7 +334,7 @@ def findL5_Pelvis(frame):
     
     offset = distance(RHJC,LHJC) * .925
     z_axis = frame['Pelvis_axis'][1][2] 
-    norm_dir = np.array(unit(z_axis))
+    norm_dir = np.array(unit(z_axis))   
     L5 = midHip + offset * norm_dir
 
     return midHip, L5#midHip + ([0.0, 0.0, zOffset])
@@ -363,8 +366,8 @@ def findL5_Thorax(frame):
     >>> LHip = np.array([308, 322, 937])
     >>> RHip = np.array([182, 339, 935])
     >>> frame = { 'C7': C7, 'RHip': RHip, 'LHip': LHip, 'Thorax_axis': Thorax_axis}
-    >>> findL5_Thorax(frame)
-    [264.71 358.53 1048.51]
+    >>> np.around(findL5_Thorax(frame), 2)
+    [264.72 358.53 1048.52]
     """
     C7_ = frame['C7']
     x_axis,y_axis,z_axis = frame['Thorax_axis'][0] 
@@ -374,7 +377,7 @@ def findL5_Thorax(frame):
     else:
         C7 = C7_ + 7 * norm_dir_y
         
-    norm_dir = np.array(unit(z_axis))   
+    norm_dir = np.array(unit(z_axis))
     LHJC = frame['LHip']
     RHJC = frame['RHip']
     midHip = (LHJC+RHJC)/2
@@ -415,6 +418,7 @@ def getKinetics(data, Bodymass):
     >>> from .pycgmIO import loadData, loadVSK
     >>> from .pycgmStatic import getStatic
     >>> from .pycgmCalc import calcAngles
+    >>> from numpy import around
     >>> dynamic_trial,static_trial,vsk_file,_,_ = getfilenames(x=3)
     >>> motionData  = loadData(dynamic_trial)
     SampleData/Sample_2/RoboWalk.c3d
@@ -425,8 +429,8 @@ def getKinetics(data, Bodymass):
     >>> _,joint_centers=calcAngles(motionData,start=None,end=None,vsk=calSM,
     ...                            splitAnglesAxis=False,formatData=False,returnjoints=True)
     >>> CoM_coords = getKinetics(joint_centers, calSM['Bodymass'])
-    >>> CoM_coords[0] #doctest: +NORMALIZE_WHITESPACE
-    array([-942.76 , -3.58, 865.32])
+    >>> around(CoM_coords[0], 2) #doctest: +NORMALIZE_WHITESPACE
+    array([-942.76, -3.58, 865.32])
     """
     
     #get PiG scaling table

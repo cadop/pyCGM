@@ -24,7 +24,6 @@ def getfilenames(x=1):
     -------
     >>> import os 
     >>> from .pyCGM_Helpers import getfilenames
-    >>> import os
     >>> getfilenames() #doctest: +NORMALIZE_WHITESPACE
     ('SampleData/59993_Frame/59993_Frame_Dynamic.c3d', 
     'SampleData/59993_Frame/59993_Frame_Static.c3d', 
