@@ -52,16 +52,13 @@ def calcFramesClusters(data,vsk):
         #get list of markers that are not in the dynamic
         removedMarkers = [name for name in missingMarkerName if name not in frame ]
 
-        # get list of markers that are not in the dynamic
-        removedMarkers = [name for name in missingMarkerName if name not in frame]
-
         for item in removedMarkers:
             frame[item] = (float('nan'),float('nan'),float('nan'))
         
         # for each marker that is missing, find the nearest previous frame that the
         # cluster and marker exists and calculate the transform
         markers = {k:frame[k] for k in missingMarkerName}
-        if np.any(np.isnan(list(markers.values()))):
+        if np.any(np.isnan(list(markers.values()))):  
             for key in markers:
                 if np.isnan(markers[key][0]) == False: continue
                 
