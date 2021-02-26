@@ -365,7 +365,7 @@ def staticCalculationHead(frame,head):
     ...        [98.97, 83.58, 1483.77],
     ...        [99.35, 82.64, 1484.76]],
     ...        [99.58, 82.79, 1483.8]]
-    >>> np.around(staticCalculationHead(frame,head),8)
+    >>> np.around(staticCalculationHead(frame,head), 2)
     0.28
     """
     headAxis = head[0]
@@ -1051,7 +1051,7 @@ def ankleJointCenter(frame,knee_JC,delta,vsk=None):
     ...            [143.65, 280.05, 525.77]]])]
     >>> delta = 0
     >>> ankleJointCenter(frame,knee_JC,delta,vsk) #doctest: +NORMALIZE_WHITESPACE
-    array([393.76163633, 247.67765724,  87.73637664]),
+    [array([393.76163633, 247.67765724,  87.73637664]),
     array([ 98.7457711 , 219.46936917,  80.63151702]),
     [[array([394.48153357, 248.37137677,  87.71398948]),
     array([393.070961 , 248.3904586,  87.6143856]),
@@ -2118,8 +2118,9 @@ def norm3d(v):
     --------
     >>> import numpy as np
     >>> from .pycgmStatic import norm3d
-    >>> np.around(norm3d(v), 2)
-    389.69
+    >>> v = [124.98, 368.64, 18.43]
+    >>> norm3d(v)
+    array(389.68591827)
     """
     try:
         return np.asarray(sqrt((v[0]*v[0]+v[1]*v[1]+v[2]*v[2])))
