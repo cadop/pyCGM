@@ -145,7 +145,7 @@ def unit(v):
     >>> from .pycgmKinetics import unit
     >>> v = [1,2,3]
     >>> np.around(unit(v), 2)
-    array([0.26, 0.53, 0.80])
+    array([0.27, 0.53, 0.8 ])
     """
     x,y,z = v
     mag = length(v)
@@ -173,7 +173,7 @@ def distance(p0,p1):
     >>> p0 = [1,2,3]
     >>> p1 = [4,5,6]
     >>> np.around(distance(p0,p1), 2)
-    5.19
+    5.2
     """
     return length(vector(p0,p1))
   
@@ -256,10 +256,10 @@ def pnt2line(pnt, start, end):
     >>> import numpy as np
     >>> from .pycgmKinetics import pnt2line
     >>> pnt = [1, 2, 3]
-    >>> start = [4, 5, 6]
-    >>> end = [7, 8, 9]
-    >>> np.around(pnt2line(pnt, start, end), 2)
-    (5.19, (4.0, 5.0, 6.0), [1, 2, 3])
+    >>> start = [4, 2, 3]
+    >>> end = [2, 2, 3]
+    >>> pnt2line(pnt, start, end)
+    (1.0, (2.0, 2.0, 3.0), [1, 2, 3])
     """
     lineVec = vector(start, end)
 
@@ -318,9 +318,9 @@ def findL5_Pelvis(frame):
     >>> LHip = np.array([308, 322, 937])
     >>> RHip = np.array([182, 339, 935])
     >>> frame = { 'Pelvis_axis': Pelvis_axis, 'RHip': RHip, 'LHip': LHip}
-    >>> np.around(findL5_Pelvis(frame), 2)
-    (array([245., 330.5, 936.]),
-    array([271.06, 371.1, 1043.27]))
+    >>> np.around(findL5_Pelvis(frame), 2) #doctest: +NORMALIZE_WHITESPACE
+    array([[ 245.  ,  330.5 ,  936.  ],
+       [ 271.06,  371.1 , 1043.27]])
     """
     #The L5 position is estimated as (LHJC + RHJC)/2 + 
     #(0.0, 0.0, 0.828) * Length(LHJC - RHJC), where the value 0.828 
@@ -366,8 +366,8 @@ def findL5_Thorax(frame):
     >>> LHip = np.array([308, 322, 937])
     >>> RHip = np.array([182, 339, 935])
     >>> frame = { 'C7': C7, 'RHip': RHip, 'LHip': LHip, 'Thorax_axis': Thorax_axis}
-    >>> np.around(findL5_Thorax(frame), 2)
-    [264.72 358.53 1048.52]
+    >>> np.around(findL5_Thorax(frame), 2) #doctest: +NORMALIZE_WHITESPACE
+    array([ 264.72,  358.53, 1048.52])
     """
     C7_ = frame['C7']
     x_axis,y_axis,z_axis = frame['Thorax_axis'][0] 
@@ -430,7 +430,7 @@ def getKinetics(data, Bodymass):
     ...                            splitAnglesAxis=False,formatData=False,returnjoints=True)
     >>> CoM_coords = getKinetics(joint_centers, calSM['Bodymass'])
     >>> around(CoM_coords[0], 2) #doctest: +NORMALIZE_WHITESPACE
-    array([-942.76, -3.58, 865.32])
+    array([-942.76, -3.58, 865.33])
     """
     
     #get PiG scaling table

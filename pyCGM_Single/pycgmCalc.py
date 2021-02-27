@@ -136,27 +136,79 @@ def calcAngles(data,**kargs):
     Example of default behavior.
 
     >>> result = calcAngles(data, vsk=vsk)
-    >>> around(result[0], 2) #Array of joint angles
-    array([[[-0.45, -5.76, 4.80],...]]])
-    >>> around(result[1], 2) #Array of axis values
+    >>> around(result[0], 2) #Array of joint angles #doctest: +NORMALIZE_WHITESPACE 
+    array([[[ -0.46,  -5.76,   4.81],
+            [  3.04,  -7.02, -17.41],
+            [ -3.  ,  -4.54,  -1.74],
+            ...,
+            [ 36.3 ,   0.  ,   0.  ],
+            [  9.92,  15.25, 126.24],
+            [  6.64,  17.64, 123.81]]])
+    >>> around(result[1], 2) #Array of axis values #doctest: +NORMALIZE_WHITESPACE
     array([[[[ 246.15,  353.26, 1031.71],
-             [ 246.23,  354.25, 1031.61],
-             [ 245.15,  353.34, 1031.69],
-             [ 246.14,  353.36, 1032.70]],...]]]])
+         [ 246.24,  354.25, 1031.61],
+         [ 245.16,  353.35, 1031.7 ],
+         [ 246.14,  353.36, 1032.71]],
+        [[ 242.69,  292.98,  935.23],
+         [ 242.78,  293.97,  935.13],
+         [ 241.7 ,  293.06,  935.22],
+         [ 242.68,  293.08,  936.23]],
+        [[ 363.02,  263.19,  515.1 ],
+         [ 363.4 ,  264.12,  515.09],
+         [ 362.11,  263.56,  514.95],
+         [ 362.89,  263.25,  516.09]],
+        ...,
+        [[-257.3 ,  443.58, 1092.44],
+         [-257.85,  442.87, 1092.  ],
+         [-256.59,  443.46, 1091.75],
+         [-256.86,  442.89, 1093.01]],
+        [[ 776.47,  585.58, 1076.91],
+         [ 776.52,  585.83, 1077.88],
+         [ 775.57,  586.01, 1076.85],
+         [ 776.04,  584.71, 1077.16]],
+        [[-306.32,  509.94, 1068.27],
+         [-306.46,  510.19, 1069.23],
+         [-307.13,  509.36, 1068.3 ],
+         [-305.75,  509.17, 1068.55]]],
+       [[[ 245.92,  353.54, 1031.5 ],
+         [ 246.  ,  354.53, 1031.4 ],
+         [ 244.92,  353.63, 1031.48],
+         [ 245.91,  353.64, 1032.49]],
+        [[ 242.36,  293.22,  935.04],
+         [ 242.45,  294.21,  934.94],
+         [ 241.37,  293.3 ,  935.03],
+         [ 242.36,  293.32,  936.04]],
+        [[ 362.87,  263.42,  515.01],
+         [ 363.24,  264.35,  515.01],
+         [ 361.95,  263.79,  514.86],
+         [ 362.74,  263.48,  516.  ]],
+        ...,
+        [[-257.3 ,  443.54, 1092.48],
+         [-257.85,  442.83, 1092.03],
+         [-256.59,  443.42, 1091.79],
+         [-256.86,  442.84, 1093.05]],
+        [[ 776.48,  585.5 , 1076.9 ],
+         [ 776.53,  585.75, 1077.87],
+         [ 775.57,  585.93, 1076.84],
+         [ 776.05,  584.63, 1077.15]],
+        [[-306.32,  509.89, 1068.3 ],
+         [-306.46,  510.14, 1069.26],
+         [-307.13,  509.31, 1068.33],
+         [-305.75,  509.12, 1068.58]]]])
 
     Example of returning as a tuple.
 
     >>> kinematics, joint_centers = calcAngles(data, start=None, end=None, vsk=vsk, splitAnglesAxis=False, formatData=False,returnjoints=True)
     >>> around(kinematics[0][0], 2)
-    -0.45
+    -0.46
     >>> around(joint_centers[0]['Pelvis'], 2) #doctest: +NORMALIZE_WHITESPACE
-    array([246.15, 353.26, 1031.71])
+    array([ 246.15,  353.26, 1031.71])
     
     Example without returning joints.
 
     >>> kinematics = calcAngles(data, vsk=vsk, splitAnglesAxis=False, formatData=False,returnjoints=False)
     >>> around(kinematics[0][0], 2)
-    -0.45
+    -0.46
     """
 
     start=0
@@ -291,16 +343,16 @@ def Calc(start,end,data,vsk):
     >>> end = 3
     >>> angles, jcs = Calc(start, end, data, vsk)
     >>> around(angles[0][0], 2) #Frame 0
-    -0.45
+    -0.46
     >>> around(angles[1][0], 2) #Frame 1
-    -0.45
+    -0.46
     >>> around(angles[2][0], 2) #Frame 2
-    -0.45
+    -0.46
 
     >>> around(jcs[0]['Pelvis'], 2)
-    array([246.15, 353.26, 1031.71])
+    array([ 246.15,  353.26, 1031.71])
     >>> around(jcs[1]['Pelvis'], 2)
-    array([246.16, 353.27, 1031.71])
+    array([ 246.16,  353.27, 1031.72])
     """
     d=data[start:end]
     angles,jcs=calcFrames(d,vsk)
@@ -348,9 +400,9 @@ def calcFrames(data,vsk):
     >>> vsk = getStatic(data,vskData,flat_foot=False)
     >>> angles, joints = calcFrames(data, vsk)
     >>> around(angles[0][0], 2)
-    -0.45
-    >>> around(joints[0]['Pelvis'], 2)
-    array([246.15, 353.26, 1031.71])
+    -0.46
+    >>> around(joints[0]['Pelvis'], 2) #doctest: +NORMALIZE_WHITESPACE
+    array([ 246.15,  353.26, 1031.71])
     """
     angles=[]
     joints=[] #added this here for normal data
