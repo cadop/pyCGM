@@ -549,7 +549,7 @@ def loadCSV(filename):
 
         # Rows will hold frequency, headers, fields, and one row of data
         >>> rows = [None, None, None, None]
-        >>> rows[0] = '240,Hz\n'
+        >>> rows[0] = '240.00,Hz\n'
         >>> rows[1] = ',LFHD,,,RFHD\n'
         >>> rows[2] = 'Field #,X,Y,Z,X,Y,Z\n'
         >>> rows[3] = '1, -1003, 81, 1522, -1022, -47, 1519\n'
