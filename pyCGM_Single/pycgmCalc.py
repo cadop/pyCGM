@@ -49,7 +49,7 @@ SA=EJA
 EA=SA+72*3
 
 def calcKinetics(data, Bodymass):
-    """Calculates center of mass values. 
+    """Calculates center of mass values.
 
     Estimates whole body center of mass in global coordinate system using PiG scaling 
     factors for determining individual segment center of mass.
