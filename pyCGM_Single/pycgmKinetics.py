@@ -153,7 +153,7 @@ def unit(v):
 
 def distance(p0,p1):
     """Calculate distance between two points
-    
+
     Parameters
     ----------
     p0 : list
@@ -373,7 +373,7 @@ def findL5_Thorax(frame):
     array([ 265.16,  359.12, 1049.06])
     """
     C7_ = frame['C7']
-    x_axis,y_axis,z_axis = frame['Thorax_axis'][0] 
+    x_axis,y_axis,z_axis = frame['Thorax_axis'][0]
     norm_dir_y = np.array(unit(y_axis))
     if C7_[1] >= 0:
         C7 = C7_ + 7 * -norm_dir_y
@@ -497,7 +497,7 @@ def getKinetics(data, Bodymass):
                 if seg == 'Pelvis':
 
                     midHip,L5 = findL5_Pelvis(frame) #see function above
-                    segTemp[seg]['Prox'] = midHip 
+                    segTemp[seg]['Prox'] = midHip
                     segTemp[seg]['Dist'] = L5
 
                 if seg == 'Thorax':
@@ -513,7 +513,7 @@ def getKinetics(data, Bodymass):
                     #_,L5 = findL5_Pelvis(frame)
                     C7 = frame['C7']
 
-                    #y_axis = frame['Thorax_axis'][0][0] 
+                    #y_axis = frame['Thorax_axis'][0][0]
                     #norm_dir_y = np.array(unit(y_axis))
                     #if C7_[1] >= 0:
                     #    C7 = C7_ + 100000 * norm_dir_y
@@ -542,8 +542,8 @@ def getKinetics(data, Bodymass):
                     segTemp[seg]['Dist'] = np.array(newL5)
 
                 if seg == 'Humerus':
-                    segTemp[s+seg]['Prox'] = frame[s+'Shoulder'] 
-                    segTemp[s+seg]['Dist'] = frame[s+'Humerus'] 
+                    segTemp[s+seg]['Prox'] = frame[s+'Shoulder']
+                    segTemp[s+seg]['Dist'] = frame[s+'Humerus']
 
                 if seg == 'Radius':
                     segTemp[s+seg]['Prox'] = frame[s+'Humerus']
