@@ -62,7 +62,6 @@ def pelvisJointCenter(frame):
             lower extremity kinematics during level walking,” J. Orthop. Res.,
             vol. 8, no. 3, pp. 383–392, May 1990, doi: 10.1002/jor.1100080310.
 
-
     Examples
     --------
     >>> import numpy as np
