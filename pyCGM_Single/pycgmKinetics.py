@@ -310,17 +310,17 @@ def findL5_Pelvis(frame):
     --------
     >>> import numpy as np
     >>> from .pycgmKinetics import findL5_Pelvis
-    >>> Pelvis_axis = [np.array([251, 391, 1032]),
-    ...                np.array([[251, 392, 1032],
-    ...                    [250, 391, 1032],
-    ...                    [251, 391, 1033]]),
-    ...                np.array([231, 210, 1052])]
-    >>> LHip = np.array([308, 322, 937])
-    >>> RHip = np.array([182, 339, 935])
+    >>> Pelvis_axis = [np.array([251.60, 391.74, 1032.89]),
+    ...                np.array([[251.74, 392.72, 1032.78],
+    ...                    [250.61, 391.87, 1032.87],
+    ...                    [251.60, 391.84, 1033.88]]),
+    ...                np.array([231.57, 210.25, 1052.24])]
+    >>> LHip = np.array([308.38, 322.80, 937.98])
+    >>> RHip = np.array([182.57, 339.43, 935.52])
     >>> frame = { 'Pelvis_axis': Pelvis_axis, 'RHip': RHip, 'LHip': LHip}
     >>> np.around(findL5_Pelvis(frame), 2) #doctest: +NORMALIZE_WHITESPACE
-    array([[ 245.  ,  330.5 ,  936.  ],
-       [ 271.06,  371.1 , 1043.27]])
+    array([[ 245.48,  331.12,  936.75],
+           [ 271.53,  371.69, 1043.8 ]])
     """
     #The L5 position is estimated as (LHJC + RHJC)/2 + 
     #(0.0, 0.0, 0.828) * Length(LHJC - RHJC), where the value 0.828 
@@ -358,16 +358,16 @@ def findL5_Thorax(frame):
     --------
     >>> from .pycgmKinetics import findL5_Thorax
     >>> import numpy as np
-    >>> Thorax_axis = [[[256, 365, 1461],
-    ...               [257, 364, 1462],
-    ...               [256, 364, 1461]],
-    ...               [256, 364, 1462]]
-    >>> C7 = np.array([256, 371, 1459])
-    >>> LHip = np.array([308, 322, 937])
-    >>> RHip = np.array([182, 339, 935])
+    >>> Thorax_axis = [[[256.34, 365.72, 1461.92], 
+    ...               [257.26, 364.69, 1462.23], 
+    ...               [256.18, 364.43, 1461.36]], 
+    ...               [256.27, 364.79, 1462.29]]
+    >>> C7 = np.array([256.78, 371.28, 1459.70])
+    >>> LHip = np.array([308.38, 322.80, 937.98])
+    >>> RHip = np.array([182.57, 339.43, 935.52])
     >>> frame = { 'C7': C7, 'RHip': RHip, 'LHip': LHip, 'Thorax_axis': Thorax_axis}
     >>> np.around(findL5_Thorax(frame), 2) #doctest: +NORMALIZE_WHITESPACE
-    array([ 264.72,  358.53, 1048.52])
+    array([ 265.16,  359.12, 1049.06])
     """
     C7_ = frame['C7']
     x_axis,y_axis,z_axis = frame['Thorax_axis'][0] 
