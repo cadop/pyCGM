@@ -107,7 +107,7 @@ def calcAngles(data,**kargs):
     -------
     r, jcs : array_like
         `r` is a list of joint angle values for each frame.
-        `jcs` is a list of dictionaries, each of which holds joint 
+        `jcs` is a list of dictionaries, each of which holds joint
         center locations for each frame. Returned only if returnjoints
         is True.
 
@@ -252,7 +252,7 @@ def Calc(start,end,data,vsk):
     """Calculates angles and joint values for marker data in a given range
 
     This function is a wrapper around `calcFrames`. It calls `calcFrames`
-    with the given `data` and `vsk` inputs starting at index `start` and 
+    with the given `data` and `vsk` inputs starting at index `start` and
     ending at index `end` in `data`.
 
     Parameters
@@ -323,7 +323,7 @@ def Calc(start,end,data,vsk):
 
 def calcFrames(data,vsk):
     """Calculates angles and joint values for given marker data
-    
+
     Parameters
     ----------
     data : array of dict or array
@@ -335,7 +335,7 @@ def calcFrames(data,vsk):
     vsk : dict or array
         Dictionary containing subject measurement values, or array of labels
         and data `[labels, data]`.
- 
+
     Returns
     -------
     angles, joints : tuple
@@ -369,9 +369,9 @@ def calcFrames(data,vsk):
     angles=[]
     joints=[] #added this here for normal data
     if type(data[0])!=type({}):
-        data=createMotionDataDict(data[0],data[1])
+        data=createMotionDataDict(data[0], data[1])
     if type(vsk)!=type({}):
-        vsk=createVskDataDict(vsk[0],vsk[1])
+        vsk=createVskDataDict(vsk[0], vsk[1])
 
     #just accept that the data is missing
     for frame in data:
