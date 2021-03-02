@@ -413,6 +413,14 @@ def getKinetics(data, Bodymass):
     The PiG scaling factors are taken from Dempster -- they are available at:
     http://www.c-motion.com/download/IORGaitFiles/pigmanualver1.pdf
 
+    Todo
+    ----
+    Tidy up and optimise code
+
+    Joint moments etc.
+
+    Figure out weird offset
+
     Examples
     --------
     >>> from .pyCGM_Helpers import getfilenames
