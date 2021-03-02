@@ -1305,7 +1305,7 @@ def shoulderAxisCalc(frame,thorax,shoulderJC,wand):
 
     Parameters
     ----------
-    frame : dict, optional
+    frame : dict
         Dictionaries of marker lists.
     thorax : array
         The x,y,z position of the thorax.
