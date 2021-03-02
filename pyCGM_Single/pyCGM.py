@@ -2414,11 +2414,10 @@ def norm3d(v):
 
     Examples
     --------
-    >>> import numpy as np
     >>> from .pyCGM import norm3d
     >>> v = [125.44928201, 143.94301493, 213.49204956]
-    >>> np.around(norm3d(v))
-    286.0
+    >>> norm3d(v)
+    array(286.4192192)
     """
     try:
         return np.asarray(sqrt((v[0]*v[0]+v[1]*v[1]+v[2]*v[2])))
