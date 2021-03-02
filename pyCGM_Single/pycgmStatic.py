@@ -430,12 +430,12 @@ def headoffCalc(axisP, axisD):
 def staticCalculation(frame,ankle_JC,knee_JC,flat_foot,vsk=None):
     """Calculate the Static angle function
 
-    Takes in anatomically incorrect axis and anatomically correct axis.
+    Takes in anatomically uncorrected axis and anatomically correct axis.
     Corrects the axis depending on flat-footedness.
 
     Calculates the offset angle between those two axes.
 
-    It is rotated from incorrect axis in YXZ order.
+    It is rotated from uncorrected axis in YXZ order.
 
     Parameters
     ----------
@@ -459,7 +459,7 @@ def staticCalculation(frame,ankle_JC,knee_JC,flat_foot,vsk=None):
 
     Modifies
     --------
-    The correct axis changes depending on flat-footedness.
+    The correct axis changes depending on the flat foot option.
 
     Examples
     --------
@@ -1206,8 +1206,8 @@ def footJointCenter(frame,static_info,ankle_JC,knee_JC,delta):
 
     Special Cases:
 
-    (anatomically incorrect foot axis)
-    If flat-footed, make the reference markers instead of HEE marker whose height
+    (anatomically uncorrected foot axis)
+    If flat foot, make the reference markers instead of HEE marker whose height
     is the same as TOE marker's height. Else use the HEE marker for making Z axis.
 
     Markers used: RTOE,LTOE,RHEE, LHEE
@@ -1230,7 +1230,7 @@ def footJointCenter(frame,static_info,ankle_JC,knee_JC,delta):
     Returns
     -------
     R, L, foot_axis : list
-        Returns a list that contain the toe axis' (right and left) origin in 1x3 arrays
+        Returns a list that contain the foot axis' (right and left) origin in 1x3 arrays
         of xyz values and a 2x3x3 list composed of the foot axis center x, y, and z
         axis components. The xyz axis components are 2x3 lists consisting of the axis center
         in the first dimension and the direction of the axis in the second dimension.
@@ -1543,7 +1543,7 @@ def headJC(frame):
     return [head_axis,origin]
 
 def uncorrect_footaxis(frame,ankle_JC):
-    """Calculate the anatomically incorrect foot joint center and axis function.
+    """Calculate the anatomically uncorrected foot joint center and axis function.
 
     Takes in a dictionary of xyz positions and marker names
     and takes the ankle axis.
@@ -2225,4 +2225,3 @@ def cross(a, b):
         a[0]*b[1] - a[1]*b[0]]
 
     return c
-  
