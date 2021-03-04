@@ -304,8 +304,8 @@ def findL5_Pelvis(frame):
     Returns
     -------
     midHip, L5 : tuple
-        Returns the (x, y, z) marker positions of the midHip (1x3 array)
-        and L5 (1x3 array) in a tuple.
+        Returns the (x, y, z) marker positions of the midHip, a (1x3) array,
+        and L5, a (1x3) array, in a tuple.
 
     Examples
     --------
@@ -353,7 +353,7 @@ def findL5_Thorax(frame):
     Returns
     -------
     L5 : array
-        Returns the (x, y, z) marker positions of the L5 in a 1x3 array.
+        Returns the (x, y, z) marker positions of the L5 in a (1x3) array.
 
     Examples
     --------
