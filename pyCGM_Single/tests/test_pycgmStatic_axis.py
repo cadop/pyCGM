@@ -173,9 +173,9 @@ class TestPycgmStaticAxis():
         if there are values for frame['RASI'] and frame['LASI']
         Values produced from frame['SACR'] takes precedent over frame['RPSI'] and frame['LPSI']
 
-        If RPSI and LPSI are given, then the sacrum will be the midpoint of those two markers. If they are not given then the sacrum is already calculated / specified. 
+        If RPSI and LPSI are given, then the sacrum will be the midpoint of those two markers. If they are not given then the sacrum is already calculated / specified.
         The origin of the pelvis is midpoint of the RASI and LASI markers.
-        The axis of the pelvis is calculated using LASI, RASI, origin, and sacrum in the Gram-Schmidt orthogonalization procedure (ref. Kadaba 1990). 
+        The axis of the pelvis is calculated using LASI, RASI, origin, and sacrum in the Gram-Schmidt orthogonalization procedure (ref. Kadaba 1990).
 
         Lastly, it checks that the resulting output is correct when frame is composed of lists of ints, numpy arrays of
         ints, lists of floats, and numpy arrays of floats. frame['LASI'] and frame['RASI'] were kept as numpy arrays
@@ -350,10 +350,10 @@ class TestPycgmStaticAxis():
         When values are added to pelvis_axis, expected[1] should be updated
 
 
-        The hip axis center is calculated using the midpoint of the right and left hip joint centers. 
-        Then, the given pelvis_axis variable is converted into x,y,z axis format. 
+        The hip axis center is calculated using the midpoint of the right and left hip joint centers.
+        Then, the given pelvis_axis variable is converted into x,y,z axis format.
         The pelvis axis is then translated to the shared hip center by calculating the sum of:
-        pelvis_axis axis component + hip_axis_center axis component 
+        pelvis_axis axis component + hip_axis_center axis component
 
         Lastly, it checks that the resulting output is correct when l_hip_jc, r_hip_jc, and pelvis_axis are composed of
         lists of ints, numpy arrays of ints, lists of floats, and numpy arrays of floats.
@@ -364,19 +364,18 @@ class TestPycgmStaticAxis():
 
     @pytest.mark.parametrize(["frame", "hip_JC", "vsk", "mockReturnVal", "expectedMockArgs", "expected"], [
         # Test from running sample data
-        ({'RTHI': np.array([426.50338745, 262.65310669, 673.66247559]),
-          'LTHI': np.array([51.93867874, 320.01849365, 723.03186035]),
-          'RKNE': np.array([416.98687744, 266.22558594, 524.04089355]),
-          'LKNE': np.array([84.62355804, 286.69122314, 529.39819336])},
-         [[182.57097863, 339.43231855, 935.52900126], [308.38050472, 322.80342417, 937.98979061]],
+        ({'RTHI': np.array([426.50, 262.65, 673.66]),
+           'LTHI': np.array([51.94, 320.02, 723.03]),
+           'RKNE': np.array([416.99, 266.23, 524.04]),
+           'LKNE': np.array([84.62, 286.69, 529.4])},
+         [[182.57, 339.43, 935.53], [309.38, 322.80, 937.99]],
          {'RightKneeWidth': 105.0, 'LeftKneeWidth': 105.0},
-         [np.array([364.17774614, 292.17051722, 515.19181496]), np.array([143.55478579, 279.90370346, 524.78408753])],
-         [[[426.50338745, 262.65310669, 673.66247559], [308.38050472, 322.80342417, 937.98979061], [416.98687744, 266.22558594, 524.04089355], 59.5],
-          [[51.93867874, 320.01849365, 723.03186035], [182.57097863, 339.43231855, 935.52900126], [84.62355804, 286.69122314, 529.39819336], 59.5]],
-         [np.array([364.17774614, 292.17051722, 515.19181496]),
-          np.array([143.55478579, 279.90370346, 524.78408753]),
-          np.array([[[364.61959153, 293.06758353, 515.18513093], [363.29019771, 292.60656648, 515.04309095], [364.04724541, 292.24216264, 516.18067112]],
-                    [[143.65611282, 280.88685896, 524.63197541], [142.56434499, 280.01777943, 524.86163553], [143.64837987, 280.04650381, 525.76940383]]])]),
+         [np.array([364.24, 292.34, 515.31]), np.array([143.55, 279.90, 524.79])],
+         [[[426.50, 262.65, 673.66], [51.94, 320.02, 723.03], [416.99, 266.23, 524.04], [84.62, 286.69, 529.4]],
+          [[182.57, 339.43, 935.53], [309.38, 322.80, 937.99]]],
+         [np.array([364.69, 292.17, 515.19]), np.array([143.55, 279.90, 524.78]),
+          np.array([[[364.62, 292.78, 515.17], [363.36, 292.42, 516.30], [364.12, 292.42, 516.30]],
+                    [[143.65, 280.88, 524.63], [142.56, 280.01, 524.86], [143.64, 280.04, 525.77]]])]),
         # Test with zeros for all params
         ({'RTHI': np.array([0, 0, 0]), 'LTHI': np.array([0, 0, 0]), 'RKNE': np.array([0, 0, 0]), 'LKNE': np.array([0, 0, 0])},
          [[0, 0, 0], [0, 0, 0]],
@@ -502,11 +501,11 @@ class TestPycgmStaticAxis():
         This test is checking to make sure the knee joint center and axis are calculated correctly given the input
         parameters. This tests mocks findJointC to make sure the correct parameters are being passed into it given the
         parameters passed into kneeJointCenter, and to also ensure that kneeJointCenter returns the correct value considering
-        the return value of findJointC, mockReturnVal. 
+        the return value of findJointC, mockReturnVal.
 
-        For each direction (L or R) D, the D knee joint center is calculated using DTHI, D hip joint center, and 
+        For each direction (L or R) D, the D knee joint center is calculated using DTHI, D hip joint center, and
         DKNE in the Rodriques' rotation formula. The knee width for each knee is applied after the rotation in the formula as well.
-        Each knee joint center and the RKNE / LKNE markers are used in the Knee Axis Calculation 
+        Each knee joint center and the RKNE / LKNE markers are used in the Knee Axis Calculation
         (ref. Clinical Gait Analysis hand book, Baker2013) calculation formula.
 
         Lastly, it checks that the resulting output is correct when hip_JC is composed of lists of ints, numpy arrays of
@@ -542,21 +541,22 @@ class TestPycgmStaticAxis():
 
     @pytest.mark.parametrize(["frame", "knee_JC", "vsk", "mockReturnVal", "expectedMockArgs", "expected"], [
         # Test from running sample data
-        ({'RTIB': np.array([433.97537231, 211.93408203, 273.3008728 ]), 'LTIB': np.array([50.04016495, 235.90718079, 364.32226562]),
-          'RANK': np.array([422.77005005, 217.74053955, 92.86152649]), 'LANK': np.array([58.57380676, 208.54806519, 86.16953278])},
-         [np.array([364.17774614, 292.17051722, 515.19181496]), np.array([143.55478579, 279.90370346, 524.78408753]),
+        ({'RTIB': np.array([433.98, 211.93, 273.30]), 'LTIB': np.array([50.04, 235.91, 364.32]),
+          'RANK': np.array([422.77, 217.74, 92.86]), 'LANK': np.array([58.57, 208.55, 86.17])},
+         [np.array([364.18, 292.17, 515.19]), np.array([143.55, 279.90, 524.78]),
           np.array([[rand_coor, rand_coor, rand_coor], [rand_coor, rand_coor, rand_coor]])],
          {'RightAnkleWidth': 70.0, 'LeftAnkleWidth': 70.0, 'RightTibialTorsion': 0.0, 'LeftTibialTorsion': 0.0},
-         [np.array([393.76181608, 247.67829633,  87.73775041]), np.array([98.74901939, 219.46930221,  80.6306816])],
-         [[[433.97537231, 211.93408203, 273.3008728 ], [364.17774614, 292.17051722, 515.19181496], [422.77005005, 217.74053955, 92.86152649], 42.0],
-          [[50.04016495, 235.90718079, 364.32226562], [143.55478579, 279.90370346, 524.78408753], [58.57380676, 208.54806519, 86.16953278], 42.0]],
-         [np.array([393.76181608, 247.67829633, 87.73775041]), np.array([98.74901939, 219.46930221, 80.6306816]),
-          [[np.array([394.48171575, 248.37201348, 87.715368]),
-            np.array([393.07114384, 248.39110006, 87.61575574]),
-            np.array([393.69314056, 247.78157916, 88.73002876])],
-           [np.array([98.47494966, 220.42553803, 80.52821783]),
-            np.array([97.79246671, 219.20927275, 80.76255901]),
-            np.array([98.84848169, 219.60345781, 81.61663775])]]]),
+         [np.array([393.76, 247.68, 87.74]), np.array([98.75, 219.47, 80.63]),
+          [[np.array([394.48, 248.37, 87.71]), np.array([393.07 , 248.39, 87.61]), np.array([393.69, 247.78, 8.73])],
+           [np.array([98.47, 220.43, 80.53]), np.array([97.79, 219.21, 80.76]),np.array([98.85, 219.60, 81.62])]]],
+         [[[433.98, 211.93, 273.30], [50.04, 235.91, 364.32], [422.77, 217.74, 92.86], [58.57, 208.55, 86.17]],
+          [np.array([364.18, 292.17, 515.19]), np.array([143.55, 279.90, 524.78]),
+           np.array([[[364.65, 293.07, 515.18], [363.29, 292.61, 515.04], [364.05, 292.24, 516.18]],
+                     [[143.66, 280.89, 524.63], [142.56, 280.02, 524.86], [143.65, 280.05, 525.77]]])],
+          [70.0, 70.0, 0.0, 0.0]],
+         [np.array([393.76, 247.68, 87.74]), np.array([98.75, 219.47, 80.63]),
+          [[np.array([394.48, 248.37, 87.71]), np.array([393.07 , 248.39, 87.61]), np.array([393.69, 247.78, 8.73])],
+           [np.array([98.47, 220.43, 80.53]), np.array([97.79, 219.21, 80.76]), np.array([98.85, 219.60, 81.62])]]]),
         # Test with zeros for all params
         ({'RTIB': np.array([0, 0, 0]), 'LTIB': np.array([0, 0, 0]), 'RANK': np.array([0, 0, 0]), 'LANK': np.array([0, 0, 0])},
          [np.array([0, 0, 0]), np.array([0, 0, 0]),
@@ -704,7 +704,7 @@ class TestPycgmStaticAxis():
         This test is checking to make sure the ankle joint center and axis are calculated correctly given the input
         parameters. This tests mocks findJointC to make sure the correct parameters are being passed into it given the
         parameters passed into ankleJointCenter, and to also ensure that ankleJointCenter returns the correct value considering
-        the return value of findJointC, mockReturnVal. 
+        the return value of findJointC, mockReturnVal.
 
         The ankle joint center left and right origin are defined by using the ANK, Tib, and KJC marker positions in the Rodriques' rotation formula.
         The ankle joint center axis is calculated using the Ankle Axis Calculation(ref. Clinical Gait Analysis hand book, Baker2013).
@@ -741,20 +741,14 @@ class TestPycgmStaticAxis():
 
     @pytest.mark.parametrize(["frame", "static_info", "ankle_JC", "expected"], [
         # Test from running sample data
-        ({'RTOE': np.array([442.81997681, 381.62280273, 42.66047668]), 'LTOE': np.array([39.43652725, 382.44522095, 41.78911591])},
-         [[0.03482194, 0.14879424, np.random.randint(0, 10)], [0.01139704, 0.02142806, np.random.randint(0, 10)]],
-         [np.array([393.76181608, 247.67829633, 87.73775041]),
-          np.array([98.74901939, 219.46930221, 80.6306816]),
-          [[np.array(nan_3d), np.array([393.07114384, 248.39110006, 87.61575574]), np.array(nan_3d)],
-           [np.array(nan_3d), np.array([97.79246671, 219.20927275, 80.76255901]), np.array(nan_3d)]]],
-         [np.array([442.81997681, 381.62280273, 42.66047668]),
-          np.array([39.43652725, 382.44522095, 41.78911591]),
-          np.array([[[442.8881541, 381.76460597, 43.64802096],
-                     [441.89515447, 382.00308979, 42.66971773],
-                     [442.44573691, 380.70886969, 42.81754643]],
-                    [[39.50785213, 382.67891581, 42.75880631],
-                     [38.49231839, 382.14765966, 41.93027863],
-                     [39.75805858, 381.51956227, 41.98854914]]])]),
+        ({'RTOE': np.array([442.82, 381.62, 42.66]), 'LTOE': np.array([39.44, 382.45, 41.79])},
+         [[0.03, 0.15, np.random.randint(0, 10)], [0.01, 0.02, np.random.randint(0, 10)]],
+         [np.array([393.76, 247.68, 87.74]), np.array([98.75, 219.47, 80.63]),
+          [[np.array(nan_3d), np.array([393.07, 248.39, 87.62]), np.array(nan_3d)],
+          [np.array(nan_3d), np.array([97.79, 219.21, 80.76]), np.array(nan_3d)]]],
+         [np.array([442.82, 381.62,  42.66]), np.array([39.44, 382.45, 41.79]),
+          np.array([[[442.89, 381.76, 43.65], [441.89, 381.10, 42.67], [442.45, 380.70, 42.82]],
+                    [[39.51, 382.68, 42.76], [38.50, 382.15, 41.93], [39.76, 381.53, 41.99]]])]),
         # Test with zeros for all params
         ({'RTOE': np.array([0, 0, 0]), 'LTOE': np.array([0, 0, 0])},
          [[0, 0, np.random.randint(0, 10)], [0, 0, np.random.randint(0, 10)]],
@@ -947,10 +941,10 @@ class TestPycgmStaticAxis():
         when the coordinates are in different quadrants, when the midpoints will be on diagonals, and when the z
         dimension is variable. It also checks to see the difference when a value is set for HeadOffSet in vsk.
 
-        The function uses the LFHD, RFHD, LBHD, and RBHD markers from the frame to calculate the midpoints of the front, back, left, and right center positions of the head. 
+        The function uses the LFHD, RFHD, LBHD, and RBHD markers from the frame to calculate the midpoints of the front, back, left, and right center positions of the head.
         The head axis vector components are then calculated using the aforementioned midpoints.
-        Afterwords, the axes are made orthogonal by calculating the cross product of each individual axis. 
-        Finally, the head axis is then rotated around the y axis based off the head offset angle in the VSK. 
+        Afterwords, the axes are made orthogonal by calculating the cross product of each individual axis.
+        Finally, the head axis is then rotated around the y axis based off the head offset angle in the VSK.
 
         Lastly, it checks that the resulting output is correct when frame composed of lists of ints, numpy arrays of
         ints, lists of floats, and numpy arrays of floats and when headOffset is an int and a float.
@@ -1518,7 +1512,7 @@ class TestPycgmStaticAxis():
         delta: length from marker to joint center, retrieved from subject measurement file
         expected: the expected result from calling findJointC on a, b, c, and delta
 
-        A plane will be generated using the positions of three specified markers. 
+        A plane will be generated using the positions of three specified markers.
         The plane will then calculate a joint center by rotating the vector of the plane around the rotating axis (the orthogonal vector).
 
         Lastly, it checks that the resulting output is correct when a, b, and c are lists of ints, numpy arrays of ints,
