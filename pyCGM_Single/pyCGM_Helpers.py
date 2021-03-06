@@ -1,13 +1,19 @@
+"""
+This file is used to get sample data.
+"""
+
 import os
 def getfilenames(x=1):
-    """ Get Filenames function
+    """ Get Filenames for sample data.
 
     Parameters
     ----------
     x : int, optional
-        A flag that denotes which variation of files to retrieve.
-        Only works in the inclusive range of 1-3.
+        A flag (1, 2, or 3) that denotes which variation of files to retrieve.
         Default is 1 if not given.
+        1 denotes the files in the `59993_Frame` directory.
+        2 denotes the files in the `ROM` directory.
+        3 denotes the files in the `Sample_2` directory.
 
     Returns
     -------
@@ -16,23 +22,21 @@ def getfilenames(x=1):
 
     Example
     -------
+    >>> import os 
     >>> from .pyCGM_Helpers import getfilenames
-    >>> import os
     >>> getfilenames() #doctest: +NORMALIZE_WHITESPACE
     ('SampleData/59993_Frame/59993_Frame_Dynamic.c3d',
     'SampleData/59993_Frame/59993_Frame_Static.c3d',
     'SampleData/59993_Frame/59993_Frame_SM.vsk',
     'SampleData/59993_Frame/pycgm_results.csv',
     'SampleData/59993_Frame/CoM')
-    >>> x = 2
-    >>> getfilenames(x) #doctest: +NORMALIZE_WHITESPACE
+    >>> getfilenames(2) #doctest: +NORMALIZE_WHITESPACE
     ('SampleData/ROM/Sample_Dynamic.c3d',
     'SampleData/ROM/Sample_Static.c3d',
     'SampleData/ROM/Sample_SM.vsk',
     'SampleData/ROM/pycgm_results.csv',
     'SampleData/ROM/CoM')
-    >>> x = 3
-    >>> getfilenames(x) #doctest: +NORMALIZE_WHITESPACE
+    >>> getfilenames(3) #doctest: +NORMALIZE_WHITESPACE
     ('SampleData/Sample_2/RoboWalk.c3d',
     'SampleData/Sample_2/RoboStatic.c3d',
     'SampleData/Sample_2/RoboSM.vsk',
