@@ -214,7 +214,7 @@ class Param(object):
                  desc='',
                  bytes_per_element=1,
                  dimensions=None,
-                 bytes='',
+                 bytes=b'',
                  handle=None):
         '''Set up a new parameter with at least a name.
 
@@ -299,7 +299,7 @@ class Param(object):
         self.bytes_per_element, = struct.unpack('b', handle.read(1))
         dims, = struct.unpack('B', handle.read(1))
         self.dimensions = [struct.unpack('B', handle.read(1))[0] for _ in range(dims)]
-        self.bytes = ''
+        self.bytes = b''
         if self.total_bytes:
             self.bytes = handle.read(self.total_bytes)
         size, = struct.unpack('B', handle.read(1))
@@ -354,7 +354,7 @@ class Param(object):
         assert self.dimensions, \
             '{}: cannot get value as {} array!'.format(self.name, fmt)
         elems = array.array(fmt)
-        elems.fromstring(self.bytes)
+        elems.frombytes(self.bytes)
         return np.array(elems).reshape(self.dimensions)
 
     @property

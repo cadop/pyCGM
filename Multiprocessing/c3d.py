@@ -21,7 +21,13 @@
 '''A Python library for reading and writing C3D files.'''
 
 import array
-import cStringIO
+try:
+    import cStringIO as FileIO
+    pyver = 2
+except:
+    from io import BytesIO as FileIO
+    pyver = 3
+
 import numpy as np
 import operator
 import struct
@@ -213,7 +219,7 @@ class Param(object):
                  desc='',
                  bytes_per_element=1,
                  dimensions=None,
-                 bytes='',
+                 param_bytes=b'',
                  handle=None):
         '''Set up a new parameter with at least a name.
 
@@ -238,7 +244,9 @@ class Param(object):
         self.desc = desc
         self.bytes_per_element = bytes_per_element
         self.dimensions = dimensions or []
-        self.bytes = bytes
+        self.bytes = param_bytes
+        if pyver == 2:
+            self.bytes = bytes(param_bytes)
 
         if handle:
             self.read(handle)
@@ -353,7 +361,10 @@ class Param(object):
         assert self.dimensions, \
             '{}: cannot get value as {} array!'.format(self.name, fmt)
         elems = array.array(fmt)
-        elems.fromstring(self.bytes)
+        if pyver == 2:
+            elems.fromstring(self.bytes)
+        else:
+            elems.frombytes(self.bytes)
         return np.array(elems).reshape(self.dimensions)
 
     @property
@@ -754,7 +765,7 @@ class Reader(Manager):
         # boundary issues.
         bytes = self._handle.read(512 * parameter_blocks - 4)
         while bytes:
-            buf = cStringIO.StringIO(bytes)
+            buf = FileIO(bytes)
 
             chars_in_name, group_id = struct.unpack('bb', buf.read(2))
             if group_id == 0 or chars_in_name == 0:
