@@ -3,7 +3,7 @@ import pyCGM_Single.pycgmStatic as pycgmStatic
 import numpy as np
 from mock import patch
 
-rounding_precision = 8
+rounding_precision = 2
 
 class TestPycgmStaticAxis():
     """
@@ -544,7 +544,8 @@ class TestPycgmStaticAxis():
         ({'RTIB': np.array([433.98, 211.93, 273.30]), 'LTIB': np.array([50.04, 235.91, 364.32]),
           'RANK': np.array([422.77, 217.74, 92.86]), 'LANK': np.array([58.57, 208.55, 86.17])},
          [np.array([364.18, 292.17, 515.19]), np.array([143.55, 279.90, 524.78]),
-          np.array([[rand_coor, rand_coor, rand_coor], [rand_coor, rand_coor, rand_coor]])],
+          np.array([[364.65, 293.07, 515.18], [363.29, 292.61, 515.04], [364.05, 292.24, 516.18]],
+                   [[143.66, 280.89, 524.63], [142.56, 280.02, 524.86], [143.65, 280.05, 525.77]]])],
          {'RightAnkleWidth': 70.0, 'LeftAnkleWidth': 70.0, 'RightTibialTorsion': 0.0, 'LeftTibialTorsion': 0.0},
          [np.array([393.76, 247.68, 87.74]), np.array([98.75, 219.47, 80.63]),
           [[np.array([394.48, 248.37, 87.71]), np.array([393.07 , 248.39, 87.61]), np.array([393.69, 247.78, 8.73])],
@@ -742,10 +743,10 @@ class TestPycgmStaticAxis():
     @pytest.mark.parametrize(["frame", "static_info", "ankle_JC", "expected"], [
         # Test from running sample data
         ({'RTOE': np.array([442.82, 381.62, 42.66]), 'LTOE': np.array([39.44, 382.45, 41.79])},
-         [[0.03, 0.15, np.random.randint(0, 10)], [0.01, 0.02, np.random.randint(0, 10)]],
+         [[0.03, 0.15, 0], [0.01, 0.02, 0]],
          [np.array([393.76, 247.68, 87.74]), np.array([98.75, 219.47, 80.63]),
-          [[np.array(nan_3d), np.array([393.07, 248.39, 87.62]), np.array(nan_3d)],
-          [np.array(nan_3d), np.array([97.79, 219.21, 80.76]), np.array(nan_3d)]]],
+          [[np.array([394.48, 248.37, 87.72]), np.array([393.07, 248.39, 87.62]), np.array([393.69, 247.78, 88.73])],
+          [np.array([98.47, 220.43, 80.53]), np.array([97.79, 219.21, 80.76]), np.array([98.85, 219.60, 81.62])]]],
          [np.array([442.82, 381.62,  42.66]), np.array([39.44, 382.45, 41.79]),
           np.array([[[442.89, 381.76, 43.65], [441.89, 381.10, 42.67], [442.45, 380.70, 42.82]],
                     [[39.51, 382.68, 42.76], [38.50, 382.15, 41.93], [39.76, 381.53, 41.99]]])]),
