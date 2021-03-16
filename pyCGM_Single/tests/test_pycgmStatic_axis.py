@@ -5,6 +5,7 @@ from mock import patch
 
 rounding_precision = 2
 
+
 class TestPycgmStaticAxis():
     """
     This class tests the axis functions in pycgmStatic.py:
@@ -544,8 +545,8 @@ class TestPycgmStaticAxis():
         ({'RTIB': np.array([433.98, 211.93, 273.30]), 'LTIB': np.array([50.04, 235.91, 364.32]),
           'RANK': np.array([422.77, 217.74, 92.86]), 'LANK': np.array([58.57, 208.55, 86.17])},
          [np.array([364.18, 292.17, 515.19]), np.array([143.55, 279.90, 524.78]),
-          np.array([[364.65, 293.07, 515.18], [363.29, 292.61, 515.04], [364.05, 292.24, 516.18]],
-                   [[143.66, 280.89, 524.63], [142.56, 280.02, 524.86], [143.65, 280.05, 525.77]]])],
+          np.array([[[364.65, 293.07, 515.18], [363.29, 292.61, 515.04], [364.05, 292.24, 516.18]],
+                    [[143.66, 280.89, 524.63], [142.56, 280.02, 524.86], [143.65, 280.05, 525.77]]])],
          {'RightAnkleWidth': 70.0, 'LeftAnkleWidth': 70.0, 'RightTibialTorsion': 0.0, 'LeftTibialTorsion': 0.0},
          [np.array([393.76, 247.68, 87.74]), np.array([98.75, 219.47, 80.63]),
           [[np.array([394.48, 248.37, 87.71]), np.array([393.07 , 248.39, 87.61]), np.array([393.69, 247.78, 8.73])],
