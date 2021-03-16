@@ -169,7 +169,7 @@ def hipJointCenter(frame, pel_origin, pel_x, pel_y, pel_z, vsk=None):
     pel_x, pel_y, pel_z : int
         Respective axes of the pelvis.
     vsk : dict, optional
-        A dictionary containing subject measurements from a VSK file.
+        A dictionary containing subject measurements.
 
     Returns
     -------
@@ -364,7 +364,7 @@ def kneeJointCenter(frame, hip_JC, delta, vsk=None):
         The length from marker to joint center, retrieved from subject
         measurement file.
     vsk : dict, optional
-        A dictionary containing subject measurements from a VSK file.
+        A dictionary containing subject measurements.
 
     Returns
     -------
@@ -530,7 +530,7 @@ def ankleJointCenter(frame,knee_JC,delta,vsk=None):
     delta : float
         The length from marker to joint center, retrieved from subject measurement file
     vsk : dict, optional
-        A dictionary containing subject measurements from a VSK file.
+        A dictionary containing subject measurements.
 
     Returns
     -------
@@ -731,7 +731,7 @@ def footJointCenter(frame,vsk,ankle_JC,knee_JC,delta):
     frame : dict
         Dictionaries of marker lists.
     vsk : dict
-        A dictionary containing subject measurements from a VSK file.
+        A dictionary containing subject measurements.
     ankle_JC : array
         An array of ankle_JC containing the x,y,z axes marker positions of the ankle joint center.
     knee_JC : array
@@ -976,7 +976,7 @@ def headJC(frame,vsk=None):
     frame : dict
         Dictionaries of marker lists.
     vsk : dict, optional
-        A dictionary containing subject measurements from a VSK file.
+        A dictionary containing subject measurements.
 
     Returns
     -------
@@ -1244,7 +1244,7 @@ def findshoulderJC(frame,thorax,wand,vsk=None):
     wand : array
         Array containing two x,y,z markers for wand.
     vsk : dict, optional
-        A dictionary containing subject measurements from a VSK file.
+        A dictionary containing subject measurements.
 
     Returns
     -------
@@ -1439,7 +1439,7 @@ def elbowJointCenter(frame,thorax,shoulderJC,wand,vsk=None):
     wand : array
         The x,y,z position of the wand.
     vsk : dict, optional
-        A dictionary containing subject measurements from a VSK file.
+        A dictionary containing subject measurements.
 
     Returns
     -------
@@ -1837,7 +1837,7 @@ def handJointCenter(frame,elbowJC,wristJC,vsk=None):
     """Calculate the Hand joint axis (Hand).
 
     Takes in a dictionary of marker names to x, y, z positions, wrist axis
-    subject measurements from a VSK file.
+    subject measurements.
     Calculate each Hand joint axis and returns it.
 
     Markers used: RWRA, RWRB, LWRA, LWRB, RFIN, LFIN
@@ -1852,7 +1852,7 @@ def handJointCenter(frame,elbowJC,wristJC,vsk=None):
     wristJC : array
         The x,y,z position of the wrist joint center.
     vsk : dict, optional
-        A dictionary containing subject measurements from a VSK file.
+        A dictionary containing subject measurements.
 
     Returns
     -------
@@ -2589,7 +2589,7 @@ def JointAngleCalc(frame,vsk):
     frame : dict
         Dictionaries of marker lists.
     vsk : dict
-        A dictionary containing subject measurements from a VSK file.
+        A dictionary containing subject measurements.
 
     Returns
     -------
