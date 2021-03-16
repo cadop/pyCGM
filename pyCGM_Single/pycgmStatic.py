@@ -887,19 +887,17 @@ def kneeJointCenter(frame,hip_JC,delta,vsk=None):
     >>> frame = { 'RTHI': np.array([426.50, 262.65, 673.66]),
     ...           'LTHI': np.array([51.94, 320.02, 723.03]),
     ...           'RKNE': np.array([416.99, 266.23, 524.04]),
-    ...           'LKNE': np.array([84.62, 286.69, 529.4])}
+    ...           'LKNE': np.array([84.62, 286.69, 529.40])}
     >>> hip_JC = [[182.57, 339.43, 935.53],
     ...         [309.38, 322.80, 937.99]]
     >>> delta = 0
-    >>> kneeJointCenter(frame,hip_JC,delta,vsk) #doctest: +NORMALIZE_WHITESPACE
-    [array([364.24, 292.34, 515.31]),
-    array([143.55 , 279.90, 524.79]),
-    array([[[364.69 , 293.24, 515.31],
-    [363.36, 292.78, 515.17 ],
-    [364.12, 292.42 , 516.30]],
-    [[143.65, 280.88, 524.63],
-    [142.56, 280.01, 524.86],
-    [143.64, 280.04, 525.77]]])]
+    >>> [np.around(arr, 2) for arr in kneeJointCenter(frame,hip_JC,delta,vsk)] #doctest: +NORMALIZE_WHITESPACE
+    [array([364.24, 292.34, 515.31]), array([143.55, 279.9 , 524.79]), array([[[364.69, 293.24, 515.31],
+            [363.36, 292.78, 515.17],
+            [364.12, 292.42, 516.3 ]],
+           [[143.65, 280.88, 524.63],
+            [142.56, 280.01, 524.86],
+            [143.64, 280.04, 525.77]]])]
     """
 
 
@@ -1050,15 +1048,13 @@ def ankleJointCenter(frame,knee_JC,delta,vsk=None):
     ...           [142.56, 280.02, 524.86],
     ...            [143.65, 280.05, 525.77]]])]
     >>> delta = 0
-    >>> ankleJointCenter(frame,knee_JC,delta,vsk) #doctest: +NORMALIZE_WHITESPACE
-    [array([393.76, 247.68, 87.74]),
-    array([98.75, 219.47, 80.63]),
-    [[array([394.48, 248.37, 87.71]),
-    array([393.07 , 248.39, 87.61]),
-    array([393.69, 247.78, 8.73])],
-    [array([98.47, 220.43, 80.53]),
-    array([97.79, 219.21, 80.76]),
-    array([98.85, 219.60, 81.62])]]]
+    >>> [np.around(arr, 2) for arr in ankleJointCenter(frame,knee_JC,delta,vsk)] #doctest: +NORMALIZE_WHITESPACE
+    [array([393.76, 247.68,  87.74]), array([ 98.75, 219.47,  80.63]), array([[[394.48, 248.37,  87.71],
+    [393.07, 248.39,  87.61],
+    [393.69, 247.78,  88.73]],
+    [[ 98.47, 220.43,  80.53],
+    [ 97.79, 219.21,  80.76],
+    [ 98.85, 219.6 ,  81.62]]])]
     """
 
     #Get Global Values
@@ -1274,15 +1270,13 @@ def footJointCenter(frame,static_info,ankle_JC,knee_JC,delta):
     ...            np.array([97.79, 219.21, 80.76]),
     ...            np.array([98.85, 219.60, 81.62])]]]
     >>> delta = 0
-    >>> [np.around(arr,8) for arr in footJointCenter(frame,static_info,ankle_JC,knee_JC,delta)] #doctest: +NORMALIZE_WHITESPACE
-    [array([442.82, 381.62, 42.66]),
-    array([39.44, 382.45, 41.79]),
-    array([[[442.89, 381.76, 43.65],
-            [441.89, 381.10, 42.67],
-            [442.45, 380.70, 42.82]],
-           [[39.51, 382.68, 42.76],
-            [38.50, 382.15, 41.93],
-            [39.76, 381.53, 41.99]]])]
+    >>> [np.around(arr,2) for arr in footJointCenter(frame,static_info,ankle_JC,knee_JC,delta)] #doctest: +NORMALIZE_WHITESPACE
+    [array([442.82, 381.62,  42.66]), array([ 39.44, 382.45,  41.79]), array([[[442.89, 381.76,  43.65],
+            [441.89, 382.  ,  42.67],
+            [442.45, 380.7 ,  42.82]],
+           [[ 39.51, 382.68,  42.76],
+            [ 38.5 , 382.15,  41.93],
+            [ 39.76, 381.53,  41.99]]])]
     """
     import math
 
