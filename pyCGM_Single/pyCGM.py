@@ -53,7 +53,7 @@ def pelvisJointCenter(frame):
     -------
     pelvis : array
         Returns an array that contains the pelvis origin in a 1x3 array of xyz values,
-        which is then followed by a 4x1x3 array composed of the pelvis x, y, z
+        which is then followed by a 3x1x3 array composed of the pelvis x, y, z
         axis components, and the sacrum x,y,z position.
 
     References
@@ -298,9 +298,9 @@ def hipAxisCenter(l_hip_jc, r_hip_jc, pelvis_axis):
     hipaxis_center, axis : array
         Returns an array that contains the hip axis center in a
         1x3 array of xyz values, which is then followed by a
-        3x2x3 array composed of the hip axis center
+        3x1x3 array composed of the hip axis center
         x, y, and z axis components. The xyz axis components are
-        2x3 arrays consisting of the axis center in the first
+        1x3 arrays consisting of the axis center in the first
         dimension and the direction of the axis in the second dimension.
 
 
@@ -537,7 +537,7 @@ def ankleJointCenter(frame,knee_JC,delta,vsk=None):
     R, L, axis : array
         Returns an array that contains the ankle axis origin in a 1x3 array of xyz values,
         which is then followed by a 3x2x3 array composed of the ankle origin, x, y, and z
-        axis components. The xyz axis components are 2x3 arrays consisting of the origin
+        axis components. The xyz axis components are 3x3 arrays consisting of the origin
         in the first dimension and the direction of the axis in the second dimension.
 
     References
@@ -709,7 +709,7 @@ def footJointCenter(frame,vsk,ankle_JC,knee_JC,delta):
     """Calculate the foot joint center and axis.
 
     Takes in a dictionary of marker names to x, y, z positions, subject
-    measurements from the vsk file and the ankle joint center.
+    measurements and the ankle joint center.
     Calculate the foot joint axis by rotating incorrect foot joint axes about
     offset angle.
 
@@ -744,7 +744,7 @@ def footJointCenter(frame,vsk,ankle_JC,knee_JC,delta):
     R, L, foot_axis : array
         Returns an array that contains the foot axis center in a 1x3 array of xyz values,
         which is then followed by a 2x3x3 array composed of the foot axis center x, y, and z
-        axis components. The xyz axis components are 2x3 arrays consisting of the axis center
+        axis components. The xyz axis components are 3x3 arrays consisting of the axis center
         in the first dimension and the direction of the axis in the second dimension.
         This function also saves the static offset angle in a global variable.
 
@@ -1066,7 +1066,7 @@ def thoraxJC(frame):
     """Calculate the thorax joint axis function.
 
     Takes in a dictionary of marker names to x, y, z positions.
-    Calculates the thorax joint center and returns the thorax joint center and axis.
+    Calculates and returns the thorax axis and origin.
 
     Markers used: CLAV, C7, STRN, T10
 
@@ -1078,9 +1078,8 @@ def thoraxJC(frame):
     Returns
     -------
     thorax_axis, origin : array
-        Returns an array which contains a 2x3 array representing the right thorax joint center 1x3
-        and the left thorax joint center 1x3, which is then followed by a 6x3 array representing the
-        right thorax x, y, z axis components 3x3 followed by the the left thorax x, y, z axis components 3x3.
+        Returns an array which contains a 3x3 array representing the thorax
+        axis x, y, z followed by 1x3 array of the thorax origin
 
     Examples
     --------
