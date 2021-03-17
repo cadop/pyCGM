@@ -585,21 +585,10 @@ def pelvisJointCenter(frame):
     ...          'LASI': np.array([ 183.19,  422.79, 1033.07]),
     ...          'RPSI': np.array([ 341.42,  246.72, 1055.99]),
     ...          'LPSI': np.array([ 255.8,  241.42, 1057.3]) }
-    >>> pelvisJointCenter(frame) #doctest: +NORMALIZE_WHITESPACE
-    [array([ 289.28 ,  425.445, 1034.95 ]),
-    array([[ 289.25724979,  426.43773402, 1034.83184085],
-    [ 288.28046983,  425.41998584, 1034.93228752],
-    [ 289.25946057,  425.56270067, 1035.94283669]]),
-    array([ 298.61 ,  244.07 , 1056.645])]
-    >>> frame = {'RASI': np.array([ 395.37,  428.1, 1036.83]),
-    ...          'LASI': np.array([ 183.19,  422.79, 1033.07]),
-    ...          'SACR': np.array([ 294.61,  242.07, 1049.65]) }
-    >>> pelvisJointCenter(frame) #doctest: +NORMALIZE_WHITESPACE
-    [array([ 289.28 ,  425.445, 1034.95 ]),
-    array([[ 289.25647454,  426.44153496, 1034.87022141],
-    [ 288.28046983,  425.41998584, 1034.93228752],
-    [ 289.2603533 ,  425.52432442, 1035.94665523]]),
-    array([ 294.61,  242.07, 1049.65])]
+    >>> [np.around(arr, 2) for arr in pelvisJointCenter(frame)] #doctest: +NORMALIZE_WHITESPACE
+    [array([ 289.28,  425.45, 1034.95]), array([[ 289.26,  426.44, 1034.83],
+       [ 288.28,  425.42, 1034.93],
+       [ 289.26,  425.56, 1035.94]]), array([ 298.61,  244.07, 1056.64])]
     """
 
 
@@ -707,9 +696,9 @@ def hipJointCenter(frame,pel_origin,pel_x,pel_y,pel_z,vsk=None):
     >>> pel_x = [251.74, 392.73, 1032.79]
     >>> pel_y = [250.62, 391.87, 1032.87]
     >>> pel_z = [251.60, 391.85, 1033.89]
-    >>> hipJointCenter(frame,pel_origin,pel_x,pel_y,pel_z,vsk)
-    array([[183.23960265, 338.80485163, 934.65192157],
-           [308.89890765, 322.30413481, 937.19049339]])
+    >>> np.around(hipJointCenter(frame,pel_origin,pel_x,pel_y,pel_z,vsk), 2)    #doctest: +NORMALIZE_WHITESPACE
+    array([[183.24, 338.8 , 934.65],
+           [308.9 , 322.3 , 937.19]])
     """
     #Get Global Values
 
@@ -2113,8 +2102,8 @@ def norm3d(v):
     >>> import numpy as np
     >>> from .pycgmStatic import norm3d
     >>> v = [124.98, 368.64, 18.43]
-    >>> norm3d(v)
-    array(389.68591827)
+    >>> np.array(norm3d(v).round(2))
+    array(389.69)
     """
     try:
         return np.asarray(sqrt((v[0]*v[0]+v[1]*v[1]+v[2]*v[2])))
