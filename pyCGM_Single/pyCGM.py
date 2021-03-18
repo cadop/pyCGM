@@ -280,8 +280,8 @@ def hipAxisCenter(l_hip_jc, r_hip_jc, pelvis_axis):
     Hip center axis: Computed by taking the mean at each x,y,z axis of the
     left and right hip joint center.
 
-    Hip axis: Computed by getting the summation of the pelvis and hip center
-    axes.
+    Hip axis: Computed by getting the summation of the pelvis and hip axis
+    center.
 
     Parameters
     ----------
@@ -1420,7 +1420,7 @@ def elbowJointCenter(frame,thorax,shoulderJC,wand,vsk=None):
     """Calculate the Elbow joint axis ( Humerus) function.
 
     Takes in a dictionary of marker names to x, y, z positions, the thorax
-    axis, wand marker and shoulder joint center.
+    axis, and shoulder joint center.
 
     Calculates each elbow joint axis.
 
