@@ -272,16 +272,17 @@ def hipJointCenter(frame, pel_origin, pel_x, pel_y, pel_z, vsk=None):
 
 
 def hipAxisCenter(l_hip_jc, r_hip_jc, pelvis_axis):
-    """Calculate the hip joint axis.
+    """Calculate the hip center axis and hip axis.
 
-    Takes in a hip joint center of x,y,z positions and pelvis axis, and
-    calculates the hip axis and returns the hip joint origin and axis.
+    Takes in the left and right hip joint center of x,y,z positions and pelvis
+    axis, and calculates the hip center axis and hip axis and returns the hip
+    center axis and hip axis.
 
     Hip center axis: Computed by taking the mean at each x,y,z axis of the
     left and right hip joint center.
 
-    Hip axis: Computed by getting the summation of the pelvis and hip axis
-    center.
+    Hip axis: x,y,z vectors of the middle of the two hip axis, with the origin
+    added back.
 
     Parameters
     ----------
