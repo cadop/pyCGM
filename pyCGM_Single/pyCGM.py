@@ -275,14 +275,12 @@ def hipAxisCenter(l_hip_jc, r_hip_jc, pelvis_axis):
     """Calculate the hip center axis and hip axis.
 
     Takes in the left and right hip joint center of x,y,z positions and pelvis
-    axis, and calculates the hip center axis and hip axis and returns the hip
-    center axis and hip axis.
+    origin and axis, and calculates and returns the hip center and axis.
 
-    Hip center axis: Computed by taking the mean at each x,y,z axis of the
-    left and right hip joint center.
+    Hip center axis: Midpoint of left and right hip joint centers.
 
-    Hip axis: x,y,z vectors of the middle of the two hip axis, with the origin
-    added back.
+    Hip axis: pelvis axis added back to the midpoint of left and right hip
+    joint centers.
 
     Parameters
     ----------
@@ -301,8 +299,8 @@ def hipAxisCenter(l_hip_jc, r_hip_jc, pelvis_axis):
         1x3 array of xyz values, which is then followed by a
         3x1x3 array composed of the hip axis center
         x, y, and z axis components. The xyz axis components are
-        1x3 arrays consisting of the axis center in the first
-        dimension and the direction of the axis in the second dimension.
+        1x3 arrays consisting of the x, y, z pelvis axes added back to the hip
+        center.
 
 
     Examples
