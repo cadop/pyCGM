@@ -53,8 +53,8 @@ def pelvisJointCenter(frame):
     -------
     pelvis : array
         Returns an array that contains the pelvis origin in a 1x3 array of xyz values,
-        which is then followed by a 3x1x3 array composed of the pelvis x, y, z
-        axis components, and the sacrum x,y,z position.
+        which is then followed by a [1x3, 3x3, 1x3] array composed of the 
+        pelvis x, y, z axis components, and the sacrum x,y,z position.
 
     References
     ----------
