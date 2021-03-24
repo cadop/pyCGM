@@ -279,8 +279,8 @@ def hipAxisCenter(l_hip_jc, r_hip_jc, pelvis_axis):
 
     Hip center axis: Midpoint of left and right hip joint centers.
 
-    Hip axis: pelvis axis added back to the midpoint of left and right hip
-    joint centers.
+    Hip axis: sets the pelvis orientation to the hip center axis (i.e. midpoint
+    of left and right hip joint centers)
 
     Parameters
     ----------
@@ -2562,9 +2562,9 @@ def JointAngleCalc(frame,vsk):
 
     Joint Axis store like below form
 
-    The axis form is in the form [[origin],[axis]]
-    Origin defines the position of axis and axis is the unit vector of each
-    axis attached to the origin
+    The axis is in the form [[origin], [axis]]
+    Origin defines the position of axis and axis is the direction vector of
+    x, y, z axis attached to the origin
 
     If it is just single one (Pelvis, Hip, Head, Thorax)
 
