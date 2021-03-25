@@ -1,4 +1,8 @@
-#pyCGM
+"""
+This file uses the input data to perform angle and joint calculations.
+"""
+
+# pyCGM
 
 # Copyright (c) 2015 Mathew Schwartz <umcadop@gmail.com>
 # Core Developers: Seungeun Yeon, Mathew Schwartz
@@ -41,16 +45,15 @@ SA=EJA
 #End Axis
 EA=SA+72*3
 
-
 def calcKinetics(data, Bodymass):
     """Calculates center of mass values.
 
-    Estimates whole body CoM in global coordinate system using PiG scaling
-    factors for determining individual segment CoM.
+    Estimates whole body center of mass in global coordinate system using PiG scaling 
+    factors for determining individual segment center of mass.
 
     See Also
     --------
-    pyCGM_Single.pycgmKinetics.getKinetics : equivalent function; see for details.
+    pyCGM_Single.pycgmKinetics.getKinetics : equivalent function.
     """
     r = getKinetics(data, Bodymass)
     return r
@@ -67,10 +70,10 @@ def calcAngles(data,**kargs):
     Parameters
     ----------
     data : array
-        Joint centres in the global coordinate system. List indices correspond
-        to each frame of trial. Dict keys correspond to name of each joint centre,
+        Joint centers in the global coordinate system. List indices correspond
+        to each frame of trial. Dict keys correspond to name of each joint center,
         dict values are arrays ([],[],[]) of x,y,z coordinates for each joint
-        centre.
+        center.
     **kargs : keyword arguments
         start : int, optional
            Indicates which index in `data` to start the calculation.
@@ -83,18 +86,18 @@ def calcAngles(data,**kargs):
         vsk : dict, required
             Subject measurement values as a dictionary or labels and data.
         angles : bool, optional
-            If true, the function will return the angles. True by default.
+            If true, the function will return `angles`. True by default.
         axis : bool, optional
-            If true, the function will return the axis. True by default.
+            If true, the function will return `axis`. True by default.
         splitAnglesAxis : bool, optional
-            If true, the function will return the angles and axis as
+            If true, the function will return `angles` and `axis` as
             separate arrays. If false, it will be the same array. True
             by default.
         returnjoints : bool, optional
-            If true, the function will return the joint centers. False
+            If true, the function will return `returnjoints`. False
             by default.
         formatData : bool, optional
-            If true, the function will return the angles and axis
+            If true, the function will return `angles` and `axis` 
             in one array. True by default.
 
     Returns
@@ -133,27 +136,37 @@ def calcAngles(data,**kargs):
     Example of default behavior.
 
     >>> result = calcAngles(data, vsk=vsk)
-    >>> around(result[0], 8) #Array of joint angles
-    array([[[ -0.45646046,  -5.76277607,   4.80620732],...]]])
-    >>> around(result[1], 8) #Array of axis values
-    array([[[[ 246.152565  ,  353.26243591, 1031.71362305],
-             [ 246.23714526,  354.25388362, 1031.61423686],
-             [ 245.15617986,  353.34579827, 1031.69727175],
-             [ 246.14463861,  353.36284583, 1032.70853763]],...]]]])
+    >>> around(result[0], 2) #Array of joint angles #doctest: +NORMALIZE_WHITESPACE 
+    array([[[ -0.46,  -5.76,   4.81],
+            [  3.04,  -7.02, -17.41],
+            [ -3.  ,  -4.54,  -1.74],
+            ...,
+            [ 36.3 ,   0.  ,   0.  ],
+            [  9.92,  15.25, 126.24],
+            [  6.64,  17.64, 123.81]]])
+    >>> around(result[1], 2) #Array of axis values #doctest: +NORMALIZE_WHITESPACE
+    array([[[[ 246.15,  353.26, 1031.71],
+         [ 246.24,  354.25, 1031.61],
+         [ 245.16,  353.35, 1031.7 ],
+         [ 246.14,  353.36, 1032.71]],
+         ...
+         [-306.46,  510.14, 1069.26],
+         [-307.13,  509.31, 1068.33],
+         [-305.75,  509.12, 1068.58]]]])
 
     Example of returning as a tuple.
 
     >>> kinematics, joint_centers = calcAngles(data, start=None, end=None, vsk=vsk, splitAnglesAxis=False, formatData=False,returnjoints=True)
-    >>> around(kinematics[0][0], 8)
-    -0.45646046
-    >>> around(joint_centers[0]['Pelvis'], 8) #doctest: +NORMALIZE_WHITESPACE
-    array([ 246.152565 , 353.26243591, 1031.71362305])
+    >>> around(kinematics[0][0], 2)
+    -0.46
+    >>> around(joint_centers[0]['Pelvis'], 2) #doctest: +NORMALIZE_WHITESPACE
+    array([ 246.15,  353.26, 1031.71])
 
     Example without returning joints.
 
     >>> kinematics = calcAngles(data, vsk=vsk, splitAnglesAxis=False, formatData=False,returnjoints=False)
-    >>> around(kinematics[0][0], 8)
-    -0.45646046
+    >>> around(kinematics[0][0], 2)
+    -0.46
     """
 
     start=0
@@ -287,17 +300,17 @@ def Calc(start,end,data,vsk):
     >>> start = 0
     >>> end = 3
     >>> angles, jcs = Calc(start, end, data, vsk)
-    >>> around(angles[0][0], 8) #Frame 0
-    -0.45646046
-    >>> around(angles[1][0], 8) #Frame 1
-    -0.45789927
-    >>> around(angles[2][0], 8) #Frame 2
-    -0.45608902
+    >>> around(angles[0][0], 2) #Frame 0
+    -0.46
+    >>> around(angles[1][0], 2) #Frame 1
+    -0.46
+    >>> around(angles[2][0], 2) #Frame 2
+    -0.46
 
-    >>> around(jcs[0]['Pelvis'], 8) #doctest: +NORMALIZE_WHITESPACE
-    array([ 246.152565 , 353.26243591, 1031.71362305])
-    >>> around(jcs[1]['Pelvis'], 8) #doctest: +NORMALIZE_WHITESPACE
-    array([ 246.16200256, 353.27105713, 1031.71856689])
+    >>> around(jcs[0]['Pelvis'], 2)
+    array([ 246.15,  353.26, 1031.71])
+    >>> around(jcs[1]['Pelvis'], 2)
+    array([ 246.16,  353.27, 1031.72])
     """
     d=data[start:end]
     angles,jcs=calcFrames(d,vsk)
@@ -305,7 +318,7 @@ def Calc(start,end,data,vsk):
     return angles,jcs
 
 
-def calcFrames(data, vsk):
+def calcFrames(data,vsk):
     """Calculates angles and joint values for given marker data
 
     Parameters
@@ -345,10 +358,10 @@ def calcFrames(data, vsk):
     >>> vskData = loadVSK(vskFile, False)
     >>> vsk = getStatic(data,vskData,flat_foot=False)
     >>> angles, joints = calcFrames(data, vsk)
-    >>> around(angles[0][0], 8)
-    -0.45646046
-    >>> around(joints[0]['Pelvis'], 8) #doctest: +NORMALIZE_WHITESPACE
-    array([ 246.152565 , 353.26243591, 1031.71362305])
+    >>> around(angles[0][0], 2)
+    -0.46
+    >>> around(joints[0]['Pelvis'], 2) #doctest: +NORMALIZE_WHITESPACE
+    array([ 246.15,  353.26, 1031.71])
     """
     angles=[]
     joints=[] #added this here for normal data

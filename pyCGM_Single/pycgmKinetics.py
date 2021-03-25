@@ -1,4 +1,8 @@
-#pyCGM
+"""
+This file is used in coordinate and vector calculations.
+"""
+
+# pyCGM
 
 # This module was contributed by Neil M. Thomas
 # the CoM calculation is not an exact clone of PiG,
@@ -19,17 +23,19 @@ else:
 #helper functions useful for dealing with frames of data, i.e. 1d arrays of (x,y,z)
 #coordinate. Also in Utilities but need to clean everything up somewhat!
 def f(p, x):
-    """
+    """ Helper function for working with frames of data.
+
     Parameters
     ----------
     p : list
-        A that has a length of at least 2.
+        A list of at least length 2.
     x : int or float
-        Scaling factor for the first variable in p.
+        Scaling factor.
+
     Returns
     -------
     int or float
-        Returns the first value in p scaled by x, aded by the second value in p.
+        Returns the first value in `p` scaled by `x`, added by the second value in `p`.
 
     Examples
     --------
@@ -39,74 +45,62 @@ def f(p, x):
     >>> x = 10
     >>> f(p, x)
     12
-    >>> p = np.array([5.16312215, 8.79307163])
-    >>> x = 2.0
-    >>> np.around(f(p, x),8)
-    19.11931593
     """
     return (p[0] * x) + p[1]
 
 def dot(v,w):
-    """Calculate the Dot Product function.
+    """Calculate dot product of two points.
 
     Parameters
     ----------
     v : list
-        First 3-element list.
+        An (x, y, z) coordinate.
     w : list
-        Second 3-element list.
+        An (x, y, z) coordinate.
 
     Returns
     -------
     int or float
-        The quotient of the dot product of vectors v and w.
+        Returns the dot product of vectors `v` and `w`.
 
     Examples
     --------
-    >>> import numpy as np
     >>> from .pycgmKinetics import dot
     >>> v = [1, 2, 3]
     >>> w = [4, 5, 6]
     >>> dot(v,w)
     32
-    >>> v = np.array([6.56643344, 6.23972959, 2.83918231])
-    >>> w = np.array([5.53732499, 7.61560881, 6.2563037])
-    >>> np.around(dot(v,w),8)
-    101.64260241
     """
     x,y,z = v
     X,Y,Z = w
     return x*X + y*Y + z*Z
 
 def length(v):
-    """Calculate Length of a 3D Vector function.
+    """Calculate length of a 3D vector.
 
     Parameters
     ----------
     v : list
-        A 3-element list.
+        A 3D vector.
 
     Returns
     -------
     float
-        Returns the length of a 3D vector.
+        Returns the length of `v`.
 
     Examples
     --------
     >>> import numpy as np
     >>> from .pycgmKinetics import length
     >>> v = [1,2,3]
-    >>> np.around(length(v),8)
-    3.74165739
-    >>> v = np.array([6.56643344, 6.23972959, 2.83918231])
-    >>> np.around(length(v),8)
-    9.49279883
+    >>> np.around(length(v), 2)
+    3.74
     """
     x,y,z = v
     return np.sqrt(x*x + y*y + z*z)
 
 def vector(b,e):
-    """Vector Subtraction function.
+    """Subtracts two vectors.
 
     Parameters
     ----------
@@ -118,67 +112,59 @@ def vector(b,e):
     Returns
     -------
     tuple
-        Returns the vector of e - v.
+        Returns the vector `e` - `v`.
 
     Examples
     --------
-    >>> import numpy as np
     >>> from .pycgmKinetics import vector
     >>> v = [1,2,3]
     >>> e = [4,5,6]
     >>> vector(v, e)
     (3, 3, 3)
-    >>> v = np.array([5.10897693, 6.18161923, 9.44221215])
-    >>> e = np.array([3.68040209, 9.92542233, 5.38362424])
-    >>> vector(v, e)
-    (-1.42857484, 3.7438031, -4.05858791)
     """
     x,y,z = b
     X,Y,Z = e
     return (X-x, Y-y, Z-z)
 
 def unit(v):
-    """Create Unit Vector function.
+    """Calculate unit vector.
 
     Parameters
     ----------
     v : list
-        A 3-element list.
+        A 3D vector.
 
     Returns
     -------
     tuple
-        Returns the unit vector of a given vector.
+        Returns the unit vector of `v`.
 
     Examples
     --------
     >>> import numpy as np
     >>> from .pycgmKinetics import unit
     >>> v = [1,2,3]
-    >>> np.around(unit(v),8)
-    array([0.26726124, 0.53452248, 0.80178373])
-    >>> v = np.array([6.56643344, 6.23972959, 2.83918231])
-    >>> np.around(unit(v),8)
-    array([0.69172786, 0.6573119 , 0.29908801])
+    >>> np.around(unit(v), 2)
+    array([0.27, 0.53, 0.8 ])
     """
     x,y,z = v
     mag = length(v)
     return (x/mag, y/mag, z/mag)
 
 def distance(p0,p1):
-    """Calculate Distance function.
+    """Calculate distance between two points
 
     Parameters
     ----------
     p0 : list
-        First x,y,z coordinate point.
+        An x, y, z coordinate point.
     p1 : list
-        Second x,y,z coordinate point.
+        An x, y, z coordinate point.
 
     Returns
     -------
     float
-        Returns distance between points p0 and p1.
+        Returns distance between `p0` and `p1`.
 
     Examples
     --------
@@ -186,117 +172,94 @@ def distance(p0,p1):
     >>> from .pycgmKinetics import distance
     >>> p0 = [1,2,3]
     >>> p1 = [4,5,6]
-    >>> np.around(distance(p0,p1),8)
-    5.19615242
-    >>> p0 = np.array([6.56643344, 6.23972959, 2.83918231])
-    >>> p1 = np.array([1.25539445, 4.44290559, 0.80470151])
-    >>> np.around(distance(p0,p1),8)
-    5.96446341
+    >>> np.around(distance(p0,p1), 2)
+    5.2
     """
     return length(vector(p0,p1))
 
 def scale(v,sc):
-    """Create Scaled Vector function.
+    """Scale a vector.
 
     Parameters
     ----------
     v : list
-        A 3-element list.
+        A 3D vector.
     sc : int or float
-        The scaling factor.
+        A scaling factor.
 
     Returns
     -------
     tuple
-        Returns the given vector scaled by scaling factor.
+        Returns `v` scaled by `sc`.
 
     Examples
     --------
-    >>> import numpy as np
     >>> from .pycgmKinetics import scale
     >>> v = [1,2,3]
     >>> sc = 2
     >>> scale(v, sc)
     (2, 4, 6)
-    >>> v = np.array([0.5664332, 0.23972959, 0.83918231])
-    >>> sc = 10.0
-    >>> scale(v, sc)
-    (5.664332, 2.3972959, 8.3918231)
     """
     x,y,z = v
     return (x * sc, y * sc, z * sc)
 
 def add(v,w):
-    """Vector Addition function.
+    """Add two vectors.
 
     Parameters
     ----------
     v : list
-        First 3-element list.
+        A 3D vector.
     w : list
-        Second 3-element list.
+        A 3D vector.
 
     Returns
     -------
     tuple
-        Returns the sum of the two given vectors.
+        Returns the `v` + `w`.
 
     Examples
     --------
-    >>> import numpy as np
     >>> from .pycgmKinetics import add
     >>> v = [1, 2, 3]
     >>> w = [4, 5, 6]
     >>> add(v, w)
     (5, 7, 9)
-    >>> v = np.array([3.98527165, 5.52526792, 4.34518370])
-    >>> w = np.array([5.82147992, 7.87348922, 2.61204120])
-    >>> add(v, w)
-    (9.80675157, 13.39875714, 6.9572249)
     """
     x,y,z = v
     X,Y,Z = w
     return (x+X, y+Y, z+Z)
 
 def pnt2line(pnt, start, end):
-    """Calculate Point-Line Distance function
+    """Calculate shortest distance between a point and line.
 
-    This function calculates the distance from a given point, pnt, to a line.
-    The line is represented by two other points, start and end.
+    The line is represented by the points `start` and `end`.
 
     Parameters
     ----------
     pnt : list
-        An x,y,z point on the same plane.
+        An (x, y, z) coordinate point.
     start : list
-        First x,y,z point on the line.
+        An (x, y, z) point on the line.
     end : list
-        Second x,y,z point on the line.
+        An (x, y, z) point on the line.
 
     Returns
     -------
-    dist, nearest, pnt : tuple
-        Returns dist, the closest distance from the point to the line,
-        Returns nearest, the closest point on the line from the given pnt as a 1x3 array,
-        Returns pnt, the original given pnt as a 1x3 array.
-        All of these are returned in a single tuple.
+    dist, nearest, pnt : tuple (float, list, list)
+        Returns `dist`, the closest distance from the point to the line,
+        Returns `nearest`, the closest point on the line from the given pnt as a 1x3 array,
+        Returns `pnt`, the original given pnt as a 1x3 array.
 
     Examples
     --------
     >>> import numpy as np
     >>> from .pycgmKinetics import pnt2line
     >>> pnt = [1, 2, 3]
-    >>> start = [4, 5, 6]
-    >>> end = [7, 8, 9]
-    >>> [np.around(arr,8) for arr in pnt2line(pnt, start, end)]
-    [5.19615242, array([4., 5., 6.]), array([1, 2, 3])]
-    >>> pnt = np.array([9.82004519, 6.7344815, 0.94587439])
-    >>> start = np.array([3.89481034, 4.02115225, 4.3075406])
-    >>> end = np.array([7.56622188, 3.58992166, 8.2749309])
-    >>> [np.around(arr,8) for arr in pnt2line(pnt, start, end)] #doctest: +NORMALIZE_WHITESPACE
-    [7.21009005,
-    array([4.79961726, 3.91487693, 5.28529048]),
-    array([9.82004519, 6.7344815 , 0.94587439])]
+    >>> start = [4, 2, 3]
+    >>> end = [2, 2, 3]
+    >>> pnt2line(pnt, start, end)
+    (1.0, (2.0, 2.0, 3.0), [1, 2, 3])
     """
     lineVec = vector(start, end)
 
@@ -321,7 +284,7 @@ def pnt2line(pnt, start, end):
     return dist, nearest, pnt
 
 
-#def norm3d(v):
+#def norm3d(v): 
 #    try:
 #        return np.asarray(sqrt((v[0]*v[0]+v[1]*v[1]+v[2]*v[2])))
 #    except:
@@ -331,34 +294,34 @@ def pnt2line(pnt, start, end):
 def findL5_Pelvis(frame):
     """Calculate L5 Markers Given Pelvis function
 
-    Markers used: LHip, RHip, Pelvis_axis
+    Markers used: `LHip`, `RHip`, `Pelvis_axis`
 
     Parameters
     ----------
     frame : dict
         Dictionaries of marker lists.
-            { [], [], [], ... }
 
     Returns
     -------
     midHip, L5 : tuple
-        Returns the x,y,z marker positions of the midHip (1x3 array) and L5 (1x3 array) in a tuple.
+        Returns the (x, y, z) marker positions of the midHip, a (1x3) array,
+        and L5, a (1x3) array, in a tuple.
 
     Examples
     --------
     >>> import numpy as np
     >>> from .pycgmKinetics import findL5_Pelvis
-    >>> Pelvis_axis = [np.array([251.60830688, 391.74131775, 1032.89349365]),
-    ...                np.array([[251.74063624, 392.72694721, 1032.78850073],
-    ...                    [250.61711554, 391.87232862, 1032.8741063],
-    ...                    [251.60295336, 391.84795134, 1033.88777762]]),
-    ...                np.array([231.57849121, 210.25262451, 1052.24969482])]
-    >>> LHip = np.array([308.38050472, 322.80342417, 937.98979061])
-    >>> RHip = np.array([182.57097863, 339.43231855, 935.529000126])
+    >>> Pelvis_axis = [np.array([251.60, 391.74, 1032.89]),
+    ...                np.array([[251.74, 392.72, 1032.78],
+    ...                    [250.61, 391.87, 1032.87],
+    ...                    [251.60, 391.84, 1033.88]]),
+    ...                np.array([231.57, 210.25, 1052.24])]
+    >>> LHip = np.array([308.38, 322.80, 937.98])
+    >>> RHip = np.array([182.57, 339.43, 935.52])
     >>> frame = { 'Pelvis_axis': Pelvis_axis, 'RHip': RHip, 'LHip': LHip}
-    >>> np.around(findL5_Pelvis(frame),8)
-    array([[ 245.47574168,  331.11787136,  936.75939537],
-           [ 271.52716019,  371.69050709, 1043.80997977]])
+    >>> np.around(findL5_Pelvis(frame), 2) #doctest: +NORMALIZE_WHITESPACE
+    array([[ 245.48,  331.12,  936.75],
+           [ 271.53,  371.69, 1043.8 ]])
     """
     #The L5 position is estimated as (LHJC + RHJC)/2 +
     #(0.0, 0.0, 0.828) * Length(LHJC - RHJC), where the value 0.828
@@ -378,9 +341,9 @@ def findL5_Pelvis(frame):
     return midHip, L5#midHip + ([0.0, 0.0, zOffset])
 
 def findL5_Thorax(frame):
-    """Calculate L5 Markers Given Thorax function
+    """Calculate L5 Markers Given Thorax function.
 
-    Markers used: C7, RHip, LHip, Thorax_axis
+    Markers used: `C7`, `RHip`, `LHip`, `Thorax_axis`
 
     Parameters
     ----------
@@ -390,22 +353,22 @@ def findL5_Thorax(frame):
     Returns
     -------
     L5 : array
-        Returns the x,y,z marker positions of the L5 in a 1x3 array.
+        Returns the (x, y, z) marker positions of the L5 in a (1x3) array.
 
     Examples
     --------
     >>> from .pycgmKinetics import findL5_Thorax
     >>> import numpy as np
-    >>> Thorax_axis = [[[256.3454633226447, 365.7223958512035, 1461.920891187948],
-    ...               [257.26637166499415, 364.69602499862503, 1462.2347234647593],
-    ...               [256.1842731803127, 364.4328898435265, 1461.363045336319]],
-    ...               [256.2729542797522, 364.79605748807074, 1462.2905392309394]]
-    >>> C7 = np.array([256.78051758, 371.28042603, 1459.70300293])
-    >>> LHip = np.array([308.38050472, 322.80342417, 937.98979061])
-    >>> RHip = np.array([182.57097863, 339.43231855, 935.529000126])
+    >>> Thorax_axis = [[[256.34, 365.72, 1461.92], 
+    ...               [257.26, 364.69, 1462.23], 
+    ...               [256.18, 364.43, 1461.36]],
+    ...               [256.27, 364.79, 1462.29]]
+    >>> C7 = np.array([256.78, 371.28, 1459.70])
+    >>> LHip = np.array([308.38, 322.80, 937.98])
+    >>> RHip = np.array([182.57, 339.43, 935.52])
     >>> frame = { 'C7': C7, 'RHip': RHip, 'LHip': LHip, 'Thorax_axis': Thorax_axis}
-    >>> np.around(findL5_Thorax(frame),8)
-    array([ 265.16356015,  359.12462014, 1049.065471  ])
+    >>> np.around(findL5_Thorax(frame), 2) #doctest: +NORMALIZE_WHITESPACE
+    array([ 265.16,  359.12, 1049.06])
     """
     C7_ = frame['C7']
     x_axis,y_axis,z_axis = frame['Thorax_axis'][0]
@@ -434,8 +397,8 @@ def getKinetics(data, Bodymass):
     -----------
     data : array
         Array of joint centres in the global coordinate system. List indices correspond
-        to each frame of trial. Dict keys correspond to name of each joint centre,
-        dict values are arrays ([],[],[]) of x,y,z coordinates for each joint
+        to each frame of trial. Dict keys correspond to name of each joint center,
+        dict values are arrays of (x, y, z) coordinates for each joint
         centre.
     Bodymass : float
         Total bodymass (kg) of subject
@@ -449,7 +412,6 @@ def getKinetics(data, Bodymass):
     -----
     The PiG scaling factors are taken from Dempster -- they are available at:
     http://www.c-motion.com/download/IORGaitFiles/pigmanualver1.pdf
-
 
     Todo
     ----
@@ -476,8 +438,8 @@ def getKinetics(data, Bodymass):
     >>> _,joint_centers=calcAngles(motionData,start=None,end=None,vsk=calSM,
     ...                            splitAnglesAxis=False,formatData=False,returnjoints=True)
     >>> CoM_coords = getKinetics(joint_centers, calSM['Bodymass'])
-    >>> around(CoM_coords[0], 8) #doctest: +NORMALIZE_WHITESPACE
-    array([-942.7636386 , -3.58139618, 865.32990601])
+    >>> around(CoM_coords[0], 2) #doctest: +NORMALIZE_WHITESPACE
+    array([-942.76, -3.58, 865.33])
     """
 
     #get PiG scaling table
@@ -691,15 +653,3 @@ def getKinetics(data, Bodymass):
         #CoM_coords[ind,:] = sum(torques) / sum(masses)
 
     return CoM_coords
-
-
-
-
-
-
-
-
-
-
-
-

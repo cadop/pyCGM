@@ -1,11 +1,25 @@
+"""
+This file is used to calculate frames for gap filling.
+"""
 
 # flake8: noqa # Ignore this file for now
 
 def calcFramesClusters(data,vsk):
-    """
-    Calculates frames using cluster information for gap filling.
-    Not automatically used, must be called
+    """ Calculates frames using cluster information for gap filling.
 
+    Parameters
+    ----------
+    data : list
+        First element is a list of marker lables.
+        Second element is a list of data.
+    vsk : list
+        First element is a list of marker lables.
+        Second element is a list of data.
+
+    Returns
+    -------
+    angles, joints : tuple(list, list)
+        Returns the joint angles for the right and left pelvis, hip, knee, and ankle
     """
     angles=[]
     joints = [] #temp solution
