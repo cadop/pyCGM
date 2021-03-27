@@ -1,3 +1,4 @@
+# -*- coding: utf-8 -*-
 #pyCGM
 
 # Copyright (c) 2015 Mathew Schwartz <umcadop@gmail.com>
@@ -31,15 +32,15 @@ from .pycgmIO import *
 
 # Lowerbody Coordinate System
 def pelvisJointCenter(frame):
-    """Make the Pelvis Axis function
+    """Make the Pelvis Axis.
 
     Takes in a dictionary of x,y,z positions and marker names, as well as an index
     Calculates the pelvis joint center and axis and returns both.
 
-    Markers used: RASI,LASI,RPSI,LPSI
+    Markers used: RASI, LASI, RPSI, LPSI
     Other landmarks used: origin, sacrum
 
-    Pelvis X_axis: Computed with a Gram-Schmidt orthogonalization procedure(ref. Kadaba 1990) and then normalized.
+    Pelvis X_axis: Computed with a Gram-Schmidt orthogonalization procedure [1]_ and then normalized.
     Pelvis Y_axis: LASI-RASI x,y,z positions, then normalized.
     Pelvis Z_axis: Cross product of x_axis and y_axis.
 
@@ -52,8 +53,14 @@ def pelvisJointCenter(frame):
     -------
     pelvis : array
         Returns an array that contains the pelvis origin in a 1x3 array of xyz values,
-        which is then followed by a 4x1x3 array composed of the pelvis x, y, z
-        axis components, and the sacrum x,y,z position.
+        which is then followed by a [1x3, 3x3, 1x3] array composed of the 
+        pelvis x, y, z axis components, and the sacrum x,y,z position.
+
+    References
+    ----------
+    .. [1] M. P. Kadaba, H. K. Ramakrishnan, and M. E. Wootten, “Measurement of
+            lower extremity kinematics during level walking,” J. Orthop. Res.,
+            vol. 8, no. 3, pp. 383–392, May 1990, doi: 10.1002/jor.1100080310.
 
     Examples
     --------
@@ -139,34 +146,43 @@ def pelvisJointCenter(frame):
 
     return pelvis
 
-def hipJointCenter(frame,pel_origin,pel_x,pel_y,pel_z,vsk=None):
-    """Calculate the hip joint center function.
 
-    Takes in a dictionary of x,y,z positions and marker names, as well as an index.
-    Calculates the hip joint center and returns the hip joint center.
+def hipJointCenter(frame, pel_origin, pel_x, pel_y, pel_z, vsk=None):
+    u"""Calculate the hip joint center.
+
+    Takes in a dictionary of x,y,z positions and marker names, as well as an
+    index. Calculates the hip joint center and returns the hip joint center.
 
     Other landmarks used: origin, sacrum
-    Subject Measurement values used: MeanLegLength, R_AsisToTrocanterMeasure, InterAsisDistance, L_AsisToTrocanterMeasure
 
-    Hip Joint Center: Computed using Hip Joint Center Calculation (ref. Davis_1991)
+    Subject Measurement values used: MeanLegLength, R_AsisToTrocanterMeasure,
+    InterAsisDistance, L_AsisToTrocanterMeasure
+
+    Hip Joint Center: Computed using Hip Joint Center Calculation [1]_.
 
     Parameters
     ----------
     frame : dict
         Dictionaries of marker lists.
     pel_origin : array
-        An array of pel_origin, pel_x, pel_y, pel_z each x,y,z position.
-            [(),(),()]
+        An array of pelvis origin, (pel_x, pel_y, pel_z) each x, y, z position.
     pel_x, pel_y, pel_z : int
         Respective axes of the pelvis.
     vsk : dict, optional
-        A dictionary containing subject measurements from a VSK file.
+        A dictionary containing subject measurements.
 
     Returns
     -------
     hip_JC : array
-        Returns a 2x3 array that contains the left hip joint center, a 1x3 array containing the x,y,z components
-        followed by the right hip joint center, another 1x3 array containing the x,y,z components.
+        Returns a 2x3 array that contains two 1x3 arrays
+        containing the x, y, z components of the left and right hip joint
+        centers.
+
+    References
+    ----------
+    .. [1] Davis, R. B., III, Õunpuu, S., Tyburski, D. and Gage, J. R. (1991).
+            A gait analysis data collection and reduction technique.
+            Human Movement Science 10 575–87.
 
     Examples
     --------
@@ -254,31 +270,37 @@ def hipJointCenter(frame,pel_origin,pel_x,pel_y,pel_z,vsk=None):
 
     return hip_JC
 
-def hipAxisCenter(l_hip_jc,r_hip_jc,pelvis_axis):
-    """Calculate the hip joint axis function.
 
-    Takes in a hip joint center of x,y,z positions as well as an index.
-    and takes the hip joint center and pelvis origin/axis from previous functions.
-    Calculates the hip axis and returns hip joint origin and axis.
+def hipAxisCenter(l_hip_jc, r_hip_jc, pelvis_axis):
+    """Calculate the hip center axis and hip axis.
 
-    Hip center axis: Computed by taking the mean at each x,y,z axis of the left and right hip joint center.
-    Hip axis: Computed by getting the summation of the pelvis and hip center axes.
+    Takes in the left and right hip joint center of x,y,z positions and pelvis
+    origin and axis, and calculates and returns the hip center and axis.
+
+    Hip center axis: Midpoint of left and right hip joint centers.
+
+    Hip axis: sets the pelvis orientation to the hip center axis (i.e. midpoint
+    of left and right hip joint centers)
 
     Parameters
     ----------
-    l_hip_jc, r_hip_jc: array
-        Array of R_hip_jc and L_hip_jc each x,y,z position.
+    l_hip_jc, r_hip_jc : array
+        left and right hip joint center with x, y, z position in an array.
     pelvis_axis : array
-        An array of pelvis origin and axis. The axis is also composed of 3 arrays,
-        each things are x axis, y axis, z axis.
+        An array of pelvis origin and axis. The first element is an
+        1x3 array containing the x, y, z axis of the origin.
+        The second elemnt is a 3x3 containing 3 arrays of
+        x, y, z coordinates of the individual pelvis axis.
 
     Returns
     -------
     hipaxis_center, axis : array
-        Returns an array that contains the hip axis center in a 1x3 array of xyz values,
-        which is then followed by a 3x2x3 array composed of the hip axis center x, y, and z
-        axis components. The xyz axis components are 2x3 arrays consisting of the axis center
-        in the first dimension and the direction of the axis in the second dimension.
+        Returns an array that contains the hip axis center in a
+        1x3 array of xyz values, which is then followed by a
+        3x1x3 array composed of the hip axis center
+        x, y, and z axis components. The xyz axis components are
+        1x3 arrays consisting of the x, y, z pelvis axes added back to the hip
+        center.
 
 
     Examples
@@ -317,36 +339,46 @@ def hipAxisCenter(l_hip_jc,r_hip_jc,pelvis_axis):
 
     return [hipaxis_center,axis]
 
-def kneeJointCenter(frame,hip_JC,delta,vsk=None):
-    """Calculate the knee joint center and axis function.
 
-    Takes in a dictionary of xyz positions and marker names, as well as an index.
-    and takes the hip axis and pelvis axis.
-    Calculates the knee joint axis and returns the knee origin and axis
+def kneeJointCenter(frame, hip_JC, delta, vsk=None):
+    """Calculate the knee joint center and axis.
+
+    Takes in a dictionary of marker names to x, y, z positions, the hip axis
+    and pelvis axis. Calculates the knee joint axis and returns the knee origin
+    and axis.
 
     Markers used: RTHI, LTHI, RKNE, LKNE, hip_JC
     Subject Measurement values used: RightKneeWidth, LeftKneeWidth
 
-    Knee joint center: Computed using Knee Axis Calculation(ref. Clinical Gait Analysis hand book, Baker2013)
+    Knee joint center: Computed using Knee Axis Calculation [1]_.
 
     Parameters
     ----------
     frame : dict
         dictionaries of marker lists.
     hip_JC : array
-        An array of hip_JC containing the x,y,z axes marker positions of the hip joint center.
-    delta : float
-        The length from marker to joint center, retrieved from subject measurement file.
+        An array of hip_JC containing the x,y,z axes marker positions of the
+        hip joint center.
+    delta : float, optional
+        The length from marker to joint center, retrieved from subject
+        measurement file.
     vsk : dict, optional
-        A dictionary containing subject measurements from a VSK file.
+        A dictionary containing subject measurements.
 
     Returns
     -------
     R, L, axis : array
-        Returns an array that contains the knee axis center in a 1x3 array of xyz values,
-        which is then followed by a 2x3x3 array composed of the knee axis center x, y, and z
-        axis components. The xyz axis components are 2x3 arrays consisting of the axis center
-        in the first dimension and the direction of the axis in the second dimension.
+        Returns an array that contains the knee axis center in a 1x3 array of
+        xyz values, which is then followed by a 2x3x3
+        array composed of the knee axis center x, y, and z axis components. The
+        xyz axis components are 2x3 arrays consisting of the
+        axis center in the first dimension and the direction of the axis in the
+        second dimension.
+
+    References
+    ----------
+    .. [1] Baker, R. (2013). Measuring walking : a handbook of clinical gait
+            analysis. Mac Keith Press.
 
     Modifies
     --------
@@ -477,16 +509,16 @@ def kneeJointCenter(frame,hip_JC,delta,vsk=None):
     return [R,L,axis]
 
 def ankleJointCenter(frame,knee_JC,delta,vsk=None):
-    """Calculate the ankle joint center and axis function.
+    """Calculate the ankle joint center and axis.
 
-    Takes in a dictionary of xyz positions and marker names, as well as an index.
-    and takes the knee axis.
+    Takes in a dictionary of marker names to x, y, z positions and the knee
+    joint center.
     Calculates the ankle joint axis and returns the ankle origin and axis
 
     Markers used: tib_R, tib_L, ank_R, ank_L, knee_JC
     Subject Measurement values used: RightKneeWidth, LeftKneeWidth
 
-    Ankle Axis: Computed using Ankle Axis Calculation(ref. Clinical Gait Analysis hand book, Baker2013).
+    Ankle Axis: Computed using Ankle Axis Calculation [1]_.
 
     Parameters
     ----------
@@ -497,15 +529,20 @@ def ankleJointCenter(frame,knee_JC,delta,vsk=None):
     delta : float
         The length from marker to joint center, retrieved from subject measurement file
     vsk : dict, optional
-        A dictionary containing subject measurements from a VSK file.
+        A dictionary containing subject measurements.
 
     Returns
     -------
     R, L, axis : array
         Returns an array that contains the ankle axis origin in a 1x3 array of xyz values,
         which is then followed by a 3x2x3 array composed of the ankle origin, x, y, and z
-        axis components. The xyz axis components are 2x3 arrays consisting of the origin
+        axis components. The xyz axis components are 3x3 arrays consisting of the origin
         in the first dimension and the direction of the axis in the second dimension.
+
+    References
+    ----------
+    .. [1] Baker, R. (2013). Measuring walking : a handbook of clinical gait
+            analysis. Mac Keith Press.
 
     Examples
     --------
@@ -668,12 +705,12 @@ def ankleJointCenter(frame,knee_JC,delta,vsk=None):
     return [R,L,axis]
 
 def footJointCenter(frame,vsk,ankle_JC,knee_JC,delta):
-    """Calculate the foot joint center and axis function.
+    """Calculate the foot joint center and axis.
 
-    Takes in a dictionary of xyz positions and marker names.
-    and takes the ankle axis and knee axis.
-    Calculate the foot joint axis by rotating incorrect foot joint axes about offset angle.
-    Returns the foot axis origin and axis.
+    Takes in a dictionary of marker names to x, y, z positions, subject
+    measurements and the ankle joint center.
+    Calculate the foot joint axis by rotating incorrect foot joint axes about
+    offset angle.
 
     In case of foot joint center, we've already make 2 kinds of axis for static offset angle.
     and then, Call this static offset angle as an input of this function for dynamic trial.
@@ -693,7 +730,7 @@ def footJointCenter(frame,vsk,ankle_JC,knee_JC,delta):
     frame : dict
         Dictionaries of marker lists.
     vsk : dict
-        A dictionary containing subject measurements from a VSK file.
+        A dictionary containing subject measurements.
     ankle_JC : array
         An array of ankle_JC containing the x,y,z axes marker positions of the ankle joint center.
     knee_JC : array
@@ -706,20 +743,9 @@ def footJointCenter(frame,vsk,ankle_JC,knee_JC,delta):
     R, L, foot_axis : array
         Returns an array that contains the foot axis center in a 1x3 array of xyz values,
         which is then followed by a 2x3x3 array composed of the foot axis center x, y, and z
-        axis components. The xyz axis components are 2x3 arrays consisting of the axis center
+        axis components. The xyz axis components are 3x3 arrays consisting of the axis center
         in the first dimension and the direction of the axis in the second dimension.
         This function also saves the static offset angle in a global variable.
-
-    Modifies
-    --------
-    Axis changes following to the static info.
-
-    you can set the static_info by the button. and this will calculate the offset angles
-    the first setting, the foot axis show foot uncorrected anatomical reference axis(Z_axis point to the AJC from TOE)
-
-    if press the static_info button so if static_info is not None,
-    and then the static offsets angles are applied to the reference axis.
-    the reference axis is Z axis point to HEE from TOE
 
     Examples
     --------
@@ -938,7 +964,7 @@ def footJointCenter(frame,vsk,ankle_JC,knee_JC,delta):
 def headJC(frame,vsk=None):
     """Calculate the head joint axis function.
 
-    Takes in a dictionary of x,y,z positions and marker names.
+    Takes in a dictionary of marker names to x, y, z positions.
     Calculates the head joint center and returns the head joint center and axis.
 
     Markers used: LFHD, RFHD, LBHD, RBHD
@@ -949,7 +975,7 @@ def headJC(frame,vsk=None):
     frame : dict
         Dictionaries of marker lists.
     vsk : dict, optional
-        A dictionary containing subject measurements from a VSK file.
+        A dictionary containing subject measurements.
 
     Returns
     -------
@@ -1038,8 +1064,8 @@ def headJC(frame,vsk=None):
 def thoraxJC(frame):
     """Calculate the thorax joint axis function.
 
-    Takes in a dictionary of x,y,z positions and marker names.
-    Calculates the thorax joint center and returns the thorax joint center and axis.
+    Takes in a dictionary of marker names to x, y, z positions.
+    Calculates and returns the thorax axis and origin.
 
     Markers used: CLAV, C7, STRN, T10
 
@@ -1051,9 +1077,8 @@ def thoraxJC(frame):
     Returns
     -------
     thorax_axis, origin : array
-        Returns an array which contains a 2x3 array representing the right thorax joint center (1x3)
-        and the left thorax joint center (1x3), which is then followed by a 6x3 array representing the
-        right thorax x, y, z axis components (3x3) followed by the the left thorax x, y, z axis components (3x3).
+        Returns an array which contains a 3x3 array representing the thorax
+        axis x, y, z followed by 1x3 array of the thorax origin
 
     Examples
     --------
@@ -1127,8 +1152,7 @@ def thoraxJC(frame):
 def findwandmarker(frame,thorax):
     """Calculate the wand marker function.
 
-    Takes in a dictionary of x,y,z positions and marker names.
-    and takes the thorax axis.
+    Takes in a dictionary of marker names to x, y, z positions and the thorax axis.
     Calculates the wand marker for calculating the clavicle.
 
     Markers used: RSHO, LSHO
@@ -1145,8 +1169,8 @@ def findwandmarker(frame,thorax):
     wand : array
         Returns wand marker position for calculating knee joint center later.
         The wand marker position is returned as a 2x3 array containing the
-        right wand marker x,y,z positions (1x3) followed by the left
-        wand marker x,y,z positions (1x3).
+        right wand marker x,y,z positions 1x3 followed by the left
+        wand marker x,y,z positions 1x3.
 
     Examples
     --------
@@ -1202,8 +1226,8 @@ def findwandmarker(frame,thorax):
 def findshoulderJC(frame,thorax,wand,vsk=None):
     """Calculate the Shoulder joint center function.
 
-    Takes in a dictionary of x,y,z positions and marker names.
-    and takes the thorax axis and wand marker.
+    Takes in a dictionary of marker names to x, y, z positions and the thorax
+    axis and wand marker.
     Calculate each shoulder joint center and returns it.
 
     Markers used: RSHO, LSHO
@@ -1218,14 +1242,14 @@ def findshoulderJC(frame,thorax,wand,vsk=None):
     wand : array
         Array containing two x,y,z markers for wand.
     vsk : dict, optional
-        A dictionary containing subject measurements from a VSK file.
+        A dictionary containing subject measurements.
 
     Returns
     -------
     Sho_JC : array
         Returns a 2x3 array representing the right shoulder joint
-        center x, y, z, marker positions (1x3) followed by the left
-        shoulder joint center x, y, z, marker positions (1x3).
+        center x, y, z, marker positions 1x3 followed by the left
+        shoulder joint center x, y, z, marker positions 1x3.
 
     Examples
     --------
@@ -1274,8 +1298,7 @@ def findshoulderJC(frame,thorax,wand,vsk=None):
 def shoulderAxisCalc(frame,thorax,shoulderJC,wand):
     """Calculate the Shoulder joint axis ( Clavicle) function.
 
-    Takes in a dictionary of x,y,z positions and marker names, as well as an index.
-    and takes the thorax axis and wand marker and then, shoulder joint center.
+    Takes in the thorax axis, wand marker and shoulder joint center.
     Calculate each shoulder joint axis and returns it.
 
     Parameters
@@ -1395,9 +1418,10 @@ def shoulderAxisCalc(frame,thorax,shoulderJC,wand):
 def elbowJointCenter(frame,thorax,shoulderJC,wand,vsk=None):
     """Calculate the Elbow joint axis ( Humerus) function.
 
-    Takes in a dictionary of x,y,z positions and marker names, as well as an index.
-    and takes the thorax axis and wand marker and then, shoulder joint center.
-    Calculate each elbow joint axis and returns it.
+    Takes in a dictionary of marker names to x, y, z positions, the thorax
+    axis, and shoulder joint center.
+
+    Calculates each elbow joint axis.
 
     Markers used: RSHO, LSHO, RELB, LELB, RWRA ,RWRB, LWRA, LWRB
     Subject Measurement values used: RightElbowWidth, LeftElbowWidth
@@ -1413,17 +1437,17 @@ def elbowJointCenter(frame,thorax,shoulderJC,wand,vsk=None):
     wand : array
         The x,y,z position of the wand.
     vsk : dict, optional
-        A dictionary containing subject measurements from a VSK file.
+        A dictionary containing subject measurements.
 
     Returns
     -------
     origin, axis, wrist_O : array
         Returns an array containing a 2x3 array containing the right
-        elbow x, y, z marker positions (1x3), and the left elbow x, y,
-        z marker positions (1x3), which is followed by a 2x3x3 array containing
+        elbow x, y, z marker positions 1x3, and the left elbow x, y,
+        z marker positions 1x3, which is followed by a 2x3x3 array containing
         right elbow x, y, z axis components (1x3x3) followed by the left x, y, z axis
         components (1x3x3) which is then followed by the right wrist joint center
-        x, y, z marker positions (1x3), and the left wrist joint center x, y, z marker positions (1x3).
+        x, y, z marker positions 1x3, and the left wrist joint center x, y, z marker positions 1x3.
 
 
     Examples
@@ -1681,11 +1705,7 @@ def elbowJointCenter(frame,thorax,shoulderJC,wand,vsk=None):
 def wristJointCenter(frame,shoulderJC,wand,elbowJC):
     """Calculate the Wrist joint axis ( Radius) function.
 
-    Takes in a dictionary of x,y,z positions and marker names, as well as an index.
-    and takes the elbow axis and wand marker and then, shoulder joint center.
-    Calculate each wrist joint axis and returns it.
-
-    Markers used: RSHO, LSHO, RELB, LELB, RWRA ,RWRB, LWRA, LWRB
+    Takes in the elbow axis to calculate each wrist joint axis and returns it.
 
     Parameters
     ----------
@@ -1812,10 +1832,10 @@ def wristJointCenter(frame,shoulderJC,wand,elbowJC):
     return [origin,axis]
 
 def handJointCenter(frame,elbowJC,wristJC,vsk=None):
-    """Calculate the Hand joint axis ( Hand) function.
+    """Calculate the Hand joint axis (Hand).
 
-    Takes in a dictionary of x,y,z positions and marker names.
-    and takes the elbow axis and wrist axis.
+    Takes in a dictionary of marker names to x, y, z positions, wrist axis
+    subject measurements.
     Calculate each Hand joint axis and returns it.
 
     Markers used: RWRA, RWRB, LWRA, LWRB, RFIN, LFIN
@@ -1823,21 +1843,21 @@ def handJointCenter(frame,elbowJC,wristJC,vsk=None):
 
     Parameters
     ----------
-    frame
+    frame : dict
         Dictionaries of marker lists.
-    elbowJC : array
+    elbowJC : array, optional
         The x,y,z position of the elbow joint center.
     wristJC : array
         The x,y,z position of the wrist joint center.
     vsk : dict, optional
-        A dictionary containing subject measurements from a VSK file.
+        A dictionary containing subject measurements.
 
     Returns
     -------
     origin, axis : array
         Returns an array containing an array representing the right hand joint center
-        x, y, z marker positions (1x3), followed by an array containing the
-        left hand joint center x, y, z marker positions (1x3), followed by a 2x3x3 array
+        x, y, z marker positions 1x3, followed by an array containing the
+        left hand joint center x, y, z marker positions 1x3, followed by a 2x3x3 array
         containing the right hand joint center x, y, z axis components (1x3x3),
         followed by the left hand joint center x, y, z axis components (1x3x3).
 
@@ -1961,9 +1981,10 @@ def handJointCenter(frame,elbowJC,wristJC,vsk=None):
     return [origin,axis]
 
 def findJointC(a, b, c, delta):
-    """Calculate the Joint Center function.
+    """Calculate the Joint Center.
 
-    This function is based on physical markers, a,b,c and joint center which will be calulcated in this function are all in the same plane.
+    This function is based on physical markers, a,b,c and joint center which
+    will be calulcated in this function are all in the same plane.
 
     Parameters
     ----------
@@ -2029,7 +2050,7 @@ def findJointC(a, b, c, delta):
     return mr
 
 def cross(a, b):
-    """Cross Product function
+    """Cross Product.
 
     Given vectors a and b, calculate the cross product.
 
@@ -2061,11 +2082,12 @@ def cross(a, b):
     return c
 
 def getPelangle(axisP,axisD):
-    """Pelvis angle calculation function.
+    """Pelvis angle calculation.
 
-    This function takes in two axis and returns three angles.
-    and It uses the inverse Euler rotation matrix in YXZ order.
-    the output shows the angle in degrees.
+    This function takes in two axes and returns three angles and uses the
+    inverse Euler rotation matrix in YXZ order.
+
+    Returns the angles in degrees.
 
     Parameters
     ----------
@@ -2114,9 +2136,10 @@ def getPelangle(axisP,axisD):
 def getHeadangle(axisP,axisD):
     """Head angle calculation function.
 
-    This function takes in two axis and returns three angles.
-    and It uses the inverse Euler rotation matrix in YXZ order.
-    the output shows the angle in degrees.
+    This function takes in two axes and returns three angles and uses the
+    inverse Euler rotation matrix in YXZ order.
+
+    Returns the angles in degrees.
 
     Parameters
     ----------
@@ -2193,11 +2216,12 @@ def getHeadangle(axisP,axisD):
     return angle
 
 def getangle_sho(axisP,axisD):
-    """Shoulder angle calculation function.
+    """Shoulder angle calculation.
 
-    This function takes in two axis and returns three angles.
-    and It use inverse Euler rotation matrix in XYZ order.
-    the output shows the angle in degrees.
+    This function takes in two axes and returns three angles and uses the
+    inverse Euler rotation matrix in YXZ order.
+
+    Returns the angles in degrees.
 
     Parameters
     ----------
@@ -2239,11 +2263,12 @@ def getangle_sho(axisP,axisD):
     return angle
 
 def getangle_spi(axisP,axisD):
-    """Spine angle calculation function.
+    """Spine angle calculation.
 
-    This function takes in two axis and returns three angles.
-    and It use inverse Euler rotation matrix in XZX order.
-    the output shows the angle in degrees.
+    This function takes in two axes and returns three angles and uses the
+    inverse Euler rotation matrix in YXZ order.
+
+    Returns the angles in degrees.
 
     Parameters
     ----------
@@ -2281,11 +2306,12 @@ def getangle_spi(axisP,axisD):
     return angle
 
 def getangle(axisP,axisD):
-    """Normal angle calculation function.
+    """Normal angle calculation.
 
-    This function takes in two axis and returns three angles.
-    and It use inverse Euler rotation matrix in YXZ order.
-    the output shows the angle in degrees.
+    This function takes in two axes and returns three angles and uses the
+    inverse Euler rotation matrix in YXZ order.
+
+    Returns the angles in degrees.
 
     As we use arc sin we have to care about if the angle is in area between -pi/2 to pi/2
 
@@ -2342,7 +2368,7 @@ def getangle(axisP,axisD):
     return angle
 
 def norm2d(v):
-    """2D Vector normalization function
+    """2D Vector normalization.
 
     This function calculates the normalization of a 3-dimensional vector.
 
@@ -2370,7 +2396,7 @@ def norm2d(v):
         return np.nan
 
 def norm3d(v):
-    """3D Vector normalization function
+    """3D Vector normalization.
 
     This function calculates the normalization of a 3-dimensional vector.
 
@@ -2397,7 +2423,7 @@ def norm3d(v):
         return np.nan
 
 def normDiv(v):
-    """Normalized divison function
+    """Normalized divison.
 
     This function calculates the normalization division of a 3-dimensional vector.
 
@@ -2428,7 +2454,7 @@ def normDiv(v):
     return [v[0]/vec,v[1]/vec,v[2]/vec]
 
 def matrixmult (A, B):
-    """Matrix multiplication function
+    """Matrix multiplication.
 
     This function returns the product of a matrix multiplication given two matrices.
 
@@ -2466,7 +2492,7 @@ def matrixmult (A, B):
     return C
 
 def rotmat(x=0,y=0,z=0):
-    """Rotation Matrix function
+    """Rotation Matrix.
 
     This function creates and returns a rotation matrix.
 
@@ -2521,7 +2547,8 @@ def rotmat(x=0,y=0,z=0):
 
 
 def JointAngleCalc(frame,vsk):
-    """ Joint Angle Calculation function
+    """ Joint Angle Calculation function.
+
     Calculates the Joint angles of plugingait and stores the data in array
     Stores
         RPel_angle = []
@@ -2535,9 +2562,9 @@ def JointAngleCalc(frame,vsk):
 
     Joint Axis store like below form
 
-    Basically, the axis form is like [[origin],[axis]]
-    So, there's origin which define the position of axis
-    and there's Unit vector of each axis which is attach to the origin.
+    The axis is in the form [[origin], [axis]]
+    Origin defines the position of axis and axis is the direction vector of
+    x, y, z axis attached to the origin
 
     If it is just single one (Pelvis, Hip, Head, Thorax)
 
@@ -2559,8 +2586,8 @@ def JointAngleCalc(frame,vsk):
     ----------
     frame : dict
         Dictionaries of marker lists.
-    vsk : dict, optional
-        A dictionary containing subject measurements from a VSK file.
+    vsk : dict
+        A dictionary containing subject measurements.
 
     Returns
     -------
