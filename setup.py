@@ -25,7 +25,12 @@ setuptools.setup(
     python_requires='>=2.7, !=3.0, !=3.1, !=3.2, !=3.3, !=3.4, !=3.5',
     install_requires=['numpy>=1.15','scipy'],
     package_data={
-        "": ["SampleData/ROM/*.c3d","SampleData/ROM/*.vsk","segments.csv"], # TODO Need to fix
+        "": [
+            "../SampleData/*/*.c3d",
+            "../SampleData/*/*.csv",
+            "../SampleData/*/*.vsk",
+            "segments.csv"
+        ], # TODO Need to fix
     },
     include_package_data=True,   
 )
