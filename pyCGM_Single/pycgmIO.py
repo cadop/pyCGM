@@ -28,7 +28,6 @@ This file is used for the input and output of pycgm functions.
 # Input and output of pycgm functions
 
 import sys
-from .pyCGM import *
 if sys.version_info[0]==2:
     import c3d
     pyver = 2
@@ -46,7 +45,6 @@ try:
 except:
     useEZC3D = False
 
-from math import *
 import numpy as np
 import xml.etree.ElementTree as ET
 import os
