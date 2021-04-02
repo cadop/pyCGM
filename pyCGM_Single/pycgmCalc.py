@@ -29,6 +29,8 @@ This file uses the input data to perform angle and joint calculations.
 
 import numpy as np
 from .pyCGM import JointAngleCalc
+from .pycgmIO import createMotionDataDict, createVskDataDict
+
 from .pycgmKinetics import getKinetics
 import sys
 if sys.version_info[0]==2:
