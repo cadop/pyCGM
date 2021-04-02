@@ -27,6 +27,7 @@ This file uses the input data to perform angle and joint calculations.
 # THE SOFTWARE.
 # -*- coding: utf-8 -*-
 
+import numpy as np
 from .pyCGM import JointAngleCalc
 from .pycgmKinetics import getKinetics
 import sys
