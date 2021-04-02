@@ -28,6 +28,7 @@ This file is used for the input and output of pycgm functions.
 # Input and output of pycgm functions
 
 import sys
+from .pyCGM import *
 if sys.version_info[0]==2:
     import c3d
     pyver = 2
