@@ -1,3 +1,7 @@
+"""
+This file is used for the input and output of pycgm functions.
+"""
+
 #pyCGM
 
 # Copyright (c) 2015 Mathew Schwartz <umcadop@gmail.com>

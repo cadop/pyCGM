@@ -1,6 +1,6 @@
 # -*- coding: utf-8 -*-
 """
-Provides helper functions for static calcualtions.
+This file provides helper functions for static calcualtions.
 
 Created on Tue Jul 28 16:55:25 2015
 

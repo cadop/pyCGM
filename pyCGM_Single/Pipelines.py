@@ -1,3 +1,6 @@
+"""
+This file is used in performing frame and marker calculations.
+"""
 # This module was contributed by Neil M. Thomas
 
 import numpy as np
