@@ -1,6 +1,3 @@
-"""
-This file is used in joint angle and joint center calculations.
-"""
 # -*- coding: utf-8 -*-
 #pyCGM
 
@@ -26,6 +23,11 @@ This file is used in joint angle and joint center calculations.
 # OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN
 # THE SOFTWARE.
 #pyCGM
+
+"""
+This file is used in joint angle and joint center calculations.
+"""
+
 import sys
 import os
 from math import sin, cos, pi, sqrt
