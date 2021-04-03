@@ -1,6 +1,3 @@
-"""
-This file is used in joint angle and joint center calculations.
-"""
 # -*- coding: utf-8 -*-
 #pyCGM
 
