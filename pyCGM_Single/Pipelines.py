@@ -1,5 +1,5 @@
 """
-This file is used in performing frame and marker calculations.
+This file is used in adding filters to data and filling gaps in data.
 """
 # This module was contributed by Neil M. Thomas
 
