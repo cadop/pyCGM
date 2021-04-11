@@ -1,7 +1,8 @@
 """
 This file is used in adding filters to data and filling gaps in data.
+
+This module was contributed by Neil M. Thomas
 """
-# This module was contributed by Neil M. Thomas
 
 import numpy as np
 from .clusterCalc import targetName,getMarkerLocation,segment_dict,target_dict,getStaticTransform
