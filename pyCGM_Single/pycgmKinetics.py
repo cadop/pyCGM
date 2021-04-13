@@ -296,8 +296,6 @@ def findL5_Pelvis(frame):
 
     Markers used: `LHip`, `RHip`, `Pelvis_axis`
 
-    Markers used: `LHip`, `RHip`, `Pelvis_axis`
-
     Parameters
     ----------
     frame : dict
