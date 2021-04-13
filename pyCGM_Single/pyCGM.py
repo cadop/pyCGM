@@ -23,9 +23,14 @@
 # OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN
 # THE SOFTWARE.
 #pyCGM
+
+"""
+This file is used in joint angle and joint center calculations.
+"""
+
 import sys
 import os
-from math import *
+from math import sin, cos, pi, sqrt
 import math
 import numpy as np
 from .pycgmIO import *

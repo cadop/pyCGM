@@ -1,3 +1,7 @@
+"""
+This file is used for the input and output of pycgm functions.
+"""
+
 #pyCGM
 
 # Copyright (c) 2015 Mathew Schwartz <umcadop@gmail.com>
@@ -42,7 +46,6 @@ try:
 except:
     useEZC3D = False
 
-from math import *
 import numpy as np
 import xml.etree.ElementTree as ET
 import os
