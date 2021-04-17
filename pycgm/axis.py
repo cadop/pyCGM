@@ -33,18 +33,19 @@ import numpy as np
 
 def find_joint_center(mark_a, mark_b, mark_c, delta):
     """Calculate the Joint Center.
-    This function is based on physical markers, a,b,c and joint center which
-    will be calulcated in this function are all in the same plane.
+    This function is based on physical markers mark_a, mark_b, mark_c, 
+    and joint center which will be calculated in this function are all 
+    in the same plane.
     Parameters
     ----------
     mark_a, mark_b, mark_c : list
-        Three markers x,y,z position of a, b, c.
+        Three markers x, y, z position of a, b, c.
     delta : float
         The length from marker to joint center, retrieved from subject measurement file.
     Returns
     -------
     joint_center : array
-        Returns the Joint C x, y, z positions in a 1x3 array.
+        Returns the joint center's x, y, z positions in a 1x3 array.
     Examples
     --------
     >>> import numpy as np
@@ -80,7 +81,7 @@ def find_joint_center(mark_a, mark_b, mark_c, delta):
     u_y = vec_3[1]
     u_z = vec_3[2]
 
-    # this rotation matrix is called Rodriques' rotation formula.
+    # This rotation matrix is called Rodriques' rotation formula.
     # In order to make a plane, at least 3 number of markers is required which
     # means three physical markers on the segment can make a plane.
     # then the orthogonal vector of the plane will be rotating axis.
