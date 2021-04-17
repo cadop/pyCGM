@@ -1,4 +1,3 @@
-from mock import patch
 import pycgm.axis as axis
 import pytest
 import numpy as np
@@ -230,5 +229,4 @@ class TestLowerBodyAxis:
         sacr = frame["SACR"] if "SACR" in frame else None
 
         result = axis.pelvis_axis(rasi, lasi, rpsi, lpsi, sacr)
-        print(np.array_repr(result, precision=8))
         np.testing.assert_almost_equal(result, expected, rounding_precision)
