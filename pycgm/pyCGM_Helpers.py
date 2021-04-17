@@ -8,6 +8,12 @@ import os
 def getfilenames(x=1):
     """ Get Filenames for sample data.
 
+    The `59993_Frame` directory includes data of a human walking around while 
+    also performing other movements using all joints together.
+    The `ROM` directory includes data of a human circling all joints 
+    individually while standing in one place 
+    The `Sample_2` directory includes data of a robowalk.
+
     Parameters
     ----------
     x : int, optional
@@ -19,7 +25,7 @@ def getfilenames(x=1):
 
     Returns
     -------
-    dynamic_trial, static_trial, vsk_file, outputfile, CoM_output : tuple
+    dynamic_trial, static_trial, vsk_file, output_file, CoM_output : tuple
         Returns the respective filenames in the relative path.
 
     Example
@@ -47,7 +53,7 @@ def getfilenames(x=1):
     """
     script_dir = os.path.dirname(os.path.abspath(__file__))
     os.chdir(script_dir)
-    os.chdir("..")  # move current path one up to the directory of pycgm_embed
+    os.chdir("..")
 
     if x == 1:
         dir = 'SampleData/59993_Frame/'
