@@ -42,8 +42,8 @@ jobs:
         pytest --doctest-modules --continue-on-collection-errors pyCGM_Single
     - name: Run Unittests with pytest
       run: |
-        pytest 
-        
+        pytest pyCGM_Single
+
   build3:
 
     runs-on: ubuntu-latest
@@ -76,7 +76,7 @@ jobs:
         pytest --doctest-modules --continue-on-collection-errors pyCGM_Single
     - name: Run Unittests with pytest
       run: |
-        pytest 
+        pytest pyCGM_Single
 
   build39:
     runs-on: ubuntu-latest
@@ -108,7 +108,7 @@ jobs:
         pytest --doctest-modules --continue-on-collection-errors pyCGM_Single
     - name: Run Unittests with pytest
       run: |
-        pytest
+        pytest pyCGM_Single
 
   build2-refactor:
 
