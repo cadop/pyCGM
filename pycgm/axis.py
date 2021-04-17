@@ -5,13 +5,14 @@ import numpy as np
 def pelvis_axis(rasi, lasi, rpsi, lpsi, sacr=None):
     r"""Make the Pelvis Axis.
 
-    Takes in a dictionary of x,y,z positions and marker names, as well as an index
+    Takes in RASI, LASI, RPSI, LPSI, and optional SACR markers.
     Calculates the pelvis axis.
 
     Markers used: RASI, LASI, RPSI, LPSI
-    Other landmarks used: origin, sacrum
+    Other landmarks used: sacrum
 
-    Pelvis X_axis: Computed with a Gram-Schmidt orthogonalization procedure [1]_ and then normalized.
+    Pelvis X_axis: Computed with a Gram-Schmidt orthogonalization procedure
+    [1]_ and then normalized.
     Pelvis Y_axis: LASI-RASI x,y,z positions, then normalized.
     Pelvis Z_axis: Cross product of x_axis and y_axis.
 
@@ -31,10 +32,10 @@ def pelvis_axis(rasi, lasi, rpsi, lpsi, sacr=None):
         1x3 LASI marker
     rpsi: array
         1x3 RPSI marker
-    lpsi: array, optional
+    lpsi: array
         1x3 LPSI marker
     sacr: array, optional
-        1x3 SACR marker
+        1x3 SACR marker. If not present, RPSI and LPSI are used instead.
 
     Returns
     -------
@@ -76,7 +77,6 @@ def pelvis_axis(rasi, lasi, rpsi, lpsi, sacr=None):
         sacr = (rpsi + lpsi) / 2.0
 
     # REQUIRED LANDMARKS:
-    # origin
     # sacrum
 
     # Origin is Midpoint between RASI and LASI
