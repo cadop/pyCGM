@@ -10,17 +10,19 @@ def getfilenames(x=1):
 
     The `59993_Frame` directory includes data of a human walking around while 
     also performing other movements using all joints together.
+
     The `ROM` directory includes data of a human circling all joints 
-    individually while standing in one place 
+    individually while standing in one place.
+    
     The `Sample_2` directory includes data of a robowalk.
 
     Parameters
     ----------
     x : int, optional
         A flag (1, 2, or 3) that denotes which variation of files to retrieve.
-        Default is 1 if not given.
-        1 denotes the files in the `59993_Frame` directory.
-        2 denotes the files in the `ROM` directory.
+        Default is 1 if not given.\n
+        1 denotes the files in the `59993_Frame` directory.\n
+        2 denotes the files in the `ROM` directory.\n
         3 denotes the files in the `Sample_2` directory.
 
     Returns
