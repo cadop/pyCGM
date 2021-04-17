@@ -34,6 +34,34 @@ from math import sin, cos, pi, sqrt
 import math
 import numpy as np
 
+def cross(vec_a, vec_b):
+    """Cross Product.
+    Given vectors vec_a and vec_b, calculate the cross product.
+    Parameters
+    ----------
+    vec_a : list
+        First 3D vector.
+    vec_b : list
+        Second 3D vector.
+    Returns
+    -------
+    vec_c : list
+        The cross product of vec_a and vec_b.
+    Examples
+    --------
+    >>> import numpy as np
+    >>> from .axis import cross
+    >>> vec_a = [6.25, 7.91, 18.63]
+    >>> vec_b = [3.49, 4.42, 19.23]
+    >>> np.around(cross(vec_a, vec_b), 2)
+    array([ 6.976e+01, -5.517e+01,  2.000e-02])
+    """
+    vec_c = [vec_a[1]*vec_b[2] - vec_a[2]*vec_b[1],
+        vec_a[2]*vec_b[0] - vec_a[0]*vec_b[2],
+        vec_a[0]*vec_b[1] - vec_a[1]*vec_b[0]]
+
+    return vec_c
+
 def norm_div(vec):
     """Normalized divison.
 
@@ -52,7 +80,7 @@ def norm_div(vec):
     Examples
     --------
     >>> import numpy as np
-    >>> from .pyCGM import norm_div
+    >>> from .axis import norm_div
     >>> vec = [1.44, 1.94, 2.49]
     >>> np.around(norm_div(vec), 2)
     array([0.12, 0.16, 0.21])
@@ -89,7 +117,7 @@ def matrixmult (matr_a, matr_b):
 
     Examples
     --------
-    >>> from .pyCGM import matrixmult
+    >>> from .axis import matrixmult
     >>> matr_a = [[11,12,13],[14,15,16]]
     >>> matr_b = [[1,2],[3,4],[5,6]]
     >>> matrixmult(matr_a, matr_b)
@@ -118,13 +146,13 @@ def rotmat(x=0, y=0, z=0):
 
     Returns
     -------
-    Rxyz : list
+    r_xyz : list
         The product of the matrix multiplication.
 
     Examples
     --------
     >>> import numpy as np
-    >>> from .pyCGM import rotmat
+    >>> from .axis import rotmat
     >>> x = 0.5
     >>> y = 0.3
     >>> z = 0.8
