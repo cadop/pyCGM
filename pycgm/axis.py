@@ -125,8 +125,8 @@ def hip_joint_center(pelvis, subject):
 
     Returns
     -------
-    hip_JC : array
-        Returns a 2x3 array that contains two 1x3 arrays
+    hip_jc : array
+        A 2x3 array that contains two 1x3 arrays
         containing the x, y, z components of the left and right hip joint
         centers.
 
@@ -225,7 +225,9 @@ def hip_joint_center(pelvis, subject):
     left_hip_jc = left_hip_jc+pel_origin
     right_hip_jc = right_hip_jc+pel_origin
 
-    return np.array([left_hip_jc, right_hip_jc])
+    hip_jc = np.array([left_hip_jc, right_hip_jc])
+
+    return hip_jc
 
 
 def hip_axis(r_hip_jc, l_hip_jc, pelvis_axis):
@@ -248,7 +250,7 @@ def hip_axis(r_hip_jc, l_hip_jc, pelvis_axis):
 
     Returns
     -------
-    hipaxis_center, axis : array
+    axis : array
         4x4 affine matrix with hip x, y, z axes and hip origin.
 
     .. math::
