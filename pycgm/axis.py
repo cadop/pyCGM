@@ -33,9 +33,8 @@ import numpy as np
 
 def find_joint_center(mark_a, mark_b, mark_c, delta):
     """Calculate the Joint Center.
-    This function is based on physical markers mark_a, mark_b, mark_c, 
-    and joint center which will be calculated in this function are all 
-    in the same plane.
+    This function is based on the physical markers mark_a, mark_b, mark_c
+    and the resulting joint center are all on the same plane.
     Parameters
     ----------
     mark_a, mark_b, mark_c : list
