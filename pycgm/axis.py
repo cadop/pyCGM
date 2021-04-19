@@ -1,102 +1,71 @@
 # -*- coding: utf-8 -*-
-#pyCGM
 
-# Copyright (c) 2015 Mathew Schwartz <umcadop@gmail.com>
-# Core Developers: Seungeun Yeon, Mathew Schwartz
-# Contributors Filipe Alves Caixeta, Robert Van-wesep
-#
-# Permission is hereby granted, free of charge, to any person obtaining a copy
-# of this software and associated documentation files (the "Software"), to deal
-# in the Software without restriction, including without limitation the rights
-# to use, copy, modify, merge, publish, distribute, sublicense, and/or sell
-# copies of the Software, and to permit persons to whom the Software is
-# furnished to do so, subject to the following conditions:
-
-# The above copyright notice and this permission notice shall be included in
-# all copies or substantial portions of the Software.
-
-# THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR
-# IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY,
-# FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE
-# AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER
-# LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
-# OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN
-# THE SOFTWARE.
-#pyCGM
-
-"""
-This file is used in joint angle and joint center calculations.
-"""
-
-import math
+from math import pi
 import numpy as np
 
-def find_joint_center(mark_a, mark_b, mark_c, delta):
-    """Calculate the Joint Center.
-    This function is based on physical markers mark_a, mark_b, mark_c, 
-    and joint center which will be calculated in this function are all 
-    in the same plane.
+def get_angle(axis_p, axis_d):
+    """Normal angle calculation.
+    This function takes in two axes and returns three angles and uses the
+    inverse Euler rotation matrix in YXZ order.
+    Returns the angles in degrees.
+    As we use arc sin we have to care about if the angle is in area between -pi/2 to pi/2
     Parameters
     ----------
-    mark_a, mark_b, mark_c : list
-        Three markers x, y, z position of a, b, c.
-    delta : float
-        The length from marker to joint center, retrieved from subject measurement file.
+    axis_p : list
+        Shows the unit vector of axis_p, the position of the proximal axis.
+    axis_d : list
+        Shows the unit vector of axis_d, the position of the distal axis.
     Returns
     -------
-    joint_center : array
-        Returns the joint center's x, y, z positions in a 1x3 array.
+    angle : list
+        Returns the gamma, beta, alpha angles in degrees in a 1x3 corresponding list.
     Examples
     --------
     >>> import numpy as np
-    >>> from .axis import find_joint_center
-    >>> mark_a = [468.14, 325.09, 673.12]
-    >>> mark_b = [355.90, 365.38, 940.69]
-    >>> mark_c = [452.35, 329.06, 524.77]
-    >>> delta = 59.5
-    >>> find_joint_center(mark_a, mark_b, mark_c, delta).round(2)
-    array([396.25, 347.92, 518.63])
+    >>> from .axis import get_angle
+    >>> axis_p = [[ 0.04,   0.99,  0.06],
+    ...         [ 0.99, -0.04, -0.05],
+    ...         [-0.05,  0.07, -0.99]]
+    >>> axis_d = [[-0.18, -0.98, -0.02],
+    ...         [ 0.71, -0.11,  -0.69],
+    ...         [ 0.67, -0.14,   0.72 ]]
+    >>> np.around(get_angle(axis_p, axis_d), 2)
+    array([-174.82,  -39.26,  100.54])
     """
-    # make the two vector using 3 markers, which is on the same plane.
-    vec_1 = (mark_a[0]-mark_c[0], mark_a[1]-mark_c[1], mark_a[2]-mark_c[2])
-    vec_2 = (mark_b[0]-mark_c[0], mark_b[1]-mark_c[1], mark_b[2]-mark_c[2])
+    # this is the angle calculation which is in order Y-X-Z
 
-    # vec_3 is cross vector of vec_1, vec_2
-    # and then it normalized.
-    # vec_3 = cross(vec_1, vec_2)
-    vec_3 = np.cross(vec_1, vec_2)
-    vec_3_div = np.linalg.norm(vec_3)
-    vec_3 = [vec_3[0]/vec_3_div, vec_3[1]/vec_3_div, vec_3[2]/vec_3_div]
+    # alpha is abduction angle.
 
-    mid = [(mark_b[0]+mark_c[0])/2.0, (mark_b[1]+mark_c[1])/2.0, (mark_b[2]+mark_c[2])/2.0]
-    length = np.subtract(mark_b, mid)
-    length = np.linalg.norm(length)
+    ang = (-1*axis_d[2][0]*axis_p[1][0])+(-1*axis_d[2][1]*axis_p[1][1])+(-1*axis_d[2][2]*axis_p[1][2])
+    alpha = np.nan
+    if -1 <= ang <= 1:
+        alpha = np.arcsin(ang)
 
-    theta = math.acos(delta/np.linalg.norm(vec_2))
+    # ensure the abduction angle is between -pi/2 and pi/2
+    # beta is flextion angle
+    # gamma is rotation angle
 
-    cs_th = math.cos(theta*2)
-    sn_th = math.sin(theta*2)
+    if (-pi/2) < alpha < (pi/2):
+        beta = np.arctan2(
+                (axis_d[2][0]*axis_p[0][0])+(axis_d[2][1]*axis_p[0][1])+(axis_d[2][2]*axis_p[0][2]),
+                (axis_d[2][0]*axis_p[2][0])+(axis_d[2][1]*axis_p[2][1])+(axis_d[2][2]*axis_p[2][2])
+            )
 
-    u_x = vec_3[0]
-    u_y = vec_3[1]
-    u_z = vec_3[2]
+        gamma = np.arctan2(
+                (axis_d[1][0]*axis_p[1][0])+(axis_d[1][1]*axis_p[1][1])+(axis_d[1][2]*axis_p[1][2]),
+                (axis_d[0][0]*axis_p[1][0])+(axis_d[0][1]*axis_p[1][1])+(axis_d[0][2]*axis_p[1][2])
+            )
+    else:
+        beta = np.arctan2(
+                -1*((axis_d[2][0]*axis_p[0][0])+(axis_d[2][1]*axis_p[0][1])+(axis_d[2][2]*axis_p[0][2])),
+                (axis_d[2][0]*axis_p[2][0])+(axis_d[2][1]*axis_p[2][1])+(axis_d[2][2]*axis_p[2][2])
+            )
 
-    # This rotation matrix is called Rodriques' rotation formula.
-    # In order to make a plane, at least 3 number of markers is required which
-    # means three physical markers on the segment can make a plane.
-    # then the orthogonal vector of the plane will be rotating axis.
-    # joint center is determined by rotating the one vector of plane around rotating axis.
+        gamma = np.arctan2(
+                -1*((axis_d[1][0]*axis_p[1][0])+(axis_d[1][1]*axis_p[1][1])+(axis_d[1][2]*axis_p[1][2])),
+                (axis_d[0][0]*axis_p[1][0])+(axis_d[0][1]*axis_p[1][1])+(axis_d[0][2]*axis_p[1][2])
+            )
 
-    rot = np.matrix([
-        [cs_th+u_x**2.0*(1.0-cs_th),u_x*u_y*(1.0-cs_th)-u_z*sn_th,u_x*u_z*(1.0-cs_th)+u_y*sn_th],
-        [u_y*u_x*(1.0-cs_th)+u_z*sn_th,cs_th+u_y**2.0*(1.0-cs_th),u_y*u_z*(1.0-cs_th)-u_x*sn_th],
-        [u_z*u_x*(1.0-cs_th)-u_y*sn_th,u_z*u_y*(1.0-cs_th)+u_x*sn_th,cs_th+u_z**2.0*(1.0-cs_th)]
-    ])
+    angle = [180.0*beta/pi, 180.0*alpha/pi, 180.0*gamma/pi]
 
-    r_vec = rot * (np.matrix(vec_2).transpose())
-    r_vec = r_vec * length/np.linalg.norm(r_vec)
-
-    r_vec = [r_vec[0,0], r_vec[1,0], r_vec[2,0]]
-    joint_center = np.array([r_vec[0]+mid[0], r_vec[1]+mid[1], r_vec[2]+mid[2]])
-
-    return joint_center
+    return angle
