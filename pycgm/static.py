@@ -51,26 +51,26 @@ def rotmat(x=0, y=0, z=0):
     Examples
     --------
     >>> import numpy as np
-    >>> from .static import rotation_matrix
-    >>> rotation_matrix() #doctest: +NORMALIZE_WHITESPACE
+    >>> from .static import rotmat
+    >>> rotmat() #doctest: +NORMALIZE_WHITESPACE
     array([[1., 0., 0.],
            [0., 1., 0.],
            [0., 0., 1.]])
     >>> x = 0.5
     >>> y = 0.3
     >>> z = 0.8
-    >>> np.around(rotation_matrix(x, y, z), 2)
+    >>> np.around(rotmat(x, y, z), 2)
     array([[ 1.  , -0.01,  0.01],
            [ 0.01,  1.  , -0.01],
            [-0.01,  0.01,  1.  ]])
     >>> x = 0.5
-    >>> np.around(rotation_matrix(x), 2)
+    >>> np.around(rotmat(x), 2)
     array([[ 1.  ,  0.  ,  0.  ],
            [ 0.  ,  1.  , -0.01],
            [ 0.  ,  0.01,  1.  ]])
     >>> x = 1
     >>> y = 1
-    >>> np.around(rotation_matrix(x,y), 2)
+    >>> np.around(rotmat(x,y), 2)
     array([[ 1.  ,  0.  ,  0.02],
            [ 0.  ,  1.  , -0.02],
            [-0.02,  0.02,  1.  ]])
@@ -106,14 +106,14 @@ def getDist(p0, p1):
     Examples
     --------
     >>> import numpy as np
-    >>> from .static import get_distance
+    >>> from .static import getDist
     >>> p0 = [0,1,2]
     >>> p1 = [1,2,3]
-    >>> np.around(get_distance(p0,p1), 2)
+    >>> np.around(getDist(p0,p1), 2)
     1.73
     >>> p0 = np.array([991.45, 741.95, 321.36])
     >>> p1 = np.array([117.09, 142.24, 481.95])
-    >>> np.around(get_distance(p0,p1), 2)
+    >>> np.around(getDist(p0,p1), 2)
     1072.36
     """
     return sqrt((p0[0] - p1[0])**2 + (p0[1] - p1[1])**2 + (p0[2] - p1[2])**2)
@@ -145,10 +145,10 @@ def getStatic(motionData, vsk, flat_foot=False, GCS=None):
 
     Examples
     --------
-    >>> from .pycgmIO import loadC3D, loadVSK
-    >>> from .pycgmStatic import getStatic
+    >>> from pyCGM_Single.pycgmIO import loadC3D, loadVSK
+    >>> from .static import getStatic
     >>> import os
-    >>> from .pyCGM_Helpers import getfilenames
+    >>> from pyCGM_Single.pyCGM_Helpers import getfilenames
     >>> fileNames=getfilenames(2)
     >>> c3dFile = fileNames[1]
     >>> vskFile = fileNames[2]
@@ -280,7 +280,7 @@ def getStatic(motionData, vsk, flat_foot=False, GCS=None):
         ankle_JC = ankleJointCenter(frame, knee_JC, 0, vsk=calSM)
         angle = staticCalculation(frame, ankle_JC, knee_JC, flat_foot, calSM)
         head = headJC(frame)
-        headangle = calculate_head_angle(frame, head)
+        headangle = calculate_head_angle(head)
 
         static_offset.append(angle)
         head_offset.append(headangle)
@@ -706,9 +706,8 @@ def hipJointCenter(frame, pel_origin, pel_x, pel_y, pel_z, vsk=None):
     >>> import numpy as np
     >>> from .static import hipJointCenter
     >>> frame = None
-    >>> vsk = {'mean_leg_length': 940.0, 'r_asis_to_trocanter_measure': 72.51,
-    ...        'l_asis_to_trocanter_measure': 72.51,
-    ...        'inter_asis_distance': 215.91}
+    >>> vsk = {'MeanLegLength': 940.0, 'R_AsisToTrocanterMeasure': 72.51,
+    ...        'L_AsisToTrocanterMeasure': 72.51, 'InterAsisDistance': 215.91}
     >>> pel_origin = [ 251.61, 391.74, 1032.89]
     >>> pel_x = [251.74, 392.73, 1032.79]
     >>> pel_y = [250.62, 391.87, 1032.87]
@@ -738,13 +737,13 @@ def hipJointCenter(frame, pel_origin, pel_x, pel_y, pel_z, vsk=None):
     # Set the variables needed to calculate the joint angle
 
     mm = 7.0
-    # mm = 14.0 #can this be given?
-    mean_leg_length = vsk['mean_leg_length']
-    R_AsisToTrocanterMeasure = vsk['r_asis_to_trocanter_measure']
-    l_asis_to_trocanter_measure = vsk['l_asis_to_trocanter_measure']
+    #mm = 14.0 #can this be given?
+    MeanLegLength = vsk['MeanLegLength']
+    R_AsisToTrocanterMeasure = vsk['R_AsisToTrocanterMeasure']
+    L_AsisToTrocanterMeasure = vsk['L_AsisToTrocanterMeasure']
 
-    interAsisMeasure = vsk['inter_asis_distance']
-    C = (mean_leg_length * 0.115) - 15.3
+    interAsisMeasure = vsk['InterAsisDistance']
+    C = ( MeanLegLength * 0.115 ) - 15.3
     theta = 0.500000178813934
     beta = 0.314000427722931
     aa = interAsisMeasure/2.0
@@ -753,10 +752,10 @@ def hipJointCenter(frame, pel_origin, pel_x, pel_y, pel_z, vsk=None):
     # Hip Joint Center Calculation (ref. Davis_1991)
 
     # Left: Calculate the distance to translate along the pelvis axis
-    L_Xh = ((-l_asis_to_trocanter_measure - mm) * cos(beta) + C * cos(theta)
+    L_Xh = ((-L_AsisToTrocanterMeasure - mm) * cos(beta) + C * cos(theta)
             * sin(beta))
     L_Yh = S*(C*sin(theta) - aa)
-    L_Zh = ((-l_asis_to_trocanter_measure - mm) * sin(beta) - C * cos(theta)
+    L_Zh = ((-L_AsisToTrocanterMeasure - mm) * sin(beta) - C * cos(theta)
             * cos(beta))
 
     # Right:  Calculate the distance to translate along the pelvis axis
@@ -912,7 +911,7 @@ def kneeJointCenter(frame, hip_JC, delta, vsk=None):
     --------
     >>> import numpy as np
     >>> from .static import kneeJointCenter
-    >>> vsk = { 'right_knee_width' : 105.0, 'left_knee_width' : 105.0 }
+    >>> vsk = { 'RightKneeWidth' : 105.0, 'LeftKneeWidth' : 105.0 }
     >>> frame = { 'RTHI': np.array([426.50, 262.65, 673.66]),
     ...           'LTHI': np.array([51.94, 320.02, 723.03]),
     ...           'RKNE': np.array([416.99, 266.23, 524.04]),
@@ -934,8 +933,8 @@ def kneeJointCenter(frame, hip_JC, delta, vsk=None):
 
     # Get Global Values
     mm = 7.0
-    R_kneeWidth = vsk['right_knee_width']
-    L_kneeWidth = vsk['left_knee_width']
+    R_kneeWidth = vsk['RightKneeWidth']
+    L_kneeWidth = vsk['LeftKneeWidth']
     R_delta = (R_kneeWidth/2.0)+mm
     L_delta = (L_kneeWidth/2.0)+mm
 
@@ -1069,8 +1068,8 @@ def ankleJointCenter(frame, knee_JC, delta, vsk=None):
     --------
     >>> import numpy as np
     >>> from .static import ankleJointCenter
-    >>> vsk = { 'right_ankle_width' : 70.0, 'left_ankle_width' : 70.0,
-    ...         'right_tibial_torsion': 0.0, 'left_tibial_torsion' : 0.0}
+    >>> vsk = { 'RightAnkleWidth' : 70.0, 'LeftAnkleWidth' : 70.0,
+    ...         'RightTibialTorsion': 0.0, 'LeftTibialTorsion' : 0.0}
     >>> frame = { 'RTIB': np.array([433.98, 211.93, 273.30]),
     ...           'LTIB': np.array([50.04, 235.91, 364.32]),
     ...           'RANK': np.array([422.77, 217.74, 92.86]),
@@ -1096,10 +1095,10 @@ def ankleJointCenter(frame, knee_JC, delta, vsk=None):
     """
 
     # Get Global Values
-    R_ankleWidth = vsk['right_ankle_width']
-    L_ankleWidth = vsk['left_ankle_width']
-    R_torsion = vsk['right_tibial_torsion']
-    L_torsion = vsk['left_tibial_torsion']
+    R_ankleWidth = vsk['RightAnkleWidth']
+    L_ankleWidth = vsk['LeftAnkleWidth']
+    R_torsion = vsk['RightTibialTorsion']
+    L_torsion = vsk['LeftTibialTorsion']
     mm = 7.0
     R_delta = ((R_ankleWidth)/2.0)+mm
     L_delta = ((L_ankleWidth)/2.0)+mm
