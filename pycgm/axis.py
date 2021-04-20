@@ -4,6 +4,7 @@ import numpy as np
 
 def find_joint_center(mark_a, mark_b, mark_c, delta):
     """Calculate the Joint Center.
+
     This function is based on physical markers mark_a, mark_b, mark_c,
     and joint center which will be calculated in this function are all
     in the same plane.
@@ -80,8 +81,18 @@ def hand_axis(rwra, rwrb, lwra, lwrb, rfin, lfin, wrist_jc, vsk=None):
     
     Calculates each hand joint axis and returns it.
 
-    Markers used: RWRA, RWRB, LWRA, LWRB, RFIN, LFIN
+    Markers used: RWRA, RWRB, LWRA, LWRB, RFIN, LFIN \n
     Subject Measurement values used: RightHandThickness, LeftHandThickness
+
+    :math:`o_{left} = \\frac{m_{lwra} + m_{lwrb}}{2} \hspace{1cm} o_{right} = \\frac{m_{rwra} + m_{rwrb}}{2}`
+
+    :math:`\hat{z}_{left} = m_{lwjc} - m_{lhnd} \hspace{1cm} \hat{z}_{right} = m_{rwjc} - m_{rhnd}`
+
+    :math:`\hat{y}_{left} = m_{lwri} - m_{lwra} \hspace{1cm} \hat{y}_{right} = m_{rwra} - m_{rwri}`
+
+    :math:`\hat{x}_{left} = \hat{y}_{left} \\times \hat{z}_{left} \hspace{1cm} \hat{x}_{right} = \hat{y}_{right} \\times \hat{z}_{right}`
+
+    :math:`\hat{y}_{left} = \hat{z}_{left} \\times \hat{x}_{left} \hspace{1cm} \hat{y}_{right} = \hat{z}_{right} \\times \hat{x}_{right}`
 
     Parameters
     ----------
@@ -110,14 +121,6 @@ def hand_axis(rwra, rwrb, lwra, lwrb, rfin, lfin, wrist_jc, vsk=None):
         A list of two 4x4 affine matrices representing the right hand axis as well as the
         left hand axis.
 
-    .. math::
-        \begin{bmatrix}
-            \hat{x}_x & \hat{x}_y & \hat{x}_z & o_x \\
-            \hat{y}_x & \hat{y}_y & \hat{y}_z & o_y \\
-            \hat{z}_x & \hat{z}_y & \hat{z}_z & o_z \\
-            0 & 0 & 0 & 1 \\
-        \end{bmatrix}
-
     Examples
     --------
     >>> import numpy as np
@@ -132,7 +135,7 @@ def hand_axis(rwra, rwrb, lwra, lwrb, rfin, lfin, wrist_jc, vsk=None):
     >>> wrist_jc = [[
     ... [793.77, 450.44, 1084.12, 793.32],
     ... [794.01, 451.38, 1085.15, 451.29],
-    ... [792.75, 450761812234714, 1085.05, 1084.43],
+    ... [792.75, 450.76, 1085.05, 1084.43],
     ... [0, 0, 0, 1]
     ... ], [
     ... [-272.92, 485.01, 1090.96, -272.45],
@@ -217,5 +220,3 @@ def hand_axis(rwra, rwrb, lwra, lwrb, rfin, lfin, wrist_jc, vsk=None):
     r_axis[:3, 3] = rhnd
 
     return [r_axis, l_axis]
-
-print(find_joint_center([-280.528396605, 501.27745056000003, 1121.126281735], [-272.4594189740742, 485.801522109477, 1091.3666238350822], [-326.65890503, 558.34338379, 1091.04284668], 24.0))
