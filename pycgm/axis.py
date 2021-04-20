@@ -102,8 +102,6 @@ def hand_axis(rwra, rwrb, lwra, lwrb, rfin, lfin, wrist_jc, vsk=None):
 
     Parameters
     ----------
-    frame : dict
-        Dictionaries of marker lists.
     rwra : array
         1x3 RWRA marker
     rwrb : array
