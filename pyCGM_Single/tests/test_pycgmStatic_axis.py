@@ -173,9 +173,9 @@ class TestPycgmStaticAxis():
         if there are values for frame['RASI'] and frame['LASI']
         Values produced from frame['SACR'] takes precedent over frame['RPSI'] and frame['LPSI']
 
-        If RPSI and LPSI are given, then the sacrum will be the midpoint of those two markers. If they are not given then the sacrum is already calculated / specified.
+        If RPSI and LPSI are given, then the sacrum will be the midpoint of those two markers. If they are not given then the sacrum is already calculated / specified. 
         The origin of the pelvis is midpoint of the RASI and LASI markers.
-        The axis of the pelvis is calculated using LASI, RASI, origin, and sacrum in the Gram-Schmidt orthogonalization procedure (ref. Kadaba 1990).
+        The axis of the pelvis is calculated using LASI, RASI, origin, and sacrum in the Gram-Schmidt orthogonalization procedure (ref. Kadaba 1990). 
 
         Lastly, it checks that the resulting output is correct when frame is composed of lists of ints, numpy arrays of
         ints, lists of floats, and numpy arrays of floats. frame['LASI'] and frame['RASI'] were kept as numpy arrays
@@ -350,10 +350,10 @@ class TestPycgmStaticAxis():
         When values are added to pelvis_axis, expected[1] should be updated
 
 
-        The hip axis center is calculated using the midpoint of the right and left hip joint centers.
-        Then, the given pelvis_axis variable is converted into x,y,z axis format.
+        The hip axis center is calculated using the midpoint of the right and left hip joint centers. 
+        Then, the given pelvis_axis variable is converted into x,y,z axis format. 
         The pelvis axis is then translated to the shared hip center by calculating the sum of:
-        pelvis_axis axis component + hip_axis_center axis component
+        pelvis_axis axis component + hip_axis_center axis component 
 
         Lastly, it checks that the resulting output is correct when l_hip_jc, r_hip_jc, and pelvis_axis are composed of
         lists of ints, numpy arrays of ints, lists of floats, and numpy arrays of floats.
@@ -502,11 +502,11 @@ class TestPycgmStaticAxis():
         This test is checking to make sure the knee joint center and axis are calculated correctly given the input
         parameters. This tests mocks findJointC to make sure the correct parameters are being passed into it given the
         parameters passed into kneeJointCenter, and to also ensure that kneeJointCenter returns the correct value considering
-        the return value of findJointC, mockReturnVal.
+        the return value of findJointC, mockReturnVal. 
 
-        For each direction (L or R) D, the D knee joint center is calculated using DTHI, D hip joint center, and
+        For each direction (L or R) D, the D knee joint center is calculated using DTHI, D hip joint center, and 
         DKNE in the Rodriques' rotation formula. The knee width for each knee is applied after the rotation in the formula as well.
-        Each knee joint center and the RKNE / LKNE markers are used in the Knee Axis Calculation
+        Each knee joint center and the RKNE / LKNE markers are used in the Knee Axis Calculation 
         (ref. Clinical Gait Analysis hand book, Baker2013) calculation formula.
 
         Lastly, it checks that the resulting output is correct when hip_JC is composed of lists of ints, numpy arrays of
@@ -704,7 +704,7 @@ class TestPycgmStaticAxis():
         This test is checking to make sure the ankle joint center and axis are calculated correctly given the input
         parameters. This tests mocks findJointC to make sure the correct parameters are being passed into it given the
         parameters passed into ankleJointCenter, and to also ensure that ankleJointCenter returns the correct value considering
-        the return value of findJointC, mockReturnVal.
+        the return value of findJointC, mockReturnVal. 
 
         The ankle joint center left and right origin are defined by using the ANK, Tib, and KJC marker positions in the Rodriques' rotation formula.
         The ankle joint center axis is calculated using the Ankle Axis Calculation(ref. Clinical Gait Analysis hand book, Baker2013).
@@ -947,10 +947,10 @@ class TestPycgmStaticAxis():
         when the coordinates are in different quadrants, when the midpoints will be on diagonals, and when the z
         dimension is variable. It also checks to see the difference when a value is set for HeadOffSet in vsk.
 
-        The function uses the LFHD, RFHD, LBHD, and RBHD markers from the frame to calculate the midpoints of the front, back, left, and right center positions of the head.
+        The function uses the LFHD, RFHD, LBHD, and RBHD markers from the frame to calculate the midpoints of the front, back, left, and right center positions of the head. 
         The head axis vector components are then calculated using the aforementioned midpoints.
-        Afterwords, the axes are made orthogonal by calculating the cross product of each individual axis.
-        Finally, the head axis is then rotated around the y axis based off the head offset angle in the VSK.
+        Afterwords, the axes are made orthogonal by calculating the cross product of each individual axis. 
+        Finally, the head axis is then rotated around the y axis based off the head offset angle in the VSK. 
 
         Lastly, it checks that the resulting output is correct when frame composed of lists of ints, numpy arrays of
         ints, lists of floats, and numpy arrays of floats and when headOffset is an int and a float.
@@ -1518,7 +1518,7 @@ class TestPycgmStaticAxis():
         delta: length from marker to joint center, retrieved from subject measurement file
         expected: the expected result from calling findJointC on a, b, c, and delta
 
-        A plane will be generated using the positions of three specified markers.
+        A plane will be generated using the positions of three specified markers. 
         The plane will then calculate a joint center by rotating the vector of the plane around the rotating axis (the orthogonal vector).
 
         Lastly, it checks that the resulting output is correct when a, b, and c are lists of ints, numpy arrays of ints,
