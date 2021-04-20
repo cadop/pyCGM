@@ -2,6 +2,7 @@
 import math
 import numpy as np
 
+
 def find_joint_center(mark_a, mark_b, mark_c, delta):
     """Calculate the Joint Center.
 
@@ -74,25 +75,30 @@ def find_joint_center(mark_a, mark_b, mark_c, delta):
     return joint_center
 
 def hand_axis(rwra, rwrb, lwra, lwrb, rfin, lfin, wrist_jc, vsk=None):
-    """Calculate the Hand joint axis (Hand).
+    """Calculate the Hand joint axis.
 
     Takes in markers that correspond to (x, y, z) positions of the current
     frame as well as the wrist joint center.
-    
+
     Calculates each hand joint axis and returns it.
 
     Markers used: RWRA, RWRB, LWRA, LWRB, RFIN, LFIN \n
     Subject Measurement values used: RightHandThickness, LeftHandThickness
 
-    :math:`o_{left} = \\frac{m_{lwra} + m_{lwrb}}{2} \hspace{1cm} o_{right} = \\frac{m_{rwra} + m_{rwrb}}{2}`
+    :math:`o_{left} =\\frac{m_{lwra} + m_{lwrb}}{2} \hspace{1cm}
+    o_{right} = \\frac{m_{rwra} + m_{rwrb}}{2}`
 
-    :math:`\hat{z}_{left} = m_{lwjc} - m_{lhnd} \hspace{1cm} \hat{z}_{right} = m_{rwjc} - m_{rhnd}`
+    :math:`\hat{z}_{left} = m_{lwjc} - m_{lhnd} \hspace{1cm}
+    \hat{z}_{right} = m_{rwjc} - m_{rhnd}`
 
-    :math:`\hat{y}_{left} = m_{lwri} - m_{lwra} \hspace{1cm} \hat{y}_{right} = m_{rwra} - m_{rwri}`
+    :math:`\hat{y}_{left} = m_{lwri} - m_{lwra} \hspace{1cm}
+    \hat{y}_{right} = m_{rwra} - m_{rwri}`
 
-    :math:`\hat{x}_{left} = \hat{y}_{left} \\times \hat{z}_{left} \hspace{1cm} \hat{x}_{right} = \hat{y}_{right} \\times \hat{z}_{right}`
+    :math:`\hat{x}_{left} = \hat{y}_{left} \\times \hat{z}_{left} \hspace{1cm}
+    \hat{x}_{right} = \hat{y}_{right} \\times \hat{z}_{right}`
 
-    :math:`\hat{y}_{left} = \hat{z}_{left} \\times \hat{x}_{left} \hspace{1cm} \hat{y}_{right} = \hat{z}_{right} \\times \hat{x}_{right}`
+    :math:`\hat{y}_{left} = \hat{z}_{left} \\times \hat{x}_{left} \hspace{1cm}
+    \hat{y}_{right} = \hat{z}_{right} \\times \hat{x}_{right}`
 
     Parameters
     ----------
