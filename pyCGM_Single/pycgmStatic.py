@@ -1,7 +1,9 @@
 # -*- coding: utf-8 -*-
 """
 This file provides helper functions for static calculations.
+
 Created on Tue Jul 28 16:55:25 2015
+
 @author: cadop
 """
 import numpy as np
@@ -9,17 +11,21 @@ from math import sin, cos, acos, sqrt, radians
 
 def rotmat(x=0,y=0,z=0):
     """Rotation Matrix function
+
     This function creates and returns a rotation matrix.
+
     Parameters
     ----------
     x,y,z : float, optional
         Angle, which will be converted to radians, in
         each respective axis to describe the rotations.
         The default is 0 for each unspecified angle.
+
     Returns
     -------
     Rxyz : array
         The product of the matrix multiplication.
+
     Examples
     --------
     >>> import numpy as np
@@ -64,17 +70,21 @@ def rotmat(x=0,y=0,z=0):
 
 def getDist(p0, p1):
     """Get Distance function
+
     This function calculates the distance between two 3-D positions.
+
     Parameters
     ----------
     p0 : array
         Position of first x, y, z coordinate.
     p1 : array
         Position of second x, y, z coordinate.
+
     Returns
     -------
     float
         The distance between positions p0 and p1.
+
     Examples
     --------
     >>> import numpy as np
@@ -92,7 +102,9 @@ def getDist(p0, p1):
 
 def getStatic(motionData,vsk,flat_foot=False,GCS=None):
     """ Get Static Offset function
+
     Calculate the static offset angle values and return the values in radians
+
     Parameters
     ----------
     motionData : dict
@@ -105,10 +117,12 @@ def getStatic(motionData,vsk,flat_foot=False,GCS=None):
     GCS : array, optional
         An array containing the Global Coordinate System.
         If not provided, the default will be set to: [[1, 0, 0], [0, 1, 0], [0, 0, 1]].
+
     Returns
     -------
     calSM : dict
         Dictionary containing various marker lists of offsets.
+
     Examples
     --------
     >>> from .pycgmIO import loadC3D, loadVSK
@@ -262,15 +276,19 @@ def getStatic(motionData,vsk,flat_foot=False,GCS=None):
 
 def average(list):
     """Average Calculation function
+
     Calculates the average of the values in a given list or array.
+
     Parameters
     ----------
     list : list
         List or array of values.
+
     Returns
     -------
     float
         The mean of the list.
+
     Examples
     --------
     >>> import numpy as np
@@ -291,16 +309,20 @@ def average(list):
 
 def IADcalculation(frame):
     """Inter ASIS Distance (IAD) Calculation function
+
     Calculates the Inter ASIS Distance from a given frame.
     Markers used: RASI, LASI
+
     Parameters
     ----------
     frame : dict
         Dictionary of marker lists.
+
     Returns
     -------
     IAD : float
         The mean of the list.
+
     Examples
     --------
     >>> import numpy as np
@@ -318,18 +340,22 @@ def IADcalculation(frame):
 
 def staticCalculationHead(frame,head):
     """Static Head Calculation function
+
     This function calculates the x,y,z axes of the head,
     and then calculates the offset of the head using the headoffCalc function.
+
     Parameters
     ----------
     frame : dict
         Dictionary of marker lists.
     head : array
         An array containing the head axis and head origin.
+
     Returns
     -------
     offset : float
         The head offset angle for static calibration.
+
     Examples
     --------
     >>> import numpy as np
@@ -357,19 +383,23 @@ def staticCalculationHead(frame,head):
 
 def headoffCalc(axisP, axisD):
     """Head Offset Calculation function
+
     Calculate head offset angle for static calibration.
     This function is only called in static trial.
     and output will be used in dynamic later.
+
     Parameters
     ----------
     axisP : list
         Shows the unit vector of axisP, the position of the proximal axis.
     axisD : list
         Shows the unit vector of axisD, the position of the distal axis.
+
     Returns
     -------
     angle : float
         The beta angle of the head offset.
+
     Examples
     --------
     >>> import numpy as np
@@ -399,10 +429,14 @@ def headoffCalc(axisP, axisD):
 
 def staticCalculation(frame,ankle_JC,knee_JC,flat_foot,vsk=None):
     """Calculate the Static angle function
+
     Takes in anatomically uncorrected axis and anatomically correct axis.
     Corrects the axis depending on flat-footedness.
+
     Calculates the offset angle between those two axes.
+
     It is rotated from uncorrected axis in YXZ order.
+
     Parameters
     ----------
     frame : dict
@@ -415,15 +449,18 @@ def staticCalculation(frame,ankle_JC,knee_JC,flat_foot,vsk=None):
         A boolean indicating if the feet are flat or not.
     vsk : dict, optional
         A dictionary containing subject measurements from a VSK file.
+
     Returns
     -------
     angle : list
         Returns the offset angle represented by a 2x3x3 list.
         The array contains the right flexion, abduction, rotation angles (1x3x3)
         followed by the left flexion, abduction, rotation angles (1x3x3).
+
     Modifies
     --------
     The correct axis changes depending on the flat foot option.
+
     Examples
     --------
     >>> import numpy as np
@@ -517,23 +554,29 @@ def staticCalculation(frame,ankle_JC,knee_JC,flat_foot,vsk=None):
 
 def pelvisJointCenter(frame):
     """Make the Pelvis Axis function
+
     Takes in a dictionary of x,y,z positions and marker names, as well as an index.
     Calculates the pelvis joint center and axis and returns both.
+
     Markers used: RASI,LASI,RPSI,LPSI
     Other landmarks used: origin, sacrum
+
     Pelvis X_axis: Computed with a Gram-Schmidt orthogonalization procedure(ref. Kadaba 1990) and then normalized.
     Pelvis Y_axis: LASI-RASI x,y,z positions, then normalized.
     Pelvis Z_axis: Cross product of x_axis and y_axis.
+
     Parameters
     ----------
     frame : dict
         Dictionary of marker lists.
+
     Returns
     -------
     pelvis : list
         Returns a list that contains the pelvis origin in a 1x3 array of xyz values,
         a 4x1x3 array composed of the pelvis x, y, z axes components,
         and the sacrum x, y, z position.
+
     Examples
     --------
     >>> import numpy as np
@@ -616,11 +659,15 @@ def pelvisJointCenter(frame):
 
 def hipJointCenter(frame,pel_origin,pel_x,pel_y,pel_z,vsk=None):
     """Calculate the hip joint center function.
+
     Takes in a dictionary of x,y,z positions and marker names, as well as an index.
     Calculates the hip joint center and returns the hip joint center.
+
     Other landmarks used: origin, sacrum
     Subject Measurement values used: MeanLegLength, R_AsisToTrocanterMeasure, InterAsisDistance, L_AsisToTrocanterMeasure
+
     Hip Joint Center: Computed using Hip Joint Center Calculation (ref. Davis_1991)
+
     Parameters
     ----------
     frame : dict
@@ -631,11 +678,13 @@ def hipJointCenter(frame,pel_origin,pel_x,pel_y,pel_z,vsk=None):
         Respective axes of the pelvis.
     vsk : dict, optional
         A dictionary containing subject measurements from a VSK file.
+
     Returns
     -------
     hip_JC : array
         Returns an array containing the left hip joint center x, y, z marker positions (1x3),
         followed by the right hip joint center x, y, z marker positions (1x3).
+
     Examples
     --------
     >>> import numpy as np
@@ -724,11 +773,14 @@ def hipJointCenter(frame,pel_origin,pel_x,pel_y,pel_z,vsk=None):
 
 def hipAxisCenter(l_hip_jc,r_hip_jc,pelvis_axis):
     """Calculate the hip joint axis function.
+
     Takes in a hip joint center of x,y,z positions as well as an index.
     and takes the hip joint center and pelvis origin/axis from previous functions.
     Calculates the hip axis and returns hip joint origin and axis.
+
     Hip center axis: mean at each x,y,z axis of the left and right hip joint center.
     Hip axis: summation of the pelvis and hip center axes.
+
     Parameters
     ----------
     l_hip_jc, r_hip_jc: array
@@ -736,6 +788,7 @@ def hipAxisCenter(l_hip_jc,r_hip_jc,pelvis_axis):
     pelvis_axis : array
         An array of pelvis origin and axis. The axis is also composed of 3 arrays,
         each contain the x axis, y axis and z axis.
+
     Returns
     -------
     hipaxis_center, axis : list
@@ -743,6 +796,7 @@ def hipAxisCenter(l_hip_jc,r_hip_jc,pelvis_axis):
         which is then followed by a 3x2x3 list composed of the hip axis center x, y, and z
         axis components. The xyz axis components are 2x3 lists consisting of the axis center
         in the first dimension and the direction of the axis in the second dimension.
+
     Examples
     --------
     >>> import numpy as np
@@ -781,12 +835,16 @@ def hipAxisCenter(l_hip_jc,r_hip_jc,pelvis_axis):
 
 def kneeJointCenter(frame,hip_JC,delta,vsk=None):
     """Calculate the knee joint center and axis function.
+
     Takes in a dictionary of xyz positions and marker names, as well as an index.
     and takes the hip axis and pelvis axis.
     Calculates the knee joint axis and returns the knee origin and axis
+
     Markers used: RTHI, LTHI, RKNE, LKNE, hip_JC
     Subject Measurement values used: RightKneeWidth, LeftKneeWidth
+
     Knee joint center: Computed using Knee Axis Calculation(ref. Clinical Gait Analysis hand book, Baker2013)
+
     Parameters
     ----------
     frame : dict
@@ -797,6 +855,7 @@ def kneeJointCenter(frame,hip_JC,delta,vsk=None):
         The length from marker to joint center, retrieved from subject measurement file.
     vsk : dict, optional
         A dictionary containing subject measurements from a VSK file.
+
     Returns
     -------
     R, L, axis : list
@@ -804,9 +863,11 @@ def kneeJointCenter(frame,hip_JC,delta,vsk=None):
         which is then followed by a 2x3x3 array composed of the knee axis center x, y, and z
         axis components. The xyz axis components are 2x3 arrays consisting of the axis center
         in the first dimension and the direction of the axis in the second dimension.
+
     Modifies
     --------
     Delta is changed suitably to knee.
+
     Examples
     --------
     >>> import numpy as np
@@ -928,12 +989,16 @@ def kneeJointCenter(frame,hip_JC,delta,vsk=None):
 
 def ankleJointCenter(frame,knee_JC,delta,vsk=None):
     """Calculate the ankle joint center and axis function.
+
     Takes in a dictionary of xyz positions and marker names, an index
     and the knee axis.
     Calculates the ankle joint axis and returns the ankle origin and axis.
+
     Markers used: tib_R, tib_L, ank_R, ank_L, knee_JC
     Subject Measurement values used: RightKneeWidth, LeftKneeWidth
+
     Ankle Axis: Computed using Ankle Axis Calculation(ref. Clinical Gait Analysis hand book, Baker2013).
+
     Parameters
     ----------
     frame : dict
@@ -944,6 +1009,7 @@ def ankleJointCenter(frame,knee_JC,delta,vsk=None):
         The length from marker to joint center, retrieved from subject measurement file.
     vsk : dict, optional
         A dictionary containing subject measurements from a VSK file.
+
     Returns
     -------
     R, L, axis : list
@@ -951,6 +1017,7 @@ def ankleJointCenter(frame,knee_JC,delta,vsk=None):
         and a 3x2x3 list composed of the ankle origin, x, y, and z axis components. The
         xyz axis components are 2x3 lists consisting of the origin in the first
         dimension and the direction of the axis in the second dimension.
+
     Examples
     --------
     >>> import numpy as np
@@ -1111,21 +1178,27 @@ def ankleJointCenter(frame,knee_JC,delta,vsk=None):
 
 def footJointCenter(frame,static_info,ankle_JC,knee_JC,delta):
     """Calculate the foot joint center and axis function.
+
     Takes in a dictionary of xyz positions and marker names, the ankle axis and
     knee axis.
     Calculates the foot joint axis by rotating the incorrect foot joint axes
     about the offset angle.
     Returns the foot axis origin and axis.
+
     In the case of the foot joint center, we've already made 2 kinds of axes
     for the static offset angle and then, we call this static offset angle as an
     input of this function for thedynamic trial.
+
     Special Cases:
+
     (anatomically uncorrected foot axis)
     If flat foot, make the reference markers instead of HEE marker whose height
     is the same as TOE marker's height. Else use the HEE marker for making Z axis.
+
     Markers used: RTOE,LTOE,RHEE, LHEE
     Other landmarks used: ANKLE_FLEXION_AXIS
     Subject Measurement values used: RightStaticRotOff, RightStaticPlantFlex, LeftStaticRotOff, LeftStaticPlantFlex
+
     Parameters
     ----------
     frame : dict
@@ -1138,6 +1211,7 @@ def footJointCenter(frame,static_info,ankle_JC,knee_JC,delta):
         An array of ankle_JC containing the x,y,z axes marker positions of the knee joint center.
     delta
         The length from marker to joint center, retrieved from subject measurement file.
+
     Returns
     -------
     R, L, foot_axis : list
@@ -1146,14 +1220,18 @@ def footJointCenter(frame,static_info,ankle_JC,knee_JC,delta):
         axis components. The xyz axis components are 2x3 lists consisting of the axis center
         in the first dimension and the direction of the axis in the second dimension.
         This function also saves the static offset angle in a global variable.
+
     Modifies
     --------
     Axis changes the following in the static info.
+
     You can set the static_info with the button and this will calculate the offset angles.
     The first setting, the foot axis shows the uncorrected foot anatomical reference axis(Z_axis point to the AJC from TOE).
+
     If you press the static_info button so if static_info is not None,
     then the static offset angles are applied to the reference axis.
     The reference axis is Z axis point to HEE from TOE
+
     Examples
     --------
     >>> import numpy as np
@@ -1368,19 +1446,24 @@ def footJointCenter(frame,static_info,ankle_JC,knee_JC,delta):
 
 def headJC(frame):
     """Calculate the head joint axis function.
+
     Takes in a dictionary of x,y,z positions and marker names.
     Calculates the head joint center and returns the head joint center and axis.
+
     Markers used: LFHD, RFHD, LBHD, RBHD
+
     Parameters
     ----------
     frame : dict
         Dictionary of marker lists.
+
     Returns
     -------
     head_axis, origin : list
         Returns a list containing a 1x3x3 list containing the x, y, z axis
         components of the head joint center and a 1x3 list containing the
         head origin x, y, z position.
+
     Examples
     --------
     >>> import numpy as np
@@ -1444,16 +1527,20 @@ def headJC(frame):
 
 def uncorrect_footaxis(frame,ankle_JC):
     """Calculate the anatomically uncorrected foot joint center and axis function.
+
     Takes in a dictionary of xyz positions and marker names
     and takes the ankle axis.
     Calculate the anatomical uncorrect foot axis.
+
     Markers used: RTOE, LTOE
+
     Parameters
     ----------
     frame : dict
         Dictionary of marker lists.
     ankle_JC : array
         An array of ankle_JC each x,y,z position.
+
     Returns
     -------
     R, L, foot_axis : list
@@ -1462,6 +1549,7 @@ def uncorrect_footaxis(frame,ankle_JC):
         containing the foot axis center in the first dimension and the direction of the
         axis in the second dimension. This will be used for calculating static offset angle
         in static calibration.
+
     Examples
     --------
     >>> import numpy as np
@@ -1565,10 +1653,13 @@ def uncorrect_footaxis(frame,ankle_JC):
 
 def rotaxis_footflat(frame,ankle_JC,vsk=None):
     """Calculate the anatomically correct foot joint center and axis function for a flat foot.
+
     Takes in a dictionary of xyz positions and marker names
     and the ankle axis then Calculates the anatomically
     correct foot axis for a flat foot.
+
     Markers used: RTOE, LTOE, RHEE, LHEE
+
     Parameters
     ----------
     frame : array
@@ -1577,6 +1668,7 @@ def rotaxis_footflat(frame,ankle_JC,vsk=None):
         An array of ankle_JC each x,y,z position.
     vsk : dict, optional
         A dictionary containing subject measurements from a VSK file.
+
     Returns
     -------
     R, L, foot_axis: list
@@ -1584,9 +1676,11 @@ def rotaxis_footflat(frame,ankle_JC,vsk=None):
         the list contains 2 1x3 arrays representing the foot axis origin x, y, z
         positions and a 3x2x3 list containing the foot axis center in the first
         dimension and the direction of the axis in the second dimension.
+
     Modifies
     --------
     If the subject wears shoe, Soledelta is applied. then axes are changed following Soledelta.
+
     Examples
     --------
     >>> import numpy as np
@@ -1718,16 +1812,20 @@ def rotaxis_footflat(frame,ankle_JC,vsk=None):
 
 def rotaxis_nonfootflat(frame,ankle_JC):
     """Calculate the anatomically correct foot joint center and axis function for a non-flat foot.
+
     Takes in a dictionary of xyz positions & marker names
     and the ankle axis then calculates the anatomically
     correct foot axis for a non-flat foot.
+
     Markers used: RTOE, LTOE, RHEE, LHEE
+
     Parameters
     ----------
     frame : dict
         Dictionary of marker lists.
     ankle_JC : array
         An array of ankle_JC each x,y,z position.
+
     Returns
     -------
     R, L, foot_axis: list
@@ -1735,6 +1833,7 @@ def rotaxis_nonfootflat(frame,ankle_JC):
         the list contains two 1x3 arrays representing the foot axis origin x, y, z
         positions and a 3x2x3 list containing the foot axis center in the first
         dimension and the direction of the axis in the second dimension.
+
     Examples
     --------
     >>> import numpy as np
@@ -1831,21 +1930,26 @@ def rotaxis_nonfootflat(frame,ankle_JC):
 
 def getankleangle(axisP,axisD):
     """Static angle calculation function.
+
     This function takes in two axes and returns three angles.
     It uses an inverse Euler rotation matrix in YXZ order.
     The output shows the angle in degrees.
+
     Since we use arc sin we must check if the angle is in area between -pi/2 and pi/2
     but because the static offset angle under pi/2, it doesn't matter.
+
     Parameters
     ----------
     axisP : list
         Shows the unit vector of axisP, the position of the proximal axis.
     axisD : list
         Shows the unit vector of axisD, the position of the distal axis.
+
     Returns
     -------
     angle : list
         Returns the gamma, beta, alpha angles in degrees in a 1x3 corresponding list.
+
     Examples
     --------
     >>> import numpy as np
@@ -1879,18 +1983,22 @@ def getankleangle(axisP,axisD):
 
 def findJointC(a, b, c, delta):
     """Calculate the Joint Center function.
+
     This function is based on physical markers; a,b,c and the joint center which will be
     calulcated in this function are all in the same plane.
+
     Parameters
     ----------
     a,b,c : list
         Three markers x, y, z position of a, b, c.
     delta : float
         The length from marker to joint center, retrieved from subject measurement file.
+
     Returns
     -------
     mr : array
         Returns the Joint C x, y, z positions in a 1x3 list.
+
     Examples
     --------
     >>> import numpy as np
@@ -1948,15 +2056,19 @@ def findJointC(a, b, c, delta):
 
 def norm2d(v):
     """2D Vector normalization function
+
     This function calculates the normalization of a 3-dimensional vector.
+
     Parameters
     ----------
     v : list
         A 3-element list.
+
     Returns
     -------
     float
         The normalization of the vector as a float.
+
     Examples
     --------
     >>> import numpy as np
@@ -1972,15 +2084,19 @@ def norm2d(v):
 
 def norm3d(v):
     """3D Vector normalization function
+
     This function calculates the normalization of a 3-dimensional vector.
+
     Parameters
     ----------
     v : list
         A 3-element list.
+
     Returns
     -------
     array
         The normalization of the vector returned as a float in an array.
+
     Examples
     --------
     >>> import numpy as np
@@ -1996,15 +2112,19 @@ def norm3d(v):
 
 def normDiv(v):
     """Normalized divison function
+
     This function calculates the normalization division of a 3-dimensional vector.
+
     Parameters
     ----------
     v : list
         A 3-element list.
+
     Returns
     -------
     list
         The divison normalization of the vector returned as a float in a list.
+
     Examples
     --------
     >>> import numpy as np
@@ -2023,21 +2143,26 @@ def normDiv(v):
 
 def matrixmult (A, B):
     """Matrix multiplication function
+
     This function returns the product of a matrix multiplication given two matrices.
+
     Let the dimension of the matrix A be: m by n,
     let the dimension of the matrix B be: p by q,
     multiplication will only possible if n = p,
     thus creating a matrix of m by q size.
+
     Parameters
     ----------
     A : list
         First matrix, in a 2D array format.
     B : list
         Second matrix, in a 2D array format.
+
     Returns
     -------
     C : list
         The product of the matrix multiplication.
+
     Examples
     --------
     >>> from .pycgmStatic import matrixmult
@@ -2055,17 +2180,21 @@ def matrixmult (A, B):
 
 def cross(a, b):
     """Cross Product function
+
     Given vectors a and b, calculate the cross product.
+
     Parameters
     ----------
     a : list
         First 3D vector.
     b : list
         Second 3D vector.
+
     Returns
     -------
     c : list
         The cross product of vector a and vector b.
+
     Examples
     --------
     >>> from .pycgmStatic import cross
