@@ -14,7 +14,7 @@ class TestUpperBodyAxis:
     rand_num = np.random.randint(0, 10)
     nan = np.nan
 
-    @pytest.mark.parametrize(["rwra", "rwrb", "lwra", "lwrb", "rfin", "lfin", "wrist_jc", "vsk", "mock_return_val", "expected_mock_args", "expected",],
+    @pytest.mark.parametrize(["rwra", "rwrb", "lwra", "lwrb", "rfin", "lfin", "wrist_jc", "r_hand_thickness", "l_hand_thickness", "mock_return_val", "expected_mock_args", "expected",],
         [
             # Test from running sample data
             (
@@ -35,7 +35,8 @@ class TestUpperBodyAxis:
                         [0, 0, 0, 1],
                     ],
                 ],
-                {"RightHandThickness": 34.0, "LeftHandThickness": 34.0},
+                34.0,
+                34.0,
                 [ [-324.53477798, 551.88744289, 1068.02526837], [859.80614366, 517.28239823, 1051.97278945] ],
                 [
                     [
@@ -87,7 +88,8 @@ class TestUpperBodyAxis:
                         [0, 0, 0, 1],
                     ],
                 ],
-                {"RightHandThickness": 0.0, "LeftHandThickness": 0.0},
+                0.0,
+                0.0,
                 [[0, 0, 0], [0, 0, 0]],
                 [ [[0, 0, 0], [9, 0, -6], [0, 0, 0], 7.0], [[0, 0, 0], [0, 4, 3], [0, 0, 0], 7.0], ],
                 [
@@ -126,7 +128,8 @@ class TestUpperBodyAxis:
                         [0, 0, 0, 1],
                     ],
                 ],
-                {"RightHandThickness": 0.0, "LeftHandThickness": 0.0},
+                0.0,
+                0.0,
                 [[0, 0, 0], [0, 0, 0]],
                 [
                     [[0, 0, 0], [9, 0, -6], [-6, 3, 8], 7.0],
@@ -168,7 +171,8 @@ class TestUpperBodyAxis:
                         [0, 0, 0, 1],
                     ],
                 ],
-                {"RightHandThickness": 0.0, "LeftHandThickness": 0.0},
+                0.0,
+                0.0,
                 [[0, 0, 0], [0, 0, 0]],
                 [ [[-2.0, 2.5, 1.5], [9, 0, -6], [-6, 3, 8], 7.0], [[2.0, 3.5, 3.0], [0, 4, 3], [1, -9, 6], 7.0], ],
                 [
@@ -207,7 +211,8 @@ class TestUpperBodyAxis:
                         [0, 0, 0, 1],
                     ],
                 ],
-                {"RightHandThickness": 0.0, "LeftHandThickness": 0.0},
+                0.0,
+                0.0,
                 [[0, 0, 0], [0, 0, 0]],
                 [
                     [[-3.5, 3.5, -2.0], [9, 0, -6], [-6, 3, 8], 7.0],
@@ -232,7 +237,7 @@ class TestUpperBodyAxis:
                     ),
                 ],
             ),
-            # Testing when values are added to frame, wrist_jc, and vsk
+            # Testing when values are added to frame, wrist_jc, r_hand_thickness, and l_hand_thickness
             (
                 np.array([4, 7, 6]), np.array([0, -5, 4]), np.array([-4, 5, 3]), np.array([-3, 2, -7]), np.array([1, -9, 6]), np.array([-6, 3, 8]),
                 [
@@ -249,7 +254,8 @@ class TestUpperBodyAxis:
                         [0, 0, 0, 1],
                     ],
                 ],
-                {"RightHandThickness": 36.0, "LeftHandThickness": -9.0},
+                36.0,
+                -9.0,
                 [[0, 0, 0], [0, 0, 0]],
                 [
                     [[-3.5, 3.5, -2.0], [9, 0, -6], [-6, 3, 8], 2.5],
@@ -274,7 +280,7 @@ class TestUpperBodyAxis:
                     ),
                 ],
             ),
-            # Testing when values are added to frame, wrist_jc, vsk and mock_return_val
+            # Testing when values are added to frame, wrist_jc, r_hand_thickness, l_hand_thickness, and mock_return_val
             (
                 np.array([4, 7, 6]), np.array([0, -5, 4]), np.array([-4, 5, 3]), np.array([-3, 2, -7]), np.array([1, -9, 6]), np.array([-6, 3, 8]),
                 [
@@ -291,7 +297,8 @@ class TestUpperBodyAxis:
                         [0, 0, 0, 1],
                     ],
                 ],
-                {"RightHandThickness": 36.0, "LeftHandThickness": -9.0},
+                36.0,
+                -9.0,
                 [[-6, 4, -4], [2, 8, 1]],
                 [
                     [[-3.5, 3.5, -2.0], [9, 0, -6], [-6, 3, 8], 2.5],
@@ -316,7 +323,7 @@ class TestUpperBodyAxis:
                     ),
                 ],
             ),
-            # Testing that when frame and wrist_jc are composed of lists of ints and vsk values are ints
+            # Testing that when frame and wrist_jc are composed of lists of ints and r_hand_thickness, and l_hand_thickness values are ints
             (
                 [4, 7, 6], [0, -5, 4], [-4, 5, 3], [-3, 2, -7], [1, -9, 6], [-6, 3, 8],
                 [
@@ -333,7 +340,8 @@ class TestUpperBodyAxis:
                         [0, 0, 0, 1],
                     ],
                 ],
-                {"RightHandThickness": 36, "LeftHandThickness": -9},
+                36,
+                -9,
                 [[-6, 4, -4], [2, 8, 1]],
                 [
                     [[-3.5, 3.5, -2.0], [9, 0, -6], [-6, 3, 8], 2.5],
@@ -358,7 +366,7 @@ class TestUpperBodyAxis:
                     ),
                 ],
             ),
-            # Testing that when frame and wrist_jc are composed of numpy arrays of ints and vsk values are ints
+            # Testing that when frame and wrist_jc are composed of numpy arrays of ints and r_hand_thickness, and l_hand_thickness values are ints
             (
                 np.array([4, 7, 6]), np.array([0, -5, 4]), np.array([-4, 5, 3]), np.array([-3, 2, -7]), np.array([1, -9, 6]), np.array([-6, 3, 8]),
                 np.array(
@@ -378,7 +386,8 @@ class TestUpperBodyAxis:
                     ],
                     dtype="int",
                 ),
-                {"RightHandThickness": 36, "LeftHandThickness": -9},
+                36,
+                -9,
                 [[-6, 4, -4], [2, 8, 1]],
                 [
                     [[-3.5, 3.5, -2.0], [9, 0, -6], [-6, 3, 8], 2.5],
@@ -403,7 +412,7 @@ class TestUpperBodyAxis:
                     ),
                 ],
             ),
-            # Testing that when frame and wrist_jc are composed of lists of floats and vsk values are floats
+            # Testing that when frame and wrist_jc are composed of lists of floats and r_hand_thickness, and l_hand_thickness values are floats
             (
                 [4.0, 7.0, 6.0], [0.0, -5.0, 4.0], [-4.0, 5.0, 3.0], [-3.0, 2.0, -7.0], [1.0, -9.0, 6.0], [-6.0, 3.0, 8.0],
                 [
@@ -420,7 +429,8 @@ class TestUpperBodyAxis:
                         [0, 0, 0, 1],
                     ],
                 ],
-                {"RightHandThickness": 36.0, "LeftHandThickness": -9.0},
+                36.0,
+                -9.0,
                 [[-6, 4, -4], [2, 8, 1]],
                 [
                     [[-3.5, 3.5, -2.0], [9, 0, -6], [-6, 3, 8], 2.5],
@@ -445,8 +455,7 @@ class TestUpperBodyAxis:
                     ),
                 ],
             ),
-            # Testing that when frame and wrist_jc are composed of numpy arrays of floats and vsk values are floats
-            # "rwra", "rwrb", "lwra", "lwrb", "rfin", "lfin", "wrist_jc", "vsk", "mock_return_val", "expected_mock_args", "expected"
+            # Testing that when frame and wrist_jc are composed of numpy arrays of floats and r_hand_thickness, and l_hand_thickness values are floats
             (
                 np.array([4.0, 7.0, 6.0], dtype="float"), np.array([0.0, -5.0, 4.0], dtype="float"),
                 np.array([-4.0, 5.0, 3.0], dtype="float"), np.array([-3.0, 2.0, -7.0], dtype="float"),
@@ -468,7 +477,8 @@ class TestUpperBodyAxis:
                     ],
                     dtype="float",
                 ),
-                {"RightHandThickness": 36.0, "LeftHandThickness": -9.0},
+                36.0,
+                -9.0,
                 [[-6, 4, -4], [2, 8, 1]],
                 [
                     [[-3.5, 3.5, -2.0], [9, 0, -6], [-6, 3, 8], 2.5],
@@ -496,11 +506,11 @@ class TestUpperBodyAxis:
         ],
     )
     def test_hand_joint_center(
-        self, rwra, rwrb, lwra, lwrb, rfin, lfin, wrist_jc, vsk, mock_return_val, expected_mock_args, expected,
+        self, rwra, rwrb, lwra, lwrb, rfin, lfin, wrist_jc, r_hand_thickness, l_hand_thickness, mock_return_val, expected_mock_args, expected,
     ):
         """
         This test provides coverage of the hand_joint_center function in axis.py, defined as
-        hand_joint_center(rwra, rwrb, lwra, lwrb, rfin, lfin, wrist_jc, vsk)
+        hand_joint_center(rwra, rwrb, lwra, lwrb, rfin, lfin, wrist_jc, r_hand_thickness, l_hand_thickness)
 
         This test takes 11 parameters:
         rwra: 1x3 RWRA marker
@@ -510,10 +520,11 @@ class TestUpperBodyAxis:
         rfin: 1x3 RFIN marker
         lfin: 1x3 LFIN marker
         wrist_jc: array containing the x,y,z position of the wrist joint center
-        vsk: dictionary containing subject measurements from a VSK file
+        r_hand_thickness: the thickness of the right hand
+        l_hand_thickness: the thickness of the left hand
         mock_return_val: the value to be returned by the mock for find_joint_center
         expected_mock_args: the expected arguments used to call the mocked function, find_joint_center
-        expected: the expected result from calling hand_joint_center on frame, wrist_jc, and vsk
+        expected: the expected result from calling hand_joint_center on frame, wrist_jc, r_hand_thickness, and l_hand_thickness
 
         This test is checking to make sure the hand joint axis is calculated correctly given the input parameters.
         This tests mocks find_joint_center to make sure the correct parameters are being passed into it given the parameters
@@ -536,14 +547,14 @@ class TestUpperBodyAxis:
         The origin for each direction is calculated by adding each axis to each HND marker.
 
         Lastly, it checks that the resulting output is correct when frame and wrist_jc are composed of lists of ints,
-        numpy arrays of ints, lists of floats, and numpy arrays of floats and vsk values are either an int or a float.
+        numpy arrays of ints, lists of floats, and numpy arrays of floats and r_hand_thickness, and l_hand_thickness values are either an int or a float.
         wrist_jc cannot be a numpy array due to it not being shaped like a multi-dimensional array.
         """
         
         with patch.object(
             axis, "find_joint_center", side_effect=mock_return_val
         ) as mock_find_joint_center:
-            result = axis.hand_axis(rwra, rwrb, lwra, lwrb, rfin, lfin, wrist_jc, vsk)
+            result = axis.hand_axis(rwra, rwrb, lwra, lwrb, rfin, lfin, wrist_jc, r_hand_thickness, l_hand_thickness)
 
         # Asserting that there were only 2 calls to find_joint_center
         np.testing.assert_equal(mock_find_joint_center.call_count, 2)

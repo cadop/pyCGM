@@ -9,16 +9,20 @@ def find_joint_center(mark_a, mark_b, mark_c, delta):
     This function is based on physical markers mark_a, mark_b, mark_c,
     and joint center which will be calculated in this function are all
     in the same plane.
+
     Parameters
     ----------
     mark_a, mark_b, mark_c : list
         Three markers x, y, z position of a, b, c.
+
     delta : float
         The length from marker to joint center, retrieved from subject measurement file.
+
     Returns
     -------
     joint_center : array
         Returns the joint center's x, y, z positions in a 1x3 array.
+    
     Examples
     --------
     >>> import numpy as np
@@ -74,7 +78,7 @@ def find_joint_center(mark_a, mark_b, mark_c, delta):
 
     return joint_center
 
-def hand_axis(rwra, rwrb, lwra, lwrb, rfin, lfin, wrist_jc, vsk=None):
+def hand_axis(rwra, rwrb, lwra, lwrb, rfin, lfin, wrist_jc, r_hand_thickness, l_hand_thickness):
     """Calculate the Hand joint axis.
 
     Takes in markers that correspond to (x, y, z) positions of the current
@@ -85,20 +89,14 @@ def hand_axis(rwra, rwrb, lwra, lwrb, rfin, lfin, wrist_jc, vsk=None):
     Markers used: RWRA, RWRB, LWRA, LWRB, RFIN, LFIN \n
     Subject Measurement values used: RightHandThickness, LeftHandThickness
 
-    :math:`o_{left} =\\frac{m_{lwra} + m_{lwrb}}{2} \hspace{1cm}
-    o_{right} = \\frac{m_{rwra} + m_{rwrb}}{2}`
-
-    :math:`\hat{z}_{left} = m_{lwjc} - m_{lhnd} \hspace{1cm}
-    \hat{z}_{right} = m_{rwjc} - m_{rhnd}`
-
-    :math:`\hat{y}_{left} = m_{lwri} - m_{lwra} \hspace{1cm}
-    \hat{y}_{right} = m_{rwra} - m_{rwri}`
-
-    :math:`\hat{x}_{left} = \hat{y}_{left} \\times \hat{z}_{left} \hspace{1cm}
-    \hat{x}_{right} = \hat{y}_{right} \\times \hat{z}_{right}`
-
-    :math:`\hat{y}_{left} = \hat{z}_{left} \\times \hat{x}_{left} \hspace{1cm}
-    \hat{y}_{right} = \hat{z}_{right} \\times \hat{x}_{right}`
+    :math:`\\textbf{r}_{delta} = (\\frac{r\_hand\_thickness}{2.0} + 7.0) \hspace{1cm} \\textbf{l}_{delta} = (\\frac{l\_hand\_thickness}{2.0} + 7.0)`
+    :math:`\\textbf{m}_{rhnd} = joint\_center(\\textbf{m}_{rwri}, \\textbf{m}_{rwjc}, \\textbf{m}_{rfin}, r_{delta})`
+    :math:`\\textbf{m}_{lhnd} = joint\_center(\\textbf{m}_{lwri}, \\textbf{m}_{lwjc}, \\textbf{m}_{lfin}, r_{delta})`
+    :math:`o_{l} = \\frac{\\textbf{m}_{lwra} + \\textbf{m}_{lwrb}}{2} \hspace{1cm} o_{r} = \\frac{\\textbf{m}_{rwra} + \\textbf{m}_{rwrb}}{2}`
+    :math:`\\textbf{m}_{l} = \\textbf{m}_{lwjc} - \\textbf{m}_{lhnd} \hspace{1cm} \hat{z}_{r} = \\textbf{m}_{rwjc} - \\textbf{m}_{rhnd}`
+    :math:`\hat{y}_{l} = \\textbf{m}_{lwri} - \\textbf{m}_{lwra} \hspace{1cm} \hat{y}_{r} = \\textbf{m}_{rwra} - \\textbf{m}_{rwri}`
+    :math:`\hat{x}_{l} = \hat{y}_{l} \\times \hat{z}_{l} \hspace{1cm} \hat{x}_{r} = \hat{y}_{r} \\times \hat{z}_{r}`
+    :math:`\hat{y}_{l} = \hat{z}_{l} \\times \hat{x}_{l} \hspace{1cm} \hat{y}_{r} = \hat{z}_{r} \\times \hat{x}_{r}`
 
     Parameters
     ----------
@@ -116,8 +114,10 @@ def hand_axis(rwra, rwrb, lwra, lwrb, rfin, lfin, wrist_jc, vsk=None):
         1x3 LFIN marker
     wrist_jc : array
         The x,y,z position of the wrist joint center.
-    vsk : dict, optional
-        A dictionary containing subject measurements.
+    r_hand_thickness : float
+        The thickness of the right hand.
+    l_hand_thickness : float
+        The thickness of the left hand.
 
     Returns
     -------
@@ -147,9 +147,10 @@ def hand_axis(rwra, rwrb, lwra, lwrb, rfin, lfin, wrist_jc, vsk=None):
     ... [-271.94, 485.19, 1091.96, 1091.36],
     ... [0, 0, 0, 1]
     ... ]]
-    >>> vsk = { 'RightHandThickness': 34.0, 'LeftHandThickness': 34.0 }
+    >>> r_hand_thickness = 34.0
+    >>> l_hand_thickness = 34.0
     >>> [np.around(arr, 2) for arr in hand_axis(
-    ...     rwra, rwrb, lwra, lwrb, rfin, lfin, wrist_jc, vsk)] #doctest: +NORMALIZE_WHITESPACE
+    ...     rwra, rwrb, lwra, lwrb, rfin, lfin, wrist_jc, r_hand_thickness, l_hand_thickness)] #doctest: +NORMALIZE_WHITESPACE
     [array([[   0.15,    0.31,    0.94,  859.8 ],
         [  -0.73,    0.68,   -0.11,  517.27],
         [  -0.67,   -0.67,    0.33, 1051.97],
@@ -166,8 +167,6 @@ def hand_axis(rwra, rwrb, lwra, lwrb, rfin, lfin, wrist_jc, vsk=None):
     lwjc = [wrist_jc[1][0][-1], wrist_jc[1][1][-1], wrist_jc[1][2][-1]]
 
     mm = 7.0
-    r_hand_thickness = vsk['RightHandThickness']
-    l_hand_thickness = vsk['LeftHandThickness']
 
     r_delta =( r_hand_thickness/2.0 + mm )
     l_delta =( l_hand_thickness/2.0 + mm )
