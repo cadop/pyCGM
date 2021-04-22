@@ -4,17 +4,21 @@ import numpy as np
 
 def rotmat(x=0, y=0, z=0):
     r"""Rotation Matrix.
+
     This function creates and returns a rotation matrix.
+
     Parameters
     ----------
     x, y, z : float, optional
         Angle, which will be converted to radians, in
         each respective axis to describe the rotations.
         The default is 0 for each unspecified angle.
+
     Returns
     -------
     r_xyz : list
         The product of the matrix multiplication.
+
     Examples
     --------
     >>> import numpy as np
@@ -54,10 +58,11 @@ def get_spine_angle(axis_p, axis_d):
     inverse Euler rotation matrix in YXZ order.
     Returns the angles in degrees.
 
-    .. math::
-        \[ alpha = \arcsin{(axisD_{y} \cdot axisP_{z})} \]
-        \[ gamma = \arcsin{(-(axisD_{y} \cdot axisP_{x}) / \cos{\alpha})} \]
-        \[ beta = \arcsin{(-(axisD_{x} \cdot axisP_{z}) / \cos{\alpha})} \]
+    :math:`\alpha = \arcsin{(axis\_d_{y} \cdot axis\_p_{z})}`
+
+    :math:`\gamma = \arcsin{(-(axis\_d_{y} \cdot axis\_p_{x}) / \cos{\alpha})}`
+
+    :math:`\beta = \arcsin{(-(axis\_d_{x} \cdot axis\_p_{z}) / \cos{\alpha})}`
 
     Parameters
     ----------
@@ -94,20 +99,16 @@ def get_spine_angle(axis_p, axis_d):
             + (axis_d[1][2] * axis_p[2][2])
     )
 
-    gamma = np.arcsin(
-        (
+    gamma = np.arcsin((
             (-1 * axis_d[1][0] * axis_p[0][0])
             + (-1 * axis_d[1][1] * axis_p[0][1])
-            + (-1 * axis_d[1][2] * axis_p[0][2])
-        ) / np.cos(alpha)
+            + (-1 * axis_d[1][2] * axis_p[0][2])) / np.cos(alpha)
     )
 
-    beta = np.arcsin(
-        (
+    beta = np.arcsin((
             (-1 * axis_d[0][0] * axis_p[2][0])
             + (-1 * axis_d[0][1] * axis_p[2][1])
-            + (-1 * axis_d[0][2] * axis_p[2][2])
-        ) / np.cos(alpha)
+            + (-1 * axis_d[0][2] * axis_p[2][2])) / np.cos(alpha)
     )
 
     angle = [180.0 * beta / pi, 180.0 * gamma / pi, 180.0 * alpha / pi]
