@@ -60,7 +60,7 @@ def get_shoulder_angle(axis_p, axis_d):
     inverse Euler rotation matrix in YXZ order.
 
     Returns the angles in degrees.
-    
+
     :math:`\alpha = \arcsin{(axis\_d_{z} \cdot axis\_p_{x})}`
 
     :math:`\beta = \arctan2{(-(axis\_d_{z} \cdot axis\_p_{y}), axis\_d_{z} \cdot axis\_p_{z})}`
@@ -103,6 +103,7 @@ def get_shoulder_angle(axis_p, axis_d):
             + (axis_d[2][1] * axis_p[0][1])
             + (axis_d[2][2] * axis_p[0][2])
     )
+
     beta = np.arctan2(
         -1 * (
             (axis_d[2][0] * axis_p[1][0])
@@ -114,6 +115,7 @@ def get_shoulder_angle(axis_p, axis_d):
             + (axis_d[2][2] * axis_p[2][2])
         )
     )
+
     gamma = np.arctan2(
         -1 * (
             (axis_d[1][0] * axis_p[0][0])
