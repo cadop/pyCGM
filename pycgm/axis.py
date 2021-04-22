@@ -22,9 +22,9 @@ def bad_docstring(a):
     >>> import numpy as np
     >>> from .axis import bad_docstring
     >>> bad_docstring(1)
-    2
+    3
 
 
     """
 
-    return a + 1
+    return a + 2
