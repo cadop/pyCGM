@@ -1,7 +1,51 @@
-from math import pi, sin, cos, radians
-import numpy as np
 import math
+from math import pi
+import numpy as np
 
+def rotmat(x=0, y=0, z=0):
+    r"""Rotation Matrix.
+    This function creates and returns a rotation matrix.
+    Parameters
+    ----------
+    x, y, z : float, optional
+        Angle, which will be converted to radians, in
+        each respective axis to describe the rotations.
+        The default is 0 for each unspecified angle.
+    Returns
+    -------
+    r_xyz : list
+        The product of the matrix multiplication.
+    Examples
+    --------
+    >>> import numpy as np
+    >>> from .axis import rotmat
+    >>> x = 0.5
+    >>> y = 0.3
+    >>> z = 0.8
+    >>> np.around(rotmat(x, y, z), 2) #doctest: +NORMALIZE_WHITESPACE
+    array([[ 1.  , -0.01,  0.01],
+    [ 0.01,  1.  , -0.01],
+    [-0.01,  0.01,  1.  ]])
+    >>> x = 0.5
+    >>> np.around(rotmat(x), 2) #doctest: +NORMALIZE_WHITESPACE
+    array([[ 1.  ,  0.  ,  0.  ],
+    [ 0.  ,  1.  , -0.01],
+    [ 0.  ,  0.01,  1.  ]])
+    >>> x = 1
+    >>> y = 1
+    >>> np.around(rotmat(x,y), 2) #doctest: +NORMALIZE_WHITESPACE
+    array([[ 1.  ,  0.  ,  0.02],
+    [ 0.  ,  1.  , -0.02],
+    [-0.02,  0.02,  1.  ]])
+    """
+    x, y, z = math.radians(x), math.radians(y), math.radians(z)
+    r_x = [ [1,0,0],[0,math.cos(x),math.sin(x)*-1],[0,math.sin(x),math.cos(x)] ]
+    r_y = [ [math.cos(y),0,math.sin(y)],[0,1,0],[math.sin(y)*-1,0,math.cos(y)] ]
+    r_z = [ [math.cos(z),math.sin(z)*-1,0],[math.sin(z),math.cos(z),0],[0,0,1] ]
+    r_xy = np.matmul(r_x,r_y)
+    r_xyz = np.matmul(r_xy,r_z)
+
+    return r_xyz
 
 def get_spine_angle(axis_p, axis_d):
     r"""Spine angle calculation.
