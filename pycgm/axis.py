@@ -51,25 +51,20 @@ def rotmat(x=0, y=0, z=0):
 
     return r_xyz
 
-def get_spine_angle(axis_p, axis_d):
-    r"""Spine angle calculation.
+def get_shoulder_angle(axisP,axisD):
+    """Shoulder angle calculation.
 
     This function takes in two axes and returns three angles and uses the
     inverse Euler rotation matrix in YXZ order.
+
     Returns the angles in degrees.
-
-    :math:`\alpha = \arcsin{(axis\_d_{y} \cdot axis\_p_{z})}`
-
-    :math:`\gamma = \arcsin{(-(axis\_d_{y} \cdot axis\_p_{x}) / \cos{\alpha})}`
-
-    :math:`\beta = \arcsin{(-(axis\_d_{x} \cdot axis\_p_{z}) / \cos{\alpha})}`
 
     Parameters
     ----------
-    axis_p : list
-        Shows the unit vector of axis_p, the position of the proximal axis.
-    axis_d : list
-        Shows the unit vector of axis_d, the position of the distal axis.
+    axisP : list
+        Shows the unit vector of axisP, the position of the proximal axis.
+    axisD : list
+        Shows the unit vector of axisD, the position of the distal axis.
 
     Returns
     -------
@@ -79,38 +74,26 @@ def get_spine_angle(axis_p, axis_d):
     Examples
     --------
     >>> import numpy as np
-    >>> from .axis import get_spine_angle
-    >>> axis_p = [[ 0.04,   0.99,  0.06, 749.24],
-    ...        [ 0.99, -0.04, -0.05, 321.12],
-    ...        [-0.05,  0.07, -0.99, 145.12],
-    ...        [0, 0, 0, 1]]
-    >>> axis_d = [[-0.18, -0.98,-0.02, 541.68],
-    ...        [ 0.71, -0.11,  -0.69, 112.48],
-    ...        [ 0.67, -0.14,   0.72, 155.77],
-    ...        [0, 0, 0, 1]]
-    >>> np.around(get_spine_angle(axis_p,axis_d), 2)
-    array([ 2.97,  9.13, 39.78])
+    >>> from .axis import get_shoulder_angle
+    >>> axisP = [[ 0.04, 0.99, 0.06],
+    ...        [ 0.99, -0.04, -0.05],
+    ...       [-0.05,  0.07, -0.99]]
+    >>> axisD = [[-0.18, -0.98, -0.02],
+    ...        [ 0.71, -0.11, -0.69],
+    ...        [ 0.67, -0.14, 0.72 ]]
+    >>> np.around(get_shoulder_angle(axisP,axisD), 2)
+    array([  -3.93, -140.07,  172.9 ])
     """
-    # this angle calculation is for spine angle.
 
-    alpha = np.arcsin(
-            (axis_d[1][0] * axis_p[2][0])
-            + (axis_d[1][1] * axis_p[2][1])
-            + (axis_d[1][2] * axis_p[2][2])
-    )
+    # beta is flexion / extension
+    # gamma is adduction / abduction
+    # alpha is internal / external rotation
 
-    gamma = np.arcsin((
-            (-1 * axis_d[1][0] * axis_p[0][0])
-            + (-1 * axis_d[1][1] * axis_p[0][1])
-            + (-1 * axis_d[1][2] * axis_p[0][2])) / np.cos(alpha)
-    )
+    # this is shoulder angle calculation
+    alpha = np.arcsin(((axisD[2][0]*axisP[0][0])+(axisD[2][1]*axisP[0][1])+(axisD[2][2]*axisP[0][2])))
+    beta = np.arctan2(-1*((axisD[2][0]*axisP[1][0])+(axisD[2][1]*axisP[1][1])+(axisD[2][2]*axisP[1][2])) , ((axisD[2][0]*axisP[2][0])+(axisD[2][1]*axisP[2][1])+(axisD[2][2]*axisP[2][2])))
+    gamma = np.arctan2(-1*((axisD[1][0]*axisP[0][0])+(axisD[1][1]*axisP[0][1])+(axisD[1][2]*axisP[0][2])) , ((axisD[0][0]*axisP[0][0])+(axisD[0][1]*axisP[0][1])+(axisD[0][2]*axisP[0][2])))
 
-    beta = np.arcsin((
-            (-1 * axis_d[0][0] * axis_p[2][0])
-            + (-1 * axis_d[0][1] * axis_p[2][1])
-            + (-1 * axis_d[0][2] * axis_p[2][2])) / np.cos(alpha)
-    )
-
-    angle = [180.0 * beta / pi, 180.0 * gamma / pi, 180.0 * alpha / pi]
+    angle = [180.0 * alpha/ pi, 180.0 *beta/ pi, 180.0 * gamma/ pi]
 
     return angle
