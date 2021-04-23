@@ -6,11 +6,11 @@ rounding_precision = 6
 
 class TestAxisUtils():
     """
-    This class tests the lower body axis functions in pyCGM.py:
+    This class tests the lower body axis functions in axis.py:
     find_joint_center
     """
 
-    @pytest.mark.parametrize(["mark_a", "mark_b", "mark_c", "delta", "expected"], [
+    @pytest.mark.parametrize(["p_a", "p_b", "p_c", "delta", "expected"], [
         # Test from running sample data
         ([426.50338745, 262.65310669, 673.66247559],
          [308.38050472, 322.80342417, 937.98979061],
@@ -42,15 +42,15 @@ class TestAxisUtils():
         (np.array([-7.0, 1.0, 2.0], dtype='float'), np.array([1.0, 4.0, 3.0], dtype='float'),
          np.array([3.0, 2.0, -8.0], dtype='float'), 10.0, [5.867777, 5.195449, 1.031332])])
 
-    def test_find_joint_center(self, mark_a, mark_b, mark_c, delta, expected):
+    def test_find_joint_center(self, p_a, p_b, p_c, delta, expected):
         """
         This test provides coverage of the find_joint_center function in axis.py, defined as 
-        find_joint_center(mark_a, mark_b, mark_c, delta)
+        find_joint_center(p_a, p_b, p_c, delta)
 
         This test takes 5 parameters:
-        mark_a: list markers of x,y,z position
-        mark_b: list markers of x,y,z position
-        mark_c: list markers of x,y,z position
+        p_a: list markers of x,y,z position
+        p_b: list markers of x,y,z position
+        p_c: list markers of x,y,z position
         delta: length from marker to joint center, retrieved from subject measurement file
         expected: the expected result from calling find_joint_center on a, b, c, and delta
 
@@ -60,5 +60,5 @@ class TestAxisUtils():
         Lastly, it checks that the resulting output is correct when a, b, and c are lists of ints, numpy arrays of ints,
         lists of floats, and numpy arrays of floats and delta is an int or a float.
         """
-        result = axis.find_joint_center(mark_a, mark_b, mark_c, delta)
+        result = axis.find_joint_center(p_a, p_b, p_c, delta)
         np.testing.assert_almost_equal(result, expected, rounding_precision)

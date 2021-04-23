@@ -1,74 +1,76 @@
-# -*- coding: utf-8 -*-
-#pyCGM
-
-# Copyright (c) 2015 Mathew Schwartz <umcadop@gmail.com>
-# Core Developers: Seungeun Yeon, Mathew Schwartz
-# Contributors Filipe Alves Caixeta, Robert Van-wesep
-#
-# Permission is hereby granted, free of charge, to any person obtaining a copy
-# of this software and associated documentation files (the "Software"), to deal
-# in the Software without restriction, including without limitation the rights
-# to use, copy, modify, merge, publish, distribute, sublicense, and/or sell
-# copies of the Software, and to permit persons to whom the Software is
-# furnished to do so, subject to the following conditions:
-
-# The above copyright notice and this permission notice shall be included in
-# all copies or substantial portions of the Software.
-
-# THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR
-# IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY,
-# FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE
-# AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER
-# LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
-# OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN
-# THE SOFTWARE.
-#pyCGM
-
-"""
-This file is used in joint angle and joint center calculations.
-"""
-
 import math
 import numpy as np
 
-def find_joint_center(mark_a, mark_b, mark_c, delta):
-    """Calculate the Joint Center.
-    This function is based on the physical markers mark_a, mark_b, mark_c
+def find_joint_center(p_a, p_b, p_c, delta):
+    r"""Calculate the Joint Center.
+
+    This function is based on the physical markers p_a, p_b, p_c
     and the resulting joint center are all on the same plane.
+
     Parameters
     ----------
-    mark_a, mark_b, mark_c : list
+    p_a, p_b, p_c : list
         Three markers x, y, z position of a, b, c.
     delta : float
         The length from marker to joint center, retrieved from subject measurement file.
+
     Returns
     -------
     joint_center : array
         Returns the joint center's x, y, z positions in a 1x3 array.
+
+    Notes
+    -----
+    :math:`vec_{1} = (p\_a-p\_c), \ vec_{2} = (p\_b-p\_c)`
+
+    :math:`vec_{3} = vec_{1} \times vec_{2}`
+
+    :math:`mid = \frac{(p\_b+p\_c)}{2.0}`
+
+    :math:`length = (p\_b - mid)`
+
+    :math:`\theta = \arccos(\frac{delta}{vec_{2}})`
+
+    :math:`\alpha = \cos(\theta*2), \ \beta = \sin(\theta*2)`
+
+    :math:`u_x, u_y, u_z = vec_{3}`
+
+    .. math::
+
+        rot =
+        \begin{bmatrix}
+            \alpha+u_x^2*(1-\alpha) & u_x*u_y*(1.0-\alpha)-u_z*\beta & u_x*u_z*(1.0-\alpha)+u_y*\beta \\
+            u_y*u_x*(1.0-\alpha+u_z*\beta & \alpha+u_y^2.0*(1.0-\alpha) & u_y*u_z*(1.0-\alpha)-u_x*\beta \\
+            u_z*u_x*(1.0-\alpha)-u_y*\beta & u_z*u_y*(1.0-\alpha)+u_x*\beta & \alpha+u_z**2.0*(1.0-\alpha) \\
+        \end{bmatrix}
+
+    :math:`r\_vec = rot * vec_2`
+
+    :math:`joint\_center = r\_vec + mid`
+
     Examples
     --------
     >>> import numpy as np
     >>> from .axis import find_joint_center
-    >>> mark_a = [468.14, 325.09, 673.12]
-    >>> mark_b = [355.90, 365.38, 940.69]
-    >>> mark_c = [452.35, 329.06, 524.77]
+    >>> p_a = [468.14, 325.09, 673.12]
+    >>> p_b = [355.90, 365.38, 940.69]
+    >>> p_c = [452.35, 329.06, 524.77]
     >>> delta = 59.5
-    >>> find_joint_center(mark_a, mark_b, mark_c, delta).round(2)
+    >>> find_joint_center(p_a, p_b, p_c, delta).round(2)
     array([396.25, 347.92, 518.63])
     """
-    # make the two vector using 3 markers, which is on the same plane.
-    vec_1 = (mark_a[0]-mark_c[0], mark_a[1]-mark_c[1], mark_a[2]-mark_c[2])
-    vec_2 = (mark_b[0]-mark_c[0], mark_b[1]-mark_c[1], mark_b[2]-mark_c[2])
 
-    # vec_3 is cross vector of vec_1, vec_2
-    # and then it normalized.
-    # vec_3 = cross(vec_1, vec_2)
+    # make the two vector using 3 markers, which is on the same plane.
+    vec_1 = (p_a[0]-p_c[0], p_a[1]-p_c[1], p_a[2]-p_c[2])
+    vec_2 = (p_b[0]-p_c[0], p_b[1]-p_c[1], p_b[2]-p_c[2])
+
+    # vec_3 is cross vector of vec_1, vec_2, and then it normalized.
     vec_3 = np.cross(vec_1, vec_2)
     vec_3_div = np.linalg.norm(vec_3)
     vec_3 = [vec_3[0]/vec_3_div, vec_3[1]/vec_3_div, vec_3[2]/vec_3_div]
 
-    mid = [(mark_b[0]+mark_c[0])/2.0, (mark_b[1]+mark_c[1])/2.0, (mark_b[2]+mark_c[2])/2.0]
-    length = np.subtract(mark_b, mid)
+    mid = [(p_b[0]+p_c[0])/2.0, (p_b[1]+p_c[1])/2.0, (p_b[2]+p_c[2])/2.0]
+    length = np.subtract(p_b, mid)
     length = np.linalg.norm(length)
 
     theta = math.acos(delta/np.linalg.norm(vec_2))
@@ -76,9 +78,7 @@ def find_joint_center(mark_a, mark_b, mark_c, delta):
     cs_th = math.cos(theta*2)
     sn_th = math.sin(theta*2)
 
-    u_x = vec_3[0]
-    u_y = vec_3[1]
-    u_z = vec_3[2]
+    u_x, u_y, u_z = vec_3
 
     # This rotation matrix is called Rodriques' rotation formula.
     # In order to make a plane, at least 3 number of markers is required which
