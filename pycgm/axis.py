@@ -54,7 +54,7 @@ def rotmat(x=0, y=0, z=0):
 
 
 def get_head_angle(axis_p, axis_d):
-    """Head angle calculation function.
+    r"""Head angle calculation function.
 
     This function takes in two axes and returns three angles and uses the
     inverse Euler rotation matrix in YXZ order.
@@ -73,16 +73,26 @@ def get_head_angle(axis_p, axis_d):
     angle : list
         Returns the gamma, beta, alpha angles in degrees in a 1x3 corresponding list.
 
+    Notes
+    -----
+    :math:`\beta = \arctan2{((axisD_{z} \cdot axisP_{y}), \sqrt{(axisD_{x} \cdot axisP_{y})^2 + (axisD_{y} \cdot axisP_{y})^2}})`
+
+    :math:`\alpha = \arctan2{(-(axisD_{z} \cdot axisP_{x}), axisD_{z} \cdot axisP_{z})}`
+
+    :math:`\gamma = \arctan2{(-(axisD_{x} \cdot axisP_{y}), axisD_{y} \cdot axisP_{y})}`
+
     Examples
     --------
     >>> import numpy as np
     >>> from .axis import get_head_angle
-    >>> axis_p = [[ 0.04, 0.99, 0.06],
-    ...        [ 0.99, -0.04, -0.05],
-    ...       [-0.05,  0.07, -0.99]]
-    >>> axis_d = [[-0.18, -0.98, -0.02],
-    ...        [ 0.71, -0.11, -0.69],
-    ...        [ 0.67, -0.14, 0.72 ]]
+    >>> axis_p = [[0.04, 0.99, 0.06, 512.34],
+    ...           [0.99, -0.04, -0.05, 471.15],
+    ...           [-0.05,  0.07, -0.99, 124.14],
+    ...           [0, 0, 0, 1]]
+    >>> axis_d = [[-0.18, -0.98, -0.02, 842.14],
+    ...           [ 0.71, -0.11, -0.69, 985.38],
+    ...           [ 0.67, -0.14, 0.72, 412.87],
+    ...           [0, 0, 0, 1]]
     >>> np.around(get_head_angle(axis_p,axis_d), 2)
     array([ 185.18,  -39.99, -190.54])
     """
@@ -161,7 +171,6 @@ def get_head_angle(axis_p, axis_d):
             gamma = (gamma - 180) * -1
         else:
             gamma = (gamma + 180) * -1
-
     else:
         if gamma < 0:
             gamma = (gamma + 180) * -1

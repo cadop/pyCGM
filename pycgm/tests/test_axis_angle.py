@@ -15,7 +15,6 @@ class TestPycgmAngle():
     getPelangle
     """
 
-
     @pytest.mark.parametrize(["xRot", "yRot", "zRot", "expected"], [
         (0, 0, 0, [0, 0, -180]),
         # X rotations
