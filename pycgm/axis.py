@@ -75,22 +75,24 @@ def get_pelvis_angle(axis_p, axis_d):
 
     Notes
     -----
-    :math:`\beta = \arctan2{((axisD_{z} \cdot axisP_{y}), \sqrt{(axisD_{z} \cdot axisP_{x})^2 + (axisD_{z} \cdot axisP_{z})^2}}) \]`
+    :math:`\beta = \arctan2{((axis\_d_{z} \cdot axis\_p_{y}), \sqrt{(axis\_d_{z} \cdot axis\_p_{x})^2 + (axis\_d_{z} \cdot axis\_p_{z})^2}})`
 
-    :math:`\alpha = \arctan2{((axisD_{z} \cdot axisP_{x}), axisD_{z} \cdot axisP_{z})} \]`
+    :math:`\alpha = \arctan2{((axis\_d_{z} \cdot axis\_p_{x}), axis\_d_{z} \cdot axis\_p_{z})}`
 
-    :math:`\gamma = \arctan2{((axisD_{x} \cdot axisP_{y}), axisD_{y} \cdot axisP_{y})} \]`
+    :math:`\gamma = \arctan2{((axis\_d_{x} \cdot axis\_p_{y}), axis\_d_{y} \cdot axis\_p_{y})}`
 
     Examples
     -------
     >>> import numpy as np
     >>> from .axis import get_pelvis_angle
-    >>> axis_p = [[ 0.04, 0.99, 0.06],
-    ...        [ 0.99, -0.04, -0.05],
-    ...       [-0.05,  0.07, -0.99]]
-    >>> axis_d = [[-0.18, -0.98, -0.02],
-    ...        [ 0.71, -0.11, -0.69],
-    ...        [ 0.67, -0.14, 0.72 ]]
+    >>> axis_p = [[ 0.04, 0.99, 0.06, 452.12],
+    ...           [ 0.99, -0.04, -0.05, 987.36],
+    ...           [-0.05,  0.07, -0.99, 125.68],
+    ...           [0, 0, 0, 1]]
+    >>> axis_d = [[-0.18, -0.98, -0.02, 418.56],
+    ...           [ 0.71, -0.11, -0.69, 857.41],
+    ...           [ 0.67, -0.14, 0.72, 418.56],
+    ...           [0, 0, 0, 1]]
     >>> np.around(get_pelvis_angle(axis_p,axis_d), 2)
     array([-174.82,   39.82,  -10.54])
     """
