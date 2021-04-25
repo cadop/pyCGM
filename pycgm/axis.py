@@ -16,13 +16,15 @@ def pelvis_axis(rasi, lasi, rpsi, lpsi, sacr=None):
     Pelvis Y_axis: LASI-RASI x,y,z positions, then normalized.
     Pelvis Z_axis: Cross product of x_axis and y_axis.
 
-    :math:`$o = m_{rasi} + m_{lasi} / 2$`
+    :math:`o = \textbf{m}_{rasi} + \textbf{m}_{lasi} / 2`
 
-    :math:`$y = \frac{m_{lasi} - m_{rasi}}{||m_{lasi} - m_{rasi}||}$`
+    :math:`\hat{y} = \frac{\textbf{m}_{lasi} - \textbf{m}_{rasi}}{||\textbf{m}_{lasi} - \textbf{m}_{rasi}||}$`
 
-    :math:`x = \frac{(m_{origin} - m_{sacr}) - ((m_{origin} - m_{sacr}) \dot y) * y}{||(m_{origin} - m_{sacr}) - ((m_{origin} - m_{sacr}) \cdot y) \times y||}`
+    :math:`\hat{x} = \frac
+    {(\textbf{m}_{origin} - \textbf{m}_{sacr}) - ((\textbf{m}_{origin} - \textbf{m}_{sacr}) \cdot \hat{y}) * \hat{y}}
+    {||(\textbf{m}_{origin} - \textbf{m}_{sacr}) - ((\textbf{m}_{origin} - \textbf{m}_{sacr}) \cdot \hat{y}) \times \hat{y}||}`
 
-    :math:`z = x \times y`
+    :math:`\hat{z} = \hat{x} \times \hat{y}`
 
     Parameters
     ----------
@@ -71,13 +73,10 @@ def pelvis_axis(rasi, lasi, rpsi, lpsi, sacr=None):
     array([-2.00000e-02,  1.20000e-01,  9.90000e-01,  1.03494e+03]),
     array([0., 0., 0., 1.])]
     """
-    # Get the Pelvis Joint Centre
+    # Calculate sacr using rpsi and lpsi if it is not provided.
 
     if sacr is None:
         sacr = (rpsi + lpsi) / 2.0
-
-    # REQUIRED LANDMARKS:
-    # sacrum
 
     # Origin is Midpoint between RASI and LASI
     o = (rasi+lasi)/2.0
