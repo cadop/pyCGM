@@ -19,6 +19,14 @@ def rotmat(x=0, y=0, z=0):
     r_xyz : list
         The product of the matrix multiplication.
 
+    Notes
+    -----
+    :math:`r_x = [ [1,0,0], [0, \cos(x), -sin(x)], [0, sin(x), cos(x)] ]`
+    :math:`r_y = [ [cos(y), 0, sin(y)], [0, 1, 0], [-sin(y), 0, cos(y)] ]`
+    :math:`r_z = [ [cos(z), -sin(z), 0], [sin(z), cos(z), 0], [0, 0, 1] ]`
+    :math:`r_{xy} = r_x * r_y`
+    :math:`r_{xyz} = r_{xy} * r_z`
+
     Examples
     --------
     >>> import numpy as np
@@ -59,6 +67,20 @@ def get_angle(axis_p, axis_d):
 
     Returns the angles in degrees.
 
+    Parameters
+    ----------
+    axis_p : list
+        Shows the unit vector of axis_p, the position of the proximal axis.
+    axis_d : list
+        Shows the unit vector of axis_d, the position of the distal axis.
+
+    Returns
+    -------
+    angle : list
+        Returns the gamma, beta, alpha angles in degrees in a 1x3 corresponding list.
+
+    Notes
+    -----
     As we use arcsin we have to care about if the angle is in area between -pi/2 to pi/2
     
     :math:`\alpha = \arcsin{(-axis\_d_{z} \cdot axis\_p_{y})}`
@@ -74,18 +96,6 @@ def get_angle(axis_p, axis_d):
     :math:`\beta = \arctan2{(-(axis\_d_{z} \cdot axis\_p_{x}), axis\_d_{z} \cdot axis\_p_{z})}`
 
     :math:`\gamma = \arctan2{(-(axis\_d_{y} \cdot axis\_p_{y}), axis\_d_{x} \cdot axis\_p_{y})}`
-
-    Parameters
-    ----------
-    axis_p : list
-        Shows the unit vector of axis_p, the position of the proximal axis.
-    axis_d : list
-        Shows the unit vector of axis_d, the position of the distal axis.
-
-    Returns
-    -------
-    angle : list
-        Returns the gamma, beta, alpha angles in degrees in a 1x3 corresponding list.
 
     Examples
     --------
