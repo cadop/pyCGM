@@ -2,7 +2,7 @@ import pycgm.axis as axis
 import pytest
 import numpy as np
 
-rounding_precision = 6
+rounding_precision = 5
 
 class TestAxisUtils():
     """

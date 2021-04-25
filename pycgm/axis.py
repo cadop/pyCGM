@@ -21,9 +21,7 @@ def find_joint_center(p_a, p_b, p_c, delta):
 
     Notes
     -----
-    :math:`vec_{1} = (p\_a-p\_c), \ vec_{2} = (p\_b-p\_c)`
-
-    :math:`vec_{3} = vec_{1} \times vec_{2}`
+    :math:`vec_{1} = p\_a-p\_c, \ vec_{2} = (p\_b-p\_c), \ vec_{3} = vec_{1} \times vec_{2}`
 
     :math:`mid = \frac{(p\_b+p\_c)}{2.0}`
 
@@ -45,6 +43,8 @@ def find_joint_center(p_a, p_b, p_c, delta):
         \end{bmatrix}
 
     :math:`r\_vec = rot * vec_2`
+
+    :math:`r\_vec = r\_vec * \frac{length}{norm(r\_vec)}`
 
     :math:`joint\_center = r\_vec + mid`
 
