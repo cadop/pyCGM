@@ -20,6 +20,14 @@ def rotmat(x=0, y=0, z=0):
     r_xyz : list
         The product of the matrix multiplication.
 
+    Notes
+    -----
+    :math:`r_x = [ [1,0,0], [0, \cos(x), -sin(x)], [0, sin(x), cos(x)] ]`
+    :math:`r_y = [ [cos(y), 0, sin(y)], [0, 1, 0], [-sin(y), 0, cos(y)] ]`
+    :math:`r_z = [ [cos(z), -sin(z), 0], [sin(z), cos(z), 0], [0, 0, 1] ]`
+    :math:`r_{xy} = r_x * r_y`
+    :math:`r_{xyz} = r_{xy} * r_z`
+
     Examples
     --------
     >>> import numpy as np
@@ -44,11 +52,11 @@ def rotmat(x=0, y=0, z=0):
     [-0.02,  0.02,  1.  ]])
     """
     x, y, z = math.radians(x), math.radians(y), math.radians(z)
-    r_x = [[1, 0, 0], [0, math.cos(x), math.sin(x) * -1], [0, math.sin(x), math.cos(x)]]
-    r_y = [[math.cos(y), 0, math.sin(y)], [0, 1, 0], [math.sin(y) * -1, 0, math.cos(y)]]
-    r_z = [[math.cos(z), math.sin(z) * -1, 0], [math.sin(z), math.cos(z), 0], [0, 0, 1]]
-    r_xy = np.matmul(r_x, r_y)
-    r_xyz = np.matmul(r_xy, r_z)
+    r_x = [ [1,0,0],[0,math.cos(x),math.sin(x)*-1],[0,math.sin(x),math.cos(x)] ]
+    r_y = [ [math.cos(y),0,math.sin(y)],[0,1,0],[math.sin(y)*-1,0,math.cos(y)] ]
+    r_z = [ [math.cos(z),math.sin(z)*-1,0],[math.sin(z),math.cos(z),0],[0,0,1] ]
+    r_xy = np.matmul(r_x,r_y)
+    r_xyz = np.matmul(r_xy,r_z)
 
     return r_xyz
 
@@ -82,7 +90,7 @@ def get_pelvis_angle(axis_p, axis_d):
     :math:`\gamma = \arctan2{((axis\_d_{x} \cdot axis\_p_{y}), axis\_d_{y} \cdot axis\_p_{y})}`
 
     Examples
-    -------
+    --------
     >>> import numpy as np
     >>> from .axis import get_pelvis_angle
     >>> axis_p = [[ 0.04, 0.99, 0.06, 452.12],
