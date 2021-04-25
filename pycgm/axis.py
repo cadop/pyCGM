@@ -3,18 +3,16 @@ import math
 import numpy as np
 
 
-def find_joint_center(mark_a, mark_b, mark_c, delta):
-    """Calculate the Joint Center.
+def find_joint_center(p_a, p_b, p_c, delta):
+    r"""Calculate the Joint Center.
 
-    This function is based on physical markers mark_a, mark_b, mark_c,
-    and joint center which will be calculated in this function are all
-    in the same plane.
+    This function is based on the physical markers p_a, p_b, p_c
+    and the resulting joint center are all on the same plane.
 
     Parameters
     ----------
-    mark_a, mark_b, mark_c : list
+    p_a, p_b, p_c : list
         Three markers x, y, z position of a, b, c.
-
     delta : float
         The length from marker to joint center, retrieved from subject measurement file.
 
@@ -22,31 +20,59 @@ def find_joint_center(mark_a, mark_b, mark_c, delta):
     -------
     joint_center : array
         Returns the joint center's x, y, z positions in a 1x3 array.
-    
+
+    Notes
+    -----
+    :math:`vec_{1} = p\_a-p\_c, \ vec_{2} = (p\_b-p\_c), \ vec_{3} = vec_{1} \times vec_{2}`
+
+    :math:`mid = \frac{(p\_b+p\_c)}{2.0}`
+
+    :math:`length = (p\_b - mid)`
+
+    :math:`\theta = \arccos(\frac{delta}{vec_{2}})`
+
+    :math:`\alpha = \cos(\theta*2), \ \beta = \sin(\theta*2)`
+
+    :math:`u_x, u_y, u_z = vec_{3}`
+
+    .. math::
+
+        rot =
+        \begin{bmatrix}
+            \alpha+u_x^2*(1-\alpha) & u_x*u_y*(1.0-\alpha)-u_z*\beta & u_x*u_z*(1.0-\alpha)+u_y*\beta \\
+            u_y*u_x*(1.0-\alpha+u_z*\beta & \alpha+u_y^2.0*(1.0-\alpha) & u_y*u_z*(1.0-\alpha)-u_x*\beta \\
+            u_z*u_x*(1.0-\alpha)-u_y*\beta & u_z*u_y*(1.0-\alpha)+u_x*\beta & \alpha+u_z**2.0*(1.0-\alpha) \\
+        \end{bmatrix}
+
+    :math:`r\_vec = rot * vec_2`
+
+    :math:`r\_vec = r\_vec * \frac{length}{norm(r\_vec)}`
+
+    :math:`joint\_center = r\_vec + mid`
+
     Examples
     --------
     >>> import numpy as np
     >>> from .axis import find_joint_center
-    >>> mark_a = [468.14, 325.09, 673.12]
-    >>> mark_b = [355.90, 365.38, 940.69]
-    >>> mark_c = [452.35, 329.06, 524.77]
+    >>> p_a = [468.14, 325.09, 673.12]
+    >>> p_b = [355.90, 365.38, 940.69]
+    >>> p_c = [452.35, 329.06, 524.77]
     >>> delta = 59.5
-    >>> find_joint_center(mark_a, mark_b, mark_c, delta).round(2)
+    >>> find_joint_center(p_a, p_b, p_c, delta).round(2)
     array([396.25, 347.92, 518.63])
     """
-    # make the two vector using 3 markers, which is on the same plane.
-    vec_1 = (mark_a[0]-mark_c[0], mark_a[1]-mark_c[1], mark_a[2]-mark_c[2])
-    vec_2 = (mark_b[0]-mark_c[0], mark_b[1]-mark_c[1], mark_b[2]-mark_c[2])
 
-    # vec_3 is cross vector of vec_1, vec_2
-    # and then it normalized.
-    # vec_3 = cross(vec_1, vec_2)
+    # make the two vector using 3 markers, which is on the same plane.
+    vec_1 = (p_a[0]-p_c[0], p_a[1]-p_c[1], p_a[2]-p_c[2])
+    vec_2 = (p_b[0]-p_c[0], p_b[1]-p_c[1], p_b[2]-p_c[2])
+
+    # vec_3 is cross vector of vec_1, vec_2, and then it normalized.
     vec_3 = np.cross(vec_1, vec_2)
     vec_3_div = np.linalg.norm(vec_3)
     vec_3 = [vec_3[0]/vec_3_div, vec_3[1]/vec_3_div, vec_3[2]/vec_3_div]
 
-    mid = [(mark_b[0]+mark_c[0])/2.0, (mark_b[1]+mark_c[1])/2.0, (mark_b[2]+mark_c[2])/2.0]
-    length = np.subtract(mark_b, mid)
+    mid = [(p_b[0]+p_c[0])/2.0, (p_b[1]+p_c[1])/2.0, (p_b[2]+p_c[2])/2.0]
+    length = np.subtract(p_b, mid)
     length = np.linalg.norm(length)
 
     theta = math.acos(delta/np.linalg.norm(vec_2))
@@ -54,9 +80,7 @@ def find_joint_center(mark_a, mark_b, mark_c, delta):
     cs_th = math.cos(theta*2)
     sn_th = math.sin(theta*2)
 
-    u_x = vec_3[0]
-    u_y = vec_3[1]
-    u_z = vec_3[2]
+    u_x, u_y, u_z = vec_3
 
     # This rotation matrix is called Rodriques' rotation formula.
     # In order to make a plane, at least 3 number of markers is required which
@@ -79,7 +103,7 @@ def find_joint_center(mark_a, mark_b, mark_c, delta):
     return joint_center
 
 def hand_axis(rwra, rwrb, lwra, lwrb, rfin, lfin, wrist_jc, r_hand_thickness, l_hand_thickness):
-    """Calculate the Hand joint axis.
+    r"""Calculate the Hand joint axis.
 
     Takes in markers that correspond to (x, y, z) positions of the current
     frame as well as the wrist joint center.
@@ -88,15 +112,6 @@ def hand_axis(rwra, rwrb, lwra, lwrb, rfin, lfin, wrist_jc, r_hand_thickness, l_
 
     Markers used: RWRA, RWRB, LWRA, LWRB, RFIN, LFIN \n
     Subject Measurement values used: RightHandThickness, LeftHandThickness
-
-    :math:`\\textbf{r}_{delta} = (\\frac{r\_hand\_thickness}{2.0} + 7.0) \hspace{1cm} \\textbf{l}_{delta} = (\\frac{l\_hand\_thickness}{2.0} + 7.0)`
-    :math:`\\textbf{m}_{rhnd} = joint\_center(\\textbf{m}_{rwri}, \\textbf{m}_{rwjc}, \\textbf{m}_{rfin}, r_{delta})`
-    :math:`\\textbf{m}_{lhnd} = joint\_center(\\textbf{m}_{lwri}, \\textbf{m}_{lwjc}, \\textbf{m}_{lfin}, r_{delta})`
-    :math:`o_{l} = \\frac{\\textbf{m}_{lwra} + \\textbf{m}_{lwrb}}{2} \hspace{1cm} o_{r} = \\frac{\\textbf{m}_{rwra} + \\textbf{m}_{rwrb}}{2}`
-    :math:`\\textbf{m}_{l} = \\textbf{m}_{lwjc} - \\textbf{m}_{lhnd} \hspace{1cm} \hat{z}_{r} = \\textbf{m}_{rwjc} - \\textbf{m}_{rhnd}`
-    :math:`\hat{y}_{l} = \\textbf{m}_{lwri} - \\textbf{m}_{lwra} \hspace{1cm} \hat{y}_{r} = \\textbf{m}_{rwra} - \\textbf{m}_{rwri}`
-    :math:`\hat{x}_{l} = \hat{y}_{l} \\times \hat{z}_{l} \hspace{1cm} \hat{x}_{r} = \hat{y}_{r} \\times \hat{z}_{r}`
-    :math:`\hat{y}_{l} = \hat{z}_{l} \\times \hat{x}_{l} \hspace{1cm} \hat{y}_{r} = \hat{z}_{r} \\times \hat{x}_{r}`
 
     Parameters
     ----------
@@ -124,13 +139,31 @@ def hand_axis(rwra, rwrb, lwra, lwrb, rfin, lfin, wrist_jc, r_hand_thickness, l_
     [r_axis, l_axis] : array
         A list of two 4x4 affine matrices representing the right hand axis as well as the
         left hand axis.
+    
+    Notes
+    -----
+    :math:`r_{delta} = (\frac{r\_hand\_thickness}{2.0} + 7.0) \hspace{1cm} l_{delta} = (\frac{l\_hand\_thickness}{2.0} + 7.0)`
+
+    :math:`\textbf{m}_{RHND} = joint\_center(\textbf{m}_{RWRI}, \textbf{m}_{RWJC}, \textbf{m}_{RFIN}, r_{delta})`
+
+    :math:`\textbf{m}_{LHND} = joint\_center(\textbf{m}_{LWRI}, \textbf{m}_{LWJC}, \textbf{m}_{LFIN}, r_{delta})`
+
+    :math:`o_{l} = \frac{\textbf{m}_{LWRA} + \textbf{m}_{LWRB}}{2} \hspace{1cm} o_{r} = \frac{\textbf{m}_{RWRA} + \textbf{m}_{RWRB}}{2}`
+
+    :math:`\textbf{m}_{l} = \textbf{m}_{LWJC} - \textbf{m}_{LHND} \hspace{1cm} \hat{z}_{r} = \textbf{m}_{RWJC} - \textbf{m}_{RHND}`
+
+    :math:`\hat{y}_{l} = \textbf{m}_{LWRI} - \textbf{m}_{LWRA} \hspace{1cm} \hat{y}_{r} = \textbf{m}_{RWRA} - \textbf{m}_{RWRI}`
+
+    :math:`\hat{x}_{l} = \hat{y}_{l} \times \hat{z}_{l} \hspace{1cm} \hat{x}_{r} = \hat{y}_{r} \times \hat{z}_{r}`
+
+    :math:`\hat{y}_{l} = \hat{z}_{l} \times \hat{x}_{l} \hspace{1cm} \hat{y}_{r} = \hat{z}_{r} \times \hat{x}_{r}`
 
     Examples
     --------
     >>> import numpy as np
     >>> from .axis import hand_axis
     >>> np.set_printoptions(suppress=True)
-    >>> rwra = np.array([776.51,495.68, 1108.38])
+    >>> rwra = np.array([776.51, 495.68, 1108.38])
     >>> rwrb = np.array([830.90, 436.75, 1119.11])
     >>> lwra = np.array([-249.28, 525.32, 1117.09])
     >>> lwrb = np.array([-311.77, 477.22, 1125.16])
