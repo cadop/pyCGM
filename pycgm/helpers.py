@@ -5,103 +5,54 @@ This file is used to get sample data.
 import os
 
 
-def sampleData(c=0.8):
-    """ Helper function for accessing sample data.
+def getfilenames(filename):
+    """ Get Filenames for sample data.
+
+    The `59993_Frame` directory includes data of a human walking around while
+    also performing other movements using all joints together.
+
+    The `ROM` directory includes data of a human circling all joints
+    individually while standing in one place.
+
+    The `Sample_2` directory includes data of a robowalk.
+
     Parameters
     ----------
-    c : float, optional
-        the minimum correlation weights to load from the sample dataset
+    filename : int, optional
+
+
+    Returns
+    -------
+    String
+        Returns the path for the specified file.
+
+    Example
+    -------
+    >>> import os
+    >>> from .helpers import getfilenames
+    >>> getfilenames('59993_Frame_SM.vsk')
+    'SampleData/59993_Frame/59993_Frame_SM.vsk'
+    >>> getfilenames('Sample_Static.c3d')
+    'SampleData/ROM/Sample_Static.c3d'
+    >>> getfilenames('RoboWalk.c3d')
+    'SampleData/Sample_2/RoboWalk.c3d'
     """
 
-    import numpy as np
+    frame = ['59993_Frame_Dynamic.c3d', '59993_Frame_SM.vsk',
+             '59993_Frame_Static.c3d', 'pycgm_results.csv']
+    ROM = ['Sample_Dynamic.c3d', 'Sample_Static.c3d',
+           'Sample_SM.vsk', 'pycgm_results.csv']
+    Sample = ['RoboWalk.c3d', 'RoboStatic.c3d',
+              'RoboSM.vsk', 'pycgm_results.csv']
 
-    data_dir = os.path.join(os.path.dirname(__file__), 'sampleData')
+    if filename in frame:
+        data_dir = 'SampleData/59993_Frame/'
+    elif filename in ROM:
+        data_dir = 'SampleData/ROM/'
+    elif filename in Sample:
+        data_dir = 'SampleData/Sample_2/'
 
-    refWeights = np.load(os.path.join(data_dir, '.npy'),
-                         allow_pickle=True)[()]
-    refData = np.load(os.path.join(data_dir, 'r.npy'), allow_pickle=True)
-    targData = np.load(os.path.join(data_dir, 't.npy'), allow_pickle=True)[()]
-
-    return refData, targData, refWeights
-
-
-print(sampleData())
+    return os.path.join(data_dir, filename)
 
 
-# def getfilenames(x=1):
-#    """ Get Filenames for sample data.
-
-#    The `59993_Frame` directory includes data of a human walking around while
-#    also performing other movements using all joints together.
-
-#    The `ROM` directory includes data of a human circling all joints
-#    individually while standing in one place.
-
-#    The `Sample_2` directory includes data of a robowalk.
-
-#    Parameters
-#    ----------
-#    x : int, optional
-#        A flag (1, 2, or 3) that denotes which variation of files to retrieve.
-#        Default is 1 if not given.\n
-#        1 denotes the files in the `59993_Frame` directory.\n
-#        2 denotes the files in the `ROM` directory.\n
-#        3 denotes the files in the `Sample_2` directory.
-
-#    Returns
-#    -------
-#    dynamic_trial, static_trial, vsk_file, output_file, CoM_output : tuple
-#        Returns the respective filenames in the relative path.
-
-#    Example
-#    -------
-#    >>> import os
-#    >>> from .helpers import getfilenames
-#    >>> getfilenames() #doctest: +NORMALIZE_WHITESPACE
-#    ('SampleData/59993_Frame/59993_Frame_Dynamic.c3d',
-#    'SampleData/59993_Frame/59993_Frame_Static.c3d',
-#    'SampleData/59993_Frame/59993_Frame_SM.vsk',
-#    'SampleData/59993_Frame/pycgm_results.csv',
-#    'SampleData/59993_Frame/CoM')
-#    >>> getfilenames(2) #doctest: +NORMALIZE_WHITESPACE
-#    ('SampleData/ROM/Sample_Dynamic.c3d',
-#    'SampleData/ROM/Sample_Static.c3d',
-#    'SampleData/ROM/Sample_SM.vsk',
-#    'SampleData/ROM/pycgm_results.csv',
-#    'SampleData/ROM/CoM')
-#    >>> getfilenames(3) #doctest: +NORMALIZE_WHITESPACE
-#    ('SampleData/Sample_2/RoboWalk.c3d',
-#    'SampleData/Sample_2/RoboStatic.c3d',
-#    'SampleData/Sample_2/RoboSM.vsk',
-#    'SampleData/Sample_2/pycgm_results.csv',
-#    'SampleData/Sample_2/CoM')
-#    """
-#    script_dir = os.path.dirname(os.path.abspath(__file__))
-#    os.chdir(script_dir)
-#    os.chdir("..")
-
-#    if x == 1:
-#        dir = 'SampleData/59993_Frame/'
-#        dynamic_trial = dir + '59993_Frame_Dynamic.c3d'
-#        static_trial = dir + '59993_Frame_Static.c3d'
-#        vsk_file = dir + '59993_Frame_SM.vsk'
-#        output_file = dir + 'pycgm_results.csv'
-#        CoM_output = dir + 'CoM'
-
-#    if x == 2:
-#        dir = 'SampleData/ROM/'
-#        dynamic_trial = dir + 'Sample_Dynamic.c3d'
-#        static_trial = dir + 'Sample_Static.c3d'
-#        vsk_file = dir + 'Sample_SM.vsk'
-#        output_file = dir + 'pycgm_results.csv'
-#        CoM_output = dir + 'CoM'
-
-#    if x == 3:
-#        dir = 'SampleData/Sample_2/'
-#        dynamic_trial = dir + 'RoboWalk.c3d'
-#        static_trial = dir + 'RoboStatic.c3d'
-#        vsk_file = dir + 'RoboSM.vsk'
-#        output_file = dir + 'pycgm_results.csv'
-#        CoM_output = dir + 'CoM'
-
-#    return dynamic_trial, static_trial, vsk_file, output_file, CoM_output
+# print(getfilenames('RoboWalk.c3d'))
