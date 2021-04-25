@@ -2,24 +2,14 @@ import pytest
 import pycgm.static as static
 import numpy as np
 
-rounding_precision = 8
+rounding_precision = 5
 
 
 class TestPycgmStaticAxis():
     """
     This class tests the axis functions in static.py:
         calculate_head_angle
-        pelvisJointCenter
-        hipJointCenter
-        hipAxisCenter
-        kneeJointCenter
-        ankleJointCenter
         foot_joint_center
-        headJC
-        uncorrect_footaxis
-        rotaxis_footflat
-        rotaxis_nonfootflat
-        findJointC
     """
     nan_3d = [np.nan, np.nan, np.nan]
     rand_coor = [np.random.randint(0, 10), np.random.randint(0, 10),

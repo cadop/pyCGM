@@ -8,8 +8,8 @@ Created on Tue Jul 28 16:55:25 2015
 """
 import numpy as np
 
-def iad_calculation(rasi, lasi):
-    r"""Inter ASIS Distance (IAD) Calculation function
+def get_iad(rasi, lasi):
+    r"""Get the Inter ASIS Distance (IAD)
 
     Calculates the Inter ASIS Distance from a given frame.
 
@@ -38,10 +38,10 @@ def iad_calculation(rasi, lasi):
     Examples
     --------
     >>> import numpy as np
-    >>> from .static import iad_calculation
+    >>> from .static import get_iad
     >>> rasi = np.array([395.37, 428.1, 1036.83])
     >>> lasi = np.array([183.19, 422.79, 1033.07])
-    >>> np.around(iad_calculation(rasi, lasi), 2)
+    >>> np.around(get_iad(rasi, lasi), 2)
     212.28
     """
 
@@ -97,11 +97,13 @@ def calculate_head_angle(head):
     0.28
     """
 
-    # Calculate head_axis as above [[head_axis_x1 - origin_x, ...], ...]
+    # Calculate head_axis as above in the function description
+    # [[head_axis_x1 - origin_x, ...], ...]
     head_axis = np.array([[head[0][y][x] - head[1][x] for x in range(3)]
                           for y in range(3)])
 
     # Inversion of [[0, 1, 0], [-1, 0, 0], [0, 0, 1]]
+    # calculate_head_angle permanently assumes an incorrect axis.
     inverted_global_axis = [[0, -1, 0], [1, 0, 0], [0, 0, 1]]
 
     # Calculate rotational matrix.
@@ -109,8 +111,9 @@ def calculate_head_angle(head):
 
     # Return arctangent of angle y.
     with np.errstate(invalid='ignore', divide='ignore'):
-        return np.arctan(rotation_matrix[0][2]/
-                         np.nan_to_num(rotation_matrix[2][2]))
+        sine_y = rotation_matrix[0][2]
+        cosine_y = np.nan_to_num(rotation_matrix[2][2])
+        return np.arctan(sine_y/cosine_y)
 
 def foot_joint_center(rtoe, ltoe, static_info, ankle_joint_center):
     (r"""Calculate the foot joint center and axis function.
@@ -275,9 +278,10 @@ def foot_joint_center(rtoe, ltoe, static_info, ankle_joint_center):
 
         # Apply static offset angle to the incorrect foot axes
         # static offset angle are taken from static_info variable in radians.
-
-        alpha = np.radians(np.around(np.degrees(static_info[side][0]), 5))
-        beta = np.radians(np.around(np.degrees(static_info[side][1]), 5))
+        # N.B. This replaces a procedure that converted from radians to degrees
+        # and back to radians, the result was then rounded to 5 decimal places.
+        alpha = static_info[side][0]
+        beta = static_info[side][1]
 
         # Rotate incorrect foot axis around y axis first.
         rotated_axis = [
