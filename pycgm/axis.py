@@ -1,4 +1,3 @@
-# -*- coding: utf-8 -*-
 import math
 import numpy as np
 
@@ -110,7 +109,8 @@ def hand_axis(rwra, rwrb, lwra, lwrb, rfin, lfin, wrist_jc, r_hand_thickness, l_
 
     Calculates each hand joint axis and returns it.
 
-    Markers used: RWRA, RWRB, LWRA, LWRB, RFIN, LFIN \n
+    Markers used: RWRA, RWRB, LWRA, LWRB, RFIN, LFIN
+
     Subject Measurement values used: RightHandThickness, LeftHandThickness
 
     Parameters
@@ -144,19 +144,19 @@ def hand_axis(rwra, rwrb, lwra, lwrb, rfin, lfin, wrist_jc, r_hand_thickness, l_
     -----
     :math:`r_{delta} = (\frac{r\_hand\_thickness}{2.0} + 7.0) \hspace{1cm} l_{delta} = (\frac{l\_hand\_thickness}{2.0} + 7.0)`
 
-    :math:`\textbf{m}_{RHND} = joint\_center(\textbf{m}_{RWRI}, \textbf{m}_{RWJC}, \textbf{m}_{RFIN}, r_{delta})`
+    :math:`\textbf{m}_{RHND} = JC(\textbf{m}_{RWRI}, \textbf{m}_{RWJC}, \textbf{m}_{RFIN}, r_{delta})`
 
-    :math:`\textbf{m}_{LHND} = joint\_center(\textbf{m}_{LWRI}, \textbf{m}_{LWJC}, \textbf{m}_{LFIN}, r_{delta})`
+    :math:`\textbf{m}_{LHND} = JC(\textbf{m}_{LWRI}, \textbf{m}_{LWJC}, \textbf{m}_{LFIN}, r_{delta})`
 
-    :math:`o_{l} = \frac{\textbf{m}_{LWRA} + \textbf{m}_{LWRB}}{2} \hspace{1cm} o_{r} = \frac{\textbf{m}_{RWRA} + \textbf{m}_{RWRB}}{2}`
+    .. math::
 
-    :math:`\textbf{m}_{l} = \textbf{m}_{LWJC} - \textbf{m}_{LHND} \hspace{1cm} \hat{z}_{r} = \textbf{m}_{RWJC} - \textbf{m}_{RHND}`
-
-    :math:`\hat{y}_{l} = \textbf{m}_{LWRI} - \textbf{m}_{LWRA} \hspace{1cm} \hat{y}_{r} = \textbf{m}_{RWRA} - \textbf{m}_{RWRI}`
-
-    :math:`\hat{x}_{l} = \hat{y}_{l} \times \hat{z}_{l} \hspace{1cm} \hat{x}_{r} = \hat{y}_{r} \times \hat{z}_{r}`
-
-    :math:`\hat{y}_{l} = \hat{z}_{l} \times \hat{x}_{l} \hspace{1cm} \hat{y}_{r} = \hat{z}_{r} \times \hat{x}_{r}`
+        \begin{matrix}
+            o_{L} = \frac{\textbf{m}_{LWRA} + \textbf{m}_{LWRB}}{2} & o_{R} = \frac{\textbf{m}_{RWRA} + \textbf{m}_{RWRB}}{2} \\
+            \hat{z}_{L} = \textbf{m}_{LWJC} - \textbf{m}_{LHND} & \hat{z}_{R} = \textbf{m}_{RWJC} - \textbf{m}_{RHND} \\
+            \hat{y}_{L} = \textbf{m}_{LWRI} - \textbf{m}_{LWRA} & \hat{y}_{R} = \textbf{m}_{RWRA} - \textbf{m}_{RWRI} \\
+            \hat{x}_{L} = \hat{y}_{L} \times \hat{z}_{L} & \hat{x}_{R} = \hat{y}_{R} \times \hat{z}_{R} \\
+            \hat{y}_{L} = \hat{z}_{L} \times \hat{x}_{L} & \hat{y}_{R} = \hat{z}_{R} \times \hat{x}_{R}
+        \end{matrix}
 
     Examples
     --------
