@@ -62,51 +62,107 @@ class Test_kinetics(TestCase):
 
     def test_find_L5(self):
         """
-        This test provides coverage of the find_L5_thorax function in kinetics.py,
-        defined as find_L5(frame), frame contains the markers: C7, RHip, LHip, axis
+        This test provides coverage of the find_L5_pelvis function in kinetics.py,
+        defined as find_L5_pelvis(frame), where frame contains the markers: LHip, RHip, and Pelvis_axis.
 
-        Each index in accuracyTests is used as parameters for the function find_L5
+        Each index in accuracyTests is used as parameters for the function find_L5_pelvis
         and the result is then checked to be equal with the same index in
         accuracyResults using 8 decimal point precision comparison.
         """
-        # Test 3 different frames that contain different markers for C7, RHip, LHip, axis.
-        """
-        This function tests 3 different frames.
-        """
+        # Test 3 different frames that contain different markers for LHip, RHip, and Pelvis_axis.
         accuracyTests = []
-        frame = dict()
-        frame['axis'] = [[[256.3454633226447, 365.7223958512035, 1461.920891187948], [257.26637166499415, 364.69602499862503, 1462.2347234647593], [
-            256.1842731803127, 364.4328898435265, 1461.363045336319]], [256.2729542797522, 364.79605748807074, 1462.2905392309394]]
-        frame['C7'] = np.array([226.78051758, 311.28042603, 1259.70300293])
-        frame['LHip'] = np.array([262.38020472, 242.80342417, 521.98979061])
-        frame['RHip'] = np.array([82.53097863, 239.43231855, 835.529000126])
+        frame = {}
+        frame['axis'] = [[251.74063624, 392.72694721, 1032.78850073, 0],
+                         [250.61711554, 391.87232862, 1032.8741063, 0],
+                         [251.60295336, 391.84795134, 1033.88777762, 0],
+                         [0, 0, 0, 1]]
+        frame['RHip'] = np.array([208.38050472, 122.80342417, 437.98979061])
+        frame['LHip'] = np.array([282.57097863, 139.43231855, 435.52900012])
         accuracyTests.append(frame)
 
         frame = dict()
-        frame['axis'] = [[[309.69280961, 700.32003143, 203.66124527], [1111.49874303, 377.00086678, -
-                                                                       140.88485905], [917.9480966, 60.89883132, -342.22796426]], [-857.91982333, -869.67870489, 438.51780456]]
-        frame['C7'] = np.array([921.981682, 643.5500819, 439.96382993])
-        frame['LHip'] = np.array([179.35982654, 815.09778236, 737.19459299])
-        frame['RHip'] = np.array([103.01680043, 333.88103831, 823.33260927])
+        frame['axis'] = [[586.81782059, 994.852335, -164.15032491, 0],
+                         [367.53692416, -193.11814502, 141.95648112, 0],
+                         [814.64795266, 681.51439276, 87.63894117, 0],
+                         [0, 0, 0, 1]]
+        frame['RHip'] = np.array([-570.727107, 409.48579719, 387.17336605])
+        frame['LHip'] = np.array([984.96369008, 161.72241084, 714.78280362])
         accuracyTests.append(frame)
 
         frame = dict()
-        frame['axis'] = [[[345.07821036, -746.40495016, -251.18652575], [499.41682335, 40.88439602,
-                                                                         507.51025588], [668.3596798, 1476.88140274, 783.47804105]], [1124.81785806, -776.6778811, 999.39015919]]
-        frame['C7'] = np.array([537.68019187, 691.49433996, 246.01153709])
-        frame['LHip'] = np.array([47.94211912, 338.95742186, 612.52743329])
-        frame['RHip'] = np.array([402.57410142, -967.96374463, 575.63618514])
+        frame['axis'] = [[711.02920886, -701.16459687, 532.55441473, 0],
+                         [-229.76970935, -650.15236712, 359.70108366, 0],
+                         [222.81186893, 536.56366268, 386.21334066, 0],
+                         [0, 0, 0, 1]]
+        frame['RHip'] = np.array([-651.87182756, -493.94862894, 640.38910712])
+        frame['LHip'] = np.array([624.42435686, 746.90148656, -603.71552902])
         accuracyTests.append(frame)
 
         accuracyResults = [
-            ([228.5241582, 320.87776246, 998.59374786]),
-            ([569.20914046, 602.88531664, 620.68955025]),
-            ([690.41775396, 713.36498782, 1139.36061258])
+            ([[245.4757417, 131.1178714, 436.7593954],
+             [261.0890402, 155.4341163, 500.9176188]]),
+            ([[207.1182915, 285.604104, 550.9780848], [
+             1344.7944079, 1237.3558945,  673.3680447]]),
+            ([[-13.7237354, 126.4764288,  18.3367891],
+             [627.8602897, 1671.5048695, 1130.4333341]])
         ]
         for i in range(len(accuracyTests)):
-            # Call find_L5_thorax(frame) with each frame in accuracyTests and round each variable in the 3-element returned list.
+            # Call find_L5_pelvis(frame) with each frame in accuracyTests and round each variable in the 3-element returned list.
             result = [np.around(arr, rounding_precision)
                       for arr in kinetics.find_L5(accuracyTests[i])]
             expected = list(accuracyResults[i])
             for j in range(len(result)):
                 np.testing.assert_almost_equal(result[j], expected[j])
+
+    # def test_get_kinetics(self):
+    #    """
+    #    This test provides coverage of the get_kinetics function in kinetics.py,
+    #    defined as get_kinetics(data, Bodymass), where data is an array of joint centers
+    #    and Bodymass is a float or int.
+
+    #    This test uses helper functions to obtain the data variable (aka joint_centers).
+
+    #    Each index in accuracyTests is used as parameters for the function get_kinetics
+    #    and the result is then checked to be equal with the same index in
+    #    accuracyResults using 8 decimal point precision comparison.
+    #    """
+    #    # Testing is done by using 5 different bodymasses and the same joint_center obtained from the helper functions.
+    #    from pycgm.helpers import getfilenames
+    #    from pyCGM_Single.pycgmIO import loadData, loadVSK
+    #    from pyCGM_Single.pycgmStatic import getStatic
+    #    from pyCGM_Single.pycgmCalc import calcAngles
+
+    #    cwd = os.getcwd() + os.sep
+    #    # Data is obtained from the sample files.
+    #    dynamic_trial, static_trial, vsk_file, _, _ = getfilenames(2)
+    #    motionData = loadData(cwd+dynamic_trial)
+    #    staticData = loadData(cwd+static_trial)
+    #    vsk = loadVSK(cwd+vsk_file, dict=False)
+
+    #    calSM = getStatic(staticData, vsk, flat_foot=False)
+    #    _, joint_centers = calcAngles(motionData, start=None, end=None, vsk=calSM,
+    #                                  splitAnglesAxis=False, formatData=False, returnjoints=True)
+
+    #    accuracyTests = []
+    #    calSM['Bodymass'] = 5.0
+    #    # This creates five individual assertions to check, all with the same joint_centers but different bodymasses.
+    #    for i in range(5):
+    #        accuracyTests.append((joint_centers, calSM['Bodymass']))
+    #        # Increment the bodymass by a substantial amount each time.
+    #        calSM['Bodymass'] += 35.75
+
+    #    accuracyResults = [
+    #        ([246.57466721,  313.55662383, 1026.56323492]),
+    #        ([246.59137623,  313.6216639, 1026.56440096]),
+    #        ([246.60850798,  313.6856272, 1026.56531282]),
+    #        ([246.6260863,  313.74845693, 1026.56594554]),
+    #        ([246.64410308,  313.81017167, 1026.5663452]),
+    #    ]
+    #    for i in range(len(accuracyResults)):
+    #        # Call get_kinetics(joint_centers,bodymass) and round each variable in the 3-element returned list to the 8th decimal precision.
+    #        result = [np.around(arr, rounding_precision) for arr in kinetics.get_kinetics(
+    #            accuracyTests[i][0], accuracyTests[i][1])]
+
+    #        # Compare the result with the values in the expected results, within a rounding precision of 8.
+    #        np.testing.assert_almost_equal(
+    #            result[i], accuracyResults[i], rounding_precision)

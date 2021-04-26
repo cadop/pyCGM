@@ -56,16 +56,10 @@ def pnt_line(pnt, start, end):
     line_vec = np.subtract(end, start)
     pnt_vec = np.subtract(pnt, start)
 
-    line_length = np.sqrt(
-        line_vec[0]*line_vec[0] + line_vec[1]*line_vec[1] + line_vec[2]*line_vec[2])
+    line_length = np.sqrt(np.dot(line_vec, line_vec))
 
-    mag = np.sqrt(line_vec[0]*line_vec[0] + line_vec[1]
-                  * line_vec[1] + line_vec[2]*line_vec[2])
-
-    line_unit_vec = (line_vec[0]/mag, line_vec[1]/mag, line_vec[2]/mag)
-
-    pnt_vec_scaled = (pnt_vec[0]/line_length,
-                      pnt_vec[1]/line_length, pnt_vec[2]/line_length)
+    line_unit_vec = np.multiply(line_vec, 1/line_length)
+    pnt_vec_scaled = np.multiply(pnt_vec, 1/line_length)
 
     t = np.dot(line_unit_vec, pnt_vec_scaled)
 
@@ -75,58 +69,57 @@ def pnt_line(pnt, start, end):
         t = 1.0
 
     nearest = (line_vec[0]*t, line_vec[1]*t, line_vec[2]*t)
-
-    x, y, z = np.subtract(pnt_vec, nearest)
-    dist = np.sqrt(x*x + y*y + z*z)
+    arr = np.subtract(pnt_vec, nearest)
+    dist = np.sqrt(np.dot(arr, arr))
     nearest = tuple(np.add(nearest, start))
 
     return dist, nearest, pnt
 
 
 def find_L5(frame):
-    """Calculate L5 Markers given an axis.
+    """Calculate L5 Markers using a given axis
 
-    Markers used: `C7`, `RHip`, `LHip`, `axis`
+    Markers used: `LHip`, `RHip`, `axis`
 
     Parameters
     ----------
     frame : dict
-        Dictionaries of marker lists.
+        axis: a (4x4) array of the (x, y, z) coordinates of the axis
+        LHip: position of the left hip
+        RHip: position of the right hip
 
     Returns
     -------
-    L5 : array
-        Returns the (x, y, z) marker positions of the L5 in a (1x3) array.
+    midHip, L5 : tuple
+        Returns the (x, y, z) marker positions of the midHip, a (1x3) array,
+        and L5, a (1x3) array, in a tuple.
 
     Examples
     --------
-    >>> from .kinetics import find_L5
     >>> import numpy as np
-    >>> Thorax_axis = [[[256.34, 365.72, 1461.92],
-    ...               [257.26, 364.69, 1462.23],
-    ...               [256.18, 364.43, 1461.36]],
-    ...               [256.27, 364.79, 1462.29]]
-    >>> C7 = np.array([256.78, 371.28, 1459.70])
+    >>> from .kinetics import find_L5
+    >>> Pelvis_axis = [[251.74, 392.72, 1032.78, 0],
+    ...               [250.61, 391.87, 1032.87, 0],
+    ...               [251.60, 391.84, 1033.88, 0],
+    ...               [0, 0, 0, 1]]
     >>> LHip = np.array([308.38, 322.80, 937.98])
     >>> RHip = np.array([182.57, 339.43, 935.52])
-    >>> frame = { 'C7': C7, 'RHip': RHip, 'LHip': LHip, 'axis': Thorax_axis}
+    >>> frame = { 'axis': Pelvis_axis, 'RHip': RHip, 'LHip': LHip}
     >>> np.around(find_L5(frame), 2) #doctest: +NORMALIZE_WHITESPACE
-    array([ 265.16,  359.12, 1049.06])
+    array([[ 245.48,  331.12,  936.75],
+           [ 271.53,  371.69, 1043.8 ]])
     """
-    x_axis, y_axis, z_axis = frame['axis'][0]
 
-    x, y, z = z_axis
-    mag = np.sqrt(x*x + y*y + z*z)
+    z_axis = frame['axis'][2][0:3]
+    norm_dir = np.array(np.multiply(z_axis, 1/np.sqrt(np.dot(z_axis, z_axis))))
 
-    norm_dir = np.array((x/mag, y/mag, z/mag))
     LHJC = frame['LHip']
     RHJC = frame['RHip']
-    midHip = (LHJC+RHJC)/2
 
-    x, y, z = np.subtract(LHJC, RHJC)
-    dist = np.sqrt(x*x + y*y + z*z)
+    midHip = (LHJC+RHJC)/2
+    mid = np.subtract(LHJC, RHJC)
+    dist = np.sqrt(np.dot(mid, mid))
 
     offset = dist * .925
-
     L5 = midHip + offset * norm_dir
-    return L5
+    return midHip, L5
