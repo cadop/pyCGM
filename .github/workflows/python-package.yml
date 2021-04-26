@@ -10,7 +10,7 @@ on:
     branches: [ master, dev ]
 
 jobs:
-  docs:t
+  docs:
     strategy:
       matrix:
         python-version: [3.7]
