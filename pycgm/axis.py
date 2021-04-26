@@ -2,7 +2,6 @@
 import numpy as np
 
 
-
 def thorax_axis(clav, c7, strn, t10):
     r"""Make the Thorax Axis.
 
