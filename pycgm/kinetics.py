@@ -22,60 +22,6 @@ else:
 # helper functions useful for dealing with frames of data, i.e. 1d arrays of (x,y,z) coordinates
 
 
-def unit(v):
-    """Calculate unit vector.
-
-    Parameters
-    ----------
-    v : list
-        A 3D vector.
-
-    Returns
-    -------
-    tuple
-        Returns the unit vector of `v`.
-
-    Examples
-    --------
-    >>> import numpy as np
-    >>> from .kinetics import unit
-    >>> v = [1,2,3]
-    >>> np.around(unit(v), 2)
-    array([0.27, 0.53, 0.8 ])
-    """
-    x, y, z = v
-    mag = np.sqrt(x*x + y*y + z*z)
-    return (x/mag, y/mag, z/mag)
-
-
-def distance(p0, p1):
-    """Calculate distance between two points
-
-    Parameters
-    ----------
-    p0 : list
-        An x, y, z coordinate point.
-    p1 : list
-        An x, y, z coordinate point.
-
-    Returns
-    -------
-    float
-        Returns distance between `p0` and `p1`.
-
-    Examples
-    --------
-    >>> import numpy as np
-    >>> from .kinetics import distance
-    >>> p0 = [1,2,3]
-    >>> p1 = [4,5,6]
-    >>> np.around(distance(p0,p1), 2)
-    5.2
-    """
-    x, y, z = np.subtract(p1, p0)
-    return np.sqrt(x*x + y*y + z*z)
-
-
 def pnt_line(pnt, start, end):
     """Calculate shortest distance between a point and line.
 
@@ -112,7 +58,12 @@ def pnt_line(pnt, start, end):
 
     line_length = np.sqrt(
         line_vec[0]*line_vec[0] + line_vec[1]*line_vec[1] + line_vec[2]*line_vec[2])
-    line_unit_vec = unit(line_vec)
+
+    mag = np.sqrt(line_vec[0]*line_vec[0] + line_vec[1]
+                  * line_vec[1] + line_vec[2]*line_vec[2])
+
+    line_unit_vec = (line_vec[0]/mag, line_vec[1]/mag, line_vec[2]/mag)
+
     pnt_vec_scaled = (pnt_vec[0]/line_length,
                       pnt_vec[1]/line_length, pnt_vec[2]/line_length)
 
@@ -124,8 +75,9 @@ def pnt_line(pnt, start, end):
         t = 1.0
 
     nearest = (line_vec[0]*t, line_vec[1]*t, line_vec[2]*t)
-    dist = distance(nearest, pnt_vec)
 
+    x, y, z = np.subtract(pnt_vec, nearest)
+    dist = np.sqrt(x*x + y*y + z*z)
     nearest = tuple(np.add(nearest, start))
 
     return dist, nearest, pnt
@@ -163,11 +115,18 @@ def find_L5(frame):
     """
     x_axis, y_axis, z_axis = frame['axis'][0]
 
-    norm_dir = np.array(unit(z_axis))
+    x, y, z = z_axis
+    mag = np.sqrt(x*x + y*y + z*z)
+
+    norm_dir = np.array((x/mag, y/mag, z/mag))
     LHJC = frame['LHip']
     RHJC = frame['RHip']
     midHip = (LHJC+RHJC)/2
-    offset = distance(RHJC, LHJC) * .925
+
+    x, y, z = np.subtract(LHJC, RHJC)
+    dist = np.sqrt(x*x + y*y + z*z)
+
+    offset = dist * .925
 
     L5 = midHip + offset * norm_dir
     return L5
