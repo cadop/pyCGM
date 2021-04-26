@@ -1,14 +1,16 @@
 import numpy as np
 
-def wrist_axis(elbowJC):
+def wrist_axis(elbow_jc):
     """Calculate the wrist joint axis (Radius) function.
 
     Takes in the elbow axis to calculate each wrist joint axis and returns it.
 
     Parameters
     ----------
-    elbowJC : array
-        The x,y,z position of the elbow joint center.
+    elbow_jc : array
+        A list of three elements containing a 4x4 affine matrix representing the
+        right elbow, a 4x4 affine matrix representing the left elbow, and a 2x3
+        matrix representing the right and left wrist joint centers.
 
     Returns
     --------
@@ -29,10 +31,10 @@ def wrist_axis(elbowJC):
     >>> import numpy as np
     >>> from .axis import wrist_axis
     >>> np.set_printoptions(suppress=True)
-    >>> elbowJC = [ np.array([[   0.15,   -0.99,    0.  ,  633.66],
+    >>> elbow_jc = [ np.array([[   0.15,   -0.99,    0.  ,  633.66],
     ...        [   0.69,    0.1 ,    0.72,  304.95],
     ...        [  -0.71,   -0.1 ,    0.7 , 1256.07],
-    ...        [   0.  ,    0.  ,    0.  ,    1.  ]]), 
+    ...        [   0.  ,    0.  ,    0.  ,    1.  ]]),
     ...        np.array([[  -0.16,   -0.98,   -0.06, -129.16],
     ...        [   0.71,   -0.07,   -0.69,  316.86],
     ...        [   0.67,   -0.14,    0.72, 1258.06],
@@ -42,7 +44,7 @@ def wrist_axis(elbowJC):
     ...            [-272.45, 485.80, 1091.36]
     ...        ]
     ...    ]
-    >>> [np.around(arr, 2) for arr in wrist_axis(elbowJC)] #doctest: +NORMALIZE_WHITESPACE
+    >>> [np.around(arr, 2) for arr in wrist_axis(elbow_jc)] #doctest: +NORMALIZE_WHITESPACE
     [array([[   0.44,   -0.84,   -0.31,  793.32],
         [   0.69,    0.1 ,    0.72,  451.29],
         [  -0.57,   -0.53,    0.62, 1084.43],
@@ -53,54 +55,54 @@ def wrist_axis(elbowJC):
     """
     # Bring Elbow joint center, axes and Wrist Joint Center for calculating Radius Axes
 
-    REJC = [elbowJC[0][0][3], elbowJC[0][1][3], elbowJC[0][2][3]]
-    LEJC = [elbowJC[1][0][3], elbowJC[1][1][3], elbowJC[1][2][3]]
+    rejc = [elbow_jc[0][0][3], elbow_jc[0][1][3], elbow_jc[0][2][3]]
+    lejc = [elbow_jc[1][0][3], elbow_jc[1][1][3], elbow_jc[1][2][3]]
 
-    R_elbow_flex = [elbowJC[0][1][0], elbowJC[0][1][1], elbowJC[0][1][2]]
-    L_elbow_flex = [elbowJC[1][1][0], elbowJC[1][1][1], elbowJC[1][1][2]]
+    r_elbow_flex = [elbow_jc[0][1][0], elbow_jc[0][1][1], elbow_jc[0][1][2]]
+    l_elbow_flex = [elbow_jc[1][1][0], elbow_jc[1][1][1], elbow_jc[1][1][2]]
 
-    RWJC = elbowJC[2][0]
-    LWJC = elbowJC[2][1]
+    rwjc = elbow_jc[2][0]
+    lwjc = elbow_jc[2][1]
 
     # this is the axis of radius
     # right
-    y_axis = R_elbow_flex
-    y_axis = y_axis/ np.linalg.norm(y_axis)
+    y_axis = r_elbow_flex
+    y_axis = y_axis/np.linalg.norm(y_axis)
 
-    z_axis = np.subtract(REJC,RWJC)
-    z_axis = z_axis/ np.linalg.norm(z_axis)
+    z_axis = np.subtract(rejc,rwjc)
+    z_axis = z_axis/np.linalg.norm(z_axis)
 
     x_axis = np.cross(y_axis,z_axis)
-    x_axis = x_axis/ np.linalg.norm(x_axis)
+    x_axis = x_axis/np.linalg.norm(x_axis)
 
     z_axis = np.cross(x_axis,y_axis)
-    z_axis = z_axis/ np.linalg.norm(z_axis)
+    z_axis = z_axis/np.linalg.norm(z_axis)
 
     r_axis = np.zeros((4, 4))
     r_axis[3, 3] = 1.0
     r_axis[0, :3] = x_axis
     r_axis[1, :3] = y_axis
     r_axis[2, :3] = z_axis
-    r_axis[:3, 3] = RWJC
+    r_axis[:3, 3] = rwjc
 
     # left
-    y_axis = L_elbow_flex
-    y_axis = y_axis/ np.linalg.norm(y_axis)
+    y_axis = l_elbow_flex
+    y_axis = y_axis/np.linalg.norm(y_axis)
 
-    z_axis = np.subtract(LEJC,LWJC)
-    z_axis = z_axis/ np.linalg.norm(z_axis)
+    z_axis = np.subtract(lejc,lwjc)
+    z_axis = z_axis/np.linalg.norm(z_axis)
 
     x_axis = np.cross(y_axis,z_axis)
-    x_axis = x_axis/ np.linalg.norm(x_axis)
+    x_axis = x_axis/np.linalg.norm(x_axis)
 
     z_axis = np.cross(x_axis,y_axis)
-    z_axis = z_axis/ np.linalg.norm(z_axis)
+    z_axis = z_axis/np.linalg.norm(z_axis)
 
     l_axis = np.zeros((4, 4))
     l_axis[3, 3] = 1.0
     l_axis[0, :3] = x_axis
     l_axis[1, :3] = y_axis
     l_axis[2, :3] = z_axis
-    l_axis[:3, 3] = LWJC
+    l_axis[:3, 3] = lwjc
 
     return [r_axis, l_axis]
