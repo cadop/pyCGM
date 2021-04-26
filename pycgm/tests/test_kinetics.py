@@ -8,65 +8,6 @@ rounding_precision = 8
 
 
 class Test_kinetics(TestCase):
-    def test_length(self):
-        """
-        This test provides coverage of the length function in kinetics.py,
-        defined as length(v), where v is a 3-element list.
-
-        Each index in accuracyTests is used as parameters for the function length
-        and the result is then checked to be equal with the same index in
-        accuracyResults using 8 decimal point precision comparison.
-        """
-        # Test the following cases: lists, floats, numpy arrays, and negatives
-        accuracyTests = [
-            ([0, 0, 0]),
-            ([1, 2, 3]),
-            ([1.1, 2.2, 3.3]),
-            (np.array([1.1, 2.2, 3.3])),
-            (np.array([-1.1, -2.2, -3.3])),
-            (np.array([4.1, -5.2, 6.3])),
-            (np.array([20.1, -0.2, 0])),
-            (np.array([477.96370143, -997.67255536, 400.99490597])),
-            (np.array([330.80492334, 608.46071522, 451.3237226])),
-            (np.array([-256.41091237, 391.85451166, 679.8028365])),
-            (np.array([197.08510663, 319.00331132, -195.89839035])),
-            (np.array([910.42721331, 184.76837848, -67.24503815])),
-            (np.array([313.91884245, -703.86347965, -831.19994848])),
-            (np.array([710.57698646, 991.83524562, 781.3712082]))
-        ]
-        accuracyResults = [
-            0.0,
-            3.74165738,
-            4.11582312,
-            4.11582312,
-            4.11582312,
-            9.14002188,
-            20.10099500,
-            1176.68888930,
-            826.64952782,
-            825.486772034,
-            423.06244365,
-            931.41771487,
-            1133.51761873,
-            1448.86085361
-        ]
-        for i in range(len(accuracyTests)):
-            # Call length(v) with the variable given from each accuracyTests index.
-            result = kinetics.length(accuracyTests[i])
-            expected = accuracyResults[i]
-            np.testing.assert_almost_equal(
-                result, expected, rounding_precision)
-
-        # length([0,0,0]) should result in 0.0, test to make sure it does not result as anything else.
-        self.assertFalse(kinetics.length([0, 0, 0]) != 0.0)
-
-        # Test the following exceptions to make sure that they do appropriately raise errors when used as parameters for length.
-        exceptionTests = [([]), ([1]), ([1, 2]),
-                          ([1, 2, "c"]), (["a", "b", 3])]
-        for e in exceptionTests:
-            with self.assertRaises(Exception):
-                kinetics.length(e[0])
-
     def test_unit(self):
         """
         This test provides coverage of the unit function in kinetics.py,
@@ -191,61 +132,6 @@ class Test_kinetics(TestCase):
             with self.assertRaises(Exception):
                 kinetics.vector(e[0], e[1])
 
-    def test_scale(self):
-        """
-        This test provides coverage of the scale function in kinetics.py,
-        defined as scale(v, sc), where v is a 3-element list and sc is a int or float.
-
-        Each index in accuracyTests is used as parameters for the function scale
-        and the result is then checked to be equal with the same index in
-        accuracyResults using 8 decimal point precision comparison.
-        """
-        # Test the following cases: lists, numpy arrays, negatives, and floats
-        accuracyTests = [
-            ([1, 2, 3], 0),
-            ([1, 2, 3], 2),
-            ([1.1, 2.2, 3.3], 2),
-            ([6, 4, 24], 5.0),
-            ([22, 5, -7], 5.0),
-            ([-7, -2, 1.0], -5.4),
-            (np.array([1, 2, 3]), 5.329),
-            (np.array([-2.0, 24, 34]), 3.2502014),
-            (np.array([101.53593091, 201.1530486, 56.44356634]), 5.47749966),
-            (np.array([0.55224332, 6.41308177, 41.99237585]), 18.35221769),
-            (np.array([80.99568691, 61.05185784, -55.67558577]), -26.29967607),
-            (np.array([0.011070408, -0.023198581, 0.040790087]), 109.68173477),
-        ]
-        accuracyResults = [
-            ([0, 0, 0]),
-            ([2, 4, 6]),
-            ([2.2, 4.4, 6.6]),
-            ([30.0,  20.0, 120.0]),
-            ([110.0,  25.0, -35.0]),
-            ([37.8, 10.8, -5.4]),
-            ([5.329, 10.658, 15.987]),
-            ([-6.5004028,  78.0048336, 110.5068476]),
-            ([556.16302704, 1101.81575531,  309.16961544]),
-            ([10.13488963, 117.69427271, 770.65322292]),
-            ([-2130.1603288, -1605.64408466,  1464.24987076]),
-            ([1.21422155, -2.54446061,  4.4739275])
-        ]
-        for i in range(len(accuracyTests)):
-            # Call scale(v, sc) with the variables given from each accuracyTests index.
-            result = kinetics.scale(
-                accuracyTests[i][0], accuracyTests[i][1])
-            expected = accuracyResults[i]
-            np.testing.assert_almost_equal(
-                result, expected, rounding_precision)
-
-        # scale([1,2,3],0) should result in (0, 0, 0), test to make sure it does not result as anything else.
-        self.assertFalse(kinetics.scale([1, 2, 3], 0) != (0, 0, 0))
-
-        # Test the following exceptions to make sure that they do appropriately raise errors when used as parameters for scale.
-        exceptionTests = [([], 4), ([1, 2, 3]), (4), ([1, 2], 4)]
-        for e in exceptionTests:
-            with self.assertRaises(Exception):
-                kinetics.scale(e[0], e[1])
-
     def test_pnt_line(self):
         """
         This test provides coverage of the pnt2line function in kinetics.py,
@@ -297,3 +183,107 @@ class Test_kinetics(TestCase):
         for e in exceptionTests:
             with self.assertRaises(Exception):
                 kinetics.pnt_line(e[0], e[1], e[2])
+
+    def test_find_L5(self):
+        """
+        This test provides coverage of the find_L5_thorax function in kinetics.py,
+        defined as find_L5(frame), frame contains the markers: C7, RHip, LHip, axis
+
+        Each index in accuracyTests is used as parameters for the function find_L5
+        and the result is then checked to be equal with the same index in
+        accuracyResults using 8 decimal point precision comparison.
+        """
+        # Test 3 different frames that contain different markers for C7, RHip, LHip, axis.
+        """
+        This function tests 3 different frames.
+        """
+        accuracyTests = []
+        frame = dict()
+        frame['axis'] = [[[256.3454633226447, 365.7223958512035, 1461.920891187948], [257.26637166499415, 364.69602499862503, 1462.2347234647593], [
+            256.1842731803127, 364.4328898435265, 1461.363045336319]], [256.2729542797522, 364.79605748807074, 1462.2905392309394]]
+        frame['C7'] = np.array([226.78051758, 311.28042603, 1259.70300293])
+        frame['LHip'] = np.array([262.38020472, 242.80342417, 521.98979061])
+        frame['RHip'] = np.array([82.53097863, 239.43231855, 835.529000126])
+        accuracyTests.append(frame)
+
+        frame = dict()
+        frame['axis'] = [[[309.69280961, 700.32003143, 203.66124527], [1111.49874303, 377.00086678, -
+                                                                       140.88485905], [917.9480966, 60.89883132, -342.22796426]], [-857.91982333, -869.67870489, 438.51780456]]
+        frame['C7'] = np.array([921.981682, 643.5500819, 439.96382993])
+        frame['LHip'] = np.array([179.35982654, 815.09778236, 737.19459299])
+        frame['RHip'] = np.array([103.01680043, 333.88103831, 823.33260927])
+        accuracyTests.append(frame)
+
+        frame = dict()
+        frame['axis'] = [[[345.07821036, -746.40495016, -251.18652575], [499.41682335, 40.88439602,
+                                                                         507.51025588], [668.3596798, 1476.88140274, 783.47804105]], [1124.81785806, -776.6778811, 999.39015919]]
+        frame['C7'] = np.array([537.68019187, 691.49433996, 246.01153709])
+        frame['LHip'] = np.array([47.94211912, 338.95742186, 612.52743329])
+        frame['RHip'] = np.array([402.57410142, -967.96374463, 575.63618514])
+        accuracyTests.append(frame)
+
+        accuracyResults = [
+            ([228.5241582, 320.87776246, 998.59374786]),
+            ([569.20914046, 602.88531664, 620.68955025]),
+            ([690.41775396, 713.36498782, 1139.36061258])
+        ]
+        for i in range(len(accuracyTests)):
+            # Call find_L5_thorax(frame) with each frame in accuracyTests and round each variable in the 3-element returned list.
+            result = [np.around(arr, rounding_precision)
+                      for arr in kinetics.find_L5(accuracyTests[i])]
+            expected = list(accuracyResults[i])
+            for j in range(len(result)):
+                np.testing.assert_almost_equal(result[j], expected[j])
+
+    # def test_get_kinetics(self):
+    #    """
+    #    This test provides coverage of the get_kinetics function in kinetics.py,
+    #    defined as get_kinetics(data, Bodymass), where data is an array of joint centers
+    #    and Bodymass is a float or int.
+
+    #    This test uses helper functions to obtain the data variable (aka joint_centers).
+
+    #    Each index in accuracyTests is used as parameters for the function get_kinetics
+    #    and the result is then checked to be equal with the same index in
+    #    accuracyResults using 8 decimal point precision comparison.
+    #    """
+    #    # Testing is done by using 5 different bodymasses and the same joint_center obtained from the helper functions.
+    #    from pycgm.helpers import getfilenames
+    #    from pyCGM_Single.pycgmIO import loadData, loadVSK
+    #    from pyCGM_Single.pycgmStatic import getStatic
+    #    from pyCGM_Single.pycgmCalc import calcAngles
+
+    #    cwd = os.getcwd() + os.sep
+    #    # Data is obtained from the sample files.
+    #    dynamic_trial, static_trial, vsk_file, _, _ = getfilenames(2)
+    #    motionData = loadData(cwd+dynamic_trial)
+    #    staticData = loadData(cwd+static_trial)
+    #    vsk = loadVSK(cwd+vsk_file, dict=False)
+
+    #    calSM = getStatic(staticData, vsk, flat_foot=False)
+    #    _, joint_centers = calcAngles(motionData, start=None, end=None, vsk=calSM,
+    #                                  splitAnglesAxis=False, formatData=False, returnjoints=True)
+
+    #    accuracyTests = []
+    #    calSM['Bodymass'] = 5.0
+    #    # This creates five individual assertions to check, all with the same joint_centers but different bodymasses.
+    #    for i in range(5):
+    #        accuracyTests.append((joint_centers, calSM['Bodymass']))
+    #        # Increment the bodymass by a substantial amount each time.
+    #        calSM['Bodymass'] += 35.75
+
+    #    accuracyResults = [
+    #        ([246.57466721,  313.55662383, 1026.56323492]),
+    #        ([246.59137623,  313.6216639, 1026.56440096]),
+    #        ([246.60850798,  313.6856272, 1026.56531282]),
+    #        ([246.6260863,  313.74845693, 1026.56594554]),
+    #        ([246.64410308,  313.81017167, 1026.5663452]),
+    #    ]
+    #    for i in range(len(accuracyResults)):
+    #        # Call get_kinetics(joint_centers,bodymass) and round each variable in the 3-element returned list to the 8th decimal precision.
+    #        result = [np.around(arr, rounding_precision) for arr in kinetics.get_kinetics(
+    #            accuracyTests[i][0], accuracyTests[i][1])]
+
+    #        # Compare the result with the values in the expected results, within a rounding precision of 8.
+    #        np.testing.assert_almost_equal(
+    #            result[i], accuracyResults[i], rounding_precision)
