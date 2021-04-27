@@ -100,15 +100,12 @@ def find_L5(frame):
     ...               [0, 0, 0, 1]]
     >>> LHip = np.array([308.38, 322.80, 937.98])
     >>> RHip = np.array([182.57, 339.43, 935.52])
-    >>> frame = {'Pelvis_axis': Pelvis_axis, 'RHip': RHip, 'LHip': LHip}
+    >>> frame = {'axis': Pelvis_axis, 'RHip': RHip, 'LHip': LHip}
     >>> np.around(find_L5(frame), 2) #doctest: +NORMALIZE_WHITESPACE
     array([[ 245.48,  331.12,  936.75],
            [ 271.53,  371.69, 1043.8 ]])
     """
-    if 'Pelvis_axis' in frame:
-        z_axis = frame['Pelvis_axis'][2][0:3]
-    elif 'Thorax_axis' in frame:
-        z_axis = frame['Thorax_axis'][2][0:3]
+    z_axis = frame['axis'][2][0:3]
 
     norm_dir = np.array(np.multiply(z_axis, 1/np.sqrt(np.dot(z_axis, z_axis))))
 

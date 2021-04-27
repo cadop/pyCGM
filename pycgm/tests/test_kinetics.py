@@ -56,71 +56,71 @@ class Test_kinetics(TestCase):
             with self.assertRaises(Exception):
                 kinetics.pnt_line(e[0], e[1], e[2])
 
-    # def test_find_L5(self):
-    #    """
-    #    This test provides coverage of the find_L5_pelvis function in kinetics.py,
-    #    defined as find_L5_pelvis(frame), where frame contains the markers: LHip, RHip, and Pelvis_axis.
+    def test_find_L5(self):
+        """
+        This test provides coverage of the find_L5_pelvis function in kinetics.py,
+        defined as find_L5_pelvis(frame), where frame contains the markers: LHip, RHip, and Pelvis_axis.
 
-    #    Each index in accuracyTests is used as parameters for the function find_L5_pelvis
-    #    and the result is then checked to be equal with the same index in
-    #    accuracyResults using 8 decimal point precision comparison.
-    #    """
-    #    # Test 3 different frames that contain different markers for LHip, RHip, and Pelvis_axis.
-    #    accuracyTests = []
-    #    frame = {}
-    #    frame['axis'] = [[251.74063624, 392.72694721, 1032.78850073, 0],
-    #                     [250.61711554, 391.87232862, 1032.8741063, 0],
-    #                     [251.60295336, 391.84795134, 1033.88777762, 0],
-    #                     [0, 0, 0, 1]]
-    #    frame['RHip'] = np.array([208.38050472, 122.80342417, 437.98979061])
-    #    frame['LHip'] = np.array([282.57097863, 139.43231855, 435.52900012])
-    #    accuracyTests.append(frame)
+        Each index in accuracyTests is used as parameters for the function find_L5_pelvis
+        and the result is then checked to be equal with the same index in
+        accuracyResults using 8 decimal point precision comparison.
+        """
+        # Test 3 different frames that contain different markers for LHip, RHip, and Pelvis_axis.
+        accuracyTests = []
+        frame = {}
+        frame['axis'] = [[251.74064, 392.72695, 1032.78850, 0],
+                         [250.61712, 391.87233, 1032.87411, 0],
+                         [251.60295, 391.84795, 1033.88778, 0],
+                         [0, 0, 0, 1]]
+        frame['RHip'] = np.array([208.38050, 122.80342, 437.98979])
+        frame['LHip'] = np.array([282.57098, 139.43232, 435.52900])
+        accuracyTests.append(frame)
 
-    #    frame = dict()
-    #    frame['axis'] = [[586.81782059, 994.852335, -164.15032491, 0],
-    #                     [367.53692416, -193.11814502, 141.95648112, 0],
-    #                     [814.64795266, 681.51439276, 87.63894117, 0],
-    #                     [0, 0, 0, 1]]
-    #    frame['RHip'] = np.array([-570.727107, 409.48579719, 387.17336605])
-    #    frame['LHip'] = np.array([984.96369008, 161.72241084, 714.78280362])
-    #    accuracyTests.append(frame)
+        frame = dict()
+        frame['axis'] = [[586.81782, 994.85234, -164.15032, 0],
+                         [367.53692, -193.11815, 141.95648, 0],
+                         [814.64795, 681.51439, 87.63894, 0],
+                         [0, 0, 0, 1]]
+        frame['RHip'] = np.array([-570.72711, 409.48580, 387.17337])
+        frame['LHip'] = np.array([984.963690, 161.72241, 714.78280])
+        accuracyTests.append(frame)
 
-    #    frame = dict()
-    #    frame['axis'] = [[711.02920886, -701.16459687, 532.55441473, 0],
-    #                     [-229.76970935, -650.15236712, 359.70108366, 0],
-    #                     [222.81186893, 536.56366268, 386.21334066, 0],
-    #                     [0, 0, 0, 1]]
-    #    frame['RHip'] = np.array([-651.87182756, -493.94862894, 640.38910712])
-    #    frame['LHip'] = np.array([624.42435686, 746.90148656, -603.71552902])
-    #    accuracyTests.append(frame)
+        frame = dict()
+        frame['axis'] = [[711.02921, -701.16460, 532.55441, 0],
+                         [-229.76971, -650.15237, 359.70108, 0],
+                         [222.81187, 536.56366, 386.21334, 0],
+                         [0, 0, 0, 1]]
+        frame['RHip'] = np.array([-651.87183, -493.94863, 640.38911])
+        frame['LHip'] = np.array([624.42436, 746.90149, -603.71553])
+        accuracyTests.append(frame)
 
-    #    accuracyResults = [
-    #        (
-    #            [
-    #                [245.4757417, 131.1178714, 436.7593954],
-    #                [261.0890402, 155.4341163, 500.9176188]
-    #            ]
-    #        ),
-    #        (
-    #            [
-    #                [207.1182915, 285.604104, 550.9780848],
-    #                [1344.7944079, 1237.3558945,  673.3680447]
-    #            ]
-    #        ),
-    #        (
-    #            [
-    #                [-13.7237354, 126.4764288,  18.3367891],
-    #                [627.8602897, 1671.5048695, 1130.4333341]
-    #            ]
-    #        )
-    #    ]
-    #    for i in range(len(accuracyTests)):
-    #        # Call find_L5_pelvis(frame) with each frame in accuracyTests and round each variable in the 3-element returned list.
-    #        result = [np.around(arr, rounding_precision)
-    #                  for arr in kinetics.find_L5(accuracyTests[i])]
-    #        expected = list(accuracyResults[i])
-    #        for j in range(len(result)):
-    #            np.testing.assert_almost_equal(result[j], expected[j])
+        accuracyResults = [
+            (
+                [
+                    [245.47574, 131.11787, 436.75940],
+                    [261.08904, 155.43412, 500.91762]
+                ]
+            ),
+            (
+                [
+                    [207.11829, 285.60410, 550.97808],
+                    [1344.79441, 1237.35590,  673.36804]
+                ]
+            ),
+            (
+                [
+                    [-13.72374, 126.47643,  18.33679],
+                    [627.86030, 1671.50487, 1130.43334]
+                ]
+            )
+        ]
+        for i in range(len(accuracyTests)):
+            # Call find_L5_pelvis(frame) with each frame in accuracyTests and round each variable in the 3-element returned list.
+            result = [np.around(arr, rounding_precision)
+                      for arr in kinetics.find_L5(accuracyTests[i])]
+            expected = list(accuracyResults[i])
+            for j in range(len(result)):
+                np.testing.assert_almost_equal(result[j], expected[j])
 
     # def test_get_kinetics(self):
     #    """
