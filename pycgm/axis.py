@@ -1,7 +1,7 @@
 import numpy as np
 
 def wrist_axis(elbow_jc):
-    """Calculate the wrist joint axis (Radius) function.
+    r"""Calculate the wrist joint axis (Radius) function.
 
     Takes in the elbow axis to calculate each wrist joint axis and returns it.
 
@@ -9,22 +9,26 @@ def wrist_axis(elbow_jc):
     ----------
     elbow_jc : array
         A list of three elements containing a 4x4 affine matrix representing the
-        right elbow, a 4x4 affine matrix representing the left elbow, and a 2x3
-        matrix representing the right and left wrist joint centers.
+        right elbow, a 4x4 affine matrix representing the left elbow, and a list
+        of two 4x4 matrices representing the left and right wrist joint centers.
 
     Returns
     --------
-    origin, axis : array
-        Returns the Shoulder joint center and axis in three array
-            return = [[R_wrist_JC_x, R_wrist_JC_y, R_wrist_JC_z],
-                        [L_wrist_JC_x,L_wrist_JC_y,L_wrist_JC_z],
-                        [[[R_wrist x axis, x,y,z position],
-                        [R_wrist y axis, x,y,z position],
-                        [R_wrist z axis, x,y,z position]],
-                        [[L_wrist x axis, x,y,z position],
-                        [L_wrist y axis, x,y,z position],
-                        [L_wrist z axis, x,y,z position]]]]
+    [r_axis, l_axis] : array
+        A list of two 4x4 affine matrices representing the right hand axis as
+        well as the left hand axis.
+    
+    Notes
+    -----
+    .. math::
 
+        \begin{matrix}
+            o_{L} = \textbf{m}_{LWJC} & o_{R} = \textbf{m}_{RWJC} \\
+            \hat{y}_{L} = Elbow\_Flex_{L} & \hat{y}_{R} =  Elbow\_Flex_{R} \\
+            \hat{z}_{L} = \textbf{m}_{LEJC} - \textbf{m}_{LWJC} & \hat{z}_{R} = \textbf{m}_{REJC} - \textbf{m}_{RWJC} \\
+            \hat{x}_{L} = \hat{y}_{L} \times \hat{z}_{L} & \hat{x}_{R} = \hat{y}_{R} \times \hat{z}_{R} \\
+            \hat{z}_{L} = \hat{x}_{L} \times \hat{y}_{L} & \hat{z}_{R} = \hat{x}_{R} \times \hat{y}_{R} \\
+        \end{matrix}
 
     Examples
     --------
@@ -32,17 +36,21 @@ def wrist_axis(elbow_jc):
     >>> from .axis import wrist_axis
     >>> np.set_printoptions(suppress=True)
     >>> elbow_jc = [ np.array([[   0.15,   -0.99,    0.  ,  633.66],
-    ...        [   0.69,    0.1 ,    0.72,  304.95],
-    ...        [  -0.71,   -0.1 ,    0.7 , 1256.07],
-    ...        [   0.  ,    0.  ,    0.  ,    1.  ]]),
+    ...        [ 0.69,  0.1,  0.72,  304.95],
+    ...        [-0.71, -0.1,  0.7 , 1256.07],
+    ...        [ 0.  ,  0. ,  0.  ,    1.  ]]),
     ...        np.array([[  -0.16,   -0.98,   -0.06, -129.16],
-    ...        [   0.71,   -0.07,   -0.69,  316.86],
-    ...        [   0.67,   -0.14,    0.72, 1258.06],
-    ...        [   0.  ,    0.  ,    0.  ,    1.  ]]),
-    ...        [
-    ...            [793.32, 451.29, 1084.43],
-    ...            [-272.45, 485.80, 1091.36]
-    ...        ]
+    ...        [ 0.71, -0.07, -0.69,  316.86],
+    ...        [ 0.67, -0.14,  0.72, 1258.06],
+    ...        [ 0.  ,  0.  ,  0.  ,    1.  ]]),
+    ...        np.array([[[1, 0, 0,  793.32],
+    ...             [0, 1, 0,  451.29],
+    ...             [0, 0, 1, 1084.43],
+    ...             [0, 0, 0,    1.  ]],
+    ...            [[1, 0, 0, -272.45],
+    ...             [0, 1, 0,  485.8 ],
+    ...             [0, 0, 1, 1091.36],
+    ...             [0, 0, 0,    1.  ]]])
     ...    ]
     >>> [np.around(arr, 2) for arr in wrist_axis(elbow_jc)] #doctest: +NORMALIZE_WHITESPACE
     [array([[   0.44,   -0.84,   -0.31,  793.32],
@@ -55,14 +63,14 @@ def wrist_axis(elbow_jc):
     """
     # Bring Elbow joint center, axes and Wrist Joint Center for calculating Radius Axes
 
-    rejc = [elbow_jc[0][0][3], elbow_jc[0][1][3], elbow_jc[0][2][3]]
-    lejc = [elbow_jc[1][0][3], elbow_jc[1][1][3], elbow_jc[1][2][3]]
+    rejc = elbow_jc[0][:3, 3]
+    lejc = elbow_jc[1][:3, 3]
 
-    r_elbow_flex = [elbow_jc[0][1][0], elbow_jc[0][1][1], elbow_jc[0][1][2]]
-    l_elbow_flex = [elbow_jc[1][1][0], elbow_jc[1][1][1], elbow_jc[1][1][2]]
+    r_elbow_flex = elbow_jc[0][1, :3]
+    l_elbow_flex = elbow_jc[1][1, :3]
 
-    rwjc = elbow_jc[2][0]
-    lwjc = elbow_jc[2][1]
+    rwjc = elbow_jc[2][0][:3, 3]
+    lwjc = elbow_jc[2][1][:3, 3]
 
     # this is the axis of radius
     # right
