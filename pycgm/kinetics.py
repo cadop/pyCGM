@@ -73,9 +73,9 @@ def pnt_line(pnt, start, end):
 
 
 def find_L5(frame):
-    """Calculate L5 Markers using a given axis
+    """Calculate L5 Markers using a thorax or pelvis axis
 
-    Markers used: `LHip`, `RHip`, `axis`
+    Markers used: `LHip`, `RHip`, `Thorax_axis` or `Pelvis_axis`
 
     Parameters
     ----------
@@ -166,8 +166,8 @@ def get_kinetics(data, Bodymass):
     >>> _,joint_centers=calcAngles(motionData,start=None,end=None,vsk=calSM,
     ...                            splitAnglesAxis=False,formatData=False,returnjoints=True)
     >>> CoM_coords = get_kinetics(joint_centers, calSM['Bodymass'])
-    >>> around(CoM_coords[0], 2) #doctest: +NORMALIZE_WHITESPACE
-    array([-942.76, -3.58, 865.33])
+    >>> around(CoM_coords[0], 2)  #doctest: +NORMALIZE_WHITESPACE
+    array([-943.59, -3.53, 856.69])
     """
 
     seg_scale = {}
