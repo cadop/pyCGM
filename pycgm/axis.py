@@ -17,7 +17,7 @@ def wrist_axis(elbow_jc):
     [r_axis, l_axis] : array
         A list of two 4x4 affine matrices representing the right hand axis as
         well as the left hand axis.
-    
+
     Notes
     -----
     .. math::
