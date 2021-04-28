@@ -9,6 +9,10 @@ This file is used in coordinate and vector calculations.
 # but the differences are not clinically significant.
 # We will add updates accordingly.
 
+# Revision History
+# Refactored by Kristianna Gaw
+#   Cleaned up functions and used numpy functions where applicable
+
 from __future__ import division
 import os
 import numpy as np
@@ -145,10 +149,6 @@ def get_kinetics(data, Bodymass):
     -------
     CoM_coords : 3D numpy array
         CoM trajectory in the global coordinate system.
-
-    Todo
-    ----
-    Figure out weird offset
 
     Examples
     --------
