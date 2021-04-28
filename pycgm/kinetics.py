@@ -105,7 +105,12 @@ def find_L5(frame):
     array([[ 245.48,  331.12,  936.75],
            [ 271.53,  371.69, 1043.8 ]])
     """
-    z_axis = frame['axis'][2][0:3]
+    if 'Thorax_axis' in frame:#Remove once sample data is fixed
+        z_axis = frame['Thorax_axis'][1][2]
+    elif 'Pelvis_axis' in frame: #Remove once sample data is fixed
+        z_axis = frame['Pelvis_axis'][1][2]
+    else:
+        z_axis = frame['axis'][2][0:3]
 
     norm_dir = np.array(np.multiply(z_axis, 1/np.sqrt(np.dot(z_axis, z_axis))))
     LHJC = frame['LHip']
@@ -163,7 +168,7 @@ def get_kinetics(data, Bodymass):
     ...                            splitAnglesAxis=False,formatData=False,returnjoints=True)
     >>> CoM_coords = get_kinetics(joint_centers, calSM['Bodymass'])
     >>> around(CoM_coords[0], 2)  #doctest: +NORMALIZE_WHITESPACE
-    array([-943.59, -3.53, 856.69])
+    array([-921.31, 8.73, 878.44])
     """
 
     seg_scale = {}

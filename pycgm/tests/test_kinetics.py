@@ -148,11 +148,11 @@ class Test_kinetics(TestCase):
             calSM['Bodymass'] += 35.75
 
         accuracyResults = [
-            ([246.57467,  313.55662, 1026.56323]),
-            ([246.59138,  313.62166, 1026.56440]),
-            ([246.60851,  313.68563, 1026.56531]),
-            ([246.62609,  313.74846, 1026.56595]),
-            ([246.64410,  313.81017, 1026.56635]),
+            ([253.21284,  318.98239, 1029.61172]),
+            ([253.22968,  319.04709, 1029.61511]),
+            ([253.24696,  319.11072, 1029.61835]),
+            ([253.26470,  319.17322, 1029.62142]),
+            ([253.28289,  319.23461, 1029.62437]),
         ]
         for i in range(len(accuracyResults)):
             # Call get_kinetics(joint_centers,bodymass) and round each variable in the 3-element returned list to the 8th decimal precision.
