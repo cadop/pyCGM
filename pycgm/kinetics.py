@@ -108,7 +108,6 @@ def find_L5(frame):
     z_axis = frame['axis'][2][0:3]
 
     norm_dir = np.array(np.multiply(z_axis, 1/np.sqrt(np.dot(z_axis, z_axis))))
-
     LHJC = frame['LHip']
     RHJC = frame['RHip']
 
