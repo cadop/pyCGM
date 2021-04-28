@@ -95,24 +95,12 @@ class Test_kinetics(TestCase):
         accuracyTests.append(frame)
 
         accuracyResults = [
-            (
-                [
-                    [245.47574, 131.11787, 436.75940],
-                    [261.08904, 155.43412, 500.91762]
-                ]
-            ),
-            (
-                [
-                    [207.11829, 285.60410, 550.97808],
-                    [1344.79441, 1237.35590,  673.36804]
-                ]
-            ),
-            (
-                [
-                    [-13.72374, 126.47643,  18.33679],
-                    [627.86030, 1671.50487, 1130.43334]
-                ]
-            )
+            ([[245.47574, 131.11787, 436.75940],
+              [261.08904, 155.43412, 500.91762]]),
+            ([[207.11829, 285.60410, 550.97808],
+              [1344.79441, 1237.35590,  673.36804]]),
+            ([[-13.72374, 126.47643,  18.33679],
+              [627.86030, 1671.50487, 1130.43334]])
         ]
         for i in range(len(accuracyTests)):
             # Call find_L5_pelvis(frame) with each frame in accuracyTests and round each variable in the 3-element returned list.
@@ -122,55 +110,55 @@ class Test_kinetics(TestCase):
             for j in range(len(result)):
                 np.testing.assert_almost_equal(result[j], expected[j])
 
-    # def test_get_kinetics(self):
-    #    """
-    #    This test provides coverage of the get_kinetics function in kinetics.py,
-    #    defined as get_kinetics(data, Bodymass), where data is an array of joint centers
-    #    and Bodymass is a float or int.
+    def test_get_kinetics(self):
+        """
+        This test provides coverage of the get_kinetics function in kinetics.py,
+        defined as get_kinetics(data, Bodymass), where data is an array of joint centers
+        and Bodymass is a float or int.
 
-    #    This test uses helper functions to obtain the data variable (aka joint_centers).
+        This test uses helper functions to obtain the data variable (aka joint_centers).
 
-    #    Each index in accuracyTests is used as parameters for the function get_kinetics
-    #    and the result is then checked to be equal with the same index in
-    #    accuracyResults using 8 decimal point precision comparison.
-    #    """
-    #    # Testing is done by using 5 different bodymasses and the same joint_center obtained from the helper functions.
-    #    from pyCGM_Single.pyCGM_Helpers import getfilenames
-    #    from pyCGM_Single.pycgmIO import loadData, loadVSK
-    #    from pyCGM_Single.pycgmStatic import getStatic
-    #    from pyCGM_Single.pycgmCalc import calcAngles
+        Each index in accuracyTests is used as parameters for the function get_kinetics
+        and the result is then checked to be equal with the same index in
+        accuracyResults using 8 decimal point precision comparison.
+        """
+        # Testing is done by using 5 different bodymasses and the same joint_center obtained from the helper functions.
+        from pycgm.helpers import getfilenames
+        from pycgm.IO import loadData, loadVSK
+        from pycgm.pycgmStatic import getStatic
+        from pycgm.calc import calcAngles
 
-    #    cwd = os.getcwd() + os.sep
-    #    # Data is obtained from the sample files.
-    #    dynamic_trial, static_trial, vsk_file, _, _ = getfilenames(2)
-    #    motionData = loadData(cwd+dynamic_trial)
-    #    staticData = loadData(cwd+static_trial)
-    #    vsk = loadVSK(cwd+vsk_file, dict=False)
+        cwd = os.getcwd() + os.sep
+        # Data is obtained from the sample files.
+        dynamic_trial, static_trial, vsk_file, _, _ = getfilenames(2)
+        motionData = loadData(cwd+dynamic_trial)
+        staticData = loadData(cwd+static_trial)
+        vsk = loadVSK(cwd+vsk_file, dict=False)
 
-    #    calSM = getStatic(staticData, vsk, flat_foot=False)
-    #    _, joint_centers = calcAngles(motionData, start=None, end=None, vsk=calSM,
-    #                                  splitAnglesAxis=False, formatData=False, returnjoints=True)
+        calSM = getStatic(staticData, vsk, flat_foot=False)
+        _, joint_centers = calcAngles(motionData, start=None, end=None, vsk=calSM,
+                                      splitAnglesAxis=False, formatData=False, returnjoints=True)
 
-    #    accuracyTests = []
-    #    calSM['Bodymass'] = 5.0
-    #    # This creates five individual assertions to check, all with the same joint_centers but different bodymasses.
-    #    for i in range(5):
-    #        accuracyTests.append((joint_centers, calSM['Bodymass']))
-    #        # Increment the bodymass by a substantial amount each time.
-    #        calSM['Bodymass'] += 35.75
+        accuracyTests = []
+        calSM['Bodymass'] = 5.0
+        # This creates five individual assertions to check, all with the same joint_centers but different bodymasses.
+        for i in range(5):
+            accuracyTests.append((joint_centers, calSM['Bodymass']))
+            # Increment the bodymass by a substantial amount each time.
+            calSM['Bodymass'] += 35.75
 
-    #    accuracyResults = [
-    #        ([246.57466721,  313.55662383, 1026.56323492]),
-    #        ([246.59137623,  313.6216639, 1026.56440096]),
-    #        ([246.60850798,  313.6856272, 1026.56531282]),
-    #        ([246.6260863,  313.74845693, 1026.56594554]),
-    #        ([246.64410308,  313.81017167, 1026.5663452]),
-    #    ]
-    #    for i in range(len(accuracyResults)):
-    #        # Call get_kinetics(joint_centers,bodymass) and round each variable in the 3-element returned list to the 8th decimal precision.
-    #        result = [np.around(arr, rounding_precision) for arr in kinetics.get_kinetics(
-    #            accuracyTests[i][0], accuracyTests[i][1])]
+        accuracyResults = [
+            ([246.57467,  313.55662, 1026.56323]),
+            ([246.59138,  313.62166, 1026.56440]),
+            ([246.60851,  313.68563, 1026.56531]),
+            ([246.62609,  313.74846, 1026.56595]),
+            ([246.64410,  313.81017, 1026.56635]),
+        ]
+        for i in range(len(accuracyResults)):
+            # Call get_kinetics(joint_centers,bodymass) and round each variable in the 3-element returned list to the 8th decimal precision.
+            result = [np.around(arr, rounding_precision) for arr in kinetics.get_kinetics(
+                accuracyTests[i][0], accuracyTests[i][1])]
 
-    #        # Compare the result with the values in the expected results, within a rounding precision of 8.
-    #        np.testing.assert_almost_equal(
-    #            result[i], accuracyResults[i], rounding_precision)
+            # Compare the result with the values in the expected results, within a rounding precision of 8.
+            np.testing.assert_almost_equal(
+                result[i], accuracyResults[i], rounding_precision)
