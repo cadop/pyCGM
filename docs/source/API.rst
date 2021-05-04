@@ -1,9 +1,17 @@
 API for pycgm
 =============
 
-.. currentmodule:: pycgm
+.. currentmodule:: pyCGM_Single
 
 .. autosummary::
    :toctree: generated/
 
-   axis
+   pyCGM
+   pycgmKinetics
+   pycgmIO
+   Pipelines
+   pyCGM_Helpers
+   pycgmCalc
+   pycgmStatic
+   clusterCalc
+   pycgmClusters
