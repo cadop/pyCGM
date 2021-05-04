@@ -457,8 +457,8 @@ def staticCalculation(frame,ankle_JC,knee_JC,flat_foot,vsk=None):
         The array contains the right flexion, abduction, rotation angles (1x3x3)
         followed by the left flexion, abduction, rotation angles (1x3x3).
 
-    Modifies
-    --------
+    Notes
+    -----
     The correct axis changes depending on the flat foot option.
 
     Examples
@@ -864,8 +864,8 @@ def kneeJointCenter(frame,hip_JC,delta,vsk=None):
         axis components. The xyz axis components are 2x3 arrays consisting of the axis center
         in the first dimension and the direction of the axis in the second dimension.
 
-    Modifies
-    --------
+    Notes
+    -----
     Delta is changed suitably to knee.
 
     Examples
@@ -1221,8 +1221,8 @@ def footJointCenter(frame,static_info,ankle_JC,knee_JC,delta):
         in the first dimension and the direction of the axis in the second dimension.
         This function also saves the static offset angle in a global variable.
 
-    Modifies
-    --------
+    Notes
+    -----
     Axis changes the following in the static info.
 
     You can set the static_info with the button and this will calculate the offset angles.
@@ -1677,8 +1677,8 @@ def rotaxis_footflat(frame,ankle_JC,vsk=None):
         positions and a 3x2x3 list containing the foot axis center in the first
         dimension and the direction of the axis in the second dimension.
 
-    Modifies
-    --------
+    Notes
+    -----
     If the subject wears shoe, Soledelta is applied. then axes are changed following Soledelta.
 
     Examples

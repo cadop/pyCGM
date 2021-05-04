@@ -380,8 +380,8 @@ def kneeJointCenter(frame, hip_JC, delta, vsk=None):
     .. [1] Baker, R. (2013). Measuring walking : a handbook of clinical gait
             analysis. Mac Keith Press.
 
-    Modifies
-    --------
+    Notes
+    -----
     delta is changed suitably to knee.
 
     Examples
@@ -2537,15 +2537,15 @@ def JointAngleCalc(frame,vsk):
     """ Joint Angle Calculation function.
 
     Calculates the Joint angles of plugingait and stores the data in array
-    Stores
-        RPel_angle = []
-        LPel_angle = []
-        RHip_angle = []
-        LHip_angle = []
-        RKnee_angle = []
-        LKnee_angle = []
-        RAnkle_angle = []
-        LAnkle_angle = []
+    Stores:
+    RPel_angle = []
+    LPel_angle = []
+    RHip_angle = []
+    LHip_angle = []
+    RKnee_angle = []
+    LKnee_angle = []
+    RAnkle_angle = []
+    LAnkle_angle = []
 
     Joint Axis store like below form
 

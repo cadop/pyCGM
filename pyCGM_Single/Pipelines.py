@@ -129,11 +129,6 @@ def filt(data, cutoff, Fs):
     filtered : ndarray
         Filtered data.
 
-    To Do
-    -----
-    Add option to take in axis of the array to filter. E.g. axis = 0
-    will filter each column.
-
     Examples
     --------
     >>> from numpy import array, around
