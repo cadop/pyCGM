@@ -7,7 +7,7 @@ on:
   push:
     branches: [ master, dev ]
   pull_request:
-    branches: [ master, dev, dev-refactor-4x4s ]
+    branches: [ master, dev ]
 
 jobs:
   docs:
