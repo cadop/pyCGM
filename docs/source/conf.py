@@ -12,7 +12,7 @@
 #
 import os
 import sys
-sys.path.insert(0, os.path.abspath('../../pycgm')) #TODO this will need to be updated when folder changes
+sys.path.insert(0, os.path.abspath('../../pyCGM_Single')) #TODO this will need to be updated when folder changes
 
 
 # -- Project information -----------------------------------------------------
