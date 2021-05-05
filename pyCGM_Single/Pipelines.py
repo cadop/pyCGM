@@ -19,7 +19,7 @@ else:
     print("Using python 3")
 
 def butterFilter(data, cutoff, Fs):
-    """Applies a fourth order Butterworth filter.
+    r"""Applies a fourth order Butterworth filter.
 
     Fourth order Butterworth filter to be used in filt() and filter_mask_nans()
     functions, which are in Utilities. Filter is applied forward and backwards
@@ -49,11 +49,7 @@ def butterFilter(data, cutoff, Fs):
     be twice as sharp when compared to a single filtering. In effect, a 2nd
     order filter applied twice will be a 4th order filter. We can apply a
     correction factor to the cutoff frequency to compensate. Correction
-    factor 
-    
-    ..math:: C=\sqrt{2^{1/n-1}}
-    
-    where `n` is equal to the number of passes.
+    factor :math:`C=\sqrt{2^{1/n-1}}` where `n` is equal to the number of passes.
 
     Examples
     --------
