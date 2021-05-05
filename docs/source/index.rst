@@ -14,8 +14,6 @@ Welcome to pycgm's documentation!
    Overview.rst
    GettingStarted.rst
    API.rst
-   Standards.rst
-
 
 
 Indices and tables
