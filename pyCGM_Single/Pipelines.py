@@ -49,8 +49,11 @@ def butterFilter(data, cutoff, Fs):
     be twice as sharp when compared to a single filtering. In effect, a 2nd
     order filter applied twice will be a 4th order filter. We can apply a
     correction factor to the cutoff frequency to compensate. Correction
-    factor :math:`C=\sqrt{2^{1/n-1}}`, where :math:`n` is equal to the number
-    of passes.
+    factor 
+    
+    ..math:: C=\sqrt{2^{1/n-1}}
+    
+    where `n` is equal to the number of passes.
 
     Examples
     --------

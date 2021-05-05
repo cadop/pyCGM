@@ -2089,7 +2089,7 @@ def getPelangle(axisP,axisD):
         Returns the gamma, beta, alpha angles in degrees in a 1x3 corresponding list.
 
     Examples
-    -------
+    --------
     >>> import numpy as np
     >>> from .pyCGM import getPelangle
     >>> axisP = [[ 0.04, 0.99, 0.06],
