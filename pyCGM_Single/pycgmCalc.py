@@ -68,7 +68,7 @@ def calcAngles(data,**kargs):
     By default, the function will calculate all the data and return angles
     and axis as separate arrays. The values returned by this function currently
     differ in return type and value depending on the keyword arguments of
-    **kargs. The function is currently used directly in pyCGM/pycgm_embed.py.
+    ``**kargs``. The function is currently used directly in pyCGM/pycgm_embed.py.
 
     Parameters
     ----------
@@ -77,7 +77,7 @@ def calcAngles(data,**kargs):
         to each frame of trial. Dict keys correspond to name of each joint center,
         dict values are arrays ([],[],[]) of x,y,z coordinates for each joint
         center.
-    **kargs : keyword arguments
+    ``**kargs`` : keyword arguments
         start : int, optional
            Indicates which index in `data` to start the calculation.
         end : int, optional
