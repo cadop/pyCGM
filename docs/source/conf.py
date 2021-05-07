@@ -37,6 +37,10 @@ extensions = ['sphinx.ext.autodoc', 'sphinx.ext.imgmath', 'numpydoc',
               'sphinx.ext.intersphinx', 'sphinx.ext.coverage',
               'sphinx.ext.autosummary', 'sphinx.ext.doctest']
 
+nitpick_ignore = [('py:obj', 'buttord'), ('py:obj', 'buttap'), ('py:obj', 'sosfiltfilt'), 
+                ('py:obj', 'lfilter_zi'), ('py:obj', 'lfilter'), ('py:obj', 'lfiltic'), 
+                ('py:obj', 'savgol_filter'), ('py:obj', 'sosfilt')]
+
 # Add any paths that contain templates here, relative to this directory.
 templates_path = ['_templates']
 
