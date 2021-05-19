@@ -22,11 +22,29 @@
 # OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN
 # THE SOFTWARE.
 
-###########
-#To Run, Copy the sample files into the same directory as the code, then in a terminal type:
-# python runpyCGM.py -i ReplicateRobotGait01.c3d -o test -v Jisub.vsk --staticinput "Jisub Cal 01.c3d" 
-#This will output a test.csv file with the results
-##########
+"""
+This file serves as an example on how to run pyCGM directly.
+
+To run this file, copy the sample files into the same directory as the code,
+then in a terminal type:
+
+.. code-block:: bash
+
+  python runpyCGM.py -i ReplicateRobotGait01.c3d -o test -v Jisub.vsk --staticinput "Jisub Cal 01.c3d"
+
+The aforementioned command will output a test.csv file with the results.
+
+
+**Command-line Instructions**
+
+  :-h: Help, provides basic command structure.\n
+  :-i, -ifile: The input file.\n
+  :-o, -ofile: The output file.\n
+  :-s, -start: The start time of the motion capture (optional).\n
+  :-e, -end: The end time of the motion capture (optional).\n
+  :-v, -vskfile: The name of the .vsk file (optional).\n
+  :-x, -staticinput: The name of the static input file (optional).\n
+"""
 
 import sys
 import getopt
@@ -37,9 +55,14 @@ from . import pycgmCalc
 
 def main(argv):
     """
-    Take in motion data file, time span
-    returns output file of angles
-    pyCGM.py -i <motionFile> -o <outputfile> -s <start> -e <end> 
+    Take in motion data file and the time span, returns output file of angles
+
+    .. code-block:: bash
+
+      pyCGM.py -i <motionFile> -o <outputfile> -s <start> -e <end>
+
+    To view full documentation of this file, please refer to the file
+    description.
     """
     flat_foot = False
     global vskdata
@@ -49,7 +72,7 @@ def main(argv):
     except getopt.GetoptError:
         print('pyCGM.py -i <motionFile> -o <outputfile> -s <start> -e <end>')
         sys.exit(2)
-          
+
     for opt, arg in opts:
         if opt == '-h':
                 print('pyCGM.py -i <motionFile> -o <outputfile> -s <start> -e <end>')
@@ -68,22 +91,22 @@ def main(argv):
                 staticfile = arg
 
 #TODO -x is not working for input
-    
+
     filename = './'+inputfile
-    motionData  = pycgmIO.loadData(filename) 
+    motionData  = pycgmIO.loadData(filename)
     if len(motionData) == 0 or motionData == None:
         print("No Data Loaded")
         sys.exit()
-    
+
     if inputvsk != None:
         vskdata = pycgmIO.loadVSK(inputvsk)
         if vskdata!=None:
                 vsk = pycgmIO.createVskDataDict(vskdata[0],vskdata[1])
-        
+
     if staticfile != None:
         staticData = pycgmIO.loadData(staticfile)
         calibratedMeasurements = pycgmStatic.getStatic(staticData,vsk,flat_foot)
-		
+
     result=pycgmCalc.calcAngles(motionData,start=start,end=end,vsk=calibratedMeasurements,splitAnglesAxis=False,formatData=False)
 
     pycgmIO.writeResult(result,outputfile)

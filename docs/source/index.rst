@@ -11,6 +11,8 @@ Welcome to pycgm's documentation!
    :caption: Contents:
       
    install.rst
+   Overview.rst
+   GettingStarted.rst
    API.rst
 
 
