@@ -1,0 +1,197 @@
+
+<!DOCTYPE html>
+
+<html>
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>pyCGM_Single.pycgmStatic.staticCalculation &#8212; pycgm 1.0.0 documentation</title>
+    <link rel="stylesheet" href="../_static/alabaster.css" type="text/css" />
+    <link rel="stylesheet" href="../_static/pygments.css" type="text/css" />
+    <script id="documentation_options" data-url_root="../" src="../_static/documentation_options.js"></script>
+    <script src="../_static/jquery.js"></script>
+    <script src="../_static/underscore.js"></script>
+    <script src="../_static/doctools.js"></script>
+    <script src="../_static/language_data.js"></script>
+    <link rel="index" title="Index" href="../genindex.html" />
+    <link rel="search" title="Search" href="../search.html" />
+    <link rel="next" title="pyCGM_Single.pycgmStatic.staticCalculationHead" href="pyCGM_Single.pycgmStatic.staticCalculationHead.html" />
+    <link rel="prev" title="pyCGM_Single.pycgmStatic.sqrt" href="pyCGM_Single.pycgmStatic.sqrt.html" />
+   
+  <link rel="stylesheet" href="../_static/custom.css" type="text/css" />
+  
+  
+  <meta name="viewport" content="width=device-width, initial-scale=0.9, maximum-scale=0.9" />
+
+  </head><body>
+  
+
+    <div class="document">
+      <div class="documentwrapper">
+        <div class="bodywrapper">
+          
+
+          <div class="body" role="main">
+            
+  <div class="section" id="pycgm-single-pycgmstatic-staticcalculation">
+<h1>pyCGM_Single.pycgmStatic.staticCalculation<a class="headerlink" href="#pycgm-single-pycgmstatic-staticcalculation" title="Permalink to this headline">¶</a></h1>
+<dl class="py function">
+<dt id="pyCGM_Single.pycgmStatic.staticCalculation">
+<code class="sig-prename descclassname">pyCGM_Single.pycgmStatic.</code><code class="sig-name descname">staticCalculation</code><span class="sig-paren">(</span><em class="sig-param"><span class="n">frame</span></em>, <em class="sig-param"><span class="n">ankle_JC</span></em>, <em class="sig-param"><span class="n">knee_JC</span></em>, <em class="sig-param"><span class="n">flat_foot</span></em>, <em class="sig-param"><span class="n">vsk</span><span class="o">=</span><span class="default_value">None</span></em><span class="sig-paren">)</span><a class="headerlink" href="#pyCGM_Single.pycgmStatic.staticCalculation" title="Permalink to this definition">¶</a></dt>
+<dd><p>Calculate the Static angle function</p>
+<p>Takes in anatomically uncorrected axis and anatomically correct axis.
+Corrects the axis depending on flat-footedness.</p>
+<p>Calculates the offset angle between those two axes.</p>
+<p>It is rotated from uncorrected axis in YXZ order.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters</dt>
+<dd class="field-odd"><dl class="simple">
+<dt><strong>frame</strong><span class="classifier">dict</span></dt><dd><p>Dictionary of marker lists.</p>
+</dd>
+<dt><strong>ankle_JC</strong><span class="classifier">array</span></dt><dd><p>An array containing the x,y,z axes marker positions of the ankle joint center.</p>
+</dd>
+<dt><strong>knee_JC</strong><span class="classifier">array</span></dt><dd><p>An array containing the x,y,z axes marker positions of the knee joint center.</p>
+</dd>
+<dt><strong>flat_foot</strong><span class="classifier">boolean</span></dt><dd><p>A boolean indicating if the feet are flat or not.</p>
+</dd>
+<dt><strong>vsk</strong><span class="classifier">dict, optional</span></dt><dd><p>A dictionary containing subject measurements from a VSK file.</p>
+</dd>
+</dl>
+</dd>
+<dt class="field-even">Returns</dt>
+<dd class="field-even"><dl class="simple">
+<dt><strong>angle</strong><span class="classifier">list</span></dt><dd><p>Returns the offset angle represented by a 2x3x3 list.
+The array contains the right flexion, abduction, rotation angles (1x3x3)
+followed by the left flexion, abduction, rotation angles (1x3x3).</p>
+</dd>
+</dl>
+</dd>
+</dl>
+<p class="rubric">Notes</p>
+<p>The correct axis changes depending on the flat foot option.</p>
+<p class="rubric">Examples</p>
+<div class="doctest highlight-default notranslate"><div class="highlight"><pre><span></span><span class="gp">&gt;&gt;&gt; </span><span class="kn">import</span> <span class="nn">numpy</span> <span class="k">as</span> <span class="nn">np</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="kn">from</span> <span class="nn">.pycgmStatic</span> <span class="kn">import</span> <span class="n">staticCalculation</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">frame</span> <span class="o">=</span> <span class="p">{</span><span class="s1">&#39;RTOE&#39;</span><span class="p">:</span> <span class="n">np</span><span class="o">.</span><span class="n">array</span><span class="p">([</span><span class="mf">427.95</span><span class="p">,</span> <span class="mf">437.1</span><span class="p">,</span>  <span class="mf">41.77</span><span class="p">]),</span>
+<span class="gp">... </span>         <span class="s1">&#39;LTOE&#39;</span><span class="p">:</span> <span class="n">np</span><span class="o">.</span><span class="n">array</span><span class="p">([</span><span class="mf">175.79</span><span class="p">,</span> <span class="mf">379.5</span><span class="p">,</span>  <span class="mf">42.61</span><span class="p">]),</span>
+<span class="gp">... </span>         <span class="s1">&#39;RHEE&#39;</span><span class="p">:</span> <span class="n">np</span><span class="o">.</span><span class="n">array</span><span class="p">([</span><span class="mf">406.46</span><span class="p">,</span> <span class="mf">227.56</span><span class="p">,</span>  <span class="mf">48.76</span><span class="p">]),</span>
+<span class="gp">... </span>         <span class="s1">&#39;LHEE&#39;</span><span class="p">:</span> <span class="n">np</span><span class="o">.</span><span class="n">array</span><span class="p">([</span><span class="mf">223.6</span><span class="p">,</span> <span class="mf">173.43</span><span class="p">,</span>  <span class="mf">47.93</span><span class="p">])}</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">ankle_JC</span> <span class="o">=</span> <span class="p">[</span><span class="n">np</span><span class="o">.</span><span class="n">array</span><span class="p">([</span><span class="mf">393.76</span><span class="p">,</span> <span class="mf">247.68</span><span class="p">,</span> <span class="mf">87.74</span><span class="p">]),</span>
+<span class="gp">... </span>           <span class="n">np</span><span class="o">.</span><span class="n">array</span><span class="p">([</span><span class="mf">98.75</span><span class="p">,</span> <span class="mf">219.47</span><span class="p">,</span> <span class="mf">80.63</span><span class="p">]),</span>
+<span class="gp">... </span>           <span class="p">[[</span><span class="n">np</span><span class="o">.</span><span class="n">array</span><span class="p">([</span><span class="mf">394.48</span><span class="p">,</span> <span class="mf">248.37</span><span class="p">,</span> <span class="mf">87.72</span><span class="p">]),</span>
+<span class="gp">... </span>           <span class="n">np</span><span class="o">.</span><span class="n">array</span><span class="p">([</span><span class="mf">393.07</span><span class="p">,</span> <span class="mf">248.39</span><span class="p">,</span> <span class="mf">87.62</span><span class="p">]),</span>
+<span class="gp">... </span>           <span class="n">np</span><span class="o">.</span><span class="n">array</span><span class="p">([</span><span class="mf">393.69</span><span class="p">,</span> <span class="mf">247.78</span><span class="p">,</span> <span class="mf">88.73</span><span class="p">])],</span>
+<span class="gp">... </span>           <span class="p">[</span><span class="n">np</span><span class="o">.</span><span class="n">array</span><span class="p">([</span><span class="mf">98.47</span><span class="p">,</span> <span class="mf">220.43</span><span class="p">,</span> <span class="mf">80.53</span><span class="p">]),</span>
+<span class="gp">... </span>           <span class="n">np</span><span class="o">.</span><span class="n">array</span><span class="p">([</span><span class="mf">97.79</span><span class="p">,</span> <span class="mf">219.21</span><span class="p">,</span> <span class="mf">80.76</span><span class="p">]),</span>
+<span class="gp">... </span>           <span class="n">np</span><span class="o">.</span><span class="n">array</span><span class="p">([</span><span class="mf">98.85</span><span class="p">,</span> <span class="mf">219.60</span><span class="p">,</span> <span class="mf">81.62</span><span class="p">])]]]</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">knee_JC</span> <span class="o">=</span> <span class="p">[</span><span class="n">np</span><span class="o">.</span><span class="n">array</span><span class="p">([</span><span class="mf">364.18</span><span class="p">,</span> <span class="mf">292.17</span><span class="p">,</span> <span class="mf">515.19</span><span class="p">]),</span>
+<span class="gp">... </span>          <span class="n">np</span><span class="o">.</span><span class="n">array</span><span class="p">([</span><span class="mf">143.55</span><span class="p">,</span> <span class="mf">279.90</span><span class="p">,</span> <span class="mf">524.78</span><span class="p">]),</span>
+<span class="gp">... </span>          <span class="n">np</span><span class="o">.</span><span class="n">array</span><span class="p">([[[</span><span class="mf">364.65</span><span class="p">,</span> <span class="mf">293.07</span><span class="p">,</span> <span class="mf">515.19</span><span class="p">],</span>
+<span class="gp">... </span>          <span class="p">[</span><span class="mf">363.29</span><span class="p">,</span> <span class="mf">292.61</span><span class="p">,</span> <span class="mf">515.04</span><span class="p">],</span>
+<span class="gp">... </span>          <span class="p">[</span><span class="mf">364.05</span><span class="p">,</span> <span class="mf">292.24</span><span class="p">,</span> <span class="mf">516.18</span><span class="p">]],</span>
+<span class="gp">... </span>          <span class="p">[[</span><span class="mf">143.66</span><span class="p">,</span> <span class="mf">280.89</span><span class="p">,</span> <span class="mf">524.63</span><span class="p">],</span>
+<span class="gp">... </span>          <span class="p">[</span><span class="mf">142.56</span><span class="p">,</span> <span class="mf">280.02</span><span class="p">,</span> <span class="mf">524.86</span><span class="p">],</span>
+<span class="gp">... </span>          <span class="p">[</span><span class="mf">143.65</span><span class="p">,</span> <span class="mf">280.05</span><span class="p">,</span> <span class="mf">525.77</span><span class="p">]]])]</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">flat_foot</span> <span class="o">=</span> <span class="kc">True</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">vsk</span> <span class="o">=</span> <span class="p">{</span> <span class="s1">&#39;RightSoleDelta&#39;</span><span class="p">:</span> <span class="mf">0.45</span><span class="p">,</span><span class="s1">&#39;LeftSoleDelta&#39;</span><span class="p">:</span> <span class="mf">0.45</span> <span class="p">}</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">np</span><span class="o">.</span><span class="n">around</span><span class="p">(</span><span class="n">staticCalculation</span><span class="p">(</span><span class="n">frame</span><span class="p">,</span><span class="n">ankle_JC</span><span class="p">,</span><span class="n">knee_JC</span><span class="p">,</span><span class="n">flat_foot</span><span class="p">,</span><span class="n">vsk</span><span class="p">),</span> <span class="mi">2</span><span class="p">)</span>
+<span class="go">array([[-0.08,  0.23, -0.66],</span>
+<span class="go">       [-0.67,  0.22, -0.3 ]])</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">flat_foot</span> <span class="o">=</span> <span class="kc">False</span> <span class="c1"># Using the same variables and switching the flat_foot flag.</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">np</span><span class="o">.</span><span class="n">around</span><span class="p">(</span><span class="n">staticCalculation</span><span class="p">(</span><span class="n">frame</span><span class="p">,</span><span class="n">ankle_JC</span><span class="p">,</span><span class="n">knee_JC</span><span class="p">,</span><span class="n">flat_foot</span><span class="p">,</span><span class="n">vsk</span><span class="p">),</span> <span class="mi">2</span><span class="p">)</span>
+<span class="go">array([[-0.08,  0.2 , -0.15],</span>
+<span class="go">       [-0.67,  0.19,  0.12]])</span>
+</pre></div>
+</div>
+</dd></dl>
+
+</div>
+
+
+          </div>
+          
+        </div>
+      </div>
+      <div class="sphinxsidebar" role="navigation" aria-label="main navigation">
+        <div class="sphinxsidebarwrapper">
+<h1 class="logo"><a href="../index.html">pycgm</a></h1>
+
+
+
+
+
+
+
+
+<h3>Navigation</h3>
+<p class="caption"><span class="caption-text">Contents:</span></p>
+<ul class="current">
+<li class="toctree-l1"><a class="reference internal" href="../install.html">Installation</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../Overview.html">Overview</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../GettingStarted.html">Getting Started with pycgm</a></li>
+<li class="toctree-l1 current"><a class="reference internal" href="../API.html">API for pycgm</a><ul class="current">
+<li class="toctree-l2"><a class="reference internal" href="pyCGM_Single.pyCGM.html">pyCGM_Single.pyCGM</a></li>
+<li class="toctree-l2"><a class="reference internal" href="pyCGM_Single.pycgmKinetics.html">pyCGM_Single.pycgmKinetics</a></li>
+<li class="toctree-l2"><a class="reference internal" href="pyCGM_Single.pycgmIO.html">pyCGM_Single.pycgmIO</a></li>
+<li class="toctree-l2"><a class="reference internal" href="pyCGM_Single.Pipelines.html">pyCGM_Single.Pipelines</a></li>
+<li class="toctree-l2"><a class="reference internal" href="pyCGM_Single.pyCGM_Helpers.html">pyCGM_Single.pyCGM_Helpers</a></li>
+<li class="toctree-l2"><a class="reference internal" href="pyCGM_Single.pycgmCalc.html">pyCGM_Single.pycgmCalc</a></li>
+<li class="toctree-l2 current"><a class="reference internal" href="pyCGM_Single.pycgmStatic.html">pyCGM_Single.pycgmStatic</a></li>
+<li class="toctree-l2"><a class="reference internal" href="pyCGM_Single.clusterCalc.html">pyCGM_Single.clusterCalc</a></li>
+<li class="toctree-l2"><a class="reference internal" href="pyCGM_Single.pycgmClusters.html">pyCGM_Single.pycgmClusters</a></li>
+</ul>
+</li>
+</ul>
+
+<div class="relations">
+<h3>Related Topics</h3>
+<ul>
+  <li><a href="../index.html">Documentation overview</a><ul>
+  <li><a href="../API.html">API for pycgm</a><ul>
+  <li><a href="pyCGM_Single.pycgmStatic.html">pyCGM_Single.pycgmStatic</a><ul>
+      <li>Previous: <a href="pyCGM_Single.pycgmStatic.sqrt.html" title="previous chapter">pyCGM_Single.pycgmStatic.sqrt</a></li>
+      <li>Next: <a href="pyCGM_Single.pycgmStatic.staticCalculationHead.html" title="next chapter">pyCGM_Single.pycgmStatic.staticCalculationHead</a></li>
+  </ul></li>
+  </ul></li>
+  </ul></li>
+</ul>
+</div>
+<div id="searchbox" style="display: none" role="search">
+  <h3 id="searchlabel">Quick search</h3>
+    <div class="searchformwrapper">
+    <form class="search" action="../search.html" method="get">
+      <input type="text" name="q" aria-labelledby="searchlabel" />
+      <input type="submit" value="Go" />
+    </form>
+    </div>
+</div>
+<script>$('#searchbox').show(0);</script>
+
+
+
+
+
+
+
+
+        </div>
+      </div>
+      <div class="clearer"></div>
+    </div>
+    <div class="footer">
+      &copy;2020, Mathew Schwartz.
+      
+      |
+      Powered by <a href="http://sphinx-doc.org/">Sphinx 3.2.1</a>
+      &amp; <a href="https://github.com/bitprophet/alabaster">Alabaster 0.7.12</a>
+      
+      |
+      <a href="../_sources/generated/pyCGM_Single.pycgmStatic.staticCalculation.rst.txt"
+          rel="nofollow">Page source</a>
+    </div>
+
+    
+
+    
+  </body>
+</html>

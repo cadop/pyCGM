@@ -1,0 +1,185 @@
+
+<!DOCTYPE html>
+
+<html>
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>pyCGM_Single.Pipelines &#8212; pycgm 1.0.0 documentation</title>
+    <link rel="stylesheet" href="../_static/alabaster.css" type="text/css" />
+    <link rel="stylesheet" href="../_static/pygments.css" type="text/css" />
+    <script id="documentation_options" data-url_root="../" src="../_static/documentation_options.js"></script>
+    <script src="../_static/jquery.js"></script>
+    <script src="../_static/underscore.js"></script>
+    <script src="../_static/doctools.js"></script>
+    <script src="../_static/language_data.js"></script>
+    <link rel="index" title="Index" href="../genindex.html" />
+    <link rel="search" title="Search" href="../search.html" />
+    <link rel="next" title="pyCGM_Single.Pipelines.butter" href="pyCGM_Single.Pipelines.butter.html" />
+    <link rel="prev" title="pyCGM_Single.pycgmIO.writeResult" href="pyCGM_Single.pycgmIO.writeResult.html" />
+   
+  <link rel="stylesheet" href="../_static/custom.css" type="text/css" />
+  
+  
+  <meta name="viewport" content="width=device-width, initial-scale=0.9, maximum-scale=0.9" />
+
+  </head><body>
+  
+
+    <div class="document">
+      <div class="documentwrapper">
+        <div class="bodywrapper">
+          
+
+          <div class="body" role="main">
+            
+  <div class="section" id="pycgm-single-pipelines">
+<h1>pyCGM_Single.Pipelines<a class="headerlink" href="#pycgm-single-pipelines" title="Permalink to this headline">¶</a></h1>
+<p class="rubric">Description</p>
+<span class="target" id="module-pyCGM_Single.Pipelines"></span><p>This file is used in adding filters to data and filling gaps in data.</p>
+<p>This module was contributed by Neil M. Thomas</p>
+<p class="rubric">Functions</p>
+<table class="longtable docutils align-default">
+<colgroup>
+<col style="width: 10%" />
+<col style="width: 90%" />
+</colgroup>
+<tbody>
+<tr class="row-odd"><td><p><a class="reference internal" href="pyCGM_Single.Pipelines.butter.html#pyCGM_Single.Pipelines.butter" title="pyCGM_Single.Pipelines.butter"><code class="xref py py-obj docutils literal notranslate"><span class="pre">butter</span></code></a>(N, Wn[, btype, analog, output, fs])</p></td>
+<td><p>Butterworth digital and analog filter design.</p></td>
+</tr>
+<tr class="row-even"><td><p><a class="reference internal" href="pyCGM_Single.Pipelines.butterFilter.html#pyCGM_Single.Pipelines.butterFilter" title="pyCGM_Single.Pipelines.butterFilter"><code class="xref py py-obj docutils literal notranslate"><span class="pre">butterFilter</span></code></a>(data, cutoff, Fs)</p></td>
+<td><p>Applies a fourth order Butterworth filter.</p></td>
+</tr>
+<tr class="row-odd"><td><p><a class="reference internal" href="pyCGM_Single.Pipelines.clearMarker.html#pyCGM_Single.Pipelines.clearMarker" title="pyCGM_Single.Pipelines.clearMarker"><code class="xref py py-obj docutils literal notranslate"><span class="pre">clearMarker</span></code></a>(data, name)</p></td>
+<td><p>Clear Markers function</p></td>
+</tr>
+<tr class="row-even"><td><p><a class="reference internal" href="pyCGM_Single.Pipelines.filt.html#pyCGM_Single.Pipelines.filt" title="pyCGM_Single.Pipelines.filt"><code class="xref py py-obj docutils literal notranslate"><span class="pre">filt</span></code></a>(data, cutoff, Fs)</p></td>
+<td><p>Applies a Butterworth filter.</p></td>
+</tr>
+<tr class="row-odd"><td><p><a class="reference internal" href="pyCGM_Single.Pipelines.filtering.html#pyCGM_Single.Pipelines.filtering" title="pyCGM_Single.Pipelines.filtering"><code class="xref py py-obj docutils literal notranslate"><span class="pre">filtering</span></code></a>(Data)</p></td>
+<td><p>Filter function.</p></td>
+</tr>
+<tr class="row-even"><td><p><a class="reference internal" href="pyCGM_Single.Pipelines.filtfilt.html#pyCGM_Single.Pipelines.filtfilt" title="pyCGM_Single.Pipelines.filtfilt"><code class="xref py py-obj docutils literal notranslate"><span class="pre">filtfilt</span></code></a>(b, a, x[, axis, padtype, padlen, …])</p></td>
+<td><p>Apply a digital filter forward and backward to a signal.</p></td>
+</tr>
+<tr class="row-odd"><td><p><a class="reference internal" href="pyCGM_Single.Pipelines.getMarkerLocation.html#pyCGM_Single.Pipelines.getMarkerLocation" title="pyCGM_Single.Pipelines.getMarkerLocation"><code class="xref py py-obj docutils literal notranslate"><span class="pre">getMarkerLocation</span></code></a>(Pm, C)</p></td>
+<td><p>Finds the missing marker in the world frame.</p></td>
+</tr>
+<tr class="row-even"><td><p><a class="reference internal" href="pyCGM_Single.Pipelines.getStaticTransform.html#pyCGM_Single.Pipelines.getStaticTransform" title="pyCGM_Single.Pipelines.getStaticTransform"><code class="xref py py-obj docutils literal notranslate"><span class="pre">getStaticTransform</span></code></a>(p, C)</p></td>
+<td><p>Find the location of the missing marker in the cluster frame.</p></td>
+</tr>
+<tr class="row-odd"><td><p><a class="reference internal" href="pyCGM_Single.Pipelines.prep.html#pyCGM_Single.Pipelines.prep" title="pyCGM_Single.Pipelines.prep"><code class="xref py py-obj docutils literal notranslate"><span class="pre">prep</span></code></a>(trajs)</p></td>
+<td><p>Prepare frames function</p></td>
+</tr>
+<tr class="row-even"><td><p><a class="reference internal" href="pyCGM_Single.Pipelines.rigid_fill.html#pyCGM_Single.Pipelines.rigid_fill" title="pyCGM_Single.Pipelines.rigid_fill"><code class="xref py py-obj docutils literal notranslate"><span class="pre">rigid_fill</span></code></a>(Data, static)</p></td>
+<td><p>Fills gaps in motion capture data.</p></td>
+</tr>
+<tr class="row-odd"><td><p><a class="reference internal" href="pyCGM_Single.Pipelines.segmentFinder.html#pyCGM_Single.Pipelines.segmentFinder" title="pyCGM_Single.Pipelines.segmentFinder"><code class="xref py py-obj docutils literal notranslate"><span class="pre">segmentFinder</span></code></a>(key, data, targetDict, …)</p></td>
+<td><p>Find markers in the same cluster as <cite>key</cite>.</p></td>
+</tr>
+<tr class="row-even"><td><p><a class="reference internal" href="pyCGM_Single.Pipelines.segment_dict.html#pyCGM_Single.Pipelines.segment_dict" title="pyCGM_Single.Pipelines.segment_dict"><code class="xref py py-obj docutils literal notranslate"><span class="pre">segment_dict</span></code></a>()</p></td>
+<td><p>Creates a dictionary of segments to marker names.</p></td>
+</tr>
+<tr class="row-odd"><td><p><a class="reference internal" href="pyCGM_Single.Pipelines.targetName.html#pyCGM_Single.Pipelines.targetName" title="pyCGM_Single.Pipelines.targetName"><code class="xref py py-obj docutils literal notranslate"><span class="pre">targetName</span></code></a>()</p></td>
+<td><p>Creates a list of marker names.</p></td>
+</tr>
+<tr class="row-even"><td><p><a class="reference internal" href="pyCGM_Single.Pipelines.target_dict.html#pyCGM_Single.Pipelines.target_dict" title="pyCGM_Single.Pipelines.target_dict"><code class="xref py py-obj docutils literal notranslate"><span class="pre">target_dict</span></code></a>()</p></td>
+<td><p>Creates a dictionary of marker to segment.</p></td>
+</tr>
+<tr class="row-odd"><td><p><a class="reference internal" href="pyCGM_Single.Pipelines.transform_from_mov.html#pyCGM_Single.Pipelines.transform_from_mov" title="pyCGM_Single.Pipelines.transform_from_mov"><code class="xref py py-obj docutils literal notranslate"><span class="pre">transform_from_mov</span></code></a>(data, key, clust, …)</p></td>
+<td><p>Use motion data for gap filling.</p></td>
+</tr>
+<tr class="row-even"><td><p><a class="reference internal" href="pyCGM_Single.Pipelines.transform_from_static.html#pyCGM_Single.Pipelines.transform_from_static" title="pyCGM_Single.Pipelines.transform_from_static"><code class="xref py py-obj docutils literal notranslate"><span class="pre">transform_from_static</span></code></a>(data, static, key, …)</p></td>
+<td><p>Use static data for gap filling.</p></td>
+</tr>
+</tbody>
+</table>
+</div>
+
+
+          </div>
+          
+        </div>
+      </div>
+      <div class="sphinxsidebar" role="navigation" aria-label="main navigation">
+        <div class="sphinxsidebarwrapper">
+<h1 class="logo"><a href="../index.html">pycgm</a></h1>
+
+
+
+
+
+
+
+
+<h3>Navigation</h3>
+<p class="caption"><span class="caption-text">Contents:</span></p>
+<ul class="current">
+<li class="toctree-l1"><a class="reference internal" href="../install.html">Installation</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../Overview.html">Overview</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../GettingStarted.html">Getting Started with pycgm</a></li>
+<li class="toctree-l1 current"><a class="reference internal" href="../API.html">API for pycgm</a><ul class="current">
+<li class="toctree-l2"><a class="reference internal" href="pyCGM_Single.pyCGM.html">pyCGM_Single.pyCGM</a></li>
+<li class="toctree-l2"><a class="reference internal" href="pyCGM_Single.pycgmKinetics.html">pyCGM_Single.pycgmKinetics</a></li>
+<li class="toctree-l2"><a class="reference internal" href="pyCGM_Single.pycgmIO.html">pyCGM_Single.pycgmIO</a></li>
+<li class="toctree-l2 current"><a class="current reference internal" href="#">pyCGM_Single.Pipelines</a></li>
+<li class="toctree-l2"><a class="reference internal" href="pyCGM_Single.pyCGM_Helpers.html">pyCGM_Single.pyCGM_Helpers</a></li>
+<li class="toctree-l2"><a class="reference internal" href="pyCGM_Single.pycgmCalc.html">pyCGM_Single.pycgmCalc</a></li>
+<li class="toctree-l2"><a class="reference internal" href="pyCGM_Single.pycgmStatic.html">pyCGM_Single.pycgmStatic</a></li>
+<li class="toctree-l2"><a class="reference internal" href="pyCGM_Single.clusterCalc.html">pyCGM_Single.clusterCalc</a></li>
+<li class="toctree-l2"><a class="reference internal" href="pyCGM_Single.pycgmClusters.html">pyCGM_Single.pycgmClusters</a></li>
+</ul>
+</li>
+</ul>
+
+<div class="relations">
+<h3>Related Topics</h3>
+<ul>
+  <li><a href="../index.html">Documentation overview</a><ul>
+  <li><a href="../API.html">API for pycgm</a><ul>
+      <li>Previous: <a href="pyCGM_Single.pycgmIO.writeResult.html" title="previous chapter">pyCGM_Single.pycgmIO.writeResult</a></li>
+      <li>Next: <a href="pyCGM_Single.Pipelines.butter.html" title="next chapter">pyCGM_Single.Pipelines.butter</a></li>
+  </ul></li>
+  </ul></li>
+</ul>
+</div>
+<div id="searchbox" style="display: none" role="search">
+  <h3 id="searchlabel">Quick search</h3>
+    <div class="searchformwrapper">
+    <form class="search" action="../search.html" method="get">
+      <input type="text" name="q" aria-labelledby="searchlabel" />
+      <input type="submit" value="Go" />
+    </form>
+    </div>
+</div>
+<script>$('#searchbox').show(0);</script>
+
+
+
+
+
+
+
+
+        </div>
+      </div>
+      <div class="clearer"></div>
+    </div>
+    <div class="footer">
+      &copy;2020, Mathew Schwartz.
+      
+      |
+      Powered by <a href="http://sphinx-doc.org/">Sphinx 3.2.1</a>
+      &amp; <a href="https://github.com/bitprophet/alabaster">Alabaster 0.7.12</a>
+      
+      |
+      <a href="../_sources/generated/pyCGM_Single.Pipelines.rst.txt"
+          rel="nofollow">Page source</a>
+    </div>
+
+    
+
+    
+  </body>
+</html>

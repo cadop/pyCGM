@@ -1,0 +1,197 @@
+
+<!DOCTYPE html>
+
+<html>
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>pyCGM_Single.pyCGM.elbowJointCenter &#8212; pycgm 1.0.0 documentation</title>
+    <link rel="stylesheet" href="../_static/alabaster.css" type="text/css" />
+    <link rel="stylesheet" href="../_static/pygments.css" type="text/css" />
+    <script id="documentation_options" data-url_root="../" src="../_static/documentation_options.js"></script>
+    <script src="../_static/jquery.js"></script>
+    <script src="../_static/underscore.js"></script>
+    <script src="../_static/doctools.js"></script>
+    <script src="../_static/language_data.js"></script>
+    <link rel="index" title="Index" href="../genindex.html" />
+    <link rel="search" title="Search" href="../search.html" />
+    <link rel="next" title="pyCGM_Single.pyCGM.findJointC" href="pyCGM_Single.pyCGM.findJointC.html" />
+    <link rel="prev" title="pyCGM_Single.pyCGM.dataAsDict" href="pyCGM_Single.pyCGM.dataAsDict.html" />
+   
+  <link rel="stylesheet" href="../_static/custom.css" type="text/css" />
+  
+  
+  <meta name="viewport" content="width=device-width, initial-scale=0.9, maximum-scale=0.9" />
+
+  </head><body>
+  
+
+    <div class="document">
+      <div class="documentwrapper">
+        <div class="bodywrapper">
+          
+
+          <div class="body" role="main">
+            
+  <div class="section" id="pycgm-single-pycgm-elbowjointcenter">
+<h1>pyCGM_Single.pyCGM.elbowJointCenter<a class="headerlink" href="#pycgm-single-pycgm-elbowjointcenter" title="Permalink to this headline">¶</a></h1>
+<dl class="py function">
+<dt id="pyCGM_Single.pyCGM.elbowJointCenter">
+<code class="sig-prename descclassname">pyCGM_Single.pyCGM.</code><code class="sig-name descname">elbowJointCenter</code><span class="sig-paren">(</span><em class="sig-param"><span class="n">frame</span></em>, <em class="sig-param"><span class="n">thorax</span></em>, <em class="sig-param"><span class="n">shoulderJC</span></em>, <em class="sig-param"><span class="n">wand</span></em>, <em class="sig-param"><span class="n">vsk</span><span class="o">=</span><span class="default_value">None</span></em><span class="sig-paren">)</span><a class="headerlink" href="#pyCGM_Single.pyCGM.elbowJointCenter" title="Permalink to this definition">¶</a></dt>
+<dd><p>Calculate the Elbow joint axis ( Humerus) function.</p>
+<p>Takes in a dictionary of marker names to x, y, z positions, the thorax
+axis, and shoulder joint center.</p>
+<p>Calculates each elbow joint axis.</p>
+<p>Markers used: RSHO, LSHO, RELB, LELB, RWRA ,RWRB, LWRA, LWRB
+Subject Measurement values used: RightElbowWidth, LeftElbowWidth</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters</dt>
+<dd class="field-odd"><dl class="simple">
+<dt><strong>frame</strong></dt><dd><p>Dictionaries of marker lists.</p>
+</dd>
+<dt><strong>thorax</strong><span class="classifier">array</span></dt><dd><p>The x,y,z position of the thorax.</p>
+</dd>
+<dt><strong>shoulderJC</strong><span class="classifier">array</span></dt><dd><p>The x,y,z position of the shoulder joint center.</p>
+</dd>
+<dt><strong>wand</strong><span class="classifier">array</span></dt><dd><p>The x,y,z position of the wand.</p>
+</dd>
+<dt><strong>vsk</strong><span class="classifier">dict, optional</span></dt><dd><p>A dictionary containing subject measurements.</p>
+</dd>
+</dl>
+</dd>
+<dt class="field-even">Returns</dt>
+<dd class="field-even"><dl class="simple">
+<dt><strong>origin, axis, wrist_O</strong><span class="classifier">array</span></dt><dd><p>Returns an array containing a 2x3 array containing the right
+elbow x, y, z marker positions 1x3, and the left elbow x, y,
+z marker positions 1x3, which is followed by a 2x3x3 array containing
+right elbow x, y, z axis components (1x3x3) followed by the left x, y, z axis
+components (1x3x3) which is then followed by the right wrist joint center
+x, y, z marker positions 1x3, and the left wrist joint center x, y, z marker positions 1x3.</p>
+</dd>
+</dl>
+</dd>
+</dl>
+<p class="rubric">Examples</p>
+<div class="doctest highlight-default notranslate"><div class="highlight"><pre><span></span><span class="gp">&gt;&gt;&gt; </span><span class="kn">import</span> <span class="nn">numpy</span> <span class="k">as</span> <span class="nn">np</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="kn">from</span> <span class="nn">.pyCGM</span> <span class="kn">import</span> <span class="n">elbowJointCenter</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">frame</span> <span class="o">=</span> <span class="p">{</span><span class="s1">&#39;RSHO&#39;</span><span class="p">:</span> <span class="n">np</span><span class="o">.</span><span class="n">array</span><span class="p">([</span><span class="mf">428.88</span><span class="p">,</span> <span class="mf">270.55</span><span class="p">,</span> <span class="mf">1500.73</span><span class="p">]),</span>
+<span class="gp">... </span>         <span class="s1">&#39;LSHO&#39;</span><span class="p">:</span> <span class="n">np</span><span class="o">.</span><span class="n">array</span><span class="p">([</span><span class="mf">68.24</span><span class="p">,</span> <span class="mf">269.01</span><span class="p">,</span> <span class="mf">1510.10</span><span class="p">]),</span>
+<span class="gp">... </span>         <span class="s1">&#39;RELB&#39;</span><span class="p">:</span> <span class="n">np</span><span class="o">.</span><span class="n">array</span><span class="p">([</span><span class="mf">658.90</span><span class="p">,</span> <span class="mf">326.07</span><span class="p">,</span> <span class="mf">1285.28</span><span class="p">]),</span>
+<span class="gp">... </span>         <span class="s1">&#39;LELB&#39;</span><span class="p">:</span> <span class="n">np</span><span class="o">.</span><span class="n">array</span><span class="p">([</span><span class="o">-</span><span class="mf">156.32</span><span class="p">,</span> <span class="mf">335.25</span><span class="p">,</span> <span class="mf">1287.39</span><span class="p">]),</span>
+<span class="gp">... </span>         <span class="s1">&#39;RWRA&#39;</span><span class="p">:</span> <span class="n">np</span><span class="o">.</span><span class="n">array</span><span class="p">([</span><span class="mf">776.51</span><span class="p">,</span><span class="mf">495.68</span><span class="p">,</span> <span class="mf">1108.38</span><span class="p">]),</span>
+<span class="gp">... </span>         <span class="s1">&#39;RWRB&#39;</span><span class="p">:</span> <span class="n">np</span><span class="o">.</span><span class="n">array</span><span class="p">([</span><span class="mf">830.90</span><span class="p">,</span> <span class="mf">436.75</span><span class="p">,</span> <span class="mf">1119.11</span><span class="p">]),</span>
+<span class="gp">... </span>         <span class="s1">&#39;LWRA&#39;</span><span class="p">:</span> <span class="n">np</span><span class="o">.</span><span class="n">array</span><span class="p">([</span><span class="o">-</span><span class="mf">249.28</span><span class="p">,</span> <span class="mf">525.32</span><span class="p">,</span> <span class="mf">1117.09</span><span class="p">]),</span>
+<span class="gp">... </span>         <span class="s1">&#39;LWRB&#39;</span><span class="p">:</span> <span class="n">np</span><span class="o">.</span><span class="n">array</span><span class="p">([</span><span class="o">-</span><span class="mf">311.77</span><span class="p">,</span> <span class="mf">477.22</span><span class="p">,</span> <span class="mf">1125.16</span><span class="p">])}</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">thorax</span> <span class="o">=</span> <span class="p">[[[</span><span class="mf">256.23</span><span class="p">,</span> <span class="mf">365.30</span><span class="p">,</span> <span class="mf">1459.66</span><span class="p">],</span>
+<span class="gp">... </span>       <span class="p">[</span><span class="mf">257.14</span><span class="p">,</span> <span class="mf">364.21</span><span class="p">,</span> <span class="mf">1459.58</span><span class="p">],</span>
+<span class="gp">... </span>       <span class="p">[</span><span class="mf">256.08</span><span class="p">,</span> <span class="mf">354.32</span><span class="p">,</span> <span class="mf">1458.65</span><span class="p">]],</span>
+<span class="gp">... </span>       <span class="p">[</span><span class="mf">256.14</span><span class="p">,</span> <span class="mf">364.30</span><span class="p">,</span> <span class="mf">1459.65</span><span class="p">]]</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">shoulderJC</span> <span class="o">=</span> <span class="p">[</span><span class="n">np</span><span class="o">.</span><span class="n">array</span><span class="p">([</span><span class="mf">429.66</span><span class="p">,</span> <span class="mf">275.06</span><span class="p">,</span> <span class="mf">1453.95</span><span class="p">]),</span>
+<span class="gp">... </span>           <span class="n">np</span><span class="o">.</span><span class="n">array</span><span class="p">([</span><span class="mf">64.51</span><span class="p">,</span> <span class="mf">274.93</span><span class="p">,</span> <span class="mf">1463.63</span><span class="p">])]</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">wand</span> <span class="o">=</span> <span class="p">[[</span><span class="mf">255.92</span><span class="p">,</span> <span class="mf">364.32</span><span class="p">,</span> <span class="mf">1460.62</span><span class="p">],</span>
+<span class="gp">... </span>       <span class="p">[</span><span class="mf">256.42</span><span class="p">,</span> <span class="mf">364.27</span><span class="p">,</span> <span class="mf">1460.61</span><span class="p">]]</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">vsk</span> <span class="o">=</span> <span class="p">{</span> <span class="s1">&#39;RightElbowWidth&#39;</span><span class="p">:</span> <span class="mf">74.0</span><span class="p">,</span> <span class="s1">&#39;LeftElbowWidth&#39;</span><span class="p">:</span> <span class="mf">74.0</span><span class="p">,</span>
+<span class="gp">... </span>        <span class="s1">&#39;RightWristWidth&#39;</span><span class="p">:</span> <span class="mf">55.0</span><span class="p">,</span> <span class="s1">&#39;LeftWristWidth&#39;</span><span class="p">:</span> <span class="mf">55.0</span><span class="p">}</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="p">[</span><span class="n">np</span><span class="o">.</span><span class="n">around</span><span class="p">(</span><span class="n">arr</span><span class="p">,</span> <span class="mi">2</span><span class="p">)</span> <span class="k">for</span> <span class="n">arr</span> <span class="ow">in</span> <span class="n">elbowJointCenter</span><span class="p">(</span><span class="n">frame</span><span class="p">,</span><span class="n">thorax</span><span class="p">,</span><span class="n">shoulderJC</span><span class="p">,</span><span class="n">wand</span><span class="p">,</span><span class="n">vsk</span><span class="p">)]</span> 
+<span class="go">[array([[ 633.66,  304.95, 1256.07],</span>
+<span class="go">[-129.16,  316.86, 1258.06]]), array([[[ 633.81,  303.96, 1256.07],</span>
+<span class="go">[ 634.35,  305.05, 1256.79],</span>
+<span class="go">[ 632.95,  304.84, 1256.77]],</span>
+<span class="go">[[-129.32,  315.88, 1258.  ],</span>
+<span class="go">[-128.45,  316.79, 1257.36],</span>
+<span class="go">[-128.49,  316.72, 1258.78]]]), array([[ 793.32,  451.29, 1084.43],</span>
+<span class="go">[-272.46,  485.79, 1091.37]])]</span>
+</pre></div>
+</div>
+</dd></dl>
+
+</div>
+
+
+          </div>
+          
+        </div>
+      </div>
+      <div class="sphinxsidebar" role="navigation" aria-label="main navigation">
+        <div class="sphinxsidebarwrapper">
+<h1 class="logo"><a href="../index.html">pycgm</a></h1>
+
+
+
+
+
+
+
+
+<h3>Navigation</h3>
+<p class="caption"><span class="caption-text">Contents:</span></p>
+<ul class="current">
+<li class="toctree-l1"><a class="reference internal" href="../install.html">Installation</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../Overview.html">Overview</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../GettingStarted.html">Getting Started with pycgm</a></li>
+<li class="toctree-l1 current"><a class="reference internal" href="../API.html">API for pycgm</a><ul class="current">
+<li class="toctree-l2 current"><a class="reference internal" href="pyCGM_Single.pyCGM.html">pyCGM_Single.pyCGM</a></li>
+<li class="toctree-l2"><a class="reference internal" href="pyCGM_Single.pycgmKinetics.html">pyCGM_Single.pycgmKinetics</a></li>
+<li class="toctree-l2"><a class="reference internal" href="pyCGM_Single.pycgmIO.html">pyCGM_Single.pycgmIO</a></li>
+<li class="toctree-l2"><a class="reference internal" href="pyCGM_Single.Pipelines.html">pyCGM_Single.Pipelines</a></li>
+<li class="toctree-l2"><a class="reference internal" href="pyCGM_Single.pyCGM_Helpers.html">pyCGM_Single.pyCGM_Helpers</a></li>
+<li class="toctree-l2"><a class="reference internal" href="pyCGM_Single.pycgmCalc.html">pyCGM_Single.pycgmCalc</a></li>
+<li class="toctree-l2"><a class="reference internal" href="pyCGM_Single.pycgmStatic.html">pyCGM_Single.pycgmStatic</a></li>
+<li class="toctree-l2"><a class="reference internal" href="pyCGM_Single.clusterCalc.html">pyCGM_Single.clusterCalc</a></li>
+<li class="toctree-l2"><a class="reference internal" href="pyCGM_Single.pycgmClusters.html">pyCGM_Single.pycgmClusters</a></li>
+</ul>
+</li>
+</ul>
+
+<div class="relations">
+<h3>Related Topics</h3>
+<ul>
+  <li><a href="../index.html">Documentation overview</a><ul>
+  <li><a href="../API.html">API for pycgm</a><ul>
+  <li><a href="pyCGM_Single.pyCGM.html">pyCGM_Single.pyCGM</a><ul>
+      <li>Previous: <a href="pyCGM_Single.pyCGM.dataAsDict.html" title="previous chapter">pyCGM_Single.pyCGM.dataAsDict</a></li>
+      <li>Next: <a href="pyCGM_Single.pyCGM.findJointC.html" title="next chapter">pyCGM_Single.pyCGM.findJointC</a></li>
+  </ul></li>
+  </ul></li>
+  </ul></li>
+</ul>
+</div>
+<div id="searchbox" style="display: none" role="search">
+  <h3 id="searchlabel">Quick search</h3>
+    <div class="searchformwrapper">
+    <form class="search" action="../search.html" method="get">
+      <input type="text" name="q" aria-labelledby="searchlabel" />
+      <input type="submit" value="Go" />
+    </form>
+    </div>
+</div>
+<script>$('#searchbox').show(0);</script>
+
+
+
+
+
+
+
+
+        </div>
+      </div>
+      <div class="clearer"></div>
+    </div>
+    <div class="footer">
+      &copy;2020, Mathew Schwartz.
+      
+      |
+      Powered by <a href="http://sphinx-doc.org/">Sphinx 3.2.1</a>
+      &amp; <a href="https://github.com/bitprophet/alabaster">Alabaster 0.7.12</a>
+      
+      |
+      <a href="../_sources/generated/pyCGM_Single.pyCGM.elbowJointCenter.rst.txt"
+          rel="nofollow">Page source</a>
+    </div>
+
+    
+
+    
+  </body>
+</html>

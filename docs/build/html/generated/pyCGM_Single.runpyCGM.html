@@ -1,0 +1,164 @@
+
+<!DOCTYPE html>
+
+<html>
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>pyCGM_Single.runpyCGM &#8212; pycgm 1.0.0 documentation</title>
+    <link rel="stylesheet" href="../_static/alabaster.css" type="text/css" />
+    <link rel="stylesheet" href="../_static/pygments.css" type="text/css" />
+    <script id="documentation_options" data-url_root="../" src="../_static/documentation_options.js"></script>
+    <script src="../_static/jquery.js"></script>
+    <script src="../_static/underscore.js"></script>
+    <script src="../_static/doctools.js"></script>
+    <script src="../_static/language_data.js"></script>
+    <link rel="index" title="Index" href="../genindex.html" />
+    <link rel="search" title="Search" href="../search.html" />
+    <link rel="next" title="pyCGM_Single.runpyCGM.main" href="pyCGM_Single.runpyCGM.main.html" />
+    <link rel="prev" title="Getting Started with pycgm" href="../GettingStarted.html" />
+   
+  <link rel="stylesheet" href="../_static/custom.css" type="text/css" />
+  
+  
+  <meta name="viewport" content="width=device-width, initial-scale=0.9, maximum-scale=0.9" />
+
+  </head><body>
+  
+
+    <div class="document">
+      <div class="documentwrapper">
+        <div class="bodywrapper">
+          
+
+          <div class="body" role="main">
+            
+  <div class="section" id="pycgm-single-runpycgm">
+<h1>pyCGM_Single.runpyCGM<a class="headerlink" href="#pycgm-single-runpycgm" title="Permalink to this headline">¶</a></h1>
+<p class="rubric">Description</p>
+<span class="target" id="module-pyCGM_Single.runpyCGM"></span><p>This file serves as an example on how to run pyCGM directly.</p>
+<p>To run this file, copy the sample files into the same directory as the code,
+then in a terminal type:</p>
+<div class="highlight-bash notranslate"><div class="highlight"><pre><span></span>python runpyCGM.py -i ReplicateRobotGait01.c3d -o <span class="nb">test</span> -v Jisub.vsk --staticinput <span class="s2">&quot;Jisub Cal 01.c3d&quot;</span>
+</pre></div>
+</div>
+<p>The aforementioned command will output a test.csv file with the results.</p>
+<p><strong>Command-line Instructions</strong></p>
+<blockquote>
+<div><dl class="field-list simple">
+<dt class="field-odd">-h</dt>
+<dd class="field-odd"><p>Help, provides basic command structure.</p>
+</dd>
+<dt class="field-even">-i, -ifile</dt>
+<dd class="field-even"><p>The input file.</p>
+</dd>
+<dt class="field-odd">-o, -ofile</dt>
+<dd class="field-odd"><p>The output file.</p>
+</dd>
+<dt class="field-even">-s, -start</dt>
+<dd class="field-even"><p>The start time of the motion capture (optional).</p>
+</dd>
+<dt class="field-odd">-e, -end</dt>
+<dd class="field-odd"><p>The end time of the motion capture (optional).</p>
+</dd>
+<dt class="field-even">-v, -vskfile</dt>
+<dd class="field-even"><p>The name of the .vsk file (optional).</p>
+</dd>
+<dt class="field-odd">-x, -staticinput</dt>
+<dd class="field-odd"><p>The name of the static input file (optional).</p>
+</dd>
+</dl>
+</div></blockquote>
+<p class="rubric">Functions</p>
+<table class="longtable docutils align-default">
+<colgroup>
+<col style="width: 10%" />
+<col style="width: 90%" />
+</colgroup>
+<tbody>
+<tr class="row-odd"><td><p><a class="reference internal" href="pyCGM_Single.runpyCGM.main.html#pyCGM_Single.runpyCGM.main" title="pyCGM_Single.runpyCGM.main"><code class="xref py py-obj docutils literal notranslate"><span class="pre">main</span></code></a>(argv)</p></td>
+<td><p>Take in motion data file and the time span, returns output file of angles</p></td>
+</tr>
+</tbody>
+</table>
+</div>
+
+
+          </div>
+          
+        </div>
+      </div>
+      <div class="sphinxsidebar" role="navigation" aria-label="main navigation">
+        <div class="sphinxsidebarwrapper">
+<h1 class="logo"><a href="../index.html">pycgm</a></h1>
+
+
+
+
+
+
+
+
+<h3>Navigation</h3>
+<p class="caption"><span class="caption-text">Contents:</span></p>
+<ul class="current">
+<li class="toctree-l1"><a class="reference internal" href="../install.html">Installation</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../Overview.html">Overview</a></li>
+<li class="toctree-l1 current"><a class="reference internal" href="../GettingStarted.html">Getting Started with pycgm</a><ul class="current">
+<li class="toctree-l2 current"><a class="current reference internal" href="#">pyCGM_Single.runpyCGM</a></li>
+<li class="toctree-l2"><a class="reference internal" href="pyCGM_Single.pycgm_embed.html">pyCGM_Single.pycgm_embed</a></li>
+</ul>
+</li>
+<li class="toctree-l1"><a class="reference internal" href="../API.html">API for pycgm</a></li>
+</ul>
+
+<div class="relations">
+<h3>Related Topics</h3>
+<ul>
+  <li><a href="../index.html">Documentation overview</a><ul>
+  <li><a href="../GettingStarted.html">Getting Started with pycgm</a><ul>
+      <li>Previous: <a href="../GettingStarted.html" title="previous chapter">Getting Started with pycgm</a></li>
+      <li>Next: <a href="pyCGM_Single.runpyCGM.main.html" title="next chapter">pyCGM_Single.runpyCGM.main</a></li>
+  </ul></li>
+  </ul></li>
+</ul>
+</div>
+<div id="searchbox" style="display: none" role="search">
+  <h3 id="searchlabel">Quick search</h3>
+    <div class="searchformwrapper">
+    <form class="search" action="../search.html" method="get">
+      <input type="text" name="q" aria-labelledby="searchlabel" />
+      <input type="submit" value="Go" />
+    </form>
+    </div>
+</div>
+<script>$('#searchbox').show(0);</script>
+
+
+
+
+
+
+
+
+        </div>
+      </div>
+      <div class="clearer"></div>
+    </div>
+    <div class="footer">
+      &copy;2020, Mathew Schwartz.
+      
+      |
+      Powered by <a href="http://sphinx-doc.org/">Sphinx 3.2.1</a>
+      &amp; <a href="https://github.com/bitprophet/alabaster">Alabaster 0.7.12</a>
+      
+      |
+      <a href="../_sources/generated/pyCGM_Single.runpyCGM.rst.txt"
+          rel="nofollow">Page source</a>
+    </div>
+
+    
+
+    
+  </body>
+</html>

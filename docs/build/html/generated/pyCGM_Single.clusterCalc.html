@@ -1,0 +1,159 @@
+
+<!DOCTYPE html>
+
+<html>
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>pyCGM_Single.clusterCalc &#8212; pycgm 1.0.0 documentation</title>
+    <link rel="stylesheet" href="../_static/alabaster.css" type="text/css" />
+    <link rel="stylesheet" href="../_static/pygments.css" type="text/css" />
+    <script id="documentation_options" data-url_root="../" src="../_static/documentation_options.js"></script>
+    <script src="../_static/jquery.js"></script>
+    <script src="../_static/underscore.js"></script>
+    <script src="../_static/doctools.js"></script>
+    <script src="../_static/language_data.js"></script>
+    <link rel="index" title="Index" href="../genindex.html" />
+    <link rel="search" title="Search" href="../search.html" />
+    <link rel="next" title="pyCGM_Single.clusterCalc.getMarkerLocation" href="pyCGM_Single.clusterCalc.getMarkerLocation.html" />
+    <link rel="prev" title="pyCGM_Single.pycgmStatic.uncorrect_footaxis" href="pyCGM_Single.pycgmStatic.uncorrect_footaxis.html" />
+   
+  <link rel="stylesheet" href="../_static/custom.css" type="text/css" />
+  
+  
+  <meta name="viewport" content="width=device-width, initial-scale=0.9, maximum-scale=0.9" />
+
+  </head><body>
+  
+
+    <div class="document">
+      <div class="documentwrapper">
+        <div class="bodywrapper">
+          
+
+          <div class="body" role="main">
+            
+  <div class="section" id="pycgm-single-clustercalc">
+<h1>pyCGM_Single.clusterCalc<a class="headerlink" href="#pycgm-single-clustercalc" title="Permalink to this headline">¶</a></h1>
+<p class="rubric">Description</p>
+<span class="target" id="module-pyCGM_Single.clusterCalc"></span><p>This file is used for calculating cluster transformations to apply
+in the case of a missing marker.</p>
+<p>It is currently imported directly in pycgmClusters.py and Pipelines.py.</p>
+<p class="rubric">Functions</p>
+<table class="longtable docutils align-default">
+<colgroup>
+<col style="width: 10%" />
+<col style="width: 90%" />
+</colgroup>
+<tbody>
+<tr class="row-odd"><td><p><a class="reference internal" href="pyCGM_Single.clusterCalc.getMarkerLocation.html#pyCGM_Single.clusterCalc.getMarkerLocation" title="pyCGM_Single.clusterCalc.getMarkerLocation"><code class="xref py py-obj docutils literal notranslate"><span class="pre">getMarkerLocation</span></code></a>(Pm, C)</p></td>
+<td><p>Finds the missing marker in the world frame.</p></td>
+</tr>
+<tr class="row-even"><td><p><a class="reference internal" href="pyCGM_Single.clusterCalc.getStaticTransform.html#pyCGM_Single.clusterCalc.getStaticTransform" title="pyCGM_Single.clusterCalc.getStaticTransform"><code class="xref py py-obj docutils literal notranslate"><span class="pre">getStaticTransform</span></code></a>(p, C)</p></td>
+<td><p>Find the location of the missing marker in the cluster frame.</p></td>
+</tr>
+<tr class="row-odd"><td><p><a class="reference internal" href="pyCGM_Single.clusterCalc.normalize.html#pyCGM_Single.clusterCalc.normalize" title="pyCGM_Single.clusterCalc.normalize"><code class="xref py py-obj docutils literal notranslate"><span class="pre">normalize</span></code></a>(v)</p></td>
+<td><p>Normalizes an input vector</p></td>
+</tr>
+<tr class="row-even"><td><p><a class="reference internal" href="pyCGM_Single.clusterCalc.printMat.html#pyCGM_Single.clusterCalc.printMat" title="pyCGM_Single.clusterCalc.printMat"><code class="xref py py-obj docutils literal notranslate"><span class="pre">printMat</span></code></a>(M)</p></td>
+<td><p>Prints a matrix.</p></td>
+</tr>
+<tr class="row-odd"><td><p><a class="reference internal" href="pyCGM_Single.clusterCalc.segment_dict.html#pyCGM_Single.clusterCalc.segment_dict" title="pyCGM_Single.clusterCalc.segment_dict"><code class="xref py py-obj docutils literal notranslate"><span class="pre">segment_dict</span></code></a>()</p></td>
+<td><p>Creates a dictionary of segments to marker names.</p></td>
+</tr>
+<tr class="row-even"><td><p><a class="reference internal" href="pyCGM_Single.clusterCalc.targetName.html#pyCGM_Single.clusterCalc.targetName" title="pyCGM_Single.clusterCalc.targetName"><code class="xref py py-obj docutils literal notranslate"><span class="pre">targetName</span></code></a>()</p></td>
+<td><p>Creates a list of marker names.</p></td>
+</tr>
+<tr class="row-odd"><td><p><a class="reference internal" href="pyCGM_Single.clusterCalc.target_dict.html#pyCGM_Single.clusterCalc.target_dict" title="pyCGM_Single.clusterCalc.target_dict"><code class="xref py py-obj docutils literal notranslate"><span class="pre">target_dict</span></code></a>()</p></td>
+<td><p>Creates a dictionary of marker to segment.</p></td>
+</tr>
+</tbody>
+</table>
+</div>
+
+
+          </div>
+          
+        </div>
+      </div>
+      <div class="sphinxsidebar" role="navigation" aria-label="main navigation">
+        <div class="sphinxsidebarwrapper">
+<h1 class="logo"><a href="../index.html">pycgm</a></h1>
+
+
+
+
+
+
+
+
+<h3>Navigation</h3>
+<p class="caption"><span class="caption-text">Contents:</span></p>
+<ul class="current">
+<li class="toctree-l1"><a class="reference internal" href="../install.html">Installation</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../Overview.html">Overview</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../GettingStarted.html">Getting Started with pycgm</a></li>
+<li class="toctree-l1 current"><a class="reference internal" href="../API.html">API for pycgm</a><ul class="current">
+<li class="toctree-l2"><a class="reference internal" href="pyCGM_Single.pyCGM.html">pyCGM_Single.pyCGM</a></li>
+<li class="toctree-l2"><a class="reference internal" href="pyCGM_Single.pycgmKinetics.html">pyCGM_Single.pycgmKinetics</a></li>
+<li class="toctree-l2"><a class="reference internal" href="pyCGM_Single.pycgmIO.html">pyCGM_Single.pycgmIO</a></li>
+<li class="toctree-l2"><a class="reference internal" href="pyCGM_Single.Pipelines.html">pyCGM_Single.Pipelines</a></li>
+<li class="toctree-l2"><a class="reference internal" href="pyCGM_Single.pyCGM_Helpers.html">pyCGM_Single.pyCGM_Helpers</a></li>
+<li class="toctree-l2"><a class="reference internal" href="pyCGM_Single.pycgmCalc.html">pyCGM_Single.pycgmCalc</a></li>
+<li class="toctree-l2"><a class="reference internal" href="pyCGM_Single.pycgmStatic.html">pyCGM_Single.pycgmStatic</a></li>
+<li class="toctree-l2 current"><a class="current reference internal" href="#">pyCGM_Single.clusterCalc</a></li>
+<li class="toctree-l2"><a class="reference internal" href="pyCGM_Single.pycgmClusters.html">pyCGM_Single.pycgmClusters</a></li>
+</ul>
+</li>
+</ul>
+
+<div class="relations">
+<h3>Related Topics</h3>
+<ul>
+  <li><a href="../index.html">Documentation overview</a><ul>
+  <li><a href="../API.html">API for pycgm</a><ul>
+      <li>Previous: <a href="pyCGM_Single.pycgmStatic.uncorrect_footaxis.html" title="previous chapter">pyCGM_Single.pycgmStatic.uncorrect_footaxis</a></li>
+      <li>Next: <a href="pyCGM_Single.clusterCalc.getMarkerLocation.html" title="next chapter">pyCGM_Single.clusterCalc.getMarkerLocation</a></li>
+  </ul></li>
+  </ul></li>
+</ul>
+</div>
+<div id="searchbox" style="display: none" role="search">
+  <h3 id="searchlabel">Quick search</h3>
+    <div class="searchformwrapper">
+    <form class="search" action="../search.html" method="get">
+      <input type="text" name="q" aria-labelledby="searchlabel" />
+      <input type="submit" value="Go" />
+    </form>
+    </div>
+</div>
+<script>$('#searchbox').show(0);</script>
+
+
+
+
+
+
+
+
+        </div>
+      </div>
+      <div class="clearer"></div>
+    </div>
+    <div class="footer">
+      &copy;2020, Mathew Schwartz.
+      
+      |
+      Powered by <a href="http://sphinx-doc.org/">Sphinx 3.2.1</a>
+      &amp; <a href="https://github.com/bitprophet/alabaster">Alabaster 0.7.12</a>
+      
+      |
+      <a href="../_sources/generated/pyCGM_Single.clusterCalc.rst.txt"
+          rel="nofollow">Page source</a>
+    </div>
+
+    
+
+    
+  </body>
+</html>

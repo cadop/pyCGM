@@ -1,0 +1,280 @@
+
+<!DOCTYPE html>
+
+<html>
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>pyCGM_Single.pyCGM &#8212; pycgm 1.0.0 documentation</title>
+    <link rel="stylesheet" href="../_static/alabaster.css" type="text/css" />
+    <link rel="stylesheet" href="../_static/pygments.css" type="text/css" />
+    <script id="documentation_options" data-url_root="../" src="../_static/documentation_options.js"></script>
+    <script src="../_static/jquery.js"></script>
+    <script src="../_static/underscore.js"></script>
+    <script src="../_static/doctools.js"></script>
+    <script src="../_static/language_data.js"></script>
+    <link rel="index" title="Index" href="../genindex.html" />
+    <link rel="search" title="Search" href="../search.html" />
+    <link rel="next" title="pyCGM_Single.pyCGM.JointAngleCalc" href="pyCGM_Single.pyCGM.JointAngleCalc.html" />
+    <link rel="prev" title="API for pycgm" href="../API.html" />
+   
+  <link rel="stylesheet" href="../_static/custom.css" type="text/css" />
+  
+  
+  <meta name="viewport" content="width=device-width, initial-scale=0.9, maximum-scale=0.9" />
+
+  </head><body>
+  
+
+    <div class="document">
+      <div class="documentwrapper">
+        <div class="bodywrapper">
+          
+
+          <div class="body" role="main">
+            
+  <div class="section" id="pycgm-single-pycgm">
+<h1>pyCGM_Single.pyCGM<a class="headerlink" href="#pycgm-single-pycgm" title="Permalink to this headline">¶</a></h1>
+<p class="rubric">Description</p>
+<span class="target" id="module-pyCGM_Single.pyCGM"></span><p>This file is used in joint angle and joint center calculations.</p>
+<p class="rubric">Functions</p>
+<table class="longtable docutils align-default">
+<colgroup>
+<col style="width: 10%" />
+<col style="width: 90%" />
+</colgroup>
+<tbody>
+<tr class="row-odd"><td><p><a class="reference internal" href="pyCGM_Single.pyCGM.JointAngleCalc.html#pyCGM_Single.pyCGM.JointAngleCalc" title="pyCGM_Single.pyCGM.JointAngleCalc"><code class="xref py py-obj docutils literal notranslate"><span class="pre">JointAngleCalc</span></code></a>(frame, vsk)</p></td>
+<td><p>Joint Angle Calculation function.</p></td>
+</tr>
+<tr class="row-even"><td><p><a class="reference internal" href="pyCGM_Single.pyCGM.ankleJointCenter.html#pyCGM_Single.pyCGM.ankleJointCenter" title="pyCGM_Single.pyCGM.ankleJointCenter"><code class="xref py py-obj docutils literal notranslate"><span class="pre">ankleJointCenter</span></code></a>(frame, knee_JC, delta[, vsk])</p></td>
+<td><p>Calculate the ankle joint center and axis.</p></td>
+</tr>
+<tr class="row-odd"><td><p><a class="reference internal" href="pyCGM_Single.pyCGM.combineDataDict.html#pyCGM_Single.pyCGM.combineDataDict" title="pyCGM_Single.pyCGM.combineDataDict"><code class="xref py py-obj docutils literal notranslate"><span class="pre">combineDataDict</span></code></a>(values, labels)</p></td>
+<td><p>Converts two lists of values and labels to a dictionary.</p></td>
+</tr>
+<tr class="row-even"><td><p><a class="reference internal" href="pyCGM_Single.pyCGM.cos.html#pyCGM_Single.pyCGM.cos" title="pyCGM_Single.pyCGM.cos"><code class="xref py py-obj docutils literal notranslate"><span class="pre">cos</span></code></a>(x, /)</p></td>
+<td><p>Return the cosine of x (measured in radians).</p></td>
+</tr>
+<tr class="row-odd"><td><p><a class="reference internal" href="pyCGM_Single.pyCGM.createMotionDataDict.html#pyCGM_Single.pyCGM.createMotionDataDict" title="pyCGM_Single.pyCGM.createMotionDataDict"><code class="xref py py-obj docutils literal notranslate"><span class="pre">createMotionDataDict</span></code></a>(labels, data)</p></td>
+<td><p>Creates an array of motion capture data given labels and data.</p></td>
+</tr>
+<tr class="row-even"><td><p><a class="reference internal" href="pyCGM_Single.pyCGM.createVskDataDict.html#pyCGM_Single.pyCGM.createVskDataDict" title="pyCGM_Single.pyCGM.createVskDataDict"><code class="xref py py-obj docutils literal notranslate"><span class="pre">createVskDataDict</span></code></a>(labels, data)</p></td>
+<td><p>Creates a dictionary of vsk file values from labels and data.</p></td>
+</tr>
+<tr class="row-odd"><td><p><a class="reference internal" href="pyCGM_Single.pyCGM.cross.html#pyCGM_Single.pyCGM.cross" title="pyCGM_Single.pyCGM.cross"><code class="xref py py-obj docutils literal notranslate"><span class="pre">cross</span></code></a>(a, b)</p></td>
+<td><p>Cross Product.</p></td>
+</tr>
+<tr class="row-even"><td><p><a class="reference internal" href="pyCGM_Single.pyCGM.dataAsArray.html#pyCGM_Single.pyCGM.dataAsArray" title="pyCGM_Single.pyCGM.dataAsArray"><code class="xref py py-obj docutils literal notranslate"><span class="pre">dataAsArray</span></code></a>(data)</p></td>
+<td><p>Converts a dictionary of markers and their corresponding x, y, and z coordinate values to an array of dictionaries.</p></td>
+</tr>
+<tr class="row-odd"><td><p><a class="reference internal" href="pyCGM_Single.pyCGM.dataAsDict.html#pyCGM_Single.pyCGM.dataAsDict" title="pyCGM_Single.pyCGM.dataAsDict"><code class="xref py py-obj docutils literal notranslate"><span class="pre">dataAsDict</span></code></a>(data[, npArray])</p></td>
+<td><p>Converts frame-by-frame motion capture data to a dictionary.</p></td>
+</tr>
+<tr class="row-even"><td><p><a class="reference internal" href="pyCGM_Single.pyCGM.elbowJointCenter.html#pyCGM_Single.pyCGM.elbowJointCenter" title="pyCGM_Single.pyCGM.elbowJointCenter"><code class="xref py py-obj docutils literal notranslate"><span class="pre">elbowJointCenter</span></code></a>(frame, thorax, shoulderJC, wand)</p></td>
+<td><p>Calculate the Elbow joint axis ( Humerus) function.</p></td>
+</tr>
+<tr class="row-odd"><td><p><a class="reference internal" href="pyCGM_Single.pyCGM.findJointC.html#pyCGM_Single.pyCGM.findJointC" title="pyCGM_Single.pyCGM.findJointC"><code class="xref py py-obj docutils literal notranslate"><span class="pre">findJointC</span></code></a>(a, b, c, delta)</p></td>
+<td><p>Calculate the Joint Center.</p></td>
+</tr>
+<tr class="row-even"><td><p><a class="reference internal" href="pyCGM_Single.pyCGM.findshoulderJC.html#pyCGM_Single.pyCGM.findshoulderJC" title="pyCGM_Single.pyCGM.findshoulderJC"><code class="xref py py-obj docutils literal notranslate"><span class="pre">findshoulderJC</span></code></a>(frame, thorax, wand[, vsk])</p></td>
+<td><p>Calculate the Shoulder joint center function.</p></td>
+</tr>
+<tr class="row-odd"><td><p><a class="reference internal" href="pyCGM_Single.pyCGM.findwandmarker.html#pyCGM_Single.pyCGM.findwandmarker" title="pyCGM_Single.pyCGM.findwandmarker"><code class="xref py py-obj docutils literal notranslate"><span class="pre">findwandmarker</span></code></a>(frame, thorax)</p></td>
+<td><p>Calculate the wand marker function.</p></td>
+</tr>
+<tr class="row-even"><td><p><a class="reference internal" href="pyCGM_Single.pyCGM.footJointCenter.html#pyCGM_Single.pyCGM.footJointCenter" title="pyCGM_Single.pyCGM.footJointCenter"><code class="xref py py-obj docutils literal notranslate"><span class="pre">footJointCenter</span></code></a>(frame, vsk, ankle_JC, …)</p></td>
+<td><p>Calculate the foot joint center and axis.</p></td>
+</tr>
+<tr class="row-odd"><td><p><a class="reference internal" href="pyCGM_Single.pyCGM.getHeadangle.html#pyCGM_Single.pyCGM.getHeadangle" title="pyCGM_Single.pyCGM.getHeadangle"><code class="xref py py-obj docutils literal notranslate"><span class="pre">getHeadangle</span></code></a>(axisP, axisD)</p></td>
+<td><p>Head angle calculation function.</p></td>
+</tr>
+<tr class="row-even"><td><p><a class="reference internal" href="pyCGM_Single.pyCGM.getPelangle.html#pyCGM_Single.pyCGM.getPelangle" title="pyCGM_Single.pyCGM.getPelangle"><code class="xref py py-obj docutils literal notranslate"><span class="pre">getPelangle</span></code></a>(axisP, axisD)</p></td>
+<td><p>Pelvis angle calculation.</p></td>
+</tr>
+<tr class="row-odd"><td><p><a class="reference internal" href="pyCGM_Single.pyCGM.getangle.html#pyCGM_Single.pyCGM.getangle" title="pyCGM_Single.pyCGM.getangle"><code class="xref py py-obj docutils literal notranslate"><span class="pre">getangle</span></code></a>(axisP, axisD)</p></td>
+<td><p>Normal angle calculation.</p></td>
+</tr>
+<tr class="row-even"><td><p><a class="reference internal" href="pyCGM_Single.pyCGM.getangle_sho.html#pyCGM_Single.pyCGM.getangle_sho" title="pyCGM_Single.pyCGM.getangle_sho"><code class="xref py py-obj docutils literal notranslate"><span class="pre">getangle_sho</span></code></a>(axisP, axisD)</p></td>
+<td><p>Shoulder angle calculation.</p></td>
+</tr>
+<tr class="row-odd"><td><p><a class="reference internal" href="pyCGM_Single.pyCGM.getangle_spi.html#pyCGM_Single.pyCGM.getangle_spi" title="pyCGM_Single.pyCGM.getangle_spi"><code class="xref py py-obj docutils literal notranslate"><span class="pre">getangle_spi</span></code></a>(axisP, axisD)</p></td>
+<td><p>Spine angle calculation.</p></td>
+</tr>
+<tr class="row-even"><td><p><a class="reference internal" href="pyCGM_Single.pyCGM.handJointCenter.html#pyCGM_Single.pyCGM.handJointCenter" title="pyCGM_Single.pyCGM.handJointCenter"><code class="xref py py-obj docutils literal notranslate"><span class="pre">handJointCenter</span></code></a>(frame, elbowJC, wristJC[, vsk])</p></td>
+<td><p>Calculate the Hand joint axis (Hand).</p></td>
+</tr>
+<tr class="row-odd"><td><p><a class="reference internal" href="pyCGM_Single.pyCGM.headJC.html#pyCGM_Single.pyCGM.headJC" title="pyCGM_Single.pyCGM.headJC"><code class="xref py py-obj docutils literal notranslate"><span class="pre">headJC</span></code></a>(frame[, vsk])</p></td>
+<td><p>Calculate the head joint axis function.</p></td>
+</tr>
+<tr class="row-even"><td><p><a class="reference internal" href="pyCGM_Single.pyCGM.hipAxisCenter.html#pyCGM_Single.pyCGM.hipAxisCenter" title="pyCGM_Single.pyCGM.hipAxisCenter"><code class="xref py py-obj docutils literal notranslate"><span class="pre">hipAxisCenter</span></code></a>(l_hip_jc, r_hip_jc, pelvis_axis)</p></td>
+<td><p>Calculate the hip center axis and hip axis.</p></td>
+</tr>
+<tr class="row-odd"><td><p><a class="reference internal" href="pyCGM_Single.pyCGM.hipJointCenter.html#pyCGM_Single.pyCGM.hipJointCenter" title="pyCGM_Single.pyCGM.hipJointCenter"><code class="xref py py-obj docutils literal notranslate"><span class="pre">hipJointCenter</span></code></a>(frame, pel_origin, pel_x, …)</p></td>
+<td><p>Calculate the hip joint center.</p></td>
+</tr>
+<tr class="row-even"><td><p><a class="reference internal" href="pyCGM_Single.pyCGM.kneeJointCenter.html#pyCGM_Single.pyCGM.kneeJointCenter" title="pyCGM_Single.pyCGM.kneeJointCenter"><code class="xref py py-obj docutils literal notranslate"><span class="pre">kneeJointCenter</span></code></a>(frame, hip_JC, delta[, vsk])</p></td>
+<td><p>Calculate the knee joint center and axis.</p></td>
+</tr>
+<tr class="row-odd"><td><p><a class="reference internal" href="pyCGM_Single.pyCGM.loadC3D.html#pyCGM_Single.pyCGM.loadC3D" title="pyCGM_Single.pyCGM.loadC3D"><code class="xref py py-obj docutils literal notranslate"><span class="pre">loadC3D</span></code></a>(filename)</p></td>
+<td><p>Open and load a C3D file of motion capture data</p></td>
+</tr>
+<tr class="row-even"><td><p><a class="reference internal" href="pyCGM_Single.pyCGM.loadCSV.html#pyCGM_Single.pyCGM.loadCSV" title="pyCGM_Single.pyCGM.loadCSV"><code class="xref py py-obj docutils literal notranslate"><span class="pre">loadCSV</span></code></a>(filename)</p></td>
+<td><p>Open and load a CSV file of motion capture data.</p></td>
+</tr>
+<tr class="row-odd"><td><p><a class="reference internal" href="pyCGM_Single.pyCGM.loadData.html#pyCGM_Single.pyCGM.loadData" title="pyCGM_Single.pyCGM.loadData"><code class="xref py py-obj docutils literal notranslate"><span class="pre">loadData</span></code></a>(filename[, rawData])</p></td>
+<td><p>Loads motion capture data from a csv or c3d file.</p></td>
+</tr>
+<tr class="row-even"><td><p><a class="reference internal" href="pyCGM_Single.pyCGM.loadEZC3D.html#pyCGM_Single.pyCGM.loadEZC3D" title="pyCGM_Single.pyCGM.loadEZC3D"><code class="xref py py-obj docutils literal notranslate"><span class="pre">loadEZC3D</span></code></a>(filename)</p></td>
+<td><p>Use c3dez to load a c3d file.</p></td>
+</tr>
+<tr class="row-odd"><td><p><a class="reference internal" href="pyCGM_Single.pyCGM.loadVSK.html#pyCGM_Single.pyCGM.loadVSK" title="pyCGM_Single.pyCGM.loadVSK"><code class="xref py py-obj docutils literal notranslate"><span class="pre">loadVSK</span></code></a>(filename[, dict])</p></td>
+<td><p>Open and load a vsk file.</p></td>
+</tr>
+<tr class="row-even"><td><p><a class="reference internal" href="pyCGM_Single.pyCGM.make_sure_path_exists.html#pyCGM_Single.pyCGM.make_sure_path_exists" title="pyCGM_Single.pyCGM.make_sure_path_exists"><code class="xref py py-obj docutils literal notranslate"><span class="pre">make_sure_path_exists</span></code></a>(path)</p></td>
+<td><p>Creates a file path.</p></td>
+</tr>
+<tr class="row-odd"><td><p><a class="reference internal" href="pyCGM_Single.pyCGM.markerKeys.html#pyCGM_Single.pyCGM.markerKeys" title="pyCGM_Single.pyCGM.markerKeys"><code class="xref py py-obj docutils literal notranslate"><span class="pre">markerKeys</span></code></a>()</p></td>
+<td><p>A list of marker names.</p></td>
+</tr>
+<tr class="row-even"><td><p><a class="reference internal" href="pyCGM_Single.pyCGM.matrixmult.html#pyCGM_Single.pyCGM.matrixmult" title="pyCGM_Single.pyCGM.matrixmult"><code class="xref py py-obj docutils literal notranslate"><span class="pre">matrixmult</span></code></a>(A, B)</p></td>
+<td><p>Matrix multiplication.</p></td>
+</tr>
+<tr class="row-odd"><td><p><a class="reference internal" href="pyCGM_Single.pyCGM.norm2d.html#pyCGM_Single.pyCGM.norm2d" title="pyCGM_Single.pyCGM.norm2d"><code class="xref py py-obj docutils literal notranslate"><span class="pre">norm2d</span></code></a>(v)</p></td>
+<td><p>2D Vector normalization.</p></td>
+</tr>
+<tr class="row-even"><td><p><a class="reference internal" href="pyCGM_Single.pyCGM.norm3d.html#pyCGM_Single.pyCGM.norm3d" title="pyCGM_Single.pyCGM.norm3d"><code class="xref py py-obj docutils literal notranslate"><span class="pre">norm3d</span></code></a>(v)</p></td>
+<td><p>3D Vector normalization.</p></td>
+</tr>
+<tr class="row-odd"><td><p><a class="reference internal" href="pyCGM_Single.pyCGM.normDiv.html#pyCGM_Single.pyCGM.normDiv" title="pyCGM_Single.pyCGM.normDiv"><code class="xref py py-obj docutils literal notranslate"><span class="pre">normDiv</span></code></a>(v)</p></td>
+<td><p>Normalized divison.</p></td>
+</tr>
+<tr class="row-even"><td><p><a class="reference internal" href="pyCGM_Single.pyCGM.pelvisJointCenter.html#pyCGM_Single.pyCGM.pelvisJointCenter" title="pyCGM_Single.pyCGM.pelvisJointCenter"><code class="xref py py-obj docutils literal notranslate"><span class="pre">pelvisJointCenter</span></code></a>(frame)</p></td>
+<td><p>Make the Pelvis Axis.</p></td>
+</tr>
+<tr class="row-odd"><td><p><a class="reference internal" href="pyCGM_Single.pyCGM.rotmat.html#pyCGM_Single.pyCGM.rotmat" title="pyCGM_Single.pyCGM.rotmat"><code class="xref py py-obj docutils literal notranslate"><span class="pre">rotmat</span></code></a>([x, y, z])</p></td>
+<td><p>Rotation Matrix.</p></td>
+</tr>
+<tr class="row-even"><td><p><a class="reference internal" href="pyCGM_Single.pyCGM.shoulderAxisCalc.html#pyCGM_Single.pyCGM.shoulderAxisCalc" title="pyCGM_Single.pyCGM.shoulderAxisCalc"><code class="xref py py-obj docutils literal notranslate"><span class="pre">shoulderAxisCalc</span></code></a>(frame, thorax, shoulderJC, wand)</p></td>
+<td><p>Calculate the Shoulder joint axis ( Clavicle) function.</p></td>
+</tr>
+<tr class="row-odd"><td><p><a class="reference internal" href="pyCGM_Single.pyCGM.sin.html#pyCGM_Single.pyCGM.sin" title="pyCGM_Single.pyCGM.sin"><code class="xref py py-obj docutils literal notranslate"><span class="pre">sin</span></code></a>(x, /)</p></td>
+<td><p>Return the sine of x (measured in radians).</p></td>
+</tr>
+<tr class="row-even"><td><p><a class="reference internal" href="pyCGM_Single.pyCGM.smKeys.html#pyCGM_Single.pyCGM.smKeys" title="pyCGM_Single.pyCGM.smKeys"><code class="xref py py-obj docutils literal notranslate"><span class="pre">smKeys</span></code></a>()</p></td>
+<td><p>A list of segment labels.</p></td>
+</tr>
+<tr class="row-odd"><td><p><a class="reference internal" href="pyCGM_Single.pyCGM.splitDataDict.html#pyCGM_Single.pyCGM.splitDataDict" title="pyCGM_Single.pyCGM.splitDataDict"><code class="xref py py-obj docutils literal notranslate"><span class="pre">splitDataDict</span></code></a>(motionData)</p></td>
+<td><p>Splits an array of motion capture data into separate labels and data.</p></td>
+</tr>
+<tr class="row-even"><td><p><a class="reference internal" href="pyCGM_Single.pyCGM.splitMotionDataDict.html#pyCGM_Single.pyCGM.splitMotionDataDict" title="pyCGM_Single.pyCGM.splitMotionDataDict"><code class="xref py py-obj docutils literal notranslate"><span class="pre">splitMotionDataDict</span></code></a>(motiondata)</p></td>
+<td><p>Splits an array of motion capture data into separate labels and data.</p></td>
+</tr>
+<tr class="row-odd"><td><p><a class="reference internal" href="pyCGM_Single.pyCGM.splitVskDataDict.html#pyCGM_Single.pyCGM.splitVskDataDict" title="pyCGM_Single.pyCGM.splitVskDataDict"><code class="xref py py-obj docutils literal notranslate"><span class="pre">splitVskDataDict</span></code></a>(vsk)</p></td>
+<td><p>Splits a dictionary of vsk file values into labels and data arrays</p></td>
+</tr>
+<tr class="row-even"><td><p><a class="reference internal" href="pyCGM_Single.pyCGM.sqrt.html#pyCGM_Single.pyCGM.sqrt" title="pyCGM_Single.pyCGM.sqrt"><code class="xref py py-obj docutils literal notranslate"><span class="pre">sqrt</span></code></a>(x, /)</p></td>
+<td><p>Return the square root of x.</p></td>
+</tr>
+<tr class="row-odd"><td><p><a class="reference internal" href="pyCGM_Single.pyCGM.thoraxJC.html#pyCGM_Single.pyCGM.thoraxJC" title="pyCGM_Single.pyCGM.thoraxJC"><code class="xref py py-obj docutils literal notranslate"><span class="pre">thoraxJC</span></code></a>(frame)</p></td>
+<td><p>Calculate the thorax joint axis function.</p></td>
+</tr>
+<tr class="row-even"><td><p><a class="reference internal" href="pyCGM_Single.pyCGM.wristJointCenter.html#pyCGM_Single.pyCGM.wristJointCenter" title="pyCGM_Single.pyCGM.wristJointCenter"><code class="xref py py-obj docutils literal notranslate"><span class="pre">wristJointCenter</span></code></a>(frame, shoulderJC, wand, …)</p></td>
+<td><p>Calculate the Wrist joint axis ( Radius) function.</p></td>
+</tr>
+<tr class="row-odd"><td><p><a class="reference internal" href="pyCGM_Single.pyCGM.writeKinetics.html#pyCGM_Single.pyCGM.writeKinetics" title="pyCGM_Single.pyCGM.writeKinetics"><code class="xref py py-obj docutils literal notranslate"><span class="pre">writeKinetics</span></code></a>(CoM_output, kinetics)</p></td>
+<td><p>Uses numpy.save to write kinetics data as an .npy file.</p></td>
+</tr>
+<tr class="row-even"><td><p><a class="reference internal" href="pyCGM_Single.pyCGM.writeResult.html#pyCGM_Single.pyCGM.writeResult" title="pyCGM_Single.pyCGM.writeResult"><code class="xref py py-obj docutils literal notranslate"><span class="pre">writeResult</span></code></a>(data, filename, **kargs)</p></td>
+<td><p>Writes the result of the calculation into a csv file.</p></td>
+</tr>
+</tbody>
+</table>
+</div>
+
+
+          </div>
+          
+        </div>
+      </div>
+      <div class="sphinxsidebar" role="navigation" aria-label="main navigation">
+        <div class="sphinxsidebarwrapper">
+<h1 class="logo"><a href="../index.html">pycgm</a></h1>
+
+
+
+
+
+
+
+
+<h3>Navigation</h3>
+<p class="caption"><span class="caption-text">Contents:</span></p>
+<ul class="current">
+<li class="toctree-l1"><a class="reference internal" href="../install.html">Installation</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../Overview.html">Overview</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../GettingStarted.html">Getting Started with pycgm</a></li>
+<li class="toctree-l1 current"><a class="reference internal" href="../API.html">API for pycgm</a><ul class="current">
+<li class="toctree-l2 current"><a class="current reference internal" href="#">pyCGM_Single.pyCGM</a></li>
+<li class="toctree-l2"><a class="reference internal" href="pyCGM_Single.pycgmKinetics.html">pyCGM_Single.pycgmKinetics</a></li>
+<li class="toctree-l2"><a class="reference internal" href="pyCGM_Single.pycgmIO.html">pyCGM_Single.pycgmIO</a></li>
+<li class="toctree-l2"><a class="reference internal" href="pyCGM_Single.Pipelines.html">pyCGM_Single.Pipelines</a></li>
+<li class="toctree-l2"><a class="reference internal" href="pyCGM_Single.pyCGM_Helpers.html">pyCGM_Single.pyCGM_Helpers</a></li>
+<li class="toctree-l2"><a class="reference internal" href="pyCGM_Single.pycgmCalc.html">pyCGM_Single.pycgmCalc</a></li>
+<li class="toctree-l2"><a class="reference internal" href="pyCGM_Single.pycgmStatic.html">pyCGM_Single.pycgmStatic</a></li>
+<li class="toctree-l2"><a class="reference internal" href="pyCGM_Single.clusterCalc.html">pyCGM_Single.clusterCalc</a></li>
+<li class="toctree-l2"><a class="reference internal" href="pyCGM_Single.pycgmClusters.html">pyCGM_Single.pycgmClusters</a></li>
+</ul>
+</li>
+</ul>
+
+<div class="relations">
+<h3>Related Topics</h3>
+<ul>
+  <li><a href="../index.html">Documentation overview</a><ul>
+  <li><a href="../API.html">API for pycgm</a><ul>
+      <li>Previous: <a href="../API.html" title="previous chapter">API for pycgm</a></li>
+      <li>Next: <a href="pyCGM_Single.pyCGM.JointAngleCalc.html" title="next chapter">pyCGM_Single.pyCGM.JointAngleCalc</a></li>
+  </ul></li>
+  </ul></li>
+</ul>
+</div>
+<div id="searchbox" style="display: none" role="search">
+  <h3 id="searchlabel">Quick search</h3>
+    <div class="searchformwrapper">
+    <form class="search" action="../search.html" method="get">
+      <input type="text" name="q" aria-labelledby="searchlabel" />
+      <input type="submit" value="Go" />
+    </form>
+    </div>
+</div>
+<script>$('#searchbox').show(0);</script>
+
+
+
+
+
+
+
+
+        </div>
+      </div>
+      <div class="clearer"></div>
+    </div>
+    <div class="footer">
+      &copy;2020, Mathew Schwartz.
+      
+      |
+      Powered by <a href="http://sphinx-doc.org/">Sphinx 3.2.1</a>
+      &amp; <a href="https://github.com/bitprophet/alabaster">Alabaster 0.7.12</a>
+      
+      |
+      <a href="../_sources/generated/pyCGM_Single.pyCGM.rst.txt"
+          rel="nofollow">Page source</a>
+    </div>
+
+    
+
+    
+  </body>
+</html>

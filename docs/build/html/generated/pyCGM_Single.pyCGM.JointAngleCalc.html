@@ -1,0 +1,212 @@
+
+<!DOCTYPE html>
+
+<html>
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>pyCGM_Single.pyCGM.JointAngleCalc &#8212; pycgm 1.0.0 documentation</title>
+    <link rel="stylesheet" href="../_static/alabaster.css" type="text/css" />
+    <link rel="stylesheet" href="../_static/pygments.css" type="text/css" />
+    <script id="documentation_options" data-url_root="../" src="../_static/documentation_options.js"></script>
+    <script src="../_static/jquery.js"></script>
+    <script src="../_static/underscore.js"></script>
+    <script src="../_static/doctools.js"></script>
+    <script src="../_static/language_data.js"></script>
+    <link rel="index" title="Index" href="../genindex.html" />
+    <link rel="search" title="Search" href="../search.html" />
+    <link rel="next" title="pyCGM_Single.pyCGM.ankleJointCenter" href="pyCGM_Single.pyCGM.ankleJointCenter.html" />
+    <link rel="prev" title="pyCGM_Single.pyCGM" href="pyCGM_Single.pyCGM.html" />
+   
+  <link rel="stylesheet" href="../_static/custom.css" type="text/css" />
+  
+  
+  <meta name="viewport" content="width=device-width, initial-scale=0.9, maximum-scale=0.9" />
+
+  </head><body>
+  
+
+    <div class="document">
+      <div class="documentwrapper">
+        <div class="bodywrapper">
+          
+
+          <div class="body" role="main">
+            
+  <div class="section" id="pycgm-single-pycgm-jointanglecalc">
+<h1>pyCGM_Single.pyCGM.JointAngleCalc<a class="headerlink" href="#pycgm-single-pycgm-jointanglecalc" title="Permalink to this headline">¶</a></h1>
+<dl class="py function">
+<dt id="pyCGM_Single.pyCGM.JointAngleCalc">
+<code class="sig-prename descclassname">pyCGM_Single.pyCGM.</code><code class="sig-name descname">JointAngleCalc</code><span class="sig-paren">(</span><em class="sig-param"><span class="n">frame</span></em>, <em class="sig-param"><span class="n">vsk</span></em><span class="sig-paren">)</span><a class="headerlink" href="#pyCGM_Single.pyCGM.JointAngleCalc" title="Permalink to this definition">¶</a></dt>
+<dd><p>Joint Angle Calculation function.</p>
+<p>Calculates the Joint angles of plugingait and stores the data in array
+Stores:
+RPel_angle = []
+LPel_angle = []
+RHip_angle = []
+LHip_angle = []
+RKnee_angle = []
+LKnee_angle = []
+RAnkle_angle = []
+LAnkle_angle = []</p>
+<p>Joint Axis store like below form</p>
+<p>The axis is in the form [[origin], [axis]]
+Origin defines the position of axis and axis is the direction vector of
+x, y, z axis attached to the origin</p>
+<p>If it is just single one (Pelvis, Hip, Head, Thorax)</p>
+<blockquote>
+<div><dl class="simple">
+<dt>Axis = [[origin_x, origin_y, origin_z],[[Xaxis_x,Xaxis_y,Xaxis_z],</dt><dd><p>[Yaxis_x,Yaxis_y,Yaxis_z],
+[Zaxis_x,Zaxis_y,Zaxis_z]]]</p>
+</dd>
+</dl>
+</div></blockquote>
+<p>If it has both of Right and Left ( knee, angle, foot, clavicle, humerus, radius, hand)</p>
+<blockquote>
+<div><dl class="simple">
+<dt>Axis = [[[R_origin_x,R_origin_y,R_origin_z],</dt><dd><dl class="simple">
+<dt>[L_origin_x,L_origin_y,L_origin_z]],[[[R_Xaxis_x,R_Xaxis_y,R_Xaxis_z],</dt><dd><p>[R_Yaxis_x,R_Yaxis_y,R_Yaxis_z],
+[R_Zaxis_x,R_Zaxis_y,R_Zaxis_z]],
+[[L_Xaxis_x,L_Xaxis_y,L_Xaxis_z],
+[L_Yaxis_x,L_Yaxis_y,L_Yaxis_z],
+[L_Zaxis_x,L_Zaxis_y,L_Zaxis_z]]]]</p>
+</dd>
+</dl>
+</dd>
+</dl>
+</div></blockquote>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters</dt>
+<dd class="field-odd"><dl class="simple">
+<dt><strong>frame</strong><span class="classifier">dict</span></dt><dd><p>Dictionaries of marker lists.</p>
+</dd>
+<dt><strong>vsk</strong><span class="classifier">dict</span></dt><dd><p>A dictionary containing subject measurements.</p>
+</dd>
+</dl>
+</dd>
+<dt class="field-even">Returns</dt>
+<dd class="field-even"><dl class="simple">
+<dt><strong>r, jc</strong><span class="classifier">tuple</span></dt><dd><p>Returns a tuple containing an array that holds the result of all the joint calculations,
+followed by a dictionary for joint center marker positions.</p>
+</dd>
+</dl>
+</dd>
+</dl>
+<p class="rubric">Examples</p>
+<div class="doctest highlight-default notranslate"><div class="highlight"><pre><span></span><span class="gp">&gt;&gt;&gt; </span><span class="kn">import</span> <span class="nn">numpy</span> <span class="k">as</span> <span class="nn">np</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="kn">from</span> <span class="nn">.pyCGM</span> <span class="kn">import</span> <span class="n">JointAngleCalc</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="kn">from</span> <span class="nn">.pycgmIO</span> <span class="kn">import</span> <span class="n">loadC3D</span><span class="p">,</span> <span class="n">loadVSK</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="kn">from</span> <span class="nn">.pycgmStatic</span> <span class="kn">import</span> <span class="n">getStatic</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="kn">from</span> <span class="nn">.pyCGM_Helpers</span> <span class="kn">import</span> <span class="n">getfilenames</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="kn">import</span> <span class="nn">os</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">fileNames</span><span class="o">=</span><span class="n">getfilenames</span><span class="p">(</span><span class="mi">2</span><span class="p">)</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">c3dFile</span> <span class="o">=</span> <span class="n">fileNames</span><span class="p">[</span><span class="mi">1</span><span class="p">]</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">vskFile</span> <span class="o">=</span> <span class="n">fileNames</span><span class="p">[</span><span class="mi">2</span><span class="p">]</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">result</span> <span class="o">=</span> <span class="n">loadC3D</span><span class="p">(</span><span class="n">c3dFile</span><span class="p">)</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">data</span> <span class="o">=</span> <span class="n">result</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">frame</span> <span class="o">=</span> <span class="n">result</span><span class="p">[</span><span class="mi">0</span><span class="p">][</span><span class="mi">0</span><span class="p">]</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">vskData</span> <span class="o">=</span> <span class="n">loadVSK</span><span class="p">(</span><span class="n">vskFile</span><span class="p">,</span> <span class="kc">False</span><span class="p">)</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">vsk</span> <span class="o">=</span> <span class="n">getStatic</span><span class="p">(</span><span class="n">data</span><span class="p">,</span><span class="n">vskData</span><span class="p">,</span><span class="n">flat_foot</span><span class="o">=</span><span class="kc">False</span><span class="p">)</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">results</span> <span class="o">=</span> <span class="n">JointAngleCalc</span><span class="p">(</span><span class="n">frame</span><span class="p">,</span> <span class="n">vsk</span><span class="p">)[</span><span class="mi">1</span><span class="p">]</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">np</span><span class="o">.</span><span class="n">around</span><span class="p">(</span><span class="n">results</span><span class="p">[</span><span class="s1">&#39;Pelvis&#39;</span><span class="p">],</span> <span class="mi">2</span><span class="p">)</span>
+<span class="go">array([ 246.15,  353.26, 1031.71])</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">np</span><span class="o">.</span><span class="n">around</span><span class="p">(</span><span class="n">results</span><span class="p">[</span><span class="s1">&#39;Thorax&#39;</span><span class="p">],</span> <span class="mi">2</span><span class="p">)</span>
+<span class="go">array([ 250.56,  303.23, 1461.17])</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">np</span><span class="o">.</span><span class="n">around</span><span class="p">(</span><span class="n">results</span><span class="p">[</span><span class="s1">&#39;Head&#39;</span><span class="p">],</span> <span class="mi">2</span><span class="p">)</span>
+<span class="go">array([ 244.9 ,  325.06, 1730.16])</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">np</span><span class="o">.</span><span class="n">around</span><span class="p">(</span><span class="n">results</span><span class="p">[</span><span class="s1">&#39;RHand&#39;</span><span class="p">],</span> <span class="mi">2</span><span class="p">)</span>
+<span class="go">array([ 770.93,  591.05, 1079.05])</span>
+</pre></div>
+</div>
+</dd></dl>
+
+</div>
+
+
+          </div>
+          
+        </div>
+      </div>
+      <div class="sphinxsidebar" role="navigation" aria-label="main navigation">
+        <div class="sphinxsidebarwrapper">
+<h1 class="logo"><a href="../index.html">pycgm</a></h1>
+
+
+
+
+
+
+
+
+<h3>Navigation</h3>
+<p class="caption"><span class="caption-text">Contents:</span></p>
+<ul class="current">
+<li class="toctree-l1"><a class="reference internal" href="../install.html">Installation</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../Overview.html">Overview</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../GettingStarted.html">Getting Started with pycgm</a></li>
+<li class="toctree-l1 current"><a class="reference internal" href="../API.html">API for pycgm</a><ul class="current">
+<li class="toctree-l2 current"><a class="reference internal" href="pyCGM_Single.pyCGM.html">pyCGM_Single.pyCGM</a></li>
+<li class="toctree-l2"><a class="reference internal" href="pyCGM_Single.pycgmKinetics.html">pyCGM_Single.pycgmKinetics</a></li>
+<li class="toctree-l2"><a class="reference internal" href="pyCGM_Single.pycgmIO.html">pyCGM_Single.pycgmIO</a></li>
+<li class="toctree-l2"><a class="reference internal" href="pyCGM_Single.Pipelines.html">pyCGM_Single.Pipelines</a></li>
+<li class="toctree-l2"><a class="reference internal" href="pyCGM_Single.pyCGM_Helpers.html">pyCGM_Single.pyCGM_Helpers</a></li>
+<li class="toctree-l2"><a class="reference internal" href="pyCGM_Single.pycgmCalc.html">pyCGM_Single.pycgmCalc</a></li>
+<li class="toctree-l2"><a class="reference internal" href="pyCGM_Single.pycgmStatic.html">pyCGM_Single.pycgmStatic</a></li>
+<li class="toctree-l2"><a class="reference internal" href="pyCGM_Single.clusterCalc.html">pyCGM_Single.clusterCalc</a></li>
+<li class="toctree-l2"><a class="reference internal" href="pyCGM_Single.pycgmClusters.html">pyCGM_Single.pycgmClusters</a></li>
+</ul>
+</li>
+</ul>
+
+<div class="relations">
+<h3>Related Topics</h3>
+<ul>
+  <li><a href="../index.html">Documentation overview</a><ul>
+  <li><a href="../API.html">API for pycgm</a><ul>
+  <li><a href="pyCGM_Single.pyCGM.html">pyCGM_Single.pyCGM</a><ul>
+      <li>Previous: <a href="pyCGM_Single.pyCGM.html" title="previous chapter">pyCGM_Single.pyCGM</a></li>
+      <li>Next: <a href="pyCGM_Single.pyCGM.ankleJointCenter.html" title="next chapter">pyCGM_Single.pyCGM.ankleJointCenter</a></li>
+  </ul></li>
+  </ul></li>
+  </ul></li>
+</ul>
+</div>
+<div id="searchbox" style="display: none" role="search">
+  <h3 id="searchlabel">Quick search</h3>
+    <div class="searchformwrapper">
+    <form class="search" action="../search.html" method="get">
+      <input type="text" name="q" aria-labelledby="searchlabel" />
+      <input type="submit" value="Go" />
+    </form>
+    </div>
+</div>
+<script>$('#searchbox').show(0);</script>
+
+
+
+
+
+
+
+
+        </div>
+      </div>
+      <div class="clearer"></div>
+    </div>
+    <div class="footer">
+      &copy;2020, Mathew Schwartz.
+      
+      |
+      Powered by <a href="http://sphinx-doc.org/">Sphinx 3.2.1</a>
+      &amp; <a href="https://github.com/bitprophet/alabaster">Alabaster 0.7.12</a>
+      
+      |
+      <a href="../_sources/generated/pyCGM_Single.pyCGM.JointAngleCalc.rst.txt"
+          rel="nofollow">Page source</a>
+    </div>
+
+    
+
+    
+  </body>
+</html>

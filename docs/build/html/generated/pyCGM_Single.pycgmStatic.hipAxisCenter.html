@@ -1,0 +1,175 @@
+
+<!DOCTYPE html>
+
+<html>
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>pyCGM_Single.pycgmStatic.hipAxisCenter &#8212; pycgm 1.0.0 documentation</title>
+    <link rel="stylesheet" href="../_static/alabaster.css" type="text/css" />
+    <link rel="stylesheet" href="../_static/pygments.css" type="text/css" />
+    <script id="documentation_options" data-url_root="../" src="../_static/documentation_options.js"></script>
+    <script src="../_static/jquery.js"></script>
+    <script src="../_static/underscore.js"></script>
+    <script src="../_static/doctools.js"></script>
+    <script src="../_static/language_data.js"></script>
+    <link rel="index" title="Index" href="../genindex.html" />
+    <link rel="search" title="Search" href="../search.html" />
+    <link rel="next" title="pyCGM_Single.pycgmStatic.hipJointCenter" href="pyCGM_Single.pycgmStatic.hipJointCenter.html" />
+    <link rel="prev" title="pyCGM_Single.pycgmStatic.headoffCalc" href="pyCGM_Single.pycgmStatic.headoffCalc.html" />
+   
+  <link rel="stylesheet" href="../_static/custom.css" type="text/css" />
+  
+  
+  <meta name="viewport" content="width=device-width, initial-scale=0.9, maximum-scale=0.9" />
+
+  </head><body>
+  
+
+    <div class="document">
+      <div class="documentwrapper">
+        <div class="bodywrapper">
+          
+
+          <div class="body" role="main">
+            
+  <div class="section" id="pycgm-single-pycgmstatic-hipaxiscenter">
+<h1>pyCGM_Single.pycgmStatic.hipAxisCenter<a class="headerlink" href="#pycgm-single-pycgmstatic-hipaxiscenter" title="Permalink to this headline">¶</a></h1>
+<dl class="py function">
+<dt id="pyCGM_Single.pycgmStatic.hipAxisCenter">
+<code class="sig-prename descclassname">pyCGM_Single.pycgmStatic.</code><code class="sig-name descname">hipAxisCenter</code><span class="sig-paren">(</span><em class="sig-param"><span class="n">l_hip_jc</span></em>, <em class="sig-param"><span class="n">r_hip_jc</span></em>, <em class="sig-param"><span class="n">pelvis_axis</span></em><span class="sig-paren">)</span><a class="headerlink" href="#pyCGM_Single.pycgmStatic.hipAxisCenter" title="Permalink to this definition">¶</a></dt>
+<dd><p>Calculate the hip joint axis function.</p>
+<p>Takes in a hip joint center of x,y,z positions as well as an index.
+and takes the hip joint center and pelvis origin/axis from previous functions.
+Calculates the hip axis and returns hip joint origin and axis.</p>
+<p>Hip center axis: mean at each x,y,z axis of the left and right hip joint center.
+Hip axis: summation of the pelvis and hip center axes.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters</dt>
+<dd class="field-odd"><dl class="simple">
+<dt><strong>l_hip_jc, r_hip_jc: array</strong></dt><dd><p>Array of R_hip_jc and L_hip_jc each x,y,z position.</p>
+</dd>
+<dt><strong>pelvis_axis</strong><span class="classifier">array</span></dt><dd><p>An array of pelvis origin and axis. The axis is also composed of 3 arrays,
+each contain the x axis, y axis and z axis.</p>
+</dd>
+</dl>
+</dd>
+<dt class="field-even">Returns</dt>
+<dd class="field-even"><dl class="simple">
+<dt><strong>hipaxis_center, axis</strong><span class="classifier">list</span></dt><dd><p>Returns a list that contains the hip axis center in a 1x3 list of xyz values,
+which is then followed by a 3x2x3 list composed of the hip axis center x, y, and z
+axis components. The xyz axis components are 2x3 lists consisting of the axis center
+in the first dimension and the direction of the axis in the second dimension.</p>
+</dd>
+</dl>
+</dd>
+</dl>
+<p class="rubric">Examples</p>
+<div class="doctest highlight-default notranslate"><div class="highlight"><pre><span></span><span class="gp">&gt;&gt;&gt; </span><span class="kn">import</span> <span class="nn">numpy</span> <span class="k">as</span> <span class="nn">np</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="kn">from</span> <span class="nn">.pycgmStatic</span> <span class="kn">import</span> <span class="n">hipAxisCenter</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">r_hip_jc</span> <span class="o">=</span> <span class="p">[</span><span class="mf">182.57</span><span class="p">,</span> <span class="mf">339.43</span><span class="p">,</span> <span class="mf">935.53</span><span class="p">]</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">l_hip_jc</span> <span class="o">=</span> <span class="p">[</span><span class="mf">308.38</span><span class="p">,</span> <span class="mf">322.80</span><span class="p">,</span> <span class="mf">937.99</span><span class="p">]</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">pelvis_axis</span> <span class="o">=</span> <span class="p">[</span><span class="n">np</span><span class="o">.</span><span class="n">array</span><span class="p">([</span><span class="mf">251.61</span><span class="p">,</span> <span class="mf">391.74</span><span class="p">,</span> <span class="mf">1032.89</span><span class="p">]),</span>
+<span class="gp">... </span>               <span class="n">np</span><span class="o">.</span><span class="n">array</span><span class="p">([[</span><span class="mf">251.74</span><span class="p">,</span> <span class="mf">392.73</span><span class="p">,</span> <span class="mf">1032.79</span><span class="p">],</span>
+<span class="gp">... </span>                   <span class="p">[</span><span class="mf">250.62</span><span class="p">,</span> <span class="mf">391.87</span><span class="p">,</span> <span class="mf">1032.87</span><span class="p">],</span>
+<span class="gp">... </span>                   <span class="p">[</span><span class="mf">251.60</span><span class="p">,</span> <span class="mf">391.85</span><span class="p">,</span> <span class="mf">1033.89</span><span class="p">]]),</span>
+<span class="gp">... </span>               <span class="n">np</span><span class="o">.</span><span class="n">array</span><span class="p">([</span><span class="mf">231.58</span><span class="p">,</span> <span class="mf">210.25</span><span class="p">,</span> <span class="mf">1052.25</span><span class="p">])]</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="p">[</span><span class="n">np</span><span class="o">.</span><span class="n">around</span><span class="p">(</span><span class="n">arr</span><span class="p">,</span><span class="mi">8</span><span class="p">)</span> <span class="k">for</span> <span class="n">arr</span> <span class="ow">in</span> <span class="n">hipAxisCenter</span><span class="p">(</span><span class="n">l_hip_jc</span><span class="p">,</span><span class="n">r_hip_jc</span><span class="p">,</span><span class="n">pelvis_axis</span><span class="p">)]</span> 
+<span class="go">[array([245.475, 331.115, 936.76 ]),</span>
+<span class="go">array([[245.605, 332.105, 936.66 ],</span>
+<span class="go">       [244.485, 331.245, 936.74 ],</span>
+<span class="go">       [245.465, 331.225, 937.76 ]])]</span>
+</pre></div>
+</div>
+</dd></dl>
+
+</div>
+
+
+          </div>
+          
+        </div>
+      </div>
+      <div class="sphinxsidebar" role="navigation" aria-label="main navigation">
+        <div class="sphinxsidebarwrapper">
+<h1 class="logo"><a href="../index.html">pycgm</a></h1>
+
+
+
+
+
+
+
+
+<h3>Navigation</h3>
+<p class="caption"><span class="caption-text">Contents:</span></p>
+<ul class="current">
+<li class="toctree-l1"><a class="reference internal" href="../install.html">Installation</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../Overview.html">Overview</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../GettingStarted.html">Getting Started with pycgm</a></li>
+<li class="toctree-l1 current"><a class="reference internal" href="../API.html">API for pycgm</a><ul class="current">
+<li class="toctree-l2"><a class="reference internal" href="pyCGM_Single.pyCGM.html">pyCGM_Single.pyCGM</a></li>
+<li class="toctree-l2"><a class="reference internal" href="pyCGM_Single.pycgmKinetics.html">pyCGM_Single.pycgmKinetics</a></li>
+<li class="toctree-l2"><a class="reference internal" href="pyCGM_Single.pycgmIO.html">pyCGM_Single.pycgmIO</a></li>
+<li class="toctree-l2"><a class="reference internal" href="pyCGM_Single.Pipelines.html">pyCGM_Single.Pipelines</a></li>
+<li class="toctree-l2"><a class="reference internal" href="pyCGM_Single.pyCGM_Helpers.html">pyCGM_Single.pyCGM_Helpers</a></li>
+<li class="toctree-l2"><a class="reference internal" href="pyCGM_Single.pycgmCalc.html">pyCGM_Single.pycgmCalc</a></li>
+<li class="toctree-l2 current"><a class="reference internal" href="pyCGM_Single.pycgmStatic.html">pyCGM_Single.pycgmStatic</a></li>
+<li class="toctree-l2"><a class="reference internal" href="pyCGM_Single.clusterCalc.html">pyCGM_Single.clusterCalc</a></li>
+<li class="toctree-l2"><a class="reference internal" href="pyCGM_Single.pycgmClusters.html">pyCGM_Single.pycgmClusters</a></li>
+</ul>
+</li>
+</ul>
+
+<div class="relations">
+<h3>Related Topics</h3>
+<ul>
+  <li><a href="../index.html">Documentation overview</a><ul>
+  <li><a href="../API.html">API for pycgm</a><ul>
+  <li><a href="pyCGM_Single.pycgmStatic.html">pyCGM_Single.pycgmStatic</a><ul>
+      <li>Previous: <a href="pyCGM_Single.pycgmStatic.headoffCalc.html" title="previous chapter">pyCGM_Single.pycgmStatic.headoffCalc</a></li>
+      <li>Next: <a href="pyCGM_Single.pycgmStatic.hipJointCenter.html" title="next chapter">pyCGM_Single.pycgmStatic.hipJointCenter</a></li>
+  </ul></li>
+  </ul></li>
+  </ul></li>
+</ul>
+</div>
+<div id="searchbox" style="display: none" role="search">
+  <h3 id="searchlabel">Quick search</h3>
+    <div class="searchformwrapper">
+    <form class="search" action="../search.html" method="get">
+      <input type="text" name="q" aria-labelledby="searchlabel" />
+      <input type="submit" value="Go" />
+    </form>
+    </div>
+</div>
+<script>$('#searchbox').show(0);</script>
+
+
+
+
+
+
+
+
+        </div>
+      </div>
+      <div class="clearer"></div>
+    </div>
+    <div class="footer">
+      &copy;2020, Mathew Schwartz.
+      
+      |
+      Powered by <a href="http://sphinx-doc.org/">Sphinx 3.2.1</a>
+      &amp; <a href="https://github.com/bitprophet/alabaster">Alabaster 0.7.12</a>
+      
+      |
+      <a href="../_sources/generated/pyCGM_Single.pycgmStatic.hipAxisCenter.rst.txt"
+          rel="nofollow">Page source</a>
+    </div>
+
+    
+
+    
+  </body>
+</html>

@@ -1,0 +1,244 @@
+
+<!DOCTYPE html>
+
+<html>
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>pyCGM_Single.pycgmCalc.calcAngles &#8212; pycgm 1.0.0 documentation</title>
+    <link rel="stylesheet" href="../_static/alabaster.css" type="text/css" />
+    <link rel="stylesheet" href="../_static/pygments.css" type="text/css" />
+    <script id="documentation_options" data-url_root="../" src="../_static/documentation_options.js"></script>
+    <script src="../_static/jquery.js"></script>
+    <script src="../_static/underscore.js"></script>
+    <script src="../_static/doctools.js"></script>
+    <script src="../_static/language_data.js"></script>
+    <link rel="index" title="Index" href="../genindex.html" />
+    <link rel="search" title="Search" href="../search.html" />
+    <link rel="next" title="pyCGM_Single.pycgmCalc.calcFrames" href="pyCGM_Single.pycgmCalc.calcFrames.html" />
+    <link rel="prev" title="pyCGM_Single.pycgmCalc.JointAngleCalc" href="pyCGM_Single.pycgmCalc.JointAngleCalc.html" />
+   
+  <link rel="stylesheet" href="../_static/custom.css" type="text/css" />
+  
+  
+  <meta name="viewport" content="width=device-width, initial-scale=0.9, maximum-scale=0.9" />
+
+  </head><body>
+  
+
+    <div class="document">
+      <div class="documentwrapper">
+        <div class="bodywrapper">
+          
+
+          <div class="body" role="main">
+            
+  <div class="section" id="pycgm-single-pycgmcalc-calcangles">
+<h1>pyCGM_Single.pycgmCalc.calcAngles<a class="headerlink" href="#pycgm-single-pycgmcalc-calcangles" title="Permalink to this headline">¶</a></h1>
+<dl class="py function">
+<dt id="pyCGM_Single.pycgmCalc.calcAngles">
+<code class="sig-prename descclassname">pyCGM_Single.pycgmCalc.</code><code class="sig-name descname">calcAngles</code><span class="sig-paren">(</span><em class="sig-param"><span class="n">data</span></em>, <em class="sig-param"><span class="o">**</span><span class="n">kargs</span></em><span class="sig-paren">)</span><a class="headerlink" href="#pyCGM_Single.pycgmCalc.calcAngles" title="Permalink to this definition">¶</a></dt>
+<dd><p>Calculates the joint angles and axis.</p>
+<p>By default, the function will calculate all the data and return angles
+and axis as separate arrays. The values returned by this function currently
+differ in return type and value depending on the keyword arguments of
+<code class="docutils literal notranslate"><span class="pre">**kargs</span></code>. The function is currently used directly in pyCGM/pycgm_embed.py.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters</dt>
+<dd class="field-odd"><dl class="simple">
+<dt><strong>data</strong><span class="classifier">array</span></dt><dd><p>Joint centers in the global coordinate system. List indices correspond
+to each frame of trial. Dict keys correspond to name of each joint center,
+dict values are arrays ([],[],[]) of x,y,z coordinates for each joint
+center.</p>
+</dd>
+<dt><strong>``**kargs``</strong><span class="classifier">keyword arguments</span></dt><dd><dl class="simple">
+<dt>start<span class="classifier">int, optional</span></dt><dd><p>Indicates which index in <cite>data</cite> to start the calculation.</p>
+</dd>
+<dt>end<span class="classifier">int, optional</span></dt><dd><p>Indicates which index in <cite>data</cite> to end the calculation.
+The data at index <cite>end</cite> is not included.</p>
+</dd>
+<dt>frame<span class="classifier">int, optional</span></dt><dd><p>Frame number if the calculation is only for one frame.
+Incompatible with <cite>start</cite> and <cite>end</cite>.</p>
+</dd>
+<dt>vsk<span class="classifier">dict, required</span></dt><dd><p>Subject measurement values as a dictionary or labels and data.</p>
+</dd>
+<dt>angles<span class="classifier">bool, optional</span></dt><dd><p>If true, the function will return <cite>angles</cite>. True by default.</p>
+</dd>
+<dt>axis<span class="classifier">bool, optional</span></dt><dd><p>If true, the function will return <cite>axis</cite>. True by default.</p>
+</dd>
+<dt>splitAnglesAxis<span class="classifier">bool, optional</span></dt><dd><p>If true, the function will return <cite>angles</cite> and <cite>axis</cite> as
+separate arrays. If false, it will be the same array. True
+by default.</p>
+</dd>
+<dt>returnjoints<span class="classifier">bool, optional</span></dt><dd><p>If true, the function will return <cite>returnjoints</cite>. False
+by default.</p>
+</dd>
+<dt>formatData<span class="classifier">bool, optional</span></dt><dd><p>If true, the function will return <cite>angles</cite> and <cite>axis</cite> 
+in one array. True by default.</p>
+</dd>
+</dl>
+</dd>
+</dl>
+</dd>
+<dt class="field-even">Returns</dt>
+<dd class="field-even"><dl class="simple">
+<dt><strong>r, jcs</strong><span class="classifier">array_like</span></dt><dd><p><cite>r</cite> is a list of joint angle values for each frame.
+<cite>jcs</cite> is a list of dictionaries, each of which holds joint
+center locations for each frame. Returned only if returnjoints
+is True.</p>
+</dd>
+</dl>
+</dd>
+<dt class="field-odd">Raises</dt>
+<dd class="field-odd"><dl class="simple">
+<dt>Exception</dt><dd><p>If <cite>start</cite> is given and is negative.
+If <cite>start</cite> is larger than <cite>end</cite>.
+If <cite>end</cite> is larger than the length of <cite>data</cite>.</p>
+</dd>
+</dl>
+</dd>
+</dl>
+<p class="rubric">Examples</p>
+<p>First, we load motion capture data from Sample_Static.c3d
+and subject measurement values from Sample_SM.vsk in
+/SampleData/ROM/.</p>
+<div class="doctest highlight-default notranslate"><div class="highlight"><pre><span></span><span class="gp">&gt;&gt;&gt; </span><span class="kn">from</span> <span class="nn">numpy</span> <span class="kn">import</span> <span class="n">around</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="kn">from</span> <span class="nn">.pycgmIO</span> <span class="kn">import</span> <span class="n">loadC3D</span><span class="p">,</span> <span class="n">loadVSK</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="kn">from</span> <span class="nn">.pycgmStatic</span> <span class="kn">import</span> <span class="n">getStatic</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="kn">from</span> <span class="nn">.pyCGM_Helpers</span> <span class="kn">import</span> <span class="n">getfilenames</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">filenames</span> <span class="o">=</span> <span class="n">getfilenames</span><span class="p">(</span><span class="n">x</span><span class="o">=</span><span class="mi">2</span><span class="p">)</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">c3dFile</span> <span class="o">=</span> <span class="n">filenames</span><span class="p">[</span><span class="mi">1</span><span class="p">]</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">vskFile</span> <span class="o">=</span> <span class="n">filenames</span><span class="p">[</span><span class="mi">2</span><span class="p">]</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">result</span> <span class="o">=</span> <span class="n">loadC3D</span><span class="p">(</span><span class="n">c3dFile</span><span class="p">)</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">data</span> <span class="o">=</span> <span class="n">result</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">vskData</span> <span class="o">=</span> <span class="n">loadVSK</span><span class="p">(</span><span class="n">vskFile</span><span class="p">,</span> <span class="kc">False</span><span class="p">)</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">vsk</span> <span class="o">=</span> <span class="n">getStatic</span><span class="p">(</span><span class="n">data</span><span class="p">,</span><span class="n">vskData</span><span class="p">,</span><span class="n">flat_foot</span><span class="o">=</span><span class="kc">False</span><span class="p">)</span>
+</pre></div>
+</div>
+<p>Example of default behavior.</p>
+<div class="doctest highlight-default notranslate"><div class="highlight"><pre><span></span><span class="gp">&gt;&gt;&gt; </span><span class="n">result</span> <span class="o">=</span> <span class="n">calcAngles</span><span class="p">(</span><span class="n">data</span><span class="p">,</span> <span class="n">vsk</span><span class="o">=</span><span class="n">vsk</span><span class="p">)</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">around</span><span class="p">(</span><span class="n">result</span><span class="p">[</span><span class="mi">0</span><span class="p">],</span> <span class="mi">2</span><span class="p">)</span> <span class="c1">#Array of joint angles </span>
+<span class="go">array([[[ -0.46,  -5.76,   4.81],</span>
+<span class="go">        [  3.04,  -7.02, -17.41],</span>
+<span class="go">        [ -3.  ,  -4.54,  -1.74],</span>
+<span class="go">        ...,</span>
+<span class="go">        [ 36.3 ,   0.  ,   0.  ],</span>
+<span class="go">        [  9.92,  15.25, 126.24],</span>
+<span class="go">        [  6.64,  17.64, 123.81]]])</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">around</span><span class="p">(</span><span class="n">result</span><span class="p">[</span><span class="mi">1</span><span class="p">],</span> <span class="mi">2</span><span class="p">)</span> <span class="c1">#Array of axis values </span>
+<span class="go">array([[[[ 246.15,  353.26, 1031.71],</span>
+<span class="go">     [ 246.24,  354.25, 1031.61],</span>
+<span class="go">     [ 245.16,  353.35, 1031.7 ],</span>
+<span class="go">     [ 246.14,  353.36, 1032.71]],</span>
+<span class="go">     ...</span>
+<span class="go">     [-306.46,  510.14, 1069.26],</span>
+<span class="go">     [-307.13,  509.31, 1068.33],</span>
+<span class="go">     [-305.75,  509.12, 1068.58]]]])</span>
+</pre></div>
+</div>
+<p>Example of returning as a tuple.</p>
+<div class="doctest highlight-default notranslate"><div class="highlight"><pre><span></span><span class="gp">&gt;&gt;&gt; </span><span class="n">kinematics</span><span class="p">,</span> <span class="n">joint_centers</span> <span class="o">=</span> <span class="n">calcAngles</span><span class="p">(</span><span class="n">data</span><span class="p">,</span> <span class="n">start</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span> <span class="n">end</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span> <span class="n">vsk</span><span class="o">=</span><span class="n">vsk</span><span class="p">,</span> <span class="n">splitAnglesAxis</span><span class="o">=</span><span class="kc">False</span><span class="p">,</span> <span class="n">formatData</span><span class="o">=</span><span class="kc">False</span><span class="p">,</span><span class="n">returnjoints</span><span class="o">=</span><span class="kc">True</span><span class="p">)</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">around</span><span class="p">(</span><span class="n">kinematics</span><span class="p">[</span><span class="mi">0</span><span class="p">][</span><span class="mi">0</span><span class="p">],</span> <span class="mi">2</span><span class="p">)</span>
+<span class="go">-0.46</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">around</span><span class="p">(</span><span class="n">joint_centers</span><span class="p">[</span><span class="mi">0</span><span class="p">][</span><span class="s1">&#39;Pelvis&#39;</span><span class="p">],</span> <span class="mi">2</span><span class="p">)</span> 
+<span class="go">array([ 246.15,  353.26, 1031.71])</span>
+</pre></div>
+</div>
+<p>Example without returning joints.</p>
+<div class="doctest highlight-default notranslate"><div class="highlight"><pre><span></span><span class="gp">&gt;&gt;&gt; </span><span class="n">kinematics</span> <span class="o">=</span> <span class="n">calcAngles</span><span class="p">(</span><span class="n">data</span><span class="p">,</span> <span class="n">vsk</span><span class="o">=</span><span class="n">vsk</span><span class="p">,</span> <span class="n">splitAnglesAxis</span><span class="o">=</span><span class="kc">False</span><span class="p">,</span> <span class="n">formatData</span><span class="o">=</span><span class="kc">False</span><span class="p">,</span><span class="n">returnjoints</span><span class="o">=</span><span class="kc">False</span><span class="p">)</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">around</span><span class="p">(</span><span class="n">kinematics</span><span class="p">[</span><span class="mi">0</span><span class="p">][</span><span class="mi">0</span><span class="p">],</span> <span class="mi">2</span><span class="p">)</span>
+<span class="go">-0.46</span>
+</pre></div>
+</div>
+</dd></dl>
+
+</div>
+
+
+          </div>
+          
+        </div>
+      </div>
+      <div class="sphinxsidebar" role="navigation" aria-label="main navigation">
+        <div class="sphinxsidebarwrapper">
+<h1 class="logo"><a href="../index.html">pycgm</a></h1>
+
+
+
+
+
+
+
+
+<h3>Navigation</h3>
+<p class="caption"><span class="caption-text">Contents:</span></p>
+<ul class="current">
+<li class="toctree-l1"><a class="reference internal" href="../install.html">Installation</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../Overview.html">Overview</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../GettingStarted.html">Getting Started with pycgm</a></li>
+<li class="toctree-l1 current"><a class="reference internal" href="../API.html">API for pycgm</a><ul class="current">
+<li class="toctree-l2"><a class="reference internal" href="pyCGM_Single.pyCGM.html">pyCGM_Single.pyCGM</a></li>
+<li class="toctree-l2"><a class="reference internal" href="pyCGM_Single.pycgmKinetics.html">pyCGM_Single.pycgmKinetics</a></li>
+<li class="toctree-l2"><a class="reference internal" href="pyCGM_Single.pycgmIO.html">pyCGM_Single.pycgmIO</a></li>
+<li class="toctree-l2"><a class="reference internal" href="pyCGM_Single.Pipelines.html">pyCGM_Single.Pipelines</a></li>
+<li class="toctree-l2"><a class="reference internal" href="pyCGM_Single.pyCGM_Helpers.html">pyCGM_Single.pyCGM_Helpers</a></li>
+<li class="toctree-l2 current"><a class="reference internal" href="pyCGM_Single.pycgmCalc.html">pyCGM_Single.pycgmCalc</a></li>
+<li class="toctree-l2"><a class="reference internal" href="pyCGM_Single.pycgmStatic.html">pyCGM_Single.pycgmStatic</a></li>
+<li class="toctree-l2"><a class="reference internal" href="pyCGM_Single.clusterCalc.html">pyCGM_Single.clusterCalc</a></li>
+<li class="toctree-l2"><a class="reference internal" href="pyCGM_Single.pycgmClusters.html">pyCGM_Single.pycgmClusters</a></li>
+</ul>
+</li>
+</ul>
+
+<div class="relations">
+<h3>Related Topics</h3>
+<ul>
+  <li><a href="../index.html">Documentation overview</a><ul>
+  <li><a href="../API.html">API for pycgm</a><ul>
+  <li><a href="pyCGM_Single.pycgmCalc.html">pyCGM_Single.pycgmCalc</a><ul>
+      <li>Previous: <a href="pyCGM_Single.pycgmCalc.JointAngleCalc.html" title="previous chapter">pyCGM_Single.pycgmCalc.JointAngleCalc</a></li>
+      <li>Next: <a href="pyCGM_Single.pycgmCalc.calcFrames.html" title="next chapter">pyCGM_Single.pycgmCalc.calcFrames</a></li>
+  </ul></li>
+  </ul></li>
+  </ul></li>
+</ul>
+</div>
+<div id="searchbox" style="display: none" role="search">
+  <h3 id="searchlabel">Quick search</h3>
+    <div class="searchformwrapper">
+    <form class="search" action="../search.html" method="get">
+      <input type="text" name="q" aria-labelledby="searchlabel" />
+      <input type="submit" value="Go" />
+    </form>
+    </div>
+</div>
+<script>$('#searchbox').show(0);</script>
+
+
+
+
+
+
+
+
+        </div>
+      </div>
+      <div class="clearer"></div>
+    </div>
+    <div class="footer">
+      &copy;2020, Mathew Schwartz.
+      
+      |
+      Powered by <a href="http://sphinx-doc.org/">Sphinx 3.2.1</a>
+      &amp; <a href="https://github.com/bitprophet/alabaster">Alabaster 0.7.12</a>
+      
+      |
+      <a href="../_sources/generated/pyCGM_Single.pycgmCalc.calcAngles.rst.txt"
+          rel="nofollow">Page source</a>
+    </div>
+
+    
+
+    
+  </body>
+</html>

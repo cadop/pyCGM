@@ -1,0 +1,160 @@
+
+<!DOCTYPE html>
+
+<html>
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Overview &#8212; pycgm 1.0.0 documentation</title>
+    <link rel="stylesheet" href="_static/alabaster.css" type="text/css" />
+    <link rel="stylesheet" href="_static/pygments.css" type="text/css" />
+    <script id="documentation_options" data-url_root="./" src="_static/documentation_options.js"></script>
+    <script src="_static/jquery.js"></script>
+    <script src="_static/underscore.js"></script>
+    <script src="_static/doctools.js"></script>
+    <script src="_static/language_data.js"></script>
+    <link rel="index" title="Index" href="genindex.html" />
+    <link rel="search" title="Search" href="search.html" />
+    <link rel="next" title="Getting Started with pycgm" href="GettingStarted.html" />
+    <link rel="prev" title="Installation" href="install.html" />
+   
+  <link rel="stylesheet" href="_static/custom.css" type="text/css" />
+  
+  
+  <meta name="viewport" content="width=device-width, initial-scale=0.9, maximum-scale=0.9" />
+
+  </head><body>
+  
+
+    <div class="document">
+      <div class="documentwrapper">
+        <div class="bodywrapper">
+          
+
+          <div class="body" role="main">
+            
+  <div class="section" id="overview">
+<h1>Overview<a class="headerlink" href="#overview" title="Permalink to this headline">¶</a></h1>
+<div class="section" id="getting-started">
+<h2>Getting Started<a class="headerlink" href="#getting-started" title="Permalink to this headline">¶</a></h2>
+<dl class="simple">
+<dt><strong>Ensure the code is running on your system</strong></dt><dd><ol class="arabic simple">
+<li><p>Clone or download the repository</p></li>
+<li><p>Run the <em>pycgm_embed.py</em> file</p></li>
+<li><p>Check the <em>SampleData</em> folder for a newly created <em>.csv</em> results file</p></li>
+</ol>
+</dd>
+<dt><strong>Change the file to calculate</strong></dt><dd><ol class="arabic simple">
+<li><p>Open the <em>pyCGM_Helpers.py</em> file</p></li>
+<li><p>Modify/Add a file directory and name</p></li>
+<li><p>Change the loading value in <em>main()</em> function of the <em>pycgm_embed.py</em> file</p></li>
+</ol>
+</dd>
+</dl>
+<div class="section" id="setting-up-the-calculation">
+<h3>Setting up the calculation<a class="headerlink" href="#setting-up-the-calculation" title="Permalink to this headline">¶</a></h3>
+<dl class="simple">
+<dt>Besides the pyCGM code, the three types of data needed are:</dt><dd><ol class="arabic simple">
+<li><p>A dictionary of subject measurements that correspond to the PlugInGait naming conventions from a vsk file</p></li>
+<li><p>An ordered list of data for a static trial where each index is a frame, and each frame contains a dictionary of marker names with a xyz value.</p></li>
+<li><p>An ordered list of data for a dynamic trial where each index is a frame, and each frame contains a dictionary of marker names with a xyz value.</p></li>
+</ol>
+</dd>
+</dl>
+<p>While this data can be passed directly to the <code class="docutils literal notranslate"><span class="pre">calcAngles()</span></code> function in <em>pycgmCalc.py</em>, there are some easy helper functions that will load the data from a <em>.vsk</em> file, formated <em>.csv</em> file, and <em>.c3d</em> file through the <em>pycgmIO.py</em> module.</p>
+<p>The global axis is defined differently in each file. Therefore you can change the rotation of the global axis before calling the <code class="docutils literal notranslate"><span class="pre">calcAngles()</span></code> function like so:</p>
+<p><code class="docutils literal notranslate"><span class="pre">calSM['GCS']</span> <span class="pre">=</span> <span class="pre">pycgmStatic.rotmat(x=0,y=0,z=180)</span></code></p>
+</div>
+<div class="section" id="static-calibration">
+<h3>Static Calibration<a class="headerlink" href="#static-calibration" title="Permalink to this headline">¶</a></h3>
+<dl class="simple">
+<dt>There are some automatic switches that will happen based on the data used.</dt><dd><ol class="arabic simple">
+<li><p>If the ASIS to Trocanter distances are not 0, the values will be used. Otherwise they will be calculated.</p></li>
+<li><p>If the Inter ASIS distance is not 0 it will be used, otherwise it is averaged from the static trial.</p></li>
+<li><p>If there is no Knee/Ankle width value or it is set to 0, it will be calculated by the MKN and MMA markers.</p></li>
+</ol>
+</dd>
+</dl>
+<embed>
+    <a href="../../source/UML.html">Interactive UML Diagram</a>
+    <iframe src="../../source/UML.html" width="100%" height="400"></iframe>
+</embed></div>
+</div>
+</div>
+
+
+          </div>
+          
+        </div>
+      </div>
+      <div class="sphinxsidebar" role="navigation" aria-label="main navigation">
+        <div class="sphinxsidebarwrapper">
+<h1 class="logo"><a href="index.html">pycgm</a></h1>
+
+
+
+
+
+
+
+
+<h3>Navigation</h3>
+<p class="caption"><span class="caption-text">Contents:</span></p>
+<ul class="current">
+<li class="toctree-l1"><a class="reference internal" href="install.html">Installation</a></li>
+<li class="toctree-l1 current"><a class="current reference internal" href="#">Overview</a><ul>
+<li class="toctree-l2"><a class="reference internal" href="#getting-started">Getting Started</a></li>
+</ul>
+</li>
+<li class="toctree-l1"><a class="reference internal" href="GettingStarted.html">Getting Started with pycgm</a></li>
+<li class="toctree-l1"><a class="reference internal" href="API.html">API for pycgm</a></li>
+</ul>
+
+<div class="relations">
+<h3>Related Topics</h3>
+<ul>
+  <li><a href="index.html">Documentation overview</a><ul>
+      <li>Previous: <a href="install.html" title="previous chapter">Installation</a></li>
+      <li>Next: <a href="GettingStarted.html" title="next chapter">Getting Started with pycgm</a></li>
+  </ul></li>
+</ul>
+</div>
+<div id="searchbox" style="display: none" role="search">
+  <h3 id="searchlabel">Quick search</h3>
+    <div class="searchformwrapper">
+    <form class="search" action="search.html" method="get">
+      <input type="text" name="q" aria-labelledby="searchlabel" />
+      <input type="submit" value="Go" />
+    </form>
+    </div>
+</div>
+<script>$('#searchbox').show(0);</script>
+
+
+
+
+
+
+
+
+        </div>
+      </div>
+      <div class="clearer"></div>
+    </div>
+    <div class="footer">
+      &copy;2020, Mathew Schwartz.
+      
+      |
+      Powered by <a href="http://sphinx-doc.org/">Sphinx 3.2.1</a>
+      &amp; <a href="https://github.com/bitprophet/alabaster">Alabaster 0.7.12</a>
+      
+      |
+      <a href="_sources/Overview.rst.txt"
+          rel="nofollow">Page source</a>
+    </div>
+
+    
+
+    
+  </body>
+</html>

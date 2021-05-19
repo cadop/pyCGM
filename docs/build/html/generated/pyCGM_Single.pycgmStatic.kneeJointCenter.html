@@ -1,0 +1,184 @@
+
+<!DOCTYPE html>
+
+<html>
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>pyCGM_Single.pycgmStatic.kneeJointCenter &#8212; pycgm 1.0.0 documentation</title>
+    <link rel="stylesheet" href="../_static/alabaster.css" type="text/css" />
+    <link rel="stylesheet" href="../_static/pygments.css" type="text/css" />
+    <script id="documentation_options" data-url_root="../" src="../_static/documentation_options.js"></script>
+    <script src="../_static/jquery.js"></script>
+    <script src="../_static/underscore.js"></script>
+    <script src="../_static/doctools.js"></script>
+    <script src="../_static/language_data.js"></script>
+    <link rel="index" title="Index" href="../genindex.html" />
+    <link rel="search" title="Search" href="../search.html" />
+    <link rel="next" title="pyCGM_Single.pycgmStatic.matrixmult" href="pyCGM_Single.pycgmStatic.matrixmult.html" />
+    <link rel="prev" title="pyCGM_Single.pycgmStatic.hipJointCenter" href="pyCGM_Single.pycgmStatic.hipJointCenter.html" />
+   
+  <link rel="stylesheet" href="../_static/custom.css" type="text/css" />
+  
+  
+  <meta name="viewport" content="width=device-width, initial-scale=0.9, maximum-scale=0.9" />
+
+  </head><body>
+  
+
+    <div class="document">
+      <div class="documentwrapper">
+        <div class="bodywrapper">
+          
+
+          <div class="body" role="main">
+            
+  <div class="section" id="pycgm-single-pycgmstatic-kneejointcenter">
+<h1>pyCGM_Single.pycgmStatic.kneeJointCenter<a class="headerlink" href="#pycgm-single-pycgmstatic-kneejointcenter" title="Permalink to this headline">¶</a></h1>
+<dl class="py function">
+<dt id="pyCGM_Single.pycgmStatic.kneeJointCenter">
+<code class="sig-prename descclassname">pyCGM_Single.pycgmStatic.</code><code class="sig-name descname">kneeJointCenter</code><span class="sig-paren">(</span><em class="sig-param"><span class="n">frame</span></em>, <em class="sig-param"><span class="n">hip_JC</span></em>, <em class="sig-param"><span class="n">delta</span></em>, <em class="sig-param"><span class="n">vsk</span><span class="o">=</span><span class="default_value">None</span></em><span class="sig-paren">)</span><a class="headerlink" href="#pyCGM_Single.pycgmStatic.kneeJointCenter" title="Permalink to this definition">¶</a></dt>
+<dd><p>Calculate the knee joint center and axis function.</p>
+<p>Takes in a dictionary of xyz positions and marker names, as well as an index.
+and takes the hip axis and pelvis axis.
+Calculates the knee joint axis and returns the knee origin and axis</p>
+<p>Markers used: RTHI, LTHI, RKNE, LKNE, hip_JC
+Subject Measurement values used: RightKneeWidth, LeftKneeWidth</p>
+<p>Knee joint center: Computed using Knee Axis Calculation(ref. Clinical Gait Analysis hand book, Baker2013)</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters</dt>
+<dd class="field-odd"><dl class="simple">
+<dt><strong>frame</strong><span class="classifier">dict</span></dt><dd><p>dictionary of marker lists.</p>
+</dd>
+<dt><strong>hip_JC</strong><span class="classifier">array</span></dt><dd><p>An array of hip_JC containing the x,y,z axes marker positions of the hip joint center.</p>
+</dd>
+<dt><strong>delta</strong><span class="classifier">float</span></dt><dd><p>The length from marker to joint center, retrieved from subject measurement file.</p>
+</dd>
+<dt><strong>vsk</strong><span class="classifier">dict, optional</span></dt><dd><p>A dictionary containing subject measurements from a VSK file.</p>
+</dd>
+</dl>
+</dd>
+<dt class="field-even">Returns</dt>
+<dd class="field-even"><dl class="simple">
+<dt><strong>R, L, axis</strong><span class="classifier">list</span></dt><dd><p>Returns a list that contains the knee axes’ center in two 1x3 arrays of xyz values,
+which is then followed by a 2x3x3 array composed of the knee axis center x, y, and z
+axis components. The xyz axis components are 2x3 arrays consisting of the axis center
+in the first dimension and the direction of the axis in the second dimension.</p>
+</dd>
+</dl>
+</dd>
+</dl>
+<p class="rubric">Notes</p>
+<p>Delta is changed suitably to knee.</p>
+<p class="rubric">Examples</p>
+<div class="doctest highlight-default notranslate"><div class="highlight"><pre><span></span><span class="gp">&gt;&gt;&gt; </span><span class="kn">import</span> <span class="nn">numpy</span> <span class="k">as</span> <span class="nn">np</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="kn">from</span> <span class="nn">.pycgmStatic</span> <span class="kn">import</span> <span class="n">kneeJointCenter</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">vsk</span> <span class="o">=</span> <span class="p">{</span> <span class="s1">&#39;RightKneeWidth&#39;</span> <span class="p">:</span> <span class="mf">105.0</span><span class="p">,</span> <span class="s1">&#39;LeftKneeWidth&#39;</span> <span class="p">:</span> <span class="mf">105.0</span> <span class="p">}</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">frame</span> <span class="o">=</span> <span class="p">{</span> <span class="s1">&#39;RTHI&#39;</span><span class="p">:</span> <span class="n">np</span><span class="o">.</span><span class="n">array</span><span class="p">([</span><span class="mf">426.50</span><span class="p">,</span> <span class="mf">262.65</span><span class="p">,</span> <span class="mf">673.66</span><span class="p">]),</span>
+<span class="gp">... </span>          <span class="s1">&#39;LTHI&#39;</span><span class="p">:</span> <span class="n">np</span><span class="o">.</span><span class="n">array</span><span class="p">([</span><span class="mf">51.94</span><span class="p">,</span> <span class="mf">320.02</span><span class="p">,</span> <span class="mf">723.03</span><span class="p">]),</span>
+<span class="gp">... </span>          <span class="s1">&#39;RKNE&#39;</span><span class="p">:</span> <span class="n">np</span><span class="o">.</span><span class="n">array</span><span class="p">([</span><span class="mf">416.99</span><span class="p">,</span> <span class="mf">266.23</span><span class="p">,</span> <span class="mf">524.04</span><span class="p">]),</span>
+<span class="gp">... </span>          <span class="s1">&#39;LKNE&#39;</span><span class="p">:</span> <span class="n">np</span><span class="o">.</span><span class="n">array</span><span class="p">([</span><span class="mf">84.62</span><span class="p">,</span> <span class="mf">286.69</span><span class="p">,</span> <span class="mf">529.40</span><span class="p">])}</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">hip_JC</span> <span class="o">=</span> <span class="p">[[</span><span class="mf">182.57</span><span class="p">,</span> <span class="mf">339.43</span><span class="p">,</span> <span class="mf">935.53</span><span class="p">],</span>
+<span class="gp">... </span>        <span class="p">[</span><span class="mf">309.38</span><span class="p">,</span> <span class="mf">322.80</span><span class="p">,</span> <span class="mf">937.99</span><span class="p">]]</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">delta</span> <span class="o">=</span> <span class="mi">0</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="p">[</span><span class="n">np</span><span class="o">.</span><span class="n">around</span><span class="p">(</span><span class="n">arr</span><span class="p">,</span> <span class="mi">2</span><span class="p">)</span> <span class="k">for</span> <span class="n">arr</span> <span class="ow">in</span> <span class="n">kneeJointCenter</span><span class="p">(</span><span class="n">frame</span><span class="p">,</span><span class="n">hip_JC</span><span class="p">,</span><span class="n">delta</span><span class="p">,</span><span class="n">vsk</span><span class="p">)]</span> 
+<span class="go">[array([364.24, 292.34, 515.31]), array([143.55, 279.9 , 524.79]), array([[[364.69, 293.24, 515.31],</span>
+<span class="go">        [363.36, 292.78, 515.17],</span>
+<span class="go">        [364.12, 292.42, 516.3 ]],</span>
+<span class="go">       [[143.65, 280.88, 524.63],</span>
+<span class="go">        [142.56, 280.01, 524.86],</span>
+<span class="go">        [143.64, 280.04, 525.77]]])]</span>
+</pre></div>
+</div>
+</dd></dl>
+
+</div>
+
+
+          </div>
+          
+        </div>
+      </div>
+      <div class="sphinxsidebar" role="navigation" aria-label="main navigation">
+        <div class="sphinxsidebarwrapper">
+<h1 class="logo"><a href="../index.html">pycgm</a></h1>
+
+
+
+
+
+
+
+
+<h3>Navigation</h3>
+<p class="caption"><span class="caption-text">Contents:</span></p>
+<ul class="current">
+<li class="toctree-l1"><a class="reference internal" href="../install.html">Installation</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../Overview.html">Overview</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../GettingStarted.html">Getting Started with pycgm</a></li>
+<li class="toctree-l1 current"><a class="reference internal" href="../API.html">API for pycgm</a><ul class="current">
+<li class="toctree-l2"><a class="reference internal" href="pyCGM_Single.pyCGM.html">pyCGM_Single.pyCGM</a></li>
+<li class="toctree-l2"><a class="reference internal" href="pyCGM_Single.pycgmKinetics.html">pyCGM_Single.pycgmKinetics</a></li>
+<li class="toctree-l2"><a class="reference internal" href="pyCGM_Single.pycgmIO.html">pyCGM_Single.pycgmIO</a></li>
+<li class="toctree-l2"><a class="reference internal" href="pyCGM_Single.Pipelines.html">pyCGM_Single.Pipelines</a></li>
+<li class="toctree-l2"><a class="reference internal" href="pyCGM_Single.pyCGM_Helpers.html">pyCGM_Single.pyCGM_Helpers</a></li>
+<li class="toctree-l2"><a class="reference internal" href="pyCGM_Single.pycgmCalc.html">pyCGM_Single.pycgmCalc</a></li>
+<li class="toctree-l2 current"><a class="reference internal" href="pyCGM_Single.pycgmStatic.html">pyCGM_Single.pycgmStatic</a></li>
+<li class="toctree-l2"><a class="reference internal" href="pyCGM_Single.clusterCalc.html">pyCGM_Single.clusterCalc</a></li>
+<li class="toctree-l2"><a class="reference internal" href="pyCGM_Single.pycgmClusters.html">pyCGM_Single.pycgmClusters</a></li>
+</ul>
+</li>
+</ul>
+
+<div class="relations">
+<h3>Related Topics</h3>
+<ul>
+  <li><a href="../index.html">Documentation overview</a><ul>
+  <li><a href="../API.html">API for pycgm</a><ul>
+  <li><a href="pyCGM_Single.pycgmStatic.html">pyCGM_Single.pycgmStatic</a><ul>
+      <li>Previous: <a href="pyCGM_Single.pycgmStatic.hipJointCenter.html" title="previous chapter">pyCGM_Single.pycgmStatic.hipJointCenter</a></li>
+      <li>Next: <a href="pyCGM_Single.pycgmStatic.matrixmult.html" title="next chapter">pyCGM_Single.pycgmStatic.matrixmult</a></li>
+  </ul></li>
+  </ul></li>
+  </ul></li>
+</ul>
+</div>
+<div id="searchbox" style="display: none" role="search">
+  <h3 id="searchlabel">Quick search</h3>
+    <div class="searchformwrapper">
+    <form class="search" action="../search.html" method="get">
+      <input type="text" name="q" aria-labelledby="searchlabel" />
+      <input type="submit" value="Go" />
+    </form>
+    </div>
+</div>
+<script>$('#searchbox').show(0);</script>
+
+
+
+
+
+
+
+
+        </div>
+      </div>
+      <div class="clearer"></div>
+    </div>
+    <div class="footer">
+      &copy;2020, Mathew Schwartz.
+      
+      |
+      Powered by <a href="http://sphinx-doc.org/">Sphinx 3.2.1</a>
+      &amp; <a href="https://github.com/bitprophet/alabaster">Alabaster 0.7.12</a>
+      
+      |
+      <a href="../_sources/generated/pyCGM_Single.pycgmStatic.kneeJointCenter.rst.txt"
+          rel="nofollow">Page source</a>
+    </div>
+
+    
+
+    
+  </body>
+</html>

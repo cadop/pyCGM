@@ -1,0 +1,192 @@
+
+<!DOCTYPE html>
+
+<html>
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>pyCGM_Single.Pipelines.filt &#8212; pycgm 1.0.0 documentation</title>
+    <link rel="stylesheet" href="../_static/alabaster.css" type="text/css" />
+    <link rel="stylesheet" href="../_static/pygments.css" type="text/css" />
+    <script id="documentation_options" data-url_root="../" src="../_static/documentation_options.js"></script>
+    <script src="../_static/jquery.js"></script>
+    <script src="../_static/underscore.js"></script>
+    <script src="../_static/doctools.js"></script>
+    <script src="../_static/language_data.js"></script>
+    <link rel="index" title="Index" href="../genindex.html" />
+    <link rel="search" title="Search" href="../search.html" />
+    <link rel="next" title="pyCGM_Single.Pipelines.filtering" href="pyCGM_Single.Pipelines.filtering.html" />
+    <link rel="prev" title="pyCGM_Single.Pipelines.clearMarker" href="pyCGM_Single.Pipelines.clearMarker.html" />
+   
+  <link rel="stylesheet" href="../_static/custom.css" type="text/css" />
+  
+  
+  <meta name="viewport" content="width=device-width, initial-scale=0.9, maximum-scale=0.9" />
+
+  </head><body>
+  
+
+    <div class="document">
+      <div class="documentwrapper">
+        <div class="bodywrapper">
+          
+
+          <div class="body" role="main">
+            
+  <div class="section" id="pycgm-single-pipelines-filt">
+<h1>pyCGM_Single.Pipelines.filt<a class="headerlink" href="#pycgm-single-pipelines-filt" title="Permalink to this headline">¶</a></h1>
+<dl class="py function">
+<dt id="pyCGM_Single.Pipelines.filt">
+<code class="sig-prename descclassname">pyCGM_Single.Pipelines.</code><code class="sig-name descname">filt</code><span class="sig-paren">(</span><em class="sig-param"><span class="n">data</span></em>, <em class="sig-param"><span class="n">cutoff</span></em>, <em class="sig-param"><span class="n">Fs</span></em><span class="sig-paren">)</span><a class="headerlink" href="#pyCGM_Single.Pipelines.filt" title="Permalink to this definition">¶</a></dt>
+<dd><p>Applies a Butterworth filter.</p>
+<p>Filt applies standard Butterworth filter to signals.
+Useful when filtering (x,y,z) timeseries.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters</dt>
+<dd class="field-odd"><dl class="simple">
+<dt><strong>data</strong><span class="classifier">ndarray</span></dt><dd><p>Numpy array of signals to be filtered.</p>
+</dd>
+<dt><strong>cutoff</strong><span class="classifier">int</span></dt><dd><p>Desired cutoff frequency.</p>
+</dd>
+<dt><strong>Fs</strong><span class="classifier">int</span></dt><dd><p>Sampling frequency at which signal was acquired.</p>
+</dd>
+</dl>
+</dd>
+<dt class="field-even">Returns</dt>
+<dd class="field-even"><dl class="simple">
+<dt><strong>filtered</strong><span class="classifier">ndarray</span></dt><dd><p>Filtered data.</p>
+</dd>
+</dl>
+</dd>
+</dl>
+<p class="rubric">Examples</p>
+<div class="doctest highlight-default notranslate"><div class="highlight"><pre><span></span><span class="gp">&gt;&gt;&gt; </span><span class="kn">from</span> <span class="nn">numpy</span> <span class="kn">import</span> <span class="n">array</span><span class="p">,</span> <span class="n">around</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">data</span> <span class="o">=</span> <span class="n">array</span><span class="p">([[</span><span class="o">-</span><span class="mf">1003.58</span><span class="p">,</span> <span class="mf">81.00</span><span class="p">,</span> <span class="mf">1522.23</span><span class="p">],</span>
+<span class="gp">... </span>              <span class="p">[</span><span class="o">-</span><span class="mf">1003.50</span><span class="p">,</span> <span class="mf">81.02</span><span class="p">,</span> <span class="mf">1522.18</span><span class="p">],</span>
+<span class="gp">... </span>              <span class="p">[</span><span class="o">-</span><span class="mf">1003.42</span><span class="p">,</span> <span class="mf">81.05</span><span class="p">,</span> <span class="mf">1522.13</span><span class="p">],</span>
+<span class="gp">... </span>              <span class="p">[</span><span class="o">-</span><span class="mf">1003.34</span><span class="p">,</span> <span class="mf">81.07</span><span class="p">,</span> <span class="mf">1522.09</span><span class="p">],</span>
+<span class="gp">... </span>              <span class="p">[</span><span class="o">-</span><span class="mf">1003.26</span><span class="p">,</span> <span class="mf">81.09</span><span class="p">,</span> <span class="mf">1522.04</span><span class="p">],</span>
+<span class="gp">... </span>              <span class="p">[</span><span class="o">-</span><span class="mf">1003.17</span><span class="p">,</span> <span class="mf">81.11</span><span class="p">,</span> <span class="mf">1522.00</span><span class="p">],</span>
+<span class="gp">... </span>              <span class="p">[</span><span class="o">-</span><span class="mf">1003.09</span><span class="p">,</span> <span class="mf">81.13</span><span class="p">,</span> <span class="mf">1521.97</span><span class="p">],</span>
+<span class="gp">... </span>              <span class="p">[</span><span class="o">-</span><span class="mf">1003.01</span><span class="p">,</span> <span class="mf">81.15</span><span class="p">,</span> <span class="mf">1521.93</span><span class="p">],</span>
+<span class="gp">... </span>              <span class="p">[</span><span class="o">-</span><span class="mf">1002.92</span><span class="p">,</span> <span class="mf">81.17</span><span class="p">,</span> <span class="mf">1521.90</span><span class="p">],</span>
+<span class="gp">... </span>              <span class="p">[</span><span class="o">-</span><span class="mf">1002.84</span><span class="p">,</span> <span class="mf">81.19</span><span class="p">,</span> <span class="mf">1521.88</span><span class="p">],</span>
+<span class="gp">... </span>              <span class="p">[</span><span class="o">-</span><span class="mf">1002.75</span><span class="p">,</span> <span class="mf">81.21</span><span class="p">,</span> <span class="mf">1521.85</span><span class="p">],</span>
+<span class="gp">... </span>              <span class="p">[</span><span class="o">-</span><span class="mf">1002.66</span><span class="p">,</span> <span class="mf">81.23</span><span class="p">,</span> <span class="mf">1521.83</span><span class="p">],</span>
+<span class="gp">... </span>              <span class="p">[</span><span class="o">-</span><span class="mf">1002.57</span><span class="p">,</span> <span class="mf">81.25</span><span class="p">,</span> <span class="mf">1521.81</span><span class="p">],</span>
+<span class="gp">... </span>              <span class="p">[</span><span class="o">-</span><span class="mf">1002.49</span><span class="p">,</span> <span class="mf">81.27</span><span class="p">,</span> <span class="mf">1521.80</span><span class="p">],</span>
+<span class="gp">... </span>              <span class="p">[</span><span class="o">-</span><span class="mf">1002.40</span><span class="p">,</span> <span class="mf">81.29</span><span class="p">,</span> <span class="mf">1521.79</span><span class="p">],</span>
+<span class="gp">... </span>              <span class="p">[</span><span class="o">-</span><span class="mf">1002.31</span><span class="p">,</span> <span class="mf">81.30</span><span class="p">,</span> <span class="mf">1521.78</span><span class="p">]])</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">cutoff</span> <span class="o">=</span> <span class="mi">20</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">Fs</span> <span class="o">=</span> <span class="mi">120</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">around</span><span class="p">(</span><span class="n">filt</span><span class="p">(</span><span class="n">data</span><span class="p">,</span> <span class="n">cutoff</span><span class="p">,</span> <span class="n">Fs</span><span class="p">),</span> <span class="mi">2</span><span class="p">)</span> 
+<span class="go">array([[-1003.58,    81.  ,  1522.23],</span>
+<span class="go">       [-1003.5 ,    81.02,  1522.18],</span>
+<span class="go">       [-1003.42,    81.05,  1522.13],</span>
+<span class="go">       [-1003.34,    81.07,  1522.09],</span>
+<span class="go">       [-1003.26,    81.09,  1522.04],</span>
+<span class="go">       [-1003.17,    81.11,  1522.  ],</span>
+<span class="go">       [-1003.09,    81.13,  1521.97],</span>
+<span class="go">       [-1003.01,    81.15,  1521.93],</span>
+<span class="go">       [-1002.92,    81.17,  1521.9 ],</span>
+<span class="go">       [-1002.84,    81.19,  1521.88],</span>
+<span class="go">       [-1002.75,    81.21,  1521.85],</span>
+<span class="go">       [-1002.66,    81.23,  1521.83],</span>
+<span class="go">       [-1002.57,    81.25,  1521.81],</span>
+<span class="go">       [-1002.49,    81.27,  1521.8 ],</span>
+<span class="go">       [-1002.4 ,    81.29,  1521.79],</span>
+<span class="go">       [-1002.31,    81.3 ,  1521.78]])</span>
+</pre></div>
+</div>
+</dd></dl>
+
+</div>
+
+
+          </div>
+          
+        </div>
+      </div>
+      <div class="sphinxsidebar" role="navigation" aria-label="main navigation">
+        <div class="sphinxsidebarwrapper">
+<h1 class="logo"><a href="../index.html">pycgm</a></h1>
+
+
+
+
+
+
+
+
+<h3>Navigation</h3>
+<p class="caption"><span class="caption-text">Contents:</span></p>
+<ul class="current">
+<li class="toctree-l1"><a class="reference internal" href="../install.html">Installation</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../Overview.html">Overview</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../GettingStarted.html">Getting Started with pycgm</a></li>
+<li class="toctree-l1 current"><a class="reference internal" href="../API.html">API for pycgm</a><ul class="current">
+<li class="toctree-l2"><a class="reference internal" href="pyCGM_Single.pyCGM.html">pyCGM_Single.pyCGM</a></li>
+<li class="toctree-l2"><a class="reference internal" href="pyCGM_Single.pycgmKinetics.html">pyCGM_Single.pycgmKinetics</a></li>
+<li class="toctree-l2"><a class="reference internal" href="pyCGM_Single.pycgmIO.html">pyCGM_Single.pycgmIO</a></li>
+<li class="toctree-l2 current"><a class="reference internal" href="pyCGM_Single.Pipelines.html">pyCGM_Single.Pipelines</a></li>
+<li class="toctree-l2"><a class="reference internal" href="pyCGM_Single.pyCGM_Helpers.html">pyCGM_Single.pyCGM_Helpers</a></li>
+<li class="toctree-l2"><a class="reference internal" href="pyCGM_Single.pycgmCalc.html">pyCGM_Single.pycgmCalc</a></li>
+<li class="toctree-l2"><a class="reference internal" href="pyCGM_Single.pycgmStatic.html">pyCGM_Single.pycgmStatic</a></li>
+<li class="toctree-l2"><a class="reference internal" href="pyCGM_Single.clusterCalc.html">pyCGM_Single.clusterCalc</a></li>
+<li class="toctree-l2"><a class="reference internal" href="pyCGM_Single.pycgmClusters.html">pyCGM_Single.pycgmClusters</a></li>
+</ul>
+</li>
+</ul>
+
+<div class="relations">
+<h3>Related Topics</h3>
+<ul>
+  <li><a href="../index.html">Documentation overview</a><ul>
+  <li><a href="../API.html">API for pycgm</a><ul>
+  <li><a href="pyCGM_Single.Pipelines.html">pyCGM_Single.Pipelines</a><ul>
+      <li>Previous: <a href="pyCGM_Single.Pipelines.clearMarker.html" title="previous chapter">pyCGM_Single.Pipelines.clearMarker</a></li>
+      <li>Next: <a href="pyCGM_Single.Pipelines.filtering.html" title="next chapter">pyCGM_Single.Pipelines.filtering</a></li>
+  </ul></li>
+  </ul></li>
+  </ul></li>
+</ul>
+</div>
+<div id="searchbox" style="display: none" role="search">
+  <h3 id="searchlabel">Quick search</h3>
+    <div class="searchformwrapper">
+    <form class="search" action="../search.html" method="get">
+      <input type="text" name="q" aria-labelledby="searchlabel" />
+      <input type="submit" value="Go" />
+    </form>
+    </div>
+</div>
+<script>$('#searchbox').show(0);</script>
+
+
+
+
+
+
+
+
+        </div>
+      </div>
+      <div class="clearer"></div>
+    </div>
+    <div class="footer">
+      &copy;2020, Mathew Schwartz.
+      
+      |
+      Powered by <a href="http://sphinx-doc.org/">Sphinx 3.2.1</a>
+      &amp; <a href="https://github.com/bitprophet/alabaster">Alabaster 0.7.12</a>
+      
+      |
+      <a href="../_sources/generated/pyCGM_Single.Pipelines.filt.rst.txt"
+          rel="nofollow">Page source</a>
+    </div>
+
+    
+
+    
+  </body>
+</html>

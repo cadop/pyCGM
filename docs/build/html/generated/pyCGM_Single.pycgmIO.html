@@ -1,0 +1,199 @@
+
+<!DOCTYPE html>
+
+<html>
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>pyCGM_Single.pycgmIO &#8212; pycgm 1.0.0 documentation</title>
+    <link rel="stylesheet" href="../_static/alabaster.css" type="text/css" />
+    <link rel="stylesheet" href="../_static/pygments.css" type="text/css" />
+    <script id="documentation_options" data-url_root="../" src="../_static/documentation_options.js"></script>
+    <script src="../_static/jquery.js"></script>
+    <script src="../_static/underscore.js"></script>
+    <script src="../_static/doctools.js"></script>
+    <script src="../_static/language_data.js"></script>
+    <link rel="index" title="Index" href="../genindex.html" />
+    <link rel="search" title="Search" href="../search.html" />
+    <link rel="next" title="pyCGM_Single.pycgmIO.combineDataDict" href="pyCGM_Single.pycgmIO.combineDataDict.html" />
+    <link rel="prev" title="pyCGM_Single.pycgmKinetics.vector" href="pyCGM_Single.pycgmKinetics.vector.html" />
+   
+  <link rel="stylesheet" href="../_static/custom.css" type="text/css" />
+  
+  
+  <meta name="viewport" content="width=device-width, initial-scale=0.9, maximum-scale=0.9" />
+
+  </head><body>
+  
+
+    <div class="document">
+      <div class="documentwrapper">
+        <div class="bodywrapper">
+          
+
+          <div class="body" role="main">
+            
+  <div class="section" id="pycgm-single-pycgmio">
+<h1>pyCGM_Single.pycgmIO<a class="headerlink" href="#pycgm-single-pycgmio" title="Permalink to this headline">¶</a></h1>
+<p class="rubric">Description</p>
+<span class="target" id="module-pyCGM_Single.pycgmIO"></span><p>This file is used for the input and output of pycgm functions.</p>
+<p class="rubric">Functions</p>
+<table class="longtable docutils align-default">
+<colgroup>
+<col style="width: 10%" />
+<col style="width: 90%" />
+</colgroup>
+<tbody>
+<tr class="row-odd"><td><p><a class="reference internal" href="pyCGM_Single.pycgmIO.combineDataDict.html#pyCGM_Single.pycgmIO.combineDataDict" title="pyCGM_Single.pycgmIO.combineDataDict"><code class="xref py py-obj docutils literal notranslate"><span class="pre">combineDataDict</span></code></a>(values, labels)</p></td>
+<td><p>Converts two lists of values and labels to a dictionary.</p></td>
+</tr>
+<tr class="row-even"><td><p><a class="reference internal" href="pyCGM_Single.pycgmIO.cos.html#pyCGM_Single.pycgmIO.cos" title="pyCGM_Single.pycgmIO.cos"><code class="xref py py-obj docutils literal notranslate"><span class="pre">cos</span></code></a>(x, /)</p></td>
+<td><p>Return the cosine of x (measured in radians).</p></td>
+</tr>
+<tr class="row-odd"><td><p><a class="reference internal" href="pyCGM_Single.pycgmIO.createMotionDataDict.html#pyCGM_Single.pycgmIO.createMotionDataDict" title="pyCGM_Single.pycgmIO.createMotionDataDict"><code class="xref py py-obj docutils literal notranslate"><span class="pre">createMotionDataDict</span></code></a>(labels, data)</p></td>
+<td><p>Creates an array of motion capture data given labels and data.</p></td>
+</tr>
+<tr class="row-even"><td><p><a class="reference internal" href="pyCGM_Single.pycgmIO.createVskDataDict.html#pyCGM_Single.pycgmIO.createVskDataDict" title="pyCGM_Single.pycgmIO.createVskDataDict"><code class="xref py py-obj docutils literal notranslate"><span class="pre">createVskDataDict</span></code></a>(labels, data)</p></td>
+<td><p>Creates a dictionary of vsk file values from labels and data.</p></td>
+</tr>
+<tr class="row-odd"><td><p><a class="reference internal" href="pyCGM_Single.pycgmIO.dataAsArray.html#pyCGM_Single.pycgmIO.dataAsArray" title="pyCGM_Single.pycgmIO.dataAsArray"><code class="xref py py-obj docutils literal notranslate"><span class="pre">dataAsArray</span></code></a>(data)</p></td>
+<td><p>Converts a dictionary of markers and their corresponding x, y, and z coordinate values to an array of dictionaries.</p></td>
+</tr>
+<tr class="row-even"><td><p><a class="reference internal" href="pyCGM_Single.pycgmIO.dataAsDict.html#pyCGM_Single.pycgmIO.dataAsDict" title="pyCGM_Single.pycgmIO.dataAsDict"><code class="xref py py-obj docutils literal notranslate"><span class="pre">dataAsDict</span></code></a>(data[, npArray])</p></td>
+<td><p>Converts frame-by-frame motion capture data to a dictionary.</p></td>
+</tr>
+<tr class="row-odd"><td><p><a class="reference internal" href="pyCGM_Single.pycgmIO.loadC3D.html#pyCGM_Single.pycgmIO.loadC3D" title="pyCGM_Single.pycgmIO.loadC3D"><code class="xref py py-obj docutils literal notranslate"><span class="pre">loadC3D</span></code></a>(filename)</p></td>
+<td><p>Open and load a C3D file of motion capture data</p></td>
+</tr>
+<tr class="row-even"><td><p><a class="reference internal" href="pyCGM_Single.pycgmIO.loadCSV.html#pyCGM_Single.pycgmIO.loadCSV" title="pyCGM_Single.pycgmIO.loadCSV"><code class="xref py py-obj docutils literal notranslate"><span class="pre">loadCSV</span></code></a>(filename)</p></td>
+<td><p>Open and load a CSV file of motion capture data.</p></td>
+</tr>
+<tr class="row-odd"><td><p><a class="reference internal" href="pyCGM_Single.pycgmIO.loadData.html#pyCGM_Single.pycgmIO.loadData" title="pyCGM_Single.pycgmIO.loadData"><code class="xref py py-obj docutils literal notranslate"><span class="pre">loadData</span></code></a>(filename[, rawData])</p></td>
+<td><p>Loads motion capture data from a csv or c3d file.</p></td>
+</tr>
+<tr class="row-even"><td><p><a class="reference internal" href="pyCGM_Single.pycgmIO.loadEZC3D.html#pyCGM_Single.pycgmIO.loadEZC3D" title="pyCGM_Single.pycgmIO.loadEZC3D"><code class="xref py py-obj docutils literal notranslate"><span class="pre">loadEZC3D</span></code></a>(filename)</p></td>
+<td><p>Use c3dez to load a c3d file.</p></td>
+</tr>
+<tr class="row-odd"><td><p><a class="reference internal" href="pyCGM_Single.pycgmIO.loadVSK.html#pyCGM_Single.pycgmIO.loadVSK" title="pyCGM_Single.pycgmIO.loadVSK"><code class="xref py py-obj docutils literal notranslate"><span class="pre">loadVSK</span></code></a>(filename[, dict])</p></td>
+<td><p>Open and load a vsk file.</p></td>
+</tr>
+<tr class="row-even"><td><p><a class="reference internal" href="pyCGM_Single.pycgmIO.make_sure_path_exists.html#pyCGM_Single.pycgmIO.make_sure_path_exists" title="pyCGM_Single.pycgmIO.make_sure_path_exists"><code class="xref py py-obj docutils literal notranslate"><span class="pre">make_sure_path_exists</span></code></a>(path)</p></td>
+<td><p>Creates a file path.</p></td>
+</tr>
+<tr class="row-odd"><td><p><a class="reference internal" href="pyCGM_Single.pycgmIO.markerKeys.html#pyCGM_Single.pycgmIO.markerKeys" title="pyCGM_Single.pycgmIO.markerKeys"><code class="xref py py-obj docutils literal notranslate"><span class="pre">markerKeys</span></code></a>()</p></td>
+<td><p>A list of marker names.</p></td>
+</tr>
+<tr class="row-even"><td><p><a class="reference internal" href="pyCGM_Single.pycgmIO.sin.html#pyCGM_Single.pycgmIO.sin" title="pyCGM_Single.pycgmIO.sin"><code class="xref py py-obj docutils literal notranslate"><span class="pre">sin</span></code></a>(x, /)</p></td>
+<td><p>Return the sine of x (measured in radians).</p></td>
+</tr>
+<tr class="row-odd"><td><p><a class="reference internal" href="pyCGM_Single.pycgmIO.smKeys.html#pyCGM_Single.pycgmIO.smKeys" title="pyCGM_Single.pycgmIO.smKeys"><code class="xref py py-obj docutils literal notranslate"><span class="pre">smKeys</span></code></a>()</p></td>
+<td><p>A list of segment labels.</p></td>
+</tr>
+<tr class="row-even"><td><p><a class="reference internal" href="pyCGM_Single.pycgmIO.splitDataDict.html#pyCGM_Single.pycgmIO.splitDataDict" title="pyCGM_Single.pycgmIO.splitDataDict"><code class="xref py py-obj docutils literal notranslate"><span class="pre">splitDataDict</span></code></a>(motionData)</p></td>
+<td><p>Splits an array of motion capture data into separate labels and data.</p></td>
+</tr>
+<tr class="row-odd"><td><p><a class="reference internal" href="pyCGM_Single.pycgmIO.splitMotionDataDict.html#pyCGM_Single.pycgmIO.splitMotionDataDict" title="pyCGM_Single.pycgmIO.splitMotionDataDict"><code class="xref py py-obj docutils literal notranslate"><span class="pre">splitMotionDataDict</span></code></a>(motiondata)</p></td>
+<td><p>Splits an array of motion capture data into separate labels and data.</p></td>
+</tr>
+<tr class="row-even"><td><p><a class="reference internal" href="pyCGM_Single.pycgmIO.splitVskDataDict.html#pyCGM_Single.pycgmIO.splitVskDataDict" title="pyCGM_Single.pycgmIO.splitVskDataDict"><code class="xref py py-obj docutils literal notranslate"><span class="pre">splitVskDataDict</span></code></a>(vsk)</p></td>
+<td><p>Splits a dictionary of vsk file values into labels and data arrays</p></td>
+</tr>
+<tr class="row-odd"><td><p><a class="reference internal" href="pyCGM_Single.pycgmIO.sqrt.html#pyCGM_Single.pycgmIO.sqrt" title="pyCGM_Single.pycgmIO.sqrt"><code class="xref py py-obj docutils literal notranslate"><span class="pre">sqrt</span></code></a>(x, /)</p></td>
+<td><p>Return the square root of x.</p></td>
+</tr>
+<tr class="row-even"><td><p><a class="reference internal" href="pyCGM_Single.pycgmIO.writeKinetics.html#pyCGM_Single.pycgmIO.writeKinetics" title="pyCGM_Single.pycgmIO.writeKinetics"><code class="xref py py-obj docutils literal notranslate"><span class="pre">writeKinetics</span></code></a>(CoM_output, kinetics)</p></td>
+<td><p>Uses numpy.save to write kinetics data as an .npy file.</p></td>
+</tr>
+<tr class="row-odd"><td><p><a class="reference internal" href="pyCGM_Single.pycgmIO.writeResult.html#pyCGM_Single.pycgmIO.writeResult" title="pyCGM_Single.pycgmIO.writeResult"><code class="xref py py-obj docutils literal notranslate"><span class="pre">writeResult</span></code></a>(data, filename, **kargs)</p></td>
+<td><p>Writes the result of the calculation into a csv file.</p></td>
+</tr>
+</tbody>
+</table>
+</div>
+
+
+          </div>
+          
+        </div>
+      </div>
+      <div class="sphinxsidebar" role="navigation" aria-label="main navigation">
+        <div class="sphinxsidebarwrapper">
+<h1 class="logo"><a href="../index.html">pycgm</a></h1>
+
+
+
+
+
+
+
+
+<h3>Navigation</h3>
+<p class="caption"><span class="caption-text">Contents:</span></p>
+<ul class="current">
+<li class="toctree-l1"><a class="reference internal" href="../install.html">Installation</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../Overview.html">Overview</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../GettingStarted.html">Getting Started with pycgm</a></li>
+<li class="toctree-l1 current"><a class="reference internal" href="../API.html">API for pycgm</a><ul class="current">
+<li class="toctree-l2"><a class="reference internal" href="pyCGM_Single.pyCGM.html">pyCGM_Single.pyCGM</a></li>
+<li class="toctree-l2"><a class="reference internal" href="pyCGM_Single.pycgmKinetics.html">pyCGM_Single.pycgmKinetics</a></li>
+<li class="toctree-l2 current"><a class="current reference internal" href="#">pyCGM_Single.pycgmIO</a></li>
+<li class="toctree-l2"><a class="reference internal" href="pyCGM_Single.Pipelines.html">pyCGM_Single.Pipelines</a></li>
+<li class="toctree-l2"><a class="reference internal" href="pyCGM_Single.pyCGM_Helpers.html">pyCGM_Single.pyCGM_Helpers</a></li>
+<li class="toctree-l2"><a class="reference internal" href="pyCGM_Single.pycgmCalc.html">pyCGM_Single.pycgmCalc</a></li>
+<li class="toctree-l2"><a class="reference internal" href="pyCGM_Single.pycgmStatic.html">pyCGM_Single.pycgmStatic</a></li>
+<li class="toctree-l2"><a class="reference internal" href="pyCGM_Single.clusterCalc.html">pyCGM_Single.clusterCalc</a></li>
+<li class="toctree-l2"><a class="reference internal" href="pyCGM_Single.pycgmClusters.html">pyCGM_Single.pycgmClusters</a></li>
+</ul>
+</li>
+</ul>
+
+<div class="relations">
+<h3>Related Topics</h3>
+<ul>
+  <li><a href="../index.html">Documentation overview</a><ul>
+  <li><a href="../API.html">API for pycgm</a><ul>
+      <li>Previous: <a href="pyCGM_Single.pycgmKinetics.vector.html" title="previous chapter">pyCGM_Single.pycgmKinetics.vector</a></li>
+      <li>Next: <a href="pyCGM_Single.pycgmIO.combineDataDict.html" title="next chapter">pyCGM_Single.pycgmIO.combineDataDict</a></li>
+  </ul></li>
+  </ul></li>
+</ul>
+</div>
+<div id="searchbox" style="display: none" role="search">
+  <h3 id="searchlabel">Quick search</h3>
+    <div class="searchformwrapper">
+    <form class="search" action="../search.html" method="get">
+      <input type="text" name="q" aria-labelledby="searchlabel" />
+      <input type="submit" value="Go" />
+    </form>
+    </div>
+</div>
+<script>$('#searchbox').show(0);</script>
+
+
+
+
+
+
+
+
+        </div>
+      </div>
+      <div class="clearer"></div>
+    </div>
+    <div class="footer">
+      &copy;2020, Mathew Schwartz.
+      
+      |
+      Powered by <a href="http://sphinx-doc.org/">Sphinx 3.2.1</a>
+      &amp; <a href="https://github.com/bitprophet/alabaster">Alabaster 0.7.12</a>
+      
+      |
+      <a href="../_sources/generated/pyCGM_Single.pycgmIO.rst.txt"
+          rel="nofollow">Page source</a>
+    </div>
+
+    
+
+    
+  </body>
+</html>

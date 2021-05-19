@@ -1,0 +1,216 @@
+
+<!DOCTYPE html>
+
+<html>
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>pyCGM_Single.pycgmStatic.footJointCenter &#8212; pycgm 1.0.0 documentation</title>
+    <link rel="stylesheet" href="../_static/alabaster.css" type="text/css" />
+    <link rel="stylesheet" href="../_static/pygments.css" type="text/css" />
+    <script id="documentation_options" data-url_root="../" src="../_static/documentation_options.js"></script>
+    <script src="../_static/jquery.js"></script>
+    <script src="../_static/underscore.js"></script>
+    <script src="../_static/doctools.js"></script>
+    <script src="../_static/language_data.js"></script>
+    <link rel="index" title="Index" href="../genindex.html" />
+    <link rel="search" title="Search" href="../search.html" />
+    <link rel="next" title="pyCGM_Single.pycgmStatic.getDist" href="pyCGM_Single.pycgmStatic.getDist.html" />
+    <link rel="prev" title="pyCGM_Single.pycgmStatic.findJointC" href="pyCGM_Single.pycgmStatic.findJointC.html" />
+   
+  <link rel="stylesheet" href="../_static/custom.css" type="text/css" />
+  
+  
+  <meta name="viewport" content="width=device-width, initial-scale=0.9, maximum-scale=0.9" />
+
+  </head><body>
+  
+
+    <div class="document">
+      <div class="documentwrapper">
+        <div class="bodywrapper">
+          
+
+          <div class="body" role="main">
+            
+  <div class="section" id="pycgm-single-pycgmstatic-footjointcenter">
+<h1>pyCGM_Single.pycgmStatic.footJointCenter<a class="headerlink" href="#pycgm-single-pycgmstatic-footjointcenter" title="Permalink to this headline">¶</a></h1>
+<dl class="py function">
+<dt id="pyCGM_Single.pycgmStatic.footJointCenter">
+<code class="sig-prename descclassname">pyCGM_Single.pycgmStatic.</code><code class="sig-name descname">footJointCenter</code><span class="sig-paren">(</span><em class="sig-param"><span class="n">frame</span></em>, <em class="sig-param"><span class="n">static_info</span></em>, <em class="sig-param"><span class="n">ankle_JC</span></em>, <em class="sig-param"><span class="n">knee_JC</span></em>, <em class="sig-param"><span class="n">delta</span></em><span class="sig-paren">)</span><a class="headerlink" href="#pyCGM_Single.pycgmStatic.footJointCenter" title="Permalink to this definition">¶</a></dt>
+<dd><p>Calculate the foot joint center and axis function.</p>
+<p>Takes in a dictionary of xyz positions and marker names, the ankle axis and
+knee axis.
+Calculates the foot joint axis by rotating the incorrect foot joint axes
+about the offset angle.
+Returns the foot axis origin and axis.</p>
+<p>In the case of the foot joint center, we’ve already made 2 kinds of axes
+for the static offset angle and then, we call this static offset angle as an
+input of this function for thedynamic trial.</p>
+<p>Special Cases:</p>
+<p>(anatomically uncorrected foot axis)
+If flat foot, make the reference markers instead of HEE marker whose height
+is the same as TOE marker’s height. Else use the HEE marker for making Z axis.</p>
+<p>Markers used: RTOE,LTOE,RHEE, LHEE
+Other landmarks used: ANKLE_FLEXION_AXIS
+Subject Measurement values used: RightStaticRotOff, RightStaticPlantFlex, LeftStaticRotOff, LeftStaticPlantFlex</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters</dt>
+<dd class="field-odd"><dl class="simple">
+<dt><strong>frame</strong><span class="classifier">dict</span></dt><dd><p>Dictionary of marker lists.</p>
+</dd>
+<dt><strong>static_info</strong><span class="classifier">array</span></dt><dd><p>An array containing offset angles.</p>
+</dd>
+<dt><strong>ankle_JC</strong><span class="classifier">array</span></dt><dd><p>An array of ankle_JC containing the x,y,z axes marker positions of the ankle joint center.</p>
+</dd>
+<dt><strong>knee_JC</strong><span class="classifier">array</span></dt><dd><p>An array of ankle_JC containing the x,y,z axes marker positions of the knee joint center.</p>
+</dd>
+<dt><strong>delta</strong></dt><dd><p>The length from marker to joint center, retrieved from subject measurement file.</p>
+</dd>
+</dl>
+</dd>
+<dt class="field-even">Returns</dt>
+<dd class="field-even"><dl class="simple">
+<dt><strong>R, L, foot_axis</strong><span class="classifier">list</span></dt><dd><p>Returns a list that contain the foot axis’ (right and left) origin in 1x3 arrays
+of xyz values and a 2x3x3 list composed of the foot axis center x, y, and z
+axis components. The xyz axis components are 2x3 lists consisting of the axis center
+in the first dimension and the direction of the axis in the second dimension.
+This function also saves the static offset angle in a global variable.</p>
+</dd>
+</dl>
+</dd>
+</dl>
+<p class="rubric">Notes</p>
+<p>Axis changes the following in the static info.</p>
+<p>You can set the static_info with the button and this will calculate the offset angles.
+The first setting, the foot axis shows the uncorrected foot anatomical reference axis(Z_axis point to the AJC from TOE).</p>
+<p>If you press the static_info button so if static_info is not None,
+then the static offset angles are applied to the reference axis.
+The reference axis is Z axis point to HEE from TOE</p>
+<p class="rubric">Examples</p>
+<div class="doctest highlight-default notranslate"><div class="highlight"><pre><span></span><span class="gp">&gt;&gt;&gt; </span><span class="kn">import</span> <span class="nn">numpy</span> <span class="k">as</span> <span class="nn">np</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="kn">from</span> <span class="nn">.pycgmStatic</span> <span class="kn">import</span> <span class="n">footJointCenter</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">frame</span> <span class="o">=</span> <span class="p">{</span> <span class="s1">&#39;RHEE&#39;</span><span class="p">:</span> <span class="n">np</span><span class="o">.</span><span class="n">array</span><span class="p">([</span><span class="mf">374.01</span><span class="p">,</span> <span class="mf">181.58</span><span class="p">,</span> <span class="mf">49.51</span><span class="p">]),</span>
+<span class="gp">... </span>          <span class="s1">&#39;LHEE&#39;</span><span class="p">:</span> <span class="n">np</span><span class="o">.</span><span class="n">array</span><span class="p">([</span><span class="mf">105.30</span><span class="p">,</span> <span class="mf">180.21</span><span class="p">,</span> <span class="mf">47.16</span><span class="p">]),</span>
+<span class="gp">... </span>          <span class="s1">&#39;RTOE&#39;</span><span class="p">:</span> <span class="n">np</span><span class="o">.</span><span class="n">array</span><span class="p">([</span><span class="mf">442.82</span><span class="p">,</span> <span class="mf">381.62</span><span class="p">,</span> <span class="mf">42.66</span><span class="p">]),</span>
+<span class="gp">... </span>          <span class="s1">&#39;LTOE&#39;</span><span class="p">:</span> <span class="n">np</span><span class="o">.</span><span class="n">array</span><span class="p">([</span><span class="mf">39.44</span><span class="p">,</span> <span class="mf">382.45</span><span class="p">,</span> <span class="mf">41.79</span><span class="p">])}</span>
+<span class="go">    &gt;&gt;&gt; static_info = [[0.03, 0.15, 0],</span>
+<span class="go">    ...               [0.01, 0.02, 0]]</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">knee_JC</span> <span class="o">=</span> <span class="p">[</span><span class="n">np</span><span class="o">.</span><span class="n">array</span><span class="p">([</span><span class="mf">364.18</span><span class="p">,</span> <span class="mf">292.17</span><span class="p">,</span> <span class="mf">515.19</span><span class="p">]),</span>
+<span class="gp">... </span>          <span class="n">np</span><span class="o">.</span><span class="n">array</span><span class="p">([</span><span class="mf">143.55</span><span class="p">,</span> <span class="mf">279.90</span><span class="p">,</span> <span class="mf">524.78</span><span class="p">]),</span>
+<span class="gp">... </span>          <span class="n">np</span><span class="o">.</span><span class="n">array</span><span class="p">([[[</span><span class="mf">364.65</span><span class="p">,</span> <span class="mf">293.07</span><span class="p">,</span> <span class="mf">515.19</span><span class="p">],</span>
+<span class="gp">... </span>          <span class="p">[</span><span class="mf">363.29</span><span class="p">,</span> <span class="mf">292.61</span><span class="p">,</span> <span class="mf">515.04</span><span class="p">],</span>
+<span class="gp">... </span>          <span class="p">[</span><span class="mf">364.05</span><span class="p">,</span> <span class="mf">292.24</span><span class="p">,</span> <span class="mf">516.18</span><span class="p">]],</span>
+<span class="gp">... </span>          <span class="p">[[</span><span class="mf">143.66</span><span class="p">,</span> <span class="mf">280.89</span><span class="p">,</span> <span class="mf">524.63</span><span class="p">],</span>
+<span class="gp">... </span>          <span class="p">[</span><span class="mf">142.56</span><span class="p">,</span> <span class="mf">280.02</span><span class="p">,</span> <span class="mf">524.86</span><span class="p">],</span>
+<span class="gp">... </span>          <span class="p">[</span><span class="mf">143.65</span><span class="p">,</span> <span class="mf">280.05</span><span class="p">,</span> <span class="mf">525.77</span><span class="p">]]])]</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">ankle_JC</span> <span class="o">=</span> <span class="p">[</span><span class="n">np</span><span class="o">.</span><span class="n">array</span><span class="p">([</span><span class="mf">393.76</span><span class="p">,</span> <span class="mf">247.68</span><span class="p">,</span> <span class="mf">87.74</span><span class="p">]),</span>
+<span class="gp">... </span>           <span class="n">np</span><span class="o">.</span><span class="n">array</span><span class="p">([</span><span class="mf">98.75</span><span class="p">,</span> <span class="mf">219.47</span><span class="p">,</span> <span class="mf">80.63</span><span class="p">]),</span>
+<span class="gp">... </span>           <span class="p">[[</span><span class="n">np</span><span class="o">.</span><span class="n">array</span><span class="p">([</span><span class="mf">394.48</span><span class="p">,</span> <span class="mf">248.37</span><span class="p">,</span> <span class="mf">87.72</span><span class="p">]),</span>
+<span class="gp">... </span>           <span class="n">np</span><span class="o">.</span><span class="n">array</span><span class="p">([</span><span class="mf">393.07</span><span class="p">,</span> <span class="mf">248.39</span><span class="p">,</span> <span class="mf">87.62</span><span class="p">]),</span>
+<span class="gp">... </span>           <span class="n">np</span><span class="o">.</span><span class="n">array</span><span class="p">([</span><span class="mf">393.69</span><span class="p">,</span> <span class="mf">247.78</span><span class="p">,</span> <span class="mf">88.73</span><span class="p">])],</span>
+<span class="gp">... </span>           <span class="p">[</span><span class="n">np</span><span class="o">.</span><span class="n">array</span><span class="p">([</span><span class="mf">98.47</span><span class="p">,</span> <span class="mf">220.43</span><span class="p">,</span> <span class="mf">80.53</span><span class="p">]),</span>
+<span class="gp">... </span>           <span class="n">np</span><span class="o">.</span><span class="n">array</span><span class="p">([</span><span class="mf">97.79</span><span class="p">,</span> <span class="mf">219.21</span><span class="p">,</span> <span class="mf">80.76</span><span class="p">]),</span>
+<span class="gp">... </span>           <span class="n">np</span><span class="o">.</span><span class="n">array</span><span class="p">([</span><span class="mf">98.85</span><span class="p">,</span> <span class="mf">219.60</span><span class="p">,</span> <span class="mf">81.62</span><span class="p">])]]]</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">delta</span> <span class="o">=</span> <span class="mi">0</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="p">[</span><span class="n">np</span><span class="o">.</span><span class="n">around</span><span class="p">(</span><span class="n">arr</span><span class="p">,</span><span class="mi">2</span><span class="p">)</span> <span class="k">for</span> <span class="n">arr</span> <span class="ow">in</span> <span class="n">footJointCenter</span><span class="p">(</span><span class="n">frame</span><span class="p">,</span><span class="n">static_info</span><span class="p">,</span><span class="n">ankle_JC</span><span class="p">,</span><span class="n">knee_JC</span><span class="p">,</span><span class="n">delta</span><span class="p">)]</span> 
+<span class="go">[array([442.82, 381.62,  42.66]), array([ 39.44, 382.45,  41.79]), array([[[442.89, 381.76,  43.65],</span>
+<span class="go">        [441.89, 382.  ,  42.67],</span>
+<span class="go">        [442.45, 380.7 ,  42.82]],</span>
+<span class="go">       [[ 39.51, 382.68,  42.76],</span>
+<span class="go">        [ 38.5 , 382.15,  41.93],</span>
+<span class="go">        [ 39.76, 381.53,  41.99]]])]</span>
+</pre></div>
+</div>
+</dd></dl>
+
+</div>
+
+
+          </div>
+          
+        </div>
+      </div>
+      <div class="sphinxsidebar" role="navigation" aria-label="main navigation">
+        <div class="sphinxsidebarwrapper">
+<h1 class="logo"><a href="../index.html">pycgm</a></h1>
+
+
+
+
+
+
+
+
+<h3>Navigation</h3>
+<p class="caption"><span class="caption-text">Contents:</span></p>
+<ul class="current">
+<li class="toctree-l1"><a class="reference internal" href="../install.html">Installation</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../Overview.html">Overview</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../GettingStarted.html">Getting Started with pycgm</a></li>
+<li class="toctree-l1 current"><a class="reference internal" href="../API.html">API for pycgm</a><ul class="current">
+<li class="toctree-l2"><a class="reference internal" href="pyCGM_Single.pyCGM.html">pyCGM_Single.pyCGM</a></li>
+<li class="toctree-l2"><a class="reference internal" href="pyCGM_Single.pycgmKinetics.html">pyCGM_Single.pycgmKinetics</a></li>
+<li class="toctree-l2"><a class="reference internal" href="pyCGM_Single.pycgmIO.html">pyCGM_Single.pycgmIO</a></li>
+<li class="toctree-l2"><a class="reference internal" href="pyCGM_Single.Pipelines.html">pyCGM_Single.Pipelines</a></li>
+<li class="toctree-l2"><a class="reference internal" href="pyCGM_Single.pyCGM_Helpers.html">pyCGM_Single.pyCGM_Helpers</a></li>
+<li class="toctree-l2"><a class="reference internal" href="pyCGM_Single.pycgmCalc.html">pyCGM_Single.pycgmCalc</a></li>
+<li class="toctree-l2 current"><a class="reference internal" href="pyCGM_Single.pycgmStatic.html">pyCGM_Single.pycgmStatic</a></li>
+<li class="toctree-l2"><a class="reference internal" href="pyCGM_Single.clusterCalc.html">pyCGM_Single.clusterCalc</a></li>
+<li class="toctree-l2"><a class="reference internal" href="pyCGM_Single.pycgmClusters.html">pyCGM_Single.pycgmClusters</a></li>
+</ul>
+</li>
+</ul>
+
+<div class="relations">
+<h3>Related Topics</h3>
+<ul>
+  <li><a href="../index.html">Documentation overview</a><ul>
+  <li><a href="../API.html">API for pycgm</a><ul>
+  <li><a href="pyCGM_Single.pycgmStatic.html">pyCGM_Single.pycgmStatic</a><ul>
+      <li>Previous: <a href="pyCGM_Single.pycgmStatic.findJointC.html" title="previous chapter">pyCGM_Single.pycgmStatic.findJointC</a></li>
+      <li>Next: <a href="pyCGM_Single.pycgmStatic.getDist.html" title="next chapter">pyCGM_Single.pycgmStatic.getDist</a></li>
+  </ul></li>
+  </ul></li>
+  </ul></li>
+</ul>
+</div>
+<div id="searchbox" style="display: none" role="search">
+  <h3 id="searchlabel">Quick search</h3>
+    <div class="searchformwrapper">
+    <form class="search" action="../search.html" method="get">
+      <input type="text" name="q" aria-labelledby="searchlabel" />
+      <input type="submit" value="Go" />
+    </form>
+    </div>
+</div>
+<script>$('#searchbox').show(0);</script>
+
+
+
+
+
+
+
+
+        </div>
+      </div>
+      <div class="clearer"></div>
+    </div>
+    <div class="footer">
+      &copy;2020, Mathew Schwartz.
+      
+      |
+      Powered by <a href="http://sphinx-doc.org/">Sphinx 3.2.1</a>
+      &amp; <a href="https://github.com/bitprophet/alabaster">Alabaster 0.7.12</a>
+      
+      |
+      <a href="../_sources/generated/pyCGM_Single.pycgmStatic.footJointCenter.rst.txt"
+          rel="nofollow">Page source</a>
+    </div>
+
+    
+
+    
+  </body>
+</html>

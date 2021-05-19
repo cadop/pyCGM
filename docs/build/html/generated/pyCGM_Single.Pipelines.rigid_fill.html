@@ -1,0 +1,179 @@
+
+<!DOCTYPE html>
+
+<html>
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>pyCGM_Single.Pipelines.rigid_fill &#8212; pycgm 1.0.0 documentation</title>
+    <link rel="stylesheet" href="../_static/alabaster.css" type="text/css" />
+    <link rel="stylesheet" href="../_static/pygments.css" type="text/css" />
+    <script id="documentation_options" data-url_root="../" src="../_static/documentation_options.js"></script>
+    <script src="../_static/jquery.js"></script>
+    <script src="../_static/underscore.js"></script>
+    <script src="../_static/doctools.js"></script>
+    <script src="../_static/language_data.js"></script>
+    <link rel="index" title="Index" href="../genindex.html" />
+    <link rel="search" title="Search" href="../search.html" />
+    <link rel="next" title="pyCGM_Single.Pipelines.segmentFinder" href="pyCGM_Single.Pipelines.segmentFinder.html" />
+    <link rel="prev" title="pyCGM_Single.Pipelines.prep" href="pyCGM_Single.Pipelines.prep.html" />
+   
+  <link rel="stylesheet" href="../_static/custom.css" type="text/css" />
+  
+  
+  <meta name="viewport" content="width=device-width, initial-scale=0.9, maximum-scale=0.9" />
+
+  </head><body>
+  
+
+    <div class="document">
+      <div class="documentwrapper">
+        <div class="bodywrapper">
+          
+
+          <div class="body" role="main">
+            
+  <div class="section" id="pycgm-single-pipelines-rigid-fill">
+<h1>pyCGM_Single.Pipelines.rigid_fill<a class="headerlink" href="#pycgm-single-pipelines-rigid-fill" title="Permalink to this headline">¶</a></h1>
+<dl class="py function">
+<dt id="pyCGM_Single.Pipelines.rigid_fill">
+<code class="sig-prename descclassname">pyCGM_Single.Pipelines.</code><code class="sig-name descname">rigid_fill</code><span class="sig-paren">(</span><em class="sig-param"><span class="n">Data</span></em>, <em class="sig-param"><span class="n">static</span></em><span class="sig-paren">)</span><a class="headerlink" href="#pyCGM_Single.Pipelines.rigid_fill" title="Permalink to this definition">¶</a></dt>
+<dd><p>Fills gaps in motion capture data.</p>
+<p>Estimates marker positions from previous marker positions
+or static data to fill in gaps in <cite>Data</cite>.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters</dt>
+<dd class="field-odd"><dl class="simple">
+<dt><strong>Data</strong><span class="classifier">array</span></dt><dd><p>Array of dictionaries of marker data.</p>
+</dd>
+<dt><strong>static</strong><span class="classifier">dict</span></dt><dd><p>Dictionary of marker data corresponding to a static trial.</p>
+</dd>
+</dl>
+</dd>
+<dt class="field-even">Returns</dt>
+<dd class="field-even"><dl class="simple">
+<dt><strong>data</strong><span class="classifier">array</span></dt><dd><p>Array of dictionaries of marker data after gap filling is done.</p>
+</dd>
+</dl>
+</dd>
+</dl>
+<p class="rubric">Examples</p>
+<div class="doctest highlight-default notranslate"><div class="highlight"><pre><span></span><span class="gp">&gt;&gt;&gt; </span><span class="kn">from</span> <span class="nn">.pyCGM_Helpers</span> <span class="kn">import</span> <span class="n">getfilenames</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="kn">from</span> <span class="nn">.pyCGM</span> <span class="kn">import</span> <span class="n">pelvisJointCenter</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="kn">from</span> <span class="nn">numpy</span> <span class="kn">import</span> <span class="n">array</span><span class="p">,</span> <span class="n">nan</span><span class="p">,</span> <span class="n">around</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="kn">from</span> <span class="nn">.pycgmIO</span> <span class="kn">import</span> <span class="n">loadData</span><span class="p">,</span> <span class="n">dataAsDict</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">dynamic_trial</span><span class="p">,</span><span class="n">static_trial</span><span class="p">,</span><span class="n">_</span><span class="p">,</span><span class="n">_</span><span class="p">,</span><span class="n">_</span> <span class="o">=</span> <span class="n">getfilenames</span><span class="p">(</span><span class="n">x</span><span class="o">=</span><span class="mi">3</span><span class="p">)</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">motionData</span> <span class="o">=</span> <span class="n">loadData</span><span class="p">(</span><span class="n">dynamic_trial</span><span class="p">)</span>
+<span class="go">SampleData/Sample_2/RoboWalk.c3d</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">staticData</span> <span class="o">=</span> <span class="n">loadData</span><span class="p">(</span><span class="n">static_trial</span><span class="p">)</span>
+<span class="go">SampleData/Sample_2/RoboStatic.c3d</span>
+</pre></div>
+</div>
+<p>Sacrum must be calculated for this file using <code class="docutils literal notranslate"><span class="pre">pyCGM.pelvisJointCenter</span></code>.</p>
+<div class="doctest highlight-default notranslate"><div class="highlight"><pre><span></span><span class="gp">&gt;&gt;&gt; </span><span class="k">for</span> <span class="n">frame</span> <span class="ow">in</span> <span class="n">motionData</span><span class="p">:</span>
+<span class="gp">... </span>    <span class="n">frame</span><span class="p">[</span><span class="s1">&#39;SACR&#39;</span><span class="p">]</span> <span class="o">=</span> <span class="n">pelvisJointCenter</span><span class="p">(</span><span class="n">frame</span><span class="p">)[</span><span class="mi">2</span><span class="p">]</span>
+</pre></div>
+</div>
+<p>Testing gap filling.</p>
+<div class="doctest highlight-default notranslate"><div class="highlight"><pre><span></span><span class="gp">&gt;&gt;&gt; </span><span class="n">Data</span> <span class="o">=</span> <span class="n">dataAsDict</span><span class="p">(</span><span class="n">motionData</span><span class="p">,</span><span class="n">npArray</span><span class="o">=</span><span class="kc">True</span><span class="p">)</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">around</span><span class="p">(</span><span class="n">Data</span><span class="p">[</span><span class="s1">&#39;LFHD&#39;</span><span class="p">][</span><span class="mi">2</span><span class="p">],</span> <span class="mi">2</span><span class="p">)</span> 
+<span class="go">array([-1003.42, 81.05, 1522.14])</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">Data</span><span class="p">[</span><span class="s1">&#39;LFHD&#39;</span><span class="p">][</span><span class="mi">2</span><span class="p">]</span> <span class="o">=</span> <span class="n">array</span><span class="p">([</span><span class="n">nan</span><span class="p">,</span> <span class="n">nan</span><span class="p">,</span> <span class="n">nan</span><span class="p">])</span> <span class="c1">#clear one frame to test gap filling</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">static</span> <span class="o">=</span> <span class="n">dataAsDict</span><span class="p">(</span><span class="n">staticData</span><span class="p">,</span><span class="n">npArray</span><span class="o">=</span><span class="kc">True</span><span class="p">)</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">data</span> <span class="o">=</span> <span class="n">rigid_fill</span><span class="p">(</span><span class="n">Data</span><span class="p">,</span> <span class="n">static</span><span class="p">)</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">around</span><span class="p">(</span><span class="n">data</span><span class="p">[</span><span class="s1">&#39;LFHD&#39;</span><span class="p">][</span><span class="mi">2</span><span class="p">],</span> <span class="mi">2</span><span class="p">)</span> 
+<span class="go">array([-1003.42, 81.05, 1522.13])</span>
+</pre></div>
+</div>
+</dd></dl>
+
+</div>
+
+
+          </div>
+          
+        </div>
+      </div>
+      <div class="sphinxsidebar" role="navigation" aria-label="main navigation">
+        <div class="sphinxsidebarwrapper">
+<h1 class="logo"><a href="../index.html">pycgm</a></h1>
+
+
+
+
+
+
+
+
+<h3>Navigation</h3>
+<p class="caption"><span class="caption-text">Contents:</span></p>
+<ul class="current">
+<li class="toctree-l1"><a class="reference internal" href="../install.html">Installation</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../Overview.html">Overview</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../GettingStarted.html">Getting Started with pycgm</a></li>
+<li class="toctree-l1 current"><a class="reference internal" href="../API.html">API for pycgm</a><ul class="current">
+<li class="toctree-l2"><a class="reference internal" href="pyCGM_Single.pyCGM.html">pyCGM_Single.pyCGM</a></li>
+<li class="toctree-l2"><a class="reference internal" href="pyCGM_Single.pycgmKinetics.html">pyCGM_Single.pycgmKinetics</a></li>
+<li class="toctree-l2"><a class="reference internal" href="pyCGM_Single.pycgmIO.html">pyCGM_Single.pycgmIO</a></li>
+<li class="toctree-l2 current"><a class="reference internal" href="pyCGM_Single.Pipelines.html">pyCGM_Single.Pipelines</a></li>
+<li class="toctree-l2"><a class="reference internal" href="pyCGM_Single.pyCGM_Helpers.html">pyCGM_Single.pyCGM_Helpers</a></li>
+<li class="toctree-l2"><a class="reference internal" href="pyCGM_Single.pycgmCalc.html">pyCGM_Single.pycgmCalc</a></li>
+<li class="toctree-l2"><a class="reference internal" href="pyCGM_Single.pycgmStatic.html">pyCGM_Single.pycgmStatic</a></li>
+<li class="toctree-l2"><a class="reference internal" href="pyCGM_Single.clusterCalc.html">pyCGM_Single.clusterCalc</a></li>
+<li class="toctree-l2"><a class="reference internal" href="pyCGM_Single.pycgmClusters.html">pyCGM_Single.pycgmClusters</a></li>
+</ul>
+</li>
+</ul>
+
+<div class="relations">
+<h3>Related Topics</h3>
+<ul>
+  <li><a href="../index.html">Documentation overview</a><ul>
+  <li><a href="../API.html">API for pycgm</a><ul>
+  <li><a href="pyCGM_Single.Pipelines.html">pyCGM_Single.Pipelines</a><ul>
+      <li>Previous: <a href="pyCGM_Single.Pipelines.prep.html" title="previous chapter">pyCGM_Single.Pipelines.prep</a></li>
+      <li>Next: <a href="pyCGM_Single.Pipelines.segmentFinder.html" title="next chapter">pyCGM_Single.Pipelines.segmentFinder</a></li>
+  </ul></li>
+  </ul></li>
+  </ul></li>
+</ul>
+</div>
+<div id="searchbox" style="display: none" role="search">
+  <h3 id="searchlabel">Quick search</h3>
+    <div class="searchformwrapper">
+    <form class="search" action="../search.html" method="get">
+      <input type="text" name="q" aria-labelledby="searchlabel" />
+      <input type="submit" value="Go" />
+    </form>
+    </div>
+</div>
+<script>$('#searchbox').show(0);</script>
+
+
+
+
+
+
+
+
+        </div>
+      </div>
+      <div class="clearer"></div>
+    </div>
+    <div class="footer">
+      &copy;2020, Mathew Schwartz.
+      
+      |
+      Powered by <a href="http://sphinx-doc.org/">Sphinx 3.2.1</a>
+      &amp; <a href="https://github.com/bitprophet/alabaster">Alabaster 0.7.12</a>
+      
+      |
+      <a href="../_sources/generated/pyCGM_Single.Pipelines.rigid_fill.rst.txt"
+          rel="nofollow">Page source</a>
+    </div>
+
+    
+
+    
+  </body>
+</html>
