@@ -214,7 +214,7 @@ class Param(object):
                  desc='',
                  bytes_per_element=1,
                  dimensions=None,
-                 bytes='',
+                 bytes=b'',
                  handle=None):
         '''Set up a new parameter with at least a name.
 
@@ -299,7 +299,7 @@ class Param(object):
         self.bytes_per_element, = struct.unpack('b', handle.read(1))
         dims, = struct.unpack('B', handle.read(1))
         self.dimensions = [struct.unpack('B', handle.read(1))[0] for _ in range(dims)]
-        self.bytes = ''
+        self.bytes = b''
         if self.total_bytes:
             self.bytes = handle.read(self.total_bytes)
         size, = struct.unpack('B', handle.read(1))
@@ -354,7 +354,7 @@ class Param(object):
         assert self.dimensions, \
             '{}: cannot get value as {} array!'.format(self.name, fmt)
         elems = array.array(fmt)
-        elems.fromstring(self.bytes)
+        elems.frombytes(self.bytes)
         return np.array(elems).reshape(self.dimensions)
 
     @property
@@ -718,9 +718,9 @@ class Reader(Manager):
     You can iterate over the frames in the file by calling `read_frames()` after
     construction:
 
-    >>> r = c3d.Reader(open('capture.c3d', 'rb'))
-    >>> for frame_no, points, analog in r.read_frames():
-    ...     print('{0.shape} points in this frame'.format(points))
+    >>> r = c3d.Reader(open('capture.c3d', 'rb')) #doctest: +SKIP
+    >>> for frame_no, points, analog in r.read_frames(): #doctest: +SKIP
+    ...     print('{0.shape} points in this frame'.format(points)) 
     '''
 
     def __init__(self, handle):
@@ -895,11 +895,11 @@ class Reader(Manager):
 
 class Writer(Manager):
     '''This class manages the task of writing metadata and frames to a C3D file.
-
-    >>> r = c3d.Reader(open('data.c3d', 'rb'))
-    >>> frames = smooth_frames(r.read_frames())
-    >>> w = c3d.Writer(open('smoothed.c3d', 'wb'))
-    >>> w.write_from_reader(frames, r)
+    
+    >>> r = c3d.Reader(open('data.c3d', 'rb')) #doctest: +SKIP
+    >>> frames = smooth_frames(r.read_frames()) #doctest: +SKIP
+    >>> w = c3d.Writer(open('smoothed.c3d', 'wb')) #doctest: +SKIP
+    >>> w.write_from_reader(frames, r) #doctest: +SKIP
     '''
 
     def __init__(self, handle):
