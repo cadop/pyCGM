@@ -21,7 +21,12 @@
 '''A Python library for reading and writing C3D files.'''
 
 import array
-import cStringIO
+try:
+    from cStringIO import StringIO as FileIO
+    pyver = 2
+except:
+    from io import BytesIO as FileIO
+    pyver = 3
 import numpy as np
 import operator
 import struct
@@ -213,7 +218,7 @@ class Param(object):
                  desc='',
                  bytes_per_element=1,
                  dimensions=None,
-                 bytes='',
+                 param_bytes=b'',
                  handle=None):
         '''Set up a new parameter with at least a name.
 
@@ -238,7 +243,8 @@ class Param(object):
         self.desc = desc
         self.bytes_per_element = bytes_per_element
         self.dimensions = dimensions or []
-        self.bytes = bytes
+        if pyver == 2:
+            self.bytes = bytes(param_bytes)
 
         if handle:
             self.read(handle)
@@ -249,7 +255,7 @@ class Param(object):
     @property
     def num_elements(self):
         '''Return the number of elements in this parameter's array value.'''
-        return reduce(operator.mul, self.dimensions, 1)
+        return reduce(operator.mul, self.dimensions, 1) # noqa: F821
 
     @property
     def total_bytes(self):
@@ -298,7 +304,7 @@ class Param(object):
         self.bytes_per_element, = struct.unpack('b', handle.read(1))
         dims, = struct.unpack('B', handle.read(1))
         self.dimensions = [struct.unpack('B', handle.read(1))[0] for _ in range(dims)]
-        self.bytes = ''
+        self.bytes = b''
         if self.total_bytes:
             self.bytes = handle.read(self.total_bytes)
         size, = struct.unpack('B', handle.read(1))
@@ -353,7 +359,10 @@ class Param(object):
         assert self.dimensions, \
             '{}: cannot get value as {} array!'.format(self.name, fmt)
         elems = array.array(fmt)
-        elems.fromstring(self.bytes)
+        if pyver == 2:
+            elems.fromstring(self.bytes)
+        else:
+            elems.frombytes(self.bytes)
         return np.array(elems).reshape(self.dimensions)
 
     @property
@@ -716,8 +725,8 @@ class Reader(Manager):
     You can iterate over the frames in the file by calling `read_frames()` after
     construction:
 
-    >>> r = c3d.Reader(open('capture.c3d', 'rb'))
-    >>> for frame_no, points, analog in r.read_frames():
+    >>> r = c3d.Reader(open('capture.c3d', 'rb')) #doctest: +SKIP
+    >>> for frame_no, points, analog in r.read_frames(): #doctest: +SKIP
     ...     print('{0.shape} points in this frame'.format(points))
     '''
 
@@ -754,7 +763,7 @@ class Reader(Manager):
         # boundary issues.
         bytes = self._handle.read(512 * parameter_blocks - 4)
         while bytes:
-            buf = cStringIO.StringIO(bytes)
+            buf = FileIO(bytes)
 
             chars_in_name, group_id = struct.unpack('bb', buf.read(2))
             if group_id == 0 or chars_in_name == 0:
@@ -862,7 +871,7 @@ class Reader(Manager):
             gen_scale = param.float_value
 
         self._handle.seek((self.header.data_block - 1) * 512)
-        for frame_no in xrange(self.first_frame(), self.last_frame() + 1):
+        for frame_no in xrange(self.first_frame(), self.last_frame() + 1): # noqa: F821
             raw = np.fromfile(self._handle, dtype=point_dtype,
                 count=4 * self.header.point_count).reshape((ppf, 4))
 
@@ -895,10 +904,10 @@ class Reader(Manager):
 class Writer(Manager):
     '''This class manages the task of writing metadata and frames to a C3D file.
 
-    >>> r = c3d.Reader(open('data.c3d', 'rb'))
-    >>> frames = smooth_frames(r.read_frames())
-    >>> w = c3d.Writer(open('smoothed.c3d', 'wb'))
-    >>> w.write_from_reader(frames, r)
+    >>> r = c3d.Reader(open('data.c3d', 'rb')) #doctest: +SKIP
+    >>> frames = smooth_frames(r.read_frames()) #doctest: +SKIP
+    >>> w = c3d.Writer(open('smoothed.c3d', 'wb')) #doctest: +SKIP
+    >>> w.write_from_reader(frames, r) #doctest: +SKIP
     '''
 
     def __init__(self, handle):
@@ -1021,7 +1030,7 @@ class Writer(Manager):
         point_group.add_param('LABELS', desc='labels',
                               data_size=-1,
                               dimensions=[5, ppf],
-                              bytes=''.join('M%03d ' % i for i in xrange(ppf)))
+                              bytes=''.join('M%03d ' % i for i in xrange(ppf)))  # noqa: F821
         point_group.add_param('DESCRIPTIONS', desc='descriptions',
                               data_size=-1,
                               dimensions=[16, ppf],
