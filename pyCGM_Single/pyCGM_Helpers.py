@@ -20,8 +20,8 @@ def getfilenames(x=1):
     dynamic_trial, static_trial, vsk_file, outputfile, CoM_output : tuple
         Returns the respective filenames in the relative path.
 
-    Example
-    -------
+    Examples
+    --------
     >>> import os 
     >>> from .pyCGM_Helpers import getfilenames
     >>> getfilenames() #doctest: +NORMALIZE_WHITESPACE
