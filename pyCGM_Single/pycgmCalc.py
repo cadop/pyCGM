@@ -1,8 +1,4 @@
-"""
-This file uses the input data to perform angle and joint calculations.
-"""
-
-# pyCGM
+#pyCGM
 
 # Copyright (c) 2015 Mathew Schwartz <umcadop@gmail.com>
 # Core Developers: Seungeun Yeon, Mathew Schwartz
@@ -27,17 +23,14 @@ This file uses the input data to perform angle and joint calculations.
 # THE SOFTWARE.
 # -*- coding: utf-8 -*-
 
-import numpy as np
-from .pyCGM import JointAngleCalc
-from .pycgmIO import createMotionDataDict, createVskDataDict
-
+from .pyCGM import *
 from .pycgmKinetics import getKinetics
 import sys
 if sys.version_info[0]==2:
     pyver = 2
 else:
     pyver = 3
-
+    
 #Used to split the arrays with angles and axis
 #Start Joint Angles
 SJA=0
@@ -49,129 +42,29 @@ SA=EJA
 EA=SA+72*3
 
 def calcKinetics(data, Bodymass):
-    """Calculates center of mass values.
-
-    Estimates whole body center of mass in global coordinate system using PiG scaling 
-    factors for determining individual segment center of mass.
-
-    See Also
-    --------
-    pyCGM_Single.pycgmKinetics.getKinetics : equivalent function.
-    """
     r = getKinetics(data, Bodymass)
     return r
-
+    
 
 def calcAngles(data,**kargs):
-    """Calculates the joint angles and axis.
-
-    By default, the function will calculate all the data and return angles
-    and axis as separate arrays. The values returned by this function currently
-    differ in return type and value depending on the keyword arguments of
-    ``**kargs``. The function is currently used directly in pyCGM/pycgm_embed.py.
-
-    Parameters
-    ----------
-    data : array
-        Joint centers in the global coordinate system. List indices correspond
-        to each frame of trial. Dict keys correspond to name of each joint center,
-        dict values are arrays ([],[],[]) of x,y,z coordinates for each joint
-        center.
-    ``**kargs`` : keyword arguments
-        start : int, optional
-           Indicates which index in `data` to start the calculation.
-        end : int, optional
-           Indicates which index in `data` to end the calculation.
-           The data at index `end` is not included.
-        frame : int, optional
-            Frame number if the calculation is only for one frame.
-            Incompatible with `start` and `end`.
-        vsk : dict, required
-            Subject measurement values as a dictionary or labels and data.
-        angles : bool, optional
-            If true, the function will return `angles`. True by default.
-        axis : bool, optional
-            If true, the function will return `axis`. True by default.
-        splitAnglesAxis : bool, optional
-            If true, the function will return `angles` and `axis` as
-            separate arrays. If false, it will be the same array. True
-            by default.
-        returnjoints : bool, optional
-            If true, the function will return `returnjoints`. False
-            by default.
-        formatData : bool, optional
-            If true, the function will return `angles` and `axis` 
-            in one array. True by default.
-
-    Returns
-    -------
-    r, jcs : array_like
-        `r` is a list of joint angle values for each frame.
-        `jcs` is a list of dictionaries, each of which holds joint
-        center locations for each frame. Returned only if returnjoints
-        is True.
-
-    Raises
-    ------
-    Exception
-        If `start` is given and is negative.
-        If `start` is larger than `end`.
-        If `end` is larger than the length of `data`.
-
-    Examples
-    --------
-    First, we load motion capture data from Sample_Static.c3d
-    and subject measurement values from Sample_SM.vsk in
-    /SampleData/ROM/.
-
-    >>> from numpy import around
-    >>> from .pycgmIO import loadC3D, loadVSK
-    >>> from .pycgmStatic import getStatic
-    >>> from .pyCGM_Helpers import getfilenames
-    >>> filenames = getfilenames(x=2)
-    >>> c3dFile = filenames[1]
-    >>> vskFile = filenames[2]
-    >>> result = loadC3D(c3dFile)
-    >>> data = result[0]
-    >>> vskData = loadVSK(vskFile, False)
-    >>> vsk = getStatic(data,vskData,flat_foot=False)
-
-    Example of default behavior.
-
-    >>> result = calcAngles(data, vsk=vsk)
-    >>> around(result[0], 2) #Array of joint angles #doctest: +NORMALIZE_WHITESPACE 
-    array([[[ -0.46,  -5.76,   4.81],
-            [  3.04,  -7.02, -17.41],
-            [ -3.  ,  -4.54,  -1.74],
-            ...,
-            [ 36.3 ,   0.  ,   0.  ],
-            [  9.92,  15.25, 126.24],
-            [  6.64,  17.64, 123.81]]])
-    >>> around(result[1], 2) #Array of axis values #doctest: +NORMALIZE_WHITESPACE
-    array([[[[ 246.15,  353.26, 1031.71],
-         [ 246.24,  354.25, 1031.61],
-         [ 245.16,  353.35, 1031.7 ],
-         [ 246.14,  353.36, 1032.71]],
-         ...
-         [-306.46,  510.14, 1069.26],
-         [-307.13,  509.31, 1068.33],
-         [-305.75,  509.12, 1068.58]]]])
-
-    Example of returning as a tuple.
-
-    >>> kinematics, joint_centers = calcAngles(data, start=None, end=None, vsk=vsk, splitAnglesAxis=False, formatData=False,returnjoints=True)
-    >>> around(kinematics[0][0], 2)
-    -0.46
-    >>> around(joint_centers[0]['Pelvis'], 2) #doctest: +NORMALIZE_WHITESPACE
-    array([ 246.15,  353.26, 1031.71])
-
-    Example without returning joints.
-
-    >>> kinematics = calcAngles(data, vsk=vsk, splitAnglesAxis=False, formatData=False,returnjoints=False)
-    >>> around(kinematics[0][0], 2)
-    -0.46
     """
+    Calculates the joint angles and axis
+    @param  data Motion data as a vector of dictionaries like the data in 
+    marb or labels and raw data like the data from loadData function
+    @param  static Static angles
+    @param  Kargs 
+        start   Position of the data to start the calculation
+        end     Position of the data to end the calculation
+        frame   Frame number if the calculation is only for one frame
+        cores   Number of processes to use on the calculation
+        vsk     Vsk file as a dictionary or label and data
+        angles  If true it will return the angles
+        axis    If true it will return the axis
+        splitAnglesAxis     If true the function will return angles and axis as separete arrays. For false it will be the same array
+        multiprocessing     If true it will use multiprocessing
 
+    By default the function will calculate all the data and return angles and axis as separete arrays
+    """
     start=0
     end=len(data)
     vsk=None
@@ -218,19 +111,19 @@ def calcAngles(data,**kargs):
         axis=r[SA:EA]
         angles=np.transpose(angles)
         axis=np.transpose(axis)
-
+        
         s=np.shape(angles)
         if pyver == 2:
             angles=np.reshape(angles,(s[0],s[1]/3,3))
         else:
             angles=np.reshape(angles,(s[0],s[1]//3,3))
-
+            
         s=np.shape(axis)
         if pyver == 2:
             axis=np.reshape(axis,(s[0],s[1]/12,4,3))
         else:
             axis=np.reshape(axis,(s[0],s[1]//12,4,3))
-
+            
         return [angles,axis]
 
     if splitAnglesAxis==True:
@@ -249,133 +142,25 @@ def calcAngles(data,**kargs):
         return r,jcs
 
 def Calc(start,end,data,vsk):
-    """Calculates angles and joint values for marker data in a given range
-
-    This function is a wrapper around `calcFrames`. It calls `calcFrames`
-    with the given `data` and `vsk` inputs starting at index `start` and
-    ending at index `end` in `data`.
-
-    Parameters
-    ----------
-    start : int
-        Start index for the range of frames in `data` to calculate
-    end : int
-        End index for the range of frames in `data` to calculate. The data
-        at index `end` is not included.
-    data : array of dict or array
-        List of xyz coordinates of marker positions in a frame. Each
-        coordinate is a dict where the key is the marker name and the
-        value is a 3 element array of its xyz coordinate. Can also pass
-        as an array of `[labels, data]`, where labels is a list of
-        marker names and data is list of corresponding xyz coordinates.
-    vsk : dict or array
-        Dictionary containing subject measurement values, or array of
-        labels and data `[labels, data]`.
-
-    Returns
-    -------
-    angles, jcs : tuple
-        `angles` is an array of the joint angle values. `jcs` is an array
-        of joint center locations. Indices correspond to frames in the
-        trial.
-
-    Examples
-    --------
-    First, we load motion capture data from Sample_Static.c3d
-    and subject measurement values from Sample_SM.vsk in
-    /SampleData/ROM/.
-
-    >>> from numpy import around
-    >>> from .pycgmIO import loadC3D, loadVSK
-    >>> from .pycgmStatic import getStatic
-    >>> from .pyCGM_Helpers import getfilenames
-    >>> filenames = getfilenames(x=2) #x=2 loads sample data from Sample_Data/ROM
-    >>> c3dFile = filenames[1]
-    >>> vskFile = filenames[2]
-    >>> result = loadC3D(c3dFile)
-    >>> data = result[0]
-    >>> vskData = loadVSK(vskFile, False)
-    >>> vsk = getStatic(data,vskData,flat_foot=False)
-
-    A start value of 0 and an end value of 3 indicates that we want
-    to calculate angles for frames 0-2.
-
-    >>> start = 0
-    >>> end = 3
-    >>> angles, jcs = Calc(start, end, data, vsk)
-    >>> around(angles[0][0], 2) #Frame 0
-    -0.46
-    >>> around(angles[1][0], 2) #Frame 1
-    -0.46
-    >>> around(angles[2][0], 2) #Frame 2
-    -0.46
-
-    >>> around(jcs[0]['Pelvis'], 2)
-    array([ 246.15,  353.26, 1031.71])
-    >>> around(jcs[1]['Pelvis'], 2)
-    array([ 246.16,  353.27, 1031.72])
-    """
     d=data[start:end]
     angles,jcs=calcFrames(d,vsk)
-
+    
     return angles,jcs
 
-
 def calcFrames(data,vsk):
-    """Calculates angles and joint values for given marker data
-
-    Parameters
-    ----------
-    data : array of dict or array
-        List of xyz coordinates of marker positions in a frame. Each
-        coordinate is a dict where the key is the marker name and the
-        value is a 3 element array of its xyz coordinate. Can also pass
-        as a 2 element array of `[labels, data]`, where `labels` is a list of
-        marker names and `data` is list of corresponding xyz coordinates.
-    vsk : dict or array
-        Dictionary containing subject measurement values, or array of labels
-        and data `[labels, data]`.
-
-    Returns
-    -------
-    angles, joints : tuple
-        `angles` is an array of the joint angle values. `joints` is an array
-        of joint center locations. Indices correspond to frames in the
-        trial.
-
-    Examples
-    --------
-    First, we load motion capture data from Sample_Static.c3d
-    and subject measurement values from Sample_SM.vsk in
-    /SampleData/ROM/.
-
-    >>> from numpy import around
-    >>> from .pycgmIO import loadC3D, loadVSK
-    >>> from .pycgmStatic import getStatic
-    >>> from .pyCGM_Helpers import getfilenames
-    >>> filenames = getfilenames(x=2)
-    >>> c3dFile = filenames[1]
-    >>> vskFile = filenames[2]
-    >>> result = loadC3D(c3dFile)
-    >>> data = result[0]
-    >>> vskData = loadVSK(vskFile, False)
-    >>> vsk = getStatic(data,vskData,flat_foot=False)
-    >>> angles, joints = calcFrames(data, vsk)
-    >>> around(angles[0][0], 2)
-    -0.46
-    >>> around(joints[0]['Pelvis'], 2) #doctest: +NORMALIZE_WHITESPACE
-    array([ 246.15,  353.26, 1031.71])
-    """
     angles=[]
     joints=[] #added this here for normal data
     if type(data[0])!=type({}):
-        data=createMotionDataDict(data[0], data[1])
+        data=createMotionDataDict(data[0],data[1])
     if type(vsk)!=type({}):
-        vsk=createVskDataDict(vsk[0], vsk[1])
+        vsk=createVskDataDict(vsk[0],vsk[1])
 
-    #just accept that the data is missing
+    #just accept that the data is missing    
     for frame in data:
         angle,jcs = JointAngleCalc(frame,vsk)
         angles.append(angle)
         joints.append(jcs)
     return angles, joints
+
+    
+            

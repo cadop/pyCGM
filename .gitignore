@@ -1,10 +1,2 @@
+
 *.pyc
-.vscode/settings.json
-real.pypirc
-build
-docs/build
-dist
-*.egg-info
-env*
-venv*
-docs/source/generated

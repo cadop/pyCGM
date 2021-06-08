@@ -6,10 +6,7 @@ __version__ = '.001'
 __date__ = '3_14_2019'
 
 import os
-try:
-	from ezc3d import c3d
-except:
-	print("Could not import ezc3d")
+from ezc3d import c3d
 
 class C3DData ():
 	"""
