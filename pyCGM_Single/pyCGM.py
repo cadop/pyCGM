@@ -95,12 +95,12 @@ def calc_pelvis_axis(rasi, lasi, rpsi, lpsi, sacr=None):
     Examples
     --------
     >>> import numpy as np
-    >>> from .pyCGM import pelvis_axis
+    >>> from .pyCGM import calc_pelvis_axis
     >>> rasi = np.array([ 395.36,  428.09, 1036.82])
     >>> lasi = np.array([ 183.18,  422.78, 1033.07])
     >>> rpsi = np.array([ 341.41,  246.72, 1055.99])
     >>> lpsi = np.array([ 255.79,  241.42, 1057.30])
-    >>> [arr.round(2) for arr in pelvis_axis(rasi, lasi, rpsi, lpsi, None)] # doctest: +NORMALIZE_WHITESPACE
+    >>> [arr.round(2) for arr in calc_pelvis_axis(rasi, lasi, rpsi, lpsi, None)] # doctest: +NORMALIZE_WHITESPACE
     [array([-2.0000e-02,  9.9000e-01, -1.2000e-01,  2.8927e+02]),
     array([-1.0000e+00, -3.0000e-02, -2.0000e-02,  4.2543e+02]),
     array([-2.00000e-02,  1.20000e-01,  9.90000e-01,  1.03494e+03]),
@@ -2603,10 +2603,10 @@ def JointAngleCalc(frame,vsk):
 
     #First Calculate Pelvis
     axis_pelvis = calc_pelvis_axis(frame['RASI'] if 'RASI' in frame else None,
-                              frame['LASI'] if 'LASI' in frame else None,
-                              frame['RPSI'] if 'RPSI' in frame else None,
-                              frame['LPSI'] if 'LPSI' in frame else None,
-                              frame['SACR'] if 'SACR' in frame else None)
+                                   frame['LASI'] if 'LASI' in frame else None,
+                                   frame['RPSI'] if 'RPSI' in frame else None,
+                                   frame['LPSI'] if 'LPSI' in frame else None,
+                                   frame['SACR'] if 'SACR' in frame else None)
 
     kin_Pelvis_axis = axis_pelvis
 
