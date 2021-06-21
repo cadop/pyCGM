@@ -36,30 +36,55 @@ import numpy as np
 from .pycgmIO import *
 
 # Lowerbody Coordinate System
-def pelvisJointCenter(frame):
-    """Make the Pelvis Axis.
 
-    Takes in a dictionary of x,y,z positions and marker names, as well as an index
-    Calculates the pelvis joint center and axis and returns both.
+def pelvis_axis(rasi, lasi, rpsi, lpsi, sacr=None):
+    r"""Make the Pelvis Axis.
+
+    Takes in RASI, LASI, RPSI, LPSI, and optional SACR markers.
+    Calculates the pelvis axis.
 
     Markers used: RASI, LASI, RPSI, LPSI
-    Other landmarks used: origin, sacrum
+    Other landmarks used: sacrum
 
-    Pelvis X_axis: Computed with a Gram-Schmidt orthogonalization procedure [1]_ and then normalized.
+    Pelvis X_axis: Computed with a Gram-Schmidt orthogonalization procedure
+    [1]_ and then normalized.
     Pelvis Y_axis: LASI-RASI x,y,z positions, then normalized.
     Pelvis Z_axis: Cross product of x_axis and y_axis.
 
+    :math:`$o = m_{rasi} + m_{lasi} / 2$`
+
+    :math:`$y = \frac{m_{lasi} - m_{rasi}}{||m_{lasi} - m_{rasi}||}$`
+
+    :math:`x = \frac{(m_{origin} - m_{sacr}) - ((m_{origin} - m_{sacr}) \dot y) * y}{||(m_{origin} - m_{sacr}) - ((m_{origin} - m_{sacr}) \cdot y) \times y||}`
+
+    :math:`z = x \times y`
+
     Parameters
     ----------
-    frame : dict
-        Dictionaries of marker lists.
+    rasi: array
+        1x3 RASI marker
+    lasi: array
+        1x3 LASI marker
+    rpsi: array
+        1x3 RPSI marker
+    lpsi: array
+        1x3 LPSI marker
+    sacr: array, optional
+        1x3 SACR marker. If not present, RPSI and LPSI are used instead.
 
     Returns
     -------
     pelvis : array
-        Returns an array that contains the pelvis origin in a 1x3 array of xyz values,
-        which is then followed by a [1x3, 3x3, 1x3] array composed of the 
-        pelvis x, y, z axis components, and the sacrum x,y,z position.
+        4x4 affine matrix with pelvis x, y, z axes and pelvis origin.
+
+    .. math::
+
+        \begin{bmatrix}
+            \hat{x}_x & \hat{x}_y & \hat{x}_z & o_x \\
+            \hat{y}_x & \hat{y}_y & \hat{y}_z & o_y \\
+            \hat{z}_x & \hat{z}_y & \hat{z}_z & o_z \\
+            0 & 0 & 0 & 1 \\
+        \end{bmatrix}
 
     References
     ----------
@@ -70,84 +95,48 @@ def pelvisJointCenter(frame):
     Examples
     --------
     >>> import numpy as np
-    >>> from .pyCGM import pelvisJointCenter
-    >>> frame = {'RASI': np.array([ 395.36,  428.09, 1036.82]),
-    ...          'LASI': np.array([ 183.18,  422.78, 1033.07]),
-    ...          'RPSI': np.array([ 341.41,  246.72, 1055.99]),
-    ...          'LPSI': np.array([ 255.79,  241.42, 1057.30]) }
-    >>> [arr.round(2) for arr in pelvisJointCenter(frame)] #doctest: +NORMALIZE_WHITESPACE
-    [array([ 289.27,  425.43, 1034.94]), array([[ 289.25,  426.43, 1034.83],
-    [ 288.27,  425.41, 1034.93],
-    [ 289.25,  425.55, 1035.94]]), array([ 298.6 ,  244.07, 1056.64])]
-
-
-    >>> frame = {'RASI': np.array([ 395.36,  428.09, 1036.82]),
-    ...          'LASI': np.array([ 183.18,  422.78, 1033.07]),
-    ...          'SACR': np.array([ 294.60,  242.07, 1049.64]) }
-    >>> [arr.round(2) for arr in pelvisJointCenter(frame)] #doctest: +NORMALIZE_WHITESPACE
-    [array([ 289.27,  425.43, 1034.94]), array([[ 289.25,  426.43, 1034.87],
-    [ 288.27,  425.41, 1034.93],
-    [ 289.25,  425.51, 1035.94]]), array([ 294.6 ,  242.07, 1049.64])]
+    >>> from .pyCGM import pelvis_axis
+    >>> rasi = np.array([ 395.36,  428.09, 1036.82])
+    >>> lasi = np.array([ 183.18,  422.78, 1033.07])
+    >>> rpsi = np.array([ 341.41,  246.72, 1055.99])
+    >>> lpsi = np.array([ 255.79,  241.42, 1057.30])
+    >>> [arr.round(2) for arr in pelvis_axis(rasi, lasi, rpsi, lpsi, None)] # doctest: +NORMALIZE_WHITESPACE
+    [array([-2.0000e-02,  9.9000e-01, -1.2000e-01,  2.8927e+02]),
+    array([-1.0000e+00, -3.0000e-02, -2.0000e-02,  4.2543e+02]),
+    array([-2.00000e-02,  1.20000e-01,  9.90000e-01,  1.03494e+03]),
+    array([0., 0., 0., 1.])]
     """
     # Get the Pelvis Joint Centre
 
-    #REQUIRED MARKERS:
-    # RASI
-    # LASI
-    # RPSI
-    # LPSI
-
-    RASI = frame['RASI']
-    LASI = frame['LASI']
-
-    try:
-        RPSI = frame['RPSI']
-        LPSI = frame['LPSI']
-        #  If no sacrum, mean of posterior markers is used as the sacrum
-        sacrum = (RPSI+LPSI)/2.0
-    except:
-        pass #going to use sacrum marker
-
-    #  If no sacrum, mean of posterior markers is used as the sacrum
-    if 'SACR' in frame:
-        sacrum = frame['SACR']
+    if sacr is None:
+        sacr = (rpsi + lpsi) / 2.0
 
     # REQUIRED LANDMARKS:
-    # origin
     # sacrum
 
     # Origin is Midpoint between RASI and LASI
-    origin = (RASI+LASI)/2.0
+    o = (rasi+lasi)/2.0
 
-    # This calculate the each axis
-    # beta1,2,3 is arbitrary name to help calculate.
-    beta1 = origin-sacrum
-    beta2 = LASI-RASI
+    b1 = o - sacr
+    b2 = lasi - rasi
 
-    # Y_axis is normalized beta2
-    y_axis = beta2/norm3d(beta2)
+    # y is normalized b2
+    y = b2 / np.linalg.norm(b2)
 
-    # X_axis computed with a Gram-Schmidt orthogonalization procedure(ref. Kadaba 1990)
-    # and then normalized.
-    beta3_cal = np.dot(beta1,y_axis)
-    beta3_cal2 = beta3_cal*y_axis
-    beta3 = beta1-beta3_cal2
-    x_axis = beta3/norm3d(beta3)
+    b3 = b1 - (np.dot(b1, y) * y)
+    x = b3/np.linalg.norm(b3)
 
-    # Z-axis is cross product of x_axis and y_axis.
-    z_axis = cross(x_axis,y_axis)
+    # Z-axis is cross product of x and y vectors.
+    z = np.cross(x, y)
 
-     # Add the origin back to the vector
-    y_axis = y_axis+origin
-    z_axis = z_axis+origin
-    x_axis = x_axis+origin
-
-    pelvis_axis = np.asarray([x_axis,y_axis,z_axis])
-
-    pelvis = [origin,pelvis_axis,sacrum] #probably don't need to return sacrum
+    pelvis = np.zeros((4, 4))
+    pelvis[3, 3] = 1.0
+    pelvis[0, :3] = x
+    pelvis[1, :3] = y
+    pelvis[2, :3] = z
+    pelvis[:3, 3] = o
 
     return pelvis
-
 
 def hipJointCenter(frame, pel_origin, pel_x, pel_y, pel_z, vsk=None):
     u"""Calculate the hip joint center.
@@ -2613,23 +2602,25 @@ def JointAngleCalc(frame,vsk):
     rfoot_prox,rfoot_proy,rfoot_proz,lfoot_prox,lfoot_proy,lfoot_proz = [None]*6
 
     #First Calculate Pelvis
-    pelvis_axis = pelvisJointCenter(frame)
+    axis_pelvis = pelvis_axis(frame['RASI'] if 'RASI' in frame else None,
+                              frame['LASI'] if 'LASI' in frame else None,
+                              frame['RPSI'] if 'RPSI' in frame else None,
+                              frame['LPSI'] if 'LPSI' in frame else None,
+                              frame['SACR'] if 'SACR' in frame else None)
 
-    kin_Pelvis_axis = pelvis_axis
+    kin_Pelvis_axis = axis_pelvis
 
-    kin_Pelvis_JC = pelvis_axis[0] #quick fix for storing JC
+    kin_Pelvis_JC = axis_pelvis[:3, 3] #quick fix for storing JC
 
     #change to same format
-    Pelvis_vectors = pelvis_axis[1]
-    Pelvis_origin = pelvis_axis[0]
+    pelvis_vectors = axis_pelvis[:3, :3]
+    pelvis_origin = axis_pelvis[:3, 3]
 
     #need to update this based on the file
     global_Axis = vsk['GCS']
 
     #make the array which will be the input of findangle function
-    pelvis_Axis_mod = np.vstack([np.subtract(Pelvis_vectors[0],Pelvis_origin),
-                            np.subtract(Pelvis_vectors[1],Pelvis_origin),
-                            np.subtract(Pelvis_vectors[2],Pelvis_origin)])
+    pelvis_Axis_mod = pelvis_vectors
 
 
     global_pelvis_angle = getangle(global_Axis,pelvis_Axis_mod)
@@ -2639,12 +2630,12 @@ def JointAngleCalc(frame,vsk):
     pelz=global_pelvis_angle[2]
 
     # and then find hip JC
-    hip_JC = hipJointCenter(frame,pelvis_axis[0],pelvis_axis[1][0],pelvis_axis[1][1],pelvis_axis[1][2],vsk=vsk)
+    hip_JC = hipJointCenter(frame,axis_pelvis[0],axis_pelvis[1][0],axis_pelvis[1][1],axis_pelvis[1][2],vsk=vsk)
 
     kin_L_Hip_JC = hip_JC[0] #quick fix for storing JC
     kin_R_Hip_JC = hip_JC[1] #quick fix for storing JC
 
-    hip_axis = hipAxisCenter(hip_JC[0],hip_JC[1],pelvis_axis)
+    hip_axis = hipAxisCenter(hip_JC[0],hip_JC[1],axis_pelvis)
 
     knee_JC = kneeJointCenter(frame,hip_JC,0,vsk=vsk)
 
@@ -3009,22 +3000,22 @@ def JointAngleCalc(frame,vsk):
 
     # Pelvis
         # origin
-    pel_origin = Pelvis_origin
+    pel_origin = pelvis_origin
     pel_ox=pel_origin[0]
     pel_oy=pel_origin[1]
     pel_oz=pel_origin[2]
         # xaxis
-    pel_x_axis = Pelvis_vectors[0]
+    pel_x_axis = pelvis_vectors[0]
     pel_xx=pel_x_axis[0]
     pel_xy=pel_x_axis[1]
     pel_xz=pel_x_axis[2]
         # yaxis
-    pel_y_axis = Pelvis_vectors[1]
+    pel_y_axis = pelvis_vectors[1]
     pel_yx=pel_y_axis[0]
     pel_yy=pel_y_axis[1]
     pel_yz=pel_y_axis[2]
         # zaxis
-    pel_z_axis = Pelvis_vectors[2]
+    pel_z_axis = pelvis_vectors[2]
     pel_zx=pel_z_axis[0]
     pel_zy=pel_z_axis[1]
     pel_zz=pel_z_axis[2]
