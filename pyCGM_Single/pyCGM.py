@@ -37,7 +37,7 @@ from .pycgmIO import *
 
 # Lowerbody Coordinate System
 
-def pelvis_axis(rasi, lasi, rpsi, lpsi, sacr=None):
+def calc_pelvis_axis(rasi, lasi, rpsi, lpsi, sacr=None):
     r"""Make the Pelvis Axis.
 
     Takes in RASI, LASI, RPSI, LPSI, and optional SACR markers.
@@ -2602,7 +2602,7 @@ def JointAngleCalc(frame,vsk):
     rfoot_prox,rfoot_proy,rfoot_proz,lfoot_prox,lfoot_proy,lfoot_proz = [None]*6
 
     #First Calculate Pelvis
-    axis_pelvis = pelvis_axis(frame['RASI'] if 'RASI' in frame else None,
+    axis_pelvis = calc_pelvis_axis(frame['RASI'] if 'RASI' in frame else None,
                               frame['LASI'] if 'LASI' in frame else None,
                               frame['RPSI'] if 'RPSI' in frame else None,
                               frame['LPSI'] if 'LPSI' in frame else None,
