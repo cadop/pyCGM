@@ -339,6 +339,7 @@ def calc_knee_axis(rthi, lthi, rkne, lkne, r_hip_jc, l_hip_jc, rkne_width, lkne_
     frame, the hip joint center, and knee widths.
 
     Markers used: RTHI, LTHI, RKNE, LKNE, r_hip_jc, l_hip_jc
+
     Subject Measurement values used: RightKneeWidth, LeftKneeWidth
 
     Knee joint center: Computed using Knee Axis Calculation [1]_.
@@ -355,7 +356,7 @@ def calc_knee_axis(rthi, lthi, rkne, lkne, r_hip_jc, l_hip_jc, rkne_width, lkne_
         1x3 LKNE marker
     r_hip_jc : array
         4x4 affine matrix containing the right hip joint center.
-    r_hip_jc : array
+    l_hip_jc : array
         4x4 affine matrix containing the left hip joint center.
     rkne_width : float
         The width of the right knee
@@ -365,7 +366,7 @@ def calc_knee_axis(rthi, lthi, rkne, lkne, r_hip_jc, l_hip_jc, rkne_width, lkne_
     Returns
     -------
     [r_axis, l_axis] : array
-        An array of two 4x4 affine matrices representing the left and right
+        An array of two 4x4 affine matrices representing the right and left
         knee axes and joint centers.
 
     References
@@ -375,27 +376,29 @@ def calc_knee_axis(rthi, lthi, rkne, lkne, r_hip_jc, l_hip_jc, rkne_width, lkne_
 
     Notes
     -----
-    delta is changed suitably to knee.
+    Delta is changed suitably to knee.
 
     Examples
     --------
     >>> import numpy as np
-    >>> from .pyCGM import kneeJointCenter
-    >>> vsk = { 'RightKneeWidth' : 105.0, 'LeftKneeWidth' : 105.0 }
-    >>> frame = { 'RTHI': np.array([426.50, 262.65, 673.66]),
-    ...           'LTHI': np.array([51.93, 320.01, 723.03]),
-    ...           'RKNE': np.array([416.98, 266.22, 524.04]),
-    ...           'LKNE': np.array([84.62, 286.69, 529.39])}
-    >>> hip_JC = [[182.57, 339.43, 935.52],
-    ...         [309.38, 32280342417, 937.98]]
-    >>> delta = 0
-    >>> [arr.round(2) for arr in kneeJointCenter(frame,hip_JC,delta,vsk)] #doctest: +NORMALIZE_WHITESPACE
-    [array([413.2 , 266.22, 464.66]), array([143.55, 279.91, 524.77]), array([[[414.2 , 266.22, 464.6 ],
-    [413.14, 266.22, 463.66],
-    [413.2 , 267.22, 464.66]],
-    [[143.65, 280.89, 524.62],
-    [142.56, 280.02, 524.85],
-    [143.65, 280.05, 525.76]]])]
+    >>> np.set_printoptions(suppress=True)
+    >>> rthi = np.array([426.50, 262.65, 673.66])
+    >>> lthi = np.array([51.93, 320.01, 723.03])
+    >>> rkne = np.array([416.98, 266.22, 524.04])
+    >>> lkne = np.array([84.62, 286.69, 529.39])
+    >>> l_hip_jc = [182.57, 339.43, 935.52]
+    >>> r_hip_jc = [309.38, 322.80, 937.98]
+    >>> rkne_width = 105.0
+    >>> lkne_width = 105.0
+    >>> [arr.round(2) for arr in calc_knee_axis(rthi, lthi, rkne, lkne, l_hip_jc, r_hip_jc, rkne_width, lkne_width)] #doctest: +NORMALIZE_WHITESPACE
+    [array([[  0.3 ,   0.95,   0.  , 365.09],
+        [ -0.87,   0.28,  -0.4 , 282.84],
+        [ -0.38,   0.12,   0.92, 500.13],
+        [  0.  ,   0.  ,   0.  ,   1.  ]]),
+     array([[  0.11,   0.98,  -0.15, 139.57],
+        [ -0.92,   0.16,   0.35, 277.13],
+        [  0.37,   0.1 ,   0.93, 508.67],
+        [  0.  ,   0.  ,   0.  ,   1.  ]])]
     """
     # Get Global Values
     mm = 7.0
