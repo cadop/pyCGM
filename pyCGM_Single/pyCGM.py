@@ -41,14 +41,18 @@ def calc_pelvis_axis(rasi, lasi, rpsi, lpsi, sacr=None):
     r"""Make the Pelvis Axis.
 
     Takes in RASI, LASI, RPSI, LPSI, and optional SACR markers.
+
     Calculates the pelvis axis.
 
     Markers used: RASI, LASI, RPSI, LPSI
+
     Other landmarks used: sacrum
 
     Pelvis X_axis: Computed with a Gram-Schmidt orthogonalization procedure
     [1]_ and then normalized.
+
     Pelvis Y_axis: LASI-RASI x,y,z positions, then normalized.
+
     Pelvis Z_axis: Cross product of x_axis and y_axis.
 
     :math:`$o = m_{rasi} + m_{lasi} / 2$`
