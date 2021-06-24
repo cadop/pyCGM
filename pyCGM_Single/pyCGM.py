@@ -139,13 +139,19 @@ def calc_pelvis_axis(rasi, lasi, rpsi, lpsi, sacr=None):
     return pelvis
 
 def calc_hip_joint_center(pelvis, subject):
-    u"""Get the right and left hip joint center.
+    u"""Calculate the right and left hip joint center.
 
     Takes in a 4x4 affine matrix of pelvis axis and subject measurements
-    dictionary. Calculates and returns the left and right hip joint centers.
+    dictionary. Calculates and returns the right and left hip joint centers.
 
-    Subject Measurement values used: MeanLegLength, R_AsisToTrocanterMeasure,
-    InterAsisDistance, L_AsisToTrocanterMeasure
+    Subject Measurement values used:
+        MeanLegLength
+
+        R_AsisToTrocanterMeasure
+
+        InterAsisDistance
+
+        L_AsisToTrocanterMeasure
 
     Hip Joint Center: Computed using Hip Joint Center Calculation [1]_.
 
@@ -160,7 +166,7 @@ def calc_hip_joint_center(pelvis, subject):
     -------
     hip_jc : array
         A 2x3 array that contains two 1x3 arrays
-        containing the x, y, z components of the left and right hip joint
+        containing the x, y, z components of the right and left hip joint
         centers.
 
     References
@@ -266,18 +272,18 @@ def calc_hip_joint_center(pelvis, subject):
 def calc_hip_axis(r_hip_jc, l_hip_jc, pelvis_axis):
     r"""Make the hip axis.
 
-    Takes in the x, y, z positions of left and right hip joint center and
+    Takes in the x, y, z positions of right and left hip joint center and
     pelvis axis to calculate the hip axis.
 
-    hip origin: Midpoint of left and right hip joint centers.
+    Hip origin: Midpoint of right and left hip joint centers.
 
-    Hip axis: sets the pelvis orientation to the hip center axis (i.e.
-    midpoint of left and right hip joint centers)
+    Hip axis: Sets the pelvis orientation to the hip center axis (i.e.
+    midpoint of right and left hip joint centers)
 
     Parameters
     ----------
-    l_hip_jc, r_hip_jc : array
-        left and right hip joint center with x, y, z position in an array.
+    r_hip_jc, l_hip_jc : array
+        right and left hip joint center with x, y, z position in an array.
     pelvis_axis : array
         4x4 affine matrix with pelvis x, y, z axes and pelvis origin.
 
