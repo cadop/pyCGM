@@ -264,7 +264,7 @@ def calc_hip_joint_center(pelvis, subject):
     left_hip_jc = left_hip_jc+pel_origin
     right_hip_jc = right_hip_jc+pel_origin
 
-    hip_jc = np.array([left_hip_jc, right_hip_jc])
+    hip_jc = np.array([right_hip_jc, left_hip_jc])
 
     return hip_jc
 
@@ -2999,17 +2999,17 @@ def JointAngleCalc(frame,vsk):
     pel_oy=pel_origin[1]
     pel_oz=pel_origin[2]
         # xaxis
-    pel_x_axis = pelvis_vectors[0]
+    pel_x_axis = pelvis_vectors[0] + pelvis_origin
     pel_xx=pel_x_axis[0]
     pel_xy=pel_x_axis[1]
     pel_xz=pel_x_axis[2]
         # yaxis
-    pel_y_axis = pelvis_vectors[1]
+    pel_y_axis = pelvis_vectors[1] + pelvis_origin
     pel_yx=pel_y_axis[0]
     pel_yy=pel_y_axis[1]
     pel_yz=pel_y_axis[2]
         # zaxis
-    pel_z_axis = pelvis_vectors[2]
+    pel_z_axis = pelvis_vectors[2] + pelvis_origin
     pel_zx=pel_z_axis[0]
     pel_zy=pel_z_axis[1]
     pel_zz=pel_z_axis[2]
