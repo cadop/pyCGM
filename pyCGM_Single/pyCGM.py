@@ -697,7 +697,7 @@ def calc_ankle_axis(rtib, ltib, rank, lank, r_knee_JC, l_knee_JC, rank_width, la
 def calc_foot_axis(rtoe, ltoe, r_ankle_axis, l_ankle_axis, r_static_rot_off, l_static_rot_off, r_static_plant_flex, l_static_plant_flex):
     """Calculate the foot joint center and axis.
 
-    Takes in markers that correspond to (x, y, z) positions of the curret
+    Takes in markers that correspond to (x, y, z) positions of the current
     frame, the right and left ankle axes, right and left static rotation
     offset angles, and the right and left static plantar flexion angles.
 
@@ -959,191 +959,216 @@ def calc_foot_axis(rtoe, ltoe, r_ankle_axis, l_ankle_axis, r_static_rot_off, l_s
 
 # Upperbody Coordinate System
 
-def headJC(frame,vsk=None):
-    """Calculate the head joint axis function.
+def calc_head_axis(lfhd, rfhd, lbhd, rbhd, head_offset):
+    """Calculate the head joint center and axis.
 
-    Takes in a dictionary of marker names to x, y, z positions.
-    Calculates the head joint center and returns the head joint center and axis.
+    Takes in markers that correspond to (x, y, z) positions of the current
+    frame, and the head offset. 
+
+    Calculates the head joint center and axis.
 
     Markers used: LFHD, RFHD, LBHD, RBHD
+
     Subject Measurement values used: HeadOffset
 
     Parameters
     ----------
-    frame : dict
-        Dictionaries of marker lists.
-    vsk : dict, optional
-        A dictionary containing subject measurements.
+    lfhd : array
+        1x3 LFHD marker
+    rfhd : array
+        1x3 RFHD marker
+    lbhd : array
+        1x3 LBHD marker
+    rbhd : array
+        1x3 RBHD marker
+    head_offset : float
+        Static head offset angle.
 
     Returns
     -------
-    head_axis, origin : array
-        Returns an array containing a 1x3x3 array containing the x, y, z axis
-        components of the head joint center, and a 1x3 array containing the
-        head origin x, y, z position.
+    head_axis : array
+        4x4 affine matrix with head (x, y, z) axes and origin.
 
 
     Examples
     --------
     >>> import numpy as np
-    >>> from .pyCGM import headJC
-    >>> vsk = { 'HeadOffset': 0.25 }
-    >>> frame = {'RFHD': np.array([325.82, 402.55, 1722.49]),
-    ...          'LFHD': np.array([184.55, 409.68, 1721.34]),
-    ...          'RBHD': np.array([304.39, 242.91, 1694.97]),
-    ...          'LBHD': np.array([197.86, 251.28, 1696.90])}
-    >>> [np.around(arr, 2) for arr in headJC(frame,vsk)] #doctest: +NORMALIZE_WHITESPACE
-    [array([[ 255.21,  407.11, 1721.83],
-    [ 254.19,  406.14, 1721.91],
-    [ 255.18,  406.2 , 1722.91]]), array([ 255.18,  406.12, 1721.92])]
+    >>> np.set_printoptions(suppress=True)
+    >>> from .pyCGM import calc_head_axis
+    >>> head_offset = 0.25
+    >>> rfhd = np.array([325.82, 402.55, 1722.49])
+    >>> lfhd = np.array([184.55, 409.68, 1721.34])
+    >>> rbhd = np.array([304.39, 242.91, 1694.97])
+    >>> lbhd = np.array([197.86, 251.28, 1696.90])
+    >>> [np.around(arr, 2) for arr in calc_head_axis(lfhd, rfhd, lbhd, rbhd, head_offset)] #doctest: +NORMALIZE_WHITESPACE
+    [array([ 0.03, 1.  ,  -0.09, 255.18]), 
+    array([ -1.  , 0.03,  -0.  , 406.12]), 
+    array([ -0.  , 0.09,   1.  , 1721.92]), 
+      array([0.,   0.,     0.,      1.])]
     """
 
-    #Get Global Values
-    head_off = vsk['HeadOffset']
-    head_off = -1*head_off
+    head_offset = -1*head_offset
 
-    #Get the marker positions used for joint calculation
-    LFHD = frame['LFHD']
-    RFHD = frame['RFHD']
-    LBHD = frame['LBHD']
-    RBHD = frame['RBHD']
+    # get the midpoints of the head to define the sides
+    front = (lfhd + rfhd)/2.0
+    back = (lbhd + rbhd)/2.0
+    left = (lfhd + lbhd)/2.0
+    right = (rfhd + rbhd)/2.0
 
-    #get the midpoints of the head to define the sides
-    front = [(LFHD[0]+RFHD[0])/2.0, (LFHD[1]+RFHD[1])/2.0,(LFHD[2]+RFHD[2])/2.0]
-    back = [(LBHD[0]+RBHD[0])/2.0, (LBHD[1]+RBHD[1])/2.0,(LBHD[2]+RBHD[2])/2.0]
-    left = [(LFHD[0]+LBHD[0])/2.0, (LFHD[1]+LBHD[1])/2.0,(LFHD[2]+LBHD[2])/2.0]
-    right = [(RFHD[0]+RBHD[0])/2.0, (RFHD[1]+RBHD[1])/2.0,(RFHD[2]+RBHD[2])/2.0]
-    origin = front
+    # Get the vectors from the sides with primary x axis facing front
+    # First get the x direction
+    x_axis = np.subtract(front, back)
+    x_axis_norm = np.nan_to_num(np.linalg.norm(x_axis))
+    if x_axis_norm:
+        x_axis = np.divide(x_axis, x_axis_norm)
 
-    #Get the vectors from the sides with primary x axis facing front
-    #First get the x direction
-    x_vec = [front[0]-back[0],front[1]-back[1],front[2]-back[2]]
-    x_vec_div = norm2d(x_vec)
-    x_vec = [x_vec[0]/x_vec_div,x_vec[1]/x_vec_div,x_vec[2]/x_vec_div]
-
-    #get the direction of the y axis
-    y_vec = [left[0]-right[0],left[1]-right[1],left[2]-right[2]]
-    y_vec_div = norm2d(y_vec)
-    y_vec = [y_vec[0]/y_vec_div,y_vec[1]/y_vec_div,y_vec[2]/y_vec_div]
+    # get the direction of the y axis
+    y_axis = np.subtract(left, right)
+    y_axis_norm = np.nan_to_num(np.linalg.norm(y_axis))
+    if y_axis_norm:
+        y_axis = np.divide(y_axis, y_axis_norm)
 
     # get z axis by cross-product of x axis and y axis.
-    z_vec = cross(x_vec,y_vec)
-    z_vec_div = norm2d(z_vec)
-    z_vec = [z_vec[0]/z_vec_div,z_vec[1]/z_vec_div,z_vec[2]/z_vec_div]
+    z_axis = np.cross(x_axis, y_axis)
+    z_axis_norm = np.nan_to_num(np.linalg.norm(z_axis))
+    if z_axis_norm:
+        z_axis = np.divide(z_axis, z_axis_norm)
 
     # make sure all x,y,z axis is orthogonal each other by cross-product
-    y_vec = cross(z_vec,x_vec)
-    y_vec_div = norm2d(y_vec)
-    y_vec = [y_vec[0]/y_vec_div,y_vec[1]/y_vec_div,y_vec[2]/y_vec_div]
-    x_vec = cross(y_vec,z_vec)
-    x_vec_div = norm2d(x_vec)
-    x_vec = [x_vec[0]/x_vec_div,x_vec[1]/x_vec_div,x_vec[2]/x_vec_div]
+    y_axis = np.cross(z_axis, x_axis)
+    y_axis_norm = np.nan_to_num(np.linalg.norm(y_axis))
+    if y_axis_norm:
+        y_axis = np.divide(y_axis, y_axis_norm)
 
-    # rotate the head axis around y axis about head offset angle.
-    x_vec_rot = [x_vec[0]*math.cos(head_off)+z_vec[0]*math.sin(head_off),
-            x_vec[1]*math.cos(head_off)+z_vec[1]*math.sin(head_off),
-            x_vec[2]*math.cos(head_off)+z_vec[2]*math.sin(head_off)]
-    y_vec_rot = [y_vec[0],y_vec[1],y_vec[2]]
-    z_vec_rot = [x_vec[0]*-1*math.sin(head_off)+z_vec[0]*math.cos(head_off),
-            x_vec[1]*-1*math.sin(head_off)+z_vec[1]*math.cos(head_off),
-            x_vec[2]*-1*math.sin(head_off)+z_vec[2]*math.cos(head_off)]
+    x_axis = np.cross(y_axis, z_axis)
+    x_axis_norm = np.nan_to_num(np.linalg.norm(x_axis))
+    if x_axis_norm:
+        x_axis = np.divide(x_axis, x_axis_norm)
 
-    #Add the origin back to the vector to get it in the right position
-    x_axis = [x_vec_rot[0]+origin[0],x_vec_rot[1]+origin[1],x_vec_rot[2]+origin[2]]
-    y_axis = [y_vec_rot[0]+origin[0],y_vec_rot[1]+origin[1],y_vec_rot[2]+origin[2]]
-    z_axis = [z_vec_rot[0]+origin[0],z_vec_rot[1]+origin[1],z_vec_rot[2]+origin[2]]
+# rotate the head axis around y axis about head offset angle.
+    x_axis_rot = [x_axis[0]*math.cos(head_offset)+z_axis[0]*math.sin(head_offset),
+            x_axis[1]*math.cos(head_offset)+z_axis[1]*math.sin(head_offset),
+            x_axis[2]*math.cos(head_offset)+z_axis[2]*math.sin(head_offset)]
+    y_axis_rot = [y_axis[0],y_axis[1],y_axis[2]]
+    z_axis_rot = [x_axis[0]*-1*math.sin(head_offset)+z_axis[0]*math.cos(head_offset),
+            x_axis[1]*-1*math.sin(head_offset)+z_axis[1]*math.cos(head_offset),
+            x_axis[2]*-1*math.sin(head_offset)+z_axis[2]*math.cos(head_offset)]
 
-    head_axis =[x_axis,y_axis,z_axis]
+    # Create the return matrix
+    head_axis = np.zeros((4, 4))
+    head_axis[3, 3] = 1.0
+    head_axis[0, :3] = x_axis_rot
+    head_axis[1, :3] = y_axis_rot
+    head_axis[2, :3] = z_axis_rot
+    head_axis[:3, 3] = front
 
-    #Return the three axis and origin
-    return [head_axis,origin]
+    return head_axis
 
-def thoraxJC(frame):
-    """Calculate the thorax joint axis function.
 
-    Takes in a dictionary of marker names to x, y, z positions.
-    Calculates and returns the thorax axis and origin.
+def calc_thorax_axis(clav, c7, strn, t10):
+    r"""Make the Thorax Axis.
 
-    Markers used: CLAV, C7, STRN, T10
+
+    Takes in CLAV, C7, STRN, T10 markers.
+    Calculates the thorax axis.
+
+    :math:`upper = (\textbf{m}_{clav} + \textbf{m}_{c7}) / 2.0`
+
+    :math:`lower = (\textbf{m}_{strn} + \textbf{m}_{t10}) / 2.0`
+
+    :math:`\emph{front} = (\textbf{m}_{clav} + \textbf{m}_{strn}) / 2.0`
+
+    :math:`back = (\textbf{m}_{t10} + \textbf{m}_{c7}) / 2.0`
+
+    :math:`\hat{z} = \frac{lower - upper}{||lower - upper||}`
+
+    :math:`\hat{x} = \frac{\emph{front} - back}{||\emph{front} - back||}`
+
+    :math:`\hat{y} = \frac{ \hat{z} \times \hat{x} }{||\hat{z} \times \hat{x}||}`
+
+    :math:`\hat{z} = \frac{\hat{x} \times \hat{y} }{||\hat{x} \times \hat{y} ||}`
 
     Parameters
     ----------
-    frame : dict
-        Dictionaries of marker lists.
+    clav: array
+        1x3 CLAV marker
+    c7: array
+        1x3 C7 marker
+    strn: array
+        1x3 STRN marker
+    t10: array
+        1x3 T10 marker
 
     Returns
     -------
-    thorax_axis, origin : array
-        Returns an array which contains a 3x3 array representing the thorax
-        axis x, y, z followed by 1x3 array of the thorax origin
+    thorax : array
+        4x4 affine matrix with thorax x, y, z axes and thorax origin.
+
+    .. math::
+        \begin{bmatrix}
+            \hat{x}_x & \hat{x}_y & \hat{x}_z & o_x \\
+            \hat{y}_x & \hat{y}_y & \hat{y}_z & o_y \\
+            \hat{z}_x & \hat{z}_y & \hat{z}_z & o_z \\
+            0 & 0 & 0 & 1 \\
+        \end{bmatrix}
 
     Examples
     --------
     >>> import numpy as np
-    >>> from .pyCGM import thoraxJC
-    >>> frame = {'C7': np.array([256.78, 371.28, 1459.70]),
-    ...          'T10': np.array([228.64, 192.32, 1279.64]),
-    ...          'CLAV': np.array([256.78, 371.28, 1459.70]),
-    ...          'STRN': np.array([251.67, 414.10, 1292.08])}
-    >>> [np.around(arr, 2) for arr in thoraxJC(frame)] #doctest: +NORMALIZE_WHITESPACE
-    [array([[ 256.35,  365.72, 1461.92],
-    [ 257.27,  364.7 , 1462.23],
-    [ 256.18,  364.43, 1461.36]]), array([ 256.27,  364.8 , 1462.29])]
+    >>> np.set_printoptions(suppress=True)
+    >>> from .pyCGM import calc_thorax_axis
+    >>> c7 = np.array([256.78, 371.28, 1459.70])
+    >>> t10 = np.array([228.64, 192.32, 1279.64])
+    >>> clav = np.array([256.78, 371.28, 1459.70])
+    >>> strn = np.array([251.67, 414.10, 1292.08])
+    >>> [np.around(arr, 2) for arr in calc_thorax_axis(clav, c7, strn, t10)] #doctest: +NORMALIZE_WHITESPACE
+    [array([ 0.07,  0.93, -0.37,  256.27]), 
+    array([  0.99, -0.1 , -0.06,  364.8 ]), 
+    array([ -0.09, -0.36, -0.93, 1462.29]), 
+      array([0.,    0.,    0.,      1.])]
     """
 
-    #Set or get a marker size as mm
-    marker_size = (14.0) /2.0
+    clav, c7, strn, t10 = map(np.asarray, [clav, c7, strn, t10])
 
-    #Get the marker positions used for joint calculation
-    CLAV = frame['CLAV']
-    C7 = frame['C7']
-    STRN = frame['STRN']
-    T10 = frame['T10']
+    # Set or get a marker size as mm
+    marker_size = (14.0) / 2.0
 
-    #Temporary origin since the origin will be moved at the end
-    origin = CLAV
+    # Get the midpoints of the upper and lower sections, as well as the front and back sections
+    upper = (clav + c7)/2.0
+    lower = (strn + t10)/2.0
+    front = (clav + strn)/2.0
+    back = (t10 + c7)/2.0
 
-    #Get the midpoints of the upper and lower sections, as well as the front and back sections
-    upper = [(CLAV[0]+C7[0])/2.0,(CLAV[1]+C7[1])/2.0,(CLAV[2]+C7[2])/2.0]
-    lower = [(STRN[0]+T10[0])/2.0,(STRN[1]+T10[1])/2.0,(STRN[2]+T10[2])/2.0]
-    front = [(CLAV[0]+STRN[0])/2.0,(CLAV[1]+STRN[1])/2.0,(CLAV[2]+STRN[2])/2.0]
-    back = [(T10[0]+C7[0])/2.0,(T10[1]+C7[1])/2.0,(T10[2]+C7[2])/2.0]
+    # Get the direction of the primary axis Z (facing down)
+    z_direc = lower - upper
+    z = z_direc/np.linalg.norm(z_direc)
 
+    # The secondary axis X is from back to front
+    x_direc = front - back
+    x = x_direc/np.linalg.norm(x_direc)
 
-
-    C7_CLAV = [C7[0]-CLAV[0],C7[1]-CLAV[1],C7[2]-CLAV[2]]
-    C7_CLAV = C7_CLAV/norm3d(C7_CLAV)
-
-    #Get the direction of the primary axis Z (facing down)
-    z_direc = [lower[0]-upper[0],lower[1]-upper[1],lower[2]-upper[2]]
-    z_vec = z_direc/norm3d(z_direc)
-
-    #The secondary axis X is from back to front
-    x_direc = [front[0]-back[0],front[1]-back[1],front[2]-back[2]]
-    x_vec = x_direc/norm3d(x_direc)
-
-    # make sure all the axes are orthogonal each othe by cross-product
-    y_direc = cross(z_vec,x_vec)
-    y_vec = y_direc/norm3d(y_direc)
-    x_direc = cross(y_vec,z_vec)
-    x_vec = x_direc/norm3d(x_direc)
-    z_direc = cross(x_vec,y_vec)
-    z_vec = z_direc/norm3d(z_direc)
+    # make sure all the axes are orthogonal to each other by cross-product
+    y_direc = np.cross(z, x)
+    y = y_direc/np.linalg.norm(y_direc)
+    x_direc = np.cross(y, z)
+    x = x_direc/np.linalg.norm(x_direc)
+    z_direc = np.cross(x, y)
+    z = z_direc/np.linalg.norm(z_direc)
 
     # move the axes about offset along the x axis.
-    offset = [x_vec[0]*marker_size,x_vec[1]*marker_size,x_vec[2]*marker_size]
+    offset = x * marker_size
 
-    #Add the CLAV back to the vector to get it in the right position before translating it
-    origin = [CLAV[0]-offset[0],CLAV[1]-offset[1],CLAV[2]-offset[2]]
+    # Add the CLAV back to the vector to get it in the right position before translating it
+    o = clav - offset
 
-    # Attach all the axes to the origin.
-    x_axis = [x_vec[0]+origin[0],x_vec[1]+origin[1],x_vec[2]+origin[2]]
-    y_axis = [y_vec[0]+origin[0],y_vec[1]+origin[1],y_vec[2]+origin[2]]
-    z_axis = [z_vec[0]+origin[0],z_vec[1]+origin[1],z_vec[2]+origin[2]]
+    thorax = np.zeros((4, 4))
+    thorax[3, 3] = 1.0
+    thorax[0, :3] = x
+    thorax[1, :3] = y
+    thorax[2, :3] = z
+    thorax[:3, 3] = o
 
-    thorax_axis = [x_axis,y_axis,z_axis]
-
-    return [thorax_axis,origin]
+    return thorax
 
 def findwandmarker(frame,thorax):
     """Calculate the wand marker function.
@@ -1181,9 +1206,9 @@ def findwandmarker(frame,thorax):
     >>> [np.around(arr, 2) for arr in findwandmarker(frame,thorax)]
     [array([ 255.91,  364.31, 1460.62]), array([ 256.42,  364.27, 1460.61])]
     """
-    thorax_origin = thorax[1]
+    thorax_origin = thorax[:3, 3]
 
-    tho_axis_x = thorax[0][0]
+    tho_axis_x = thorax[0, :3]
 
 
     #REQUIRED MARKERS:
@@ -1264,7 +1289,7 @@ def findshoulderJC(frame,thorax,wand,vsk=None):
     [array([ 429.51,  274.77, 1453.92]), array([  64.49,  274.99, 1463.63])]
     """
 
-    thorax_origin = thorax[1]
+    thorax_origin = thorax[:3, 3]
 
 
     #Get Subject Measurement Values
@@ -1354,7 +1379,7 @@ def shoulderAxisCalc(frame,thorax,shoulderJC,wand):
     """
 
 
-    thorax_origin = thorax[1]
+    thorax_origin = thorax[:3, 3]
 
     R_shoulderJC = shoulderJC[0]
     L_shoulderJC = shoulderJC[1]
@@ -1501,7 +1526,7 @@ def elbowJointCenter(frame,thorax,shoulderJC,wand,vsk=None):
     LWRI = [(LWRA[0]+LWRB[0])/2.0,(LWRA[1]+LWRB[1])/2.0,(LWRA[2]+LWRB[2])/2.0]
 
     # make humerus axis
-    tho_y_axis = np.subtract(thorax[0][1],thorax[1])
+    tho_y_axis = np.subtract(thorax[1, :3],thorax[:3, 3])
 
     R_sho_mod = [(RSHO[0]-R_delta*tho_y_axis[0]-RELB[0]),
                 (RSHO[1]-R_delta*tho_y_axis[1]-RELB[1]),
@@ -2804,9 +2829,13 @@ def JointAngleCalc(frame,vsk):
 
     #First Calculate HEAD
 
-    head_axis = headJC(frame,vsk=vsk)
+    axis_head = calc_head_axis(frame['LFHD'] if 'LFHD' in frame else None,
+                               frame['RFHD'] if 'RFHD' in frame else None,
+                               frame['LBHD'] if 'LBHD' in frame else None,
+                               frame['RBHD'] if 'RBHD' in frame else None,
+                               vsk['HeadOffset'])
 
-    kin_Head_JC = head_axis[1] #quick fix for storing JC
+    kin_Head_JC = axis_head[:3, 3] #quick fix for storing JC
 
     LFHD = frame['LFHD'] #as above
     RFHD = frame['RFHD']
@@ -2817,8 +2846,8 @@ def JointAngleCalc(frame,vsk):
     kin_Head_Back = np.array((LBHD+RBHD)/2)
 
     #change to same format
-    Head_axis_form = head_axis[0]
-    Head_center_form = head_axis[1]
+    Head_center_form = axis_head[:3, 3]
+    Head_axis_form = axis_head[:3, :3] + Head_center_form
     #Global_axis_form = [[0,1,0],[-1,0,0],[0,0,1]]
     Global_center_form = [0,0,0]
 
@@ -2849,14 +2878,19 @@ def JointAngleCalc(frame,vsk):
 
     # Calculate THORAX
 
-    thorax_axis = thoraxJC(frame)
+    thorax_axis = calc_thorax_axis(frame['CLAV'] if 'CLAV' in frame else None,
+                                   frame['C7'] if 'C7' in frame else None,
+                                   frame['STRN'] if 'STRN' in frame else None,
+                                   frame['T10'] if 'T10' in frame else None)
 
-    kin_Thorax_JC = thorax_axis[1] #quick fix for storing JC
-    kin_Thorax_axis = thorax_axis
+    kin_Thorax_JC = thorax_axis[:3, 3] #quick fix for storing JC
+    kin_Thorax_axis = thorax_axis[:3, :3]
 
     # Change to same format
-    Thorax_axis_form = thorax_axis[0]
-    Thorax_center_form = thorax_axis[1]
+    Thorax_center_form = thorax_axis[:3, 3]
+    Thorax_axis_form = thorax_axis[:3, :3]
+    thorax_axis[:3, :3] += thorax_axis[:3, 3]
+
     Global_axis_form = [[0,1,0],[-1,0,0],[0,0,1]]
     Global_center_form = [0,0,0]
     #*******************************************************
