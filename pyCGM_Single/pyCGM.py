@@ -1190,8 +1190,7 @@ def calc_wand_marker(rsho, lsho, thorax_axis):
     Returns
     -------
     wand : array
-        A list of two 4x4 affine matrices representing the right
-        and left wand markers.
+        A list of two 1x3 arrays representing the right and left wand markers.
 
     Examples
     --------
@@ -1205,14 +1204,7 @@ def calc_wand_marker(rsho, lsho, thorax_axis):
     ...                        [ -0.09, -0.36, -0.93, 1462.29], 
     ...                        [  0.,    0.,    0.,      1.]])
     >>> [np.around(arr, 2) for arr in calc_wand_marker(rsho, lsho, thorax_axis)] #doctest: +NORMALIZE_WHITESPACE
-    [array([[   1.  ,    0.  ,    0.  ,  256.27],
-           [    0.  ,    1.  ,    0.  ,  365.17],
-           [    0.  ,    0.  ,    1.  , 1463.22],
-           [    0.  ,    0.  ,    0.  ,    1.  ]]), 
-    array([[    1.  ,    0.  ,    0.  ,  256.32],
-           [    0.  ,    1.  ,    0.  ,  365.17],
-           [    0.  ,    0.  ,    1.  , 1463.22],
-           [    0.  ,    0.  ,    0.  ,    1.  ]])]
+    [array([ 256.78,  365.61, 1462.  ]), array([ 255.79,  365.67, 1462.16])]
     """
 
     thorax_origin = thorax_axis[:3, 3]
@@ -1227,19 +1219,14 @@ def calc_wand_marker(rsho, lsho, thorax_axis):
     RSHO_vec = RSHO_vec/np.linalg.norm(RSHO_vec)
     LSHO_vec = LSHO_vec/np.linalg.norm(LSHO_vec)
 
-    R_wand = np.cross(RSHO_vec, axis_x_vec)
-    R_wand = R_wand/np.linalg.norm(R_wand)
-    R_wand = thorax_origin + R_wand
+    r_wand = np.cross(RSHO_vec, axis_x_vec)
+    r_wand = r_wand/np.linalg.norm(r_wand)
+    r_wand = thorax_origin + r_wand
 
-    r_wand = np.identity(4)
-    r_wand[:3, 3] = R_wand
 
-    L_wand = np.cross(axis_x_vec, LSHO_vec)
-    L_wand = L_wand/np.linalg.norm(L_wand)
-    L_wand = thorax_origin + L_wand
-
-    l_wand = np.identity(4)
-    l_wand[:3, 3] = L_wand
+    l_wand = np.cross(axis_x_vec, LSHO_vec)
+    l_wand = l_wand/np.linalg.norm(l_wand)
+    l_wand = thorax_origin + l_wand
 
     wand = np.array([r_wand, l_wand])
 
@@ -2945,8 +2932,6 @@ def JointAngleCalc(frame,vsk):
     wand = calc_wand_marker(frame['RSHO'] if 'RSHO' in frame else None,
                             frame['LSHO'] if 'LSHO' in frame else None,
                             thorax_axis)
-
-    wand = [wand[0][:3, 3], wand[1][:3, 3]]
 
     shoulder_JC = findshoulderJC(frame,thorax_axis,wand,vsk=vsk)
 
