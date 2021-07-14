@@ -1228,7 +1228,6 @@ def calc_wand_marker(rsho, lsho, thorax_axis):
     r_wand = r_wand/np.linalg.norm(r_wand)
     r_wand = thorax_origin + r_wand
 
-
     l_wand = np.cross(axis_x_vec, LSHO_vec)
     l_wand = l_wand/np.linalg.norm(l_wand)
     l_wand = thorax_origin + l_wand
@@ -1237,196 +1236,206 @@ def calc_wand_marker(rsho, lsho, thorax_axis):
 
     return wand
 
-def findshoulderJC(frame,thorax,wand,vsk=None):
-    """Calculate the Shoulder joint center function.
 
-    Takes in a dictionary of marker names to x, y, z positions and the thorax
-    axis and wand marker.
-    Calculate each shoulder joint center and returns it.
+def calc_shoulder_joint_center(rsho, lsho, thorax_axis, r_wand, l_wand, r_sho_off, l_sho_off):
+    """Calculate the shoulder joint center.
 
-    Markers used: RSHO, LSHO
-    Subject Measurement values used: RightShoulderOffset, LeftShoulderOffset
+    Takes in markers that correspond to (x, y, z) positions of the current
+    frame, the thorax axis, the right and left wand markers, and the right and
+    left shoulder offset angles.
 
     Parameters
     ----------
-    frame : dict
-        Dictionaries of marker lists.
-    thorax : array
-        Array containing several x,y,z markers for the thorax.
-    wand : array
-        Array containing two x,y,z markers for wand.
-    vsk : dict, optional
-        A dictionary containing subject measurements.
+    rsho : array
+        1x3 RSHO marker
+    lsho : array
+        1x3 LSHO marker
+    thorax_axis : array
+        4x4 affine matrix with thorax (x, y, z) axes and origin.
+    r_wand : array
+        1x3 right wand marker
+    l_wand : array
+        1x3 left wand marker
+    r_sho_off : float
+        Right shoulder static offset angle
+    l_sho_off : float
+        Left shoulder static offset angle
 
     Returns
     -------
-    Sho_JC : array
-        Returns a 2x3 array representing the right shoulder joint
-        center x, y, z, marker positions 1x3 followed by the left
-        shoulder joint center x, y, z, marker positions 1x3.
+    shoulder_JC : array
+        4x4 affine matrix containing the right and left shoulders joint centers.
+
 
     Examples
     --------
     >>> import numpy as np
-    >>> from .pyCGM import findshoulderJC
-    >>> vsk = { 'RightShoulderOffset' : 40.0, 'LeftShoulderOffset' : 40.0 }
-    >>> frame = {'RSHO': np.array([428.88, 270.55, 1500.73]),
-    ...          'LSHO': np.array([68.24, 269.01, 1510.10])}
-    >>> thorax = [[[256.23, 365.30, 1459.66],
-    ...        [257.14, 364.21, 1459.58],
-    ...        [256.08, 354.32, 1458.65]],
-    ...        [256.14, 364.30, 1459.65]]
-    >>> wand = [[255.92, 364.32, 1460.62],
-    ...        [256.42, 364.27, 1460.61]]
-    >>> [np.around(arr, 2) for arr in findshoulderJC(frame,thorax,wand,vsk)]
-    [array([ 429.51,  274.77, 1453.92]), array([  64.49,  274.99, 1463.63])]
+    >>> np.set_printoptions(suppress=True)
+    >>> from .pyCGM import calc_shoulder_joint_center
+    >>> rsho = np.array([428.88, 270.55, 1500.73])
+    >>> lsho = np.array([68.24, 269.01, 1510.10])
+    >>> thorax_axis = np.array([[ 0.07,  0.93, -0.37,  256.27], 
+    ...                        [  0.99, -0.1 , -0.06,  364.8 ], 
+    ...                        [ -0.09, -0.36, -0.93, 1462.29], 
+    ...                        [  0.,    0.,    0.,      1.]])
+    >>> r_wand = [255.92, 364.32, 1460.62]
+    >>> l_wand = [256.42, 364.27, 1460.61]
+    >>> r_sho_off = 40.0
+    >>> l_sho_off = 40.0
+    >>> [np.around(arr, 2) for arr in calc_shoulder_joint_center(rsho, lsho, thorax_axis, r_wand, l_wand, r_sho_off, l_sho_off)] #doctest: +NORMALIZE_WHITESPACE
+    [array([[   1.  ,    0.  ,    0.  ,  419.62],
+            [   0.  ,    1.  ,    0.  ,  293.35],
+            [   0.  ,    0.  ,    1.  , 1540.77],
+            [   0.  ,    0.  ,    0.  ,    1.  ]]),
+     array([[   1.  ,    0.  ,    0.  ,   79.26],
+            [   0.  ,    1.  ,    0.  ,  290.54],
+            [   0.  ,    0.  ,    1.  , 1550.4 ],
+            [   0.  ,    0.  ,    0.  ,    1.  ]])]
     """
 
-    thorax_origin = thorax[:3, 3]
+    thorax_origin = thorax_axis[:3, 3]
 
-
-    #Get Subject Measurement Values
-    R_shoulderoffset = vsk['RightShoulderOffset']
-    L_shoulderoffset = vsk['LeftShoulderOffset']
+    # Get Subject Measurement Values
     mm = 7.0
-    R_delta =( R_shoulderoffset + mm )
-    L_delta =( L_shoulderoffset + mm )
+    R_delta = (r_sho_off + mm)
+    L_delta = (l_sho_off + mm)
 
-
-    #REQUIRED MARKERS:
+    # REQUIRED MARKERS:
     # RSHO
     # LSHO
-    RSHO = frame['RSHO']
-    LSHO = frame['LSHO']
 
-    # Calculate the shoulder joint center first.
-    R_wand = wand[0]
-    L_wand = wand[1]
+    R_Sho_JC = findJointC(r_wand, thorax_origin, rsho, R_delta)
+    L_Sho_JC = findJointC(l_wand, thorax_origin, lsho, L_delta)
 
-    R_Sho_JC = findJointC(R_wand,thorax_origin,RSHO,R_delta)
-    L_Sho_JC = findJointC(L_wand,thorax_origin,LSHO,L_delta)
-    Sho_JC = [R_Sho_JC,L_Sho_JC]
+    r_sho_jc = np.identity(4)
+    r_sho_jc[:3, 3] = R_Sho_JC
 
-    return Sho_JC
+    l_sho_jc = np.identity(4)
+    l_sho_jc[:3, 3] = L_Sho_JC
 
-def shoulderAxisCalc(frame,thorax,shoulderJC,wand):
-    """Calculate the Shoulder joint axis ( Clavicle) function.
+    shoulder_JC = np.array([r_sho_jc, l_sho_jc])
 
-    Takes in the thorax axis, wand marker and shoulder joint center.
-    Calculate each shoulder joint axis and returns it.
+    return shoulder_JC
+
+def calc_shoulder_axis(thorax_axis, r_sho_jc, l_sho_jc, r_wand, l_wand):
+    """Make the Shoulder axis.
+
+    Takes in the thorax axis, right and left shoulder joint center,
+    and right and left wand markers.
+
+    Calculates the right and left shoulder joint axes.
 
     Parameters
     ----------
-    frame : dict
-        Dictionaries of marker lists.
-    thorax : array
-        The x,y,z position of the thorax.
-            thorax = [[R_thorax joint center x,y,z position],
-                        [L_thorax_joint center x,y,z position],
-                        [[R_thorax x axis x,y,z position],
-                        [R_thorax,y axis x,y,z position],
-                        [R_thorax z axis x,y,z position]]]
-    shoulderJC : array
-        The x,y,z position of the shoulder joint center.
-            shoulderJC = [[R shoulder joint center x,y,z position],
-                        [L shoulder joint center x,y,z position]]
-    wand : array
-        The x,y,z position of the wand.
-            wand = [[R wand x,y,z, position],
-                    [L wand x,y,z position]]
+    thorax_axis : array
+        4x4 affine matrix with thorax (x, y, z) axes and origin.
+    r_sho_jc : array
+       The (x, y, z) position of the right shoulder joint center. 
+    l_sho_jc : array
+       The (x, y, z) position of the left shoulder joint center. 
+    r_wand : array
+        1x3 right wand marker
+    l_wand : array
+        1x3 left wand marker
 
     Returns
     -------
-    shoulderJC, axis : array
-        Returns the Shoulder joint center and axis in three array
-            shoulder_JC = [[[[R_shoulder x axis, x,y,z position],
-                        [R_shoulder y axis, x,y,z position],
-                        [R_shoulder z axis, x,y,z position]],
-                        [[L_shoulder x axis, x,y,z position],
-                        [L_shoulder y axis, x,y,z position],
-                        [L_shoulder z axis, x,y,z position]]],
-                        [R_shoulderJC_x, R_shoulderJC_y, R_shoulderJC_z],
-                        [L_shoulderJC_x,L_shoulderJC_y,L_shoulderJC_z]]
+    shoulder : array
+        A list of two 4x4 affine matrices respresenting the right and left
+        shoulder axes and origins.
 
     Examples
     --------
     >>> import numpy as np
-    >>> from .pyCGM import shoulderAxisCalc
-    >>> frame = None
-    >>> thorax = [[[256.23, 365.30, 1459.66],
-    ...          [257.14, 364.21, 1459.58],
-    ...          [256.08, 354.32, 1458.65]],
-    ...          [256.14, 364.30, 1459.65]]
-    >>> shoulderJC = [np.array([429.66, 275.06, 1453.95]),
-    ...              np.array([64.51, 274.93, 1463.63])]
+    >>> np.set_printoptions(suppress=True)
+    >>> from .pyCGM import calc_shoulder_axis
+    >>> thorax = np.array([[  0.07,  0.93, -0.37,  256.27], 
+    ...                    [  0.99, -0.1 , -0.06,  364.8 ], 
+    ...                    [ -0.09, -0.36, -0.93, 1462.29], 
+    ...                    [  0.,    0.,    0.,      1.]])
+    >>> r_sho_jc = np.array([[   1.  ,    0.  ,    0.  ,  419.62],
+    ...                      [   0.  ,    1.  ,    0.  ,  293.35],
+    ...                      [   0.  ,    0.  ,    1.  , 1540.77],
+    ...                      [   0.  ,    0.  ,    0.  ,    1.  ]])
+    >>> l_sho_jc = np.array([[   1.  ,    0.  ,    0.  ,   79.26],
+    ...                      [   0.  ,    1.  ,    0.  ,  290.54],
+    ...                      [   0.  ,    0.  ,    1.  , 1550.4 ],
+    ...                      [   0.  ,    0.  ,    0.  ,    1.  ]])
     >>> wand = [[255.92, 364.32, 1460.62],
-    ...        [256.42, 364.27, 1460.61]]
-    >>> [np.around(arr, 2) for arr in shoulderAxisCalc(frame,thorax,shoulderJC,wand)] #doctest: +NORMALIZE_WHITESPACE
-    [array([[ 429.66,  275.06, 1453.95],
-    [  64.51,  274.93, 1463.63]]), array([[[ 430.12,  275.94, 1454.04],
-    [ 429.67,  275.15, 1452.95],
-    [ 428.77,  275.52, 1453.98]],
-    [[  64.09,  275.83, 1463.78],
-    [  64.59,  274.8 , 1464.62],
-    [  65.42,  275.35, 1463.61]]])]
+    ...        [ 256.42, 364.27, 1460.61]]
+    >>> [np.around(arr, 2) for arr in calc_shoulder_axis(thorax, r_sho_jc, l_sho_jc, wand[0], wand[1])] #doctest: +NORMALIZE_WHITESPACE
+    [array([[  -0.51,   -0.79,    0.33,  419.62],
+            [  -0.2 ,    0.49,    0.85,  293.35],
+            [  -0.84,    0.37,   -0.4 , 1540.77],
+            [   0.  ,    0.  ,    0.  ,    1.  ]]),
+     array([[   0.49,   -0.82,    0.3 ,   79.26],
+            [  -0.23,   -0.46,   -0.86,  290.54],
+            [   0.84,    0.35,   -0.42, 1550.4 ],
+            [   0.  ,    0.  ,    0.  ,    1.  ]])]
     """
 
+    thorax_origin = thorax_axis[:3, 3]
 
-    thorax_origin = thorax[:3, 3]
+    R_shoulderJC = r_sho_jc[:3, 3]
+    L_shoulderJC = l_sho_jc[:3, 3]
 
-    R_shoulderJC = shoulderJC[0]
-    L_shoulderJC = shoulderJC[1]
+    R_wand = r_wand
+    L_wand = l_wand
 
-    R_wand = wand[0]
-    L_wand = wand[1]
-    R_wand_direc = [R_wand[0]-thorax_origin[0],R_wand[1]-thorax_origin[1],R_wand[2]-thorax_origin[2]]
-    L_wand_direc = [L_wand[0]-thorax_origin[0],L_wand[1]-thorax_origin[1],L_wand[2]-thorax_origin[2]]
-    R_wand_direc = R_wand_direc/norm3d(R_wand_direc)
-    L_wand_direc = L_wand_direc/norm3d(L_wand_direc)
+    R_wand_direc = R_wand - thorax_origin
+    L_wand_direc = L_wand - thorax_origin
+    R_wand_direc = R_wand_direc/np.linalg.norm(R_wand_direc)
+    L_wand_direc = L_wand_direc/np.linalg.norm(L_wand_direc)
 
     # Right
 
-    #Get the direction of the primary axis Z,X,Y
-    z_direc = [(thorax_origin[0]-R_shoulderJC[0]),
-            (thorax_origin[1]-R_shoulderJC[1]),
-            (thorax_origin[2]-R_shoulderJC[2])]
-    z_direc = z_direc/norm3d(z_direc)
-    y_direc = [R_wand_direc[0]*-1,R_wand_direc[1]*-1,R_wand_direc[2]*-1]
-    x_direc = cross(y_direc,z_direc)
-    x_direc = x_direc/norm3d(x_direc)
-    y_direc = cross(z_direc,x_direc)
-    y_direc = y_direc/norm3d(y_direc)
+    # Get the direction of the primary axis Z,X,Y
+    z_direc = thorax_origin - R_shoulderJC
+    z_direc = z_direc/np.linalg.norm(z_direc)
+    y_direc = R_wand_direc * -1
+    x_direc = np.cross(y_direc, z_direc)
+    x_direc = x_direc/np.linalg.norm(x_direc)
+    y_direc = np.cross(z_direc, x_direc)
+    y_direc = y_direc/np.linalg.norm(y_direc)
 
     # backwards to account for marker size
-    x_axis = [x_direc[0]+R_shoulderJC[0],x_direc[1]+R_shoulderJC[1],x_direc[2]+R_shoulderJC[2]]
-    y_axis = [y_direc[0]+R_shoulderJC[0],y_direc[1]+R_shoulderJC[1],y_direc[2]+R_shoulderJC[2]]
-    z_axis = [z_direc[0]+R_shoulderJC[0],z_direc[1]+R_shoulderJC[1],z_direc[2]+R_shoulderJC[2]]
+    x_axis = x_direc
+    y_axis = y_direc
+    z_axis = z_direc
 
-    R_axis = [x_axis,y_axis,z_axis]
+    r_sho = np.zeros((4, 4))
+    r_sho[3, 3] = 1.0
+    r_sho[0, :3] = x_axis
+    r_sho[1, :3] = y_axis
+    r_sho[2, :3] = z_axis
+    r_sho[:3, 3] = R_shoulderJC
 
     # Left
 
-    #Get the direction of the primary axis Z,X,Y
-    z_direc = [(thorax_origin[0]-L_shoulderJC[0]),
-            (thorax_origin[1]-L_shoulderJC[1]),
-            (thorax_origin[2]-L_shoulderJC[2])]
-    z_direc = z_direc/norm3d(z_direc)
+    # Get the direction of the primary axis Z,X,Y
+    z_direc = thorax_origin - L_shoulderJC
+    z_direc = z_direc/np.linalg.norm(z_direc)
     y_direc = L_wand_direc
-    x_direc = cross(y_direc,z_direc)
-    x_direc = x_direc/norm3d(x_direc)
-    y_direc = cross(z_direc,x_direc)
-    y_direc = y_direc/norm3d(y_direc)
+    x_direc = np.cross(y_direc, z_direc)
+    x_direc = x_direc/np.linalg.norm(x_direc)
+    y_direc = np.cross(z_direc, x_direc)
+    y_direc = y_direc/np.linalg.norm(y_direc)
 
     # backwards to account for marker size
-    x_axis = [x_direc[0]+L_shoulderJC[0],x_direc[1]+L_shoulderJC[1],x_direc[2]+L_shoulderJC[2]]
-    y_axis = [y_direc[0]+L_shoulderJC[0],y_direc[1]+L_shoulderJC[1],y_direc[2]+L_shoulderJC[2]]
-    z_axis = [z_direc[0]+L_shoulderJC[0],z_direc[1]+L_shoulderJC[1],z_direc[2]+L_shoulderJC[2]]
+    x_axis = x_direc
+    y_axis = y_direc
+    z_axis = z_direc
 
-    L_axis = [x_axis,y_axis,z_axis]
+    l_sho = np.zeros((4, 4))
+    l_sho[3, 3] = 1.0
+    l_sho[0, :3] = x_axis
+    l_sho[1, :3] = y_axis
+    l_sho[2, :3] = z_axis
+    l_sho[:3, 3] = L_shoulderJC
 
-    axis = [R_axis,L_axis]
+    shoulder = np.array([r_sho, l_sho])
 
-    return [shoulderJC,axis]
+    return shoulder
 
 def elbowJointCenter(frame,thorax,shoulderJC,wand,vsk=None):
     """Calculate the Elbow joint axis ( Humerus) function.
@@ -1568,8 +1577,8 @@ def elbowJointCenter(frame,thorax,shoulderJC,wand,vsk=None):
 
     L_axis = [x_axis,y_axis,z_axis]
 
-    RSJC = shoulderJC[0]
-    LSJC = shoulderJC[1]
+    RSJC = shoulderJC[0][:3, 3]
+    LSJC = shoulderJC[1][:3, 3]
 
     # make the construction vector for finding Elbow joint center
     R_con_1 = np.subtract(RSJC,RELB)
@@ -2938,22 +2947,34 @@ def JointAngleCalc(frame,vsk):
                             frame['LSHO'] if 'LSHO' in frame else None,
                             thorax_axis)
 
-    shoulder_JC = findshoulderJC(frame,thorax_axis,wand,vsk=vsk)
+    shoulder_JC = calc_shoulder_joint_center(frame['RSHO'] if 'RSHO' in frame else None,
+                                             frame['LSHO'] if 'LSHO' in frame else None,
+                                             thorax_axis,
+                                             wand[0],
+                                             wand[1],
+                                             vsk['RightShoulderOffset'],
+                                             vsk['LeftShoulderOffset'])
+
 
     kin_R_Shoulder_JC = shoulder_JC[0] #quick fix for storing JC
     kin_L_Shoulder_JC = shoulder_JC[1] #quick fix for storing JC
 
-    shoulder_axis = shoulderAxisCalc(frame,thorax_axis,shoulder_JC,wand)
+    shoulder_axis = calc_shoulder_axis(thorax_axis,
+                                       shoulder_JC[0],
+                                       shoulder_JC[1],
+                                       wand[0],
+                                       wand[1])
+
     humerus_JC = elbowJointCenter(frame,thorax_axis,shoulder_JC,wand,vsk=vsk)
 
     kin_R_Humerus_JC = humerus_JC[0][0] #quick fix for storing JC
     kin_L_Humerus_JC = humerus_JC[0][1] #quick fix for storing JC
 
     # Change to same format
-    R_Clavicle_axis_form = shoulder_axis[1][0]
-    L_Clavicle_axis_form = shoulder_axis[1][1]
-    R_Clavicle_center_form = shoulder_axis[0][0]
-    L_Clavicle_center_form = shoulder_axis[0][1]
+    R_Clavicle_center_form = shoulder_axis[0][:3, 3]
+    L_Clavicle_center_form = shoulder_axis[1][:3, 3]
+    R_Clavicle_axis_form = shoulder_axis[0][:3, :3] + R_Clavicle_center_form
+    L_Clavicle_axis_form = shoulder_axis[1][:3, :3] + L_Clavicle_center_form
 
     # Change to same format
     R_Humerus_axis_form = humerus_JC[1][0]
