@@ -1204,7 +1204,8 @@ def calc_wand_marker(rsho, lsho, thorax_axis):
     ...                        [ -0.09, -0.36, -0.93, 1462.29], 
     ...                        [  0.,    0.,    0.,      1.]])
     >>> [np.around(arr, 2) for arr in calc_wand_marker(rsho, lsho, thorax_axis)] #doctest: +NORMALIZE_WHITESPACE
-    [array([ 256.78,  365.61, 1462.  ]), array([ 255.79,  365.67, 1462.16])]
+    [array([ 256.78,  365.61, 1462.  ]), 
+     array([ 255.79,  365.67, 1462.16])]
     """
 
     thorax_origin = thorax_axis[:3, 3]
