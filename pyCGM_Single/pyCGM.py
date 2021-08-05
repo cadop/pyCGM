@@ -1460,9 +1460,9 @@ def calc_elbow_axis(relb, lelb, rwra, rwrb, lwra, lwrb, r_shoulder_jc, l_shoulde
         lwrb : array
             1x3 LWRB marker
         r_shoulder_jc : ndarray
-            A 4x4 identity matrix that holds the right shoulder joint_center
+            A 4x4 identity matrix that holds the right shoulder joint center
         l_shoulder_jc : ndarray
-            A 4x4 identity matrix that holds the left shoulder joint_center
+            A 4x4 identity matrix that holds the left shoulder joint center
         r_elbow_width : float
             The width of the right elbow
         l_elbow_width : float
@@ -1472,7 +1472,7 @@ def calc_elbow_axis(relb, lelb, rwra, rwrb, lwra, lwrb, r_shoulder_jc, l_shoulde
         l_wrist_width : float
             The width of the left wrist
         mm : float
-            The thickness of the marker in millimeters.
+            The thickness of the marker in millimeters
 
         Returns
         -------
