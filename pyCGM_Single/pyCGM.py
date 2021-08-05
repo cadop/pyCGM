@@ -1698,134 +1698,125 @@ def calc_elbow_axis(relb, lelb, rwra, rwrb, lwra, lwrb, r_shoulder_jc, l_shoulde
 
         return np.asarray([r_axis, l_axis, r_wri_origin, l_wri_origin])
 
+def calc_wrist_axis(r_elbow, l_elbow, r_wrist_jc, l_wrist_jc):
+    r"""Calculate the wrist joint center and axis.
 
-def wristJointCenter(frame,shoulderJC,wand,elbowJC):
-    """Calculate the Wrist joint axis ( Radius) function.
-
-    Takes in the elbow axis to calculate each wrist joint axis and returns it.
+    Takes in the right and left elbow axes, 
+    and the right and left wrist joint centers.
 
     Parameters
     ----------
-    frame : dict
-        Dictionaries of marker lists.
-    shoulderJC : array
-        The x,y,z position of the shoulder joint center.
-    elbowJC : array
-        The x,y,z position of the elbow joint center.
-    wand : array
-        The x,y,z position of the wand.
+    r_elbow : array
+        4x4 affine matrix representing the right elbow axis and origin
+    l_elbow : array
+        4x4 affine matrix representing the left elbow axis and origin
+    r_wrist_jc : array
+        4x4 affine matrix representing the right wrist joint center
+    l_wrist_jc : array
+        4x4 affine matrix representing the left wrist joint center
 
     Returns
     --------
-    origin, axis : array
-        Returns the Shoulder joint center and axis in three array
-            return = [[R_wrist_JC_x, R_wrist_JC_y, R_wrist_JC_z],
-                        [L_wrist_JC_x,L_wrist_JC_y,L_wrist_JC_z],
-                        [[[R_wrist x axis, x,y,z position],
-                        [R_wrist y axis, x,y,z position],
-                        [R_wrist z axis, x,y,z position]],
-                        [[L_wrist x axis, x,y,z position],
-                        [L_wrist y axis, x,y,z position],
-                        [L_wrist z axis, x,y,z position]]]]
+    [r_axis, l_axis] : array
+        A list of two 4x4 affine matrices representing the right hand axis as
+        well as the left hand axis.
 
+    Notes
+    -----
+    .. math::
+        \begin{matrix}
+            o_{L} = \textbf{m}_{LWJC} & o_{R} = \textbf{m}_{RWJC} \\
+            \hat{y}_{L} = Elbow\_Flex_{L} & \hat{y}_{R} =  Elbow\_Flex_{R} \\
+            \hat{z}_{L} = \textbf{m}_{LEJC} - \textbf{m}_{LWJC} & \hat{z}_{R} = \textbf{m}_{REJC} - \textbf{m}_{RWJC} \\
+            \hat{x}_{L} = \hat{y}_{L} \times \hat{z}_{L} & \hat{x}_{R} = \hat{y}_{R} \times \hat{z}_{R} \\
+            \hat{z}_{L} = \hat{x}_{L} \times \hat{y}_{L} & \hat{z}_{R} = \hat{x}_{R} \times \hat{y}_{R} \\
+        \end{matrix}
 
     Examples
     --------
     >>> import numpy as np
-    >>> from .pyCGM import wristJointCenter
-    >>> frame = {'RSHO': np.array([428.88, 270.55, 1500.73]),
-    ...          'LSHO': np.array([68.24, 269.01, 1510.10]),
-    ...          'RELB': np.array([658.90, 326.07, 1285.28]),
-    ...          'LELB': np.array([-156.32, 335.25, 1287.39]),
-    ...          'RWRA': np.array([776.51,495.68, 1108.38]),
-    ...          'RWRB': np.array([830.90, 436.75, 1119.11]),
-    ...          'LWRA': np.array([-249.28, 525.32, 1117.09]),
-    ...          'LWRB': np.array([-311.77, 477.22, 1125.16])}
-    >>> wand = [[255.92, 364.32, 1460.62],
-    ...        [256.42, 364.27, 1460.61]]
-    >>> shoulderJC = [np.array([429.66, 275.06, 1453.95]),
-    ...               np.array([64.51, 274.93, 1463.63])]
-    >>> elbowJC = [[np.array([633.66, 304.95, 1256.07]),
-    ...           np.array([-129.16, 316.86, 1258.06])],
-    ...           [[[633.81, 303.96, 1256.07],
-    ...           [634.35, 305.05, 1256.79],
-    ...           [632.95, 304.85, 1256.77]],
-    ...           [[-129.32, 315.88, 1258.00],
-    ...           [-128.45, 316.79, 1257.37],
-    ...           [-128.49, 316.72, 1258.78]]],
-    ...           [[793.32, 451.29, 1084.43],
-    ...           [-272.45, 485.80, 1091.36]]]
-    >>> [np.around(arr, 2) for arr in wristJointCenter(frame,shoulderJC,wand,elbowJC)] #doctest: +NORMALIZE_WHITESPACE
-    [array([[ 793.32,  451.29, 1084.43],
-    [-272.45,  485.8 , 1091.36]]), array([[[ 793.76,  450.45, 1084.12],
-    [ 794.01,  451.39, 1085.15],
-    [ 792.75,  450.76, 1085.05]],
-    [[-272.92,  485.01, 1090.96],
-    [-271.73,  485.73, 1090.66],
-    [-271.93,  485.19, 1091.96]]])]
+    >>> from .pyCGM import calc_wrist_axis
+    >>> np.set_printoptions(suppress=True)
+    >>> r_elbow = np.array([[ 0.15, -0.99,  0.  ,  633.66],
+    ...                     [ 0.69,  0.1,   0.72,  304.95],
+    ...                     [-0.71, -0.1,   0.7 , 1256.07],
+    ...                     [  0.  , 0. ,   0.  ,    1.  ]])
+    >>> l_elbow = np.array([[-0.16, -0.98, -0.06, -129.16],
+    ...                     [ 0.71, -0.07, -0.69,  316.86],
+    ...                     [ 0.67, -0.14,  0.72, 1258.06],
+    ...                     [ 0.  ,  0.  ,  0.  ,    1.  ]])
+    >>> r_wrist_jc = np.array([[793.77, 450.44, 1084.12,  793.32],
+    ...                        [794.01, 451.38, 1085.15,  451.29],
+    ...                        [792.75, 450.76, 1085.05, 1084.43],
+    ...                        [  0.,     0.,      0.,      1.]])
+    >>> l_wrist_jc = np.array([[-272.92, 485.01, 1090.96, -272.45],
+    ...                        [-271.74, 485.72, 1090.67,  485.8],
+    ...                        [-271.94, 485.19, 1091.96, 1091.36],
+    ...                        [   0.,     0.,      0.,      1.]])
+    >>> [np.around(arr, 2) for arr in calc_wrist_axis(r_elbow, l_elbow, r_wrist_jc, l_wrist_jc)] #doctest: +NORMALIZE_WHITESPACE
+    [array([[  0.44,   -0.84,   -0.31,  793.32],
+            [  0.69,    0.1 ,    0.72,  451.29],
+            [ -0.57,   -0.53,    0.62, 1084.43],
+            [  0.  ,    0.  ,    0.  ,    1.  ]]), 
+     array([[ -0.47,   -0.79,   -0.4 , -272.45],
+            [  0.72,   -0.07,   -0.7 ,  485.8 ],
+            [  0.52,   -0.61,    0.6 , 1091.36],
+            [  0.  ,    0.  ,    0.  ,    1.  ]])]
     """
     # Bring Elbow joint center, axes and Wrist Joint Center for calculating Radius Axes
 
-    REJC = elbowJC[0][:3, 3]
-    LEJC = elbowJC[1][:3, 3]
+    rejc = r_elbow[:3, 3]
+    lejc = l_elbow[:3, 3]
 
-    R_elbow_axis = elbowJC[0][:3, :3] + REJC
-    L_elbow_axis = elbowJC[1][:3, :3] + LEJC
+    r_elbow_flex = r_elbow[1, :3]
+    l_elbow_flex = l_elbow[1, :3]
 
-    R_elbow_flex = [R_elbow_axis[1][0]-REJC[0],R_elbow_axis[1][1]-REJC[1],R_elbow_axis[1][2]-REJC[2]]
-    L_elbow_flex = [L_elbow_axis[1][0]-LEJC[0],L_elbow_axis[1][1]-LEJC[1],L_elbow_axis[1][2]-LEJC[2]]
-
-    RWJC = elbowJC[2][:3, 3]
-    LWJC = elbowJC[3][:3, 3]
+    rwjc = r_wrist_jc[:3, 3]
+    lwjc = l_wrist_jc[:3, 3]
 
     # this is the axis of radius
+    # right
+    y_axis = r_elbow_flex
+    y_axis = y_axis/np.linalg.norm(y_axis)
 
-        # right
-    y_axis = R_elbow_flex
-    y_axis = y_axis/ norm3d(y_axis)
+    z_axis = np.subtract(rejc, rwjc)
+    z_axis = z_axis/np.linalg.norm(z_axis)
 
-    z_axis = np.subtract(REJC,RWJC)
-    z_axis = z_axis/ norm3d(z_axis)
+    x_axis = np.cross(y_axis, z_axis)
+    x_axis = x_axis/np.linalg.norm(x_axis)
 
-    x_axis = cross(y_axis,z_axis)
-    x_axis = x_axis/ norm3d(x_axis)
+    z_axis = np.cross(x_axis, y_axis)
+    z_axis = z_axis/np.linalg.norm(z_axis)
 
-    z_axis = cross(x_axis,y_axis)
-    z_axis = z_axis/ norm3d(z_axis)
+    r_axis = np.zeros((4, 4))
+    r_axis[3, 3] = 1.0
+    r_axis[0, :3] = x_axis
+    r_axis[1, :3] = y_axis
+    r_axis[2, :3] = z_axis
+    r_axis[:3, 3] = rwjc
 
-    # Attach all the axes to wrist joint center.
-    x_axis = [x_axis[0]+RWJC[0],x_axis[1]+RWJC[1],x_axis[2]+RWJC[2]]
-    y_axis = [y_axis[0]+RWJC[0],y_axis[1]+RWJC[1],y_axis[2]+RWJC[2]]
-    z_axis = [z_axis[0]+RWJC[0],z_axis[1]+RWJC[1],z_axis[2]+RWJC[2]]
+    # left
+    y_axis = l_elbow_flex
+    y_axis = y_axis/np.linalg.norm(y_axis)
 
-    R_axis = [x_axis,y_axis,z_axis]
+    z_axis = np.subtract(lejc, lwjc)
+    z_axis = z_axis/np.linalg.norm(z_axis)
 
-        # left
+    x_axis = np.cross(y_axis, z_axis)
+    x_axis = x_axis/np.linalg.norm(x_axis)
 
-    y_axis = L_elbow_flex
-    y_axis = y_axis/ norm3d(y_axis)
+    z_axis = np.cross(x_axis, y_axis)
+    z_axis = z_axis/np.linalg.norm(z_axis)
 
-    z_axis = np.subtract(LEJC,LWJC)
-    z_axis = z_axis/ norm3d(z_axis)
+    l_axis = np.zeros((4, 4))
+    l_axis[3, 3] = 1.0
+    l_axis[0, :3] = x_axis
+    l_axis[1, :3] = y_axis
+    l_axis[2, :3] = z_axis
+    l_axis[:3, 3] = lwjc
 
-    x_axis = cross(y_axis,z_axis)
-    x_axis = x_axis/ norm3d(x_axis)
+    return np.asarray([r_axis, l_axis])
 
-    z_axis = cross(x_axis,y_axis)
-    z_axis = z_axis/ norm3d(z_axis)
-
-    # Attach all the axes to wrist joint center.
-    x_axis = [x_axis[0]+LWJC[0],x_axis[1]+LWJC[1],x_axis[2]+LWJC[2]]
-    y_axis = [y_axis[0]+LWJC[0],y_axis[1]+LWJC[1],y_axis[2]+LWJC[2]]
-    z_axis = [z_axis[0]+LWJC[0],z_axis[1]+LWJC[1],z_axis[2]+LWJC[2]]
-
-    L_axis = [x_axis,y_axis,z_axis]
-
-    origin = [RWJC,LWJC]
-
-    axis = [R_axis,L_axis]
-
-    return [origin,axis]
 
 def handJointCenter(frame,elbowJC,wristJC,vsk=None):
     """Calculate the Hand joint axis (Hand).
@@ -1907,8 +1898,8 @@ def handJointCenter(frame,elbowJC,wristJC,vsk=None):
     RWRI = [(RWRA[0]+RWRB[0])/2.0,(RWRA[1]+RWRB[1])/2.0,(RWRA[2]+RWRB[2])/2.0]
     LWRI = [(LWRA[0]+LWRB[0])/2.0,(LWRA[1]+LWRB[1])/2.0,(LWRA[2]+LWRB[2])/2.0]
 
-    LWJC = wristJC[0][1]
-    RWJC = wristJC[0][0]
+    LWJC = wristJC[1][:3, 3]
+    RWJC = wristJC[0][:3, 3]
 
     mm = 7.0
     R_handThickness = vsk['RightHandThickness']
@@ -3011,17 +3002,20 @@ def JointAngleCalc(frame,vsk):
 
     # Calculate ELBOW
 
-    radius_JC = wristJointCenter(frame,shoulder_JC,wand,axis_elbow)
+    axis_wrist = calc_wrist_axis(axis_elbow[0],
+                                 axis_elbow[1],
+                                 axis_elbow[2],
+                                 axis_elbow[3])
 
-    kin_R_Radius_JC = radius_JC[0][0] #quick fix for storing JC
-    kin_L_Radius_JC = radius_JC[0][1] #quick fix for storing JC
+    kin_R_Radius_JC = axis_wrist[0][:3, 3] #quick fix for storing JC
+    kin_L_Radius_JC = axis_wrist[1][:3, 3] #quick fix for storing JC
 
 
     # Change to same format
-    R_Radius_axis_form = radius_JC[1][0]
-    L_Radius_axis_form = radius_JC[1][1]
-    R_Radius_center_form = radius_JC[0][0]
-    L_Radius_center_form = radius_JC[0][1]
+    R_Radius_center_form = axis_wrist[0][:3, 3]
+    L_Radius_center_form = axis_wrist[1][:3, 3]
+    R_Radius_axis_form = axis_wrist[0][:3, :3] + R_Radius_center_form
+    L_Radius_axis_form = axis_wrist[1][:3, :3] + L_Radius_center_form
 
     # make the array which will be the input of findangle function
     R_radius_Axis_mod = np.vstack([np.subtract(R_Radius_axis_form[0],R_Radius_center_form),
@@ -3042,7 +3036,7 @@ def JointAngleCalc(frame,vsk):
     lelbz=L_humerus_radius_angle[2]-90.0
 
     # Calculate WRIST
-    hand_JC = handJointCenter(frame,axis_elbow,radius_JC,vsk=vsk)
+    hand_JC = handJointCenter(frame,axis_elbow,axis_wrist,vsk=vsk)
 
     kin_R_Hand_JC = hand_JC[0][0] #quick fix for storing JC
     kin_L_Hand_JC = hand_JC[0][1] #quick fix for storing JC
