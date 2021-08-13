@@ -2311,10 +2311,10 @@ def getangle_spi(axisP,axisD):
 def get_angle(axis_p, axis_d):
     r"""Normal angle calculation.
 
-    This function takes in two axes and returns three angles and uses the
-    inverse Euler rotation matrix in YXZ order.
+    Takes in two axes and returns the rotation, flexion,
+    and abduction angles in degrees.
 
-    Returns the angles in degrees.
+    Uses the inverse Euler rotation matrix in YXZ order.
 
     Parameters
     ----------
@@ -2326,7 +2326,7 @@ def get_angle(axis_p, axis_d):
     Returns
     -------
     angle : array
-        1x3 array representing the gamma, beta, and alpha angles in degrees
+        1x3 array representing the rotation, flexion, and abduction angles in degrees
 
     Notes
     -----
