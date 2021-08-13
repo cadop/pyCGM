@@ -2299,48 +2299,69 @@ def getangle_sho(axisP,axisD):
 
     return angle
 
-def getangle_spi(axisP,axisD):
-    """Spine angle calculation.
+def get_angle_spine(axis_pelvis, axis_thorax):
+    r"""Spine angle calculation.
 
-    This function takes in two axes and returns three angles and uses the
-    inverse Euler rotation matrix in YXZ order.
+    Takes in the pelvis and thorax axes and returns the spine rotation, 
+    flexion, and abduction angles in degrees.
 
-    Returns the angles in degrees.
+    Uses the inverse Euler rotation matrix in YXZ order.
 
     Parameters
     ----------
-    axisP : list
-        Shows the unit vector of axisP, the position of the proximal axis.
-    axisD : list
-        Shows the unit vector of axisD, the position of the distal axis.
+    axis_pelvis : array
+        4x4 affine matrix representing the position of the pelvis axis.
+    axis_thorax : array
+        4x4 affine matrix representing the position of the thorax axis.
 
     Returns
     -------
-    angle : list
-        Returns the gamma, beta, alpha angles in degrees in a 1x3 corresponding list.
+    angle : array
+        1x3 array representing the spine rotation, flexion, and abduction angles in degrees
+
+    Notes
+    -----
+        :math:`\alpha = \arcsin{(axis\_d_{y} \cdot axis\_p_{z})}`
+
+        :math:`\gamma = \arcsin{(-(axis\_d_{y} \cdot axis\_p_{x}) / \cos{\alpha})}`
+
+        :math:`\beta = \arcsin{(-(axis\_d_{x} \cdot axis\_p_{z}) / \cos{\alpha})}`
 
     Examples
     --------
     >>> import numpy as np
-    >>> from .pyCGM import getangle_spi
-    >>> axisP = [[ 0.04,   0.99,  0.06],
-    ...        [ 0.99, -0.04, -0.05],
-    ...        [-0.05,  0.07, -0.99]]
-    >>> axisD = [[-0.18, -0.98,-0.02],
-    ...        [ 0.71, -0.11,  -0.69],
-    ...        [ 0.67, -0.14,   0.72 ]]
-    >>> np.around(getangle_spi(axisP,axisD), 2)
+    >>> from .pyCGM import get_angle_spine
+    >>> axis_pelvis = [[ 0.04,  0.99,  0.06, 749.24],
+    ...                [ 0.99, -0.04, -0.05, 321.12],
+    ...                [-0.05,  0.07, -0.99, 145.12],
+    ...                [ 0.,    0.,    0.,     1.]]
+    >>> axis_thorax = [[-0.18, -0.98, -0.02, 541.68],
+    ...                [ 0.71, -0.11, -0.69, 112.48],
+    ...                [ 0.67, -0.14,  0.72, 155.77],
+    ...                [ 0.,    0.,    0.,     1.]]
+    >>> np.around(get_angle_spine(axis_pelvis, axis_thorax), 2) 
     array([ 2.97,  9.13, 39.78])
     """
-    # this angle calculation is for spine angle.
+    # Calculation for the spine angle.
 
-    alpha = np.arcsin(((axisD[1][0]*axisP[2][0])+(axisD[1][1]*axisP[2][1])+(axisD[1][2]*axisP[2][2])))
-    gamma = np.arcsin(((-1*axisD[1][0]*axisP[0][0])+(-1*axisD[1][1]*axisP[0][1])+(-1*axisD[1][2]*axisP[0][2])) / np.cos(alpha))
-    beta = np.arcsin(((-1*axisD[0][0]*axisP[2][0])+(-1*axisD[0][1]*axisP[2][1])+(-1*axisD[0][2]*axisP[2][2])) / np.cos(alpha))
+    axis_pelvis = np.asarray(axis_pelvis)
+    p_x = axis_pelvis[0, :3]
+    p_y = axis_pelvis[1, :3]
+    p_z = axis_pelvis[2, :3]
 
-    angle = [180.0 * beta/ pi, 180.0 *gamma/ pi, 180.0 * alpha/ pi]
+    axis_thorax = np.asarray(axis_thorax)
+    t_x = axis_thorax[0, :3]
+    t_y = axis_thorax[1, :3]
+    t_z = axis_thorax[2, :3]
 
-    return angle
+    alpha = np.arcsin(np.dot(t_y, p_z))
+    gamma = np.arcsin((-1 * np.dot(t_y, p_x)) / np.cos(alpha))
+    beta  = np.arcsin((-1 * np.dot(t_x, p_z)) / np.cos(alpha))
+
+    angle = [180.0 * beta / pi, 180.0 * gamma / pi, 180.0 * alpha / pi]
+
+    return np.asarray(angle)
+    
 
 def getangle(axisP,axisD):
     """Normal angle calculation.
@@ -2954,7 +2975,7 @@ def JointAngleCalc(frame,vsk):
 
     # Calculate SPINE
 
-    pel_tho_angle = getangle_spi(pelvis_Axis_mod,thorax_Axis_mod)
+    pel_tho_angle = get_angle_spine(pelvis_Axis_mod,thorax_Axis_mod)
 
     spix=pel_tho_angle[0]
     spiy=pel_tho_angle[2]*-1
