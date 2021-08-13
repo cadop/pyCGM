@@ -2308,65 +2308,117 @@ def getangle_spi(axisP,axisD):
 
     return angle
 
-def getangle(axisP,axisD):
-    """Normal angle calculation.
+def get_angle(axis_p, axis_d):
+    r"""Normal angle calculation.
 
     This function takes in two axes and returns three angles and uses the
     inverse Euler rotation matrix in YXZ order.
 
     Returns the angles in degrees.
 
-    As we use arc sin we have to care about if the angle is in area between -pi/2 to pi/2
-
     Parameters
     ----------
-    axisP : list
-        Shows the unit vector of axisP, the position of the proximal axis.
-    axisD : list
-        Shows the unit vector of axisD, the position of the distal axis.
+    axis_p : array
+        4x4 affine matrix representing the position of the proximal axis.
+    axis_d : array
+        4x4 affine matrix representing the position of the distal axis.
 
     Returns
     -------
-    angle : list
-        Returns the gamma, beta, alpha angles in degrees in a 1x3 corresponding list.
+    angle : array
+        1x3 array representing the gamma, beta, and alpha angles in degrees
+
+    Notes
+    -----
+    As we use arcsin we have to care about if the angle is in area between -pi/2 to pi/2
+
+    :math:`\alpha = \arcsin{(-axis\_d_{z} \cdot axis\_p_{y})}`
+
+    If alpha is between -pi/2 and pi/2
+
+    :math:`\beta = \arctan2{((axis\_d_{z} \cdot axis\_p_{x}), axis\_d_{z} \cdot axis\_p_{z})}`
+
+    :math:`\gamma = \arctan2{((axis\_d_{y} \cdot axis\_p_{y}), axis\_d_{x} \cdot axis\_p_{y})}`
+
+    Otherwise
+
+    :math:`\beta = \arctan2{(-(axis\_d_{z} \cdot axis\_p_{x}), axis\_d_{z} \cdot axis\_p_{z})}`
+
+    :math:`\gamma = \arctan2{(-(axis\_d_{y} \cdot axis\_p_{y}), axis\_d_{x} \cdot axis\_p_{y})}`
 
     Examples
     --------
     >>> import numpy as np
-    >>> from .pyCGM import getangle
-    >>> axisP = [[ 0.04,   0.99,  0.06],
-    ...         [ 0.99, -0.04, -0.05],
-    ...         [-0.05,  0.07, -0.99]]
-    >>> axisD = [[-0.18, -0.98, -0.02],
-    ...         [ 0.71, -0.11,  -0.69],
-    ...         [ 0.67, -0.14,   0.72 ]]
-    >>> np.around(getangle(axisP,axisD), 2)
+    >>> from .pyCGM import get_angle
+    >>> axis_p = [[ 0.04,  0.99,  0.06,  429.67],
+    ...           [ 0.99, -0.04, -0.05,  275.15],
+    ...           [-0.05,  0.07, -0.99, 1452.95],
+    ...           [ 0.,    0.,    0.,      1.]]
+    >>> axis_d = [[-0.18, -0.98, -0.02,   64.09],
+    ...           [ 0.71, -0.11, -0.69,  275.83],
+    ...           [ 0.67, -0.14,  0.72, 1463.78],
+    ...           [ 0.,    0.,    0.,      1.]]
+    >>> np.around(get_angle(axis_p, axis_d), 2)
     array([-174.82,  -39.26,  100.54])
     """
-    # this is the angle calculation which order is Y-X-Z
+    # this is the angle calculation which order is Y-X-Z, alpha is the abdcution angle.
 
-    # alpha is abdcution angle.
+    ang = (
+          (-1 * axis_d[2][0] * axis_p[1][0])
+        + (-1 * axis_d[2][1] * axis_p[1][1])
+        + (-1 * axis_d[2][2] * axis_p[1][2])
+    )
 
-    ang=((-1*axisD[2][0]*axisP[1][0])+(-1*axisD[2][1]*axisP[1][1])+(-1*axisD[2][2]*axisP[1][2]))
     alpha = np.nan
-    if -1<=ang<=1:
-#       alpha = np.arcsin(ang)
+    if -1 <= ang <= 1:
         alpha = np.arcsin(ang)
 
     # check the abduction angle is in the area between -pi/2 and pi/2
-    # beta is flextion angle
-    # gamma is rotation angle
+    # beta is flexion angle, gamma is rotation angle
 
-    if -1.57079633<alpha<1.57079633:
+    if -1.57079633 < alpha < 1.57079633:
+        beta = np.arctan2(
+              (axis_d[2][0] * axis_p[0][0])
+            + (axis_d[2][1] * axis_p[0][1])
+            + (axis_d[2][2] * axis_p[0][2]),
 
-        beta = np.arctan2(((axisD[2][0]*axisP[0][0])+(axisD[2][1]*axisP[0][1])+(axisD[2][2]*axisP[0][2])) , ((axisD[2][0]*axisP[2][0])+(axisD[2][1]*axisP[2][1])+(axisD[2][2]*axisP[2][2])))
-        gamma = np.arctan2(((axisD[1][0]*axisP[1][0])+(axisD[1][1]*axisP[1][1])+(axisD[1][2]*axisP[1][2])) , ((axisD[0][0]*axisP[1][0])+(axisD[0][1]*axisP[1][1])+(axisD[0][2]*axisP[1][2])))
+              (axis_d[2][0] * axis_p[2][0])
+            + (axis_d[2][1] * axis_p[2][1])
+            + (axis_d[2][2] * axis_p[2][2])
+        )
 
+        gamma = np.arctan2(
+              (axis_d[1][0] * axis_p[1][0])
+            + (axis_d[1][1] * axis_p[1][1])
+            + (axis_d[1][2] * axis_p[1][2]),
+
+              (axis_d[0][0] * axis_p[1][0])
+            + (axis_d[0][1] * axis_p[1][1])
+            + (axis_d[0][2] * axis_p[1][2])
+        )
     else:
-        beta = np.arctan2(-1*((axisD[2][0]*axisP[0][0])+(axisD[2][1]*axisP[0][1])+(axisD[2][2]*axisP[0][2])) , ((axisD[2][0]*axisP[2][0])+(axisD[2][1]*axisP[2][1])+(axisD[2][2]*axisP[2][2])))
-        gamma = np.arctan2(-1*((axisD[1][0]*axisP[1][0])+(axisD[1][1]*axisP[1][1])+(axisD[1][2]*axisP[1][2])) , ((axisD[0][0]*axisP[1][0])+(axisD[0][1]*axisP[1][1])+(axisD[0][2]*axisP[1][2])))
+        beta = np.arctan2(
+            -1 * (
+                  (axis_d[2][0] * axis_p[0][0])
+                + (axis_d[2][1] * axis_p[0][1])
+                + (axis_d[2][2] * axis_p[0][2])
+            ),
+              (axis_d[2][0] * axis_p[2][0])
+            + (axis_d[2][1] * axis_p[2][1])
+            + (axis_d[2][2] * axis_p[2][2])
+        )
+        gamma = np.arctan2(
+            -1 * (
+                  (axis_d[1][0] * axis_p[1][0])
+                + (axis_d[1][1] * axis_p[1][1])
+                + (axis_d[1][2] * axis_p[1][2])
+            ),
+              (axis_d[0][0] * axis_p[1][0])
+            + (axis_d[0][1] * axis_p[1][1])
+            + (axis_d[0][2] * axis_p[1][2])
+        )
 
-    angle = [180.0 * beta/ pi, 180.0 *alpha/ pi, 180.0 * gamma / pi ]
+    angle = [180.0*beta/pi, 180.0*alpha / pi, 180.0*gamma/pi]
 
     return angle
 
@@ -2649,7 +2701,7 @@ def JointAngleCalc(frame,vsk):
     #make the array which will be the input of findangle function
     pelvis_Axis_mod = pelvis_vectors
 
-    global_pelvis_angle = getangle(global_Axis,pelvis_Axis_mod)
+    global_pelvis_angle = get_angle(global_Axis,pelvis_Axis_mod)
 
     pelx=global_pelvis_angle[0]
     pely=global_pelvis_angle[1]
@@ -2699,8 +2751,8 @@ def JointAngleCalc(frame,vsk):
                            np.subtract(L_Knee_axis_form[1],L_Knee_center_form),
                            np.subtract(L_Knee_axis_form[2],L_Knee_center_form)])
 
-    R_pelvis_knee_angle = getangle(hip_Axis,R_knee_Axis)
-    L_pelvis_knee_angle = getangle(hip_Axis,L_knee_Axis)
+    R_pelvis_knee_angle = get_angle(hip_Axis,R_knee_Axis)
+    L_pelvis_knee_angle = get_angle(hip_Axis,L_knee_Axis)
 
     rhipx=R_pelvis_knee_angle[0]*-1
     rhipy=R_pelvis_knee_angle[1]
@@ -2743,8 +2795,8 @@ def JointAngleCalc(frame,vsk):
                               np.subtract(L_Ankle_axis_form[1],L_Ankle_center_form),
                               np.subtract(L_Ankle_axis_form[2],L_Ankle_center_form)])
 
-    R_knee_ankle_angle = getangle(R_knee_Axis,R_ankle_Axis)
-    L_knee_ankle_angle = getangle(L_knee_Axis,L_ankle_Axis)
+    R_knee_ankle_angle = get_angle(R_knee_Axis,R_ankle_Axis)
+    L_knee_ankle_angle = get_angle(L_knee_Axis,L_ankle_Axis)
 
     rkneex=R_knee_ankle_angle[0]
     rkneey=R_knee_ankle_angle[1]
@@ -2790,8 +2842,8 @@ def JointAngleCalc(frame,vsk):
                              np.subtract(L_Foot_axis_form[2],L_Foot_center_form)])
 
 
-    R_ankle_foot_angle = getangle(R_ankle_Axis,R_foot_Axis)
-    L_ankle_foot_angle = getangle(L_ankle_Axis,L_foot_Axis)
+    R_ankle_foot_angle = get_angle(R_ankle_Axis,R_foot_Axis)
+    L_ankle_foot_angle = get_angle(L_ankle_Axis,L_foot_Axis)
 
     ranklex=R_ankle_foot_angle[0]*(-1)-90
     rankley=R_ankle_foot_angle[2]*(-1)+90
@@ -2804,8 +2856,8 @@ def JointAngleCalc(frame,vsk):
     # ABSOLUTE FOOT ANGLE
 
 
-    R_global_foot_angle = getangle(global_Axis,R_foot_Axis)
-    L_global_foot_angle = getangle(global_Axis,L_foot_Axis)
+    R_global_foot_angle = get_angle(global_Axis,R_foot_Axis)
+    L_global_foot_angle = get_angle(global_Axis,L_foot_Axis)
 
     rfootx=R_global_foot_angle[0]
     rfooty=R_global_foot_angle[2]-90
@@ -2893,7 +2945,7 @@ def JointAngleCalc(frame,vsk):
                              np.subtract(Global_axis_form[2],Global_center_form)])
 
 
-    global_thorax_angle = getangle(global_Axis,thorax_Axis_mod)
+    global_thorax_angle = get_angle(global_Axis,thorax_Axis_mod)
 
     if global_thorax_angle[0] > 0:
         global_thorax_angle[0] = global_thorax_angle[0] - 180
@@ -3042,8 +3094,8 @@ def JointAngleCalc(frame,vsk):
                                     np.subtract(L_Radius_axis_form[1],L_Radius_center_form),
                                     np.subtract(L_Radius_axis_form[2],L_Radius_center_form)])
 
-    R_humerus_radius_angle = getangle(R_humerus_Axis_mod,R_radius_Axis_mod)
-    L_humerus_radius_angle = getangle(L_humerus_Axis_mod,L_radius_Axis_mod)
+    R_humerus_radius_angle = get_angle(R_humerus_Axis_mod,R_radius_Axis_mod)
+    L_humerus_radius_angle = get_angle(L_humerus_Axis_mod,L_radius_Axis_mod)
 
     relbx=R_humerus_radius_angle[0]
     relby=R_humerus_radius_angle[1]
@@ -3083,8 +3135,8 @@ def JointAngleCalc(frame,vsk):
                                 np.subtract(L_Hand_axis_form[1],L_Hand_center_form),
                                 np.subtract(L_Hand_axis_form[2],L_Hand_center_form)])
 
-    R_radius_hand_angle = getangle(R_radius_Axis_mod,R_hand_Axis_mod)
-    L_radius_hand_angle = getangle(L_radius_Axis_mod,L_hand_Axis_mod)
+    R_radius_hand_angle = get_angle(R_radius_Axis_mod,R_hand_Axis_mod)
+    L_radius_hand_angle = get_angle(L_radius_Axis_mod,L_hand_Axis_mod)
 
     rwrtx=R_radius_hand_angle[0]
     rwrty=R_radius_hand_angle[1]
