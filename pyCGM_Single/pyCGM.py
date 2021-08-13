@@ -2361,7 +2361,7 @@ def get_angle(axis_p, axis_d):
     >>> np.around(get_angle(axis_p, axis_d), 2)
     array([-174.82,  -39.26,  100.54])
     """
-    # this is the angle calculation which order is Y-X-Z, alpha is the abdcution angle.
+    # Angle calculation is in Y-X-Z order
 
     axis_p = np.asarray(axis_p)
     p_x = axis_p[0, :3]
@@ -2373,16 +2373,14 @@ def get_angle(axis_p, axis_d):
     d_y = axis_d[1, :3]
     d_z = axis_d[2, :3]
 
-
     ang = np.dot(-1 * d_z, p_y)
 
     alpha = np.nan
     if -1 <= ang <= 1:
         alpha = np.arcsin(ang)
 
-    # check the abduction angle is in the area between -pi/2 and pi/2
-    # beta is flexion angle, gamma is rotation angle
-
+    # Beta is the flexion angle, alpha is the abduction angle, gamma is the rotation angle
+    # Check if the abduction angle is in the area between -pi/2 and pi/2
     if -1.57079633 < alpha < 1.57079633:
         beta = np.arctan2(np.dot(d_z, p_x),
                           np.dot(d_z, p_z))
@@ -2396,7 +2394,7 @@ def get_angle(axis_p, axis_d):
         gamma = np.arctan2(-1 * (np.dot(d_y, p_y)),
                                  np.dot(d_x, p_y))
 
-    angle = [180.0*beta/pi, 180.0*alpha / pi, 180.0*gamma/pi]
+    angle = [180.0 * beta / pi, 180.0 * alpha / pi, 180.0 * gamma / pi]
 
     return angle
 
