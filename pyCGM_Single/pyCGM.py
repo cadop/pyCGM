@@ -2363,11 +2363,18 @@ def get_angle(axis_p, axis_d):
     """
     # this is the angle calculation which order is Y-X-Z, alpha is the abdcution angle.
 
-    ang = (
-          (-1 * axis_d[2][0] * axis_p[1][0])
-        + (-1 * axis_d[2][1] * axis_p[1][1])
-        + (-1 * axis_d[2][2] * axis_p[1][2])
-    )
+    axis_p = np.asarray(axis_p)
+    p_x = axis_p[0, :3]
+    p_y = axis_p[1, :3]
+    p_z = axis_p[2, :3]
+
+    axis_d = np.asarray(axis_d)
+    d_x = axis_d[0, :3]
+    d_y = axis_d[1, :3]
+    d_z = axis_d[2, :3]
+
+
+    ang = np.dot(-1 * d_z, p_y)
 
     alpha = np.nan
     if -1 <= ang <= 1:
@@ -2377,46 +2384,17 @@ def get_angle(axis_p, axis_d):
     # beta is flexion angle, gamma is rotation angle
 
     if -1.57079633 < alpha < 1.57079633:
-        beta = np.arctan2(
-              (axis_d[2][0] * axis_p[0][0])
-            + (axis_d[2][1] * axis_p[0][1])
-            + (axis_d[2][2] * axis_p[0][2]),
+        beta = np.arctan2(np.dot(d_z, p_x),
+                          np.dot(d_z, p_z))
 
-              (axis_d[2][0] * axis_p[2][0])
-            + (axis_d[2][1] * axis_p[2][1])
-            + (axis_d[2][2] * axis_p[2][2])
-        )
-
-        gamma = np.arctan2(
-              (axis_d[1][0] * axis_p[1][0])
-            + (axis_d[1][1] * axis_p[1][1])
-            + (axis_d[1][2] * axis_p[1][2]),
-
-              (axis_d[0][0] * axis_p[1][0])
-            + (axis_d[0][1] * axis_p[1][1])
-            + (axis_d[0][2] * axis_p[1][2])
-        )
+        gamma = np.arctan2(np.dot(d_y, p_y),
+                           np.dot(d_x, p_y))
     else:
-        beta = np.arctan2(
-            -1 * (
-                  (axis_d[2][0] * axis_p[0][0])
-                + (axis_d[2][1] * axis_p[0][1])
-                + (axis_d[2][2] * axis_p[0][2])
-            ),
-              (axis_d[2][0] * axis_p[2][0])
-            + (axis_d[2][1] * axis_p[2][1])
-            + (axis_d[2][2] * axis_p[2][2])
-        )
-        gamma = np.arctan2(
-            -1 * (
-                  (axis_d[1][0] * axis_p[1][0])
-                + (axis_d[1][1] * axis_p[1][1])
-                + (axis_d[1][2] * axis_p[1][2])
-            ),
-              (axis_d[0][0] * axis_p[1][0])
-            + (axis_d[0][1] * axis_p[1][1])
-            + (axis_d[0][2] * axis_p[1][2])
-        )
+        beta = np.arctan2(-1 * (np.dot(d_z, p_x)),
+                                np.dot(d_z, p_z))
+
+        gamma = np.arctan2(-1 * (np.dot(d_y, p_y)),
+                                 np.dot(d_x, p_y))
 
     angle = [180.0*beta/pi, 180.0*alpha / pi, 180.0*gamma/pi]
 
