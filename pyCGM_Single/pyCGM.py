@@ -2577,22 +2577,30 @@ def matrixmult (A, B):
                 C[i][j] += A[i][k]*B[k][j]
     return C
 
-def rotmat(x=0,y=0,z=0):
-    """Rotation Matrix.
+def rotmat(x=0, y=0, z=0):
+    r"""Rotation Matrix.
 
     This function creates and returns a rotation matrix.
 
     Parameters
     ----------
-    x,y,z : float, optional
+    x, y, z : float, optional
         Angle, which will be converted to radians, in
         each respective axis to describe the rotations.
         The default is 0 for each unspecified angle.
 
     Returns
     -------
-    Rxyz : list
+    r_xyz : array
         The product of the matrix multiplication.
+
+    Notes
+    -----
+    :math:`r_x = [ [1,0,0], [0, \cos(x), -sin(x)], [0, sin(x), cos(x)] ]`
+    :math:`r_y = [ [cos(y), 0, sin(y)], [0, 1, 0], [-sin(y), 0, cos(y)] ]`
+    :math:`r_z = [ [cos(z), -sin(z), 0], [sin(z), cos(z), 0], [0, 0, 1] ]`
+    :math:`r_{xy} = r_x * r_y`
+    :math:`r_{xyz} = r_{xy} * r_z`
 
     Examples
     --------
@@ -2601,36 +2609,40 @@ def rotmat(x=0,y=0,z=0):
     >>> x = 0.5
     >>> y = 0.3
     >>> z = 0.8
-    >>> np.around(rotmat(x,y,z), 2) #doctest: +NORMALIZE_WHITESPACE
+    >>> np.around(rotmat(x, y, z), 2) #doctest: +NORMALIZE_WHITESPACE
     array([[ 1.  , -0.01,  0.01],
-    [ 0.01,  1.  , -0.01],
-    [-0.01,  0.01,  1.  ]])
+           [ 0.01,  1.  , -0.01],
+           [-0.01,  0.01,  1.  ]])
     >>> x = 0.5
     >>> np.around(rotmat(x), 2) #doctest: +NORMALIZE_WHITESPACE
-    array([[ 1.  ,  0.  ,  0.  ],
-    [ 0.  ,  1.  , -0.01],
-    [ 0.  ,  0.01,  1.  ]])
+    array([[1., 0.  ,  0.  ],
+           [0., 1.  , -0.01],
+           [0., 0.01,  1.  ]])
     >>> x = 1
     >>> y = 1
     >>> np.around(rotmat(x,y), 2) #doctest: +NORMALIZE_WHITESPACE
     array([[ 1.  ,  0.  ,  0.02],
-    [ 0.  ,  1.  , -0.02],
-    [-0.02,  0.02,  1.  ]])
+           [ 0.  ,  1.  , -0.02],
+           [-0.02,  0.02,  1.  ]])
     """
-    x = math.radians(x)
-    y = math.radians(y)
-    z = math.radians(z)
-    Rx = [ [1,0,0],[0,math.cos(x),math.sin(x)*-1],[0,math.sin(x),math.cos(x)] ]
-    Ry = [ [math.cos(y),0,math.sin(y)],[0,1,0],[math.sin(y)*-1,0,math.cos(y)] ]
-    Rz = [ [math.cos(z),math.sin(z)*-1,0],[math.sin(z),math.cos(z),0],[0,0,1] ]
-    Rxy = matrixmult(Rx,Ry)
-    Rxyz = matrixmult(Rxy,Rz)
 
-    Ryx = matrixmult(Ry,Rx)
-    Ryxz = matrixmult(Ryx,Rz)
+    x, y, z = math.radians(x), math.radians(y), math.radians(z)
+    r_x = [[1, 0, 0], 
+           [0, math.cos(x), math.sin(x) * -1], 
+           [0, math.sin(x), math.cos(x)]]
 
-    return Rxyz
+    r_y = [[math.cos(y), 0, math.sin(y)],
+           [0, 1, 0],
+           [math.sin(y)*-1, 0, math.cos(y)]]
 
+    r_z = [[math.cos(z), math.sin(z)*-1, 0],
+           [math.sin(z), math.cos(z), 0],
+           [0, 0, 1]]
+
+    r_xy = np.matmul(r_x, r_y)
+    r_xyz = np.matmul(r_xy, r_z)
+
+    return r_xyz
 
 def JointAngleCalc(frame,vsk):
     """ Joint Angle Calculation function.
