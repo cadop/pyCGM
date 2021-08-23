@@ -1214,7 +1214,7 @@ def calc_wand_marker(rsho, lsho, thorax_axis):
 
     thorax_origin = thorax_axis[:3, 3]
 
-    axis_x_vec = thorax_axis[0, :3] - thorax_origin
+    axis_x_vec = thorax_axis[0, :3]
     axis_x_vec /= np.linalg.norm(axis_x_vec)
 
     # Calculate for getting a wand marker
@@ -2252,52 +2252,97 @@ def getHeadangle(axisP,axisD):
 
     return angle
 
-def getangle_sho(axisP,axisD):
-    """Shoulder angle calculation.
+def get_angle_shoulder(axis_thorax, axis_hum_right, axis_hum_left):
+    r"""Shoulder angle calculation.
 
-    This function takes in two axes and returns three angles and uses the
-    inverse Euler rotation matrix in YXZ order.
-
-    Returns the angles in degrees.
+    Takes in the thorax and elbow axes and returns the right and 
+    left shoulder rotation, flexion, and abduction angles in degrees.
 
     Parameters
     ----------
-    axisP : list
-        Shows the unit vector of axisP, the position of the proximal axis.
-    axisD : list
-        Shows the unit vector of axisD, the position of the distal axis.
+    axis_thorax : array
+        4x4 affine matrix representing the position of the thorax axis
+    axis_hum_right : array
+        4x4 affine matrix representing the position of the right elbow axis
+    axis_hum_left : array
+        4x4 affine matrix representing the position of the left elbow axis
 
     Returns
     -------
-    angle : list
-        Returns the gamma, beta, alpha angles in degrees in a 1x3 corresponding list.
+    angles : array
+        2x3 array representing the right and left elbow rotation, flexion,
+        and abduction angles in degrees
+
+    Notes
+    -----
+    :math:`\alpha_{right} = \arcsin{(axis\_hum\_right_{z} \cdot axis\_thorax_{x})}`
+
+    :math:`\beta_{right} = \arctan2{(-(axis\_hum\_right_{z} \cdot axis\_thorax_{y}), axis\_hum\_right_{z} \cdot axis\_thorax_{z})}`
+
+    :math:`\gamma_{right} = \arctan2{(-(axis\_hum\_right_{y} \cdot axis\_thorax_{x}), axis\_hum\_right_{x} \cdot axis\_thorax_{x})}`
+
+    :math:`\alpha_{left} = \arcsin{(axis\_hum\_left_{z} \cdot axis\_thorax_{x})}`
+
+    :math:`\beta_{left} = \arctan2{(-(axis\_hum\_left_{z} \cdot axis\_thorax_{y}), axis\_hum\_left_{z} \cdot axis\_thorax_{z})}`
+
+    :math:`\gamma_{left} = \arctan2{(-(axis\_hum\_left_{y} \cdot axis\_thorax_{x}), axis\_hum\_left_{x} \cdot axis\_thorax_{x})}`
+
 
     Examples
     --------
     >>> import numpy as np
-    >>> from .pyCGM import getangle_sho
-    >>> axisP = [[ 0.04, 0.99, 0.06],
-    ...        [ 0.99, -0.04, -0.05],
-    ...       [-0.05,  0.07, -0.99]]
-    >>> axisD = [[-0.18, -0.98, -0.02],
-    ...        [ 0.71, -0.11, -0.69],
-    ...        [ 0.67, -0.14, 0.72 ]]
-    >>> np.around(getangle_sho(axisP,axisD), 2)
-    array([  -3.93, -140.07,  172.9 ])
+    >>> np.set_printoptions(suppress=True)
+    >>> from .pyCGM import get_angle_shoulder
+    >>> axis_thorax = np.array([[ 0.04,  0.99,  0.06, 214.14],
+    ...                         [ 0.99, -0.04, -0.05,  32.14],
+    ...                         [-0.05,  0.07, -0.99, 452.89],
+    ...                         [ 0.,    0.,    0.,     1.]])
+    >>> axis_hum_right = np.array([[-0.97, -0.16, 0.19, -971.69],
+    ...                            [ 0.18, -0.98, 0.11, -216.63],
+    ...                            [ 0.16,  0.14, 0.98,  966.89],
+    ...                            [ 0.,    0.,   0.,      1.]])
+    >>> axis_hum_left = np.array([[ -0.97,  0.17,  0.15, -952.27],
+    ...                            [-0.20, -0.95, -0.20,  235.83],
+    ...                            [ 0.11, -0.23,  0.96,  954.59],
+    ...                            [ 0.,    0.,    0.,      1.]])
+    >>> np.around(get_angle_shoulder(axis_thorax, axis_hum_right, axis_hum_left), 2) #doctest: +NORMALIZE_WHITESPACE
+    array([[ 11.76, -173.88, 100.99],
+           [ -9.54, -175.88,  81.79]])
     """
 
-    # beta is flexion /extension
+    # beta is flexion / extension
     # gamma is adduction / abduction
     # alpha is internal / external rotation
 
-    # this is shoulder angle calculation
-    alpha = np.arcsin(((axisD[2][0]*axisP[0][0])+(axisD[2][1]*axisP[0][1])+(axisD[2][2]*axisP[0][2])))
-    beta = np.arctan2(-1*((axisD[2][0]*axisP[1][0])+(axisD[2][1]*axisP[1][1])+(axisD[2][2]*axisP[1][2])) , ((axisD[2][0]*axisP[2][0])+(axisD[2][1]*axisP[2][1])+(axisD[2][2]*axisP[2][2])))
-    gamma = np.arctan2(-1*((axisD[1][0]*axisP[0][0])+(axisD[1][1]*axisP[0][1])+(axisD[1][2]*axisP[0][2])) , ((axisD[0][0]*axisP[0][0])+(axisD[0][1]*axisP[0][1])+(axisD[0][2]*axisP[0][2])))
+    axis_thorax = axis_thorax[:3, :3]
+    axis_hum_right = axis_hum_right[:3, :3]
+    axis_hum_left = axis_hum_left[:3, :3]
 
-    angle = [180.0 * alpha/ pi, 180.0 *beta/ pi, 180.0 * gamma/ pi]
+    # Right shoulder angle
+    alpha = np.arcsin(np.dot(axis_hum_right[2], axis_thorax[0]))
 
-    return angle
+    beta = np.arctan2(-1 * (np.dot(axis_hum_right[2], axis_thorax[1])), 
+                           (np.dot(axis_hum_right[2], axis_thorax[2])))
+
+    gamma = np.arctan2(-1 * (np.dot(axis_hum_right[1], axis_thorax[0])), 
+                            (np.dot(axis_hum_right[0], axis_thorax[0])))
+
+    right_angle = [180.0 * alpha / pi, 180.0 * beta / pi, 180.0 * gamma / pi]
+
+    # Left shoulder angle
+    alpha = np.arcsin(np.dot(axis_hum_left[2], axis_thorax[0]))
+
+    beta = np.arctan2(-1 * (np.dot(axis_hum_left[2], axis_thorax[1])), 
+                           (np.dot(axis_hum_left[2], axis_thorax[2])))
+
+    gamma = np.arctan2(-1 * (np.dot(axis_hum_left[1], axis_thorax[0])),
+                            (np.dot(axis_hum_left[0], axis_thorax[0])))
+
+    left_angle = [180.0 * alpha / pi, 180.0 * beta / pi, 180.0 * gamma / pi]
+
+    angles = np.array([right_angle, left_angle])
+
+    return angles
 
 def get_angle_spine(axis_pelvis, axis_thorax):
     r"""Spine angle calculation.
@@ -2958,8 +3003,7 @@ def JointAngleCalc(frame,vsk):
 
     # Change to same format
     Thorax_center_form = thorax_axis[:3, 3]
-    Thorax_axis_form = thorax_axis[:3, :3]
-    thorax_axis[:3, :3] += thorax_axis[:3, 3]
+    Thorax_axis_form = thorax_axis[:3, :3] + Thorax_center_form
 
     Global_axis_form = [[0,1,0],[-1,0,0],[0,0,1]]
     Global_center_form = [0,0,0]
@@ -3070,8 +3114,9 @@ def JointAngleCalc(frame,vsk):
                                     np.subtract(L_Humerus_axis_form[1],L_Humerus_center_form),
                                     np.subtract(L_Humerus_axis_form[2],L_Humerus_center_form)])
 
-    R_thorax_shoulder_angle = getangle_sho(thorax_Axis_mod,R_humerus_Axis_mod)
-    L_thorax_shoulder_angle = getangle_sho(thorax_Axis_mod,L_humerus_Axis_mod)
+    R_thorax_shoulder_angle, L_thorax_shoulder_angle = get_angle_shoulder(thorax_axis,
+                                                                          axis_elbow[0],
+                                                                          axis_elbow[1])
 
     if R_thorax_shoulder_angle[2] < 0:
         R_thorax_shoulder_angle[2]=R_thorax_shoulder_angle[2]+180
