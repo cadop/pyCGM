@@ -202,6 +202,7 @@ def calc_joint_center_hip(pelvis, subject):
     # Requires
     # pelvis axis
 
+    pelvis = np.asarray(pelvis)
     pel_origin = pelvis[:3, 3]
 
     # Model's eigen value

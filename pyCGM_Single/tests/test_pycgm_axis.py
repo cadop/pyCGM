@@ -1054,78 +1054,330 @@ class TestLowerBodyAxis():
         np.testing.assert_almost_equal(result[1], expected[1], rounding_precision)
         np.testing.assert_almost_equal(result[2], expected[2], rounding_precision)
 
-    @pytest.mark.parametrize(["pel_origin", "pel_x", "pel_y", "pel_z", "vsk", "expected"], [
+    @pytest.mark.parametrize(["pelvis_axis", "subject", "expected"], [
         # Test from running sample data
-        ([251.608306884766, 391.741317749023, 1032.893493652344], [251.740636241119, 392.726947206848, 1032.788500732036], [250.617115540376, 391.872328624646, 1032.874106304030], [251.602953357582, 391.847951338178, 1033.887777624562],
-         {'MeanLegLength': 940.0, 'R_AsisToTrocanterMeasure': 72.512, 'L_AsisToTrocanterMeasure': 72.512, 'InterAsisDistance': 215.908996582031},
-         [[182.57097863, 339.43231855, 935.52900126], [308.38050472, 322.80342417, 937.98979061]]),
+        (    
+             [
+                 [251.740636241119, 392.726947206848, 1032.788500732036, 251.608306884766], 
+                 [250.617115540376, 391.872328624646, 1032.874106304030, 391.741317749023], 
+                 [251.602953357582, 391.847951338178, 1033.887777624562, 1032.893493652344],
+                 [  0,               0,                0,                   1             ]
+            ],
+            {
+                'MeanLegLength': 940.0,
+                'R_AsisToTrocanterMeasure': 72.512, 
+                'L_AsisToTrocanterMeasure': 72.512, 
+                'InterAsisDistance': 215.908996582031
+            },
+            [
+                [308.38050472, 322.80342417, 937.98979061],
+                [182.57097863, 339.43231855, 935.52900126]
+            ]
+        ),
         # Basic test with zeros for all params
-        ([0, 0, 0], [0, 0, 0], [0, 0, 0], [0, 0, 0],
-         {'MeanLegLength': 0.0, 'R_AsisToTrocanterMeasure': 0.0, 'L_AsisToTrocanterMeasure': 0.0, 'InterAsisDistance': 0.0},
-         [[0, 0, 0], [0, 0, 0]]),
+        (
+            [
+                [0, 0, 0, 0],
+                [0, 0, 0, 0],
+                [0, 0, 0, 0],
+                [0, 0, 0, 0]
+            ],
+            {
+                'MeanLegLength': 0.0,
+                'R_AsisToTrocanterMeasure': 0.0, 
+                'L_AsisToTrocanterMeasure': 0.0, 
+                'InterAsisDistance': 0.0
+            },
+            [
+                [0, 0, 0], 
+                [0, 0, 0]
+            ]
+        ),
         # Testing when values are added to pel_origin
-        ([1, 0, -3], [0, 0, 0], [0, 0, 0], [0, 0, 0],
-         {'MeanLegLength': 0.0, 'R_AsisToTrocanterMeasure': 0.0, 'L_AsisToTrocanterMeasure': 0.0, 'InterAsisDistance': 0.0},
-         [[-6.1387721, 0, 18.4163163], [8.53165418, 0, -25.59496255]]),
+        (
+            [
+                [0, 0, 0,  1],
+                [0, 0, 0,  0],
+                [0, 0, 0, -3],
+                [0, 0, 0,  0]
+            ],
+            {
+                'MeanLegLength': 0.0,
+                'R_AsisToTrocanterMeasure': 0.0,
+                'L_AsisToTrocanterMeasure': 0.0,
+                'InterAsisDistance': 0.0
+            },
+            [
+                [8.53165418, 0, -25.59496255],
+                [-6.1387721, 0, 18.4163163]
+            ]
+        ),
         # Testing when values are added to pel_x
-        ([0, 0, 0], [-5, -3, -6], [0, 0, 0], [0, 0, 0],
-         {'MeanLegLength': 0.0, 'R_AsisToTrocanterMeasure': 0.0, 'L_AsisToTrocanterMeasure': 0.0, 'InterAsisDistance': 0.0},
-         [[54.02442793, 32.41465676, 64.82931352], [54.02442793, 32.41465676, 64.82931352]]),
+        (
+            [
+                [-5, -3, -6, 0],
+                [0, 0, 0,    0],
+                [0, 0, 0,    0],
+                [0, 0, 0,    0]
+            ],
+            {
+                'MeanLegLength': 0.0,
+                'R_AsisToTrocanterMeasure': 0.0,
+                'L_AsisToTrocanterMeasure': 0.0,
+                'InterAsisDistance': 0.0
+            },
+            [
+                [54.02442793, 32.41465676, 64.82931352],
+                [54.02442793, 32.41465676, 64.82931352]
+            ]
+        ),
         # Testing when values are added to pel_y
-        ([0, 0, 0], [0, 0, 0], [4, -1, 2], [0, 0, 0],
-         {'MeanLegLength': 0.0, 'R_AsisToTrocanterMeasure': 0.0, 'L_AsisToTrocanterMeasure': 0.0, 'InterAsisDistance': 0.0},
-         [[29.34085257, -7.33521314, 14.67042628], [-29.34085257,   7.33521314, -14.67042628]]),
+        (
+                [
+                    [0, 0, 0,  0],
+                    [4, -1, 2, 0],
+                    [0, 0, 0,  0],
+                    [0, 0, 0,  0]
+                ],
+            {
+                'MeanLegLength': 0.0,
+                'R_AsisToTrocanterMeasure': 0.0,
+                'L_AsisToTrocanterMeasure': 0.0,
+                'InterAsisDistance': 0.0
+            },
+            [
+                [-29.34085257,  7.33521314, -14.67042628],
+                [ 29.34085257, -7.33521314,  14.67042628]
+            ]
+        ),
         # Testing when values are added to pel_z
-        ([0, 0, 0], [0, 0, 0], [0, 0, 0], [3, 8, 2],
-         {'MeanLegLength': 0.0, 'R_AsisToTrocanterMeasure': 0.0, 'L_AsisToTrocanterMeasure': 0.0, 'InterAsisDistance': 0.0},
-         [[31.82533363, 84.86755635, 21.21688909], [31.82533363, 84.86755635, 21.21688909]]),
+        (
+                [
+                    [0, 0, 0, 0],
+                    [0, 0, 0, 0],
+                    [3, 8, 2, 0],
+                    [0, 0, 0, 0]
+                ],
+            {
+                'MeanLegLength': 0.0,
+                'R_AsisToTrocanterMeasure': 0.0,
+                'L_AsisToTrocanterMeasure': 0.0,
+                'InterAsisDistance': 0.0
+            },
+            [
+                [31.82533363, 84.86755635, 21.21688909],
+                [31.82533363, 84.86755635, 21.21688909]
+            ]
+        ),
         # Test when values are added to pel_x, pel_y, and pel_z
-        ([0, 0, 0], [-5, -3, -6], [4, -1, 2], [3, 8, 2],
-         {'MeanLegLength': 0.0, 'R_AsisToTrocanterMeasure': 0.0, 'L_AsisToTrocanterMeasure': 0.0, 'InterAsisDistance': 0.0},
-         [[115.19061413, 109.94699997, 100.71662889], [56.508909  , 124.61742625,  71.37577632]]),
+        (
+                [
+                    [-5, -3, -6, 0],
+                    [ 4, -1,  2, 0],
+                    [ 3,  8,  2, 0],
+                    [ 0,  0,  0, 0]
+                ],
+            {
+                'MeanLegLength': 0.0,
+                'R_AsisToTrocanterMeasure': 0.0,
+                'L_AsisToTrocanterMeasure': 0.0,
+                'InterAsisDistance': 0.0
+            },
+            [
+                [ 56.508909  , 124.61742625,  71.37577632],
+                [115.19061413, 109.94699997, 100.71662889]
+            ]
+        ),
         # Test when values are added to pel_origin, pel_x, pel_y, and pel_z
-        ([1, 0, -3], [-5, -3, -6], [4, -1, 2], [3, 8, 2],
-         {'MeanLegLength': 0.0, 'R_AsisToTrocanterMeasure': 0.0, 'L_AsisToTrocanterMeasure': 0.0, 'InterAsisDistance': 0.0},
-         [[109.05184203, 109.94699997, 119.13294518], [65.04056318, 124.61742625,  45.78081377]]),
+        (
+                [
+                    [-5, -3, -6,  1],
+                    [ 4, -1,  2,  0],
+                    [ 3,  8,  2, -3],
+                    [ 0,  0,  0,  0]
+                ],
+            {
+                'MeanLegLength': 0.0,
+                'R_AsisToTrocanterMeasure': 0.0,
+                'L_AsisToTrocanterMeasure': 0.0,
+                'InterAsisDistance': 0.0
+            },
+            [
+                [ 65.04056318, 124.61742625,  45.78081377],
+                [109.05184203, 109.94699997, 119.13294518]
+            ]
+        ),
         # Test when values are added to pel_origin, pel_x, pel_y, pel_z, and vsk[MeanLegLength]
-        ([1, 0, -3], [-5, -3, -6], [4, -1, 2], [3, 8, 2],
-         {'MeanLegLength': 15.0, 'R_AsisToTrocanterMeasure': 0.0, 'L_AsisToTrocanterMeasure': 0.0, 'InterAsisDistance': 0.0},
-         [[100.88576753,  97.85280235, 106.39612748], [61.83654463, 110.86920998,  41.31408931]]),
+        (
+                [
+                    [-5, -3, -6,  1],
+                    [ 4, -1,  2,  0],
+                    [ 3,  8,  2, -3],
+                    [ 0,  0,  0,  0]
+                ],
+            {
+                'MeanLegLength': 15.0,
+                'R_AsisToTrocanterMeasure': 0.0,
+                'L_AsisToTrocanterMeasure': 0.0,
+                'InterAsisDistance': 0.0
+            },
+            [
+                [ 61.83654463, 110.86920998,  41.31408931],
+                [100.88576753,  97.85280235, 106.39612748]
+            ]
+        ),
         # Test when values are added to pel_origin, pel_x, pel_y, pel_z, and vsk[R_AsisToTrocanterMeasure]
-        ([1, 0, -3], [-5, -3, -6], [4, -1, 2], [3, 8, 2],
-         {'MeanLegLength': 0.0, 'R_AsisToTrocanterMeasure': -24.0, 'L_AsisToTrocanterMeasure': 0.0, 'InterAsisDistance': 0.0},
-         [[109.05184203, 109.94699997, 119.13294518], [-57.09307697, 115.44008189,  14.36512267]]),
+        (
+                [
+                    [-5, -3, -6,  1],
+                    [ 4, -1,  2,  0],
+                    [ 3,  8,  2, -3],
+                    [ 0,  0,  0,  0]
+                ],
+            {
+                'MeanLegLength': 0.0,
+                'R_AsisToTrocanterMeasure': -24.0,
+                'L_AsisToTrocanterMeasure': 0.0,
+                'InterAsisDistance': 0.0
+            },
+            [
+                [-57.09307697, 115.44008189,  14.36512267],
+                [109.05184203, 109.94699997, 119.13294518]
+            ]
+        ),
         # Test when values are added to pel_origin, pel_x, pel_y, pel_z, and vsk[L_AsisToTrocanterMeasure]
-        ([1, 0, -3], [-5, -3, -6], [4, -1, 2], [3, 8, 2],
-         {'MeanLegLength': 0.0, 'R_AsisToTrocanterMeasure': 0.0, 'L_AsisToTrocanterMeasure': 0-7.0, 'InterAsisDistance': 0.0},
-         [[73.42953032, 107.27027453, 109.97003528], [65.04056318, 124.61742625,  45.78081377]]),
+        (
+                [
+                    [-5, -3, -6,  1],
+                    [ 4, -1,  2,  0],
+                    [ 3,  8,  2, -3],
+                    [ 0,  0,  0,  0]
+                ],
+            {
+                'MeanLegLength': 0.0,
+                'R_AsisToTrocanterMeasure': 0.0,
+                'L_AsisToTrocanterMeasure': 0-7.0,
+                'InterAsisDistance': 0.0
+            },
+            [
+                [65.04056318, 124.61742625,  45.78081377],
+                [73.42953032, 107.27027453, 109.97003528]
+            ]
+        ),
         # Test when values are added to pel_origin, pel_x, pel_y, pel_z, and vsk[InterAsisDistance]
-        ([1, 0, -3], [-5, -3, -6], [4, -1, 2], [3, 8, 2],
-         {'MeanLegLength': 0.0, 'R_AsisToTrocanterMeasure': 0.0, 'L_AsisToTrocanterMeasure': 0.0, 'InterAsisDistance': 11.0},
-         [[125.55184203, 104.44699997, 146.63294518], [48.54056318, 130.11742625,  18.28081377]]),
+        (
+                [
+                    [-5, -3, -6,  1],
+                    [ 4, -1,  2,  0],
+                    [ 3,  8,  2, -3],
+                    [ 0,  0,  0,  0]
+                ],
+            {
+                'MeanLegLength': 0.0,
+                'R_AsisToTrocanterMeasure': 0.0,
+                'L_AsisToTrocanterMeasure': 0.0,
+                'InterAsisDistance': 11.0
+            },
+            [
+                [ 48.54056318, 130.11742625,  18.28081377],
+                [125.55184203, 104.44699997, 146.63294518]
+            ]
+        ),
         # Test when values are added to pel_origin, pel_x, pel_y, pel_z, and all values in vsk
-        ([1, 0, -3], [-5, -3, -6], [4, -1, 2], [3, 8, 2],
-         {'MeanLegLength': 15.0, 'R_AsisToTrocanterMeasure': -24.0, 'L_AsisToTrocanterMeasure': -7.0, 'InterAsisDistance': 11.0},
-         [[81.76345582,  89.67607691, 124.73321758], [-76.79709552, 107.19186562, -17.60160178]]),
+        (
+                [
+                    [-5, -3, -6,  1],
+                    [ 4, -1,  2,  0],
+                    [ 3,  8,  2, -3],
+                    [ 0,  0,  0,  0]
+                ],
+                {
+                    'MeanLegLength': 15.0,
+                    'R_AsisToTrocanterMeasure': -24.0,
+                    'L_AsisToTrocanterMeasure': -7.0,
+                    'InterAsisDistance': 11.0
+                },
+                [
+                    [-76.79709552, 107.19186562, -17.60160178],
+                    [ 81.76345582,  89.67607691, 124.73321758]
+                ]
+            ),
         # Testing that when pel_origin, pel_x, pel_y, and pel_z are lists of ints and vsk values are ints
-        ([1, 0, -3], [-5, -3, -6], [4, -1, 2], [3, 8, 2],
-         {'MeanLegLength': 15, 'R_AsisToTrocanterMeasure': -24, 'L_AsisToTrocanterMeasure': -7, 'InterAsisDistance': 11},
-         [[81.76345582, 89.67607691, 124.73321758], [-76.79709552, 107.19186562, -17.60160178]]),
+        (
+                [
+                    [-5, -3, -6,  1],
+                    [ 4, -1,  2,  0],
+                    [ 3,  8,  2, -3],
+                    [ 0,  0,  0,  0]
+                ],
+                {
+                    'MeanLegLength': 15,
+                    'R_AsisToTrocanterMeasure': -24,
+                    'L_AsisToTrocanterMeasure': -7,
+                    'InterAsisDistance': 11
+                },
+                [
+                    [-76.79709552, 107.19186562, -17.60160178],
+                    [ 81.76345582,  89.67607691, 124.73321758]
+                ]
+            ),
         # Testing that when pel_origin, pel_x, pel_y, and pel_z are numpy arrays of ints and vsk values are ints
-        (np.array([1, 0, -3], dtype='int'), np.array([-5, -3, -6], dtype='int'), np.array([4, -1, 2], dtype='int'),
-         np.array([3, 8, 2], dtype='int'),
-         {'MeanLegLength': 15, 'R_AsisToTrocanterMeasure': -24, 'L_AsisToTrocanterMeasure': -7, 'InterAsisDistance': 11},
-         [[81.76345582, 89.67607691, 124.73321758], [-76.79709552, 107.19186562, -17.60160178]]),
+        (
+                np.array([[-5, -3, -6,  1],
+                          [ 4, -1,  2,  0],
+                          [ 3,  8,  2, -3],
+                          [ 0,  0,  0,  0]]
+                ),
+                {
+                    'MeanLegLength': 15,
+                    'R_AsisToTrocanterMeasure': -24,
+                    'L_AsisToTrocanterMeasure': -7,
+                    'InterAsisDistance': 11
+                },
+                [
+                    [-76.79709552, 107.19186562, -17.60160178],
+                    [ 81.76345582,  89.67607691, 124.73321758] 
+                ]
+        ),
         # Testing that when pel_origin, pel_x, pel_y, and pel_z are lists of floats and vsk values are floats
-        ([1.0, 0.0, -3.0], [-5.0, -3.0, -6.0], [4.0, -1.0, 2.0], [3.0, 8.0, 2.0],
-         {'MeanLegLength': 15.0, 'R_AsisToTrocanterMeasure': -24.0, 'L_AsisToTrocanterMeasure': -7.0, 'InterAsisDistance': 11.0},
-         [[81.76345582, 89.67607691, 124.73321758], [-76.79709552, 107.19186562, -17.60160178]]),
+        (       
+                [
+                    [-5.0, -3.0, -6.0,  1.0],
+                    [ 4.0, -1.0,  2.0,  0.0],
+                    [ 3.0,  8.0,  2.0, -3.0],
+                    [ 0.0,  0.0,  0.0,  0.0]
+                ],
+                {
+                    'MeanLegLength': 15.0,
+                    'R_AsisToTrocanterMeasure': -24.0,
+                    'L_AsisToTrocanterMeasure': -7.0,
+                    'InterAsisDistance': 11.0
+                },
+                [
+                    [-76.79709552, 107.19186562, -17.60160178],
+                    [ 81.76345582,  89.67607691, 124.73321758] 
+                ]
+        ),
         # Testing that when pel_origin, pel_x, pel_y, and pel_z are numpy arrays of floats and vsk values are floats
-        (np.array([1.0, 0.0, -3.0], dtype='float'), np.array([-5.0, -3.0, -6.0], dtype='float'),
-         np.array([4.0, -1.0, 2.0], dtype='float'), np.array([3.0, 8.0, 2.0], dtype='float'),
-         {'MeanLegLength': 15.0, 'R_AsisToTrocanterMeasure': -24.0, 'L_AsisToTrocanterMeasure': -7.0, 'InterAsisDistance': 11},
-         [[81.76345582, 89.67607691, 124.73321758], [-76.79709552, 107.19186562, -17.60160178]])])
-    def test_hipJointCenter(self, pel_origin, pel_x, pel_y, pel_z, vsk, expected):
+        (
+                np.array([[-5.0, -3.0, -6.0,  1.0],
+                          [ 4.0, -1.0,  2.0,  0.0],
+                          [ 3.0,  8.0,  2.0, -3.0],
+                          [ 0.0,  0.0,  0.0,  0.0]]
+                ),
+                {
+                    'MeanLegLength': 15.0,
+                    'R_AsisToTrocanterMeasure': -24.0,
+                    'L_AsisToTrocanterMeasure': -7.0,
+                    'InterAsisDistance': 11
+                },
+                [
+                    [-76.79709552, 107.19186562, -17.60160178],
+                    [ 81.76345582,  89.67607691, 124.73321758] 
+                ]
+        )
+    ])
+    def test_calc_joint_center_hip(self, pelvis_axis, subject, expected):
         """
         This test provides coverage of the hipJointCenter function in pyCGM.py, defined as hipJointCenter(frame, pel_origin, pel_x, pel_y, pel_z, vsk)
 
@@ -1146,9 +1398,13 @@ class TestLowerBodyAxis():
         Lastly, it checks that the resulting output is correct when pel_origin, pel_x, pel_y, and pel_z are composed of
         lists of ints, numpy arrays of ints, lists of floats, and numpy arrays of floats and vsk values are ints or floats.
         """
-        result = pyCGM.hipJointCenter(None, pel_origin, pel_x, pel_y, pel_z, vsk)
-        np.testing.assert_almost_equal(result[0], expected[0], rounding_precision)
-        np.testing.assert_almost_equal(result[1], expected[1], rounding_precision)
+        pelvis_axis = np.asarray(pelvis_axis)
+        pelvis_o = pelvis_axis[:3, 3]
+        pelvis_axis[0, :3] -= pelvis_o
+        pelvis_axis[1, :3] -= pelvis_o
+        pelvis_axis[2, :3] -= pelvis_o
+        result = pyCGM.calc_joint_center_hip(pelvis_axis, subject)
+        np.testing.assert_almost_equal(result, expected, rounding_precision)
 
     @pytest.mark.parametrize(["l_hip_jc", "r_hip_jc", "pelvis_axis", "expected"], [
         # Test from running sample data
