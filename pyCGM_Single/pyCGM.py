@@ -143,6 +143,7 @@ def calc_pelvis_axis(rasi, lasi, rpsi, lpsi, sacr=None):
 
     return pelvis
 
+
 def calc_hip_joint_center(pelvis, subject):
     u"""Calculate the right and left hip joint center.
 
@@ -344,6 +345,7 @@ def calc_hip_axis(r_hip_jc, l_hip_jc, pelvis_axis):
     axis[:3, 3] = hipaxis_center
 
     return axis
+
 
 def calc_knee_axis(rthi, lthi, rkne, lkne, r_hip_jc, l_hip_jc, rkne_width, lkne_width):
     """Calculate the knee joint center and axis.
@@ -694,6 +696,7 @@ def calc_ankle_axis(rtib, ltib, rank, lank, r_knee_JC, l_knee_JC, rank_width, la
 
     return axis
 
+
 def calc_foot_axis(rtoe, ltoe, r_ankle_axis, l_ankle_axis, r_static_rot_off, l_static_rot_off, r_static_plant_flex, l_static_plant_flex):
     """Calculate the foot joint center and axis.
 
@@ -956,7 +959,6 @@ def calc_foot_axis(rtoe, ltoe, r_ankle_axis, l_ankle_axis, r_static_rot_off, l_s
 
     return foot_axis
 
-
 # Upperbody Coordinate System
 
 def calc_head_axis(lfhd, rfhd, lbhd, rbhd, head_offset):
@@ -1170,6 +1172,7 @@ def calc_thorax_axis(clav, c7, strn, t10):
 
     return thorax
 
+
 def calc_wand_marker(rsho, lsho, thorax_axis):
     """Calculate the wand marker position.
 
@@ -1317,6 +1320,7 @@ def calc_shoulder_joint_center(rsho, lsho, thorax_axis, r_wand, l_wand, r_sho_of
 
     return shoulder_JC
 
+
 def calc_shoulder_axis(thorax_axis, r_sho_jc, l_sho_jc, r_wand, l_wand):
     """Make the Shoulder axis.
 
@@ -1436,6 +1440,7 @@ def calc_shoulder_axis(thorax_axis, r_sho_jc, l_sho_jc, r_wand, l_wand):
     shoulder = np.array([r_sho, l_sho])
 
     return shoulder
+
 
 def calc_elbow_axis(relb, lelb, rwra, rwrb, lwra, lwrb, r_shoulder_jc, l_shoulder_jc, r_elbow_width, l_elbow_width, r_wrist_width, l_wrist_width, mm):
         """Calculate the elbow joint center and axis.
@@ -1697,6 +1702,7 @@ def calc_elbow_axis(relb, lelb, rwra, rwrb, lwra, lwrb, r_shoulder_jc, l_shoulde
         l_wri_origin[:3, 3] = lwjc
 
         return np.asarray([r_axis, l_axis, r_wri_origin, l_wri_origin])
+
 
 def calc_wrist_axis(r_elbow, l_elbow, r_wrist_jc, l_wrist_jc):
     r"""Calculate the wrist joint center and axis.
@@ -2086,89 +2092,6 @@ def find_joint_center(p_a, p_b, p_c, delta):
 
     return joint_center
 
-def cross(a, b):
-    """Cross Product.
-
-    Given vectors a and b, calculate the cross product.
-
-    Parameters
-    ----------
-    a : list
-        First 3D vector.
-    b : list
-        Second 3D vector.
-
-    Returns
-    -------
-    c : list
-        The cross product of vector a and vector b.
-
-    Examples
-    --------
-    >>> import numpy as np
-    >>> from .pyCGM import cross
-    >>> a = [6.25, 7.91, 18.63]
-    >>> b = [3.49, 4.42, 19.23]
-    >>> np.around(cross(a, b), 2)
-    array([ 6.976e+01, -5.517e+01,  2.000e-02])
-    """
-    c = [a[1]*b[2] - a[2]*b[1],
-        a[2]*b[0] - a[0]*b[2],
-        a[0]*b[1] - a[1]*b[0]]
-
-    return c
-
-def getPelangle(axisP,axisD):
-    """Pelvis angle calculation.
-
-    This function takes in two axes and returns three angles and uses the
-    inverse Euler rotation matrix in YXZ order.
-
-    Returns the angles in degrees.
-
-    Parameters
-    ----------
-    axisP : list
-        Shows the unit vector of axisP, the position of the proximal axis.
-    axisD : list
-        Shows the unit vector of axisD, the position of the distal axis.
-
-    Returns
-    -------
-    angle : list
-        Returns the gamma, beta, alpha angles in degrees in a 1x3 corresponding list.
-
-    Examples
-    --------
-    >>> import numpy as np
-    >>> from .pyCGM import getPelangle
-    >>> axisP = [[ 0.04, 0.99, 0.06],
-    ...        [ 0.99, -0.04, -0.05],
-    ...       [-0.05,  0.07, -0.99]]
-    >>> axisD = [[-0.18, -0.98, -0.02],
-    ...        [ 0.71, -0.11, -0.69],
-    ...        [ 0.67, -0.14, 0.72 ]]
-    >>> np.around(getPelangle(axisP,axisD), 2)
-    array([-174.82,   39.82,  -10.54])
-    """
-    # this is the angle calculation which order is Y-X-Z
-
-    # alpha is abdcution angle.
-    # beta is flextion angle
-    # gamma is rotation angle
-
-    beta = np.arctan2(((axisD[2][0]*axisP[1][0])+(axisD[2][1]*axisP[1][1])+(axisD[2][2]*axisP[1][2])),
-                        np.sqrt(pow(axisD[2][0]*axisP[0][0]+axisD[2][1]*axisP[0][1]+axisD[2][2]*axisP[0][2],2)+pow((axisD[2][0]*axisP[2][0]+axisD[2][1]*axisP[2][1]+axisD[2][2]*axisP[2][2]),2)))
-
-    alpha = np.arctan2(((axisD[2][0]*axisP[0][0])+(axisD[2][1]*axisP[0][1])+(axisD[2][2]*axisP[0][2])),((axisD[2][0]*axisP[2][0])+(axisD[2][1]*axisP[2][1])+(axisD[2][2]*axisP[2][2])))
-    gamma = np.arctan2(((axisD[0][0]*axisP[1][0])+(axisD[0][1]*axisP[1][1])+(axisD[0][2]*axisP[1][2])),((axisD[1][0]*axisP[1][0])+(axisD[1][1]*axisP[1][1])+(axisD[1][2]*axisP[1][2])))
-
-    alpha = 180.0 * alpha/ pi
-    beta = 180.0 * beta/ pi
-    gamma = 180.0 * gamma/ pi
-    angle = [alpha, beta, gamma]
-
-    return angle
 
 def getHeadangle(axisP,axisD):
     """Head angle calculation function.
@@ -2344,6 +2267,7 @@ def get_angle_shoulder(axis_thorax, axis_hum_right, axis_hum_left):
 
     return angles
 
+
 def get_angle_spine(axis_pelvis, axis_thorax):
     r"""Spine angle calculation.
 
@@ -2498,91 +2422,6 @@ def get_angle(axis_p, axis_d):
 
     return angle
 
-def norm2d(v):
-    """2D Vector normalization.
-
-    This function calculates the normalization of a 3-dimensional vector.
-
-    Parameters
-    ----------
-    v : list
-        A 3D vector.
-
-    Returns
-    -------
-    float
-        The normalization of the vector as a float.
-
-    Examples
-    --------
-    >>> import numpy as np
-    >>> from .pyCGM import norm2d
-    >>> v = [105.14, 101.89, 326.77]
-    >>> np.around(norm2d(v), 2)
-    358.07
-    """
-    try:
-        return sqrt((v[0]*v[0]+v[1]*v[1]+v[2]*v[2]))
-    except:
-        return np.nan
-
-def norm3d(v):
-    """3D Vector normalization.
-
-    This function calculates the normalization of a 3-dimensional vector.
-
-    Parameters
-    ----------
-    v : list
-        A 3D vector.
-
-    Returns
-    -------
-    list
-        The normalization of the vector returned as a float in an array.
-
-    Examples
-    --------
-    >>> from .pyCGM import norm3d
-    >>> v = [125.44, 143.94, 213.49]
-    >>> np.around(norm3d(v), 2)
-    286.41
-    """
-    try:
-        return np.asarray(sqrt((v[0]*v[0]+v[1]*v[1]+v[2]*v[2])))
-    except:
-        return np.nan
-
-def normDiv(v):
-    """Normalized divison.
-
-    This function calculates the normalization division of a 3-dimensional vector.
-
-    Parameters
-    ----------
-    v : list
-        A 3D vector.
-
-    Returns
-    -------
-    array
-        The divison normalization of the vector returned as a float in an array.
-
-    Examples
-    --------
-    >>> import numpy as np
-    >>> from .pyCGM import normDiv
-    >>> v = [1.44, 1.94, 2.49]
-    >>> np.around(normDiv(v), 2)
-    array([0.12, 0.16, 0.21])
-    """
-    try:
-        vec = sqrt((v[0]*v[0]+v[1]*v[1]+v[2]*v[2]))
-        v = [v[0]/vec,v[1]/vec,v[2]/vec]
-    except:
-        vec = np.nan
-
-    return [v[0]/vec,v[1]/vec,v[2]/vec]
 
 def matrixmult (A, B):
     """Matrix multiplication.
@@ -2621,6 +2460,7 @@ def matrixmult (A, B):
             for k in range(len(B)):
                 C[i][j] += A[i][k]*B[k][j]
     return C
+
 
 def rotmat(x=0, y=0, z=0):
     r"""Rotation Matrix.
