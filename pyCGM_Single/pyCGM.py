@@ -37,7 +37,7 @@ from .pycgmIO import *
 
 # Lowerbody Coordinate System
 
-def calc_pelvis_axis(rasi, lasi, rpsi, lpsi, sacr=None):
+def calc_axis_pelvis(rasi, lasi, rpsi, lpsi, sacr=None):
     r"""Make the Pelvis Axis.
 
     Takes in RASI, LASI, RPSI, LPSI, and optional SACR markers.
@@ -100,12 +100,12 @@ def calc_pelvis_axis(rasi, lasi, rpsi, lpsi, sacr=None):
     --------
     >>> import numpy as np
     >>> np.set_printoptions(suppress=True)
-    >>> from .pyCGM import calc_pelvis_axis
+    >>> from .pyCGM import calc_axis_pelvis
     >>> rasi = np.array([ 395.36,  428.09, 1036.82])
     >>> lasi = np.array([ 183.18,  422.78, 1033.07])
     >>> rpsi = np.array([ 341.41,  246.72, 1055.99])
     >>> lpsi = np.array([ 255.79,  241.42, 1057.30])
-    >>> [arr.round(2) for arr in calc_pelvis_axis(rasi, lasi, rpsi, lpsi, None)] # doctest: +NORMALIZE_WHITESPACE
+    >>> [arr.round(2) for arr in calc_axis_pelvis(rasi, lasi, rpsi, lpsi, None)] # doctest: +NORMALIZE_WHITESPACE
     [array([ -0.02,   0.99,  -0.12, 289.27]), 
     array([ -1.  ,  -0.03,  -0.02, 425.43]), 
     array([  -0.02,    0.12,    0.99, 1034.94]), 
@@ -144,7 +144,7 @@ def calc_pelvis_axis(rasi, lasi, rpsi, lpsi, sacr=None):
     return pelvis
 
 
-def calc_hip_joint_center(pelvis, subject):
+def calc_joint_center_hip(pelvis, subject):
     u"""Calculate the right and left hip joint center.
 
     Takes in a 4x4 affine matrix of pelvis axis and subject measurements
@@ -185,7 +185,7 @@ def calc_hip_joint_center(pelvis, subject):
     --------
     >>> import numpy as np
     >>> np.set_printoptions(suppress=True)
-    >>> from .pyCGM import calc_hip_joint_center
+    >>> from .pyCGM import calc_joint_center_hip
     >>> vsk = {'MeanLegLength': 940.0, 'R_AsisToTrocanterMeasure': 72.51,
     ...        'L_AsisToTrocanterMeasure': 72.51, 'InterAsisDistance': 215.90}
     >>> pelvis_axis = np.array([
@@ -194,7 +194,7 @@ def calc_hip_joint_center(pelvis, subject):
     ...     [0, 0.1, 0.99, 1032.89],
     ...     [0, 0, 0, 1]
     ... ])
-    >>> np.around(calc_hip_joint_center(pelvis_axis,vsk), 2) #doctest: +NORMALIZE_WHITESPACE
+    >>> np.around(calc_joint_center_hip(pelvis_axis,vsk), 2) #doctest: +NORMALIZE_WHITESPACE
     array([[307.36, 323.83, 938.72],
            [181.71, 340.33, 936.18]])
     """
@@ -276,7 +276,7 @@ def calc_hip_joint_center(pelvis, subject):
     return hip_jc
 
 
-def calc_hip_axis(r_hip_jc, l_hip_jc, pelvis_axis):
+def calc_axis_hip(r_hip_jc, l_hip_jc, pelvis_axis):
     r"""Make the hip axis.
 
     Takes in the x, y, z positions of right and left hip joint center and
@@ -313,7 +313,7 @@ def calc_hip_axis(r_hip_jc, l_hip_jc, pelvis_axis):
     --------
     >>> import numpy as np
     >>> np.set_printoptions(suppress=True)
-    >>> from .pyCGM import calc_hip_axis
+    >>> from .pyCGM import calc_axis_hip
     >>> r_hip_jc = [182.57, 339.43, 935.52]
     >>> l_hip_jc = [308.38, 322.80, 937.98]
     >>> pelvis_axis = np.array([
@@ -322,7 +322,7 @@ def calc_hip_axis(r_hip_jc, l_hip_jc, pelvis_axis):
     ...     [0, 0.1, 0.99, 1032.89],
     ...     [0, 0, 0, 1]
     ... ])
-    >>> [np.around(arr, 2) for arr in calc_hip_axis(l_hip_jc,r_hip_jc, pelvis_axis)] #doctest: +NORMALIZE_WHITESPACE
+    >>> [np.around(arr, 2) for arr in calc_axis_hip(l_hip_jc,r_hip_jc, pelvis_axis)] #doctest: +NORMALIZE_WHITESPACE
     [array([  0.14,   0.98,  -0.11, 245.48]),
     array([ -0.99,   0.13,  -0.02, 331.12]),
     array([  0.  ,   0.1 ,   0.99, 936.75]), 
@@ -347,7 +347,7 @@ def calc_hip_axis(r_hip_jc, l_hip_jc, pelvis_axis):
     return axis
 
 
-def calc_knee_axis(rthi, lthi, rkne, lkne, r_hip_jc, l_hip_jc, rkne_width, lkne_width):
+def calc_axis_knee(rthi, lthi, rkne, lkne, r_hip_jc, l_hip_jc, rkne_width, lkne_width):
     """Calculate the knee joint center and axis.
 
     Takes in markers that correspond to (x, y, z) positions of the current
@@ -405,7 +405,7 @@ def calc_knee_axis(rthi, lthi, rkne, lkne, r_hip_jc, l_hip_jc, rkne_width, lkne_
     >>> r_hip_jc = [309.38, 322.80, 937.98]
     >>> rkne_width = 105.0
     >>> lkne_width = 105.0
-    >>> [arr.round(2) for arr in calc_knee_axis(rthi, lthi, rkne, lkne, l_hip_jc, r_hip_jc, rkne_width, lkne_width)] #doctest: +NORMALIZE_WHITESPACE
+    >>> [arr.round(2) for arr in calc_axis_knee(rthi, lthi, rkne, lkne, l_hip_jc, r_hip_jc, rkne_width, lkne_width)] #doctest: +NORMALIZE_WHITESPACE
     [array([[  0.3 ,   0.95,   0.  , 365.09],
         [ -0.87,   0.28,  -0.4 , 282.84],
         [ -0.38,   0.12,   0.92, 500.13],
@@ -420,9 +420,9 @@ def calc_knee_axis(rthi, lthi, rkne, lkne, r_hip_jc, l_hip_jc, rkne_width, lkne_
     R_delta = (rkne_width/2.0) + mm
     L_delta = (lkne_width/2.0) + mm
 
-    # Determine the position of kneeJointCenter using find_joint_center function
-    R = find_joint_center(rthi, r_hip_jc, rkne, R_delta)
-    L = find_joint_center(lthi, l_hip_jc, lkne, L_delta)
+    # Determine the position of kneeJointCenter using calc_joint_center function
+    R = calc_joint_center(rthi, r_hip_jc, rkne, R_delta)
+    L = calc_joint_center(lthi, l_hip_jc, lkne, L_delta)
 
     # Z axis is Thigh bone calculated by the hipJC and  kneeJC
     # the axis is then normalized
@@ -488,7 +488,7 @@ def calc_knee_axis(rthi, lthi, rkne, lkne, r_hip_jc, l_hip_jc, rkne_width, lkne_
     return np.asarray([r_axis, l_axis])
 
 
-def calc_ankle_axis(rtib, ltib, rank, lank, r_knee_JC, l_knee_JC, rank_width, lank_width, rtib_torsion, ltib_torsion):
+def calc_axis_ankle(rtib, ltib, rank, lank, r_knee_JC, l_knee_JC, rank_width, lank_width, rtib_torsion, ltib_torsion):
     """Calculate the ankle joint center and axis.
 
     Takes in markers that correspond to (x, y, z) positions of the current
@@ -555,7 +555,7 @@ def calc_ankle_axis(rtib, ltib, rank, lank, r_knee_JC, l_knee_JC, rank_width, la
     >>> lank = np.array([58.57, 208.54, 86.16])
     >>> knee_JC = np.array([[365.09, 282.84, 500.13],
     ...                     [139.57, 277.13, 508.67]])
-    >>> [np.around(arr, 2) for arr in calc_ankle_axis(rtib, ltib, rank, lank, knee_JC[0], knee_JC[1], rank_width, lank_width, rtib_torsion, ltib_torsion)] #doctest: +NORMALIZE_WHITESPACE
+    >>> [np.around(arr, 2) for arr in calc_axis_ankle(rtib, ltib, rank, lank, knee_JC[0], knee_JC[1], rank_width, lank_width, rtib_torsion, ltib_torsion)] #doctest: +NORMALIZE_WHITESPACE
                 [array([[  0.69,   0.73,  -0.02, 392.33],
                         [ -0.72,   0.68,  -0.11, 246.32],
                         [ -0.07,   0.09,   0.99,  88.31],
@@ -581,9 +581,9 @@ def calc_ankle_axis(rtib, ltib, rank, lank, r_knee_JC, l_knee_JC, rank_width, la
     # This is Torsioned Tibia and this describe the ankle angles
     # Tibial frontal plane being defined by ANK,TIB and KJC
 
-    # Determine the position of ankleJointCenter using find_joint_center function
-    R = find_joint_center(rtib, r_knee_JC, rank, R_delta)
-    L = find_joint_center(ltib, l_knee_JC, lank, L_delta)
+    # Determine the position of ankleJointCenter using calc_joint_center function
+    R = calc_joint_center(rtib, r_knee_JC, rank, R_delta)
+    L = calc_joint_center(ltib, l_knee_JC, lank, L_delta)
 
     # Ankle Axis Calculation(ref. Clinical Gait Analysis hand book, Baker2013)
     # Right axis calculation
@@ -697,7 +697,7 @@ def calc_ankle_axis(rtib, ltib, rank, lank, r_knee_JC, l_knee_JC, rank_width, la
     return axis
 
 
-def calc_foot_axis(rtoe, ltoe, r_ankle_axis, l_ankle_axis, r_static_rot_off, l_static_rot_off, r_static_plant_flex, l_static_plant_flex):
+def calc_axis_foot(rtoe, ltoe, r_ankle_axis, l_ankle_axis, r_static_rot_off, l_static_rot_off, r_static_plant_flex, l_static_plant_flex):
     """Calculate the foot joint center and axis.
 
     Takes in markers that correspond to (x, y, z) positions of the current
@@ -749,7 +749,7 @@ def calc_foot_axis(rtoe, ltoe, r_ankle_axis, l_ankle_axis, r_static_rot_off, l_s
     --------
     >>> import numpy as np
     >>> np.set_printoptions(suppress=True)
-    >>> from .pyCGM import calc_foot_axis
+    >>> from .pyCGM import calc_axis_foot
     >>> r_static_rot_off = 0.01
     >>> l_static_rot_off = 0.00
     >>> r_static_plant_flex = 0.27
@@ -764,7 +764,7 @@ def calc_foot_axis(rtoe, ltoe, r_ankle_axis, l_ankle_axis, r_static_rot_off, l_s
     ...                         [  -0.96,  -0.26,   0.13, 219.53],
     ...                         [   0.09,   0.13,   0.99,  80.85],
     ...                         [   0.  ,   0.  ,   0.  ,   1.  ]])
-    >>> [np.around(arr, 2) for arr in calc_foot_axis(rtoe, ltoe, r_ankle_axis, l_ankle_axis, r_static_rot_off, l_static_rot_off, r_static_plant_flex, l_static_plant_flex)] #doctest: +NORMALIZE_WHITESPACE
+    >>> [np.around(arr, 2) for arr in calc_axis_foot(rtoe, ltoe, r_ankle_axis, l_ankle_axis, r_static_rot_off, l_static_rot_off, r_static_plant_flex, l_static_plant_flex)] #doctest: +NORMALIZE_WHITESPACE
     [array([[  0.02,   0.03,   1.  , 442.81],
             [ -0.94,   0.34,   0.01, 381.62],
             [ -0.34,  -0.94,   0.04,  42.66],
@@ -961,7 +961,7 @@ def calc_foot_axis(rtoe, ltoe, r_ankle_axis, l_ankle_axis, r_static_rot_off, l_s
 
 # Upperbody Coordinate System
 
-def calc_head_axis(lfhd, rfhd, lbhd, rbhd, head_offset):
+def calc_axis_head(lfhd, rfhd, lbhd, rbhd, head_offset):
     """Calculate the head joint center and axis.
 
     Takes in markers that correspond to (x, y, z) positions of the current
@@ -996,13 +996,13 @@ def calc_head_axis(lfhd, rfhd, lbhd, rbhd, head_offset):
     --------
     >>> import numpy as np
     >>> np.set_printoptions(suppress=True)
-    >>> from .pyCGM import calc_head_axis
+    >>> from .pyCGM import calc_axis_head
     >>> head_offset = 0.25
     >>> rfhd = np.array([325.82, 402.55, 1722.49])
     >>> lfhd = np.array([184.55, 409.68, 1721.34])
     >>> rbhd = np.array([304.39, 242.91, 1694.97])
     >>> lbhd = np.array([197.86, 251.28, 1696.90])
-    >>> [np.around(arr, 2) for arr in calc_head_axis(lfhd, rfhd, lbhd, rbhd, head_offset)] #doctest: +NORMALIZE_WHITESPACE
+    >>> [np.around(arr, 2) for arr in calc_axis_head(lfhd, rfhd, lbhd, rbhd, head_offset)] #doctest: +NORMALIZE_WHITESPACE
     [array([ 0.03, 1.  ,  -0.09, 255.18]), 
     array([ -1.  , 0.03,  -0.  , 406.12]), 
     array([ -0.  , 0.09,   1.  , 1721.92]), 
@@ -1067,7 +1067,7 @@ def calc_head_axis(lfhd, rfhd, lbhd, rbhd, head_offset):
     return head_axis
 
 
-def calc_thorax_axis(clav, c7, strn, t10):
+def calc_axis_thorax(clav, c7, strn, t10):
     r"""Make the Thorax Axis.
 
 
@@ -1118,12 +1118,12 @@ def calc_thorax_axis(clav, c7, strn, t10):
     --------
     >>> import numpy as np
     >>> np.set_printoptions(suppress=True)
-    >>> from .pyCGM import calc_thorax_axis
+    >>> from .pyCGM import calc_axis_thorax
     >>> c7 = np.array([256.78, 371.28, 1459.70])
     >>> t10 = np.array([228.64, 192.32, 1279.64])
     >>> clav = np.array([256.78, 371.28, 1459.70])
     >>> strn = np.array([251.67, 414.10, 1292.08])
-    >>> [np.around(arr, 2) for arr in calc_thorax_axis(clav, c7, strn, t10)] #doctest: +NORMALIZE_WHITESPACE
+    >>> [np.around(arr, 2) for arr in calc_axis_thorax(clav, c7, strn, t10)] #doctest: +NORMALIZE_WHITESPACE
     [array([ 0.07,  0.93, -0.37,  256.27]), 
     array([  0.99, -0.1 , -0.06,  364.8 ]), 
     array([ -0.09, -0.36, -0.93, 1462.29]), 
@@ -1173,7 +1173,7 @@ def calc_thorax_axis(clav, c7, strn, t10):
     return thorax
 
 
-def calc_wand_marker(rsho, lsho, thorax_axis):
+def calc_marker_wand(rsho, lsho, thorax_axis):
     """Calculate the wand marker position.
 
     Takes in markers that correspond to (x, y, z) positions of the current
@@ -1203,14 +1203,14 @@ def calc_wand_marker(rsho, lsho, thorax_axis):
     --------
     >>> import numpy as np
     >>> np.set_printoptions(suppress=True)
-    >>> from .pyCGM import calc_wand_marker
+    >>> from .pyCGM import calc_marker_wand
     >>> rsho = np.array([428.88, 270.55, 1500.73])
     >>> lsho = np.array([68.24, 269.01, 1510.10])
     >>> thorax_axis = np.array([[ 0.07,  0.93, -0.37,  256.27], 
     ...                        [  0.99, -0.1 , -0.06,  364.8 ], 
     ...                        [ -0.09, -0.36, -0.93, 1462.29], 
     ...                        [  0.,    0.,    0.,      1.]])
-    >>> [np.around(arr, 2) for arr in calc_wand_marker(rsho, lsho, thorax_axis)] #doctest: +NORMALIZE_WHITESPACE
+    >>> [np.around(arr, 2) for arr in calc_marker_wand(rsho, lsho, thorax_axis)] #doctest: +NORMALIZE_WHITESPACE
     [array([ 256.78,  365.61, 1462.  ]), 
      array([ 255.79,  365.67, 1462.16])]
     """
@@ -1240,7 +1240,7 @@ def calc_wand_marker(rsho, lsho, thorax_axis):
     return wand
 
 
-def calc_shoulder_joint_center(rsho, lsho, thorax_axis, r_wand, l_wand, r_sho_off, l_sho_off):
+def calc_joint_center_shoulder(rsho, lsho, thorax_axis, r_wand, l_wand, r_sho_off, l_sho_off):
     """Calculate the shoulder joint center.
 
     Takes in markers that correspond to (x, y, z) positions of the current
@@ -1274,7 +1274,7 @@ def calc_shoulder_joint_center(rsho, lsho, thorax_axis, r_wand, l_wand, r_sho_of
     --------
     >>> import numpy as np
     >>> np.set_printoptions(suppress=True)
-    >>> from .pyCGM import calc_shoulder_joint_center
+    >>> from .pyCGM import calc_joint_center_shoulder
     >>> rsho = np.array([428.88, 270.55, 1500.73])
     >>> lsho = np.array([68.24, 269.01, 1510.10])
     >>> thorax_axis = np.array([[ 0.07,  0.93, -0.37,  256.27], 
@@ -1285,7 +1285,7 @@ def calc_shoulder_joint_center(rsho, lsho, thorax_axis, r_wand, l_wand, r_sho_of
     >>> l_wand = [256.42, 364.27, 1460.61]
     >>> r_sho_off = 40.0
     >>> l_sho_off = 40.0
-    >>> [np.around(arr, 2) for arr in calc_shoulder_joint_center(rsho, lsho, thorax_axis, r_wand, l_wand, r_sho_off, l_sho_off)] #doctest: +NORMALIZE_WHITESPACE
+    >>> [np.around(arr, 2) for arr in calc_joint_center_shoulder(rsho, lsho, thorax_axis, r_wand, l_wand, r_sho_off, l_sho_off)] #doctest: +NORMALIZE_WHITESPACE
     [array([[   1.  ,    0.  ,    0.  ,  419.62],
             [   0.  ,    1.  ,    0.  ,  293.35],
             [   0.  ,    0.  ,    1.  , 1540.77],
@@ -1307,8 +1307,8 @@ def calc_shoulder_joint_center(rsho, lsho, thorax_axis, r_wand, l_wand, r_sho_of
     # RSHO
     # LSHO
 
-    R_Sho_JC = find_joint_center(r_wand, thorax_origin, rsho, R_delta)
-    L_Sho_JC = find_joint_center(l_wand, thorax_origin, lsho, L_delta)
+    R_Sho_JC = calc_joint_center(r_wand, thorax_origin, rsho, R_delta)
+    L_Sho_JC = calc_joint_center(l_wand, thorax_origin, lsho, L_delta)
 
     r_sho_jc = np.identity(4)
     r_sho_jc[:3, 3] = R_Sho_JC
@@ -1321,7 +1321,7 @@ def calc_shoulder_joint_center(rsho, lsho, thorax_axis, r_wand, l_wand, r_sho_of
     return shoulder_JC
 
 
-def calc_shoulder_axis(thorax_axis, r_sho_jc, l_sho_jc, r_wand, l_wand):
+def calc_axis_shoulder(thorax_axis, r_sho_jc, l_sho_jc, r_wand, l_wand):
     """Make the Shoulder axis.
 
     Takes in the thorax axis, right and left shoulder joint center,
@@ -1352,7 +1352,7 @@ def calc_shoulder_axis(thorax_axis, r_sho_jc, l_sho_jc, r_wand, l_wand):
     --------
     >>> import numpy as np
     >>> np.set_printoptions(suppress=True)
-    >>> from .pyCGM import calc_shoulder_axis
+    >>> from .pyCGM import calc_axis_shoulder
     >>> thorax = np.array([[  0.07,  0.93, -0.37,  256.27], 
     ...                    [  0.99, -0.1 , -0.06,  364.8 ], 
     ...                    [ -0.09, -0.36, -0.93, 1462.29], 
@@ -1367,7 +1367,7 @@ def calc_shoulder_axis(thorax_axis, r_sho_jc, l_sho_jc, r_wand, l_wand):
     ...                      [   0.  ,    0.  ,    0.  ,    1.  ]])
     >>> wand = [[255.92, 364.32, 1460.62],
     ...        [ 256.42, 364.27, 1460.61]]
-    >>> [np.around(arr, 2) for arr in calc_shoulder_axis(thorax, r_sho_jc, l_sho_jc, wand[0], wand[1])] #doctest: +NORMALIZE_WHITESPACE
+    >>> [np.around(arr, 2) for arr in calc_axis_shoulder(thorax, r_sho_jc, l_sho_jc, wand[0], wand[1])] #doctest: +NORMALIZE_WHITESPACE
     [array([[  -0.51,   -0.79,    0.33,  419.62],
             [  -0.2 ,    0.49,    0.85,  293.35],
             [  -0.84,    0.37,   -0.4 , 1540.77],
@@ -1442,7 +1442,7 @@ def calc_shoulder_axis(thorax_axis, r_sho_jc, l_sho_jc, r_wand, l_wand):
     return shoulder
 
 
-def calc_elbow_axis(relb, lelb, rwra, rwrb, lwra, lwrb, r_shoulder_jc, l_shoulder_jc, r_elbow_width, l_elbow_width, r_wrist_width, l_wrist_width, mm):
+def calc_axis_elbow(relb, lelb, rwra, rwrb, lwra, lwrb, r_shoulder_jc, l_shoulder_jc, r_elbow_width, l_elbow_width, r_wrist_width, l_wrist_width, mm):
         """Calculate the elbow joint center and axis.
 
         Takes in markers that correspond to (x, y, z) positions of the current
@@ -1494,7 +1494,7 @@ def calc_elbow_axis(relb, lelb, rwra, rwrb, lwra, lwrb, r_shoulder_jc, l_shoulde
         Examples
         --------
         >>> import numpy as np
-        >>> from .pyCGM import calc_elbow_axis
+        >>> from .pyCGM import calc_axis_elbow
         >>> np.set_printoptions(suppress=True)
         >>> relb = np.array([ 658.90, 326.07, 1285.28])
         >>> lelb = np.array([-156.32, 335.25, 1287.39])
@@ -1510,7 +1510,7 @@ def calc_elbow_axis(relb, lelb, rwra, rwrb, lwra, lwrb, r_shoulder_jc, l_shoulde
         ...                          [0., 1., 0.,  274.93],
         ...                          [0., 0., 1., 1463.63],
         ...                          [0., 0., 0.,    1.  ]])]
-        >>> [np.around(arr, 2) for arr in calc_elbow_axis(relb, lelb, rwra, rwrb, lwra, lwrb, shoulder_jc[0], shoulder_jc[1], 74.0, 74.0, 55.0, 55.0, 7.0)] #doctest: +NORMALIZE_WHITESPACE
+        >>> [np.around(arr, 2) for arr in calc_axis_elbow(relb, lelb, rwra, rwrb, lwra, lwrb, shoulder_jc[0], shoulder_jc[1], 74.0, 74.0, 55.0, 55.0, 7.0)] #doctest: +NORMALIZE_WHITESPACE
         [array([[   0.14,   -0.99,   -0.  ,  633.66],
                 [   0.69,    0.1 ,    0.72,  304.95],
                 [  -0.71,   -0.1 ,    0.69, 1256.07],
@@ -1579,8 +1579,8 @@ def calc_elbow_axis(relb, lelb, rwra, rwrb, lwra, lwrb, r_shoulder_jc, l_shoulde
         l_cons_vec = [l_cons_vec[0]*500+lelb[0], l_cons_vec[1]
                       * 500+lelb[1], l_cons_vec[2]*500+lelb[2]]
 
-        rejc = find_joint_center(r_cons_vec, rsjc, relb, r_delta)
-        lejc = find_joint_center(l_cons_vec, lsjc, lelb, l_delta)
+        rejc = calc_joint_center(r_cons_vec, rsjc, relb, r_delta)
+        lejc = calc_joint_center(l_cons_vec, lsjc, lelb, l_delta)
 
         # this is radius axis for humerus
         # right
@@ -1704,7 +1704,7 @@ def calc_elbow_axis(relb, lelb, rwra, rwrb, lwra, lwrb, r_shoulder_jc, l_shoulde
         return np.asarray([r_axis, l_axis, r_wri_origin, l_wri_origin])
 
 
-def calc_wrist_axis(r_elbow, l_elbow, r_wrist_jc, l_wrist_jc):
+def calc_axis_wrist(r_elbow, l_elbow, r_wrist_jc, l_wrist_jc):
     r"""Calculate the wrist joint center and axis.
 
     Takes in the right and left elbow axes, 
@@ -1741,7 +1741,7 @@ def calc_wrist_axis(r_elbow, l_elbow, r_wrist_jc, l_wrist_jc):
     Examples
     --------
     >>> import numpy as np
-    >>> from .pyCGM import calc_wrist_axis
+    >>> from .pyCGM import calc_axis_wrist
     >>> np.set_printoptions(suppress=True)
     >>> r_elbow = np.array([[ 0.15, -0.99,  0.  ,  633.66],
     ...                     [ 0.69,  0.1,   0.72,  304.95],
@@ -1759,7 +1759,7 @@ def calc_wrist_axis(r_elbow, l_elbow, r_wrist_jc, l_wrist_jc):
     ...                        [-271.74, 485.72, 1090.67,  485.8],
     ...                        [-271.94, 485.19, 1091.96, 1091.36],
     ...                        [   0.,     0.,      0.,      1.]])
-    >>> [np.around(arr, 2) for arr in calc_wrist_axis(r_elbow, l_elbow, r_wrist_jc, l_wrist_jc)] #doctest: +NORMALIZE_WHITESPACE
+    >>> [np.around(arr, 2) for arr in calc_axis_wrist(r_elbow, l_elbow, r_wrist_jc, l_wrist_jc)] #doctest: +NORMALIZE_WHITESPACE
     [array([[  0.44,   -0.84,   -0.31,  793.32],
             [  0.69,    0.1 ,    0.72,  451.29],
             [ -0.57,   -0.53,    0.62, 1084.43],
@@ -1824,7 +1824,7 @@ def calc_wrist_axis(r_elbow, l_elbow, r_wrist_jc, l_wrist_jc):
     return np.asarray([r_axis, l_axis])
 
 
-def calc_hand_axis(rwra, rwrb, lwra, lwrb, rfin, lfin, r_wrist_jc, l_wrist_jc, r_hand_thickness, l_hand_thickness):
+def calc_axis_hand(rwra, rwrb, lwra, lwrb, rfin, lfin, r_wrist_jc, l_wrist_jc, r_hand_thickness, l_hand_thickness):
     r"""Calculate the hand joint center and axis.
 
     Takes in markers that correspond to (x, y, z) positions of the current
@@ -1885,7 +1885,7 @@ def calc_hand_axis(rwra, rwrb, lwra, lwrb, rfin, lfin, r_wrist_jc, l_wrist_jc, r
     Examples
     --------
     >>> import numpy as np
-    >>> from .pyCGM import calc_hand_axis
+    >>> from .pyCGM import calc_axis_hand
     >>> np.set_printoptions(suppress=True)
     >>> rwra = np.array([ 776.51, 495.68, 1108.38])
     >>> rwrb = np.array([ 830.90, 436.75, 1119.11])
@@ -1903,7 +1903,7 @@ def calc_hand_axis(rwra, rwrb, lwra, lwrb, rfin, lfin, r_wrist_jc, l_wrist_jc, r
     ...                        [   0.,     0.,      0.,      1.]])
     >>> r_hand_thickness = 34.0
     >>> l_hand_thickness = 34.0
-    >>> [np.around(arr, 2) for arr in calc_hand_axis(rwra, rwrb, lwra, lwrb, rfin, lfin, r_wrist_jc, l_wrist_jc, r_hand_thickness, l_hand_thickness)] #doctest: +NORMALIZE_WHITESPACE
+    >>> [np.around(arr, 2) for arr in calc_axis_hand(rwra, rwrb, lwra, lwrb, rfin, lfin, r_wrist_jc, l_wrist_jc, r_hand_thickness, l_hand_thickness)] #doctest: +NORMALIZE_WHITESPACE
     [array([[  0.15,  0.31,  0.94,  859.8 ],
             [ -0.73,  0.68, -0.11,  517.27],
             [ -0.67, -0.67,  0.33, 1051.97],
@@ -1927,8 +1927,8 @@ def calc_hand_axis(rwra, rwrb, lwra, lwrb, rfin, lfin, r_wrist_jc, l_wrist_jc, r
     r_delta = (r_hand_thickness/2.0 + mm)
     l_delta = (l_hand_thickness/2.0 + mm)
 
-    lhnd = find_joint_center(lwri, lwjc, lfin, l_delta)
-    rhnd = find_joint_center(rwri, rwjc, rfin, r_delta)
+    lhnd = calc_joint_center(lwri, lwjc, lfin, l_delta)
+    rhnd = calc_joint_center(rwri, rwjc, rfin, r_delta)
 
     # Left
     z_axis = [lwjc[0]-lhnd[0], lwjc[1]-lhnd[1], lwjc[2]-lhnd[2]]
@@ -1989,7 +1989,7 @@ def calc_hand_axis(rwra, rwrb, lwra, lwrb, rfin, lfin, r_wrist_jc, l_wrist_jc, r
     return np.asarray([r_axis, l_axis])
 
 
-def find_joint_center(p_a, p_b, p_c, delta):
+def calc_joint_center(p_a, p_b, p_c, delta):
     r"""Calculate the Joint Center.
 
     This function is based on the physical markers p_a, p_b, p_c
@@ -2043,12 +2043,12 @@ def find_joint_center(p_a, p_b, p_c, delta):
     Examples
     --------
     >>> import numpy as np
-    >>> from .pyCGM import find_joint_center
+    >>> from .pyCGM import calc_joint_center
     >>> p_a = np.array([468.14, 325.09, 673.12])
     >>> p_b = np.array([355.90, 365.38, 940.69])
     >>> p_c = np.array([452.35, 329.06, 524.77])
     >>> delta = 59.5
-    >>> find_joint_center(p_a, p_b, p_c, delta).round(2)
+    >>> calc_joint_center(p_a, p_b, p_c, delta).round(2)
     array([396.25, 347.92, 518.63])
     """
 
@@ -2093,7 +2093,7 @@ def find_joint_center(p_a, p_b, p_c, delta):
     return joint_center
 
 
-def get_angle_head(axis_p, axis_d):
+def calc_angle_head(axis_p, axis_d):
     r"""Head angle calculation.
 
     Takes in two axes and returns the head rotation, 
@@ -2124,7 +2124,7 @@ def get_angle_head(axis_p, axis_d):
     Examples
     --------
     >>> import numpy as np
-    >>> from .pyCGM import get_angle_head
+    >>> from .pyCGM import calc_angle_head
     >>> axis_p = np.array([[ 0.04,  0.99,  0.06, 512.34],
     ...                    [ 0.99, -0.04, -0.05, 471.15],
     ...                    [-0.05,  0.07, -0.99, 124.14],
@@ -2133,7 +2133,7 @@ def get_angle_head(axis_p, axis_d):
     ...                    [ 0.71, -0.11, -0.69, 985.38],
     ...                    [ 0.67, -0.14,  0.72, 412.87],
     ...                    [ 0.,    0.,    0.,     1.]])
-    >>> np.around(get_angle_head(axis_p, axis_d), 2)
+    >>> np.around(calc_angle_head(axis_p, axis_d), 2)
     array([ 185.18,  -39.99, -190.54])
     """
 
@@ -2183,7 +2183,8 @@ def get_angle_head(axis_p, axis_d):
 
     return np.asarray(angle)
 
-def get_angle_shoulder(axis_thorax, axis_hum_right, axis_hum_left):
+
+def calc_angle_shoulder(axis_thorax, axis_hum_right, axis_hum_left):
     r"""Shoulder angle calculation.
 
     Takes in the thorax and elbow axes and returns the right and 
@@ -2223,7 +2224,7 @@ def get_angle_shoulder(axis_thorax, axis_hum_right, axis_hum_left):
     --------
     >>> import numpy as np
     >>> np.set_printoptions(suppress=True)
-    >>> from .pyCGM import get_angle_shoulder
+    >>> from .pyCGM import calc_angle_shoulder
     >>> axis_thorax = np.array([[ 0.04,  0.99,  0.06, 214.14],
     ...                         [ 0.99, -0.04, -0.05,  32.14],
     ...                         [-0.05,  0.07, -0.99, 452.89],
@@ -2236,7 +2237,7 @@ def get_angle_shoulder(axis_thorax, axis_hum_right, axis_hum_left):
     ...                            [-0.20, -0.95, -0.20,  235.83],
     ...                            [ 0.11, -0.23,  0.96,  954.59],
     ...                            [ 0.,    0.,    0.,      1.]])
-    >>> np.around(get_angle_shoulder(axis_thorax, axis_hum_right, axis_hum_left), 2) #doctest: +NORMALIZE_WHITESPACE
+    >>> np.around(calc_angle_shoulder(axis_thorax, axis_hum_right, axis_hum_left), 2) #doctest: +NORMALIZE_WHITESPACE
     array([[ 11.76, -173.88, 100.99],
            [ -9.54, -175.88,  81.79]])
     """
@@ -2276,7 +2277,7 @@ def get_angle_shoulder(axis_thorax, axis_hum_right, axis_hum_left):
     return angles
 
 
-def get_angle_spine(axis_pelvis, axis_thorax):
+def calc_angle_spine(axis_pelvis, axis_thorax):
     r"""Spine angle calculation.
 
     Takes in the pelvis and thorax axes and returns the spine rotation, 
@@ -2307,7 +2308,7 @@ def get_angle_spine(axis_pelvis, axis_thorax):
     Examples
     --------
     >>> import numpy as np
-    >>> from .pyCGM import get_angle_spine
+    >>> from .pyCGM import calc_angle_spine
     >>> axis_pelvis = [[ 0.04,  0.99,  0.06, 749.24],
     ...                [ 0.99, -0.04, -0.05, 321.12],
     ...                [-0.05,  0.07, -0.99, 145.12],
@@ -2316,7 +2317,7 @@ def get_angle_spine(axis_pelvis, axis_thorax):
     ...                [ 0.71, -0.11, -0.69, 112.48],
     ...                [ 0.67, -0.14,  0.72, 155.77],
     ...                [ 0.,    0.,    0.,     1.]]
-    >>> np.around(get_angle_spine(axis_pelvis, axis_thorax), 2) 
+    >>> np.around(calc_angle_spine(axis_pelvis, axis_thorax), 2) 
     array([ 2.97,  9.13, 39.78])
     """
     # Calculation for the spine angle.
@@ -2340,7 +2341,7 @@ def get_angle_spine(axis_pelvis, axis_thorax):
     return np.asarray(angle)
     
 
-def get_angle(axis_p, axis_d):
+def calc_angle(axis_p, axis_d):
     r"""Normal angle calculation.
 
     Takes in two axes and returns the rotation, flexion,
@@ -2381,7 +2382,7 @@ def get_angle(axis_p, axis_d):
     Examples
     --------
     >>> import numpy as np
-    >>> from .pyCGM import get_angle
+    >>> from .pyCGM import calc_angle
     >>> axis_p = [[ 0.04,  0.99,  0.06,  429.67],
     ...           [ 0.99, -0.04, -0.05,  275.15],
     ...           [-0.05,  0.07, -0.99, 1452.95],
@@ -2390,7 +2391,7 @@ def get_angle(axis_p, axis_d):
     ...           [ 0.71, -0.11, -0.69,  275.83],
     ...           [ 0.67, -0.14,  0.72, 1463.78],
     ...           [ 0.,    0.,    0.,      1.]]
-    >>> np.around(get_angle(axis_p, axis_d), 2)
+    >>> np.around(calc_angle(axis_p, axis_d), 2)
     array([-174.82,  -39.26,  100.54])
     """
     # Angle calculation is in Y-X-Z order
@@ -2537,6 +2538,7 @@ def rotmat(x=0, y=0, z=0):
 
     return r_xyz
 
+
 def JointAngleCalc(frame,vsk):
     """ Joint Angle Calculation function.
 
@@ -2617,7 +2619,7 @@ def JointAngleCalc(frame,vsk):
     rfoot_prox,rfoot_proy,rfoot_proz,lfoot_prox,lfoot_proy,lfoot_proz = [None]*6
 
     #First Calculate Pelvis
-    axis_pelvis = calc_pelvis_axis(frame['RASI'] if 'RASI' in frame else None,
+    axis_pelvis = calc_axis_pelvis(frame['RASI'] if 'RASI' in frame else None,
                                    frame['LASI'] if 'LASI' in frame else None,
                                    frame['RPSI'] if 'RPSI' in frame else None,
                                    frame['LPSI'] if 'LPSI' in frame else None,
@@ -2637,21 +2639,21 @@ def JointAngleCalc(frame,vsk):
     #make the array which will be the input of findangle function
     pelvis_Axis_mod = pelvis_vectors
 
-    global_pelvis_angle = get_angle(global_Axis,pelvis_Axis_mod)
+    global_pelvis_angle = calc_angle(global_Axis,pelvis_Axis_mod)
 
     pelx=global_pelvis_angle[0]
     pely=global_pelvis_angle[1]
     pelz=global_pelvis_angle[2]
 
     # and then find hip JC
-    hip_JC = calc_hip_joint_center(axis_pelvis, vsk)
+    hip_JC = calc_joint_center_hip(axis_pelvis, vsk)
 
     kin_L_Hip_JC = hip_JC[0] #quick fix for storing JC
     kin_R_Hip_JC = hip_JC[1] #quick fix for storing JC
 
-    hip_axis = calc_hip_axis(hip_JC[0],hip_JC[1],axis_pelvis)
+    hip_axis = calc_axis_hip(hip_JC[0],hip_JC[1],axis_pelvis)
 
-    axis_knee = calc_knee_axis(frame['RTHI'] if 'RTHI' in frame else None,
+    axis_knee = calc_axis_knee(frame['RTHI'] if 'RTHI' in frame else None,
                                frame['LTHI'] if 'LTHI' in frame else None,
                                frame['RKNE'] if 'RKNE' in frame else None,
                                frame['LKNE'] if 'LKNE' in frame else None,
@@ -2687,8 +2689,8 @@ def JointAngleCalc(frame,vsk):
                            np.subtract(L_Knee_axis_form[1],L_Knee_center_form),
                            np.subtract(L_Knee_axis_form[2],L_Knee_center_form)])
 
-    R_pelvis_knee_angle = get_angle(hip_Axis,R_knee_Axis)
-    L_pelvis_knee_angle = get_angle(hip_Axis,L_knee_Axis)
+    R_pelvis_knee_angle = calc_angle(hip_Axis,R_knee_Axis)
+    L_pelvis_knee_angle = calc_angle(hip_Axis,L_knee_Axis)
 
     rhipx=R_pelvis_knee_angle[0]*-1
     rhipy=R_pelvis_knee_angle[1]
@@ -2698,7 +2700,7 @@ def JointAngleCalc(frame,vsk):
     lhipy=L_pelvis_knee_angle[1]*-1
     lhipz=L_pelvis_knee_angle[2]-90
 
-    axis_ankle = calc_ankle_axis(frame['RTIB'] if 'RTIB' in frame else None,
+    axis_ankle = calc_axis_ankle(frame['RTIB'] if 'RTIB' in frame else None,
                                  frame['LTIB'] if 'LTIB' in frame else None,
                                  frame['RANK'] if 'RANK' in frame else None,
                                  frame['LANK'] if 'LANK' in frame else None,
@@ -2731,8 +2733,8 @@ def JointAngleCalc(frame,vsk):
                               np.subtract(L_Ankle_axis_form[1],L_Ankle_center_form),
                               np.subtract(L_Ankle_axis_form[2],L_Ankle_center_form)])
 
-    R_knee_ankle_angle = get_angle(R_knee_Axis,R_ankle_Axis)
-    L_knee_ankle_angle = get_angle(L_knee_Axis,L_ankle_Axis)
+    R_knee_ankle_angle = calc_angle(R_knee_Axis,R_ankle_Axis)
+    L_knee_ankle_angle = calc_angle(L_knee_Axis,L_ankle_Axis)
 
     rkneex=R_knee_ankle_angle[0]
     rkneey=R_knee_ankle_angle[1]
@@ -2747,7 +2749,7 @@ def JointAngleCalc(frame,vsk):
     # ANKLE ANGLE
 
     offset = 0
-    axis_foot = calc_foot_axis(frame['RTOE'] if 'RTOE' in frame else None,
+    axis_foot = calc_axis_foot(frame['RTOE'] if 'RTOE' in frame else None,
                                frame['LTOE'] if 'LTOE' in frame else None,
                                axis_ankle[0],
                                axis_ankle[1],
@@ -2778,8 +2780,8 @@ def JointAngleCalc(frame,vsk):
                              np.subtract(L_Foot_axis_form[2],L_Foot_center_form)])
 
 
-    R_ankle_foot_angle = get_angle(R_ankle_Axis,R_foot_Axis)
-    L_ankle_foot_angle = get_angle(L_ankle_Axis,L_foot_Axis)
+    R_ankle_foot_angle = calc_angle(R_ankle_Axis,R_foot_Axis)
+    L_ankle_foot_angle = calc_angle(L_ankle_Axis,L_foot_Axis)
 
     ranklex=R_ankle_foot_angle[0]*(-1)-90
     rankley=R_ankle_foot_angle[2]*(-1)+90
@@ -2792,8 +2794,8 @@ def JointAngleCalc(frame,vsk):
     # ABSOLUTE FOOT ANGLE
 
 
-    R_global_foot_angle = get_angle(global_Axis,R_foot_Axis)
-    L_global_foot_angle = get_angle(global_Axis,L_foot_Axis)
+    R_global_foot_angle = calc_angle(global_Axis,R_foot_Axis)
+    L_global_foot_angle = calc_angle(global_Axis,L_foot_Axis)
 
     rfootx=R_global_foot_angle[0]
     rfooty=R_global_foot_angle[2]-90
@@ -2804,7 +2806,7 @@ def JointAngleCalc(frame,vsk):
 
     #First Calculate HEAD
 
-    axis_head = calc_head_axis(frame['LFHD'] if 'LFHD' in frame else None,
+    axis_head = calc_axis_head(frame['LFHD'] if 'LFHD' in frame else None,
                                frame['RFHD'] if 'RFHD' in frame else None,
                                frame['LBHD'] if 'LBHD' in frame else None,
                                frame['RBHD'] if 'RBHD' in frame else None,
@@ -2839,7 +2841,7 @@ def JointAngleCalc(frame,vsk):
                              np.subtract(Global_axis_form[1],Global_center_form),
                              np.subtract(Global_axis_form[2],Global_center_form)])
 
-    global_head_angle = get_angle_head(global_Axis,head_Axis_mod)
+    global_head_angle = calc_angle_head(global_Axis,head_Axis_mod)
 
     headx=(global_head_angle[0]*-1)# + 24.8
 
@@ -2853,7 +2855,7 @@ def JointAngleCalc(frame,vsk):
 
     # Calculate THORAX
 
-    thorax_axis = calc_thorax_axis(frame['CLAV'] if 'CLAV' in frame else None,
+    thorax_axis = calc_axis_thorax(frame['CLAV'] if 'CLAV' in frame else None,
                                    frame['C7'] if 'C7' in frame else None,
                                    frame['STRN'] if 'STRN' in frame else None,
                                    frame['T10'] if 'T10' in frame else None)
@@ -2880,7 +2882,7 @@ def JointAngleCalc(frame,vsk):
                              np.subtract(Global_axis_form[2],Global_center_form)])
 
 
-    global_thorax_angle = get_angle(global_Axis,thorax_Axis_mod)
+    global_thorax_angle = calc_angle(global_Axis,thorax_Axis_mod)
 
     if global_thorax_angle[0] > 0:
         global_thorax_angle[0] = global_thorax_angle[0] - 180
@@ -2894,7 +2896,7 @@ def JointAngleCalc(frame,vsk):
 
     # Calculate NECK
 
-    head_thorax_angle = get_angle_head(head_Axis_mod,thorax_Axis_mod)
+    head_thorax_angle = calc_angle_head(head_Axis_mod,thorax_Axis_mod)
 
     neckx=(head_thorax_angle[0]-180)*-1# - 24.9
     necky=head_thorax_angle[1]
@@ -2907,7 +2909,7 @@ def JointAngleCalc(frame,vsk):
 
     # Calculate SPINE
 
-    pel_tho_angle = get_angle_spine(pelvis_Axis_mod,thorax_Axis_mod)
+    pel_tho_angle = calc_angle_spine(pelvis_Axis_mod,thorax_Axis_mod)
 
     spix=pel_tho_angle[0]
     spiy=pel_tho_angle[2]*-1
@@ -2915,11 +2917,11 @@ def JointAngleCalc(frame,vsk):
 
     # Calculate SHOULDER
 
-    wand = calc_wand_marker(frame['RSHO'] if 'RSHO' in frame else None,
+    wand = calc_marker_wand(frame['RSHO'] if 'RSHO' in frame else None,
                             frame['LSHO'] if 'LSHO' in frame else None,
                             thorax_axis)
 
-    shoulder_JC = calc_shoulder_joint_center(frame['RSHO'] if 'RSHO' in frame else None,
+    shoulder_JC = calc_joint_center_shoulder(frame['RSHO'] if 'RSHO' in frame else None,
                                              frame['LSHO'] if 'LSHO' in frame else None,
                                              thorax_axis,
                                              wand[0],
@@ -2931,13 +2933,13 @@ def JointAngleCalc(frame,vsk):
     kin_R_Shoulder_JC = shoulder_JC[0] #quick fix for storing JC
     kin_L_Shoulder_JC = shoulder_JC[1] #quick fix for storing JC
 
-    axis_shoulder = calc_shoulder_axis(thorax_axis,
+    axis_shoulder = calc_axis_shoulder(thorax_axis,
                                        shoulder_JC[0],
                                        shoulder_JC[1],
                                        wand[0],
                                        wand[1])
 
-    axis_elbow = calc_elbow_axis(frame['RELB'] if 'RELB' in frame else None,
+    axis_elbow = calc_axis_elbow(frame['RELB'] if 'RELB' in frame else None,
                                  frame['LELB'] if 'LELB' in frame else None,
                                  frame['RWRA'] if 'RWRA' in frame else None,
                                  frame['RWRB'] if 'RWRB' in frame else None,
@@ -2974,7 +2976,7 @@ def JointAngleCalc(frame,vsk):
                                     np.subtract(L_Humerus_axis_form[1],L_Humerus_center_form),
                                     np.subtract(L_Humerus_axis_form[2],L_Humerus_center_form)])
 
-    R_thorax_shoulder_angle, L_thorax_shoulder_angle = get_angle_shoulder(thorax_axis,
+    R_thorax_shoulder_angle, L_thorax_shoulder_angle = calc_angle_shoulder(thorax_axis,
                                                                           axis_elbow[0],
                                                                           axis_elbow[1])
 
@@ -3007,7 +3009,7 @@ def JointAngleCalc(frame,vsk):
 
     # Calculate ELBOW
 
-    axis_wrist = calc_wrist_axis(axis_elbow[0],
+    axis_wrist = calc_axis_wrist(axis_elbow[0],
                                  axis_elbow[1],
                                  axis_elbow[2],
                                  axis_elbow[3])
@@ -3030,8 +3032,8 @@ def JointAngleCalc(frame,vsk):
                                     np.subtract(L_Radius_axis_form[1],L_Radius_center_form),
                                     np.subtract(L_Radius_axis_form[2],L_Radius_center_form)])
 
-    R_humerus_radius_angle = get_angle(R_humerus_Axis_mod,R_radius_Axis_mod)
-    L_humerus_radius_angle = get_angle(L_humerus_Axis_mod,L_radius_Axis_mod)
+    R_humerus_radius_angle = calc_angle(R_humerus_Axis_mod,R_radius_Axis_mod)
+    L_humerus_radius_angle = calc_angle(L_humerus_Axis_mod,L_radius_Axis_mod)
 
     relbx=R_humerus_radius_angle[0]
     relby=R_humerus_radius_angle[1]
@@ -3041,7 +3043,7 @@ def JointAngleCalc(frame,vsk):
     lelbz=L_humerus_radius_angle[2]-90.0
 
     # Calculate WRIST
-    hand_JC = calc_hand_axis(frame['RWRA'] if 'RWRA' in frame else None,
+    hand_JC = calc_axis_hand(frame['RWRA'] if 'RWRA' in frame else None,
                              frame['RWRB'] if 'RWRB' in frame else None,
                              frame['LWRA'] if 'LWRA' in frame else None,
                              frame['LWRB'] if 'LWRB' in frame else None,
@@ -3071,8 +3073,8 @@ def JointAngleCalc(frame,vsk):
                                 np.subtract(L_Hand_axis_form[1],L_Hand_center_form),
                                 np.subtract(L_Hand_axis_form[2],L_Hand_center_form)])
 
-    R_radius_hand_angle = get_angle(R_radius_Axis_mod,R_hand_Axis_mod)
-    L_radius_hand_angle = get_angle(L_radius_Axis_mod,L_hand_Axis_mod)
+    R_radius_hand_angle = calc_angle(R_radius_Axis_mod,R_hand_Axis_mod)
+    L_radius_hand_angle = calc_angle(L_radius_Axis_mod,L_hand_Axis_mod)
 
     rwrtx=R_radius_hand_angle[0]
     rwrty=R_radius_hand_angle[1]
