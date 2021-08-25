@@ -1379,15 +1379,13 @@ class TestLowerBodyAxis():
     ])
     def test_calc_joint_center_hip(self, pelvis_axis, subject, expected):
         """
-        This test provides coverage of the hipJointCenter function in pyCGM.py, defined as hipJointCenter(frame, pel_origin, pel_x, pel_y, pel_z, vsk)
+        This test provides coverage of the calc_joint_center_hip function in pyCGM.py,
+        defined as calc_joint_center_hip(pelvis_axis, subject)
 
-        This test takes 6 parameters:
-        pel_origin: array of x,y,z position of origin of the pelvis
-        pel_x: array of x,y,z position of x-axis of the pelvis
-        pel_y: array of x,y,z position of y-axis of the pelvis
-        pel_z: array of x,y,z position of z-axis of the pelvis
-        vsk: dictionary containing subject measurements from a VSK file
-        expected: the expected result from calling hipJointCenter on pel_origin, pel_x, pel_y, pel_z, and vsk
+        This test takes 2 parameters:
+        pelvis_axis: 4x4 affine matrix representing the pelvis axes and origin
+        subject: dictionary containing subject measurements from a VSK file
+        expected: the expected result from calling calc_joint_center_hip on pelvis_axis, subject
 
         This test is checking to make sure the hip joint center is calculated correctly given the input parameters.
         The test checks to see that the correct values in expected are updated per each input parameter added. Any
@@ -1395,14 +1393,16 @@ class TestLowerBodyAxis():
 
         The hip joint center axis and origin are calculated using the Hip Joint Center Calculation (ref. Davis_1991).
 
-        Lastly, it checks that the resulting output is correct when pel_origin, pel_x, pel_y, and pel_z are composed of
-        lists of ints, numpy arrays of ints, lists of floats, and numpy arrays of floats and vsk values are ints or floats.
+        Lastly, it checks that the resulting output is correct when the pelvis axis is composed of lists of ints, 
+        numpy arrays of ints, lists of floats, and numpy arrays of floats and vsk values are ints or floats.
         """
+
         pelvis_axis = np.asarray(pelvis_axis)
         pelvis_o = pelvis_axis[:3, 3]
         pelvis_axis[0, :3] -= pelvis_o
         pelvis_axis[1, :3] -= pelvis_o
         pelvis_axis[2, :3] -= pelvis_o
+
         result = pyCGM.calc_joint_center_hip(pelvis_axis, subject)
         np.testing.assert_almost_equal(result, expected, rounding_precision)
 
