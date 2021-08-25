@@ -2096,7 +2096,7 @@ def find_joint_center(p_a, p_b, p_c, delta):
 def get_angle_head(axis_p, axis_d):
     r"""Head angle calculation.
 
-    Takes in the two axes and returns the head rotation, 
+    Takes in two axes and returns the head rotation, 
     flexion, and abduction angles in degrees.
 
     Uses the inverse Euler rotation matrix in YXZ order.
@@ -2158,16 +2158,15 @@ def get_angle_head(axis_p, axis_d):
                             (np.dot(axis_d[1], axis_p[1])))
 
     alpha = 180.0 * alpha / pi
-    beta = 180.0 * beta / pi
+    beta =  180.0 * beta / pi
     gamma = 180.0 * gamma / pi
 
     beta *= -1
 
     if alpha < 0:
         alpha *= -1
-    else:
-        if 0 < alpha < 180:
-            alpha = 180 + (180 - alpha)
+    elif 0 < alpha < 180:
+        alpha = 180 + (180 - alpha)
 
     if gamma > 90.0:
         if gamma > 120:
