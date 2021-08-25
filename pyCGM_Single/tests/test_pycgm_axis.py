@@ -1143,24 +1143,28 @@ class TestLowerBodyAxis():
     ])
     def test_calc_pelvis_axis(self, frame, expected):
         """
-        This test provides coverage of the pelvisJointCenter function in pyCGM.py, defined as pelvisJointCenter(frame)
+        This test provides coverage of the test_calc_pelvis_axis function in pyCGM.py,
+        defined as test_calc_pelvis_axis(rasi, lasi, rpsi, lpsi, sacr)
 
         This test takes 2 parameters:
         frame: dictionary of marker lists
-        expected: the expected result from calling pelvisJointCenter on frame
+        expected: the expected result from calling test_calc_pelvis_axis on frame
 
-        This test is checking to make sure the pelvis joint center and axis are calculated correctly given the input
-        parameters. 
+        This test is checking to make sure the pelvis joint center and axis are calculated
+        correctly given the input parameters. 
 
-        If RPSI and LPSI are given, then the sacrum will be the midpoint of those two markers. If they are not given then the sacrum is already calculated / specified. 
+        If RPSI and LPSI are given, then the sacrum will be the midpoint of those two markers.
+        If they are not given then the sacrum is already calculated / specified. 
         The origin of the pelvis is midpoint of the RASI and LASI markers.
-        The axis of the pelvis is calculated using LASI, RASI, origin, and sacrum in the Gram-Schmidt orthogonalization procedure (ref. Kadaba 1990). 
+        The axis of the pelvis is calculated using LASI, RASI, origin, and sacrum in the 
+        Gram-Schmidt orthogonalization procedure (ref. Kadaba 1990). 
 
         Lastly, it checks that the resulting output is correct when frame is composed of lists of ints, numpy arrays of
         ints, lists of floats, and numpy arrays of floats. frame['LASI'] and frame['RASI'] were kept as numpy arrays
         every time as list would cause an error in pyCGM.py line 111 as lists cannot be divided by floats:
-        origin = (RASI+LASI)/2.0
+        o = (rasi+lasi)/2.0
         """
+
         rasi = frame["RASI"] if "RASI" in frame else None
         lasi = frame["LASI"] if "LASI" in frame else None
         rpsi = frame["RPSI"] if "RPSI" in frame else None
