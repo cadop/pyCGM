@@ -781,6 +781,9 @@ def calc_axis_foot(rtoe, ltoe, r_ankle_axis, l_ankle_axis, r_static_rot_off, l_s
     # ANKLE JOINT CENTER
     # ANKLE FLEXION AXIS
 
+    r_ankle_axis = np.asarray(r_ankle_axis)
+    l_ankle_axis = np.asarray(l_ankle_axis)
+
     ankle_JC_R = r_ankle_axis[:3, 3]
     ankle_JC_L = l_ankle_axis[:3, 3]
     ankle_flexion_R = r_ankle_axis[1, :3] + ankle_JC_R
