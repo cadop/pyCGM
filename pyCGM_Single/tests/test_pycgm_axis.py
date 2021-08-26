@@ -951,7 +951,7 @@ class TestLowerBodyAxis():
     pelvisJointCenter
     hipJointCenter
     hipAxisCenter
-    calc_knee_axis
+    calc_axis_knee
     ankleJointCenter
     footJointCenter
     """
