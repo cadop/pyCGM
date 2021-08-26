@@ -950,7 +950,7 @@ class TestLowerBodyAxis():
     This class tests the lower body axis functions in pyCGM.py:
     pelvisJointCenter
     hipJointCenter
-    hipAxisCenter
+    calc_axis_hip
     kneeJointCenter
     ankleJointCenter
     footJointCenter
