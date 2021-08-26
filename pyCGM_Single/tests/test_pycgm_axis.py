@@ -948,7 +948,7 @@ class TestUpperBodyAxis():
 class TestLowerBodyAxis():
     """
     This class tests the lower body axis functions in pyCGM.py:
-    calc_pelvis_axis
+    calc_axis_pelvis
     hipJointCenter
     hipAxisCenter
     kneeJointCenter
@@ -1141,14 +1141,14 @@ class TestLowerBodyAxis():
                       [0.,  0.,  0.,  1.]])
         )
     ])
-    def test_calc_pelvis_axis(self, frame, expected):
+    def test_calc_axis_pelvis(self, frame, expected):
         """
-        This test provides coverage of the test_calc_pelvis_axis function in pyCGM.py,
-        defined as test_calc_pelvis_axis(rasi, lasi, rpsi, lpsi, sacr)
+        This test provides coverage of the test_calc_axis_pelvis function in pyCGM.py,
+        defined as test_calc_axis_pelvis(rasi, lasi, rpsi, lpsi, sacr)
 
         This test takes 2 parameters:
         frame: dictionary of marker lists
-        expected: the expected result from calling test_calc_pelvis_axis on frame
+        expected: the expected result from calling test_calc_axis_pelvis on frame
 
         This test is checking to make sure the pelvis joint center and axis are calculated
         correctly given the input parameters. 
