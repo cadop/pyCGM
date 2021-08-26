@@ -952,7 +952,7 @@ class TestLowerBodyAxis():
     hipJointCenter
     hipAxisCenter
     kneeJointCenter
-    ankleJointCenter
+    calc_axis_ankle
     footJointCenter
     """
     nan_3d = [np.nan, np.nan, np.nan]
