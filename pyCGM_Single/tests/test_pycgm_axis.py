@@ -1227,149 +1227,525 @@ class TestLowerBodyAxis():
         np.testing.assert_almost_equal(result[0], expected[0], rounding_precision)
         np.testing.assert_almost_equal(result[1], expected[1], rounding_precision)
 
-    @pytest.mark.parametrize(["frame", "hip_JC", "vsk", "mockReturnVal", "expectedMockArgs", "expected"], [
-        # Test from running sample data
-        ({'RTHI': np.array([426.50338745, 262.65310669, 673.66247559]),
-          'LTHI': np.array([51.93867874, 320.01849365, 723.03186035]),
-          'RKNE': np.array([416.98687744, 266.22558594, 524.04089355]),
-          'LKNE': np.array([84.62355804, 286.69122314, 529.39819336])},
-         [[182.57097863, 339.43231855, 935.52900126], [308.38050472, 322.80342417, 937.98979061]],
-         {'RightKneeWidth': 105.0, 'LeftKneeWidth': 105.0},
-         [np.array([364.17774614, 292.17051722, 515.19181496]), np.array([143.55478579, 279.90370346, 524.78408753])],
-         [[[426.50338745, 262.65310669, 673.66247559], [308.38050472, 322.80342417, 937.98979061], [416.98687744, 266.22558594, 524.04089355], 59.5],
-          [[51.93867874, 320.01849365, 723.03186035], [182.57097863, 339.43231855, 935.52900126], [84.62355804, 286.69122314, 529.39819336], 59.5]],
-         [np.array([364.17774614, 292.17051722, 515.19181496]),
-          np.array([143.55478579, 279.90370346, 524.78408753]),
-          np.array([[[364.61959153, 293.06758353, 515.18513093], [363.29019771, 292.60656648, 515.04309095], [364.04724541, 292.24216264, 516.18067112]],
-                    [[143.65611282, 280.88685896, 524.63197541], [142.56434499, 280.01777943, 524.86163553], [143.64837987, 280.04650381, 525.76940383]]])]),
-        # Test with zeros for all params
-        ({'RTHI': np.array([0, 0, 0]), 'LTHI': np.array([0, 0, 0]), 'RKNE': np.array([0, 0, 0]), 'LKNE': np.array([0, 0, 0])},
-         [[0, 0, 0], [0, 0, 0]],
-         {'RightKneeWidth': 0.0, 'LeftKneeWidth': 0.0},
-         [np.array([0, 0, 0]), np.array([0, 0, 0])],
-         [[[0, 0, 0], [0, 0, 0], [0, 0, 0], 7.0], [[0, 0, 0], [0, 0, 0], [0, 0, 0], 7.0]],
-         [np.array([0, 0, 0]), np.array([0, 0, 0]),
-          np.array([[nan_3d, nan_3d, nan_3d],
-                    [nan_3d, nan_3d, nan_3d]])]),
-        # Testing when values are added to frame
-        ({'RTHI': np.array([1, 2, 4]), 'LTHI': np.array([-1, 0, 8]), 'RKNE': np.array([8, -4, 5]), 'LKNE': np.array([8, -8, 5])},
-         [[0, 0, 0], [0, 0, 0]],
-         {'RightKneeWidth': 0.0, 'LeftKneeWidth': 0.0},
-         [np.array([0, 0, 0]), np.array([0, 0, 0])],
-         [[[1, 2, 4], [0, 0, 0], [8, -4, 5], 7.0], [[-1, 0, 8], [0, 0, 0], [8, -8, 5], 7.0]],
-         [np.array([0, 0, 0]), np.array([0, 0, 0]),
-          np.array([[nan_3d, nan_3d, nan_3d],
-                    [nan_3d, nan_3d, nan_3d]])]),
-        # Testing when values are added to hip_JC
-        ({'RTHI': np.array([0, 0, 0]), 'LTHI': np.array([0, 0, 0]), 'RKNE': np.array([0, 0, 0]), 'LKNE': np.array([0, 0, 0])},
-         [[-8, 8, -2], [1, -9, 2]],
-         {'RightKneeWidth': 0.0, 'LeftKneeWidth': 0.0},
-         [np.array([0, 0, 0]), np.array([0, 0, 0])],
-         [[[0, 0, 0], [1, -9, 2], [0, 0, 0], 7.0], [[0, 0, 0], [-8, 8, -2], [0, 0, 0], 7.0]],
-         [np.array([0, 0, 0]), np.array([0, 0, 0]),
-          np.array([[nan_3d, nan_3d, [0.10783277, -0.97049496, 0.21566555]],
-                    [nan_3d, nan_3d, [-0.69631062, 0.69631062, -0.17407766]]])]),
-        # Testing when values are added to vsk
-        ({'RTHI': np.array([0, 0, 0]), 'LTHI': np.array([0, 0, 0]), 'RKNE': np.array([0, 0, 0]), 'LKNE': np.array([0, 0, 0])},
-         [[0, 0, 0], [0, 0, 0]],
-         {'RightKneeWidth': 9.0, 'LeftKneeWidth': -6.0},
-         [np.array([0, 0, 0]), np.array([0, 0, 0])],
-         [[[0, 0, 0], [0, 0, 0], [0, 0, 0], 11.5], [[0, 0, 0], [0, 0, 0], [0, 0, 0], 4.0]],
-         [np.array([0, 0, 0]), np.array([0, 0, 0]),
-          np.array([[nan_3d, nan_3d, nan_3d],
-                    [nan_3d, nan_3d, nan_3d]])]),
-        # Testing when values are added to mockReturnVal
-        ({'RTHI': np.array([0, 0, 0]), 'LTHI': np.array([0, 0, 0]), 'RKNE': np.array([0, 0, 0]), 'LKNE': np.array([0, 0, 0])},
-         [[0, 0, 0], [0, 0, 0]],
-         {'RightKneeWidth': 0.0, 'LeftKneeWidth': 0.0},
-         [np.array([-5, -5, -9]), np.array([3, -6, -5])],
-         [[[0, 0, 0], [0, 0, 0], [0, 0, 0], 7.0], [[0, 0, 0], [0, 0, 0], [0, 0, 0], 7.0]],
-         [np.array([-5, -5, -9]), np.array([3, -6, -5]),
-          np.array([[nan_3d, nan_3d, [-4.56314797, -4.56314797, -8.21366635]],
-                    [nan_3d, nan_3d, [2.64143142, -5.28286283, -4.4023857]]])]),
-        # Testing when values are added to frame and hip_JC
-        ({'RTHI': np.array([1, 2, 4]), 'LTHI': np.array([-1, 0, 8]), 'RKNE': np.array([8, -4, 5]), 'LKNE': np.array([8, -8, 5])},
-         [[-8, 8, -2], [1, -9, 2]],
-         {'RightKneeWidth': 0.0, 'LeftKneeWidth': 0.0},
-         [np.array([0, 0, 0]), np.array([0, 0, 0])],
-         [[[1, 2, 4], [1, -9, 2], [8, -4, 5], 7.0], [[-1, 0, 8], [-8, 8, -2], [8, -8, 5], 7.0]],
-         [np.array([0, 0, 0]), np.array([0, 0, 0]),
-          np.array([[[-0.47319376, 0.14067923, 0.86965339], [-0.8743339, -0.19582873, -0.44406233], [0.10783277, -0.97049496, 0.21566555]],
-                    [[-0.70710678, -0.70710678, 0.0], [-0.12309149, 0.12309149, 0.98473193], [-0.69631062, 0.69631062, -0.17407766]]])]),
-        # Testing when values are added to frame, hip_JC, and vsk
-        ({'RTHI': np.array([1, 2, 4]), 'LTHI': np.array([-1, 0, 8]), 'RKNE': np.array([8, -4, 5]),
-          'LKNE': np.array([8, -8, 5])},
-         [[-8, 8, -2], [1, -9, 2]],
-         {'RightKneeWidth': 9.0, 'LeftKneeWidth': -6.0},
-         [np.array([0, 0, 0]), np.array([0, 0, 0])],
-         [[[1, 2, 4], [1, -9, 2], [8, -4, 5], 11.5], [[-1, 0, 8], [-8, 8, -2], [8, -8, 5], 4.0]],
-         [np.array([0, 0, 0]), np.array([0, 0, 0]),
-          np.array([[[-0.47319376, 0.14067923, 0.86965339], [-0.8743339, -0.19582873, -0.44406233], [0.10783277, -0.97049496, 0.21566555]],
-                    [[-0.70710678, -0.70710678, 0.0], [-0.12309149, 0.12309149, 0.98473193], [-0.69631062, 0.69631062, -0.17407766]]])]),
-        # Testing when values are added to frame, hip_JC, vsk, and mockReturnVal
-        ({'RTHI': np.array([1, 2, 4]), 'LTHI': np.array([-1, 0, 8]), 'RKNE': np.array([8, -4, 5]), 'LKNE': np.array([8, -8, 5])},
-         [[-8, 8, -2], [1, -9, 2]],
-         {'RightKneeWidth': 9.0, 'LeftKneeWidth': -6.0},
-         [np.array([-5, -5, -9]), np.array([3, -6, -5])],
-         [[[1, 2, 4], [1, -9, 2], [8, -4, 5], 11.5], [[-1, 0, 8], [-8, 8, -2], [8, -8, 5], 4.0]],
-         [np.array([-5, -5, -9]), np.array([3, -6, -5]),
-          np.array([[[-5.6293369, -4.4458078, -8.45520089], [-5.62916022, -5.77484544, -8.93858368], [-4.54382845, -5.30411437, -8.16368549]],
-                    [[2.26301154, -6.63098327, -4.75770242], [3.2927155, -5.97483821, -4.04413154], [2.39076635, -5.22461171, -4.83384537]]])]),
-        # Testing that when hip_JC is composed of lists of ints and vsk values are ints
-        ({'RTHI': np.array([1, 2, 4]), 'LTHI': np.array([-1, 0, 8]), 'RKNE': np.array([8, -4, 5]), 'LKNE': np.array([8, -8, 5])},
-         [[-8, 8, -2], [1, -9, 2]],
-         {'RightKneeWidth': 9, 'LeftKneeWidth': -6},
-         [np.array([-5, -5, -9]), np.array([3, -6, -5])],
-         [[[1, 2, 4], [1, -9, 2], [8, -4, 5], 11.5], [[-1, 0, 8], [-8, 8, -2], [8, -8, 5], 4.0]],
-         [np.array([-5, -5, -9]), np.array([3, -6, -5]),
-          np.array([[[-5.6293369, -4.4458078, -8.45520089], [-5.62916022, -5.77484544, -8.93858368], [-4.54382845, -5.30411437, -8.16368549]],
-                    [[2.26301154, -6.63098327, -4.75770242], [3.2927155, -5.97483821, -4.04413154], [2.39076635, -5.22461171, -4.83384537]]])]),
-        # Testing that when hip_JC is composed of numpy arrays of ints and vsk values are ints
-        ({'RTHI': np.array([1, 2, 4], dtype='int'), 'LTHI': np.array([-1, 0, 8], dtype='int'),
-          'RKNE': np.array([8, -4, 5], dtype='int'), 'LKNE': np.array([8, -8, 5], dtype='int')},
-         np.array([[-8, 8, -2], [1, -9, 2]], dtype='int'),
-         {'RightKneeWidth': 9, 'LeftKneeWidth': -6},
-         [np.array([-5, -5, -9]), np.array([3, -6, -5])],
-         [[[1, 2, 4], [1, -9, 2], [8, -4, 5], 11.5], [[-1, 0, 8], [-8, 8, -2], [8, -8, 5], 4.0]],
-         [np.array([-5, -5, -9]), np.array([3, -6, -5]),
-          np.array([[[-5.6293369, -4.4458078, -8.45520089], [-5.62916022, -5.77484544, -8.93858368], [-4.54382845, -5.30411437, -8.16368549]],
-                    [[2.26301154, -6.63098327, -4.75770242], [3.2927155, -5.97483821, -4.04413154], [2.39076635, -5.22461171, -4.83384537]]])]),
-        # Testing that when hip_JC is composed of lists of floats and vsk values are floats
-        ({'RTHI': np.array([1, 2, 4]), 'LTHI': np.array([-1, 0, 8]), 'RKNE': np.array([8, -4, 5]),
-          'LKNE': np.array([8, -8, 5])},
-         [[-8.0, 8.0, -2.0], [1.0, -9.0, 2.0]],
-         {'RightKneeWidth': 9.0, 'LeftKneeWidth': -6.0},
-         [np.array([-5, -5, -9]), np.array([3, -6, -5])],
-         [[[1, 2, 4], [1, -9, 2], [8, -4, 5], 11.5], [[-1, 0, 8], [-8, 8, -2], [8, -8, 5], 4.0]],
-         [np.array([-5, -5, -9]), np.array([3, -6, -5]),
-          np.array([[[-5.6293369, -4.4458078, -8.45520089], [-5.62916022, -5.77484544, -8.93858368], [-4.54382845, -5.30411437, -8.16368549]],
-                    [[2.26301154, -6.63098327, -4.75770242], [3.2927155, -5.97483821, -4.04413154], [2.39076635, -5.22461171, -4.83384537]]])]),
-        # Testing that when hip_JC is composed of numpy arrays of floats and vsk values are floats
-        ({'RTHI': np.array([1.0, 2.0, 4.0], dtype='float'), 'LTHI': np.array([-1.0, 0.0, 8.0], dtype='float'),
-          'RKNE': np.array([8.0, -4.0, 5.0], dtype='float'), 'LKNE': np.array([8.0, -8.0, 5.0], dtype='float')},
-         np.array([[-8.0, 8.0, -2.0], [1.0, -9.0, 2.0]], dtype='int'),
-         {'RightKneeWidth': 9.0, 'LeftKneeWidth': -6.0},
-         [np.array([-5, -5, -9]), np.array([3, -6, -5])],
-         [[[1, 2, 4], [1, -9, 2], [8, -4, 5], 11.5], [[-1, 0, 8], [-8, 8, -2], [8, -8, 5], 4.0]],
-         [np.array([-5, -5, -9]), np.array([3, -6, -5]),
-          np.array([[[-5.6293369, -4.4458078, -8.45520089], [-5.62916022, -5.77484544, -8.93858368], [-4.54382845, -5.30411437, -8.16368549]],
-                    [[2.26301154, -6.63098327, -4.75770242], [3.2927155, -5.97483821, -4.04413154], [2.39076635, -5.22461171, -4.83384537]]])])])
-    def test_kneeJointCenter(self, frame, hip_JC, vsk, mockReturnVal, expectedMockArgs, expected):
+    @pytest.mark.parametrize(
+        ["frame", "hip_JC", "vsk", "mock_return_val", "expected_mock_args", "expected"],
+        [
+            # Test from running sample data
+            (
+                {
+                    "RTHI": np.array([426.50338745, 262.65310669, 673.66247559]),
+                    "LTHI": np.array([51.93867874, 320.01849365, 723.03186035]),
+                    "RKNE": np.array([416.98687744, 266.22558594, 524.04089355]),
+                    "LKNE": np.array([84.62355804, 286.69122314, 529.39819336]),
+                },
+                [
+                    [182.57097863, 339.43231855, 935.52900126],
+                    [308.38050472, 322.80342417, 937.98979061]
+                ],
+                {"RightKneeWidth": 105.0, "LeftKneeWidth": 105.0},
+                np.array([[364.17774614, 292.17051722, 515.19181496],
+                         [143.55478579, 279.90370346, 524.78408753]]),
+                [
+                    [
+                        [426.50338745, 262.65310669, 673.66247559],
+                        [308.38050472, 322.80342417, 937.98979061],
+                        [416.98687744, 266.22558594, 524.04089355],
+                        59.5
+                    ],
+                    [
+                        [51.93867874, 320.01849365, 723.03186035],
+                        [182.57097863, 339.43231855, 935.52900126],
+                        [84.62355804, 286.69122314, 529.39819336],
+                        59.5
+                    ],
+                ],
+                np.array([[[364.61959153, 293.06758353, 515.18513093, 364.17774614],
+                           [363.29019771, 292.60656648, 515.04309095, 292.17051722],
+                           [364.04724541, 292.24216264, 516.18067112, 515.19181496],
+                           [  0,            0,            0,            1         ]],
+                          [[143.65611282, 280.88685896, 524.63197541, 143.55478579],
+                           [142.56434499, 280.01777943, 524.86163553, 279.90370346],
+                           [143.64837987, 280.04650381, 525.76940383, 524.78408753],
+                           [  0,            0,            0,            1         ]],
+                ]),
+            ),
+            # Test with zeros for all params
+            (
+                {
+                    "RTHI": np.array([0, 0, 0]),
+                    "LTHI": np.array([0, 0, 0]),
+                    "RKNE": np.array([0, 0, 0]),
+                    "LKNE": np.array([0, 0, 0]),
+                },
+                [
+                    [0, 0, 0],
+                    [0, 0, 0]
+                ],
+                {"RightKneeWidth": 0.0, "LeftKneeWidth": 0.0},
+                np.array([[0, 0, 0],
+                          [0, 0, 0]]),
+                [
+                    [
+                        [0, 0, 0],
+                        [0, 0, 0],
+                        [0, 0, 0],
+                        7.0
+                    ], 
+                    [
+                        [0, 0, 0],
+                        [0, 0, 0],
+                        [0, 0, 0],
+                        7.0
+                    ]
+                ],
+                np.array([[[np.nan, np.nan, np.nan, 0], 
+                           [np.nan, np.nan, np.nan, 0],
+                           [np.nan, np.nan, np.nan, 0],
+                           [ 0,      0,      0,     1]],
+                          [[np.nan, np.nan, np.nan, 0],
+                           [np.nan, np.nan, np.nan, 0],
+                           [np.nan, np.nan, np.nan, 0],
+                           [ 0,      0,      0,     1]],
+                ]),
+            ),
+            # Testing when values are added to frame
+            (
+                {
+                    "RTHI": np.array([1, 2, 4]),
+                    "LTHI": np.array([-1, 0, 8]),
+                    "RKNE": np.array([8, -4, 5]),
+                    "LKNE": np.array([8, -8, 5]),
+                },
+                [
+                    [0, 0, 0],
+                    [0, 0, 0]
+                ],
+                {"RightKneeWidth": 0.0, "LeftKneeWidth": 0.0},
+                np.array([[0, 0, 0],
+                          [0, 0, 0]]),
+                [
+                    [
+                        [1, 2, 4],
+                        [0, 0, 0],
+                        [8, -4, 5],
+                        7.0
+                    ], 
+                    [
+                        [-1, 0, 8],
+                        [0, 0, 0],
+                        [8, -8, 5],
+                        7.0
+                    ]
+                ],
+                np.array([[[np.nan, np.nan, np.nan,  0    ], 
+                           [np.nan, np.nan, np.nan,  0    ],
+                           [np.nan, np.nan, np.nan,  0    ],
+                           [ 0,      0,      0,      1    ]],
+                          [[np.nan, np.nan, np.nan,  0    ],
+                           [np.nan, np.nan, np.nan,  0    ],
+                           [np.nan, np.nan, np.nan,  0    ],
+                           [ 0,      0,      0,      1    ]],
+                ]),
+            ),
+            # # Testing when values are added to hip_JC
+            (
+                {
+                    "RTHI": np.array([0, 0, 0]),
+                    "LTHI": np.array([0, 0, 0]),
+                    "RKNE": np.array([0, 0, 0]),
+                    "LKNE": np.array([0, 0, 0]),
+                },
+                [[-8, 8, -2], [1, -9, 2]],
+                {"RightKneeWidth": 0.0, "LeftKneeWidth": 0.0},
+                np.array([[0, 0, 0],
+                          [0, 0, 0]]),
+                [
+                    [
+                        [0, 0, 0],
+                        [1, -9, 2],
+                        [0, 0, 0],
+                        7.0
+                    ], 
+                    [
+                        [0, 0, 0],
+                        [-8, 8, -2],
+                        [0, 0, 0],
+                        7.0
+                    ]
+                ],
+                np.array([[[ np.nan,     np.nan, np.nan,          0],
+                           [ np.nan,     np.nan, np.nan,          0],
+                           [ 0.10783277, -0.97049496, 0.21566555, 0],
+                           [ 0,           0,          0,          1]],
+                          [[np.nan,      np.nan,      np.nan,     0],
+                           [np.nan,      np.nan,      np.nan,     0],
+                           [-0.69631062, 0.69631062, -0.17407766, 0],
+                           [ 0,          0,           0,          1]]],
+                        ),
+            ),
+            # Testing when values are added to vsk
+            (
+                {
+                    "RTHI": np.array([0, 0, 0]),
+                    "LTHI": np.array([0, 0, 0]),
+                    "RKNE": np.array([0, 0, 0]),
+                    "LKNE": np.array([0, 0, 0]),
+                },
+                [
+                    [0, 0, 0],
+                    [0, 0, 0]
+                ],
+                {"RightKneeWidth": 9.0, "LeftKneeWidth": -6.0},
+                np.array([[0, 0, 0],
+                          [0, 0, 0]]),
+                [
+                    [
+                        [0, 0, 0],
+                        [0, 0, 0],
+                        [0, 0, 0],
+                        11.5
+                    ], 
+                    [
+                        [0, 0, 0],
+                        [0, 0, 0],
+                        [0, 0, 0],
+                        4.0
+                    ]
+                ],
+                np.array([[[np.nan, np.nan, np.nan, 0], 
+                           [np.nan, np.nan, np.nan, 0],
+                           [np.nan, np.nan, np.nan, 0],
+                           [ 0,      0,      0,     1]],
+                          [[np.nan, np.nan, np.nan, 0],
+                           [np.nan, np.nan, np.nan, 0],
+                           [np.nan, np.nan, np.nan, 0],
+                           [ 0,      0,      0,     1]],
+                ]),
+            ),
+            # Testing when values are added to mock_return_val
+            (
+                {
+                    "RTHI": np.array([0, 0, 0]),
+                    "LTHI": np.array([0, 0, 0]),
+                    "RKNE": np.array([0, 0, 0]),
+                    "LKNE": np.array([0, 0, 0]),
+                },
+                [
+                    [0, 0, 0],
+                    [0, 0, 0]
+                ],
+                {"RightKneeWidth": 0.0, "LeftKneeWidth": 0.0},
+                np.array([[-5, -5, -9],
+                          [3, -6, -5]]),
+                [
+                    [
+                        [0, 0, 0],
+                        [0, 0, 0],
+                        [0, 0, 0],
+                        7.0
+                    ], 
+                    [
+                        [0, 0, 0],
+                        [0, 0, 0],
+                        [0, 0, 0],
+                        7.0
+                    ]
+                ],
+                np.array([[[ np.nan,     np.nan, np.nan,          -5],
+                           [ np.nan,     np.nan, np.nan,          -5],
+                           [-4.56314797, -4.56314797, -8.21366635,-9],
+                           [ 0,           0,          0,           1]],
+                          [[np.nan,      np.nan,      np.nan,      3],
+                           [np.nan,      np.nan,      np.nan,     -6],
+                           [ 2.64143142, -5.28286283, -4.4023857, -5],
+                           [ 0,          0,           0,           1]]],
+                        ),
+            ),
+            # # # Testing when values are added to frame and hip_JC
+            (
+                {
+                    "RTHI": np.array([1, 2, 4]),
+                    "LTHI": np.array([-1, 0, 8]),
+                    "RKNE": np.array([8, -4, 5]),
+                    "LKNE": np.array([8, -8, 5]),
+                },
+                [
+                    [-8,  8, -2],
+                    [ 1, -9,  2]
+                ],
+                {"RightKneeWidth": 0.0, "LeftKneeWidth": 0.0},
+                np.array([[0, 0, 0],
+                          [0, 0, 0]]),
+                [
+                    [
+                        [1,  2, 4],
+                        [1, -9, 2],
+                        [8, -4, 5],
+                        7.0
+                    ], 
+                    [
+                        [-1, 0,  8],
+                        [-8, 8, -2],
+                        [8, -8,  5],
+                        7.0
+                    ]
+                ],
+                np.array([[[-0.47319376,  0.14067923,  0.86965339, 0],
+                           [-0.8743339,  -0.19582873, -0.44406233, 0],
+                           [ 0.10783277, -0.97049496,  0.21566555, 0],
+                           [ 0,           0,           0,          1]],
+                          [[-0.70710678, -0.70710678,  0.0,        0],
+                           [-0.12309149,  0.12309149,  0.98473193, 0],
+                           [-0.69631062,  0.69631062, -0.17407766, 0],
+                           [ 0,           0,           0,          1]]],
+                        ),
+            ),
+            # Testing when values are added to frame, hip_JC, and vsk
+            (
+                {
+                    "RTHI": np.array([1, 2, 4]),
+                    "LTHI": np.array([-1, 0, 8]),
+                    "RKNE": np.array([8, -4, 5]),
+                    "LKNE": np.array([8, -8, 5]),
+                },
+                [
+                    [-8,  8, -2],
+                    [ 1, -9,  2]
+                ],
+                {"RightKneeWidth": 9.0, "LeftKneeWidth": -6.0},
+                np.array([[0, 0, 0],
+                          [0, 0, 0]]),
+                [
+                    [
+                        [1,  2, 4],
+                        [1, -9, 2],
+                        [8, -4, 5],
+                        11.5
+                    ], 
+                    [
+                        [-1,  0,  8],
+                        [-8,  8, -2],
+                        [ 8, -8,  5],
+                        4.0
+                    ]
+                ],
+                np.array([[[-0.47319376,  0.14067923,  0.86965339, 0],
+                           [-0.8743339,  -0.19582873, -0.44406233, 0],
+                           [ 0.10783277, -0.97049496,  0.21566555, 0],
+                           [ 0,           0,           0,          1]],
+                          [[-0.70710678, -0.70710678,  0,          0],
+                           [-0.12309149,  0.12309149,  0.98473193, 0],
+                           [-0.69631062,  0.69631062, -0.17407766, 0],
+                           [ 0,           0,           0,          1]]],
+                        ),
+            ),
+            # Testing when values are added to frame, hip_JC, vsk, and mock_return_val
+            (
+                {
+                    "RTHI": np.array([1, 2, 4]),
+                    "LTHI": np.array([-1, 0, 8]),
+                    "RKNE": np.array([8, -4, 5]),
+                    "LKNE": np.array([8, -8, 5]),
+                },
+                [
+                    [-8,  8, -2],
+                    [ 1, -9,  2]
+                ],
+                {"RightKneeWidth": 9.0, "LeftKneeWidth": -6.0},
+                np.array([[-5, -5, -9],
+                          [ 3, -6, -5]]),
+                [
+                    [
+                        [1,  2, 4],
+                        [1, -9, 2],
+                        [8, -4, 5],
+                        11.5
+                    ], 
+                    [
+                        [-1,  0,  8],
+                        [-8,  8, -2],
+                        [ 8, -8,  5],
+                        4.0
+                    ]
+                ],
+                np.array([[[-5.6293369,  -4.4458078,  -8.45520089, -5],
+                           [-5.62916022, -5.77484544, -8.93858368, -5],
+                           [-4.54382845, -5.30411437, -8.16368549, -9],
+                           [ 0,           0,           0,           1]],
+                          [[2.26301154, -6.63098327, -4.75770242,  3],
+                           [3.2927155,  -5.97483821, -4.04413154, -6],
+                           [2.39076635, -5.22461171, -4.83384537, -5],
+                           [0,           0,           0,           1]]]
+                        )
+            ),
+            # # Testing that when hip_JC is composed of lists of ints and vsk values are ints
+            (
+                {
+                    "RTHI": np.array([1, 2, 4]),
+                    "LTHI": np.array([-1, 0, 8]),
+                    "RKNE": np.array([8, -4, 5]),
+                    "LKNE": np.array([8, -8, 5]),
+                },
+                [
+                    [-8,  8, -2],
+                    [ 1, -9,  2]
+                ],
+                {"RightKneeWidth": 9, "LeftKneeWidth": -6},
+                np.array([[-5, -5, -9],
+                          [3, -6, -5]]),
+                [
+                    [
+                        [1,  2, 4],
+                        [1, -9, 2],
+                        [8, -4, 5],
+                        11.5
+                    ], 
+                    [
+                        [-1, 0,  8],
+                        [-8, 8, -2],
+                        [ 8, -8, 5],
+                        4.0
+                    ]
+                ],
+                np.array([[[-5.6293369,  -4.4458078,  -8.45520089, -5],
+                           [-5.62916022, -5.77484544, -8.93858368, -5],
+                           [-4.54382845, -5.30411437, -8.16368549, -9],
+                           [ 0,           0,           0,           1]],
+                          [[ 2.26301154, -6.63098327, -4.75770242,  3],
+                           [ 3.2927155,  -5.97483821, -4.04413154, -6],
+                           [ 2.39076635, -5.22461171, -4.83384537, -5],
+                           [ 0,           0,           0,           1]]]
+                        ),
+            ),
+            # # Testing that when hip_JC is composed of numpy arrays of ints and vsk values are ints
+            (
+                {
+                    "RTHI": np.array([1, 2, 4], dtype="int"),
+                    "LTHI": np.array([-1, 0, 8], dtype="int"),
+                    "RKNE": np.array([8, -4, 5], dtype="int"),
+                    "LKNE": np.array([8, -8, 5], dtype="int"),
+                },
+                np.array([[-8, 8, -2], [1, -9, 2]], dtype="int"),
+                {"RightKneeWidth": 9, "LeftKneeWidth": -6},
+                np.array([[-5, -5, -9],
+                          [3, -6, -5]]),
+                [
+                    [
+                        [1,  2, 4],
+                        [1, -9, 2],
+                        [8, -4, 5],
+                        11.5
+                    ], 
+                    [
+                        [-1,  0,  8],
+                        [-8,  8, -2],
+                        [ 8, -8,  5],
+                        4.0
+                    ]
+                ],
+                np.array([[[-5.6293369,  -4.4458078,  -8.45520089, -5],
+                           [-5.62916022, -5.77484544, -8.93858368, -5],
+                           [-4.54382845, -5.30411437, -8.16368549, -9],
+                           [ 0,           0,           0,           1]],
+                          [[ 2.26301154, -6.63098327, -4.75770242,  3],
+                           [ 3.2927155,  -5.97483821, -4.04413154, -6],
+                           [ 2.39076635, -5.22461171, -4.83384537, -5],
+                           [ 0,           0,           0,           1]]]
+                    ),
+            ),
+            # # Testing that when hip_JC is composed of lists of floats and vsk values are floats
+            (
+                {
+                    "RTHI": np.array([1, 2, 4]),
+                    "LTHI": np.array([-1, 0, 8]),
+                    "RKNE": np.array([8, -4, 5]),
+                    "LKNE": np.array([8, -8, 5]),
+                },
+                [
+                    [-8.0,  8.0, -2.0],
+                    [ 1.0, -9.0,  2.0]
+                ],
+                {"RightKneeWidth": 9.0, "LeftKneeWidth": -6.0},
+                np.array([[-5, -5, -9],
+                          [ 3, -6, -5]]),
+                [
+                    [
+                        [1,  2, 4],
+                        [1, -9, 2],
+                        [8, -4, 5],
+                        11.5
+                    ], 
+                    [
+                        [-1, 0,  8],
+                        [-8, 8, -2],
+                        [ 8, -8, 5],
+                        4.0
+                    ]
+                ],
+                np.array([[[-5.6293369,  -4.4458078,  -8.45520089, -5],
+                           [-5.62916022, -5.77484544, -8.93858368, -5],
+                           [-4.54382845, -5.30411437, -8.16368549, -9],
+                           [ 0,           0,           0,           1]],
+                          [[ 2.26301154, -6.63098327, -4.75770242,  3],
+                           [ 3.2927155,  -5.97483821, -4.04413154, -6],
+                           [ 2.39076635, -5.22461171, -4.83384537, -5],
+                           [ 0,           0,           0,           1]]]
+                        )
+            ),
+            # # Testing that when hip_JC is composed of numpy arrays of floats and vsk values are floats
+            (
+                {
+                    "RTHI": np.array([1.0, 2.0, 4.0], dtype="float"),
+                    "LTHI": np.array([-1.0, 0.0, 8.0], dtype="float"),
+                    "RKNE": np.array([8.0, -4.0, 5.0], dtype="float"),
+                    "LKNE": np.array([8.0, -8.0, 5.0], dtype="float"),
+                },
+                np.array([[-8.0,  8.0, -2.0],
+                          [ 1.0, -9.0,  2.0]], dtype="int"),
+                {"RightKneeWidth": 9.0, "LeftKneeWidth": -6.0},
+                np.array([[-5, -5, -9],
+                          [ 3, -6, -5]]),
+                [
+                    [
+                        [1,  2, 4],
+                        [1, -9, 2],
+                        [8, -4, 5],
+                        11.5
+                    ], 
+                    [
+                        [-1,  0,  8],
+                        [-8,  8, -2],
+                        [ 8, -8,  5],
+                        4.0
+                    ]
+                ],
+                np.array([[[-5.6293369,  -4.4458078,  -8.45520089, -5],
+                           [-5.62916022, -5.77484544, -8.93858368, -5],
+                           [-4.54382845, -5.30411437, -8.16368549, -9],
+                           [ 0,           0,           0,           1]],
+                          [[ 2.26301154, -6.63098327, -4.75770242,  3],
+                           [ 3.2927155,  -5.97483821, -4.04413154, -6],
+                           [ 2.39076635, -5.22461171, -4.83384537, -5],
+                           [ 0,           0,           0,           1]]],
+                    ),
+            ),
+        ])
+    def test_calc_axis_knee(self, frame, hip_JC, vsk, mock_return_val, expected_mock_args, expected):
         """
-        This test provides coverage of the kneeJointCenter function in pyCGM.py, defined as kneeJointCenter(frame, hip_JC, delta, vsk)
+        This test provides coverage of the calc_axis_knee function in pyCGM.py, defined as calc_axis_knee(frame, hip_JC, delta, vsk)
 
         This test takes 6 parameters:
         frame: dictionary of marker lists
-        hip_JC: array of hip_JC containing the x,y,z axes marker positions of the hip joint center
+        hip_JC: array of hip_JC containing the x, y, z positions of the right and left hip joint centers
         vsk: dictionary containing subject measurements from a VSK file
-        mockReturnVal: the value to be returned by the mock for findJointC
-        expectedMockArgs: the expected arguments used to call the mocked function, findJointC
-        expected: the expected result from calling kneeJointCenter on frame, hip_JC, vsk, and mockReturnVal
+        mock_return_val: the value to be returned by the mock for calc_joint_center
+        expected_mock_args: the expected arguments used to call the mocked function, calc_joint_center
+        expected: the expected result from calling calc_axis_knee on frame, hip_JC, vsk, and mock_return_val
 
         This test is checking to make sure the knee joint center and axis are calculated correctly given the input
-        parameters. This tests mocks findJointC to make sure the correct parameters are being passed into it given the
-        parameters passed into kneeJointCenter, and to also ensure that kneeJointCenter returns the correct value considering
-        the return value of findJointC, mockReturnVal. 
+        parameters. This tests mocks calc_joint_center to make sure the correct parameters are being passed into it given the
+        parameters passed into calc_axis_knee, and to also ensure that calc_axis_knee returns the correct value considering
+        the return value of calc_joint_center, mock_return_val. 
 
         For each direction (L or R) D, the D knee joint center is calculated using DTHI, D hip joint center, and 
         DKNE in the Rodriques' rotation formula. The knee width for each knee is applied after the rotation in the formula as well.
@@ -1380,31 +1756,61 @@ class TestLowerBodyAxis():
         ints, lists of floats, and numpy arrays of floats and vsk values are ints and floats. The values in frame were
         kept as numpy arrays as lists would cause an error in pyCGM.py line 409 and 429 as lists cannot be subtracted
         by each other:
-        thi_kne_R = RTHI-RKNE
-        thi_kne_L = LTHI-LKNE
+        thi_kne_R = rthi-rkne
+        thi_kne_L = lthi-lkne
         """
-        with patch.object(pyCGM, 'findJointC', side_effect=mockReturnVal) as mock_findJointC:
-            result = pyCGM.kneeJointCenter(frame, hip_JC, None, vsk)
 
-        # Asserting that there were only 2 calls to findJointC
-        np.testing.assert_equal(mock_findJointC.call_count, 2)
+        # Get marker position parameters from frame
+        rthi = frame["RTHI"] if "RTHI" in frame else None
+        lthi = frame["LTHI"] if "LTHI" in frame else None
+        rkne = frame["RKNE"] if "RKNE" in frame else None
+        lkne = frame["LKNE"] if "LKNE" in frame else None
 
-        # Asserting that the correct params were sent in the 1st (right) call to findJointC
-        np.testing.assert_almost_equal(expectedMockArgs[0][0], mock_findJointC.call_args_list[0][0][0], rounding_precision)
-        np.testing.assert_almost_equal(expectedMockArgs[0][1], mock_findJointC.call_args_list[0][0][1], rounding_precision)
-        np.testing.assert_almost_equal(expectedMockArgs[0][2], mock_findJointC.call_args_list[0][0][2], rounding_precision)
-        np.testing.assert_almost_equal(expectedMockArgs[0][3], mock_findJointC.call_args_list[0][0][3], rounding_precision)
+        r_hip_jc = hip_JC[1]
+        l_hip_jc = hip_JC[0]
 
-        # Asserting that the correct params were sent in the 2nd (left) call to findJointC
-        np.testing.assert_almost_equal(expectedMockArgs[1][0], mock_findJointC.call_args_list[1][0][0], rounding_precision)
-        np.testing.assert_almost_equal(expectedMockArgs[1][1], mock_findJointC.call_args_list[1][0][1], rounding_precision)
-        np.testing.assert_almost_equal(expectedMockArgs[1][2], mock_findJointC.call_args_list[1][0][2], rounding_precision)
-        np.testing.assert_almost_equal(expectedMockArgs[1][3], mock_findJointC.call_args_list[1][0][3], rounding_precision)
+        # Get measurement parameters from vsk
+        rkne_width = vsk["RightKneeWidth"] if "RightKneeWidth" in vsk else None
+        lkne_width = vsk["LeftKneeWidth"] if "LeftKneeWidth" in vsk else None
 
-        # Asserting that findShoulderJC returned the correct result given the return value given by mocked findJointC
-        np.testing.assert_almost_equal(result[0], expected[0], rounding_precision)
-        np.testing.assert_almost_equal(result[1], expected[1], rounding_precision)
-        np.testing.assert_almost_equal(result[2], expected[2], rounding_precision)
+        with patch.object(pyCGM, 'calc_joint_center', side_effect=mock_return_val) as mock_find_joint_center:
+            result = pyCGM.calc_axis_knee(rthi, lthi, rkne, lkne, r_hip_jc, l_hip_jc, rkne_width, lkne_width)
+
+        right_axis = result[0]
+        left_axis = result[1]
+
+        # Add back right knee origin
+        right_o = right_axis[:3, 3]
+        right_axis[0, :3] += right_o
+        right_axis[1, :3] += right_o
+        right_axis[2, :3] += right_o
+
+        # Add back left knee origin
+        left_o = left_axis[:3, 3]
+        left_axis[0, :3] += left_o
+        left_axis[1, :3] += left_o
+        left_axis[2, :3] += left_o
+
+        result = np.asarray([right_axis, left_axis])
+
+        # Asserting that there were only 2 calls to calc_joint_center
+        np.testing.assert_equal(mock_find_joint_center.call_count, 2)
+
+        # Asserting that the correct params were sent in the 1st (right) call to calc_joint_center
+        np.testing.assert_almost_equal(expected_mock_args[0][0], mock_find_joint_center.call_args_list[0][0][0], rounding_precision)
+        np.testing.assert_almost_equal(expected_mock_args[0][1], mock_find_joint_center.call_args_list[0][0][1], rounding_precision)
+        np.testing.assert_almost_equal(expected_mock_args[0][2], mock_find_joint_center.call_args_list[0][0][2], rounding_precision)
+        np.testing.assert_almost_equal(expected_mock_args[0][3], mock_find_joint_center.call_args_list[0][0][3], rounding_precision)
+
+        # Asserting that the correct params were sent in the 2nd (left) call to calc_joint_center
+        np.testing.assert_almost_equal(expected_mock_args[1][0], mock_find_joint_center.call_args_list[1][0][0], rounding_precision)
+        np.testing.assert_almost_equal(expected_mock_args[1][1], mock_find_joint_center.call_args_list[1][0][1], rounding_precision)
+        np.testing.assert_almost_equal(expected_mock_args[1][2], mock_find_joint_center.call_args_list[1][0][2], rounding_precision)
+        np.testing.assert_almost_equal(expected_mock_args[1][3], mock_find_joint_center.call_args_list[1][0][3], rounding_precision)
+
+        # Asserting that calc_axis_knee returned the correct result given the return value given by mocked calc_joint_center
+        np.testing.assert_almost_equal(result, expected, rounding_precision)
+
 
     @pytest.mark.parametrize(["frame", "knee_JC", "vsk", "mockReturnVal", "expectedMockArgs", "expected"], [
         # Test from running sample data
