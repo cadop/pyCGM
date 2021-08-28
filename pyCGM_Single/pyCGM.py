@@ -331,6 +331,7 @@ def calc_axis_hip(r_hip_jc, l_hip_jc, pelvis_axis):
     """
 
     # Get shared hip axis, it is inbetween the two hip joint centers
+    pelvis_axis = np.asarray(pelvis_axis)
     hipaxis_center = (np.asarray(r_hip_jc) + np.asarray(l_hip_jc)) / 2.0
 
     # convert pelvis_axis to x,y,z axis to use more easy
@@ -781,6 +782,8 @@ def calc_axis_foot(rtoe, ltoe, r_ankle_axis, l_ankle_axis, r_static_rot_off, l_s
     # KNEE JOINT CENTER
     # ANKLE JOINT CENTER
     # ANKLE FLEXION AXIS
+    r_ankle_axis = np.asarray(r_ankle_axis)
+    l_ankle_axis = np.asarray(l_ankle_axis)
 
     ankle_JC_R = r_ankle_axis[:3, 3]
     ankle_JC_L = l_ankle_axis[:3, 3]
@@ -1216,6 +1219,7 @@ def calc_marker_wand(rsho, lsho, thorax_axis):
      array([ 255.79,  365.67, 1462.16])]
     """
 
+    thorax_axis = np.asarray(thorax_axis)
     thorax_origin = thorax_axis[:3, 3]
 
     axis_x_vec = thorax_axis[0, :3]
@@ -1297,6 +1301,7 @@ def calc_joint_center_shoulder(rsho, lsho, thorax_axis, r_wand, l_wand, r_sho_of
             [   0.  ,    0.  ,    0.  ,    1.  ]])]
     """
 
+    thorax_axis = np.asarray(thorax_axis)
     thorax_origin = thorax_axis[:3, 3]
 
     # Get Subject Measurement Values
@@ -1378,6 +1383,10 @@ def calc_axis_shoulder(thorax_axis, r_sho_jc, l_sho_jc, r_wand, l_wand):
             [   0.84,    0.35,   -0.42, 1550.4 ],
             [   0.  ,    0.  ,    0.  ,    1.  ]])]
     """
+
+    thorax_axis = np.asarray(thorax_axis)
+    r_sho_jc = np.asarray(r_sho_jc)
+    l_sho_jc = np.asarray(l_sho_jc)
 
     thorax_origin = thorax_axis[:3, 3]
 
@@ -1529,6 +1538,8 @@ def calc_axis_elbow(relb, lelb, rwra, rwrb, lwra, lwrb, r_shoulder_jc, l_shoulde
                 [   0.  ,    0.  ,    1.  , 1091.37],
                 [   0.  ,    0.  ,    0.  ,    1.  ]])]
         """
+
+        shoulder_jc = np.asarray(shoulder_jc)
 
         r_elbow_width *= -1
         r_delta = (r_elbow_width/2.0)-mm
@@ -1771,6 +1782,7 @@ def calc_axis_wrist(r_elbow, l_elbow, r_wrist_jc, l_wrist_jc):
             [  0.  ,    0.  ,    0.  ,    1.  ]])]
     """
     # Bring Elbow joint center, axes and Wrist Joint Center for calculating Radius Axes
+    r_elbow, l_elbow, r_wrist_jc, l_wrist_jc = map(np.asarray, [r_elbow, l_elbow, r_wrist_jc, l_wrist_jc])
 
     rejc = r_elbow[:3, 3]
     lejc = l_elbow[:3, 3]
@@ -1914,6 +1926,8 @@ def calc_axis_hand(rwra, rwrb, lwra, lwrb, rfin, lfin, r_wrist_jc, l_wrist_jc, r
             [  0.6 , -0.76,  0.27, 1068.02],
             [  0.  ,  0.  ,  0.  ,    1.  ]])]
     """
+    r_wrist_jc = np.asarray(r_wrist_jc)
+    l_wrist_jc = np.asarray(l_wrist_jc)
 
     rwri = [(rwra[0]+rwrb[0])/2.0, (rwra[1]+rwrb[1]) /
             2.0, (rwra[2]+rwrb[2])/2.0]
@@ -2138,6 +2152,9 @@ def calc_angle_head(axis_p, axis_d):
     array([ 185.18,  -39.99, -190.54])
     """
 
+    axis_p = np.asarray(axis_p)
+    axis_d = np.asarray(axis_d)
+
     axis_p = axis_p[:3, :3]
     axis_d = axis_d[:3, :3]
 
@@ -2246,6 +2263,8 @@ def calc_angle_shoulder(axis_thorax, axis_hum_right, axis_hum_left):
     # beta is flexion / extension
     # gamma is adduction / abduction
     # alpha is internal / external rotation
+
+    axis_thorax, axis_hum_right, axis_hum_left = map(np.asarray, [axis_thorax, axis_hum_right, axis_hum_left])
 
     axis_thorax = axis_thorax[:3, :3]
     axis_hum_right = axis_hum_right[:3, :3]
