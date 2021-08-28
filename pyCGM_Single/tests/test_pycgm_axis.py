@@ -1849,7 +1849,8 @@ class TestLowerBodyAxis():
     ])
     def test_calc_axis_ankle(self, frame, knee_JC, vsk, mock_return_val, expected_mock_args, expected):
         """
-        This test provides coverage of the calc_axis_ankle function in pyCGM.py, defined as calc_axis_ankle(frame, knee_JC, delta, vsk)
+        This test provides coverage of the calc_axis_ankle function in pyCGM.py, defined as
+        calc_axis_ankle(rtib, ltib, rank, lank, r_knee_JC, l_knee_JC, rank_width, lank_width, rtib_torsion, ltib_torsion)
 
         This test takes 6 parameters:
         frame: dictionary of marker lists
