@@ -2014,7 +2014,8 @@ class TestLowerBodyAxis():
     ])
     def test_calc_axis_foot(self, frame, vsk, ankle_axis, expected):
         """
-        This test provides coverage of the calc_axis_foot function in pyCGM.py, defined as footJointCenter(frame, vsk, ankle_axis, knee_JC, delta)
+        This test provides coverage of the calc_axis_foot function in pyCGM.py, defined as 
+        calc_axis_foot(rtoe, ltoe, r_ankle_axis, l_ankle_axis, r_static_rot_off, l_static_rot_off, r_static_plant_flex, l_static_plant_flex)
 
         This test takes 4 parameters:
         frame: dictionary of marker lists
