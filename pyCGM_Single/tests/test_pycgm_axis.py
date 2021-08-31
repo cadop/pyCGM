@@ -10,7 +10,7 @@ class TestUpperBodyAxis():
     This class tests the upper body axis functions in pyCGM.py:
         headJC
         thoraxJC
-        findshoulderJC
+        calc_joint_center_shoulder
         shoulderAxisCalc
         elbowJointCenter
         wristJointCenter
