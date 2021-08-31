@@ -3,7 +3,7 @@ import pyCGM_Single.pyCGM as pyCGM
 import pytest
 import numpy as np
 
-rounding_precision = 6
+rounding_precision = 5
 
 class TestUpperBodyAxis():
     """
@@ -952,8 +952,8 @@ class TestLowerBodyAxis():
     hipJointCenter
     hipAxisCenter
     kneeJointCenter
+    calc_axis_foot
     calc_axis_ankle
-    footJointCenter
     """
     nan_3d = [np.nan, np.nan, np.nan]
     rand_int = np.random.randint(0, 10)
@@ -1930,142 +1930,423 @@ class TestLowerBodyAxis():
         # Asserting that findShoulderJC returned the correct result given the return value given by mocked calc_joint_center
         np.testing.assert_almost_equal(result, expected, rounding_precision)
 
-    @pytest.mark.parametrize(["frame", "vsk", "ankle_JC", "expected"], [
-        # Test from running sample data
-        ({'RTOE': np.array([442.81997681, 381.62280273, 42.66047668]), 'LTOE': np.array([39.43652725, 382.44522095, 41.78911591])},
-         {'RightStaticRotOff': 0.015683497632642047, 'RightStaticPlantFlex': 0.2702417907002757, 'LeftStaticRotOff': 0.009402910292403022, 'LeftStaticPlantFlex': 0.20251085737834015},
-         [np.array([393.76181608, 247.67829633, 87.73775041]), np.array([98.74901939, 219.46930221, 80.6306816]),
-          [[np.array([394.48171575, 248.37201348, 87.715368]), np.array([393.07114384, 248.39110006, 87.61575574]), np.array([393.69314056, 247.78157916, 88.73002876])],
-           [np.array([98.47494966, 220.42553803, 80.52821783]), np.array([97.79246671, 219.20927275, 80.76255901]), np.array([98.84848169, 219.60345781, 81.61663775])]]],
-         [np.array([442.81997681, 381.62280273, 42.66047668]), np.array([39.43652725, 382.44522095, 41.78911591]),
-          [[[442.8462412676692, 381.6513024007671, 43.65972537588915], [441.8773505621594, 381.95630350196393, 42.67574106247485], [442.48716163075153, 380.68048378251575, 42.69610043598381]],
-           [[39.566526257915626, 382.50901000467115, 42.778575967950964], [38.493133283871245, 382.1460684058263, 41.932348504971834], [39.74166341694723, 381.493150197213, 41.81040458481808]]]]),
-        # Test with zeros for all params
-        ({'RTOE': np.array([0, 0, 0]), 'LTOE': np.array([0, 0, 0])},
-         {'RightStaticRotOff': 0.0, 'RightStaticPlantFlex': 0.0, 'LeftStaticRotOff': 0.0, 'LeftStaticPlantFlex': 0.0},
-         [np.array([0, 0, 0]), np.array([0, 0, 0]),
-          [[np.array(rand_coor), np.array([0, 0, 0]), np.array(rand_coor)],
-           [np.array(rand_coor), np.array([0, 0, 0]), np.array(rand_coor)]]],
-         [np.array([0, 0, 0]), np.array([0, 0, 0]),
-          [[nan_3d, nan_3d, nan_3d],
-           [nan_3d, nan_3d, nan_3d]]]),
-        # Testing when adding values in frame['RTOE'] and frame['LTOE']
-        ({'RTOE': np.array([4, 0, -3]), 'LTOE': np.array([-1, 7, 2])},
-         {'RightStaticRotOff': 0.0, 'RightStaticPlantFlex': 0.0, 'LeftStaticRotOff': 0.0, 'LeftStaticPlantFlex': 0.0},
-         [np.array([0, 0, 0]), np.array([0, 0, 0]),
-          [[np.array(rand_coor), np.array([0, 0, 0]), np.array(rand_coor)],
-           [np.array(rand_coor), np.array([0, 0, 0]), np.array(rand_coor)]]],
-         [np.array([4, 0, -3]), np.array([-1, 7, 2]),
-          [[nan_3d, nan_3d, nan_3d],
-           [nan_3d, nan_3d, nan_3d]]]),
-        # Testing when adding values in vsk
-        ({'RTOE': np.array([0, 0, 0]), 'LTOE': np.array([0, 0, 0])},
-         {'RightStaticRotOff': -12.0, 'RightStaticPlantFlex': 20.0, 'LeftStaticRotOff': 34.0, 'LeftStaticPlantFlex': -70.0},
-         [np.array([0, 0, 0]), np.array([0, 0, 0]),
-          [[np.array(rand_coor), np.array([0, 0, 0]), np.array(rand_coor)],
-           [np.array(rand_coor), np.array([0, 0, 0]), np.array(rand_coor)]]],
-         [np.array([0, 0, 0]), np.array([0, 0, 0]),
-          [[nan_3d, nan_3d, nan_3d],
-           [nan_3d, nan_3d, nan_3d]]]),
-        # Testing when adding values to ankle_JC[0] and ankle_JC[1]
-        ({'RTOE': np.array([0, 0, 0]), 'LTOE': np.array([0, 0, 0])},
-         {'RightStaticRotOff': 0.0, 'RightStaticPlantFlex': 0.0, 'LeftStaticRotOff': 0.0, 'LeftStaticPlantFlex': 0.0},
-         [np.array([-3, 5, 2]), np.array([2, 3, 9]),
-          [[np.array(rand_coor), np.array([0, 0, 0]), np.array(rand_coor)],
-           [np.array(rand_coor), np.array([0, 0, 0]), np.array(rand_coor)]]],
-         [np.array([0, 0, 0]), np.array([0, 0, 0]),
-          [[nan_3d, nan_3d, nan_3d],
-           [nan_3d, nan_3d, nan_3d]]]),
-        # Testing when adding values to ankle_JC[2]
-        ({'RTOE': np.array([0, 0, 0]), 'LTOE': np.array([0, 0, 0])},
-         {'RightStaticRotOff': 0.0, 'RightStaticPlantFlex': 0.0, 'LeftStaticRotOff': 0.0, 'LeftStaticPlantFlex': 0.0},
-         [np.array([0, 0, 0]), np.array([0, 0, 0]),
-          [[np.array(rand_coor), np.array([-1, 0, 2]), np.array(rand_coor)],
-           [np.array(rand_coor), np.array([9, 3, -4]), np.array(rand_coor)]]],
-         [np.array([0, 0, 0]), np.array([0, 0, 0]),
-          [[nan_3d, nan_3d, nan_3d],
-           [nan_3d, nan_3d, nan_3d]]]),
-        # Testing when adding values to ankle_JC
-        ({'RTOE': np.array([0, 0, 0]), 'LTOE': np.array([0, 0, 0])},
-         {'RightStaticRotOff': 0.0, 'RightStaticPlantFlex': 0.0, 'LeftStaticRotOff': 0.0, 'LeftStaticPlantFlex': 0.0},
-         [np.array([-3, 5, 2]), np.array([2, 3, 9]),
-          [[np.array(rand_coor), np.array([-1, 0, 2]), np.array(rand_coor)],
-           [np.array(rand_coor), np.array([9, 3, -4]), np.array(rand_coor)]]],
-         [np.array([0, 0, 0]), np.array([0, 0, 0]),
-          [[[-0.84215192, -0.33686077, -0.42107596], [-0.23224564, -0.47815279,  0.8470135 ], [-0.48666426,  0.81110711,  0.32444284]],
-           [[0.39230172, -0.89525264, 0.21123939], [0.89640737, 0.32059014, -0.30606502], [0.20628425, 0.30942637, 0.92827912]]]]),
-        # Testing when adding values in frame and vsk
-        ({'RTOE': np.array([4, 0, -3]), 'LTOE': np.array([-1, 7, 2])},
-         {'RightStaticRotOff': -12.0, 'RightStaticPlantFlex': 20.0, 'LeftStaticRotOff': 34.0,'LeftStaticPlantFlex': -70.0},
-         [np.array([0, 0, 0]), np.array([0, 0, 0]),
-          [[np.array(rand_coor), np.array([0, 0, 0]), np.array(rand_coor)],
-           [np.array(rand_coor), np.array([0, 0, 0]), np.array(rand_coor)]]],
-         [np.array([4, 0, -3]), np.array([-1, 7, 2]),
-          [[nan_3d, nan_3d, nan_3d],
-           [nan_3d, nan_3d, nan_3d]]]),
-        # Testing when adding values in frame and thoraxJC
-        ({'RTOE': np.array([4, 0, -3]), 'LTOE': np.array([-1, 7, 2])},
-         {'RightStaticRotOff': 0.0, 'RightStaticPlantFlex': 0.0, 'LeftStaticRotOff': 0.0, 'LeftStaticPlantFlex': 0.0},
-         [np.array([-3, 5, 2]), np.array([2, 3, 9]),
-          [[np.array(rand_coor), np.array([-1, 0, 2]), np.array(rand_coor)],
-           [np.array(rand_coor), np.array([9, 3, -4]), np.array(rand_coor)]]],
-         [np.array([4, 0, -3]), np.array([-1, 7, 2]),
-          [[[3.31958618, -0.27216553, -3.68041382], [3.79484752, -0.82060994, -2.46660354], [3.29647353,  0.50251891, -2.49748109]],
-           [[-1.49065338, 6.16966351, 1.73580203], [-0.20147784, 6.69287609, 1.48227684], [-0.65125708, 6.53500945, 2.81373347]]]]),
-        # Testing when adding values in frame, vsk and thoraxJC
-        ({'RTOE': np.array([4, 0, -3]), 'LTOE': np.array([-1, 7, 2])},
-         {'RightStaticRotOff': -12.0, 'RightStaticPlantFlex': 20.0, 'LeftStaticRotOff': 34.0, 'LeftStaticPlantFlex': -70.0},
-         [np.array([-3, 5, 2]), np.array([2, 3, 9]),
-          [[np.array(rand_coor), np.array([-1, 0, 2]), np.array(rand_coor)],
-           [np.array(rand_coor), np.array([9, 3, -4]), np.array(rand_coor)]]],
-         [np.array([4, 0, -3]), np.array([-1, 7, 2]),
-          [[[3.08005417, 0.34770638, -2.81889243], [4.00614173, -0.44911697, -2.10654814], [4.3919974, 0.82303962, -2.58897224]],
-           [[-1.58062909, 6.83398388, 1.20293758], [-1.59355918, 7.75640754, 2.27483654], [-0.44272327, 7.63268181, 1.46226738]]]]),
-        # Testing that when frame and ankle_JC are composed of lists of ints and vsk values are ints
-        ({'RTOE': [4, 0, -3], 'LTOE': [-1, 7, 2]},
-         {'RightStaticRotOff': -12, 'RightStaticPlantFlex': 20, 'LeftStaticRotOff': 34, 'LeftStaticPlantFlex': -70},
-         [[-3, 5, 2], [2, 3, 9],
-          [[rand_coor, [-1, 0, 2], rand_coor],
-           [rand_coor, [9, 3, -4], rand_coor]]],
-         [np.array([4, 0, -3]), np.array([-1, 7, 2]),
-          [[[3.08005417, 0.34770638, -2.81889243], [4.00614173, -0.44911697, -2.10654814], [4.3919974, 0.82303962, -2.58897224]],
-           [[-1.58062909, 6.83398388, 1.20293758], [-1.59355918, 7.75640754, 2.27483654], [-0.44272327, 7.63268181, 1.46226738]]]]),
-        # Testing that when frame and ankle_JC are composed of numpy arrays of ints and vsk values are ints
-        ({'RTOE': np.array([4, 0, -3], dtype='int'), 'LTOE': np.array([-1, 7, 2], dtype='int')},
-         {'RightStaticRotOff': -12, 'RightStaticPlantFlex': 20, 'LeftStaticRotOff': 34, 'LeftStaticPlantFlex': -70},
-         [np.array([-3, 5, 2], dtype='int'), np.array([2, 3, 9], dtype='int'),
-          [np.array([rand_coor, [-1, 0, 2], rand_coor], dtype='int'),
-           np.array([rand_coor, [9, 3, -4], rand_coor], dtype='int')]],
-         [np.array([4, 0, -3]), np.array([-1, 7, 2]),
-          [[[3.08005417, 0.34770638, -2.81889243], [4.00614173, -0.44911697, -2.10654814], [4.3919974, 0.82303962, -2.58897224]],
-           [[-1.58062909, 6.83398388, 1.20293758], [-1.59355918, 7.75640754, 2.27483654], [-0.44272327, 7.63268181, 1.46226738]]]]),
-        # Testing that when frame and ankle_JC are composed of lists of floats and vsk values are floats
-        ({'RTOE': [4.0, 0.0, -3.0], 'LTOE': [-1.0, 7.0, 2.0]},
-         {'RightStaticRotOff': -12.0, 'RightStaticPlantFlex': 20.0, 'LeftStaticRotOff': 34.0, 'LeftStaticPlantFlex': -70.0},
-         [[-3.0, 5.0, 2.0], [2.0, 3.0, 9.0],
-          [[rand_coor, [-1.0, 0.0, 2.0], rand_coor],
-           [rand_coor, [9.0, 3.0, -4.0], rand_coor]]],
-         [np.array([4, 0, -3]), np.array([-1, 7, 2]),
-          [[[3.08005417, 0.34770638, -2.81889243], [4.00614173, -0.44911697, -2.10654814], [4.3919974, 0.82303962, -2.58897224]],
-           [[-1.58062909, 6.83398388, 1.20293758], [-1.59355918, 7.75640754, 2.27483654], [-0.44272327, 7.63268181, 1.46226738]]]]),
-        # Testing that when frame and ankle_JC are composed of numpy arrays of floats and vsk values are floats
-        ({'RTOE': np.array([4.0, 0.0, -3.0], dtype='float'), 'LTOE': np.array([-1.0, 7.0, 2.0], dtype='float')},
-         {'RightStaticRotOff': -12.0, 'RightStaticPlantFlex': 20.0, 'LeftStaticRotOff': 34.0, 'LeftStaticPlantFlex': -70.0},
-         [np.array([-3.0, 5.0, 2.0], dtype='float'), np.array([2.0, 3.0, 9.0], dtype='float'),
-          [np.array([rand_coor, [-1.0, 0.0, 2.0], rand_coor], dtype='float'),
-           np.array([rand_coor, [9.0, 3.0, -4.0], rand_coor], dtype='float')]],
-         [np.array([4, 0, -3]), np.array([-1, 7, 2]),
-          [[[3.08005417, 0.34770638, -2.81889243], [4.00614173, -0.44911697, -2.10654814], [4.3919974, 0.82303962, -2.58897224]],
-           [[-1.58062909, 6.83398388, 1.20293758], [-1.59355918, 7.75640754, 2.27483654], [-0.44272327, 7.63268181, 1.46226738]]]])])
-    def test_footJointCenter(self, frame, vsk, ankle_JC, expected):
+    @pytest.mark.parametrize(["frame", "vsk", "ankle_axis", "expected"],
+        [
+            # Test from running sample data
+            (
+                {
+                    "RTOE": np.array([442.81997681, 381.62280273, 42.66047668]),
+                    "LTOE": np.array([39.43652725, 382.44522095, 41.78911591]),
+                },
+                {
+                    "RightStaticRotOff": 0.015683497632642047,
+                    "RightStaticPlantFlex": 0.2702417907002757,
+                    "LeftStaticRotOff": 0.009402910292403022,
+                    "LeftStaticPlantFlex": 0.20251085737834015,
+                },
+                np.array([[[394.48171575, 248.37201348, 87.715368,   393.76181608],
+                           [393.07114384, 248.39110006, 87.61575574, 247.67829633],
+                           [393.69314056, 247.78157916, 88.73002876,  87.73775041],
+                           [  0,            0,           0,            1         ]],
+                          [[ 98.47494966, 220.42553803, 80.52821783,  98.74901939],
+                           [ 97.79246671, 219.20927275, 80.76255901, 219.46930221],
+                           [ 98.84848169, 219.60345781, 81.61663775,  80.6306816 ],
+                           [  0,            0,           0,             1        ]]]
+                        ),
+                np.array([[[442.8462412676692,  381.6513024007671,  43.65972537588915, 442.81997681],
+                           [441.8773505621594,  381.95630350196393, 42.67574106247485, 381.62280273],
+                           [442.48716163075153, 380.68048378251575, 42.69610043598381,  42.66047668],
+                           [  0,                  0,                 0,                  1         ]],
+                          [[39.566526257915626, 382.50901000467115, 42.778575967950964,  39.43652725],
+                           [38.493133283871245, 382.1460684058263,  41.932348504971834, 382.44522095],
+                           [39.74166341694723,  381.493150197213,   41.81040458481808,   41.78911591],
+                           [ 0,                   0,                 0,                   1         ]]]
+                        ),
+            ),
+            # Test with zeros for all params
+            (
+                {"RTOE": np.array([0, 0, 0]), "LTOE": np.array([0, 0, 0])},
+                {
+                    "RightStaticRotOff": 0.0,
+                    "RightStaticPlantFlex": 0.0,
+                    "LeftStaticRotOff": 0.0,
+                    "LeftStaticPlantFlex": 0.0,
+                },
+                np.array([[[0, 0, 0, 0],
+                           [0, 0, 0, 0],
+                           [0, 0, 0, 0],
+                           [0, 0, 0, 1]],
+                          [[0, 0, 0, 0],
+                           [0, 0, 0, 0],
+                           [0, 0, 0, 0],
+                           [0, 0, 0, 1]]]
+                        ),
+                np.array([[[np.nan, np.nan, np.nan, 0],
+                           [np.nan, np.nan, np.nan, 0],
+                           [np.nan, np.nan, np.nan, 0],
+                           [ 0,      0,      0,     1]],
+                          [[np.nan, np.nan, np.nan, 0],
+                           [np.nan, np.nan, np.nan, 0],
+                           [np.nan, np.nan, np.nan, 0],
+                           [ 0,      0,      0,     1]]]
+                        )
+            ),
+            # Testing when adding values in frame['RTOE'] and frame['LTOE']
+            (
+                {"RTOE": np.array([4, 0, -3]), "LTOE": np.array([-1, 7, 2])},
+                {
+                    "RightStaticRotOff": 0.0,
+                    "RightStaticPlantFlex": 0.0,
+                    "LeftStaticRotOff": 0.0,
+                    "LeftStaticPlantFlex": 0.0,
+                },
+                np.array([[[0, 0, 0, 0],
+                           [0, 0, 0, 0],
+                           [0, 0, 0, 0],
+                           [0, 0, 0, 1]],
+                          [[0, 0, 0, 0],
+                           [0, 0, 0, 0],
+                           [0, 0, 0, 0],
+                           [0, 0, 0, 1]]]
+                        ),
+                np.array([[[np.nan, np.nan, np.nan,  4],
+                           [np.nan, np.nan, np.nan,  0],
+                           [np.nan, np.nan, np.nan, -3],
+                           [ 0,      0,      0,      1]],
+                          [[np.nan, np.nan, np.nan, -1],
+                           [np.nan, np.nan, np.nan,  7],
+                           [np.nan, np.nan, np.nan,  2],
+                           [ 0,      0,      0,      1]]]
+                        )
+            ),
+            # Testing when adding values in vsk
+            (
+                {"RTOE": np.array([0, 0, 0]), "LTOE": np.array([0, 0, 0])},
+                {
+                    "RightStaticRotOff": -12.0,
+                    "RightStaticPlantFlex": 20.0,
+                    "LeftStaticRotOff": 34.0,
+                    "LeftStaticPlantFlex": -70.0,
+                },
+                np.array([[[0, 0, 0, 0],
+                           [0, 0, 0, 0],
+                           [0, 0, 0, 0],
+                           [0, 0, 0, 1]],
+                          [[0, 0, 0, 0],
+                           [0, 0, 0, 0],
+                           [0, 0, 0, 0],
+                           [0, 0, 0, 1]]]
+                        ),
+                np.array([[[np.nan, np.nan, np.nan, 0],
+                           [np.nan, np.nan, np.nan, 0],
+                           [np.nan, np.nan, np.nan, 0],
+                           [ 0,      0,      0,     1]],
+                          [[np.nan, np.nan, np.nan, 0],
+                           [np.nan, np.nan, np.nan, 0],
+                           [np.nan, np.nan, np.nan, 0],
+                           [ 0,      0,      0,     1]]]
+                        )
+            ),
+            # Testing when adding values to ankle_axis[0] and ankle_axis[1]
+            (
+                {"RTOE": np.array([0, 0, 0]), "LTOE": np.array([0, 0, 0])},
+                {
+                    "RightStaticRotOff": 0.0,
+                    "RightStaticPlantFlex": 0.0,
+                    "LeftStaticRotOff": 0.0,
+                    "LeftStaticPlantFlex": 0.0,
+                },
+                np.array([[[0, 0, 0, -3],
+                           [0, 0, 0,  5],
+                           [0, 0, 0,  2],
+                           [0, 0, 0,  1]],
+                          [[0, 0, 0,  2],
+                           [0, 0, 0,  3],
+                           [0, 0, 0,  9],
+                           [0, 0, 0,  1]]]
+                        ),
+                np.array([[[np.nan, np.nan, np.nan, 0],
+                           [np.nan, np.nan, np.nan, 0],
+                           [np.nan, np.nan, np.nan, 0],
+                           [ 0,      0,      0,     1]],
+                          [[np.nan, np.nan, np.nan, 0],
+                           [np.nan, np.nan, np.nan, 0],
+                           [np.nan, np.nan, np.nan, 0],
+                           [ 0,      0,      0,     1]]]
+                        )
+            ),
+            # Testing when adding values to ankle_axis[2]
+            (
+                {"RTOE": np.array([0, 0, 0]), "LTOE": np.array([0, 0, 0])},
+                {
+                    "RightStaticRotOff": 0.0,
+                    "RightStaticPlantFlex": 0.0,
+                    "LeftStaticRotOff": 0.0,
+                    "LeftStaticPlantFlex": 0.0,
+                },
+                np.array([[[ 0, 0,  0, 0],
+                           [-1, 0,  2, 0],
+                           [ 0, 0,  0, 0],
+                           [ 0, 0,  0, 0]],
+                          [[ 0, 0,  0, 0],
+                           [ 9, 3, -4, 0],
+                           [ 0, 0,  0, 0],
+                           [ 0, 0,  0, 0]]]
+                        ),
+                np.array([[[np.nan, np.nan, np.nan, 0],
+                           [np.nan, np.nan, np.nan, 0],
+                           [np.nan, np.nan, np.nan, 0],
+                           [ 0,      0,      0,     1]],
+                          [[np.nan, np.nan, np.nan, 0],
+                           [np.nan, np.nan, np.nan, 0],
+                           [np.nan, np.nan, np.nan, 0],
+                           [ 0,      0,      0,     1]]]
+                        )
+            ),
+            # Testing when adding values to ankle_axis
+            (
+                {"RTOE": np.array([0, 0, 0]), "LTOE": np.array([0, 0, 0])},
+                {
+                    "RightStaticRotOff": 0.0,
+                    "RightStaticPlantFlex": 0.0,
+                    "LeftStaticRotOff": 0.0,
+                    "LeftStaticPlantFlex": 0.0,
+                },
+                np.array([[[ 0, 0,  0, -3],
+                           [-1, 0,  2,  5],
+                           [ 0, 0,  0,  2],
+                           [ 0, 0,  0,  0]],
+                          [[ 0, 0,  0,  2],
+                           [ 9, 3, -4,  3],
+                           [ 0, 0,  0,  9],
+                           [ 0, 0,  0,  0]]]
+                        ),
+                np.array([[[-0.84215192, -0.33686077, -0.42107596, 0],
+                           [-0.23224564, -0.47815279,  0.8470135,  0],
+                           [-0.48666426,  0.81110711,  0.32444284, 0],
+                           [ 0,           0,           0,          1]],
+                          [[ 0.39230172, -0.89525264,  0.21123939, 0],
+                           [ 0.89640737,  0.32059014, -0.30606502, 0],
+                           [ 0.20628425,  0.30942637,  0.92827912, 0],
+                           [ 0,           0,           0,          1]]]
+                        )
+            ),
+            # Testing when adding values in frame and vsk
+            (
+                {"RTOE": np.array([4, 0, -3]), "LTOE": np.array([-1, 7, 2])},
+                {
+                    "RightStaticRotOff": -12.0,
+                    "RightStaticPlantFlex": 20.0,
+                    "LeftStaticRotOff": 34.0,
+                    "LeftStaticPlantFlex": -70.0,
+                },
+                np.array([[[0, 0, 0, 0],
+                           [0, 0, 0, 0],
+                           [0, 0, 0, 0],
+                           [0, 0, 0, 1]],
+                          [[0, 0, 0, 0],
+                           [0, 0, 0, 0],
+                           [0, 0, 0, 0],
+                           [0, 0, 0, 1]]]
+                        ),
+                np.array([[[np.nan, np.nan, np.nan,  4],
+                           [np.nan, np.nan, np.nan,  0],
+                           [np.nan, np.nan, np.nan, -3],
+                           [ 0,      0,      0,      1]],
+                          [[np.nan, np.nan, np.nan, -1],
+                           [np.nan, np.nan, np.nan,  7],
+                           [np.nan, np.nan, np.nan,  2],
+                           [ 0,      0,      0,      1]]]
+                        )
+            ),
+            # Testing when adding values in frame and thoraxJC
+            (
+                {"RTOE": np.array([4, 0, -3]), "LTOE": np.array([-1, 7, 2])},
+                {
+                    "RightStaticRotOff": 0.0,
+                    "RightStaticPlantFlex": 0.0,
+                    "LeftStaticRotOff": 0.0,
+                    "LeftStaticPlantFlex": 0.0,
+                },
+                np.array([[[ 0, 0,  0, -3],
+                           [-1, 0,  2,  5],
+                           [ 0, 0,  0,  2],
+                           [ 0, 0,  0,  1]],
+                          [[ 0, 0,  0,  2],
+                           [ 9, 3, -4,  3],
+                           [ 0, 0,  0,  9],
+                           [ 0, 0,  0,  1]]]
+                        ),
+                np.array([[[ 3.31958618, -0.27216553, -3.68041382,  4],
+                           [ 3.79484752, -0.82060994, -2.46660354,  0],
+                           [ 3.29647353,  0.50251891, -2.49748109, -3],
+                           [ 0,           0,           0,           1]],
+                          [[-1.49065338,  6.16966351,  1.73580203, -1],
+                           [-0.20147784,  6.69287609,  1.48227684,  7],
+                           [-0.65125708,  6.53500945,  2.81373347,  2],
+                           [ 0,           0,           0,           1]]]
+                        )
+            ),
+            # Testing when adding values in frame, vsk and thoraxJC
+            (
+                {"RTOE": np.array([4, 0, -3]), "LTOE": np.array([-1, 7, 2])},
+                {
+                    "RightStaticRotOff": -12.0,
+                    "RightStaticPlantFlex": 20.0,
+                    "LeftStaticRotOff": 34.0,
+                    "LeftStaticPlantFlex": -70.0,
+                },
+                np.array([[[ 0, 0,  0, -3],
+                           [-1, 0,  2,  5],
+                           [ 0, 0,  0,  2],
+                           [ 0, 0,  0,  1]],
+                          [[ 0, 0,  0,  2],
+                           [ 9, 3, -4,  3],
+                           [ 0, 0,  0,  9],
+                           [ 0, 0,  0,  1]]]
+                        ),
+                np.array([[[ 3.08005417,  0.34770638, -2.81889243,  4],
+                           [ 4.00614173, -0.44911697, -2.10654814,  0],
+                           [ 4.3919974,   0.82303962, -2.58897224, -3],
+                           [ 0,           0,           0,           1]],
+                          [[-1.58062909,  6.83398388,  1.20293758, -1],
+                           [-1.59355918,  7.75640754,  2.27483654,  7],
+                           [-0.44272327,  7.63268181,  1.46226738,  2],
+                           [ 0,           0,           0,           1]]]
+                        )
+            ),
+            # Testing that when frame and ankle_axis are composed of lists of ints and vsk values are ints
+            (
+                {"RTOE": [4, 0, -3], "LTOE": [-1, 7, 2]},
+                {
+                    "RightStaticRotOff": -12,
+                    "RightStaticPlantFlex": 20,
+                    "LeftStaticRotOff": 34,
+                    "LeftStaticPlantFlex": -70,
+                },
+                [
+                    [[ 0, 0,  0, -3],
+                     [-1, 0,  2,  5],
+                     [ 0, 0,  0,  2],
+                     [ 0, 0,  0,  1]],
+                    [[ 0, 0,  0,  2],
+                     [ 9, 3, -4,  3],
+                     [ 0, 0,  0,  9],
+                     [ 0, 0,  0,  1]]
+                ],
+                np.array([[[ 3.08005417,  0.34770638, -2.81889243,  4],
+                           [ 4.00614173, -0.44911697, -2.10654814,  0],
+                           [ 4.3919974,   0.82303962, -2.58897224, -3],
+                           [ 0,           0,           0,           1]],
+                          [[-1.58062909,  6.83398388,  1.20293758, -1],
+                           [-1.59355918,  7.75640754,  2.27483654,  7],
+                           [-0.44272327,  7.63268181,  1.46226738,  2],
+                           [ 0,           0,           0,           1]]]
+                        )
+            ),
+            # Testing that when frame and ankle_axis are composed of numpy arrays of ints and vsk values are ints
+            (
+                {
+                    "RTOE": np.array([4, 0, -3], dtype="int"),
+                    "LTOE": np.array([-1, 7, 2], dtype="int"),
+                },
+                {
+                    "RightStaticRotOff": -12,
+                    "RightStaticPlantFlex": 20,
+                    "LeftStaticRotOff": 34,
+                    "LeftStaticPlantFlex": -70,
+                },
+                np.array([[[ 0, 0,  0, -3],
+                           [-1, 0,  2,  5],
+                           [ 0, 0,  0,  2],
+                           [ 0, 0,  0,  1]],
+                          [[ 0, 0,  0,  2],
+                           [ 9, 3, -4,  3],
+                           [ 0, 0,  0,  9],
+                           [ 0, 0,  0,  1]]], dtype="int"
+                        ),
+                np.array([[[ 3.08005417,  0.34770638, -2.81889243,  4],
+                           [ 4.00614173, -0.44911697, -2.10654814,  0],
+                           [ 4.3919974,   0.82303962, -2.58897224, -3],
+                           [ 0,           0,           0,           1]],
+                          [[-1.58062909,  6.83398388,  1.20293758, -1],
+                           [-1.59355918,  7.75640754,  2.27483654,  7],
+                           [-0.44272327,  7.63268181,  1.46226738,  2],
+                           [ 0,           0,           0,           1]]]
+                        )
+            ),
+            # Testing that when frame and ankle_axis are composed of lists of floats and vsk values are floats
+            (
+                {"RTOE": [4.0, 0.0, -3.0], "LTOE": [-1.0, 7.0, 2.0]},
+                {
+                    "RightStaticRotOff": -12.0,
+                    "RightStaticPlantFlex": 20.0,
+                    "LeftStaticRotOff": 34.0,
+                    "LeftStaticPlantFlex": -70.0,
+                },
+                [
+                    [[ 0.0, 0.0,  0.0, -3.0],
+                     [-1.0, 0.0,  2.0,  5.0],
+                     [ 0.0, 0.0,  0.0,  2.0],
+                     [ 0.0, 0.0,  0.0,  1.0]],
+                    [[ 0.0, 0.0,  0.0,  2.0],
+                     [ 9.0, 3.0, -4.0,  3.0],
+                     [ 0.0, 0.0,  0.0,  9.0],
+                     [ 0.0, 0.0,  0.0,  1.0]]
+                ],
+                np.array([[[ 3.08005417,  0.34770638, -2.81889243,  4],
+                           [ 4.00614173, -0.44911697, -2.10654814,  0],
+                           [ 4.3919974,   0.82303962, -2.58897224, -3],
+                           [ 0,           0,           0,           1]],
+                          [[-1.58062909,  6.83398388,  1.20293758, -1],
+                           [-1.59355918,  7.75640754,  2.27483654,  7],
+                           [-0.44272327,  7.63268181,  1.46226738,  2],
+                           [ 0,           0,           0,           1]]]
+                        )
+            ),
+            # Testing that when frame and ankle_axis are composed of numpy arrays of floats and vsk values are floats
+            (
+                {
+                    "RTOE": np.array([4.0, 0.0, -3.0], dtype="float"),
+                    "LTOE": np.array([-1.0, 7.0, 2.0], dtype="float"),
+                },
+                {
+                    "RightStaticRotOff": -12.0,
+                    "RightStaticPlantFlex": 20.0,
+                    "LeftStaticRotOff": 34.0,
+                    "LeftStaticPlantFlex": -70.0,
+                },
+                np.array([[[ 0.0, 0.0,  0.0, -3.0],
+                           [-1.0, 0.0,  2.0,  5.0],
+                           [ 0.0, 0.0,  0.0,  2.0],
+                           [ 0.0, 0.0,  0.0,  1.0]],
+                          [[ 0.0, 0.0,  0.0,  2.0],
+                           [ 9.0, 3.0, -4.0,  3.0],
+                           [ 0.0, 0.0,  0.0,  9.0],
+                           [ 0.0, 0.0,  0.0,  1.0]]], dtype="float"
+                        ),
+                np.array([[[ 3.08005417,  0.34770638, -2.81889243,  4],
+                           [ 4.00614173, -0.44911697, -2.10654814,  0],
+                           [ 4.3919974,   0.82303962, -2.58897224, -3],
+                           [ 0,           0,           0,           1]],
+                          [[-1.58062909,  6.83398388,  1.20293758, -1],
+                           [-1.59355918,  7.75640754,  2.27483654,  7],
+                           [-0.44272327,  7.63268181,  1.46226738,  2],
+                           [ 0,           0,           0,           1]]]
+                        )
+            ),
+    ])
+    def test_calc_axis_foot(self, frame, vsk, ankle_axis, expected):
         """
-        This test provides coverage of the footJointCenter function in pyCGM.py, defined as footJointCenter(frame, vsk, ankle_JC, knee_JC, delta)
+        This test provides coverage of the calc_axis_foot function in pyCGM.py, defined as 
+        calc_axis_foot(rtoe, ltoe, r_ankle_axis, l_ankle_axis, r_static_rot_off, l_static_rot_off, r_static_plant_flex, l_static_plant_flex)
 
         This test takes 4 parameters:
         frame: dictionary of marker lists
         vsk: dictionary containing subject measurements from a VSK file
-        ankle_JC: array of ankle_JC containing the x,y,z axes marker positions of the ankle joint center
-        expected: the expected result from calling footJointCenter on frame, vsk, and ankle_JC
+        ankle_axis: array of two 4x4 affine matrices representing the right and left ankle axes
+        expected: the expected result from calling calc_axis_foot on rtoe, ltoe, r_ankle_axis, 
+        l_ankle_axis, r_static_rot_off, l_static_rot_off, r_static_plant_flex, and l_static_plant_flex
 
         This test is checking to make sure the foot joint center and axis are calculated correctly given the input
         parameters. 
@@ -2073,18 +2354,56 @@ class TestLowerBodyAxis():
         The incorrect foot joint axes for both directions are calculated using the following calculations:
             z-axis = ankle joint center - TOE marker
             y-flex = ankle joint center flexion - ankle joint center
-            x-axis =  y-flex \cross z-axis
+            x-axis = y-flex cross z-axis
             y-axis = z-axis cross x-axis
         Calculate the foot joint axis by rotating incorrect foot joint axes about offset angle.
 
 
-        Lastly, it checks that the resulting output is correct when frame and ankle_JC is composed of lists of ints,
+        Lastly, it checks that the resulting output is correct when frame and ankle_axis is composed of lists of ints,
         numpy arrays of ints, lists of floats, and numpy arrays of floats and vsk values are ints and floats.
         """
-        result = pyCGM.footJointCenter(frame, vsk, ankle_JC, None, None)
-        np.testing.assert_almost_equal(result[0], expected[0], rounding_precision)
-        np.testing.assert_almost_equal(result[1], expected[1], rounding_precision)
-        np.testing.assert_almost_equal(result[2], expected[2], rounding_precision)
+        # Get marker position parameters from frame
+        rtoe = frame["RTOE"] if "RTOE" in frame else None
+        ltoe = frame["LTOE"] if "LTOE" in frame else None
+
+        r_ankle_axis = np.asarray(ankle_axis[0])
+        right_o = r_ankle_axis[:3, 3]
+        r_ankle_axis[0, :3] -= right_o
+        r_ankle_axis[1, :3] -= right_o
+        r_ankle_axis[2, :3] -= right_o
+
+        l_ankle_axis = np.asarray(ankle_axis[1])
+        left_o = l_ankle_axis[:3, 3]
+        l_ankle_axis[0, :3] -= left_o
+        l_ankle_axis[1, :3] -= left_o
+        l_ankle_axis[2, :3] -= left_o
+
+        # Get measurement parameters from vsk
+        r_static_rot_off =    vsk['RightStaticRotOff']    if 'RightStaticRotOff'    in vsk else None
+        l_static_rot_off =    vsk['LeftStaticRotOff']     if 'LeftStaticRotOff'     in vsk else None
+        r_static_plant_flex = vsk['RightStaticPlantFlex'] if 'RightStaticPlantFlex' in vsk else None
+        l_static_plant_flex = vsk['LeftStaticPlantFlex']  if'LeftStaticPlantFlex'   in vsk else None
+
+        result = pyCGM.calc_axis_foot(rtoe, ltoe, r_ankle_axis, l_ankle_axis, r_static_rot_off, l_static_rot_off, r_static_plant_flex, l_static_plant_flex)
+
+        right_axis = result[0]
+        left_axis = result[1]
+
+        # Add back right knee origin
+        right_o = right_axis[:3, 3]
+        right_axis[0, :3] += right_o
+        right_axis[1, :3] += right_o
+        right_axis[2, :3] += right_o
+
+        # Add back left knee origin
+        left_o = left_axis[:3, 3]
+        left_axis[0, :3] += left_o
+        left_axis[1, :3] += left_o
+        left_axis[2, :3] += left_o
+
+        result = np.asarray([right_axis, left_axis])
+
+        np.testing.assert_almost_equal(result, expected, rounding_precision)
 
 class TestAxisUtils():
     """
