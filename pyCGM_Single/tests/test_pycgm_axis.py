@@ -16,78 +16,239 @@ class TestUpperBodyAxis():
         wristJointCenter
         handJointCenter
     """
-    nan_3d = [np.nan, np.nan, np.nan]
-    rand_coor = [np.random.randint(0, 10), np.random.randint(0, 10), np.random.randint(0, 10)]
 
-    @pytest.mark.parametrize(["frame", "vsk", "expected"], [
-        # Test from running sample data
-        ({'LFHD': np.array([184.55158997, 409.68713379, 1721.34289551]), 'RFHD': np.array([325.82983398, 402.55450439, 1722.49816895]), 'LBHD': np.array([197.8621521 , 251.28889465, 1696.90197754]), 'RBHD': np.array([304.39898682, 242.91339111, 1694.97497559])},
-         {'HeadOffset': 0.2571990469310653},
-         [[[255.21685582510975, 407.11593887758056, 1721.8253843887082], [254.19105385179665, 406.146809183757, 1721.9176771191715], [255.19034370229795, 406.2160090443217, 1722.9159912851449]], [255.19071197509766, 406.1208190917969, 1721.9205322265625]]),
-        # Basic test with a variance of 1 in the x and y dimensions of the markers
-        ({'LFHD': np.array([1, 1, 0]), 'RFHD': np.array([0, 1, 0]), 'LBHD': np.array([1, 0, 0]), 'RBHD': np.array([0, 0, 0])},
-         {'HeadOffset': 0.0},
-         [[[0.5, 2, 0], [1.5, 1, 0], [0.5, 1, -1]], [0.5, 1, 0]]),
-        # Setting the markers so there's no variance in the x-dimension
-        ({'LFHD': np.array([0, 1, 0]), 'RFHD': np.array([0, 1, 0]), 'LBHD': np.array([0, 0, 0]), 'RBHD': np.array([0, 0, 0])},
-         {'HeadOffset': 0.0},
-         [[nan_3d, nan_3d, nan_3d], [0, 1, 0]]),
-        # Setting the markers so there's no variance in the y-dimension
-        ({'LFHD': np.array([1, 0, 0]), 'RFHD': np.array([0, 0, 0]), 'LBHD': np.array([1, 0, 0]), 'RBHD': np.array([0, 0, 0])},
-         {'HeadOffset': 0.0},
-         [[nan_3d, nan_3d, nan_3d], [0.5, 0, 0]]),
-        # Setting each marker in a different xy quadrant
-        ({'LFHD': np.array([-1, 1, 0]), 'RFHD': np.array([1, 1, 0]), 'LBHD': np.array([-1, -1, 0]), 'RBHD': np.array([1, -1, 0])},
-         {'HeadOffset': 0.0},
-         [[[0, 2, 0], [-1, 1, 0], [0, 1, 1]], [0, 1, 0]]),
-        # Setting values of the markers so that midpoints will be on diagonals
-        ({'LFHD': np.array([-2, 1, 0]), 'RFHD': np.array([1, 2, 0]), 'LBHD': np.array([-1, -2, 0]), 'RBHD': np.array([2, -1, 0])},
-         {'HeadOffset': 0.0},
-         [[[-0.81622777, 2.4486833 ,  0], [-1.4486833, 1.18377223, 0], [-0.5, 1.5,  1]], [-0.5, 1.5, 0]]),
-        # Adding the value of 1 in the z dimension for all 4 markers
-        ({'LFHD': np.array([1, 1, 1]), 'RFHD': np.array([0, 1, 1]), 'LBHD': np.array([1, 0, 1]), 'RBHD': np.array([0, 0, 1])},
-         {'HeadOffset': 0.0},
-         [[[0.5, 2, 1], [1.5, 1, 1], [0.5, 1, 0]], [0.5, 1, 1]]),
-        # Setting the z dimension value higher for LFHD and LBHD
-        ({'LFHD': np.array([1, 1, 2]), 'RFHD': np.array([0, 1, 1]), 'LBHD': np.array([1, 0, 2]), 'RBHD': np.array([0, 0, 1])},
-         {'HeadOffset': 0.0},
-         [[[0.5, 2, 1.5], [1.20710678, 1, 2.20710678], [1.20710678, 1, 0.79289322]], [0.5, 1, 1.5]]),
-        # Setting the z dimension value higher for LFHD and RFHD
-        ({'LFHD': np.array([1, 1, 2]), 'RFHD': np.array([0, 1, 2]), 'LBHD': np.array([1, 0, 1]), 'RBHD': np.array([0, 0, 1])},
-         {'HeadOffset': 0.0},
-         [[[0.5, 1.70710678, 2.70710678], [1.5, 1, 2], [0.5, 1.70710678, 1.29289322]], [0.5, 1, 2]]),
-        # Adding a value for HeadOffset
-        ({'LFHD': np.array([1, 1, 0]), 'RFHD': np.array([0, 1, 0]), 'LBHD': np.array([1, 0, 0]), 'RBHD': np.array([0, 0, 0])},
-         {'HeadOffset': 0.5},
-         [[[0.5, 1.87758256, 0.47942554], [1.5, 1, 0], [0.5, 1.47942554, -0.87758256]], [0.5, 1, 0]]),
-        # Testing that when frame is a list of ints and headOffset is an int
-        ({'LFHD': [1, 1, 0], 'RFHD': [0, 1, 0], 'LBHD': [1, 0, 0], 'RBHD': [0, 0, 0]},
-         {'HeadOffset': 1.0},
-         [[[0.5, 1.5403023058681398, 0.8414709848078965], [1.5, 1, 0], [0.5, 1.8414709848078965, -0.5403023058681398]], [0.5, 1, 0]]),
-        # Testing that when frame is a numpy array of ints and headOffset is an int
-        ({'LFHD': np.array([1, 1, 0], dtype='int'), 'RFHD': np.array([0, 1, 0], dtype='int'),
-          'LBHD': np.array([1, 0, 0], dtype='int'), 'RBHD': np.array([0, 0, 0], dtype='int')},
-         {'HeadOffset': 1},
-         [[[0.5, 1.5403023058681398, 0.8414709848078965], [1.5, 1, 0], [0.5, 1.8414709848078965, -0.5403023058681398]], [0.5, 1, 0]]),
-        # Testing that when frame is a list of floats and headOffset is a float
-        ({'LFHD': [1.0, 1.0, 0.0], 'RFHD': [0.0, 1.0, 0.0], 'LBHD': [1.0, 0.0, 0.0], 'RBHD': [0.0, 0.0, 0.0]},
-         {'HeadOffset': 1.0},
-         [[[0.5, 1.5403023058681398, 0.8414709848078965], [1.5, 1, 0], [0.5, 1.8414709848078965, -0.5403023058681398]], [0.5, 1, 0]]),
-        # Testing that when frame is a numpy array of floats and headOffset is a float
-        ({'LFHD': np.array([1.0, 1.0, 0.0], dtype='float'), 'RFHD': np.array([0.0, 1.0, 0.0], dtype='float'),
-          'LBHD': np.array([1.0, 0.0, 0.0], dtype='float'), 'RBHD': np.array([0.0, 0.0, 0.0], dtype='float')},
-         {'HeadOffset': 1.0},
-         [[[0.5, 1.5403023058681398, 0.8414709848078965], [1.5, 1, 0], [0.5, 1.8414709848078965, -0.5403023058681398]], [0.5, 1, 0]])])
-    def test_headJC(self, frame, vsk, expected):
+    nan_3d = [np.nan, np.nan, np.nan]
+    rand_coor = [
+        np.random.randint(0, 10),
+        np.random.randint(0, 10),
+        np.random.randint(0, 10),
+    ]
+
+    @pytest.mark.parametrize(
+        ["frame", "vsk", "expected"],
+        [
+            # Test from running sample data
+            (
+                {
+                    "LFHD": np.array([184.55158997, 409.68713379, 1721.34289551]),
+                    "RFHD": np.array([325.82983398, 402.55450439, 1722.49816895]),
+                    "LBHD": np.array([197.8621521, 251.28889465, 1696.90197754]),
+                    "RBHD": np.array([304.39898682, 242.91339111, 1694.97497559]),
+                },
+                {"HeadOffset": 0.2571990469310653},
+                np.array([[255.21685582510975, 407.11593887758056, 1721.8253843887082,  255.19071197509766],
+                          [254.19105385179665, 406.146809183757,   1721.9176771191715,  406.1208190917969 ],
+                          [255.19034370229795, 406.2160090443217,  1722.9159912851449, 1721.9205322265625 ],
+                          [  0,                   0,                    0,                   1            ]]
+                        )
+            ),
+            # Basic test with a variance of 1 in the x and y dimensions of the markers
+            (
+                {
+                    "LFHD": np.array([1, 1, 0]),
+                    "RFHD": np.array([0, 1, 0]),
+                    "LBHD": np.array([1, 0, 0]),
+                    "RBHD": np.array([0, 0, 0]),
+                },
+                {"HeadOffset": 0.0},
+                np.array([[0.5,  2,  0,   0.5],
+                          [1.5,  1,   0,  1  ],
+                          [0.5,  1,  -1,  0  ],
+                          [0,    0,   0,   1 ]]
+                        )
+            ),
+            # Setting the markers so there's no variance in the x-dimension
+            (
+                {
+                    "LFHD": np.array([0, 1, 0]),
+                    "RFHD": np.array([0, 1, 0]),
+                    "LBHD": np.array([0, 0, 0]),
+                    "RBHD": np.array([0, 0, 0]),
+                },
+                {"HeadOffset": 0.0},
+                np.array([[0, 1, 0, 0],
+                          [0, 1, 0, 1],
+                          [0, 1, 0, 0],
+                          [0, 0, 0, 1]]
+                        )
+            ),
+            # Setting the markers so there's no variance in the y-dimension
+            (
+                {
+                    "LFHD": np.array([1, 0, 0]),
+                    "RFHD": np.array([0, 0, 0]),
+                    "LBHD": np.array([1, 0, 0]),
+                    "RBHD": np.array([0, 0, 0]),
+                },
+                {"HeadOffset": 0.0},
+                np.array([[0.5, 0, 0, 0.5],
+                          [0.5, 0, 0, 0  ],
+                          [0.5, 0, 0, 0  ],
+                          [0,   0, 0, 1  ]]
+                        )
+            ),
+            # Setting each marker in a different xy quadrant
+            (
+                {
+                    "LFHD": np.array([-1, 1, 0]),
+                    "RFHD": np.array([1, 1, 0]),
+                    "LBHD": np.array([-1, -1, 0]),
+                    "RBHD": np.array([1, -1, 0]),
+                },
+                {"HeadOffset": 0.0},
+                np.array([[ 0, 2, 0, 0],
+                          [-1, 1, 0, 1],
+                          [ 0, 1, 1, 0],
+                          [ 0, 0, 0, 1]]
+                        )
+            ),
+            # Setting values of the markers so that midpoints will be on diagonals
+            (
+                {
+                    "LFHD": np.array([-2, 1, 0]),
+                    "RFHD": np.array([1, 2, 0]),
+                    "LBHD": np.array([-1, -2, 0]),
+                    "RBHD": np.array([2, -1, 0]),
+                },
+                {"HeadOffset": 0.0},
+                np.array([[-0.81622777, 2.4486833,  0, -0.5],
+                          [-1.4486833,  1.18377223, 0,  1.5],
+                          [-0.5,        1.5,        1,  0  ],
+                          [0,           0,          0,  1  ]]
+                        )
+            ),
+            # Adding the value of 1 in the z dimension for all 4 markers
+            (
+                {
+                    "LFHD": np.array([1, 1, 1]),
+                    "RFHD": np.array([0, 1, 1]),
+                    "LBHD": np.array([1, 0, 1]),
+                    "RBHD": np.array([0, 0, 1]),
+                },
+                {"HeadOffset": 0.0},
+                np.array([[0.5, 2, 1, 0.5],
+                          [1.5, 1, 1, 1  ],
+                          [0.5, 1, 0, 1  ],
+                          [0,   0, 0, 1  ]])
+            ),
+            # Setting the z dimension value higher for LFHD and LBHD
+            (
+                {
+                    "LFHD": np.array([1, 1, 2]),
+                    "RFHD": np.array([0, 1, 1]),
+                    "LBHD": np.array([1, 0, 2]),
+                    "RBHD": np.array([0, 0, 1]),
+                },
+                {"HeadOffset": 0.0},
+                np.array([[0.5,        2, 1.5,        0.5],
+                          [1.20710678, 1, 2.20710678, 1  ],
+                          [1.20710678, 1, 0.79289322, 1.5],
+                          [0,          0, 0,           1 ]]
+                        )
+            ),
+            # Setting the z dimension value higher for LFHD and RFHD
+            (
+                {
+                    "LFHD": np.array([1, 1, 2]),
+                    "RFHD": np.array([0, 1, 2]),
+                    "LBHD": np.array([1, 0, 1]),
+                    "RBHD": np.array([0, 0, 1]),
+                },
+                {"HeadOffset": 0.0},
+                np.array([[0.5, 1.70710678, 2.70710678, 0.5],
+                          [1.5, 1,           2,         1 ],
+                          [0.5, 1.70710678, 1.29289322, 2 ],
+                          [0,   0,          0,          1 ]]
+                        )
+            ),
+            # Adding a value for HeadOffset
+            (
+                {
+                    "LFHD": np.array([1, 1, 0]),
+                    "RFHD": np.array([0, 1, 0]),
+                    "LBHD": np.array([1, 0, 0]),
+                    "RBHD": np.array([0, 0, 0]),
+                },
+                {"HeadOffset": 0.5},
+                np.array([[0.5, 1.87758256,  0.47942554, 0.5],
+                          [1.5, 1,           0,          1  ],
+                          [0.5, 1.47942554, -0.87758256, 0  ],
+                          [0,   0,           0,          1  ]]
+                        )
+            ),
+            # Testing that when frame is a list of ints and headOffset is an int
+            (
+                {
+                    "LFHD": np.array([1, 1, 0]),
+                    "RFHD": np.array([0, 1, 0]),
+                    "LBHD": np.array([1, 0, 0]),
+                    "RBHD": np.array([0, 0, 0]),
+                },
+                {"HeadOffset": 1.0},
+                np.array([[0.5, 1.5403023058681398,  0.8414709848078965, 0.5],
+                          [1.5, 1,                   0,                  1  ],
+                          [0.5, 1.8414709848078965, -0.5403023058681398, 0  ],
+                          [0,   0,                   0,                  1  ]]
+                        )
+            ),
+            # Testing that when frame is a numpy array of ints and headOffset is an int
+            (
+                {
+                    "LFHD": np.array([1, 1, 0], dtype="int"),
+                    "RFHD": np.array([0, 1, 0], dtype="int"),
+                    "LBHD": np.array([1, 0, 0], dtype="int"),
+                    "RBHD": np.array([0, 0, 0], dtype="int"),
+                },
+                {"HeadOffset": 1},
+                np.array([[0.5, 1.5403023058681398,  0.8414709848078965, 0.5],
+                          [1.5, 1,                   0,                  1  ],
+                          [0.5, 1.8414709848078965, -0.5403023058681398, 0  ],
+                          [0,   0,                   0,                  1  ]]
+                        )
+            ),
+            # Testing that when frame is a list of floats and headOffset is a float
+            (
+                {
+                    "LFHD": np.array([1.0, 1.0, 0.0]),
+                    "RFHD": np.array([0.0, 1.0, 0.0]),
+                    "LBHD": np.array([1.0, 0.0, 0.0]),
+                    "RBHD": np.array([0.0, 0.0, 0.0]),
+                },
+                {"HeadOffset": 1.0},
+                np.array([[0.5, 1.5403023058681398,  0.8414709848078965, 0.5],
+                          [1.5, 1,                   0,                  1  ],
+                          [0.5, 1.8414709848078965, -0.5403023058681398, 0  ],
+                          [0,   0,                   0,                  1  ]]
+                        )
+            ),
+            # Testing that when frame is a numpy array of floats and headOffset is a float
+            (
+                {
+                    "LFHD": np.array([1.0, 1.0, 0.0], dtype="float"),
+                    "RFHD": np.array([0.0, 1.0, 0.0], dtype="float"),
+                    "LBHD": np.array([1.0, 0.0, 0.0], dtype="float"),
+                    "RBHD": np.array([0.0, 0.0, 0.0], dtype="float"),
+                },
+                {"HeadOffset": 1.0},
+                np.array([[0.5, 1.5403023058681398,  0.8414709848078965, 0.5],
+                          [1.5, 1,                   0,                  1  ],
+                          [0.5, 1.8414709848078965, -0.5403023058681398, 0  ],
+                          [0,   0,                   0,                  1  ]]
+                        )
+            )
+    ])
+    def test_calc_axis_head(self, frame, vsk, expected):
         """
-        This test provides coverage of the headJC function in pyCGM.py, defined as headJC(frame, vsk)
+        This test provides coverage of the calc_axis_head function in pyCGM.py, defined as
+        calc_axis_head(lfhd, rfhd, lbhd, rbhd, head_offset)
 
         This test takes 3 parameters:
         frame: dictionary of marker lists
         vsk: dictionary containing subject measurements from a VSK file
-        expected: the expected result from calling headJC on frame and vsk
+        expected: the expected result from calling calc_axis_head on lfhd, rfhd, lbhd, rbhd, and head_offset
 
-        The function uses the LFHD, RFHD, LBHD, and RBHD markers from the frame to calculate the midpoints of the front, back, left, and right center positions of the head. 
+        The function uses the LFHD, RFHD, LBHD, and RBHD markers from the frame to calculate the midpoints of 
+        the front, back, left, and right center positions of the head. 
         The head axis vector components are then calculated using the aforementioned midpoints.
         Afterwords, the axes are made orthogonal by calculating the cross product of each individual axis. 
         Finally, the head axis is then rotated around the y axis based off the head offset angle in the VSK. 
@@ -99,9 +260,22 @@ class TestUpperBodyAxis():
         Lastly, it checks that the resulting output is correct when frame is a list of ints, a numpy array of
         ints, a list of floats, and a numpy array of floats and when headOffset is an int and a float.
         """
-        result = pyCGM.headJC(frame, vsk)
-        np.testing.assert_almost_equal(result[0], expected[0], rounding_precision)
-        np.testing.assert_almost_equal(result[1], expected[1], rounding_precision)
+
+        lfhd = frame["LFHD"] if "LFHD" in frame else None
+        rfhd = frame["RFHD"] if "RFHD" in frame else None
+        lbhd = frame["LBHD"] if "LBHD" in frame else None
+        rbhd = frame["RBHD"] if "RBHD" in frame else None
+
+        head_offset = vsk["HeadOffset"]
+
+        result = pyCGM.calc_axis_head(lfhd, rfhd, lbhd, rbhd, head_offset)
+
+        result_o = result[:3, 3]
+        result[0, :3] += result_o
+        result[1, :3] += result_o
+        result[2, :3] += result_o
+
+        np.testing.assert_almost_equal(result, expected, rounding_precision)
 
     @pytest.mark.parametrize(["frame", "expected"], [
         # Test from running sample data
