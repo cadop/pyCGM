@@ -330,8 +330,6 @@ def calc_axis_hip(r_hip_jc, l_hip_jc, pelvis_axis):
     array([0., 0., 0., 1.])]
     """
 
-    pelvis_axis = np.asarray(pelvis_axis)
-
     # Get shared hip axis, it is inbetween the two hip joint centers
     pelvis_axis = np.asarray(pelvis_axis)
     hipaxis_center = (np.asarray(r_hip_jc) + np.asarray(l_hip_jc)) / 2.0
