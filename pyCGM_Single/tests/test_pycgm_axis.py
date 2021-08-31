@@ -950,7 +950,7 @@ class TestLowerBodyAxis():
     This class tests the lower body axis functions in pyCGM.py:
     pelvisJointCenter
     hipJointCenter
-    hipAxisCenter
+    calc_axis_hip
     kneeJointCenter
     calc_axis_foot
     calc_axis_ankle
@@ -1152,70 +1152,229 @@ class TestLowerBodyAxis():
 
     @pytest.mark.parametrize(["l_hip_jc", "r_hip_jc", "pelvis_axis", "expected"], [
         # Test from running sample data
-        ([182.57097863, 339.43231855, 935.52900126], [308.38050472, 322.80342417, 937.98979061],
-         [np.array([251.60830688, 391.74131775, 1032.89349365]), np.array([[251.74063624, 392.72694721, 1032.78850073], [250.61711554, 391.87232862, 1032.8741063], [251.60295336, 391.84795134, 1033.88777762]]), np.array([231.57849121, 210.25262451, 1052.24969482])],
-         [[245.47574167208043, 331.1178713574418, 936.7593959314677], [[245.60807102843359, 332.10350081526684, 936.6544030111602], [244.48455032769033, 331.2488822330648, 936.7400085831541], [245.47038814489719, 331.22450494659665, 937.7536799036861]]]),
+        (
+            [182.57097863, 339.43231855, 935.52900126],
+            [308.38050472, 322.80342417, 937.98979061],
+
+            np.array([[251.74063624, 392.72694721, 1032.78850073,  251.60830688],
+                      [250.61711554, 391.87232862, 1032.8741063,   391.74131775],
+                      [251.60295336, 391.84795134, 1033.88777762, 1032.89349365],
+                      [  0,            0,             0,             0         ]]),
+
+            [
+                [245.60807102843359, 332.10350081526684, 936.6544030111602, 245.47574167208043],
+                [244.48455032769033, 331.2488822330648,  936.7400085831541, 331.1178713574418 ],
+                [245.47038814489719, 331.22450494659665, 937.7536799036861, 936.7593959314677 ],
+                [  0,                  0,                  0,                 1               ]
+            ]),
         # Basic test with zeros for all params
-        ([0, 0, 0], [0, 0, 0],
-         [np.array([0, 0, 0]), np.array([[0, 0, 0], [0, 0, 0], [0, 0, 0]]), np.array(rand_coor)],
-         [[0, 0, 0], [[0, 0, 0], [0, 0, 0], [0, 0, 0]]]),
+        (
+            [0, 0, 0],
+            [0, 0, 0],
+
+            np.array([[0, 0, 0, 0],
+                      [0, 0, 0, 0],
+                      [0, 0, 0, 0]]),
+            [
+                [0, 0, 0, 0],
+                [0, 0, 0, 0],
+                [0, 0, 0, 0],
+                [0, 0, 0, 1]
+            ]
+        ),
         # Testing when values are added to l_hip_jc
-        ([1, -3, 2], [0, 0, 0],
-         [np.array([0, 0, 0]), np.array([[0, 0, 0], [0, 0, 0], [0, 0, 0]]), np.array(rand_coor)],
-         [[0.5, -1.5, 1], [[0.5, -1.5, 1], [0.5, -1.5, 1], [0.5, -1.5, 1]]]),
+        (
+            [1, -3, 2],
+            [0,  0, 0],
+
+            np.array([[0, 0, 0, 0],
+                      [0, 0, 0, 0],
+                      [0, 0, 0, 0]]),
+            [
+                [0.5, -1.5, 1,  0.5],
+                [0.5, -1.5, 1, -1.5],
+                [0.5, -1.5, 1,  1  ],
+                [0,    0,   0,  1  ]
+            ]
+        ),
         # Testing when values are added to r_hip_jc
-        ([0, 0, 0], [-8, 1, 4],
-         [np.array([0, 0, 0]), np.array([[0, 0, 0], [0, 0, 0], [0, 0, 0]]), np.array(rand_coor)],
-         [[-4, 0.5, 2], [[-4, 0.5, 2], [-4, 0.5, 2], [-4, 0.5, 2]]]),
+        (
+            [ 0, 0, 0],
+            [-8, 1, 4],
+
+            np.array([[0, 0, 0, 0],
+                      [0, 0, 0, 0],
+                      [0, 0, 0, 0]]),
+            [
+                [-4, 0.5, 2, -4  ],
+                [-4, 0.5, 2,  0.5],
+                [-4, 0.5, 2,  2  ],
+                [ 0, 0,   0,  1  ]
+            ]
+        ),
         # Testing when values are added to l_hip_jc and r_hip_jc
-        ([8, -3, 7], [5, -2, -1],
-         [np.array([0, 0, 0]), np.array([[0, 0, 0], [0, 0, 0], [0, 0, 0]]), np.array(rand_coor)],
-         [[6.5, -2.5, 3], [[6.5, -2.5, 3], [6.5, -2.5, 3], [6.5, -2.5, 3]]]),
-        # Testing when values are added to pelvis_axis[0]
-        ([0, 0, 0], [0, 0, 0],
-         [np.array([1, -3, 6]), np.array([[0, 0, 0], [0, 0, 0], [0, 0, 0]]), np.array(rand_coor)],
-         [[0, 0, 0], [[-1, 3, -6], [-1, 3, -6], [-1, 3, -6]]]),
-        # Testing when values are added to pelvis_axis[1]
-        ([0, 0, 0], [0, 0, 0],
-         [np.array([0, 0, 0]), np.array([[1, 0, 5], [-2, -7, -3], [9, -2, 7]]), np.array(rand_coor)],
-         [[0, 0, 0], [[1, 0, 5], [-2, -7, -3], [9, -2, 7]]]),
-        # Testing when values are added to pelvis_axis[0] and pelvis_axis[1]
-        ([0, 0, 0], [0, 0, 0],
-         [np.array([-3, 0, 5]), np.array([[-4, 5, -2], [0, 0, 0], [8, 5, -1]]), np.array(rand_coor)],
-         [[0, 0, 0], [[-1, 5, -7], [3, 0, -5], [11, 5, -6]]]),
+        (
+            [8, -3,  7],
+            [5, -2, -1],
+
+            np.array([[0, 0, 0, 0],
+                      [0, 0, 0, 0],
+                      [0, 0, 0, 0],
+                      [0, 0, 0, 0]]),
+            [
+                [6.5, -2.5, 3,  6.5],
+                [6.5, -2.5, 3, -2.5],
+                [6.5, -2.5, 3,  3  ],
+                [0,    0,   0,  1  ]
+            ]
+        ),
+        # Testing when values are added to pelvis origin
+        (
+            [0, 0, 0],
+            [0, 0, 0],
+
+            np.array([[0, 0, 0,  1],
+                      [0, 0, 0, -3],
+                      [0, 0, 0,  6],
+                      [0, 0, 0,  0]]),
+            [
+                [-1, 3, -6, 0],
+                [-1, 3, -6, 0],
+                [-1, 3, -6, 0],
+                [ 0, 0,  0, 1]
+            ]
+        ),
+        # Testing when values are added to pelvis y and z axes
+        (
+            [0, 0, 0],
+            [0, 0, 0],
+
+            np.array([[ 1,  0,  5, 0],
+                      [-2, -7, -3, 0],
+                      [ 9, -2,  7, 0],
+                      [ 0,  0,  0, 0]]),
+            [
+                [ 1,  0,  5, 0],
+                [-2, -7, -3, 0],
+                [ 9, -2,  7, 0],
+                [ 0,  0,  0, 1]
+            ]
+        ),
+        # Testing when values are added to pelvis_axis x, z axes and origin
+        (
+            [0, 0, 0],
+            [0, 0, 0],
+
+            np.array([[-4, 5, -2, -3],
+                      [ 0, 0,  0,  0],
+                      [ 8, 5, -1,  5],
+                      [ 0, 0,  0,  0]]),
+            [
+                [-1, 5, -7, 0],
+                [ 3, 0, -5, 0],
+                [11, 5, -6, 0],
+                [ 0, 0,  0, 1]
+            ]
+        ),
         # Testing when values are added to all params
-        ([-5, 3, 8], [-3, -7, -1],
-         [np.array([6, 3, 9]), np.array([[5, 4, -2], [0, 0, 0], [7, 2, 3]]), np.array(rand_coor)],
-         [[-4, -2, 3.5], [[-5, -1, -7.5], [-10, -5, -5.5], [-3, -3, -2.5]]]),
+        (
+            [-5,  3,  8],
+            [-3, -7, -1],
+
+            np.array([[5, 4, -2, 6],
+                      [0, 0,  0, 3],
+                      [7, 2,  3, 9],
+                      [0, 0,  0, 0]]),
+            [
+                [-5,  -1, -7.5, -4  ],
+                [-10, -5, -5.5, -2  ],
+                [-3,  -3, -2.5,  3.5],
+                [ 0,   0,  0,    1  ]
+            ]
+        ),
         # Testing that when l_hip_jc, r_hip_jc, and pelvis_axis are composed of lists of ints
-        ([-5, 3, 8], [-3, -7, -1],
-         [[6, 3, 9], [[5, 4, -2], [0, 0, 0], [7, 2, 3]], rand_coor],
-         [[-4, -2, 3.5], [[-5, -1, -7.5], [-10, -5, -5.5], [-3, -3, -2.5]]]),
+        (
+             [-5,  3,  8],
+             [-3, -7, -1],
+
+             [
+                 [5, 4, -2, 6],
+                 [0, 0,  0, 3],
+                 [7, 2,  3, 9],
+                 [0, 0,  0, 1]
+            ],
+            [
+                [-5,  -1, -7.5, -4  ],
+                [-10, -5, -5.5, -2  ],
+                [-3,  -3, -2.5,  3.5],
+                [ 0,   0,  0,    1  ]
+            ]
+        ),
         # Testing that when l_hip_jc, r_hip_jc, and pelvis_axis are composed of numpy arrays of ints
-        (np.array([-5, 3, 8], dtype='int'), np.array([-3, -7, -1], dtype='int'),
-         [np.array([6, 3, 9], dtype='int'), np.array([[5, 4, -2], [0, 0, 0], [7, 2, 3]], dtype='int'), rand_coor],
-         [[-4, -2, 3.5], [[-5, -1, -7.5], [-10, -5, -5.5], [-3, -3, -2.5]]]),
+        (
+            np.array([-5,  3,  8], dtype='int'),
+            np.array([-3, -7, -1], dtype='int'),
+
+            np.array([[5, 4, -2, 6],
+                      [0, 0,  0, 3],
+                      [7, 2,  3, 9],
+                      [0, 0,  0, 1]], dtype='int'),
+
+            [
+                [ -5, -1, -7.5, -4  ],
+                [-10, -5, -5.5, -2  ],
+                [ -3, -3, -2.5,  3.5],
+                [  0,  0,  0,    1  ]
+            ]
+        ),
         # Testing that when l_hip_jc, r_hip_jc, and pelvis_axis are composed of lists of floats
-        ([-5.0, 3.0, 8.0], [-3.0, -7.0, -1.0],
-         [[6.0, 3.0, 9.0], [[5.0, 4.0, -2.0], [0.0, 0.0, 0.0], [7.0, 2.0, 3.0]], rand_coor],
-         [[-4, -2, 3.5], [[-5, -1, -7.5], [-10, -5, -5.5], [-3, -3, -2.5]]]),
+        (
+            [-5.0,  3.0,  8.0],
+            [-3.0, -7.0, -1.0],
+
+            [
+                [5.0, 4.0, -2.0, 6.0],
+                [0.0, 0.0,  0.0, 3.0],
+                [7.0, 2.0,  3.0, 9.0],
+                [0.0, 0.0,  0.0, 1.0]
+            ],
+
+            [
+                [ -5, -1, -7.5, -4  ],
+                [-10, -5, -5.5, -2  ],
+                [ -3, -3, -2.5,  3.5],
+                [  0,  0,  0,    1  ]
+            ]
+        ),
         # Testing that when l_hip_jc, r_hip_jc, and pelvis_axis are composed of numpy arrays of floats
-        (np.array([-5.0, 3.0, 8.0], dtype='float'), np.array([-3.0, -7.0, -1.0], dtype='float'),
-         [np.array([6.0, 3.0, 9.0], dtype='float'), np.array([[5.0, 4.0, -2.0], [0.0, 0.0, 0.0], [7.0, 2.0, 3.0]], dtype='float'), rand_coor],
-         [[-4, -2, 3.5], [[-5, -1, -7.5], [-10, -5, -5.5], [-3, -3, -2.5]]])])
-    def test_hipAxisCenter(self, l_hip_jc, r_hip_jc, pelvis_axis, expected):
+        (
+            np.array([-5.0,  3.0,  8.0], dtype='float'),
+            np.array([-3.0, -7.0, -1.0], dtype='float'),
+
+            np.array([[5.0, 4.0, -2.0, 6.0], 
+                      [0.0, 0.0,  0.0, 3.0],
+                      [7.0, 2.0,  3.0, 9.0],
+                      [0.0, 0.0,  0.0, 1.0]], dtype='float'),
+            [
+                [ -5, -1, -7.5, -4  ],
+                [-10, -5, -5.5, -2  ],
+                [ -3, -3, -2.5,  3.5],
+                [  0,  0,  0,    1  ]
+            ]
+        )])
+    def test_calc_axis_hip(self, l_hip_jc, r_hip_jc, pelvis_axis, expected):
         """
-        This test provides coverage of the hipAxisCenter function in pyCGM.py, defined as hipAxisCenter(l_hip_jc, r_hip_jc, pelvis_axis)
+        This test provides coverage of the calc_axis_hip function in pyCGM.py, defined as calc_axis_hip(l_hip_jc, r_hip_jc, pelvis_axis)
 
         This test takes 4 parameters:
         l_hip_jc: array of left hip joint center x,y,z position
         r_hip_jc: array of right hip joint center x,y,z position
-        pelvis_axis: array of pelvis origin and axis
-        expected: the expected result from calling hipAxisCenter on l_hip_jc, r_hip_jc, and pelvis_axis
+        pelvis_axis: 4x4 affine matrix of pelvis origin and axis
+        expected: the expected result from calling calc_axis_hip on l_hip_jc, r_hip_jc, and pelvis_axis
 
-        This test is checking to make sure the hip axis center is calculated correctly given the input parameters.
+        This test is checking to make sure the hip axis is calculated correctly given the input parameters.
 
-        The hip axis center is calculated using the midpoint of the right and left hip joint centers. 
+        The hip axis is calculated using the midpoint of the right and left hip joint centers. 
         Then, the given pelvis_axis variable is converted into x,y,z axis format. 
         The pelvis axis is then translated to the shared hip center by calculating the sum of:
         pelvis_axis axis component + hip_axis_center axis component 
@@ -1223,9 +1382,20 @@ class TestLowerBodyAxis():
         Lastly, it checks that the resulting output is correct when l_hip_jc, r_hip_jc, and pelvis_axis are composed of
         lists of ints, numpy arrays of ints, lists of floats, and numpy arrays of floats.
         """
-        result = pyCGM.hipAxisCenter(l_hip_jc, r_hip_jc, pelvis_axis)
-        np.testing.assert_almost_equal(result[0], expected[0], rounding_precision)
-        np.testing.assert_almost_equal(result[1], expected[1], rounding_precision)
+        pelvis_axis = np.asarray(pelvis_axis)
+        pelvis_o = pelvis_axis[:3, 3]
+        pelvis_axis[0, :3] -= pelvis_o
+        pelvis_axis[1, :3] -= pelvis_o
+        pelvis_axis[2, :3] -= pelvis_o
+
+        result = pyCGM.calc_axis_hip(l_hip_jc, r_hip_jc, pelvis_axis)
+
+        result_o = result[:3, 3]
+        result[0, :3] += result_o
+        result[1, :3] += result_o
+        result[2, :3] += result_o
+
+        np.testing.assert_almost_equal(result, expected, rounding_precision)
 
     @pytest.mark.parametrize(["frame", "hip_JC", "vsk", "mockReturnVal", "expectedMockArgs", "expected"], [
         # Test from running sample data
