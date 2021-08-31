@@ -1539,7 +1539,8 @@ def calc_axis_elbow(relb, lelb, rwra, rwrb, lwra, lwrb, r_shoulder_jc, l_shoulde
                 [   0.  ,    0.  ,    0.  ,    1.  ]])]
         """
 
-        shoulder_jc = np.asarray(shoulder_jc)
+        r_shoulder_jc = np.asarray(r_shoulder_jc)
+        l_shoulder_jc = np.asarray(l_shoulder_jc)
 
         r_elbow_width *= -1
         r_delta = (r_elbow_width/2.0)-mm
