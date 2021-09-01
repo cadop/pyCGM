@@ -2069,6 +2069,9 @@ def calc_joint_center(p_a, p_b, p_c, delta):
     """
 
     # make the two vector using 3 markers, which is on the same plane.
+
+    p_a, p_b, p_c = map(np.asarray, [p_a, p_b, p_c])
+
     vec_1 = p_a - p_c
     vec_2 = p_b - p_c
 
