@@ -766,7 +766,6 @@ class TestUpperBodyAxis():
         np.testing.assert_almost_equal(result[0], rand_coor, rounding_precision)
         np.testing.assert_almost_equal(result[1], rand_coor, rounding_precision)
 
-
     @pytest.mark.parametrize(["thorax", "shoulderJC", "wand", "expected"], [
         # Test from running sample data
         ([[[256.23991128535846, 365.30496976939753, 1459.662169500559], [257.1435863244796, 364.21960599061947, 1459.588978712983], [256.0843053658035, 364.32180498523223, 1458.6575930699294]],  [256.149810236564, 364.3090603933987, 1459.6553639290375]],
