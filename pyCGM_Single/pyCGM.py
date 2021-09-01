@@ -1551,29 +1551,29 @@ def calc_axis_elbow(relb, lelb, rwra, rwrb, lwra, lwrb, r_shoulder_jc, l_shoulde
     lsjc = l_shoulder_jc[:3, 3]
 
     # make the construction vector for finding the elbow joint center
-    r_con_1 = np.subtract(rsjc, relb)
+    r_con_1     = np.subtract(rsjc, relb)
     r_con_1_div = np.linalg.norm(r_con_1)
-    r_con_1 = np.divide(r_con_1, r_con_1_div)
+    r_con_1     = np.divide(r_con_1, r_con_1_div)
 
-    r_con_2 = np.subtract(rwri, relb)
+    r_con_2     = np.subtract(rwri, relb)
     r_con_2_div = np.linalg.norm(r_con_2)
-    r_con_2 = np.divide(r_con_2, r_con_2_div)
+    r_con_2     = np.divide(r_con_2, r_con_2_div)
 
-    r_cons_vec = np.cross(r_con_1, r_con_2)
+    r_cons_vec     = np.cross(r_con_1, r_con_2)
     r_cons_vec_div = np.linalg.norm(r_cons_vec)
-    r_cons_vec = np.divide(r_cons_vec, r_cons_vec_div)
+    r_cons_vec     = np.divide(r_cons_vec, r_cons_vec_div)
 
     r_cons_vec = r_cons_vec * 500 + relb
 
-    l_con_1 = np.subtract(lsjc, lelb)
+    l_con_1     = np.subtract(lsjc, lelb)
     l_con_1_div = np.linalg.norm(l_con_1)
-    l_con_1 = np.divide(l_con_1, l_con_1_div)
+    l_con_1     = np.divide(l_con_1, l_con_1_div)
 
-    l_con_2 = np.subtract(lwri, lelb)
+    l_con_2     = np.subtract(lwri, lelb)
     l_con_2_div = np.linalg.norm(l_con_2)
-    l_con_2 = np.divide(l_con_2, l_con_2_div)
+    l_con_2     = np.divide(l_con_2, l_con_2_div)
 
-    l_cons_vec = np.cross(l_con_1, l_con_2)
+    l_cons_vec     = np.cross(l_con_1, l_con_2)
     l_cons_vec_div = np.linalg.norm(l_cons_vec)
 
     l_cons_vec = np.divide(l_cons_vec, l_cons_vec_div)
@@ -1585,40 +1585,40 @@ def calc_axis_elbow(relb, lelb, rwra, rwrb, lwra, lwrb, r_shoulder_jc, l_shoulde
 
     # this is radius axis for humerus
     # right
-    x_axis = np.subtract(rwra, rwrb)
+    x_axis     = np.subtract(rwra, rwrb)
     x_axis_div = np.linalg.norm(x_axis)
-    x_axis = np.divide(x_axis, x_axis_div)
+    x_axis     = np.divide(x_axis, x_axis_div)
 
-    z_axis = np.subtract(rejc, rwri)
+    z_axis     = np.subtract(rejc, rwri)
     z_axis_div = np.linalg.norm(z_axis)
-    z_axis = np.divide(z_axis, z_axis_div)
+    z_axis     = np.divide(z_axis, z_axis_div)
 
-    y_axis = np.cross(z_axis, x_axis)
+    y_axis     = np.cross(z_axis, x_axis)
     y_axis_div = np.linalg.norm(y_axis)
-    y_axis = np.divide(y_axis, y_axis_div)
+    y_axis     = np.divide(y_axis, y_axis_div)
 
-    x_axis = np.cross(y_axis, z_axis)
+    x_axis     = np.cross(y_axis, z_axis)
     x_axis_div = np.linalg.norm(x_axis)
-    x_axis = np.divide(x_axis, x_axis_div)
+    x_axis     = np.divide(x_axis, x_axis_div)
 
     r_radius = [x_axis, y_axis, z_axis]
 
     # left
-    x_axis = np.subtract(lwra, lwrb)
+    x_axis     = np.subtract(lwra, lwrb)
     x_axis_div = np.linalg.norm(x_axis)
-    x_axis = np.divide(x_axis, x_axis_div)
+    x_axis     = np.divide(x_axis, x_axis_div)
 
-    z_axis = np.subtract(lejc, lwri)
+    z_axis     = np.subtract(lejc, lwri)
     z_axis_div = np.linalg.norm(z_axis)
-    z_axis = np.divide(z_axis, z_axis_div)
+    z_axis     = np.divide(z_axis, z_axis_div)
 
-    y_axis = np.cross(z_axis, x_axis)
+    y_axis     = np.cross(z_axis, x_axis)
     y_axis_div = np.linalg.norm(y_axis)
-    y_axis = np.divide(y_axis, y_axis_div)
+    y_axis     = np.divide(y_axis, y_axis_div)
 
-    x_axis = np.cross(y_axis, z_axis)
+    x_axis     = np.cross(y_axis, z_axis)
     x_axis_div = np.linalg.norm(x_axis)
-    x_axis = np.divide(x_axis, x_axis_div)
+    x_axis     = np.divide(x_axis, x_axis_div)
 
     l_radius = [x_axis, y_axis, z_axis]
 
@@ -1640,21 +1640,21 @@ def calc_axis_elbow(relb, lelb, rwra, rwrb, lwra, lwrb, r_shoulder_jc, l_shoulde
 
     # recombine the humerus axis
     # right
-    z_axis = np.subtract(rsjc, rejc)
+    z_axis     = np.subtract(rsjc, rejc)
     z_axis_div = np.linalg.norm(z_axis)
-    z_axis = np.divide(z_axis, z_axis_div)
+    z_axis     = np.divide(z_axis, z_axis_div)
 
-    x_axis = np.subtract(rwjc, rejc)
+    x_axis     = np.subtract(rwjc, rejc)
     x_axis_div = np.linalg.norm(x_axis)
-    x_axis = np.divide(x_axis, x_axis_div)
+    x_axis     = np.divide(x_axis, x_axis_div)
 
-    y_axis = np.cross(x_axis, z_axis)
+    y_axis     = np.cross(x_axis, z_axis)
     y_axis_div = np.linalg.norm(y_axis)
-    y_axis = np.divide(y_axis, y_axis_div)
+    y_axis     = np.divide(y_axis, y_axis_div)
 
-    x_axis = np.cross(y_axis, z_axis)
+    x_axis     = np.cross(y_axis, z_axis)
     x_axis_div = np.linalg.norm(x_axis)
-    x_axis = np.divide(x_axis, x_axis_div)
+    x_axis     = np.divide(x_axis, x_axis_div)
 
     r_axis = np.zeros((4, 4))
     r_axis[3, 3] = 1.0
@@ -1664,21 +1664,21 @@ def calc_axis_elbow(relb, lelb, rwra, rwrb, lwra, lwrb, r_shoulder_jc, l_shoulde
     r_axis[:3, 3] = rejc
 
     # left
-    z_axis = np.subtract(lsjc, lejc)
+    z_axis     = np.subtract(lsjc, lejc)
     z_axis_div = np.linalg.norm(z_axis)
-    z_axis = np.divide(z_axis, z_axis_div)
+    z_axis     = np.divide(z_axis, z_axis_div)
 
-    x_axis = np.subtract(lwjc, lejc)
+    x_axis     = np.subtract(lwjc, lejc)
     x_axis_div = np.linalg.norm(x_axis)
-    x_axis = np.divide(x_axis, x_axis_div)
+    x_axis     = np.divide(x_axis, x_axis_div)
 
-    y_axis = np.cross(x_axis, z_axis)
+    y_axis     = np.cross(x_axis, z_axis)
     y_axis_div = np.linalg.norm(y_axis)
-    y_axis = np.divide(y_axis, y_axis_div)
+    y_axis     = np.divide(y_axis, y_axis_div)
 
-    x_axis = np.cross(y_axis, z_axis)
+    x_axis     = np.cross(y_axis, z_axis)
     x_axis_div = np.linalg.norm(x_axis)
-    x_axis = np.divide(x_axis, x_axis_div)
+    x_axis     = np.divide(x_axis, x_axis_div)
 
     l_axis = np.zeros((4, 4))
     l_axis[3, 3] = 1.0
