@@ -159,27 +159,48 @@ class TestPycgmAngle():
         result_float_nparray = pyCGM.getangle_spi(np.array(axisP_floats, dtype='float'), np.array(axisD, dtype='float'))
         np.testing.assert_almost_equal(result_float_nparray, expected, rounding_precision)
 
-    @pytest.mark.parametrize(["xRot", "yRot", "zRot", "expected"], [
-        (0, 0, 0, [0, 0, 90]),
-        # X rotations
-        (90, 0, 0, [0, 90, 90]), (30, 0, 0, [0, 30, 90]), (-30, 0, 0, [0, -30, 90]), (120, 0, 0, [180, 60, -90]), (-120, 0, 0, [180, -60, -90]), (180, 0, 0, [180, 0, -90]),
-        # Y rotations
-        (0, 90, 0, [90, 0, 90]), (0, 30, 0, [30, 0, 90]), (0, -30, 0, [-30, 0, 90]), (0, 120, 0, [120, 0, 90]), (0, -120, 0, [-120, 0, 90]), (0, 180, 0, [180, 0, 90]),
-        # Z rotations
-        (0, 0, 90, [0, 0, 0]), (0, 0, 30, [0, 0, 60]), (0, 0, -30, [0, 0, 120]), (0, 0, 120, [0, 0, -30]), (0, 0, -120, [0, 0, -150]), (0, 0, 180, [0, 0, -90]),
-        # Multiple Rotations
-        (150, 30, 0, [146.30993247, 25.65890627, -73.89788625]), (45, 0, 60, [0, 45, 30]), (0, 90, 120, [90, 0, -30]), (135, 45, 90, [125.26438968, 30, -144.73561032])
-    ])
-    def test_getangle(self, xRot, yRot, zRot, expected):
+    @pytest.mark.parametrize(
+        ["xRot", "yRot", "zRot", "expected"],
+        [
+            (0, 0, 0, [0, 0, 90]),
+            # X rotations
+            (90, 0, 0, [0, 90, 90]),
+            (30, 0, 0, [0, 30, 90]),
+            (-30, 0, 0, [0, -30, 90]),
+            (120, 0, 0, [180, 60, -90]),
+            (-120, 0, 0, [180, -60, -90]),
+            (180, 0, 0, [180, 0, -90]),
+            # Y rotations
+            (0, 90, 0, [90, 0, 90]),
+            (0, 30, 0, [30, 0, 90]),
+            (0, -30, 0, [-30, 0, 90]),
+            (0, 120, 0, [120, 0, 90]),
+            (0, -120, 0, [-120, 0, 90]),
+            (0, 180, 0, [180, 0, 90]),
+            # Z rotations
+            (0, 0, 90, [0, 0, 0]),
+            (0, 0, 30, [0, 0, 60]),
+            (0, 0, -30, [0, 0, 120]),
+            (0, 0, 120, [0, 0, -30]),
+            (0, 0, -120, [0, 0, -150]),
+            (0, 0, 180, [0, 0, -90]),
+            # Multiple Rotations
+            (150, 30, 0, [146.30993247, 25.65890627, -73.89788625]),
+            (45, 0, 60, [0, 45, 30]),
+            (0, 90, 120, [90, 0, -30]),
+            (135, 45, 90, [125.26438968, 30, -144.73561032]),
+        ],
+    )
+    def test_calc_angle(self, xRot, yRot, zRot, expected):
         """
-        This test provides coverage of the getangle function in pyCGM.py,
-        defined as getangle(axisP,axisD) where axisP is the proximal axis and axisD is the distal axis
+        This test provides coverage of the calc_angle function in pyCGM.py,
+        defined as calc_angle(axis_p, axis_d) where axis_p is the proximal axis and axis_d is the distal axis
 
-        getangle takes in as input two axes, axisP and axisD, and returns in degrees, the Euler angle
-        rotations required to rotate axisP to axisD as a list [beta, alpha, gamma]. getangle uses the YXZ
+        calc_angle takes in as input two axes, axis_p and axis_d, and returns in degrees, the Euler angle
+        rotations required to rotate axis_p to axis_d as a list [beta, alpha, gamma]. calc_angle uses the YXZ
         order of Euler rotations to calculate the angles. The rotation matrix is obtained by directly comparing
-        the vectors in axisP to those in axisD through dot products between different components
-        of each axis. axisP and axisD each have 3 components to their axis, x, y, and z. Since arcsin
+        the vectors in axis_p to those in axis_d through dot products between different components
+        of each axis. axis_p and axis_d each have 3 components to their axis, x, y, and z. Since arcsin
         is being used, the function checks wether the angle alpha is between -pi/2 and pi/2.
         The angles are calculated as follows:
 
@@ -200,45 +221,45 @@ class TestPycgmAngle():
 
             \[ \gamma = \arctan2{(-(axisD_{y} \cdot axisP_{y}), axisD_{x} \cdot axisP_{y})} \]
 
-        This test calls pyCGM.rotmat() to create axisP with an x, y, and z rotation defined in the parameters.
-        It then calls pyCGM.getangle() with axisP and axisD, which was created with no rotation in the x, y or z
+        This test calls pyCGM.rotmat() to create axis_p with an x, y, and z rotation defined in the parameters.
+        It then calls pyCGM.calc_angle() with axis_p and axis_d, which was created with no rotation in the x, y or z
         direction. This result is then compared to the expected result. The results from this test will be in the
         YXZ order, meaning that a parameter with an inputed x rotation will have a result with the same angle in
         the z direction. There is also an additional 90 degree angle in the z direction if there was no z rotation.
         If there was a z rotation than there will be a different angle in the z direction. A z rotation of 90, 30, -30,
         120, -120, 180 degrees results in a 0, 60, 120, -30, -150, -90 degree angle in the z direction respectively.
         """
-        # Create axisP as a rotatinal matrix using the x, y, and z rotations given in testcase
-        axisP = pyCGM.rotmat(xRot, yRot, zRot)
-        axisD = pyCGM.rotmat(0, 0, 0)
-        result = pyCGM.getangle(axisP, axisD)
+        # Create axis_p as a rotatinal matrix using the x, y, and z rotations given in testcase
+        axis_p = pyCGM.rotmat(xRot, yRot, zRot)
+        axis_d = pyCGM.rotmat(0, 0, 0)
+        result = pyCGM.calc_angle(axis_p, axis_d)
         np.testing.assert_almost_equal(result, expected, rounding_precision)
 
-    def test_getangle_datatypes(self):
+    def test_calc_angle_datatypes(self):
         """
-        This test provides coverage of the getangle function in pyCGM.py, defined as getangle(axisP,axisD).
-        It checks that the resulting output from calling getangle is correct for a list of ints, a numpy array of
+        This test provides coverage of the calc_angle function in pyCGM.py, defined as calc_angle(axis_p, axis_d).
+        It checks that the resulting output from calling calc_angle is correct for a list of ints, a numpy array of
         ints, a list of floats, and a numpy array of floats.
         """
-        axisD = pyCGM.rotmat(0, 0, 0)
-        axisP_floats = pyCGM.rotmat(90, 0, 90)
-        axisP_ints = [[int(y) for y in x] for x in axisP_floats]
+        axis_d = pyCGM.rotmat(0, 0, 0)
+        axis_p_floats = pyCGM.rotmat(90, 0, 90)
+        axis_p_ints = [[int(y) for y in x] for x in axis_p_floats]
         expected = [0, 90, 0]
 
-        # Check that calling getangle on a list of ints yields the expected results
-        result_int_list = pyCGM.getangle(axisP_ints, axisD)
+        # Check that calling calc_angle on a list of ints yields the expected results
+        result_int_list = pyCGM.calc_angle(axis_p_ints, axis_d)
         np.testing.assert_almost_equal(result_int_list, expected, rounding_precision)
 
-        # Check that calling getangle on a numpy array of ints yields the expected results
-        result_int_nparray = pyCGM.getangle(np.array(axisP_ints, dtype='int'), np.array(axisD, dtype='int'))
+        # Check that calling calc_angle on a numpy array of ints yields the expected results
+        result_int_nparray = pyCGM.calc_angle(np.array(axis_p_ints, dtype='int'), np.array(axis_d, dtype='int'))
         np.testing.assert_almost_equal(result_int_nparray, expected, rounding_precision)
 
-        # Check that calling getangle on a list of floats yields the expected results
-        result_float_list = pyCGM.getangle(axisP_floats, axisD)
+        # Check that calling calc_angle on a list of floats yields the expected results
+        result_float_list = pyCGM.calc_angle(axis_p_floats, axis_d)
         np.testing.assert_almost_equal(result_float_list, expected, rounding_precision)
 
-        # Check that calling getangle on a numpy array of floats yields the expected results
-        result_float_nparray = pyCGM.getangle(np.array(axisP_floats, dtype='float'), np.array(axisD, dtype='float'))
+        # Check that calling calc_angle on a numpy array of floats yields the expected results
+        result_float_nparray = pyCGM.calc_angle(np.array(axis_p_floats, dtype='float'), np.array(axis_d, dtype='float'))
         np.testing.assert_almost_equal(result_float_nparray, expected, rounding_precision)
 
     @pytest.mark.parametrize(["xRot", "yRot", "zRot", "expected"], [
