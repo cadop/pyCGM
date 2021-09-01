@@ -88,31 +88,37 @@ class TestPycgmAngle():
         result = pyCGM.calc_angle_shoulder(axisP, axisD, axisD)
         np.testing.assert_almost_equal(result, expected, rounding_precision)
 
-    def test_getangle_sho_datatypes(self):
+    def test_calc_angle_shoulder_datatypes(self):
         """
-        This test provides coverage of the getangle_sho function in pyCGM.py, defined as getangle_sho(axisP,axisD).
-        It checks that the resulting output from calling getangle_sho is correct for a list of ints, a numpy array of
+        This test provides coverage of the calc_angle_shoulder function in pyCGM.py, defined as 
+        calc_angle_shoulder(axis_thorax, axis_hum_right, axis_hum_left)
+        It checks that the resulting output from calling calc_angle_shoulder is correct for a list of ints, a numpy array of
         ints, a list of floats, and a numpy array of floats.
         """
         axisD = pyCGM.rotmat(0, 0, 0)
         axisP_floats = pyCGM.rotmat(90, 0, 90)
         axisP_ints = [[int(y) for y in x] for x in axisP_floats]
-        expected = [0, 90, 90]
+        expected = [[0, 90, 90], [0, 90, 90]]
 
-        # Check that calling getangle_sho on a list of ints yields the expected results
-        result_int_list = pyCGM.getangle_sho(axisP_ints, axisD)
+        # Check that calling calc_angle_shoulder on a list of ints yields the expected results
+        result_int_list = pyCGM.calc_angle_shoulder(axisP_ints, axisD, axisD)
         np.testing.assert_almost_equal(result_int_list, expected, rounding_precision)
 
-        # Check that calling getangle_sho on a numpy array of ints yields the expected results
-        result_int_nparray = pyCGM.getangle_sho(np.array(axisP_ints, dtype='int'), np.array(axisD, dtype='int'))
+        # Check that calling calc_angle_shoulder on a numpy array of ints yields the expected results
+        result_int_nparray = pyCGM.calc_angle_shoulder(np.array(axisP_ints, dtype='int'),
+                                                       np.array(axisD, dtype='int'), 
+                                                       np.array(axisD, dtype='int'))
+
         np.testing.assert_almost_equal(result_int_nparray, expected, rounding_precision)
 
-        # Check that calling getangle_sho on a list of floats yields the expected results
-        result_float_list = pyCGM.getangle_sho(axisP_floats, axisD)
+        # Check that calling calc_angle_shoulder on a list of floats yields the expected results
+        result_float_list = pyCGM.calc_angle_shoulder(axisP_floats, axisD, axisD)
         np.testing.assert_almost_equal(result_float_list, expected, rounding_precision)
 
-        # Check that calling getangle_sho on a numpy array of floats yields the expected results
-        result_float_nparray = pyCGM.getangle_sho(np.array(axisP_floats, dtype='float'), np.array(axisD, dtype='float'))
+        # Check that calling calc_angle_shoulder on a numpy array of floats yields the expected results
+        result_float_nparray = pyCGM.calc_angle_shoulder(np.array(axisP_floats, dtype='float'),
+                                                         np.array(axisD, dtype='float'),
+                                                         np.array(axisD, dtype='float'))
         np.testing.assert_almost_equal(result_float_nparray, expected, rounding_precision)
 
     @pytest.mark.parametrize(["xRot", "yRot", "zRot", "expected"], [
