@@ -1527,18 +1527,27 @@ def headJC(frame):
 
 def calc_axis_uncorrect_foot(rtoe, ltoe, r_ankle_axis, l_ankle_axis):
     """Calculate the foot joint center and axis.
+
     Takes in markers that correspond to (x, y, z) positions of the current
     frame, the right and left ankle axes, right and left static rotation
     offset angles, and the right and left static plantar flexion angles.
+
     Calculates the foot joint axis by rotating incorrect foot joint axes about
     offset angle.
+
     Markers used: RTOE, LTOE
+
     Other landmarks used: ankle axis
+
     Subject Measurement values used: 
         RightStaticRotOff
+
         RightStaticPlantFlex
+
         LeftStaticRotOff
+
         LeftStaticPlantFlex
+
     Parameters
     ----------
     rtoe : array
@@ -1557,11 +1566,13 @@ def calc_axis_uncorrect_foot(rtoe, ltoe, r_ankle_axis, l_ankle_axis):
         Right static plantar flexion angle.
     l_static_plant_flex : float
         Left static plantar flexion angle.
+
     Returns
     -------
     [r_axis, l_axis] : array
         A list of two 4x4 affine matrices representing the right and left
         foot axes and origins.
+
     Examples
     --------
     >>> import numpy as np
