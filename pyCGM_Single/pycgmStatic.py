@@ -98,7 +98,10 @@ def get_dist(p0, p1):
     >>> np.around(get_dist(p0,p1), 2)
     1072.36
     """
-    distance = sqrt((p0[0] - p1[0])**2 + (p0[1] - p1[1])**2 + (p0[2] - p1[2])**2)
+    p0 = np.asarray(p0)
+    p1 = np.asarray(p1)
+
+    distance = np.linalg.norm(p0 - p1)
     return distance
 
 def getStatic(motionData,vsk,flat_foot=False,GCS=None):
