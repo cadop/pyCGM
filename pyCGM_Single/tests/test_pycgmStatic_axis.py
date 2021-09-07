@@ -3,7 +3,7 @@ import pyCGM_Single.pycgmStatic as pycgmStatic
 import numpy as np
 from mock import patch
 
-rounding_precision = 8
+rounding_precision = 5
 
 class TestPycgmStaticAxis():
     """
@@ -15,7 +15,7 @@ class TestPycgmStaticAxis():
         kneeJointCenter
         ankleJointCenter
         footJointCenter
-        headJC
+        calc_axis_head
         uncorrect_footaxis
         rotaxis_footflat
         rotaxis_nonfootflat
