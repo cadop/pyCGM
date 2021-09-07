@@ -11,17 +11,21 @@ from math import sin, cos, acos, sqrt, radians
 
 def rotmat(x=0, y=0, z=0):
     r"""Rotation Matrix.
+
     This function creates and returns a rotation matrix.
+
     Parameters
     ----------
     x, y, z : float, optional
         Angle, which will be converted to radians, in
         each respective axis to describe the rotations.
         The default is 0 for each unspecified angle.
+
     Returns
     -------
     r_xyz : array
         The product of the matrix multiplication.
+
     Notes
     -----
     :math:`r_x = [ [1,0,0], [0, \cos(x), -sin(x)], [0, sin(x), cos(x)] ]`
@@ -29,6 +33,7 @@ def rotmat(x=0, y=0, z=0):
     :math:`r_z = [ [cos(z), -sin(z), 0], [sin(z), cos(z), 0], [0, 0, 1] ]`
     :math:`r_{xy} = r_x * r_y`
     :math:`r_{xyz} = r_{xy} * r_z`
+
     Examples
     --------
     >>> import numpy as np
