@@ -9,7 +9,7 @@ class TestPycgmStaticAxis():
     """
     This class tests the axis functions in pycgmStatic.py:
         staticCalculationHead
-        pelvisJointCenter
+        calc_axis_pelvis
         hipJointCenter
         hipAxisCenter
         kneeJointCenter
