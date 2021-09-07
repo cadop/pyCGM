@@ -3,12 +3,12 @@ import pyCGM_Single.pycgmStatic as pycgmStatic
 import numpy as np
 from mock import patch
 
-rounding_precision = 8
+rounding_precision = 5
 
 class TestPycgmStaticAxis():
     """
     This class tests the axis functions in pycgmStatic.py:
-        staticCalculationHead
+        calc_static_head
         pelvisJointCenter
         hipJointCenter
         hipAxisCenter
