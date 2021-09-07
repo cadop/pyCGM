@@ -659,31 +659,35 @@ def pelvisJointCenter(frame):
 
 def calc_joint_center_hip(pelvis, subject):
     u"""Calculate the right and left hip joint center.
+
     Takes in a 4x4 affine matrix of pelvis axis and subject measurements
     dictionary. Calculates and returns the right and left hip joint centers.
-    Subject Measurement values used:
-        MeanLegLength
-        R_AsisToTrocanterMeasure
-        InterAsisDistance
-        L_AsisToTrocanterMeasure
+
+    Subject Measurement values used: MeanLegLength, R_AsisToTrocanterMeasure,
+    InterAsisDistance, L_AsisToTrocanterMeasure
+
     Hip Joint Center: Computed using Hip Joint Center Calculation [1]_.
+
     Parameters
     ----------
     pelvis : array
         A 4x4 affine matrix with pelvis x, y, z axes and pelvis origin.
     subject : dict
         A dictionary containing subject measurements.
+
     Returns
     -------
     hip_jc : array
         A 2x3 array that contains two 1x3 arrays
         containing the x, y, z components of the right and left hip joint
         centers.
+
     References
     ----------
     .. [1] Davis, R. B., III, Õunpuu, S., Tyburski, D. and Gage, J. R. (1991).
             A gait analysis data collection and reduction technique.
             Human Movement Science 10 575–87.
+
     Examples
     --------
     >>> import numpy as np
@@ -692,11 +696,10 @@ def calc_joint_center_hip(pelvis, subject):
     >>> vsk = {'MeanLegLength': 940.0, 'R_AsisToTrocanterMeasure': 72.51,
     ...        'L_AsisToTrocanterMeasure': 72.51, 'InterAsisDistance': 215.90}
     >>> pelvis_axis = np.array([
-    ...     [0.14, 0.98, -0.11, 251.60],
-    ...     [-0.99, 0.13, -0.02, 391.74],
-    ...     [0, 0.1, 0.99, 1032.89],
-    ...     [0, 0, 0, 1]
-    ... ])
+    ...     [ 0.14, 0.98, -0.11,  251.60],
+    ...     [-0.99, 0.13, -0.02,  391.74],
+    ...     [ 0,    0.1,   0.99, 1032.89],
+    ...     [ 0,    0,     0,       1   ]])
     >>> np.around(calc_joint_center_hip(pelvis_axis,vsk), 2) #doctest: +NORMALIZE_WHITESPACE
     array([[307.36, 323.83, 938.72],
            [181.71, 340.33, 936.18]])
