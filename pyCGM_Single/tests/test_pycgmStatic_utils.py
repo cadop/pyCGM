@@ -16,7 +16,7 @@ class TestPycgmStaticUtils():
     getDist
     getStatic
     average
-    IADcalculation
+    calc_IAD
     headoffCalc
     staticCalculation
     getankleangle
