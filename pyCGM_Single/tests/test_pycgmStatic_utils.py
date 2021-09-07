@@ -78,14 +78,14 @@ class TestPycgmStaticUtils():
         ([3, 3, 0], [3, 0, 3], 4.242640687119285),
         ([7, 0, -4], [7, 0, 2], 6),
         ([7, -2, 5], [1, -4, 9], 7.483314773547883)])
-    def test_getDist(self, p0, p1, expected_results):
+    def test_get_dist(self, p0, p1, expected_results):
         """
-        This test provides coverage of the getDist function in pycgmStatic.py, defined as getDist(p0, p1)
+        This test provides coverage of the get_dist function in pycgmStatic.py, defined as get_dist(p0, p1)
 
         This test takes 3 parameters:
-        p0: position of first x,y,z coordinate
-        p1: position of second x,y,z coordinate
-        expected_results: the expected result from calling getDist on p0 and p1. This will be the distance between p0 and p1
+        p0: position of first (x, y, z) coordinate
+        p1: position of second (x, y, z) coordinate
+        expected_results: the expected result from calling get_dist on p0 and p1. This will be the distance between p0 and p1
 
         Given the points p0 and p1, the distance between them is defined as:
         .. math::
@@ -97,7 +97,7 @@ class TestPycgmStaticUtils():
         coordinates are different
         - the distance is measured correctly given positive, negative and zero values
         """
-        result = pycgmStatic.getDist(p0, p1)
+        result = pycgmStatic.get_dist(p0, p1)
         np.testing.assert_almost_equal(result, expected_results, rounding_precision)
 
     def test_getDist_datatypes(self):

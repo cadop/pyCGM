@@ -68,37 +68,38 @@ def rotmat(x=0,y=0,z=0):
 
     return Rxyz
 
-def getDist(p0, p1):
-    """Get Distance function
+def get_dist(p0, p1):
+    """Get Distance
 
     This function calculates the distance between two 3-D positions.
 
     Parameters
     ----------
     p0 : array
-        Position of first x, y, z coordinate.
+        Position of first (x, y, z) coordinate.
     p1 : array
-        Position of second x, y, z coordinate.
+        Position of second (x, y, z) coordinate.
 
     Returns
     -------
-    float
+    distance : float
         The distance between positions p0 and p1.
 
     Examples
     --------
     >>> import numpy as np
-    >>> from .pycgmStatic import getDist
+    >>> from .pycgmStatic import get_dist
     >>> p0 = [0,1,2]
     >>> p1 = [1,2,3]
-    >>> np.around(getDist(p0,p1), 2)
+    >>> np.around(get_dist(p0,p1), 2)
     1.73
     >>> p0 = np.array([991.45, 741.95, 321.36])
     >>> p1 = np.array([117.09, 142.24, 481.95])
-    >>> np.around(getDist(p0,p1), 2)
+    >>> np.around(get_dist(p0,p1), 2)
     1072.36
     """
-    return sqrt((p0[0] - p1[0])**2 + (p0[1] - p1[1])**2 + (p0[2] - p1[2])**2)
+    distance = sqrt((p0[0] - p1[0])**2 + (p0[1] - p1[1])**2 + (p0[2] - p1[2])**2)
+    return distance
 
 def getStatic(motionData,vsk,flat_foot=False,GCS=None):
     """ Get Static Offset function
@@ -193,8 +194,8 @@ def getStatic(motionData,vsk,flat_foot=False,GCS=None):
                 RKNE = frame['RKNE']
                 LKNE = frame['LKNE']
 
-                Rdst = getDist(RKNE,RMKN)
-                Ldst = getDist(LKNE,LMKN)
+                Rdst = get_dist(RKNE,RMKN)
+                Ldst = get_dist(LKNE,LMKN)
                 Rwidth.append(Rdst)
                 Lwidth.append(Ldst)
 
@@ -222,8 +223,8 @@ def getStatic(motionData,vsk,flat_foot=False,GCS=None):
                 RANK = frame['RANK']
                 LANK = frame['LANK']
 
-                Rdst = getDist(RMMA,RANK)
-                Ldst = getDist(LMMA,LANK)
+                Rdst = get_dist(RMMA,RANK)
+                Ldst = get_dist(LMMA,LANK)
                 Rwidth.append(Rdst)
                 Lwidth.append(Ldst)
 
