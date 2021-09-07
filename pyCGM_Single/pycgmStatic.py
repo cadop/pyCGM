@@ -260,7 +260,7 @@ def getStatic(motionData,vsk,flat_foot=False,GCS=None):
                               frame['RFHD'] if 'RFHD' in frame else None,
                               frame['LBHD'] if 'LBHD' in frame else None,
                               frame['RBHD'] if 'RBHD' in frame else None)
-        headangle = staticCalculationHead(frame,head)
+        headangle = calc_static_head(head)
 
         static_offset.append(angle)
         head_offset.append(headangle)
@@ -341,18 +341,16 @@ def IADcalculation(frame):
 
     return IAD
 
-def staticCalculationHead(frame,head):
-    """Static Head Calculation function
+def calc_static_head(head_axis):
+    """Static Head Calculation
 
-    This function calculates the x,y,z axes of the head,
-    and then calculates the offset of the head using the headoffCalc function.
+    This function converts the head axis to a numpy array,
+    and then calculates the offset of the head using the calc_head_offset function.
 
     Parameters
     ----------
-    frame : dict
-        Dictionary of marker lists.
-    head : array
-        An array containing the head axis and head origin.
+    head_axis : array
+        4x4 affine matrix containing the head (x, y, z) axes and origin
 
     Returns
     -------
@@ -362,41 +360,39 @@ def staticCalculationHead(frame,head):
     Examples
     --------
     >>> import numpy as np
-    >>> from .pycgmStatic import staticCalculationHead
-    >>> frame = None
-    >>> head = [[[100.33, 83.39, 1484.08],
-    ...        [98.97, 83.58, 1483.77],
-    ...        [99.35, 82.64, 1484.76]],
-    ...        [99.58, 82.79, 1483.8]]
-    >>> np.around(staticCalculationHead(frame,head), 2)
+    >>> from .pycgmStatic import calc_static_head
+    >>> head_axis = np.array([[ 0.75,    0.6 ,    0.28,   99.58],
+    ...                       [-0.61,    0.79,   -0.03,   82.79],
+    ...                       [-0.23,   -0.15,    0.96, 1483.8 ],
+    ...                       [ 0.  ,    0.  ,    0.  ,    0.  ]])
+    >>> np.around(calc_static_head(head_axis), 2)
     0.28
     """
-    headAxis = head[0]
-    headOrigin = head[1]
-    x_axis = [headAxis[0][0]-headOrigin[0],headAxis[0][1]-headOrigin[1],headAxis[0][2]-headOrigin[2]]
-    y_axis = [headAxis[1][0]-headOrigin[0],headAxis[1][1]-headOrigin[1],headAxis[1][2]-headOrigin[2]]
-    z_axis = [headAxis[2][0]-headOrigin[0],headAxis[2][1]-headOrigin[1],headAxis[2][2]-headOrigin[2]]
 
-    axis = [x_axis,y_axis,z_axis]
-    global_axis = [[0,1,0],[-1,0,0],[0,0,1]]
+    head_axis = np.asarray(head_axis)
 
-    offset = headoffCalc(global_axis,axis)
+    global_axis = [[ 0, 1, 0, 0],
+                   [-1, 0, 0, 0],
+                   [ 0, 0, 1, 0],
+                   [ 0, 0, 0, 0]]
+
+    offset = calc_head_offset(global_axis, head_axis)
 
     return offset
 
-def headoffCalc(axisP, axisD):
-    """Head Offset Calculation function
+def calc_head_offset(axisP, axisD):
+    """Head Offset Calculation
 
     Calculate head offset angle for static calibration.
     This function is only called in static trial.
-    and output will be used in dynamic later.
+    Output will be used later in the dynamic trial.
 
     Parameters
     ----------
-    axisP : list
-        Shows the unit vector of axisP, the position of the proximal axis.
-    axisD : list
-        Shows the unit vector of axisD, the position of the distal axis.
+    axisP : array
+        4x4 affine matrix representing the position of the proximal axis.
+    axisD : array
+        4x4 affine matrix representing the position of the distal axis.
 
     Returns
     -------
@@ -406,20 +402,26 @@ def headoffCalc(axisP, axisD):
     Examples
     --------
     >>> import numpy as np
-    >>> from .pycgmStatic import headoffCalc
-    >>> axisP = [[0.96, 0.81, 0.82],
-    ...         [0.24, 0.72, 0.38],
-    ...         [0.98, 0.21, 0.68]]
-    >>> axisD = [[0.21, 0.25, 0.94],
-    ...         [0.8, 0.45, 0.91],
-    ...         [0.17, 0.67, 0.85]]
-    >>> np.around(headoffCalc(axisP,axisD), 2)
+    >>> from .pycgmStatic import calc_head_offset
+    >>> axisP = np.array([[0.96, 0.81, 0.82, 0],
+    ...                   [0.24, 0.72, 0.38, 0],
+    ...                   [0.98, 0.21, 0.68, 0],
+    ...                   [0,    0,    0,    1]])
+    >>> axisD = np.array([[0.21, 0.25, 0.94, 0],
+    ...                   [0.8,  0.45, 0.91, 0],
+    ...                   [0.17, 0.67, 0.85, 0],
+    ...                   [0,    0,    0,    1]])
+    >>> np.around(calc_head_offset(axisP,axisD), 2)
     0.95
     """
+    axisP = np.asarray(axisP)[:3, :3]
+    axisD = np.asarray(axisD)[:3, :3]
+
+    
     axisPi = np.linalg.inv(axisP)
 
     # rotation matrix is in order XYZ
-    M = matrixmult(axisD,axisPi)
+    M = matrixmult(axisD, axisPi)
 
     # get y angle from rotation matrix using inverse trigonometry.
     getB= M[0][2] / M[2][2]
