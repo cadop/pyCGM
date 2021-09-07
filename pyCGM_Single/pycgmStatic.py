@@ -1981,78 +1981,97 @@ def getankleangle(axisP,axisD):
     angle = [alpha,beta,gamma]
     return angle
 
-def findJointC(a, b, c, delta):
-    """Calculate the Joint Center function.
-
-    This function is based on physical markers; a,b,c and the joint center which will be
-    calulcated in this function are all in the same plane.
-
+def calc_joint_center(p_a, p_b, p_c, delta):
+    r"""Calculate the Joint Center.
+    This function is based on the physical markers p_a, p_b, p_c
+    and the resulting joint center are all on the same plane.
     Parameters
     ----------
-    a,b,c : list
-        Three markers x, y, z position of a, b, c.
+    p_a : array
+        (x, y, z) position of marker a
+    p_b : array 
+        (x, y, z) position of marker b
+    p_c : array
+        (x, y, z) position of marker c
     delta : float
-        The length from marker to joint center, retrieved from subject measurement file.
-
+        The length from marker to joint center, retrieved from subject measurement file
     Returns
     -------
-    mr : array
-        Returns the Joint C x, y, z positions in a 1x3 list.
-
+    joint_center : array
+        (x, y, z) position of the joint center
+    Notes
+    -----
+    :math:`vec_{1} = p\_a-p\_c, \ vec_{2} = (p\_b-p\_c), \ vec_{3} = vec_{1} \times vec_{2}`
+    :math:`mid = \frac{(p\_b+p\_c)}{2.0}`
+    :math:`length = (p\_b - mid)`
+    :math:`\theta = \arccos(\frac{delta}{vec_{2}})`
+    :math:`\alpha = \cos(\theta*2), \ \beta = \sin(\theta*2)`
+    :math:`u_x, u_y, u_z = vec_{3}`
+    .. math::
+        rot =
+        \begin{bmatrix}
+            \alpha+u_x^2*(1-\alpha) & u_x*u_y*(1.0-\alpha)-u_z*\beta & u_x*u_z*(1.0-\alpha)+u_y*\beta \\
+            u_y*u_x*(1.0-\alpha+u_z*\beta & \alpha+u_y^2.0*(1.0-\alpha) & u_y*u_z*(1.0-\alpha)-u_x*\beta \\
+            u_z*u_x*(1.0-\alpha)-u_y*\beta & u_z*u_y*(1.0-\alpha)+u_x*\beta & \alpha+u_z**2.0*(1.0-\alpha) \\
+        \end{bmatrix}
+    :math:`r\_vec = rot * vec_2`
+    :math:`r\_vec = r\_vec * \frac{length}{norm(r\_vec)}`
+    :math:`joint\_center = r\_vec + mid`
     Examples
     --------
     >>> import numpy as np
-    >>> from .pycgmStatic import findJointC
-    >>> a = [775.41, 788.65, 514.41]
-    >>> b = [424.57, 46.17, 305.73]
-    >>> c = [618.98, 848.86, 133.52]
-    >>> delta = 42.5
-    >>> np.around(findJointC(a,b,c,delta), 2)
-    array([599.66, 843.26,  96.08])
+    >>> from .pycgmStatic import calc_joint_center
+    >>> p_a = np.array([468.14, 325.09, 673.12])
+    >>> p_b = np.array([355.90, 365.38, 940.69])
+    >>> p_c = np.array([452.35, 329.06, 524.77])
+    >>> delta = 59.5
+    >>> calc_joint_center(p_a, p_b, p_c, delta).round(2)
+    array([396.25, 347.92, 518.63])
     """
+
     # make the two vector using 3 markers, which is on the same plane.
-    v1 = (a[0]-c[0],a[1]-c[1],a[2]-c[2])
-    v2 = (b[0]-c[0],b[1]-c[1],b[2]-c[2])
 
-    # v3 is cross vector of v1, v2
-    # and then it normalized.
-    # v3 = cross(v1,v2)
-    v3 = [v1[1]*v2[2] - v1[2]*v2[1],v1[2]*v2[0] - v1[0]*v2[2],v1[0]*v2[1] - v1[1]*v2[0]]
-    v3_div = norm2d(v3)
-    v3 = [v3[0]/v3_div,v3[1]/v3_div,v3[2]/v3_div]
+    p_a, p_b, p_c = map(np.asarray, [p_a, p_b, p_c])
 
-    m = [(b[0]+c[0])/2.0,(b[1]+c[1])/2.0,(b[2]+c[2])/2.0]
-    length = np.subtract(b,m)
-    length = norm2d(length)
+    vec_1 = p_a - p_c
+    vec_2 = p_b - p_c
 
-    # iterate_acosdomain =  1 - ( delta/norm2d(v2) - int(delta/norm2d(v2)) )
+    # vec_3 is cross vector of vec_1, vec_2, and then it normalized.
+    vec_3 = np.cross(vec_1, vec_2)
+    vec_3_div = np.linalg.norm(vec_3)
+    vec_3 = vec_3 / vec_3_div
 
-    # print "iterate_acosdomain:",iterate_acosdomain
+    mid = (p_b + p_c) / 2.0
+    length = np.subtract(p_b, mid)
+    length = np.linalg.norm(length)
 
+    theta = acos(delta/np.linalg.norm(vec_2))
 
-    theta = acos(delta/norm2d(v2))
+    alpha = cos(theta*2)
+    beta = sin(theta*2)
 
-    cs = cos(theta*2)
-    sn = sin(theta*2)
+    u_x, u_y, u_z = vec_3
 
-    ux = v3[0]
-    uy = v3[1]
-    uz = v3[2]
-
-    # this rotation matrix is called Rodriques' rotation formula.
-    # In order to make a plane, at least 3 number of markers is required which means three physical markers on the segment can make a plane.
+    # This rotation matrix is called Rodriques' rotation formula.
+    # In order to make a plane, at least 3 number of markers is required which
+    # means three physical markers on the segment can make a plane.
     # then the orthogonal vector of the plane will be rotating axis.
     # joint center is determined by rotating the one vector of plane around rotating axis.
-    rot = np.matrix([[cs+ux**2.0*(1.0-cs),ux*uy*(1.0-cs)-uz*sn,ux*uz*(1.0-cs)+uy*sn],
-                    [uy*ux*(1.0-cs)+uz*sn,cs+uy**2.0*(1.0-cs),uy*uz*(1.0-cs)-ux*sn],
-                    [uz*ux*(1.0-cs)-uy*sn,uz*uy*(1.0-cs)+ux*sn,cs+uz**2.0*(1.0-cs)]])
-    r = rot*(np.matrix(v2).transpose())
-    r = r* length/np.linalg.norm(r)
 
-    r = [r[0,0],r[1,0],r[2,0]]
-    mr = np.array([r[0]+m[0],r[1]+m[1],r[2]+m[2]])
+    rot = np.matrix([ 
+        [alpha+u_x**2.0*(1.0-alpha),   u_x*u_y*(1.0-alpha) - u_z*beta, u_x*u_z*(1.0-alpha)+u_y*beta],
+        [u_y*u_x*(1.0-alpha)+u_z*beta, alpha+u_y**2.0 * (1.0-alpha),   u_y*u_z*(1.0-alpha)-u_x*beta],
+        [u_z*u_x*(1.0-alpha)-u_y*beta, u_z*u_y*(1.0-alpha) + u_x*beta, alpha+u_z**2.0*(1.0-alpha)]
+    ])
 
-    return mr
+    r_vec = rot * (np.matrix(vec_2).transpose())
+    r_vec = r_vec * length/np.linalg.norm(r_vec)
+
+    r_vec = np.asarray(r_vec)[:3, 0]
+    joint_center = r_vec + mid
+
+    return joint_center
+
 
 def norm2d(v):
     """2D Vector normalization function
