@@ -274,38 +274,34 @@ def getStatic(motionData,vsk,flat_foot=False,GCS=None):
 
     return calSM
 
-def average(list):
+def average(lst):
     """Average Calculation function
 
-    Calculates the average of the values in a given list or array.
+    Calculates the average of the values in a given lst or array.
 
     Parameters
     ----------
-    list : list
+    lst : list
         List or array of values.
 
     Returns
     -------
-    float
+    avg : float
         The mean of the list.
 
     Examples
     --------
     >>> import numpy as np
     >>> from .pycgmStatic import average
-    >>> list = [1,2,3,4,5]
-    >>> average(list)
+    >>> lst = [1,2,3,4,5]
+    >>> average(lst)
     3.0
-    >>> list = np.array([93.82, 248.96, 782.62])
-    >>> np.around(average(list), 2)
+    >>> lst = np.array([93.82, 248.96, 782.62])
+    >>> np.around(average(lst), 2)
     375.13
     """
-    i =0
-    total = 0.0
-    while(i <len(list)):
-        total = total + list[i]
-        i = i+1
-    return total / len(list)
+    avg = sum(lst) / len(lst)
+    return avg
 
 def IADcalculation(frame):
     """Inter ASIS Distance (IAD) Calculation function

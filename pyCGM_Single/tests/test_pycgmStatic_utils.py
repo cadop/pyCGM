@@ -129,7 +129,7 @@ class TestPycgmStaticUtils():
         result_float_nparray = pycgmStatic.getDist(np.array(p0_float, dtype='float'), np.array(p1_float, dtype='float'))
         np.testing.assert_almost_equal(result_float_nparray, expected_results, rounding_precision)
 
-    @pytest.mark.parametrize(["list", "expected_results"], [
+    @pytest.mark.parametrize(["lst", "expected_results"], [
         ([0], 0),
         ([3], 3),
         ([-1], -1),
@@ -140,15 +140,15 @@ class TestPycgmStaticUtils():
         ([1, 2, 3, 4, 5], 3),
         ([-1, -2, -3, -4, -5], -3),
         ([0.1, 0.2, 0.3, 0.4, 0.5], 0.3)])
-    def test_average(self, list, expected_results):
+    def test_average(self, lst, expected_results):
         """
-        This test provides coverage of the average function in pycgmStatic.py, defined as average(list)
+        This test provides coverage of the average function in pycgmStatic.py, defined as average(lst)
 
         This test takes 2 parameters:
-        list: list or array of values
-        expected_results: the expected result from calling average on list. This will be the average of all the values given in list
+        lst: list or array of values
+        expected_results: the expected result from calling average on lst. This will be the average of all the values given in lst.
         """
-        result = pycgmStatic.average(list)
+        result = pycgmStatic.average(lst)
         np.testing.assert_almost_equal(result, expected_results, rounding_precision)
 
     def test_average_datatypes(self):
