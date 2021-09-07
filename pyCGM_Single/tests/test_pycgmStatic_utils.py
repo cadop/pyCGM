@@ -198,13 +198,13 @@ class TestPycgmStaticUtils():
         ({'RASI': [7.0, 2.0, -6.0], 'LASI': [3.0, -7.0, 2.0]}, 12.68857754044952),
         # Testing that when frame is composed ofe numpy arrays of floats
         ({'RASI': np.array([7.0, 2.0, -6.0], dtype='float'), 'LASI': np.array([3.0, -7.0, 2.0], dtype='float')}, 12.68857754044952)])
-    def test_IADcalculation(self, frame, expected_results):
+    def test_calc_IAD(self, frame, expected_results):
         """
-        This test provides coverage of the IADcalculation function in pycgmStatic.py, defined as IADcalculation(frame)
+        This test provides coverage of the calc_IAD function in pycgmStatic.py, defined as calc_IAD(frame)
 
         This test takes 2 parameters:
         frame: dictionary of marker lists
-        expected_results: the expected result from calling IADcalculation on frame. This is the Inter ASIS Distance
+        expected_results: the expected result from calling calc_IAD on frame. This is the Inter ASIS Distance
         (IAD), or the distance between the two markers RASI and LASI in frame.
 
         Given the markers RASI and LASI in frame, the Inter ASIS Distance is defined as:
@@ -219,7 +219,10 @@ class TestPycgmStaticUtils():
         - the resulting output is correct when frame is composed of lists of ints, numpy arrays of ints, lists of
         floats, and numpy arrays of floats.
         """
-        result = pycgmStatic.IADcalculation(frame)
+        rasi = frame["RASI"] if "RASI" in frame else None
+        lasi = frame["LASI"] if "LASI" in frame else None
+
+        result = pycgmStatic.calc_IAD(rasi, lasi)
         np.testing.assert_almost_equal(result, expected_results, rounding_precision)
 
     @pytest.mark.parametrize(["xRot", "yRot", "zRot", "expected_results"], [

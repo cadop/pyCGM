@@ -166,7 +166,8 @@ def getStatic(motionData,vsk,flat_foot=False,GCS=None):
         calSM['InterAsisDistance'] = vsk['InterAsisDistance']
     else:
         for frame in motionData:
-            iadCalc = IADcalculation(frame)
+            iadCalc = IADcalculation(frame["RASI"] if "RASI" in frame else None,
+                                     frame["LASI"] if "LASI" in frame else None) 
             IAD.append(iadCalc)
         InterAsisDistance = np.average(IAD)
         calSM['InterAsisDistance'] = InterAsisDistance
@@ -307,36 +308,39 @@ def average(list):
         i = i+1
     return total / len(list)
 
-def IADcalculation(frame):
-    """Inter ASIS Distance (IAD) Calculation function
+def calc_IAD(rasi, lasi):
+    """Inter ASIS Distance (IAD) Calculation
 
-    Calculates the Inter ASIS Distance from a given frame.
+    Calculates the Inter ASIS Distance.
     Markers used: RASI, LASI
 
     Parameters
     ----------
-    frame : dict
-        Dictionary of marker lists.
+    rasi: array
+        1x3 RASI marker
+    lasi: array
+        1x3 LASI marker
 
     Returns
     -------
     IAD : float
-        The mean of the list.
+        The Inter ASIS Distance
 
     Examples
     --------
     >>> import numpy as np
-    >>> from .pycgmStatic import IADcalculation
-    >>> frame = { 'LASI': np.array([ 183.19,  422.79, 1033.07]),
-    ...           'RASI': np.array([ 395.37,  428.1, 1036.83])}
-    >>> np.around(IADcalculation(frame), 2)
+    >>> from .pycgmStatic import calc_IAD
+    >>> lasi = np.array([ 183.19,  422.79, 1033.07])
+    >>> rasi = np.array([ 395.37,  428.1, 1036.83])
+    >>> np.around(calc_IAD(rasi, lasi), 2)
     212.28
     """
-    RASI = frame['RASI']
-    LASI = frame['LASI']
-    IAD = np.sqrt((RASI[0]-LASI[0])*(RASI[0]-LASI[0])+(RASI[1]-LASI[1])*(RASI[1]-LASI[1])+(RASI[2]-LASI[2])*(RASI[2]-LASI[2]))
+    rasi = np.asarray(rasi)
+    lasi = np.asarray(lasi)
 
-    return IAD
+    iad = np.linalg.norm(rasi - lasi)
+
+    return iad
 
 def staticCalculationHead(frame,head):
     """Static Head Calculation function
