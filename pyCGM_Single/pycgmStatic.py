@@ -1983,8 +1983,10 @@ def getankleangle(axisP,axisD):
 
 def calc_joint_center(p_a, p_b, p_c, delta):
     r"""Calculate the Joint Center.
+
     This function is based on the physical markers p_a, p_b, p_c
     and the resulting joint center are all on the same plane.
+
     Parameters
     ----------
     p_a : array
@@ -1995,28 +1997,41 @@ def calc_joint_center(p_a, p_b, p_c, delta):
         (x, y, z) position of marker c
     delta : float
         The length from marker to joint center, retrieved from subject measurement file
+
     Returns
     -------
     joint_center : array
         (x, y, z) position of the joint center
+
     Notes
     -----
     :math:`vec_{1} = p\_a-p\_c, \ vec_{2} = (p\_b-p\_c), \ vec_{3} = vec_{1} \times vec_{2}`
+
     :math:`mid = \frac{(p\_b+p\_c)}{2.0}`
+
     :math:`length = (p\_b - mid)`
+
     :math:`\theta = \arccos(\frac{delta}{vec_{2}})`
+
     :math:`\alpha = \cos(\theta*2), \ \beta = \sin(\theta*2)`
+
     :math:`u_x, u_y, u_z = vec_{3}`
+
     .. math::
+
         rot =
         \begin{bmatrix}
             \alpha+u_x^2*(1-\alpha) & u_x*u_y*(1.0-\alpha)-u_z*\beta & u_x*u_z*(1.0-\alpha)+u_y*\beta \\
             u_y*u_x*(1.0-\alpha+u_z*\beta & \alpha+u_y^2.0*(1.0-\alpha) & u_y*u_z*(1.0-\alpha)-u_x*\beta \\
             u_z*u_x*(1.0-\alpha)-u_y*\beta & u_z*u_y*(1.0-\alpha)+u_x*\beta & \alpha+u_z**2.0*(1.0-\alpha) \\
         \end{bmatrix}
+
     :math:`r\_vec = rot * vec_2`
+
     :math:`r\_vec = r\_vec * \frac{length}{norm(r\_vec)}`
+
     :math:`joint\_center = r\_vec + mid`
+
     Examples
     --------
     >>> import numpy as np
