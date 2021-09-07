@@ -3,7 +3,7 @@ import pyCGM_Single.pycgmStatic as pycgmStatic
 import numpy as np
 from mock import patch
 
-rounding_precision = 8
+rounding_precision = 5
 
 class TestPycgmStaticAxis():
     """
@@ -16,7 +16,7 @@ class TestPycgmStaticAxis():
         ankleJointCenter
         footJointCenter
         headJC
-        uncorrect_footaxis
+        calc_axis_uncorrect_foot
         rotaxis_footflat
         rotaxis_nonfootflat
         findJointC
@@ -959,133 +959,334 @@ class TestPycgmStaticAxis():
         np.testing.assert_almost_equal(result[0], expected[0], rounding_precision)
         np.testing.assert_almost_equal(result[1], expected[1], rounding_precision)
 
-    @pytest.mark.parametrize(["frame", "ankle_JC", "expected"], [
-        # Test from running sample data
-        ({'RTOE': np.array([433.33508301, 354.97229004, 44.27765274]),
-          'LTOE': np.array([31.77310181, 331.23657227, 42.15322876])},
-         [np.array([397.45738291, 217.50712216, 87.83068433]), np.array([112.28082818, 175.83265027, 80.98477997]),
-          [[np.array(rand_coor), np.array([396.73749179, 218.18875543, 87.69979179]), np.array(rand_coor)],
-           [np.array(rand_coor), np.array([111.34886681, 175.49163538, 81.10789314]), np.array(rand_coor)]]],
-         [np.array([433.33508301, 354.97229004, 44.27765274]), np.array([31.77310181, 331.23657227, 42.15322876]),
-          [[[433.4256618315962, 355.25152027652007, 45.233595181827035],
-            [432.36890500826763, 355.2296456773885, 44.29402798451682],
-            [433.09363829389764, 354.0471962330562, 44.570749823731354]],
-           [[31.806110207058808, 331.49492345678016, 43.11871573923792],
-            [30.880216288550965, 330.81014854432254, 42.29786022762896],
-            [32.2221740692973, 330.36972887034574, 42.36983123198873]]]]),
-        # Test with zeros for all params
-        ({'RTOE': np.array([0, 0, 0]), 'LTOE': np.array([0, 0, 0])},
-         [np.array([0, 0, 0]), np.array([0, 0, 0]),
-          [[np.array(rand_coor), np.array([0, 0, 0]), np.array(rand_coor)],
-           [np.array(rand_coor), np.array([0, 0, 0]), np.array(rand_coor)]]],
-         [np.array([0, 0, 0]), np.array([0, 0, 0]),
-          [[nan_3d, nan_3d, nan_3d],
-           [nan_3d, nan_3d, nan_3d]]]),
-        # Testing when values are added to frame['RTOE']
-        ({'RTOE': np.array([-7, 3, -8]), 'LTOE': np.array([0, 0, 0])},
-         [np.array([0, 0, 0]), np.array([0, 0, 0]),
-          [[np.array(rand_coor), np.array([0, 0, 0]), np.array(rand_coor)],
-           [np.array(rand_coor), np.array([0, 0, 0]), np.array(rand_coor)]]],
-         [np.array([-7, 3, -8]), np.array([0, 0, 0]),
-          [[nan_3d, nan_3d, [-6.36624977770237, 2.7283927618724446, -7.275714031659851]],
-           [nan_3d, nan_3d, nan_3d]]]),
-        # Testing when values are added to frame['LTOE']
-        ({'RTOE': np.array([0, 0, 0]), 'LTOE': np.array([8, 0, -8])},
-         [np.array([0, 0, 0]), np.array([0, 0, 0]),
-          [[np.array(rand_coor), np.array([0, 0, 0]), np.array(rand_coor)],
-           [np.array(rand_coor), np.array([0, 0, 0]), np.array(rand_coor)]]],
-         [np.array([0, 0, 0]), np.array([8, 0, -8]),
-          [[nan_3d, nan_3d, nan_3d],
-           [nan_3d, nan_3d, [7.292893218813452, 0.0, -7.292893218813452]]]]),
-        # Testing when values are added to frame
-        ({'RTOE': np.array([-7, 3, -8]), 'LTOE': np.array([8, 0, -8])},
-         [np.array([0, 0, 0]), np.array([0, 0, 0]),
-          [[np.array(rand_coor), np.array([0, 0, 0]), np.array(rand_coor)],
-           [np.array(rand_coor), np.array([0, 0, 0]), np.array(rand_coor)]]],
-         [np.array([-7, 3, -8]), np.array([8, 0, -8]),
-          [[nan_3d, nan_3d, [-6.36624977770237, 2.7283927618724446, -7.275714031659851]],
-           [nan_3d, nan_3d, [7.292893218813452, 0.0, -7.292893218813452]]]]),
-        # Testing when values are added to ankle_JC[0]
-        ({'RTOE': np.array([0, 0, 0]), 'LTOE': np.array([0, 0, 0])},
-         [np.array([2, -9, 1]), np.array([0, 0, 0]),
-          [[np.array(rand_coor), np.array([0, 0, 0]), np.array(rand_coor)],
-           [np.array(rand_coor), np.array([0, 0, 0]), np.array(rand_coor)]]],
-         [np.array([0, 0, 0]), np.array([0, 0, 0]),
-          [[nan_3d, nan_3d, [0.21566554640687682, -0.9704949588309457, 0.10783277320343841]],
-           [nan_3d, nan_3d, nan_3d]]]),
-        # Testing when values are added to ankle_JC[1]
-        ({'RTOE': np.array([0, 0, 0]), 'LTOE': np.array([0, 0, 0])},
-         [np.array([0, 0, 0]), np.array([3, -7, 4]),
-          [[np.array(rand_coor), np.array([0, 0, 0]), np.array(rand_coor)],
-           [np.array(rand_coor), np.array([0, 0, 0]), np.array(rand_coor)]]],
-         [np.array([0, 0, 0]), np.array([0, 0, 0]),
-          [[nan_3d, nan_3d, nan_3d],
-           [nan_3d, nan_3d, [0.34874291623145787, -0.813733471206735, 0.46499055497527714]]]]),
-        # Testing when values are added to ankle_JC[2]
-        ({'RTOE': np.array([0, 0, 0]), 'LTOE': np.array([0, 0, 0])},
-         [np.array([0, 0, 0]), np.array([0, 0, 0]),
-          [[np.array(rand_coor), np.array([8, -4, 2]), np.array(rand_coor)],
-           [np.array(rand_coor), np.array([-9, 7, 4]), np.array(rand_coor)]]],
-         [np.array([0, 0, 0]), np.array([0, 0, 0]),
-          [[nan_3d, nan_3d, nan_3d],
-           [nan_3d, nan_3d, nan_3d]]]),
-        # Testing when values are added to ankle_JC
-        ({'RTOE': np.array([0, 0, 0]), 'LTOE': np.array([0, 0, 0])},
-         [np.array([2, -9, 1]), np.array([3, -7, 4]),
-          [[np.array(rand_coor), np.array([8, -4, 2]), np.array(rand_coor)],
-           [np.array(rand_coor), np.array([-9, 7, 4]), np.array(rand_coor)]]],
-         [np.array([0, 0, 0]), np.array([0, 0, 0]),
-          [[[0.21329967236760183, -0.06094276353360052, -0.9750842165376084], [0.9528859437838807, 0.23329276554708803, 0.1938630023560309], [0.21566554640687682, -0.9704949588309457, 0.10783277320343841]],
-           [[0.6597830814767823, 0.5655283555515277, 0.4948373111075868], [-0.6656310267523443, 0.1342218942833945, 0.7341115850601987], [0.34874291623145787, -0.813733471206735, 0.46499055497527714]]]]),
-        # Testing when values are added to frame and ankle_JC
-        ({'RTOE': np.array([-7, 3, -8]), 'LTOE': np.array([8, 0, -8])},
-         [np.array([2, -9, 1]), np.array([3, -7, 4]),
-          [[np.array(rand_coor), np.array([8, -4, 2]), np.array(rand_coor)],
-           [np.array(rand_coor), np.array([-9, 7, 4]), np.array(rand_coor)]]],
-         [np.array([-7, 3, -8]), np.array([8, 0, -8]),
-          [[[-6.586075309097216, 2.6732173492872757, -8.849634891853084], [-6.249026985898898, 3.6500960420576702, -7.884178291357542], [-6.485504244572473, 2.3140056594299647, -7.485504244572473]],
-           [[8.623180382731631, 0.5341546137699694, -7.428751315829338], [7.295040915019964, 0.6999344300621451, -7.885437867872096], [7.6613572692607015, -0.47409982303501746, -7.187257446225685]]]]),
-        # Testing that when frame and ankle_JC are composed of lists of ints
-        ({'RTOE': [-7, 3, -8], 'LTOE': [8, 0, -8]},
-         [[2, -9, 1], [3, -7, 4],
-          [[rand_coor, [8, -4, 2], rand_coor],
-           [rand_coor, [-9, 7, 4], rand_coor]]],
-         [np.array([-7, 3, -8]), np.array([8, 0, -8]),
-          [[[-6.586075309097216, 2.6732173492872757, -8.849634891853084], [-6.249026985898898, 3.6500960420576702, -7.884178291357542], [-6.485504244572473, 2.3140056594299647, -7.485504244572473]],
-           [[8.623180382731631, 0.5341546137699694, -7.428751315829338], [7.295040915019964, 0.6999344300621451, -7.885437867872096], [7.6613572692607015, -0.47409982303501746, -7.187257446225685]]]]),
-        # Testing that when frame and ankle_JC are composed of numpy arrays of ints
-        ({'RTOE': np.array([-7, 3, -8], dtype='int'), 'LTOE': np.array([8, 0, -8], dtype='int')},
-         [np.array([2, -9, 1], dtype='int'), np.array([3, -7, 4], dtype='int'),
-          [np.array([rand_coor, [8, -4, 2], rand_coor], dtype='int'),
-           np.array([rand_coor, [-9, 7, 4], rand_coor], dtype='int')]],
-         [np.array([-7, 3, -8]), np.array([8, 0, -8]),
-          [[[-6.586075309097216, 2.6732173492872757, -8.849634891853084], [-6.249026985898898, 3.6500960420576702, -7.884178291357542], [-6.485504244572473, 2.3140056594299647, -7.485504244572473]],
-           [[8.623180382731631, 0.5341546137699694, -7.428751315829338], [7.295040915019964, 0.6999344300621451, -7.885437867872096], [7.6613572692607015, -0.47409982303501746, -7.187257446225685]]]]),
-        # Testing that when frame and ankle_JC are composed of lists of floats
-        ({'RTOE': [-7.0, 3.0, -8.0], 'LTOE': [8.0, 0.0, -8.0]},
-         [[2.0, -9.0, 1.0], [3.0, -7.0, 4.0],
-          [[rand_coor, [8.0, -4.0, 2.0], rand_coor],
-           [rand_coor, [-9.0, 7.0, 4.0], rand_coor]]],
-         [np.array([-7, 3, -8]), np.array([8, 0, -8]),
-          [[[-6.586075309097216, 2.6732173492872757, -8.849634891853084], [-6.249026985898898, 3.6500960420576702, -7.884178291357542], [-6.485504244572473, 2.3140056594299647, -7.485504244572473]],
-           [[8.623180382731631, 0.5341546137699694, -7.428751315829338], [7.295040915019964, 0.6999344300621451, -7.885437867872096], [7.6613572692607015, -0.47409982303501746, -7.187257446225685]]]]),
-        # Testing that when frame and ankle_JC are composed of numpy arrays of floats
-        ({'RTOE': np.array([-7.0, 3.0, -8.0], dtype='float'), 'LTOE': np.array([8.0, 0.0, -8.0], dtype='float')},
-         [np.array([2.0, -9.0, 1.0], dtype='float'), np.array([3.0, -7.0, 4.0], dtype='float'),
-          [np.array([rand_coor, [8.0, -4.0, 2.0], rand_coor], dtype='float'),
-           np.array([rand_coor, [-9.0, 7.0, 4.0], rand_coor], dtype='float')]],
-         [np.array([-7, 3, -8]), np.array([8, 0, -8]),
-          [[[-6.586075309097216, 2.6732173492872757, -8.849634891853084], [-6.249026985898898, 3.6500960420576702, -7.884178291357542], [-6.485504244572473, 2.3140056594299647, -7.485504244572473]],
-           [[8.623180382731631, 0.5341546137699694, -7.428751315829338], [7.295040915019964, 0.6999344300621451, -7.885437867872096], [7.6613572692607015, -0.47409982303501746, -7.187257446225685]]]])])
-    def test_uncorrect_footaxis(self, frame, ankle_JC, expected):
+    @pytest.mark.parametrize(
+        ["frame", "ankle_axis", "expected"],
+        [
+            # Test from running sample data
+            (
+                {
+                    "RTOE": np.array([433.33508301, 354.97229004, 44.27765274]),
+                    "LTOE": np.array([31.77310181, 331.23657227, 42.15322876]),
+                },
+                np.array([[[  0,            0,           0,          397.45738291],
+                           [396.73749179, 218.18875543, 87.69979179, 217.50712216],
+                           [  0,            0,           0,           87.83068433],
+                           [  0,            0,           0,            1         ]],
+                          [[  0,            0,           0,          112.28082818],
+                           [111.34886681, 175.49163538, 81.10789314, 175.83265027],
+                           [  0,            0,           0,           80.98477997],
+                           [  0,            0,           0,            1         ]]]
+                        ),
+                np.array([[[433.4256618315962,  355.25152027652007, 45.233595181827035, 433.33508301],
+                           [432.36890500826763, 355.2296456773885,  44.29402798451682,  354.97229004],
+                           [433.09363829389764, 354.0471962330562,  44.570749823731354,  44.27765274],
+                           [   0,                 0,                 0,                   1         ]],
+                          [[31.806110207058808, 331.49492345678016, 43.11871573923792,  31.77310181],
+                           [30.880216288550965, 330.81014854432254, 42.29786022762896, 331.23657227],
+                           [32.2221740692973,   330.36972887034574, 42.36983123198873,  42.15322876],
+                           [ 0,                   0,                 0,                  1         ]]]),
+
+            ),
+            # Test with zeros for all params
+            (
+                {"RTOE": np.array([0, 0, 0]), "LTOE": np.array([0, 0, 0])},
+                np.array([[[0, 0, 0, 0],
+                           [0, 0, 0, 0],
+                           [0, 0, 0, 0],
+                           [0, 0, 0, 1]],
+                          [[0, 0, 0, 0],
+                           [0, 0, 0, 0],
+                           [0, 0, 0, 0],
+                           [0, 0, 0, 1]]]
+                        ),
+                np.array([[[np.nan, np.nan, np.nan, 0],
+                           [np.nan, np.nan, np.nan, 0],
+                           [np.nan, np.nan, np.nan, 0],
+                           [ 0,      0,      0,     1]],
+                          [[np.nan, np.nan, np.nan, 0],
+                           [np.nan, np.nan, np.nan, 0],
+                           [np.nan, np.nan, np.nan, 0],
+                           [ 0,      0,      0,     1]]]
+                        ),
+            ),
+            # Testing when values are added to frame['RTOE']
+            (
+                {"RTOE": np.array([-7, 3, -8]), "LTOE": np.array([0, 0, 0])},
+                np.array([[[0, 0, 0, 0],
+                           [0, 0, 0, 0],
+                           [0, 0, 0, 0],
+                           [0, 0, 0, 1]],
+                          [[0, 0, 0, 0],
+                           [0, 0, 0, 0],
+                           [0, 0, 0, 0],
+                           [0, 0, 0, 1]]]
+                        ),
+                np.array([[[np.nan,           np.nan,              np.nan,             -7],
+                           [np.nan,           np.nan,              np.nan,              3],
+                           [-6.36624977770237, 2.7283927618724446, -7.275714031659851, -8],
+                           [ 0,                0,                   0,                  1]],
+                          [[np.nan, np.nan, np.nan, 0],
+                           [np.nan, np.nan, np.nan, 0],
+                           [np.nan, np.nan, np.nan, 0],
+                           [ 0,      0,      0,     1]]]
+                        )
+            ),
+            # Testing when values are added to frame['LTOE']
+            (
+                {"RTOE": np.array([0, 0, 0]), "LTOE": np.array([8, 0, -8])},
+                np.array([[[0, 0, 0, 0],
+                           [0, 0, 0, 0],
+                           [0, 0, 0, 0],
+                           [0, 0, 0, 1]],
+                          [[0, 0, 0, 0],
+                           [0, 0, 0, 0],
+                           [0, 0, 0, 0],
+                           [0, 0, 0, 1]]]
+                        ),
+                np.array([[[np.nan, np.nan, np.nan, 0],
+                           [np.nan, np.nan, np.nan, 0],
+                           [np.nan, np.nan, np.nan, 0],
+                           [ 0,      0,      0,     1]],
+                          [[np.nan,            np.nan, np.nan,              8],
+                           [np.nan,            np.nan, np.nan,              0],
+                           [ 7.292893218813452, 0.0,   -7.292893218813452, -8],
+                           [ 0,                 0,      0,                  1]]]
+                        )
+            ),
+            # Testing when values are added to frame
+            (
+                {"RTOE": np.array([-7, 3, -8]), "LTOE": np.array([8, 0, -8])},
+                np.array([[[0, 0, 0, 0],
+                           [0, 0, 0, 0],
+                           [0, 0, 0, 0],
+                           [0, 0, 0, 1]],
+                          [[0, 0, 0, 0],
+                           [0, 0, 0, 0],
+                           [0, 0, 0, 0],
+                           [0, 0, 0, 1]]]
+                        ),
+                np.array([[[np.nan,           np.nan,              np.nan,             -7],
+                           [np.nan,           np.nan,              np.nan,              3],
+                           [-6.36624977770237, 2.7283927618724446, -7.275714031659851, -8],
+                           [ 0,                0,                   0,                  1]],
+                          [[np.nan,            np.nan, np.nan,              8],
+                           [np.nan,            np.nan, np.nan,              0],
+                           [ 7.292893218813452, 0.0,   -7.292893218813452, -8],
+                           [ 0,                 0,      0,                  1]]]
+                        )
+            ),
+            # Testing when values are added to right ankle origin
+            (
+                {"RTOE": np.array([0, 0, 0]), "LTOE": np.array([0, 0, 0])},
+                np.array([[[0, 0, 0,  2],
+                           [0, 0, 0, -9],
+                           [0, 0, 0,  1],
+                           [0, 0, 0,  1]],
+                          [[0, 0, 0,  0],
+                           [0, 0, 0,  0],
+                           [0, 0, 0,  0],
+                           [0, 0, 0,  1]]]
+                        ),
+                np.array([[[np.nan,               np.nan,             np.nan,               0],
+                           [np.nan,               np.nan,             np.nan,               0],
+                           [ 0.21566554640687682, -0.9704949588309457, 0.10783277320343841, 0],
+                           [ 0,                    0,                  0,                   1]],
+                          [[np.nan, np.nan, np.nan, 0],
+                           [np.nan, np.nan, np.nan, 0],
+                           [np.nan, np.nan, np.nan, 0],
+                           [ 0,      0,      0,     1]]]
+                        ),
+            ),
+            # Testing when values are added to left ankle origin
+            (
+                {"RTOE": np.array([0, 0, 0]), "LTOE": np.array([0, 0, 0])},
+                np.array([[[0, 0, 0,  0],
+                           [0, 0, 0,  0],
+                           [0, 0, 0,  0],
+                           [0, 0, 0,  1]],
+                          [[0, 0, 0,  3],
+                           [0, 0, 0, -7],
+                           [0, 0, 0,  4],
+                           [0, 0, 0,  1]]]
+                        ),
+                np.array([[[np.nan, np.nan, np.nan, 0],
+                           [np.nan, np.nan, np.nan, 0],
+                           [np.nan, np.nan, np.nan, 0],
+                           [ 0,      0,      0,     1]],
+                          [[np.nan,               np.nan,            np.nan,               0],
+                           [np.nan,               np.nan,            np.nan,               0],
+                           [ 0.34874291623145787, -0.813733471206735, 0.46499055497527714, 0],
+                           [ 0,                    0,                 0,                   1]]]
+                        ),
+            ),
+            # Testing when values are added to ankle y-axes
+            (
+                {"RTOE": np.array([0, 0, 0]), "LTOE": np.array([0, 0, 0])},
+                np.array([[[ 0,  0, 0, 0],
+                           [ 8, -4, 2, 0],
+                           [ 0,  0, 0, 0],
+                           [ 0,  0, 0, 1]],
+                          [[ 0,  0, 0, 0],
+                           [-9,  7, 4, 0],
+                           [ 0,  0, 0, 0],
+                           [ 0,  0, 0, 1]]]
+                        ),
+                np.array([[[np.nan, np.nan, np.nan, 0],
+                           [np.nan, np.nan, np.nan, 0],
+                           [np.nan, np.nan, np.nan, 0],
+                           [ 0,      0,      0,     1]],
+                          [[np.nan, np.nan, np.nan, 0],
+                           [np.nan, np.nan, np.nan, 0],
+                           [np.nan, np.nan, np.nan, 0],
+                           [ 0,      0,      0,     1]]]
+                        ),
+            ),
+            # Testing when values are added to ankle_axis
+            (
+                {"RTOE": np.array([0, 0, 0]), "LTOE": np.array([0, 0, 0])},
+                np.array([[[ 0,  0, 0,  2],
+                           [ 8, -4, 2, -9],
+                           [ 0,  0, 0,  1],
+                           [ 0,  0, 0,  1]],
+                          [[ 0,  0, 0,  3],
+                           [-9,  7, 4, -7],
+                           [ 0,  0, 0,  4],
+                           [ 0,  0, 0,  1]]]
+                        ),
+                np.array([[[0.21329967236760183, -0.06094276353360052, -0.9750842165376084,  0],
+                           [0.9528859437838807,   0.23329276554708803,  0.1938630023560309,  0],
+                           [0.21566554640687682, -0.9704949588309457,   0.10783277320343841, 0],
+                           [0,                    0,                    0,                   1]],
+                          [[ 0.6597830814767823,   0.5655283555515277, 0.4948373111075868,  0],
+                           [-0.6656310267523443,   0.1342218942833945, 0.7341115850601987,  0],
+                           [ 0.34874291623145787, -0.813733471206735,  0.46499055497527714, 0],
+                           [ 0,                    0,                  0,                   1]]]),
+
+            ),
+            # Testing when values are added to frame and ankle_axis
+            (
+                {"RTOE": np.array([-7, 3, -8]), "LTOE": np.array([8, 0, -8])},
+                np.array([[[ 0,  0, 0,  2],
+                           [ 8, -4, 2, -9],
+                           [ 0,  0, 0,  1],
+                           [ 0,  0, 0,  1]],
+                          [[ 0,  0, 0,  3],
+                           [-9,  7, 4, -7],
+                           [ 0,  0, 0,  4],
+                           [ 0,  0, 0,  1]]]
+                        ),
+                np.array([[[-6.586075309097216, 2.6732173492872757, -8.849634891853084, -7],
+                           [-6.249026985898898, 3.6500960420576702, -7.884178291357542,  3],
+                           [-6.485504244572473, 2.3140056594299647, -7.485504244572473, -8],
+                           [ 0,                 0,                   0,                  1]],
+                          [[8.623180382731631,   0.5341546137699694,  -7.428751315829338,  8],
+                           [7.295040915019964,   0.6999344300621451,  -7.885437867872096,  0],
+                           [7.6613572692607015, -0.47409982303501746, -7.187257446225685, -8],
+                           [0,                   0,                    0,                  1]]]),
+
+            ),
+            # Testing that when frame and ankle_axis are composed of lists of ints
+            (
+                {"RTOE": [-7, 3, -8], "LTOE": [8, 0, -8]},
+                [
+                    [[ 0,  0, 0,  2],
+                     [ 8, -4, 2, -9],
+                     [ 0,  0, 0,  1],
+                     [ 0,  0, 0,  1]],
+                    [[ 0,  0, 0,  3],
+                     [-9,  7, 4, -7],
+                     [ 0,  0, 0,  4],
+                     [ 0,  0, 0,  1]]
+                ],
+                np.array([[[-6.586075309097216, 2.6732173492872757, -8.849634891853084, -7],
+                           [-6.249026985898898, 3.6500960420576702, -7.884178291357542,  3],
+                           [-6.485504244572473, 2.3140056594299647, -7.485504244572473, -8],
+                           [ 0,                 0,                   0,                  1]],
+                          [[8.623180382731631,   0.5341546137699694,  -7.428751315829338,  8],
+                           [7.295040915019964,   0.6999344300621451,  -7.885437867872096,  0],
+                           [7.6613572692607015, -0.47409982303501746, -7.187257446225685, -8],
+                           [0,                   0,                    0,                  1]]]),
+            ),
+            # Testing that when frame and ankle_axis are composed of numpy arrays of ints
+            (
+                {
+                    "RTOE": np.array([-7, 3, -8], dtype="int"),
+                    "LTOE": np.array([8, 0, -8], dtype="int"),
+                },
+                np.array([[[ 0,  0, 0,  2],
+                           [ 8, -4, 2, -9],
+                           [ 0,  0, 0,  1],
+                           [ 0,  0, 0,  1]],
+                          [[ 0,  0, 0,  3],
+                           [-9,  7, 4, -7],
+                           [ 0,  0, 0,  4],
+                           [ 0,  0, 0,  1]]], dtype="int"),
+                np.array([[[-6.586075309097216, 2.6732173492872757, -8.849634891853084, -7],
+                           [-6.249026985898898, 3.6500960420576702, -7.884178291357542,  3],
+                           [-6.485504244572473, 2.3140056594299647, -7.485504244572473, -8],
+                           [ 0,                 0,                   0,                  1]],
+                          [[8.623180382731631,   0.5341546137699694,  -7.428751315829338,  8],
+                           [7.295040915019964,   0.6999344300621451,  -7.885437867872096,  0],
+                           [7.6613572692607015, -0.47409982303501746, -7.187257446225685, -8],
+                           [0,                   0,                    0,                  1]]]),
+            ),
+            # Testing that when frame and ankle_axis are composed of lists of floats
+            (
+                {"RTOE": [-7.0, 3.0, -8.0], "LTOE": [8.0, 0.0, -8.0]},
+                [
+                    [[ 0.0,  0.0, 0.0,  2.0],
+                     [ 8.0, -4.0, 2.0, -9.0],
+                     [ 0.0,  0.0, 0.0,  1.0],
+                     [ 0.0,  0.0, 0.0,  1.0]],
+                    [[ 0.0,  0.0, 0.0,  3.0],
+                     [-9.0,  7.0, 4.0, -7.0],
+                     [ 0.0,  0.0, 0.0,  4.0],
+                     [ 0.0,  0.0, 0.0,  1.0]]
+                ],
+                np.array([[[-6.586075309097216, 2.6732173492872757, -8.849634891853084, -7],
+                           [-6.249026985898898, 3.6500960420576702, -7.884178291357542,  3],
+                           [-6.485504244572473, 2.3140056594299647, -7.485504244572473, -8],
+                           [ 0,                 0,                   0,                  1]],
+                          [[8.623180382731631,   0.5341546137699694,  -7.428751315829338,  8],
+                           [7.295040915019964,   0.6999344300621451,  -7.885437867872096,  0],
+                           [7.6613572692607015, -0.47409982303501746, -7.187257446225685, -8],
+                           [0,                   0,                    0,                  1]]]),
+            ),
+            # Testing that when frame and ankle_axis are composed of numpy arrays of floats
+            (
+                {
+                    "RTOE": np.array([-7.0, 3.0, -8.0], dtype="float"),
+                    "LTOE": np.array([8.0, 0.0, -8.0], dtype="float"),
+                },
+                np.array([[[ 0.0,  0.0, 0.0,  2.0],
+                           [ 8.0, -4.0, 2.0, -9.0],
+                           [ 0.0,  0.0, 0.0,  1.0],
+                           [ 0.0,  0.0, 0.0,  1.0]],
+                          [[ 0.0,  0.0, 0.0,  3.0],
+                           [-9.0,  7.0, 4.0, -7.0],
+                           [ 0.0,  0.0, 0.0,  4.0],
+                           [ 0.0,  0.0, 0.0,  1.0]]], dtype="float"),
+                np.array([[[-6.586075309097216, 2.6732173492872757, -8.849634891853084, -7],
+                           [-6.249026985898898, 3.6500960420576702, -7.884178291357542,  3],
+                           [-6.485504244572473, 2.3140056594299647, -7.485504244572473, -8],
+                           [ 0,                 0,                   0,                  1]],
+                          [[8.623180382731631,   0.5341546137699694,  -7.428751315829338,  8],
+                           [7.295040915019964,   0.6999344300621451,  -7.885437867872096,  0],
+                           [7.6613572692607015, -0.47409982303501746, -7.187257446225685, -8],
+                           [0,                   0,                    0,                  1]]]),
+            ),
+        ],
+    )
+    def test_calc_axis_uncorrect_foot(self, frame, ankle_axis, expected):
         """
-        This test provides coverage of the uncorrect_footaxis function in pycgmStatic.py, defined as uncorrect_footaxis(frame, ankle_JC)
+        This test provides coverage of the calc_axis_uncorrect_foot function in pycgmStatic.py,
+        defined as calc_axis_uncorrect_foot(frame, ankle_axis)
 
         This test takes 3 parameters:
         frame: dictionaries of marker lists.
-        ankle_JC: array of ankle_JC each x,y,z position
+        ankle_axis: array of two 4x4 affine matrices representing the right and left ankle axes and origins.
 
-        expected: the expected result from calling uncorrect_footaxis on frame and ankle_JC, which should be the
+        expected: the expected result from calling calc_axis_uncorrect_foot on frame and ankle_axis, which should be the
         anatomically incorrect foot axis
 
         Given a marker RTOE and the ankle JC, the right anatomically incorrect foot axis is calculated with:
@@ -1108,15 +1309,45 @@ class TestPycgmStaticAxis():
 
         This unit test ensures that:
         - the markers for RTOE and LTOE only effect either the right or the left axis
-        - ankle_JC_R and ankle_JC_L only effect either the right or the left axis
-        - the resulting output is correct when frame and ankle_JC are composed of lists of ints,
+        - ankle_axis_R and ankle_axis_L only effect either the right or the left axis
+        - the resulting output is correct when frame and ankle_axis are composed of lists of ints,
         numpy arrays of ints, lists of floats, and numpy arrays of floats.
 
         """
-        result = pycgmStatic.uncorrect_footaxis(frame, ankle_JC)
-        np.testing.assert_almost_equal(result[0], expected[0], rounding_precision)
-        np.testing.assert_almost_equal(result[1], expected[1], rounding_precision)
-        np.testing.assert_almost_equal(result[2], expected[2], rounding_precision)
+        rtoe = frame["RTOE"] if "RTOE" in frame else None
+        ltoe = frame["LTOE"] if "LTOE" in frame else None
+
+        r_ankle_axis = np.asarray(ankle_axis[0])
+        right_o = r_ankle_axis[:3, 3]
+        r_ankle_axis[0, :3] -= right_o
+        r_ankle_axis[1, :3] -= right_o
+        r_ankle_axis[2, :3] -= right_o
+
+        l_ankle_axis = np.asarray(ankle_axis[1])
+        left_o = l_ankle_axis[:3, 3]
+        l_ankle_axis[0, :3] -= left_o
+        l_ankle_axis[1, :3] -= left_o
+        l_ankle_axis[2, :3] -= left_o
+
+        result = pycgmStatic.calc_axis_uncorrect_foot(rtoe, ltoe, r_ankle_axis, l_ankle_axis)
+        right_axis = result[0]
+        left_axis = result[1]
+
+        # Add back right ankle origin
+        right_o = right_axis[:3, 3]
+        right_axis[0, :3] += right_o
+        right_axis[1, :3] += right_o
+        right_axis[2, :3] += right_o
+
+        # Add back left ankle origin
+        left_o = left_axis[:3, 3]
+        left_axis[0, :3] += left_o
+        left_axis[1, :3] += left_o
+        left_axis[2, :3] += left_o
+
+        result = np.asarray([right_axis, left_axis])
+
+        np.testing.assert_almost_equal(result, expected, rounding_precision)
 
     @pytest.mark.parametrize(["frame", "ankle_JC", "vsk", "expected"], [
         # Test from running sample data
