@@ -166,8 +166,8 @@ def getStatic(motionData,vsk,flat_foot=False,GCS=None):
         calSM['InterAsisDistance'] = vsk['InterAsisDistance']
     else:
         for frame in motionData:
-            iadCalc = IADcalculation(frame["RASI"] if "RASI" in frame else None,
-                                     frame["LASI"] if "LASI" in frame else None) 
+            iadCalc = calc_IAD(frame["RASI"] if "RASI" in frame else None,
+                               frame["LASI"] if "LASI" in frame else None) 
             IAD.append(iadCalc)
         InterAsisDistance = np.average(IAD)
         calSM['InterAsisDistance'] = InterAsisDistance
