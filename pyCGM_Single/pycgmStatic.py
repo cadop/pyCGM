@@ -253,7 +253,14 @@ def getStatic(motionData,vsk,flat_foot=False,GCS=None):
     for frame in motionData:
         pelvis_origin,pelvis_axis,sacrum = pelvisJointCenter(frame)
         hip_JC = hipJointCenter(frame,pelvis_origin,pelvis_axis[0],pelvis_axis[1],pelvis_axis[2],calSM)
-        knee_JC = kneeJointCenter(frame,hip_JC,0,vsk=calSM)
+        knee_axis = calc_axis_knee(frame['RTHI'] if 'RTHI' in frame else None,
+                                   frame['LTHI'] if 'LTHI' in frame else None,
+                                   frame['RKNE'] if 'RKNE' in frame else None,
+                                   frame['LKNE'] if 'LKNE' in frame else None,
+                                   hip_JC[0],
+                                   hip_JC[1],
+                                   vsk['RightKneeWidth'],
+                                   vsk['LeftKneeWidth'])
         ankle_JC = ankleJointCenter(frame,knee_JC,0,vsk=calSM)
         angle = staticCalculation(frame,ankle_JC,knee_JC,flat_foot,calSM)
         head = headJC(frame)
@@ -833,159 +840,138 @@ def hipAxisCenter(l_hip_jc,r_hip_jc,pelvis_axis):
 
     return [hipaxis_center,axis]
 
-def kneeJointCenter(frame,hip_JC,delta,vsk=None):
-    """Calculate the knee joint center and axis function.
 
-    Takes in a dictionary of xyz positions and marker names, as well as an index.
-    and takes the hip axis and pelvis axis.
-    Calculates the knee joint axis and returns the knee origin and axis
-
-    Markers used: RTHI, LTHI, RKNE, LKNE, hip_JC
+def calc_axis_knee(rthi, lthi, rkne, lkne, r_hip_jc, l_hip_jc, rkne_width, lkne_width):
+    """Calculate the knee joint center and axis.
+    Takes in markers that correspond to (x, y, z) positions of the current
+    frame, the hip joint center, and knee widths.
+    Markers used: RTHI, LTHI, RKNE, LKNE, r_hip_jc, l_hip_jc
     Subject Measurement values used: RightKneeWidth, LeftKneeWidth
-
-    Knee joint center: Computed using Knee Axis Calculation(ref. Clinical Gait Analysis hand book, Baker2013)
-
+    Knee joint center: Computed using Knee Axis Calculation [1]_.
     Parameters
     ----------
-    frame : dict
-        dictionary of marker lists.
-    hip_JC : array
-        An array of hip_JC containing the x,y,z axes marker positions of the hip joint center.
-    delta : float
-        The length from marker to joint center, retrieved from subject measurement file.
-    vsk : dict, optional
-        A dictionary containing subject measurements from a VSK file.
-
+    rthi : array
+        1x3 RTHI marker
+    lthi : array
+        1x3 LTHI marker
+    rkne : array
+        1x3 RKNE marker
+    lkne : array
+        1x3 LKNE marker
+    r_hip_jc : array
+        4x4 affine matrix containing the right hip joint center.
+    l_hip_jc : array
+        4x4 affine matrix containing the left hip joint center.
+    rkne_width : float
+        The width of the right knee
+    lkne_width : float
+        The width of the left knee
     Returns
     -------
-    R, L, axis : list
-        Returns a list that contains the knee axes' center in two 1x3 arrays of xyz values,
-        which is then followed by a 2x3x3 array composed of the knee axis center x, y, and z
-        axis components. The xyz axis components are 2x3 arrays consisting of the axis center
-        in the first dimension and the direction of the axis in the second dimension.
-
+    [r_axis, l_axis] : array
+        An array of two 4x4 affine matrices representing the right and left
+        knee axes and joint centers.
+    References
+    ----------
+    .. [1] Baker, R. (2013). Measuring walking : a handbook of clinical gait
+            analysis. Mac Keith Press.
     Notes
     -----
     Delta is changed suitably to knee.
-
     Examples
     --------
     >>> import numpy as np
-    >>> from .pycgmStatic import kneeJointCenter
-    >>> vsk = { 'RightKneeWidth' : 105.0, 'LeftKneeWidth' : 105.0 }
-    >>> frame = { 'RTHI': np.array([426.50, 262.65, 673.66]),
-    ...           'LTHI': np.array([51.94, 320.02, 723.03]),
-    ...           'RKNE': np.array([416.99, 266.23, 524.04]),
-    ...           'LKNE': np.array([84.62, 286.69, 529.40])}
-    >>> hip_JC = [[182.57, 339.43, 935.53],
-    ...         [309.38, 322.80, 937.99]]
-    >>> delta = 0
-    >>> [np.around(arr, 2) for arr in kneeJointCenter(frame,hip_JC,delta,vsk)] #doctest: +NORMALIZE_WHITESPACE
-    [array([364.24, 292.34, 515.31]), array([143.55, 279.9 , 524.79]), array([[[364.69, 293.24, 515.31],
-            [363.36, 292.78, 515.17],
-            [364.12, 292.42, 516.3 ]],
-           [[143.65, 280.88, 524.63],
-            [142.56, 280.01, 524.86],
-            [143.64, 280.04, 525.77]]])]
+    >>> np.set_printoptions(suppress=True)
+    >>> rthi = np.array([426.50, 262.65, 673.66])
+    >>> lthi = np.array([51.93, 320.01, 723.03])
+    >>> rkne = np.array([416.98, 266.22, 524.04])
+    >>> lkne = np.array([84.62, 286.69, 529.39])
+    >>> l_hip_jc = [182.57, 339.43, 935.52]
+    >>> r_hip_jc = [309.38, 322.80, 937.98]
+    >>> rkne_width = 105.0
+    >>> lkne_width = 105.0
+    >>> [arr.round(2) for arr in calc_axis_knee(rthi, lthi, rkne, lkne, l_hip_jc, r_hip_jc, rkne_width, lkne_width)] #doctest: +NORMALIZE_WHITESPACE
+    [array([[  0.3 ,   0.95,   0.  , 365.09],
+        [ -0.87,   0.28,  -0.4 , 282.84],
+        [ -0.38,   0.12,   0.92, 500.13],
+        [  0.  ,   0.  ,   0.  ,   1.  ]]),
+     array([[  0.11,   0.98,  -0.15, 139.57],
+        [ -0.92,   0.16,   0.35, 277.13],
+        [  0.37,   0.1 ,   0.93, 508.67],
+        [  0.  ,   0.  ,   0.  ,   1.  ]])]
     """
-
-
-
-    #Get Global Values
+    # Get Global Values
     mm = 7.0
-    R_kneeWidth = vsk['RightKneeWidth']
-    L_kneeWidth = vsk['LeftKneeWidth']
-    R_delta = (R_kneeWidth/2.0)+mm
-    L_delta = (L_kneeWidth/2.0)+mm
+    R_delta = (rkne_width/2.0) + mm
+    L_delta = (lkne_width/2.0) + mm
 
-    #REQUIRED MARKERS:
-    # RTHI
-    # LTHI
-    # RKNE
-    # LKNE
-    # hip_JC
-
-    RTHI = frame['RTHI']
-    LTHI = frame['LTHI']
-    RKNE = frame['RKNE']
-    LKNE = frame['LKNE']
-
-    R_hip_JC = hip_JC[1]
-    L_hip_JC = hip_JC[0]
-
-     # Determine the position of kneeJointCenter using findJointC function
-    R = findJointC(RTHI,R_hip_JC,RKNE,R_delta)
-    L = findJointC(LTHI,L_hip_JC,LKNE,L_delta)
-
-    # Knee Axis Calculation(ref. Clinical Gait Analysis hand book, Baker2013)
-    #Right axis calculation
-
-    thi_kne_R = RTHI-RKNE
+    # Determine the position of kneeJointCenter using calc_joint_center function
+    R = calc_joint_center(rthi, r_hip_jc, rkne, R_delta)
+    L = calc_joint_center(lthi, l_hip_jc, lkne, L_delta)
 
     # Z axis is Thigh bone calculated by the hipJC and  kneeJC
     # the axis is then normalized
-    axis_z = R_hip_JC-R
+    axis_z = r_hip_jc-R
 
     # X axis is perpendicular to the points plane which is determined by KJC, HJC, KNE markers.
     # and calculated by each point's vector cross vector.
     # the axis is then normalized.
-    axis_x = cross(axis_z,thi_kne_R)
+    # axis_x = cross(axis_z,thi_kne_R)
+    axis_x = np.cross(axis_z, rkne-r_hip_jc)
 
     # Y axis is determined by cross product of axis_z and axis_x.
     # the axis is then normalized.
-    axis_y = cross(axis_z,axis_x)
+    axis_y = np.cross(axis_z, axis_x)
 
-    Raxis = np.asarray([axis_x,axis_y,axis_z])
-
-    #Left axis calculation
-
-    thi_kne_L = LTHI-LKNE
+    Raxis = np.asarray([axis_x, axis_y, axis_z])
 
     # Z axis is Thigh bone calculated by the hipJC and  kneeJC
     # the axis is then normalized
-    axis_z = L_hip_JC-L
+    axis_z = l_hip_jc-L
 
     # X axis is perpendicular to the points plane which is determined by KJC, HJC, KNE markers.
     # and calculated by each point's vector cross vector.
     # the axis is then normalized.
-    axis_x = cross(thi_kne_L,axis_z)
+    # axis_x = cross(thi_kne_L,axis_z)
+    # using hipjc instead of thigh marker
+    axis_x = np.cross(lkne-l_hip_jc, axis_z)
 
     # Y axis is determined by cross product of axis_z and axis_x.
     # the axis is then normalized.
-    axis_y = cross(axis_z,axis_x)
+    axis_y = np.cross(axis_z, axis_x)
 
-    Laxis = np.asarray([axis_x,axis_y,axis_z])
+    Laxis = np.asarray([axis_x, axis_y, axis_z])
 
     # Clear the name of axis and then nomalize it.
     R_knee_x_axis = Raxis[0]
-    R_knee_x_axis = R_knee_x_axis/norm3d(R_knee_x_axis)
+    R_knee_x_axis = R_knee_x_axis/np.linalg.norm(R_knee_x_axis)
     R_knee_y_axis = Raxis[1]
-    R_knee_y_axis = R_knee_y_axis/norm3d(R_knee_y_axis)
+    R_knee_y_axis = R_knee_y_axis/np.linalg.norm(R_knee_y_axis)
     R_knee_z_axis = Raxis[2]
-    R_knee_z_axis = R_knee_z_axis/norm3d(R_knee_z_axis)
+    R_knee_z_axis = R_knee_z_axis/np.linalg.norm(R_knee_z_axis)
     L_knee_x_axis = Laxis[0]
-    L_knee_x_axis = L_knee_x_axis/norm3d(L_knee_x_axis)
+    L_knee_x_axis = L_knee_x_axis/np.linalg.norm(L_knee_x_axis)
     L_knee_y_axis = Laxis[1]
-    L_knee_y_axis = L_knee_y_axis/norm3d(L_knee_y_axis)
+    L_knee_y_axis = L_knee_y_axis/np.linalg.norm(L_knee_y_axis)
     L_knee_z_axis = Laxis[2]
-    L_knee_z_axis = L_knee_z_axis/norm3d(L_knee_z_axis)
+    L_knee_z_axis = L_knee_z_axis/np.linalg.norm(L_knee_z_axis)
 
-    #Put both axis in array
-    # Add the origin back to the vector
-    y_axis = R_knee_y_axis+R
-    z_axis = R_knee_z_axis+R
-    x_axis = R_knee_x_axis+R
-    Raxis = np.asarray([x_axis,y_axis,z_axis])
+    r_axis = np.zeros((4, 4))
+    r_axis[3, 3] = 1.0
+    r_axis[0, :3] = R_knee_x_axis
+    r_axis[1, :3] = R_knee_y_axis
+    r_axis[2, :3] = R_knee_z_axis
+    r_axis[:3, 3] = R
 
-    # Add the origin back to the vector
-    y_axis = L_knee_y_axis+L
-    z_axis = L_knee_z_axis+L
-    x_axis = L_knee_x_axis+L
-    Laxis = np.asarray([x_axis,y_axis,z_axis])
+    l_axis = np.zeros((4, 4))
+    l_axis[3, 3] = 1.0
+    l_axis[0, :3] = L_knee_x_axis
+    l_axis[1, :3] = L_knee_y_axis
+    l_axis[2, :3] = L_knee_z_axis
+    l_axis[:3, 3] = L
 
-    axis = np.asarray([Raxis,Laxis])
+    return np.asarray([r_axis, l_axis])
 
-    return [R,L,axis]
 
 def ankleJointCenter(frame,knee_JC,delta,vsk=None):
     """Calculate the ankle joint center and axis function.
