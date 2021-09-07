@@ -251,7 +251,11 @@ def getStatic(motionData,vsk,flat_foot=False,GCS=None):
     calSM['LeftHandThickness'] = vsk['LeftHandThickness']
 
     for frame in motionData:
-        pelvis_origin,pelvis_axis,sacrum = pelvisJointCenter(frame)
+        pelvis_axis = calc_axis_pelvis(frame['RASI'] if 'RASI' in frame else None,
+                                       frame['LASI'] if 'LASI' in frame else None,
+                                       frame['RPSI'] if 'RPSI' in frame else None,
+                                       frame['LPSI'] if 'LPSI' in frame else None,
+                                       frame['SACR'] if 'SACR' in frame else None)
         hip_JC = hipJointCenter(frame,pelvis_origin,pelvis_axis[0],pelvis_axis[1],pelvis_axis[2],calSM)
         knee_JC = kneeJointCenter(frame,hip_JC,0,vsk=calSM)
         ankle_JC = ankleJointCenter(frame,knee_JC,0,vsk=calSM)
@@ -552,109 +556,109 @@ def staticCalculation(frame,ankle_JC,knee_JC,flat_foot,vsk=None):
 
     return angle
 
-def pelvisJointCenter(frame):
-    """Make the Pelvis Axis function
+def calc_axis_pelvis(rasi, lasi, rpsi, lpsi, sacr=None):
+    r"""Make the Pelvis Axis.
 
-    Takes in a dictionary of x,y,z positions and marker names, as well as an index.
-    Calculates the pelvis joint center and axis and returns both.
+    Takes in RASI, LASI, RPSI, LPSI, and optional SACR markers.
 
-    Markers used: RASI,LASI,RPSI,LPSI
-    Other landmarks used: origin, sacrum
+    Calculates the pelvis axis.
 
-    Pelvis X_axis: Computed with a Gram-Schmidt orthogonalization procedure(ref. Kadaba 1990) and then normalized.
+    Markers used: RASI, LASI, RPSI, LPSI
+    
+    Other landmarks used: sacrum
+
+    Pelvis X_axis: Computed with a Gram-Schmidt orthogonalization procedure
+    [1]_ and then normalized.
+
     Pelvis Y_axis: LASI-RASI x,y,z positions, then normalized.
+
     Pelvis Z_axis: Cross product of x_axis and y_axis.
+
+    :math:`$o = m_{rasi} + m_{lasi} / 2$`
+
+    :math:`$y = \frac{m_{lasi} - m_{rasi}}{||m_{lasi} - m_{rasi}||}$`
+
+    :math:`x = \frac{(m_{origin} - m_{sacr}) - ((m_{origin} - m_{sacr}) \dot y) * y}{||(m_{origin} - m_{sacr}) - ((m_{origin} - m_{sacr}) \cdot y) \times y||}`
+
+    :math:`z = x \times y`
 
     Parameters
     ----------
-    frame : dict
-        Dictionary of marker lists.
+    rasi: array
+        1x3 RASI marker
+    lasi: array
+        1x3 LASI marker
+    rpsi: array
+        1x3 RPSI marker
+    lpsi: array
+        1x3 LPSI marker
+    sacr: array, optional
+        1x3 SACR marker. If not present, RPSI and LPSI are used instead.
 
     Returns
     -------
-    pelvis : list
-        Returns a list that contains the pelvis origin in a 1x3 array of xyz values,
-        a 4x1x3 array composed of the pelvis x, y, z axes components,
-        and the sacrum x, y, z position.
+    pelvis : array
+        4x4 affine matrix with pelvis x, y, z axes and pelvis origin.
+
+    .. math::
+        \begin{bmatrix}
+            \hat{x}_x & \hat{x}_y & \hat{x}_z & o_x \\
+            \hat{y}_x & \hat{y}_y & \hat{y}_z & o_y \\
+            \hat{z}_x & \hat{z}_y & \hat{z}_z & o_z \\
+            0 & 0 & 0 & 1 \\
+        \end{bmatrix}
+
+    References
+    ----------
+    .. [1] M. P. Kadaba, H. K. Ramakrishnan, and M. E. Wootten, “Measurement of
+            lower extremity kinematics during level walking,” J. Orthop. Res.,
+            vol. 8, no. 3, pp. 383–392, May 1990, doi: 10.1002/jor.1100080310.
 
     Examples
     --------
     >>> import numpy as np
-    >>> from .pycgmStatic import pelvisJointCenter
-    >>> frame = {'RASI': np.array([ 395.37,  428.1, 1036.83]),
-    ...          'LASI': np.array([ 183.19,  422.79, 1033.07]),
-    ...          'RPSI': np.array([ 341.42,  246.72, 1055.99]),
-    ...          'LPSI': np.array([ 255.8,  241.42, 1057.3]) }
-    >>> [np.around(arr, 2) for arr in pelvisJointCenter(frame)] #doctest: +NORMALIZE_WHITESPACE
-    [array([ 289.28,  425.45, 1034.95]), array([[ 289.26,  426.44, 1034.83],
-       [ 288.28,  425.42, 1034.93],
-       [ 289.26,  425.56, 1035.94]]), array([ 298.61,  244.07, 1056.64])]
+    >>> np.set_printoptions(suppress=True)
+    >>> from .pycgmStatic import calc_axis_pelvis
+    >>> rasi = np.array([ 395.36,  428.09, 1036.82])
+    >>> lasi = np.array([ 183.18,  422.78, 1033.07])
+    >>> rpsi = np.array([ 341.41,  246.72, 1055.99])
+    >>> lpsi = np.array([ 255.79,  241.42, 1057.30])
+    >>> [arr.round(2) for arr in calc_axis_pelvis(rasi, lasi, rpsi, lpsi, None)] # doctest: +NORMALIZE_WHITESPACE
+    [array([ -0.02,   0.99,  -0.12, 289.27]), 
+    array([ -1.  ,  -0.03,  -0.02, 425.43]), 
+    array([  -0.02,    0.12,    0.99, 1034.94]), 
+    array([0., 0., 0., 1.])]
     """
-
-
     # Get the Pelvis Joint Centre
 
-    #REQUIRED MARKERS:
-    # RASI
-    # LASI
-    # RPSI
-    # LPSI
-
-    RASI = frame['RASI']
-    LASI = frame['LASI']
-
-    try:
-        RPSI = frame['RPSI']
-        LPSI = frame['LPSI']
-        #  If no sacrum, mean of posterior markers is used as the sacrum
-        sacrum = (RPSI+LPSI)/2.0
-    except:
-        pass #going to use sacrum marker
-
-    if 'SACR' in frame:
-        sacrum = frame['SACR']
-
+    if sacr is None:
+        sacr = (rpsi + lpsi) / 2.0
 
     # REQUIRED LANDMARKS:
-    # origin
     # sacrum
 
     # Origin is Midpoint between RASI and LASI
-    origin = (RASI+LASI)/2.0
+    o = (rasi+lasi)/2.0
 
-    # print('Static calc Origin: ',origin)
-    # print('Static calc RASI: ',RASI)
-    # print('Static calc LASI: ',LASI)
+    b1 = o - sacr
+    b2 = lasi - rasi
 
+    # y is normalized b2
+    y = b2 / np.linalg.norm(b2)
 
-    # This calculate the each axis
-    # beta1,2,3 is arbitrary name to help calculate.
-    beta1 = origin-sacrum
-    beta2 = LASI-RASI
+    b3 = b1 - (np.dot(b1, y) * y)
+    x = b3/np.linalg.norm(b3)
 
-    # Y_axis is normalized beta2
-    y_axis = beta2/norm3d(beta2)
+    # Z-axis is cross product of x and y vectors.
+    z = np.cross(x, y)
 
-    # X_axis computed with a Gram-Schmidt orthogonalization procedure(ref. Kadaba 1990)
-    # and then normalized.
-    beta3_cal = np.dot(beta1,y_axis)
-    beta3_cal2 = beta3_cal*y_axis
-    beta3 = beta1-beta3_cal2
-    x_axis = beta3/norm3d(beta3)
+    pelvis = np.zeros((4, 4))
+    pelvis[3, 3] = 1.0
+    pelvis[0, :3] = x
+    pelvis[1, :3] = y
+    pelvis[2, :3] = z
+    pelvis[:3, 3] = o
 
-    # Z-axis is cross product of x_axis and y_axis.
-    z_axis = cross(x_axis,y_axis)
-
-     # Add the origin back to the vector
-    y_axis = y_axis+origin
-    z_axis = z_axis+origin
-    x_axis = x_axis+origin
-
-    pelvis_axis = np.asarray([x_axis,y_axis,z_axis])
-
-    pelvis = [origin,pelvis_axis,sacrum]
-
-    #print('Pelvis JC in static: ',pelvis)
     return pelvis
 
 def hipJointCenter(frame,pel_origin,pel_x,pel_y,pel_z,vsk=None):
