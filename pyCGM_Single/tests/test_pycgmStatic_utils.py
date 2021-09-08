@@ -13,7 +13,7 @@ class TestPycgmStaticUtils():
     """
     This class tests the utils functions in pycgmStatic.py:
     rotmat
-    getDist
+    get_dist
     getStatic
     average
     IADcalculation
@@ -78,14 +78,14 @@ class TestPycgmStaticUtils():
         ([3, 3, 0], [3, 0, 3], 4.242640687119285),
         ([7, 0, -4], [7, 0, 2], 6),
         ([7, -2, 5], [1, -4, 9], 7.483314773547883)])
-    def test_getDist(self, p0, p1, expected_results):
+    def test_get_dist(self, p0, p1, expected_results):
         """
-        This test provides coverage of the getDist function in pycgmStatic.py, defined as getDist(p0, p1)
+        This test provides coverage of the get_dist function in pycgmStatic.py, defined as get_dist(p0, p1)
 
         This test takes 3 parameters:
-        p0: position of first x,y,z coordinate
-        p1: position of second x,y,z coordinate
-        expected_results: the expected result from calling getDist on p0 and p1. This will be the distance between p0 and p1
+        p0: position of first (x, y, z) coordinate
+        p1: position of second (x, y, z) coordinate
+        expected_results: the expected result from calling get_dist on p0 and p1. This will be the distance between p0 and p1
 
         Given the points p0 and p1, the distance between them is defined as:
         .. math::
@@ -97,14 +97,14 @@ class TestPycgmStaticUtils():
         coordinates are different
         - the distance is measured correctly given positive, negative and zero values
         """
-        result = pycgmStatic.getDist(p0, p1)
+        result = pycgmStatic.get_dist(p0, p1)
         np.testing.assert_almost_equal(result, expected_results, rounding_precision)
 
-    def test_getDist_datatypes(self):
+    def test_get_dist_datatypes(self):
         """
-        This test provides coverage of the getDist function in pycgmStatic.py, defined as getDist(p0, p1)
+        This test provides coverage of the get_dist function in pycgmStatic.py, defined as get_dist(p0, p1)
 
-        This test checks that the resulting output from calling getDist is correct when called with a list of ints,
+        This test checks that the resulting output from calling get_dist is correct when called with a list of ints,
         a numpy array of ints, a list of floats, and a numpy array of floats.
         """
         p0_int = [7, -2, 5]
@@ -113,20 +113,20 @@ class TestPycgmStaticUtils():
         p1_float = [1.0, -4.0, 9.0]
         expected_results = 7.483314773547883
 
-        # Check that calling getDist on a list of ints yields the expected results
-        result_int_list = pycgmStatic.getDist(p0_int, p1_int)
+        # Check that calling get_dist on a list of ints yields the expected results
+        result_int_list = pycgmStatic.get_dist(p0_int, p1_int)
         np.testing.assert_almost_equal(result_int_list, expected_results, rounding_precision)
 
-        # Check that calling getDist on a numpy array of ints yields the expected results
-        result_int_nparray = pycgmStatic.getDist(np.array(p0_int, dtype='int'), np.array(p1_int, dtype='int'))
+        # Check that calling get_dist on a numpy array of ints yields the expected results
+        result_int_nparray = pycgmStatic.get_dist(np.array(p0_int, dtype='int'), np.array(p1_int, dtype='int'))
         np.testing.assert_almost_equal(result_int_nparray, expected_results, rounding_precision)
 
-        # Check that calling getDist on a list of floats yields the expected results
-        result_float_list = pycgmStatic.getDist(p0_float, p1_float)
+        # Check that calling get_dist on a list of floats yields the expected results
+        result_float_list = pycgmStatic.get_dist(p0_float, p1_float)
         np.testing.assert_almost_equal(result_float_list, expected_results, rounding_precision)
 
-        # Check that calling getDist on a numpy array of floats yields the expected results
-        result_float_nparray = pycgmStatic.getDist(np.array(p0_float, dtype='float'), np.array(p1_float, dtype='float'))
+        # Check that calling get_dist on a numpy array of floats yields the expected results
+        result_float_nparray = pycgmStatic.get_dist(np.array(p0_float, dtype='float'), np.array(p1_float, dtype='float'))
         np.testing.assert_almost_equal(result_float_nparray, expected_results, rounding_precision)
 
     @pytest.mark.parametrize(["list", "expected_results"], [
