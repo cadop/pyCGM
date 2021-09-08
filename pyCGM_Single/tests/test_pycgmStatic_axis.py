@@ -3,84 +3,162 @@ import pyCGM_Single.pycgmStatic as pycgmStatic
 import numpy as np
 from mock import patch
 
-rounding_precision = 8
+rounding_precision = 5
 
 class TestPycgmStaticAxis():
     """
     This class tests the axis functions in pycgmStatic.py:
-        staticCalculationHead
+        calc_static_head
         pelvisJointCenter
-        hipJointCenter
+        calc_joint_center_hip
         hipAxisCenter
         kneeJointCenter
         ankleJointCenter
         footJointCenter
-        headJC
+        calc_axis_head
         uncorrect_footaxis
         rotaxis_footflat
         rotaxis_nonfootflat
-        findJointC
+        calc_joint_center
     """
     nan_3d = [np.nan, np.nan, np.nan]
     rand_coor = [np.random.randint(0, 10), np.random.randint(0, 10), np.random.randint(0, 10)]
 
-    @pytest.mark.parametrize(["head", "expected"], [
-        # Test from running sample data
-        ([[[244.87227957886893, 326.0240255639856, 1730.4189843948805],
-           [243.89575702706503, 325.0366593474616, 1730.1515677531293],
-           [244.89086730509763, 324.80072493605866, 1731.1283433097797]],
-          [244.89547729492188, 325.0578918457031, 1730.1619873046875]],
-         0.25992807335420975),
-        # Test with zeros for all params
-        ([[[0, 0, 0], [0, 0, 0], [0, 0, 0]], [0, 0, 0]],
-         np.nan),
-        # Testing when values are added to head[0][0]
-        ([[[-1, 8, 9], [0, 0, 0], [0, 0, 0]], [0, 0, 0]],
-         1.5707963267948966),
-        # Testing when values are added to head[0][1]
-        ([[[0, 0, 0], [7, 5, 7], [0, 0, 0]], [0, 0, 0]],
-         np.nan),
-        # Testing when values are added to head[0][2]
-        ([[[0, 0, 0], [0, 0, 0], [3, -6, -2]], [0, 0, 0]],
-         0.0),
-        # Testing when values are added to head[0]
-        ([[[-1, 8, 9], [7, 5, 7], [3, -6, -2]], [0, 0, 0]],
-         -1.3521273809209546),
-        # Testing when values are added to head[1]
-        ([[[0, 0, 0], [0, 0, 0], [0, 0, 0]], [-4, 7, 8]],
-         0.7853981633974483),
-        # Testing when values are added to head
-        ([[[-1, 8, 9], [7, 5, 7], [3, -6, -2]], [-4, 7, 8]],
-         -0.09966865249116204),
-        # Testing that when head is composed of lists of ints
-        ([[[-1, 8, 9], [7, 5, 7], [3, -6, -2]], [-4, 7, 8]],
-         -0.09966865249116204),
-        # Testing that when head is composed of numpy arrays of ints
-        ([np.array([[-1, 8, 9], [7, 5, 7], [3, -6, -2]], dtype='int'), np.array([-4, 7, 8], dtype='int')],
-         -0.09966865249116204),
-        # Testing that when head is composed of lists of floats
-        ([[[-1.0, 8.0, 9.0], [7.0, 5.0, 7.0], [3.0, -6.0, -2.0]], [-4.0, 7.0, 8.0]],
-         -0.09966865249116204),
-        # Testing that when head is composed of numpy arrays of floats
-        ([np.array([[-1.0, 8.0, 9.0], [7.0, 5.0, 7.0], [3.0, -6.0, -2.0]], dtype='float'), np.array([-4.0, 7.0, 8.0], dtype='float')],
-         -0.09966865249116204)])
-    def test_staticCalculationHead(self, head, expected):
+    @pytest.mark.parametrize(
+        ["head_axis", "expected"],
+        [
+            # Test from running sample data
+            (
+                np.array([[244.87227957886893, 326.0240255639856, 1730.4189843948805, 244.89547729492188],
+                          [243.89575702706503, 325.0366593474616, 1730.1515677531293, 325.0578918457031],
+                          [244.89086730509763, 324.80072493605866, 1731.1283433097797, 1730.1619873046875],
+                          [0, 0, 0, 0]]),
+                0.25992807335420975,
+            ),
+            # Test with zeros for all params
+            (
+                np.array([[0, 0, 0, 0],
+                          [0, 0, 0, 0],
+                          [0, 0, 0, 0],
+                          [0, 0, 0, 1]]
+                        ),
+                np.nan
+            ),
+            # Testing when values are added to head x-axis
+            (
+                np.array([[-1, 8, 9, 0],
+                          [ 0, 0, 0, 0],
+                          [ 0, 0, 0, 0],
+                          [ 0, 0, 0, 1]]
+                        ),
+                1.5707963267948966
+            ),
+            # Testing when values are added to head y-axis
+            (
+                np.array([[0, 0, 0, 0],
+                          [7, 5, 7, 0],
+                          [0, 0, 0, 0],
+                          [0, 0, 0, 1]]
+                        ),
+                np.nan
+            ),
+            # Testing when values are added to head z-axis
+            (
+                np.array([[0,  0,  0, 0],
+                          [0,  0,  0, 0],
+                          [0, -6, -2, 0],
+                          [0,  0,  0, 1]]
+                        ),
+                0.0
+            ),
+            # Testing when values are added to head axes
+            (
+                np.array([[-1,  8,  9, 0],
+                          [7,  5,  7, 0],
+                          [0, -6, -2, 0],
+                          [0,  0,  0, 1]]
+                        ),
+                -1.3521273809209546
+            ),
+            # Testing when values are added to head origin
+            (
+                np.array([[0, 0, 0, -4],
+                          [0, 0, 0,  7],
+                          [0, 0, 0,  8],
+                          [0, 0, 0,  1]]
+                        ),
+                0.7853981633974483
+            ),
+            # Testing when values are added to head axes and origin
+            (
+                np.array([[-1,  8,  9, -4],
+                          [ 7,  5,  7,  7],
+                          [ 0, -6, -2,  8],
+                          [ 0,  0,  0,  1]]
+                        ),
+                -0.09966865249116204
+            ),
+            # Testing that when head_axis is composed of lists of ints
+            (
+                [
+                          [-1,  8,  9, -4],
+                          [ 7,  5,  7,  7],
+                          [ 3, -6, -2,  8],
+                          [ 0,  0,  0,  1]
+                ],
+                -0.09966865249116204
+            ),
+            # Testing that when head_axis is composed of numpy arrays of ints
+            (
+                np.array([[-1,  8,  9, -4],
+                          [ 7,  5,  7,  7],
+                          [ 0, -6, -2,  8],
+                          [ 0,  0,  0,  1]], dtype="int"),
+                -0.09966865249116204,
+            ),
+            # Testing that when head_axis is composed of lists of floats
+            (
+                [
+                          [-1.0,  8.0,  9.0, -4.0],
+                          [ 7.0,  5.0,  7.0,  7.0],
+                          [ 3.0, -6.0, -2.0,  8.0],
+                          [ 0.0,  0.0,  0.0,  1.0]
+                ],
+                -0.09966865249116204
+            ),
+            # Testing that when head_axis is composed of numpy arrays of floats
+            (
+                np.array([[-1.0,  8.0,  9.0, -4.0],
+                          [ 7.0,  5.0,  7.0,  7.0],
+                          [ 3.0, -6.0, -2.0,  8.0],
+                          [ 0.0,  0.0,  0.0,  1.0]], dtype="float"),
+                -0.09966865249116204
+            ),
+        ],
+    )
+    def test_calc_static_head(self, head_axis, expected):
         """
-        This test provides coverage of the staticCalculationHead function in pycgmStatic.py, defined as staticCalculationHead(frame, head)
+        This test provides coverage of the calc_static_head function in pycgmStatic.py, defined as calc_static_head(head_axis)
 
         This test takes 2 parameters:
-        head: array containing the head axis and head origin
-        expected: the expected result from calling staticCalculationHead on head
+        head_axis: 4x4 affine matrix representing the head axes and origin
+        expected: the expected result from calling calc_static_head on head_axis
 
-        This function first calculates the x, y, z axes of the head by subtracting the given head axes by the head
-        origin. It then calls headoffCalc on this head axis and a global axis to find the head offset angles.
+        This function first calculates the (x, y, z) axes of the head by subtracting the given head axes by the head
+        origin. It then calls calc_head_offset on this head axis and a global axis to find the head offset angles.
 
         This test ensures that:
         - the head axis and the head origin both have an effect on the final offset angle
-        - the resulting output is correct when head is composed of lists of ints, numpy arrays of ints, lists of
+        - the resulting output is correct when head_axis is composed of lists of ints, numpy arrays of ints, lists of
         floats, and numpy arrays of floats.
-       """
-        result = pycgmStatic.staticCalculationHead(None, head)
+        """
+        head_axis = np.asarray(head_axis)
+        head_o = head_axis[:3, 3]
+        head_axis[0, :3] -= head_o
+        head_axis[1, :3] -= head_o
+        head_axis[2, :3] -= head_o
+        
+        result = pycgmStatic.calc_static_head(head_axis)
         np.testing.assert_almost_equal(result, expected, rounding_precision)
 
     @pytest.mark.parametrize(["frame", "expected"], [
@@ -187,99 +265,354 @@ class TestPycgmStaticAxis():
         np.testing.assert_almost_equal(result[1], expected[1], rounding_precision)
         np.testing.assert_almost_equal(result[2], expected[2], rounding_precision)
 
-    @pytest.mark.parametrize(["pel_origin", "pel_x", "pel_y", "pel_z", "vsk", "expected"], [
+    @pytest.mark.parametrize(["pelvis_axis", "subject", "expected"], [
         # Test from running sample data
-        ([251.608306884766, 391.741317749023, 1032.893493652344], [251.740636241119, 392.726947206848, 1032.788500732036], [250.617115540376, 391.872328624646, 1032.874106304030], [251.602953357582, 391.847951338178, 1033.887777624562],
-         {'MeanLegLength': 940.0, 'R_AsisToTrocanterMeasure': 72.512, 'L_AsisToTrocanterMeasure': 72.512, 'InterAsisDistance': 215.908996582031},
-         [[182.57097863, 339.43231855, 935.52900126], [308.38050472, 322.80342417, 937.98979061]]),
+        (    
+             [
+                 [251.740636241119, 392.726947206848, 1032.788500732036, 251.608306884766], 
+                 [250.617115540376, 391.872328624646, 1032.874106304030, 391.741317749023], 
+                 [251.602953357582, 391.847951338178, 1033.887777624562, 1032.893493652344],
+                 [  0,               0,                0,                   1             ]
+            ],
+            {
+                'MeanLegLength': 940.0,
+                'R_AsisToTrocanterMeasure': 72.512, 
+                'L_AsisToTrocanterMeasure': 72.512, 
+                'InterAsisDistance': 215.908996582031
+            },
+            [
+                [308.38050472, 322.80342417, 937.98979061],
+                [182.57097863, 339.43231855, 935.52900126]
+            ]
+        ),
         # Basic test with zeros for all params
-        ([0, 0, 0], [0, 0, 0], [0, 0, 0], [0, 0, 0],
-         {'MeanLegLength': 0.0, 'R_AsisToTrocanterMeasure': 0.0, 'L_AsisToTrocanterMeasure': 0.0, 'InterAsisDistance': 0.0},
-         [[0, 0, 0], [0, 0, 0]]),
+        (
+            [
+                [0, 0, 0, 0],
+                [0, 0, 0, 0],
+                [0, 0, 0, 0],
+                [0, 0, 0, 0]
+            ],
+            {
+                'MeanLegLength': 0.0,
+                'R_AsisToTrocanterMeasure': 0.0, 
+                'L_AsisToTrocanterMeasure': 0.0, 
+                'InterAsisDistance': 0.0
+            },
+            [
+                [0, 0, 0], 
+                [0, 0, 0]
+            ]
+        ),
         # Testing when values are added to pel_origin
-        ([1, 0, -3], [0, 0, 0], [0, 0, 0], [0, 0, 0],
-         {'MeanLegLength': 0.0, 'R_AsisToTrocanterMeasure': 0.0, 'L_AsisToTrocanterMeasure': 0.0, 'InterAsisDistance': 0.0},
-         [[-6.1387721, 0, 18.4163163], [8.53165418, 0, -25.59496255]]),
+        (
+            [
+                [0, 0, 0,  1],
+                [0, 0, 0,  0],
+                [0, 0, 0, -3],
+                [0, 0, 0,  0]
+            ],
+            {
+                'MeanLegLength': 0.0,
+                'R_AsisToTrocanterMeasure': 0.0,
+                'L_AsisToTrocanterMeasure': 0.0,
+                'InterAsisDistance': 0.0
+            },
+            [
+                [8.53165418, 0, -25.59496255],
+                [-6.1387721, 0, 18.4163163]
+            ]
+        ),
         # Testing when values are added to pel_x
-        ([0, 0, 0], [-5, -3, -6], [0, 0, 0], [0, 0, 0],
-         {'MeanLegLength': 0.0, 'R_AsisToTrocanterMeasure': 0.0, 'L_AsisToTrocanterMeasure': 0.0, 'InterAsisDistance': 0.0},
-         [[54.02442793, 32.41465676, 64.82931352], [54.02442793, 32.41465676, 64.82931352]]),
+        (
+            [
+                [-5, -3, -6, 0],
+                [0, 0, 0,    0],
+                [0, 0, 0,    0],
+                [0, 0, 0,    0]
+            ],
+            {
+                'MeanLegLength': 0.0,
+                'R_AsisToTrocanterMeasure': 0.0,
+                'L_AsisToTrocanterMeasure': 0.0,
+                'InterAsisDistance': 0.0
+            },
+            [
+                [54.02442793, 32.41465676, 64.82931352],
+                [54.02442793, 32.41465676, 64.82931352]
+            ]
+        ),
         # Testing when values are added to pel_y
-        ([0, 0, 0], [0, 0, 0], [4, -1, 2], [0, 0, 0],
-         {'MeanLegLength': 0.0, 'R_AsisToTrocanterMeasure': 0.0, 'L_AsisToTrocanterMeasure': 0.0, 'InterAsisDistance': 0.0},
-         [[29.34085257, -7.33521314, 14.67042628], [-29.34085257,   7.33521314, -14.67042628]]),
+        (
+                [
+                    [0, 0, 0,  0],
+                    [4, -1, 2, 0],
+                    [0, 0, 0,  0],
+                    [0, 0, 0,  0]
+                ],
+            {
+                'MeanLegLength': 0.0,
+                'R_AsisToTrocanterMeasure': 0.0,
+                'L_AsisToTrocanterMeasure': 0.0,
+                'InterAsisDistance': 0.0
+            },
+            [
+                [-29.34085257,  7.33521314, -14.67042628],
+                [ 29.34085257, -7.33521314,  14.67042628]
+            ]
+        ),
         # Testing when values are added to pel_z
-        ([0, 0, 0], [0, 0, 0], [0, 0, 0], [3, 8, 2],
-         {'MeanLegLength': 0.0, 'R_AsisToTrocanterMeasure': 0.0, 'L_AsisToTrocanterMeasure': 0.0, 'InterAsisDistance': 0.0},
-         [[31.82533363, 84.86755635, 21.21688909], [31.82533363, 84.86755635, 21.21688909]]),
+        (
+                [
+                    [0, 0, 0, 0],
+                    [0, 0, 0, 0],
+                    [3, 8, 2, 0],
+                    [0, 0, 0, 0]
+                ],
+            {
+                'MeanLegLength': 0.0,
+                'R_AsisToTrocanterMeasure': 0.0,
+                'L_AsisToTrocanterMeasure': 0.0,
+                'InterAsisDistance': 0.0
+            },
+            [
+                [31.82533363, 84.86755635, 21.21688909],
+                [31.82533363, 84.86755635, 21.21688909]
+            ]
+        ),
         # Test when values are added to pel_x, pel_y, and pel_z
-        ([0, 0, 0], [-5, -3, -6], [4, -1, 2], [3, 8, 2],
-         {'MeanLegLength': 0.0, 'R_AsisToTrocanterMeasure': 0.0, 'L_AsisToTrocanterMeasure': 0.0, 'InterAsisDistance': 0.0},
-         [[115.19061413, 109.94699997, 100.71662889], [56.508909  , 124.61742625,  71.37577632]]),
+        (
+                [
+                    [-5, -3, -6, 0],
+                    [ 4, -1,  2, 0],
+                    [ 3,  8,  2, 0],
+                    [ 0,  0,  0, 0]
+                ],
+            {
+                'MeanLegLength': 0.0,
+                'R_AsisToTrocanterMeasure': 0.0,
+                'L_AsisToTrocanterMeasure': 0.0,
+                'InterAsisDistance': 0.0
+            },
+            [
+                [ 56.508909  , 124.61742625,  71.37577632],
+                [115.19061413, 109.94699997, 100.71662889]
+            ]
+        ),
         # Test when values are added to pel_origin, pel_x, pel_y, and pel_z
-        ([1, 0, -3], [-5, -3, -6], [4, -1, 2], [3, 8, 2],
-         {'MeanLegLength': 0.0, 'R_AsisToTrocanterMeasure': 0.0, 'L_AsisToTrocanterMeasure': 0.0, 'InterAsisDistance': 0.0},
-         [[109.05184203, 109.94699997, 119.13294518], [65.04056318, 124.61742625,  45.78081377]]),
+        (
+                [
+                    [-5, -3, -6,  1],
+                    [ 4, -1,  2,  0],
+                    [ 3,  8,  2, -3],
+                    [ 0,  0,  0,  0]
+                ],
+            {
+                'MeanLegLength': 0.0,
+                'R_AsisToTrocanterMeasure': 0.0,
+                'L_AsisToTrocanterMeasure': 0.0,
+                'InterAsisDistance': 0.0
+            },
+            [
+                [ 65.04056318, 124.61742625,  45.78081377],
+                [109.05184203, 109.94699997, 119.13294518]
+            ]
+        ),
         # Test when values are added to pel_origin, pel_x, pel_y, pel_z, and vsk[MeanLegLength]
-        ([1, 0, -3], [-5, -3, -6], [4, -1, 2], [3, 8, 2],
-         {'MeanLegLength': 15.0, 'R_AsisToTrocanterMeasure': 0.0, 'L_AsisToTrocanterMeasure': 0.0, 'InterAsisDistance': 0.0},
-         [[100.88576753,  97.85280235, 106.39612748], [61.83654463, 110.86920998,  41.31408931]]),
+        (
+                [
+                    [-5, -3, -6,  1],
+                    [ 4, -1,  2,  0],
+                    [ 3,  8,  2, -3],
+                    [ 0,  0,  0,  0]
+                ],
+            {
+                'MeanLegLength': 15.0,
+                'R_AsisToTrocanterMeasure': 0.0,
+                'L_AsisToTrocanterMeasure': 0.0,
+                'InterAsisDistance': 0.0
+            },
+            [
+                [ 61.83654463, 110.86920998,  41.31408931],
+                [100.88576753,  97.85280235, 106.39612748]
+            ]
+        ),
         # Test when values are added to pel_origin, pel_x, pel_y, pel_z, and vsk[R_AsisToTrocanterMeasure]
-        ([1, 0, -3], [-5, -3, -6], [4, -1, 2], [3, 8, 2],
-         {'MeanLegLength': 0.0, 'R_AsisToTrocanterMeasure': -24.0, 'L_AsisToTrocanterMeasure': 0.0, 'InterAsisDistance': 0.0},
-         [[109.05184203, 109.94699997, 119.13294518], [-57.09307697, 115.44008189,  14.36512267]]),
+        (
+                [
+                    [-5, -3, -6,  1],
+                    [ 4, -1,  2,  0],
+                    [ 3,  8,  2, -3],
+                    [ 0,  0,  0,  0]
+                ],
+            {
+                'MeanLegLength': 0.0,
+                'R_AsisToTrocanterMeasure': -24.0,
+                'L_AsisToTrocanterMeasure': 0.0,
+                'InterAsisDistance': 0.0
+            },
+            [
+                [-57.09307697, 115.44008189,  14.36512267],
+                [109.05184203, 109.94699997, 119.13294518]
+            ]
+        ),
         # Test when values are added to pel_origin, pel_x, pel_y, pel_z, and vsk[L_AsisToTrocanterMeasure]
-        ([1, 0, -3], [-5, -3, -6], [4, -1, 2], [3, 8, 2],
-         {'MeanLegLength': 0.0, 'R_AsisToTrocanterMeasure': 0.0, 'L_AsisToTrocanterMeasure': 0-7.0, 'InterAsisDistance': 0.0},
-         [[73.42953032, 107.27027453, 109.97003528], [65.04056318, 124.61742625,  45.78081377]]),
+        (
+                [
+                    [-5, -3, -6,  1],
+                    [ 4, -1,  2,  0],
+                    [ 3,  8,  2, -3],
+                    [ 0,  0,  0,  0]
+                ],
+            {
+                'MeanLegLength': 0.0,
+                'R_AsisToTrocanterMeasure': 0.0,
+                'L_AsisToTrocanterMeasure': 0-7.0,
+                'InterAsisDistance': 0.0
+            },
+            [
+                [65.04056318, 124.61742625,  45.78081377],
+                [73.42953032, 107.27027453, 109.97003528]
+            ]
+        ),
         # Test when values are added to pel_origin, pel_x, pel_y, pel_z, and vsk[InterAsisDistance]
-        ([1, 0, -3], [-5, -3, -6], [4, -1, 2], [3, 8, 2],
-         {'MeanLegLength': 0.0, 'R_AsisToTrocanterMeasure': 0.0, 'L_AsisToTrocanterMeasure': 0.0, 'InterAsisDistance': 11.0},
-         [[125.55184203, 104.44699997, 146.63294518], [48.54056318, 130.11742625,  18.28081377]]),
+        (
+                [
+                    [-5, -3, -6,  1],
+                    [ 4, -1,  2,  0],
+                    [ 3,  8,  2, -3],
+                    [ 0,  0,  0,  0]
+                ],
+            {
+                'MeanLegLength': 0.0,
+                'R_AsisToTrocanterMeasure': 0.0,
+                'L_AsisToTrocanterMeasure': 0.0,
+                'InterAsisDistance': 11.0
+            },
+            [
+                [ 48.54056318, 130.11742625,  18.28081377],
+                [125.55184203, 104.44699997, 146.63294518]
+            ]
+        ),
         # Test when values are added to pel_origin, pel_x, pel_y, pel_z, and all values in vsk
-        ([1, 0, -3], [-5, -3, -6], [4, -1, 2], [3, 8, 2],
-         {'MeanLegLength': 15.0, 'R_AsisToTrocanterMeasure': -24.0, 'L_AsisToTrocanterMeasure': -7.0, 'InterAsisDistance': 11.0},
-         [[81.76345582,  89.67607691, 124.73321758], [-76.79709552, 107.19186562, -17.60160178]]),
+        (
+                [
+                    [-5, -3, -6,  1],
+                    [ 4, -1,  2,  0],
+                    [ 3,  8,  2, -3],
+                    [ 0,  0,  0,  0]
+                ],
+                {
+                    'MeanLegLength': 15.0,
+                    'R_AsisToTrocanterMeasure': -24.0,
+                    'L_AsisToTrocanterMeasure': -7.0,
+                    'InterAsisDistance': 11.0
+                },
+                [
+                    [-76.79709552, 107.19186562, -17.60160178],
+                    [ 81.76345582,  89.67607691, 124.73321758]
+                ]
+            ),
         # Testing that when pel_origin, pel_x, pel_y, and pel_z are lists of ints and vsk values are ints
-        ([1, 0, -3], [-5, -3, -6], [4, -1, 2], [3, 8, 2],
-         {'MeanLegLength': 15, 'R_AsisToTrocanterMeasure': -24, 'L_AsisToTrocanterMeasure': -7, 'InterAsisDistance': 11},
-         [[81.76345582, 89.67607691, 124.73321758], [-76.79709552, 107.19186562, -17.60160178]]),
+        (
+                [
+                    [-5, -3, -6,  1],
+                    [ 4, -1,  2,  0],
+                    [ 3,  8,  2, -3],
+                    [ 0,  0,  0,  0]
+                ],
+                {
+                    'MeanLegLength': 15,
+                    'R_AsisToTrocanterMeasure': -24,
+                    'L_AsisToTrocanterMeasure': -7,
+                    'InterAsisDistance': 11
+                },
+                [
+                    [-76.79709552, 107.19186562, -17.60160178],
+                    [ 81.76345582,  89.67607691, 124.73321758]
+                ]
+            ),
         # Testing that when pel_origin, pel_x, pel_y, and pel_z are numpy arrays of ints and vsk values are ints
-        (np.array([1, 0, -3], dtype='int'), np.array([-5, -3, -6], dtype='int'), np.array([4, -1, 2], dtype='int'),
-         np.array([3, 8, 2], dtype='int'),
-         {'MeanLegLength': 15, 'R_AsisToTrocanterMeasure': -24, 'L_AsisToTrocanterMeasure': -7, 'InterAsisDistance': 11},
-         [[81.76345582, 89.67607691, 124.73321758], [-76.79709552, 107.19186562, -17.60160178]]),
+        (
+                np.array([[-5, -3, -6,  1],
+                          [ 4, -1,  2,  0],
+                          [ 3,  8,  2, -3],
+                          [ 0,  0,  0,  0]]
+                ),
+                {
+                    'MeanLegLength': 15,
+                    'R_AsisToTrocanterMeasure': -24,
+                    'L_AsisToTrocanterMeasure': -7,
+                    'InterAsisDistance': 11
+                },
+                [
+                    [-76.79709552, 107.19186562, -17.60160178],
+                    [ 81.76345582,  89.67607691, 124.73321758] 
+                ]
+        ),
         # Testing that when pel_origin, pel_x, pel_y, and pel_z are lists of floats and vsk values are floats
-        ([1.0, 0.0, -3.0], [-5.0, -3.0, -6.0], [4.0, -1.0, 2.0], [3.0, 8.0, 2.0],
-         {'MeanLegLength': 15.0, 'R_AsisToTrocanterMeasure': -24.0, 'L_AsisToTrocanterMeasure': -7.0, 'InterAsisDistance': 11.0},
-         [[81.76345582, 89.67607691, 124.73321758], [-76.79709552, 107.19186562, -17.60160178]]),
+        (       
+                [
+                    [-5.0, -3.0, -6.0,  1.0],
+                    [ 4.0, -1.0,  2.0,  0.0],
+                    [ 3.0,  8.0,  2.0, -3.0],
+                    [ 0.0,  0.0,  0.0,  0.0]
+                ],
+                {
+                    'MeanLegLength': 15.0,
+                    'R_AsisToTrocanterMeasure': -24.0,
+                    'L_AsisToTrocanterMeasure': -7.0,
+                    'InterAsisDistance': 11.0
+                },
+                [
+                    [-76.79709552, 107.19186562, -17.60160178],
+                    [ 81.76345582,  89.67607691, 124.73321758] 
+                ]
+        ),
         # Testing that when pel_origin, pel_x, pel_y, and pel_z are numpy arrays of floats and vsk values are floats
-        (np.array([1.0, 0.0, -3.0], dtype='float'), np.array([-5.0, -3.0, -6.0], dtype='float'),
-         np.array([4.0, -1.0, 2.0], dtype='float'), np.array([3.0, 8.0, 2.0], dtype='float'),
-         {'MeanLegLength': 15.0, 'R_AsisToTrocanterMeasure': -24.0, 'L_AsisToTrocanterMeasure': -7.0, 'InterAsisDistance': 11},
-         [[81.76345582, 89.67607691, 124.73321758], [-76.79709552, 107.19186562, -17.60160178]])])
-    def test_hipJointCenter(self, pel_origin, pel_x, pel_y, pel_z, vsk, expected):
+        (
+                np.array([[-5.0, -3.0, -6.0,  1.0],
+                          [ 4.0, -1.0,  2.0,  0.0],
+                          [ 3.0,  8.0,  2.0, -3.0],
+                          [ 0.0,  0.0,  0.0,  0.0]]
+                ),
+                {
+                    'MeanLegLength': 15.0,
+                    'R_AsisToTrocanterMeasure': -24.0,
+                    'L_AsisToTrocanterMeasure': -7.0,
+                    'InterAsisDistance': 11
+                },
+                [
+                    [-76.79709552, 107.19186562, -17.60160178],
+                    [ 81.76345582,  89.67607691, 124.73321758] 
+                ]
+        )
+    ])
+    def test_calc_joint_center_hip(self, pelvis_axis, subject, expected):
         """
-        This test provides coverage of the hipJointCenter function in pycgmStatic.py, defined as hipJointCenter(frame, pel_origin, pel_x, pel_y, pel_z, vsk)
-        This test takes 6 parameters:
-        pel_origin: array of x,y,z position of origin of the pelvis
-        pel_x: array of x,y,z position of x-axis of the pelvis
-        pel_y: array of x,y,z position of y-axis of the pelvis
-        pel_z: array of x,y,z position of z-axis of the pelvis
-        vsk: dictionary containing subject measurements from a VSK file
-        expected: the expected result from calling hipJointCenter on pel_origin, pel_x, pel_y, pel_z, and vsk
-
+        This test provides coverage of the calc_joint_center_hip function in pycgmStatic.py,
+        defined as calc_joint_center_hip(pelvis_axis, subject)
+        This test takes 2 parameters:
+        pelvis_axis: 4x4 affine matrix representing the pelvis axes and origin
+        subject: dictionary containing subject measurements from a VSK file
+        expected: the expected result from calling calc_joint_center_hip on pelvis_axis, subject
         This test is checking to make sure the hip joint center is calculated correctly given the input parameters.
         The test checks to see that the correct values in expected are updated per each input parameter added. Any
         parameter that is added should change the value of every value in expected.
-
         The hip joint center axis and origin are calculated using the Hip Joint Center Calculation (ref. Davis_1991).
-        Lastly, it checks that the resulting output is correct when pel_origin, pel_x, pel_y, and pel_z are composed of
-        lists of ints, numpy arrays of ints, lists of floats, and numpy arrays of floats and vsk values are ints or floats.
+        Lastly, it checks that the resulting output is correct when the pelvis axis is composed of lists of ints, 
+        numpy arrays of ints, lists of floats, and numpy arrays of floats and vsk values are ints or floats.
         """
-        result = pycgmStatic.hipJointCenter(None, pel_origin, pel_x, pel_y, pel_z, vsk)
-        np.testing.assert_almost_equal(result[0], expected[0], rounding_precision)
-        np.testing.assert_almost_equal(result[1], expected[1], rounding_precision)
+
+        pelvis_axis = np.asarray(pelvis_axis)
+        pelvis_o = pelvis_axis[:3, 3]
+        pelvis_axis[0, :3] -= pelvis_o
+        pelvis_axis[1, :3] -= pelvis_o
+        pelvis_axis[2, :3] -= pelvis_o
+
+        result = pycgmStatic.calc_joint_center_hip(pelvis_axis, subject)
+        np.testing.assert_almost_equal(result, expected, rounding_precision)
+
 
     @pytest.mark.parametrize(["l_hip_jc", "r_hip_jc", "pelvis_axis", "expected"], [
         # Test from running sample data
@@ -892,72 +1225,228 @@ class TestPycgmStaticAxis():
         np.testing.assert_almost_equal(result[1], expected[1], rounding_precision)
         np.testing.assert_almost_equal(result[2], expected[2], rounding_precision)
 
-    @pytest.mark.parametrize(["frame", "expected"], [
-        # Test from running sample data
-        ({'LFHD': np.array([184.55158997, 409.68713379, 1721.34289551]), 'RFHD': np.array([325.82983398, 402.55450439, 1722.49816895]), 'LBHD': np.array([197.8621521 , 251.28889465, 1696.90197754]), 'RBHD': np.array([304.39898682, 242.91339111, 1694.97497559])},
-         [[[255.21590218, 407.10741939, 1722.0817318], [254.19105385, 406.14680918, 1721.91767712], [255.18370553, 405.95974655, 1722.90744993]], [255.19071197509766, 406.1208190917969, 1721.9205322265625]]),
-        # Basic test with a variance of 1 in the x and y dimensions of the markers
-        ({'LFHD': np.array([1, 1, 0]), 'RFHD': np.array([0, 1, 0]), 'LBHD': np.array([1, 0, 0]), 'RBHD': np.array([0, 0, 0])},
-         [[[0.5, 2, 0], [1.5, 1, 0], [0.5, 1, -1]], [0.5, 1, 0]]),
-        # Setting the markers so there's no variance in the x-dimension
-        ({'LFHD': np.array([0, 1, 0]), 'RFHD': np.array([0, 1, 0]), 'LBHD': np.array([0, 0, 0]), 'RBHD': np.array([0, 0, 0])},
-         [[nan_3d, nan_3d, nan_3d], [0, 1, 0]]),
-        # Setting the markers so there's no variance in the y-dimension
-        ({'LFHD': np.array([1, 0, 0]), 'RFHD': np.array([0, 0, 0]), 'LBHD': np.array([1, 0, 0]), 'RBHD': np.array([0, 0, 0])},
-         [[nan_3d, nan_3d, nan_3d], [0.5, 0, 0]]),
-        # Setting each marker in a different xy quadrant
-        ({'LFHD': np.array([-1, 1, 0]), 'RFHD': np.array([1, 1, 0]), 'LBHD': np.array([-1, -1, 0]), 'RBHD': np.array([1, -1, 0])},
-         [[[0, 2, 0], [-1, 1, 0], [0, 1, 1]], [0, 1, 0]]),
-        # Setting values of the markers so that midpoints will be on diagonals
-        ({'LFHD': np.array([-2, 1, 0]), 'RFHD': np.array([1, 2, 0]), 'LBHD': np.array([-1, -2, 0]), 'RBHD': np.array([2, -1, 0])},
-         [[[-0.81622777, 2.4486833 ,  0], [-1.4486833, 1.18377223, 0], [-0.5, 1.5,  1]], [-0.5, 1.5, 0]]),
-        # Adding the value of 1 in the z dimension for all 4 markers
-        ({'LFHD': np.array([1, 1, 1]), 'RFHD': np.array([0, 1, 1]), 'LBHD': np.array([1, 0, 1]), 'RBHD': np.array([0, 0, 1])},
-         [[[0.5, 2, 1], [1.5, 1, 1], [0.5, 1, 0]], [0.5, 1, 1]]),
-        # Setting the z dimension value higher for LFHD and LBHD
-        ({'LFHD': np.array([1, 1, 2]), 'RFHD': np.array([0, 1, 1]), 'LBHD': np.array([1, 0, 2]), 'RBHD': np.array([0, 0, 1])},
-         [[[0.5, 2, 1.5], [1.20710678, 1, 2.20710678], [1.20710678, 1, 0.79289322]], [0.5, 1, 1.5]]),
-        # Setting the z dimension value higher for LFHD and RFHD
-        ({'LFHD': np.array([1, 1, 2]), 'RFHD': np.array([0, 1, 2]), 'LBHD': np.array([1, 0, 1]), 'RBHD': np.array([0, 0, 1])},
-         [[[0.5, 1.70710678, 2.70710678], [1.5, 1, 2], [0.5, 1.70710678, 1.29289322]], [0.5, 1, 2]]),
+    @pytest.mark.parametrize(
+        ["frame", "expected"],
+        [
+            # Test from running sample data
+            (
+                {
+                    "LFHD": np.array([184.55158997, 409.68713379, 1721.34289551]),
+                    "RFHD": np.array([325.82983398, 402.55450439, 1722.49816895]),
+                    "LBHD": np.array([197.8621521, 251.28889465, 1696.90197754]),
+                    "RBHD": np.array([304.39898682, 242.91339111, 1694.97497559]),
+                },
+                np.array([[255.21590218, 407.10741939, 1722.0817318,   255.19071197509766],
+                          [254.19105385, 406.14680918, 1721.91767712,  406.1208190917969 ],
+                          [255.18370553, 405.95974655, 1722.90744993, 1721.9205322265625 ],
+                          [  0,            0,             0,             1               ]]
+                        )
+            ),
+            # Basic test with a variance of 1 in the x and y dimensions of the markers
+            (
+                {
+                    "LFHD": np.array([1, 1, 0]),
+                    "RFHD": np.array([0, 1, 0]),
+                    "LBHD": np.array([1, 0, 0]),
+                    "RBHD": np.array([0, 0, 0]),
+                },
+                np.array([[0.5, 2,  0, 0.5],
+                          [1.5, 1,  0, 1  ],
+                          [0.5, 1, -1, 0  ],
+                          [0,   0,  0, 1  ]])
 
-        # Testing that when frame is composed of lists of ints
-        ({'LFHD': [1, 1, 2], 'RFHD': [0, 1, 2], 'LBHD': [1, 0, 1], 'RBHD': [0, 0, 1]},
-         [[[0.5, 1.70710678, 2.70710678], [1.5, 1, 2], [0.5, 1.70710678, 1.29289322]], [0.5, 1, 2]]),
-        # Testing that when frame is composed of numpy arrays of ints
-        ({'LFHD': np.array([1, 1, 2], dtype='int'), 'RFHD': np.array([0, 1, 2], dtype='int'),
-          'LBHD': np.array([1, 0, 1], dtype='int'), 'RBHD': np.array([0, 0, 1], dtype='int')},
-         [[[0.5, 1.70710678, 2.70710678], [1.5, 1, 2], [0.5, 1.70710678, 1.29289322]], [0.5, 1, 2]]),
-        # Testing that when frame is composed of lists of floats
-        ({'LFHD': [1.0, 1.0, 2.0], 'RFHD': [0.0, 1.0, 2.0], 'LBHD': [1.0, 0.0, 1.0], 'RBHD': [0.0, 0.0, 1.0]},
-         [[[0.5, 1.70710678, 2.70710678], [1.5, 1, 2], [0.5, 1.70710678, 1.29289322]], [0.5, 1, 2]]),
-        # Testing that when frame is composed of numpy arrays of floats
-        ({'LFHD': np.array([1.0, 1.0, 2.0], dtype='float'), 'RFHD': np.array([0.0, 1.0, 2.0], dtype='float'),
-          'LBHD': np.array([1.0, 0.0, 1.0], dtype='float'), 'RBHD': np.array([0.0, 0.0, 1.0], dtype='float')},
-         [[[0.5, 1.70710678, 2.70710678], [1.5, 1, 2], [0.5, 1.70710678, 1.29289322]], [0.5, 1, 2]])])
-    def test_headJC(self, frame, expected):
+            ),
+            # Setting the markers so there's no variance in the x-dimension
+            (
+                {
+                    "LFHD": np.array([0, 1, 0]),
+                    "RFHD": np.array([0, 1, 0]),
+                    "LBHD": np.array([0, 0, 0]),
+                    "RBHD": np.array([0, 0, 0]),
+                },
+                np.array([[0, 1, 0, 0],
+                          [0, 1, 0, 1],
+                          [0, 1, 0, 0],
+                          [0, 0, 0, 1]]
+                        )
+            ),
+            # Setting the markers so there's no variance in the y-dimension
+            (
+                {
+                    "LFHD": np.array([1, 0, 0]),
+                    "RFHD": np.array([0, 0, 0]),
+                    "LBHD": np.array([1, 0, 0]),
+                    "RBHD": np.array([0, 0, 0]),
+                },
+                np.array([[0.5, 0, 0, 0.5],
+                          [0.5, 0, 0, 0  ],
+                          [0.5, 0, 0, 0  ],
+                          [0,   0, 0, 1  ]]
+                        )
+            ),
+            # Setting each marker in a different xy quadrant
+            (
+                {
+                    "LFHD": np.array([-1, 1, 0]),
+                    "RFHD": np.array([1, 1, 0]),
+                    "LBHD": np.array([-1, -1, 0]),
+                    "RBHD": np.array([1, -1, 0]),
+                },
+                np.array([[ 0, 2, 0, 0],
+                          [-1, 1, 0, 1],
+                          [ 0, 1, 1, 0],
+                          [ 0, 0, 0, 1]]
+                        )
+            ),
+            # Setting values of the markers so that midpoints will be on diagonals
+            (
+                {
+                    "LFHD": np.array([-2, 1, 0]),
+                    "RFHD": np.array([1, 2, 0]),
+                    "LBHD": np.array([-1, -2, 0]),
+                    "RBHD": np.array([2, -1, 0]),
+                },
+                np.array([[-0.81622777, 2.4486833,  0, -0.5],
+                          [-1.4486833,  1.18377223, 0,  1.5],
+                          [-0.5,        1.5,        1,  0  ],
+                          [ 0,          0,          0,  1  ]]
+                        )
+            ),
+            # Adding the value of 1 in the z dimension for all 4 markers
+            (
+                {
+                    "LFHD": np.array([1, 1, 1]),
+                    "RFHD": np.array([0, 1, 1]),
+                    "LBHD": np.array([1, 0, 1]),
+                    "RBHD": np.array([0, 0, 1]),
+                },
+                np.array([[0.5, 2, 1, 0.5],
+                          [1.5, 1, 1, 1  ],
+                          [0.5, 1, 0, 1  ],
+                          [0,   0, 0, 1  ]])
+            ),
+            # Setting the z dimension value higher for LFHD and LBHD
+            (
+                {
+                    "LFHD": np.array([1, 1, 2]),
+                    "RFHD": np.array([0, 1, 1]),
+                    "LBHD": np.array([1, 0, 2]),
+                    "RBHD": np.array([0, 0, 1]),
+                },
+                np.array([[0.5,        2, 1.5,        0.5],
+                          [1.20710678, 1, 2.20710678, 1  ],
+                          [1.20710678, 1, 0.79289322, 1.5],
+                          [0,          0, 0,          1 ]]
+                        )
+            ),
+            # Setting the z dimension value higher for LFHD and RFHD
+            (
+                {
+                    "LFHD": np.array([1, 1, 2]),
+                    "RFHD": np.array([0, 1, 2]),
+                    "LBHD": np.array([1, 0, 1]),
+                    "RBHD": np.array([0, 0, 1]),
+                },
+                np.array([[0.5, 1.70710678, 2.70710678, 0.5],
+                          [1.5, 1,          2,          1  ],
+                          [0.5, 1.70710678, 1.29289322, 2  ],
+                          [0,   0,          0,          1  ]]
+                        )
+            ),
+            # Testing that when frame is composed of lists of ints
+            (
+                {
+                    "LFHD": [1, 1, 2],
+                    "RFHD": [0, 1, 2],
+                    "LBHD": [1, 0, 1],
+                    "RBHD": [0, 0, 1],
+                },
+                np.array([[0.5, 1.70710678, 2.70710678, 0.5],
+                          [1.5, 1,          2,          1  ],
+                          [0.5, 1.70710678, 1.29289322, 2  ],
+                          [0,   0,          0,          1  ]]
+                        )
+            ),
+            # Testing that when frame is composed of numpy arrays of ints
+            (
+                {
+                    "LFHD": np.array([1, 1, 2], dtype="int"),
+                    "RFHD": np.array([0, 1, 2], dtype="int"),
+                    "LBHD": np.array([1, 0, 1], dtype="int"),
+                    "RBHD": np.array([0, 0, 1], dtype="int"),
+                },
+                np.array([[0.5, 1.70710678, 2.70710678, 0.5],
+                          [1.5, 1,          2,          1  ],
+                          [0.5, 1.70710678, 1.29289322, 2  ],
+                          [0,   0,          0,          1  ]]
+                        )
+            ),
+            # Testing that when frame is composed of lists of floats
+            (
+                {
+                    "LFHD": [1.0, 1.0, 2.0],
+                    "RFHD": [0.0, 1.0, 2.0],
+                    "LBHD": [1.0, 0.0, 1.0],
+                    "RBHD": [0.0, 0.0, 1.0],
+                },
+                np.array([[0.5, 1.70710678, 2.70710678, 0.5],
+                          [1.5, 1,          2,          1  ],
+                          [0.5, 1.70710678, 1.29289322, 2  ],
+                          [0,   0,          0,          1  ]]
+                        )
+            ),
+            # Testing that when frame is composed of numpy arrays of floats
+            (
+                {
+                    "LFHD": np.array([1.0, 1.0, 2.0], dtype="float"),
+                    "RFHD": np.array([0.0, 1.0, 2.0], dtype="float"),
+                    "LBHD": np.array([1.0, 0.0, 1.0], dtype="float"),
+                    "RBHD": np.array([0.0, 0.0, 1.0], dtype="float"),
+                },
+                np.array([[0.5, 1.70710678, 2.70710678, 0.5],
+                          [1.5, 1,          2,          1  ],
+                          [0.5, 1.70710678, 1.29289322, 2  ],
+                          [0,   0,          0,          1  ]]
+                        )
+            ),
+        ],
+    )
+    def test_calc_axis_head(self, frame, expected):
         """
-        This test provides coverage of the headJC function in pycgmStatic.py, defined as headJC(frame)
+        This test provides coverage of the calc_axis_head function in pycgmStatic.py, defined as 
+        calc_axis_head(lfhd, rfhd, lbhd, rbhd)
+
         This test takes 3 parameters:
         frame: dictionary of marker lists
-        expected: the expected result from calling headJC on frame
+        expected: the expected result from calling calc_axis_head on lfhd, rfhd, lbhd and rbhd
 
         This test is checking to make sure the head joint center and head joint axis are calculated correctly given
         the 4 coordinates given in frame. This includes testing when there is no variance in the coordinates,
         when the coordinates are in different quadrants, when the midpoints will be on diagonals, and when the z
-        dimension is variable. It also checks to see the difference when a value is set for HeadOffSet in vsk.
+        dimension is variable.
 
-        The function uses the LFHD, RFHD, LBHD, and RBHD markers from the frame to calculate the midpoints of the front, back, left, and right center positions of the head. 
+        The function uses the LFHD, RFHD, LBHD, and RBHD markers from the frame to calculate the midpoints of the 
+        front, back, left, and right center positions of the head. 
         The head axis vector components are then calculated using the aforementioned midpoints.
-        Afterwords, the axes are made orthogonal by calculating the cross product of each individual axis. 
-        Finally, the head axis is then rotated around the y axis based off the head offset angle in the VSK. 
+        Finally, the axes are made orthogonal by calculating the cross product of each individual axis. 
 
         Lastly, it checks that the resulting output is correct when frame composed of lists of ints, numpy arrays of
-        ints, lists of floats, and numpy arrays of floats and when headOffset is an int and a float.
+        ints, lists of floats, and numpy arrays of floats.
         """
-        result = pycgmStatic.headJC(frame)
-        np.testing.assert_almost_equal(result[0], expected[0], rounding_precision)
-        np.testing.assert_almost_equal(result[1], expected[1], rounding_precision)
+        lfhd = frame["LFHD"] if "LFHD" in frame else None
+        rfhd = frame["RFHD"] if "RFHD" in frame else None
+        lbhd = frame["LBHD"] if "LBHD" in frame else None
+        rbhd = frame["RBHD"] if "RBHD" in frame else None
+
+        result = pycgmStatic.calc_axis_head(lfhd, rfhd, lbhd, rbhd)
+
+        result_o = result[:3, 3]
+        result[0, :3] += result_o
+        result[1, :3] += result_o
+        result[2, :3] += result_o
+
+        np.testing.assert_almost_equal(result, expected, rounding_precision)
+
 
     @pytest.mark.parametrize(["frame", "ankle_JC", "expected"], [
         # Test from running sample data
@@ -1479,50 +1968,120 @@ class TestPycgmStaticAxis():
 
     @pytest.mark.parametrize(["a", "b", "c", "delta", "expected"], [
         # Test from running sample data
-        ([426.50338745, 262.65310669, 673.66247559],
-         [308.38050472, 322.80342417, 937.98979061],
-         [416.98687744, 266.22558594, 524.04089355],
-         59.5,
-         [364.17774614, 292.17051722, 515.19181496]),
+        (
+            [426.50338745, 262.65310669, 673.66247559],
+            [308.38050472, 322.80342417, 937.98979061],
+            [416.98687744, 266.22558594, 524.04089355],
+            59.5,
+            [364.17774614, 292.17051722, 515.19181496]
+        ),
         # Testing with basic value in a and c
-        ([1, 0, 0], [0, 0, 0], [0, 0, 1], 0.0, [0, 0, 1]),
+        (
+            [1, 0, 0],
+            [0, 0, 0],
+            [0, 0, 1],
+            0.0,
+            [0, 0, 1]
+        ),
         # Testing with value in a and basic value in c
-        ([-7, 1, 2], [0, 0, 0], [0, 0, 1], 0.0, [0, 0, 1]),
+        (
+            [-7, 1, 2],
+            [ 0, 0, 0],
+            [ 0, 0, 1],
+            0.0,
+            [0, 0, 1]
+        ),
         #  Testing with value in b and basic value in c
-        ([0, 0, 0], [1, 4, 3], [0, 0, 1], 0.0, [0, 0, 1]),
+        (
+            [0, 0, 0],
+            [1, 4, 3],
+            [0, 0, 1],
+            0.0,
+            [0, 0, 1]
+        ),
         #  Testing with value in a and b and basic value in c
-        ([-7, 1, 2], [1, 4, 3], [0, 0, 1], 0.0, [0, 0, 1]),
+        (
+            [-7, 1, 2],
+            [ 1, 4, 3],
+            [ 0, 0, 1],
+            0.0,
+            [0, 0, 1]
+        ),
         #  Testing with value in a, b, and c
-        ([-7, 1, 2], [1, 4, 3], [3, 2, -8], 0.0, [3, 2, -8]),
+        (
+            [-7, 1,  2],
+            [ 1, 4,  3],
+            [ 3, 2, -8],
+            0.0,
+            [ 3, 2, -8]
+        ),
         # Testing with value in a, b, c and delta of 1
-        ([-7, 1, 2], [1, 4, 3], [3, 2, -8], 1.0, [3.91270955, 2.36111526, -7.80880104]),
+        (
+            [-7, 1,  2],
+            [ 1, 4,  3],
+            [ 3, 2, -8],
+            1.0,
+            [3.91271, 2.361115, -7.808801]
+        ),
         # Testing with value in a, b, c and delta of 20
-        ([-7, 1, 2], [1, 4, 3], [3, 2, -8], 10.0, [5.86777669, 5.19544877, 1.031332352]),
+        (
+            [-7, 1,  2],
+            [ 1, 4,  3],
+            [ 3, 2, -8],
+            10.0,
+            [5.867777, 5.195449, 1.031332]
+        ),
         # Testing that when a, b, and c are lists of ints and delta is an int
-        ([-7, 1, 2], [1, 4, 3], [3, 2, -8], 10, [5.86777669, 5.19544877, 1.031332352]),
+        (
+            [-7, 1,  2],
+            [ 1, 4,  3],
+            [ 3, 2, -8],
+            10,
+            [5.867777, 5.195449, 1.031332]
+        ),
         # Testing that when a, b, and c are numpy arrays of ints and delta is an int
-        (np.array([-7, 1, 2], dtype='int'), np.array([1, 4, 3], dtype='int'), np.array([3, 2, -8], dtype='int'),
-         10, [5.86777669, 5.19544877, 1.031332352]),
+        (
+            np.array([-7, 1,  2], dtype='int'),
+            np.array([ 1, 4,  3], dtype='int'),
+            np.array([ 3, 2, -8], dtype='int'),
+            10,
+            [5.867777, 5.195449, 1.031332]
+        ),
         # Testing that when a, b, and c are lists of floats and delta is a float
-        ([-7.0, 1.0, 2.0], [1.0, 4.0, 3.0], [3.0, 2.0, -8.0], 10.0, [5.86777669, 5.19544877, 1.031332352]),
+        (
+            [-7.0, 1.0,  2.0],
+            [ 1.0, 4.0,  3.0],
+            [ 3.0, 2.0, -8.0],
+            10.0,
+            [5.867777, 5.195449, 1.031332]
+        ),
         # Testing that when a, b, and c are numpy arrays of floats and delta is a float
-        (np.array([-7.0, 1.0, 2.0], dtype='float'), np.array([1.0, 4.0, 3.0], dtype='float'),
-         np.array([3.0, 2.0, -8.0], dtype='float'), 10.0, [5.86777669, 5.19544877, 1.031332352])])
-    def test_findJointC(self, a, b, c, delta, expected):
+        (
+            np.array([-7.0, 1.0,  2.0], dtype='float'),
+            np.array([ 1.0, 4.0,  3.0], dtype='float'),
+            np.array([ 3.0, 2.0, -8.0], dtype='float'),
+            10.0,
+            [5.867777, 5.195449, 1.031332]
+        )
+    ])
+    def test_calc_joint_center(self, a, b, c, delta, expected):
         """
-        This test provides coverage of the findJointC function in pycgmStatic.py, defined as findJointC(a, b, c, delta)
+        This test provides coverage of the calc_joint_center function in pycgmStatic.py, defined as
+        calc_joint_center(p_a, p_b, p_c, delta)
+
         This test takes 5 parameters:
-        a: list markers of x,y,z position
-        b: list markers of x,y,z position
-        c: list markers of x,y,z position
-        delta: length from marker to joint center, retrieved from subject measurement file
-        expected: the expected result from calling findJointC on a, b, c, and delta
+        p_a: (x, y, z) position of marker a
+        p_b: (x, y, z) position of marker b
+        p_c: (x, y, z) position of marker c
+        delta: The length from marker to joint center, retrieved from subject measurement file
+        expected: the expected result from calling calc_joint_center on p_a, p_b, p_c, and delta
 
         A plane will be generated using the positions of three specified markers. 
-        The plane will then calculate a joint center by rotating the vector of the plane around the rotating axis (the orthogonal vector).
+        The plane will then calculate a joint center by rotating the vector of the plane
+        around the rotating axis (the orthogonal vector).
 
-        Lastly, it checks that the resulting output is correct when a, b, and c are lists of ints, numpy arrays of ints,
-        lists of floats, and numpy arrays of floats and delta is an int or a float.
+        Lastly, it checks that the resulting output is correct when a, b, and c are lists of ints,
+        numpy arrays of ints, lists of floats, and numpy arrays of floats and delta is an int or a float.
         """
-        result = pycgmStatic.findJointC(a, b, c, delta)
+        result = pycgmStatic.calc_joint_center(a, b, c, delta)
         np.testing.assert_almost_equal(result, expected, rounding_precision)
