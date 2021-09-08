@@ -8,7 +8,7 @@ rounding_precision = 5
 class TestPycgmStaticAxis():
     """
     This class tests the axis functions in pycgmStatic.py:
-        staticCalculationHead
+        calc_static_head
         pelvisJointCenter
         calc_joint_center_hip
         hipAxisCenter
@@ -24,63 +24,141 @@ class TestPycgmStaticAxis():
     nan_3d = [np.nan, np.nan, np.nan]
     rand_coor = [np.random.randint(0, 10), np.random.randint(0, 10), np.random.randint(0, 10)]
 
-    @pytest.mark.parametrize(["head", "expected"], [
-        # Test from running sample data
-        ([[[244.87227957886893, 326.0240255639856, 1730.4189843948805],
-           [243.89575702706503, 325.0366593474616, 1730.1515677531293],
-           [244.89086730509763, 324.80072493605866, 1731.1283433097797]],
-          [244.89547729492188, 325.0578918457031, 1730.1619873046875]],
-         0.25992807335420975),
-        # Test with zeros for all params
-        ([[[0, 0, 0], [0, 0, 0], [0, 0, 0]], [0, 0, 0]],
-         np.nan),
-        # Testing when values are added to head[0][0]
-        ([[[-1, 8, 9], [0, 0, 0], [0, 0, 0]], [0, 0, 0]],
-         1.5707963267948966),
-        # Testing when values are added to head[0][1]
-        ([[[0, 0, 0], [7, 5, 7], [0, 0, 0]], [0, 0, 0]],
-         np.nan),
-        # Testing when values are added to head[0][2]
-        ([[[0, 0, 0], [0, 0, 0], [3, -6, -2]], [0, 0, 0]],
-         0.0),
-        # Testing when values are added to head[0]
-        ([[[-1, 8, 9], [7, 5, 7], [3, -6, -2]], [0, 0, 0]],
-         -1.3521273809209546),
-        # Testing when values are added to head[1]
-        ([[[0, 0, 0], [0, 0, 0], [0, 0, 0]], [-4, 7, 8]],
-         0.7853981633974483),
-        # Testing when values are added to head
-        ([[[-1, 8, 9], [7, 5, 7], [3, -6, -2]], [-4, 7, 8]],
-         -0.09966865249116204),
-        # Testing that when head is composed of lists of ints
-        ([[[-1, 8, 9], [7, 5, 7], [3, -6, -2]], [-4, 7, 8]],
-         -0.09966865249116204),
-        # Testing that when head is composed of numpy arrays of ints
-        ([np.array([[-1, 8, 9], [7, 5, 7], [3, -6, -2]], dtype='int'), np.array([-4, 7, 8], dtype='int')],
-         -0.09966865249116204),
-        # Testing that when head is composed of lists of floats
-        ([[[-1.0, 8.0, 9.0], [7.0, 5.0, 7.0], [3.0, -6.0, -2.0]], [-4.0, 7.0, 8.0]],
-         -0.09966865249116204),
-        # Testing that when head is composed of numpy arrays of floats
-        ([np.array([[-1.0, 8.0, 9.0], [7.0, 5.0, 7.0], [3.0, -6.0, -2.0]], dtype='float'), np.array([-4.0, 7.0, 8.0], dtype='float')],
-         -0.09966865249116204)])
-    def test_staticCalculationHead(self, head, expected):
+    @pytest.mark.parametrize(
+        ["head_axis", "expected"],
+        [
+            # Test from running sample data
+            (
+                np.array([[244.87227957886893, 326.0240255639856, 1730.4189843948805, 244.89547729492188],
+                          [243.89575702706503, 325.0366593474616, 1730.1515677531293, 325.0578918457031],
+                          [244.89086730509763, 324.80072493605866, 1731.1283433097797, 1730.1619873046875],
+                          [0, 0, 0, 0]]),
+                0.25992807335420975,
+            ),
+            # Test with zeros for all params
+            (
+                np.array([[0, 0, 0, 0],
+                          [0, 0, 0, 0],
+                          [0, 0, 0, 0],
+                          [0, 0, 0, 1]]
+                        ),
+                np.nan
+            ),
+            # Testing when values are added to head x-axis
+            (
+                np.array([[-1, 8, 9, 0],
+                          [ 0, 0, 0, 0],
+                          [ 0, 0, 0, 0],
+                          [ 0, 0, 0, 1]]
+                        ),
+                1.5707963267948966
+            ),
+            # Testing when values are added to head y-axis
+            (
+                np.array([[0, 0, 0, 0],
+                          [7, 5, 7, 0],
+                          [0, 0, 0, 0],
+                          [0, 0, 0, 1]]
+                        ),
+                np.nan
+            ),
+            # Testing when values are added to head z-axis
+            (
+                np.array([[0,  0,  0, 0],
+                          [0,  0,  0, 0],
+                          [0, -6, -2, 0],
+                          [0,  0,  0, 1]]
+                        ),
+                0.0
+            ),
+            # Testing when values are added to head axes
+            (
+                np.array([[-1,  8,  9, 0],
+                          [7,  5,  7, 0],
+                          [0, -6, -2, 0],
+                          [0,  0,  0, 1]]
+                        ),
+                -1.3521273809209546
+            ),
+            # Testing when values are added to head origin
+            (
+                np.array([[0, 0, 0, -4],
+                          [0, 0, 0,  7],
+                          [0, 0, 0,  8],
+                          [0, 0, 0,  1]]
+                        ),
+                0.7853981633974483
+            ),
+            # Testing when values are added to head axes and origin
+            (
+                np.array([[-1,  8,  9, -4],
+                          [ 7,  5,  7,  7],
+                          [ 0, -6, -2,  8],
+                          [ 0,  0,  0,  1]]
+                        ),
+                -0.09966865249116204
+            ),
+            # Testing that when head_axis is composed of lists of ints
+            (
+                [
+                          [-1,  8,  9, -4],
+                          [ 7,  5,  7,  7],
+                          [ 3, -6, -2,  8],
+                          [ 0,  0,  0,  1]
+                ],
+                -0.09966865249116204
+            ),
+            # Testing that when head_axis is composed of numpy arrays of ints
+            (
+                np.array([[-1,  8,  9, -4],
+                          [ 7,  5,  7,  7],
+                          [ 0, -6, -2,  8],
+                          [ 0,  0,  0,  1]], dtype="int"),
+                -0.09966865249116204,
+            ),
+            # Testing that when head_axis is composed of lists of floats
+            (
+                [
+                          [-1.0,  8.0,  9.0, -4.0],
+                          [ 7.0,  5.0,  7.0,  7.0],
+                          [ 3.0, -6.0, -2.0,  8.0],
+                          [ 0.0,  0.0,  0.0,  1.0]
+                ],
+                -0.09966865249116204
+            ),
+            # Testing that when head_axis is composed of numpy arrays of floats
+            (
+                np.array([[-1.0,  8.0,  9.0, -4.0],
+                          [ 7.0,  5.0,  7.0,  7.0],
+                          [ 3.0, -6.0, -2.0,  8.0],
+                          [ 0.0,  0.0,  0.0,  1.0]], dtype="float"),
+                -0.09966865249116204
+            ),
+        ],
+    )
+    def test_calc_static_head(self, head_axis, expected):
         """
-        This test provides coverage of the staticCalculationHead function in pycgmStatic.py, defined as staticCalculationHead(frame, head)
+        This test provides coverage of the calc_static_head function in pycgmStatic.py, defined as calc_static_head(head_axis)
 
         This test takes 2 parameters:
-        head: array containing the head axis and head origin
-        expected: the expected result from calling staticCalculationHead on head
+        head_axis: 4x4 affine matrix representing the head axes and origin
+        expected: the expected result from calling calc_static_head on head_axis
 
-        This function first calculates the x, y, z axes of the head by subtracting the given head axes by the head
-        origin. It then calls headoffCalc on this head axis and a global axis to find the head offset angles.
+        This function first calculates the (x, y, z) axes of the head by subtracting the given head axes by the head
+        origin. It then calls calc_head_offset on this head axis and a global axis to find the head offset angles.
 
         This test ensures that:
         - the head axis and the head origin both have an effect on the final offset angle
-        - the resulting output is correct when head is composed of lists of ints, numpy arrays of ints, lists of
+        - the resulting output is correct when head_axis is composed of lists of ints, numpy arrays of ints, lists of
         floats, and numpy arrays of floats.
-       """
-        result = pycgmStatic.staticCalculationHead(None, head)
+        """
+        head_axis = np.asarray(head_axis)
+        head_o = head_axis[:3, 3]
+        head_axis[0, :3] -= head_o
+        head_axis[1, :3] -= head_o
+        head_axis[2, :3] -= head_o
+        
+        result = pycgmStatic.calc_static_head(head_axis)
         np.testing.assert_almost_equal(result, expected, rounding_precision)
 
     @pytest.mark.parametrize(["frame", "expected"], [
