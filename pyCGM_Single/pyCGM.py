@@ -777,187 +777,154 @@ def calc_axis_foot(rtoe, ltoe, r_ankle_axis, l_ankle_axis, r_static_rot_off, l_s
             [  0.  ,   0.  ,   0.  ,   1.  ]])]
 
     """
+    # Required joint centers and axes:
+    # Knee joint center
+    # Ankle joint center
+    # Ankle flexion axis
 
-    # REQUIRE JOINT CENTER & AXIS
-    # KNEE JOINT CENTER
-    # ANKLE JOINT CENTER
-    # ANKLE FLEXION AXIS
-    r_ankle_axis = np.asarray(r_ankle_axis)
-    l_ankle_axis = np.asarray(l_ankle_axis)
+    rtoe, ltoe, r_ankle_axis, l_ankle_axis = map(np.asarray, [rtoe, ltoe, r_ankle_axis, l_ankle_axis])
 
-    ankle_JC_R = r_ankle_axis[:3, 3]
-    ankle_JC_L = l_ankle_axis[:3, 3]
+    ankle_JC_R      = r_ankle_axis[:3, 3]
+    ankle_JC_L      = l_ankle_axis[:3, 3]
     ankle_flexion_R = r_ankle_axis[1, :3] + ankle_JC_R
     ankle_flexion_L = l_ankle_axis[1, :3] + ankle_JC_L
 
     # Toe axis's origin is marker position of TOE
-    R = rtoe
-    L = ltoe
-
-    # HERE IS THE INCORRECT AXIS
-
-    # the first setting, the foot axis show foot uncorrected anatomical axis and static_info is None
-    ankle_JC_R = [ankle_JC_R[0], ankle_JC_R[1], ankle_JC_R[2]]
-    ankle_JC_L = [ankle_JC_L[0], ankle_JC_L[1], ankle_JC_L[2]]
+    right_origin = rtoe
+    left_origin  = ltoe
 
     # Right
 
-    # z axis is from TOE marker to AJC. and normalized it.
-    R_axis_z = [ankle_JC_R[0]-rtoe[0],
-                ankle_JC_R[1]-rtoe[1], ankle_JC_R[2]-rtoe[2]]
+    # Z-axis is from TOE marker to AJC, then normalized
+    R_axis_z     = ankle_JC_R - rtoe
     R_axis_z_div = np.linalg.norm(R_axis_z)
-    R_axis_z = [R_axis_z[0]/R_axis_z_div, R_axis_z[1] /
-                R_axis_z_div, R_axis_z[2]/R_axis_z_div]
+    R_axis_z     = np.divide(R_axis_z, R_axis_z_div)
 
-    # bring the flexion axis of ankle axes from AnkleJointCenter function. and normalized it.
-    y_flex_R = ankle_flexion_R - ankle_JC_R
+    # Bring the flexion axis of ankle axes from AnkleJointCenter function, then normalize it
+    y_flex_R     = ankle_flexion_R - ankle_JC_R
     y_flex_R_div = np.linalg.norm(y_flex_R)
-    y_flex_R = y_flex_R/y_flex_R_div
+    y_flex_R     = y_flex_R/y_flex_R_div
 
-    # x axis is calculated as a cross product of z axis and ankle flexion axis.
-    R_axis_x = np.cross(y_flex_R, R_axis_z)
+    # X-axis is calculated as a cross product of z-axis and ankle flexion axis
+    R_axis_x     = np.cross(y_flex_R, R_axis_z)
     R_axis_x_div = np.linalg.norm(R_axis_x)
-    R_axis_x = [R_axis_x[0]/R_axis_x_div, R_axis_x[1] /
-                R_axis_x_div, R_axis_x[2]/R_axis_x_div]
+    R_axis_x     = np.divide(R_axis_x, R_axis_x_div)
 
-    # y axis is then perpendicularly calculated from z axis and x axis. and normalized.
-    R_axis_y = np.cross(R_axis_z, R_axis_x)
+    # Y-axis is then perpendicularly calculated from z-axis and x-axis, then normalized
+    R_axis_y     = np.cross(R_axis_z, R_axis_x)
     R_axis_y_div = np.linalg.norm(R_axis_y)
-    R_axis_y = [R_axis_y[0]/R_axis_y_div, R_axis_y[1] /
-                R_axis_y_div, R_axis_y[2]/R_axis_y_div]
+    R_axis_y     = np.divide(R_axis_y, R_axis_y_div)
 
-    R_foot_axis = [R_axis_x, R_axis_y, R_axis_z]
+    R_foot_axis  = [R_axis_x, R_axis_y, R_axis_z]
 
     # Left
 
-    # z axis is from TOE marker to AJC. and normalized it.
-    L_axis_z = [ankle_JC_L[0]-ltoe[0],
-                ankle_JC_L[1]-ltoe[1], ankle_JC_L[2]-ltoe[2]]
+    # Z-axis is from TOE marker to AJC, then normalized
+    L_axis_z     = ankle_JC_L - ltoe
     L_axis_z_div = np.linalg.norm(L_axis_z)
-    L_axis_z = [L_axis_z[0]/L_axis_z_div, L_axis_z[1] /
-                L_axis_z_div, L_axis_z[2]/L_axis_z_div]
+    L_axis_z     = np.divide(L_axis_z, L_axis_z_div)
 
-    # bring the flexion axis of ankle axes from AnkleJointCenter function. and normalized it.
-    y_flex_L = [ankle_flexion_L[0]-ankle_JC_L[0], ankle_flexion_L[1] -
-                ankle_JC_L[1], ankle_flexion_L[2]-ankle_JC_L[2]]
+    # Bring the flexion axis of ankle axes from AnkleJointCenter function, then normalize it
+    y_flex_L     = ankle_flexion_L - ankle_JC_L
     y_flex_L_div = np.linalg.norm(y_flex_L)
-    y_flex_L = [y_flex_L[0]/y_flex_L_div, y_flex_L[1] /
-                y_flex_L_div, y_flex_L[2]/y_flex_L_div]
+    y_flex_L     = np.divide(y_flex_L, y_flex_L_div)
 
-    # x axis is calculated as a cross product of z axis and ankle flexion axis.
-    L_axis_x = np.cross(y_flex_L, L_axis_z)
+    # X-axis is calculated as a cross product of z-axis and ankle flexion axis
+    L_axis_x     = np.cross(y_flex_L, L_axis_z)
     L_axis_x_div = np.linalg.norm(L_axis_x)
-    L_axis_x = [L_axis_x[0]/L_axis_x_div, L_axis_x[1] /
-                L_axis_x_div, L_axis_x[2]/L_axis_x_div]
+    L_axis_x     = np.divide(L_axis_x, L_axis_x_div)
 
-    # y axis is then perpendicularly calculated from z axis and x axis. and normalized.
-    L_axis_y = np.cross(L_axis_z, L_axis_x)
+    # Y-axis is then perpendicularly calculated from z-axis and x-axis, then normalized
+    L_axis_y     = np.cross(L_axis_z, L_axis_x)
     L_axis_y_div = np.linalg.norm(L_axis_y)
-    L_axis_y = [L_axis_y[0]/L_axis_y_div, L_axis_y[1] /
-                L_axis_y_div, L_axis_y[2]/L_axis_y_div]
+    L_axis_y     = np.divide(L_axis_y, L_axis_y_div)
 
-    L_foot_axis = [L_axis_x, L_axis_y, L_axis_z]
+    L_foot_axis  = [L_axis_x, L_axis_y, L_axis_z]
 
-    foot_axis = [R_foot_axis, L_foot_axis]
+    foot_axis    = [R_foot_axis, L_foot_axis]
 
     # Apply static offset angle to the incorrect foot axes
 
-    # static offset angle are taken from static_info variable in radians.
+    # Static offset angles are taken from static_info variable in radians
     R_alpha = r_static_rot_off
-    R_beta = r_static_plant_flex
-    #R_gamma = static_info[0][2]
+    R_beta  = r_static_plant_flex
     L_alpha = l_static_rot_off
-    L_beta = l_static_plant_flex
-    #L_gamma = static_info[1][2]
+    L_beta  = l_static_plant_flex
 
     R_alpha = np.around(math.degrees(R_alpha), decimals=5)
-    R_beta = np.around(math.degrees(R_beta), decimals=5)
-    #R_gamma = np.around(math.degrees(static_info[0][2]),decimals=5)
+    R_beta  = np.around(math.degrees(R_beta), decimals=5)
     L_alpha = np.around(math.degrees(L_alpha), decimals=5)
-    L_beta = np.around(math.degrees(L_beta), decimals=5)
-    #L_gamma = np.around(math.degrees(static_info[1][2]),decimals=5)
+    L_beta  = np.around(math.degrees(L_beta), decimals=5)
 
     R_alpha = -math.radians(R_alpha)
-    R_beta = math.radians(R_beta)
-    #R_gamma = 0
+    R_beta  = math.radians(R_beta)
     L_alpha = math.radians(L_alpha)
-    L_beta = math.radians(L_beta)
-    #L_gamma = 0
+    L_beta  = math.radians(L_beta)
 
-    R_axis = [[(R_foot_axis[0][0]), (R_foot_axis[0][1]), (R_foot_axis[0][2])],
-              [(R_foot_axis[1][0]), (R_foot_axis[1][1]), (R_foot_axis[1][2])],
-              [(R_foot_axis[2][0]), (R_foot_axis[2][1]), (R_foot_axis[2][2])]]
+    R_axis = R_foot_axis
+    L_axis = L_foot_axis
 
-    L_axis = [[(L_foot_axis[0][0]), (L_foot_axis[0][1]), (L_foot_axis[0][2])],
-              [(L_foot_axis[1][0]), (L_foot_axis[1][1]), (L_foot_axis[1][2])],
-              [(L_foot_axis[2][0]), (L_foot_axis[2][1]), (L_foot_axis[2][2])]]
+    # First, rotate incorrect foot axis around y-axis
 
-    # rotate incorrect foot axis around y axis first.
+    # Right
+    R_rotmat = [
+                    [(math.cos(R_beta) * R_axis[0][0] + math.sin(R_beta) * R_axis[2][0]),
+                     (math.cos(R_beta) * R_axis[0][1] + math.sin(R_beta) * R_axis[2][1]),
+                     (math.cos(R_beta) * R_axis[0][2] + math.sin(R_beta) * R_axis[2][2])],
+                     [R_axis[1][0], R_axis[1][1], R_axis[1][2]],
+                    [(-1 * math.sin(R_beta) * R_axis[0][0] + math.cos(R_beta) * R_axis[2][0]),
+                     (-1 * math.sin(R_beta) * R_axis[0][1] + math.cos(R_beta) * R_axis[2][1]),
+                     (-1 * math.sin(R_beta) * R_axis[0][2] + math.cos(R_beta) * R_axis[2][2])]
+               ]
+    # Left
+    L_rotmat = [
+                    [(math.cos(L_beta) * L_axis[0][0] + math.sin(L_beta) * L_axis[2][0]),
+                     (math.cos(L_beta) * L_axis[0][1] + math.sin(L_beta) * L_axis[2][1]),
+                     (math.cos(L_beta) * L_axis[0][2] + math.sin(L_beta) * L_axis[2][2])],
+                     [L_axis[1][0], L_axis[1][1], L_axis[1][2]],
+                    [(-1 * math.sin(L_beta) * L_axis[0][0] + math.cos(L_beta) * L_axis[2][0]),
+                     (-1 * math.sin(L_beta) * L_axis[0][1] + math.cos(L_beta) * L_axis[2][1]),
+                     (-1 * math.sin(L_beta) * L_axis[0][2] + math.cos(L_beta) * L_axis[2][2])]
+               ]
 
-    # right
-    R_rotmat = [[(math.cos(R_beta)*R_axis[0][0]+math.sin(R_beta)*R_axis[2][0]),
-                (math.cos(R_beta)*R_axis[0][1] +
-                 math.sin(R_beta)*R_axis[2][1]),
-                (math.cos(R_beta)*R_axis[0][2]+math.sin(R_beta)*R_axis[2][2])],
-                [R_axis[1][0], R_axis[1][1], R_axis[1][2]],
-                [(-1*math.sin(R_beta)*R_axis[0][0]+math.cos(R_beta)*R_axis[2][0]),
-                (-1*math.sin(R_beta)*R_axis[0]
-                 [1]+math.cos(R_beta)*R_axis[2][1]),
-                (-1*math.sin(R_beta)*R_axis[0][2]+math.cos(R_beta)*R_axis[2][2])]]
-    # left
-    L_rotmat = [[(math.cos(L_beta)*L_axis[0][0]+math.sin(L_beta)*L_axis[2][0]),
-                (math.cos(L_beta)*L_axis[0][1] +
-                 math.sin(L_beta)*L_axis[2][1]),
-                (math.cos(L_beta)*L_axis[0][2]+math.sin(L_beta)*L_axis[2][2])],
-                [L_axis[1][0], L_axis[1][1], L_axis[1][2]],
-                [(-1*math.sin(L_beta)*L_axis[0][0]+math.cos(L_beta)*L_axis[2][0]),
-                (-1*math.sin(L_beta)*L_axis[0]
-                 [1]+math.cos(L_beta)*L_axis[2][1]),
-                (-1*math.sin(L_beta)*L_axis[0][2]+math.cos(L_beta)*L_axis[2][2])]]
+    # Next, rotate incorrect foot axis around x-axis
 
-    # rotate incorrect foot axis around x axis next.
+    # Right
+    right_axis = np.asarray([[R_rotmat[0][0], R_rotmat[0][1], R_rotmat[0][2]],
+                             [
+                                 (math.cos(R_alpha) * R_rotmat[1][0] - math.sin(R_alpha) * R_rotmat[2][0]),
+                                 (math.cos(R_alpha) * R_rotmat[1][1] - math.sin(R_alpha) * R_rotmat[2][1]),
+                                 (math.cos(R_alpha) * R_rotmat[1][2] - math.sin(R_alpha) * R_rotmat[2][2])
+                             ],
+                             [
+                                 (math.sin(R_alpha) * R_rotmat[1][0] + math.cos(R_alpha) * R_rotmat[2][0]),
+                                 (math.sin(R_alpha) * R_rotmat[1][1] + math.cos(R_alpha) * R_rotmat[2][1]),
+                                 (math.sin(R_alpha) * R_rotmat[1][2] + math.cos(R_alpha) * R_rotmat[2][2])
+                            ]])
 
-    # right
-    R_rotmat = np.array([[R_rotmat[0][0], R_rotmat[0][1], R_rotmat[0][2]],
-                         [(math.cos(R_alpha)*R_rotmat[1][0]-math.sin(R_alpha)*R_rotmat[2][0]),
-                          (math.cos(R_alpha)*R_rotmat[1][1] -
-                           math.sin(R_alpha)*R_rotmat[2][1]),
-                          (math.cos(R_alpha)*R_rotmat[1][2]-math.sin(R_alpha)*R_rotmat[2][2])],
-                         [(math.sin(R_alpha)*R_rotmat[1][0]+math.cos(R_alpha)*R_rotmat[2][0]),
-                          (math.sin(R_alpha)*R_rotmat[1][1] +
-                             math.cos(R_alpha)*R_rotmat[2][1]),
-                          (math.sin(R_alpha)*R_rotmat[1][2]+math.cos(R_alpha)*R_rotmat[2][2])]])
-
-    # left
-    L_rotmat = np.asarray([[L_rotmat[0][0], L_rotmat[0][1], L_rotmat[0][2]],
-                           [(math.cos(L_alpha)*L_rotmat[1][0]-math.sin(L_alpha)*L_rotmat[2][0]),
-                            (math.cos(L_alpha)*L_rotmat[1][1] -
-                             math.sin(L_alpha)*L_rotmat[2][1]),
-                            (math.cos(L_alpha)*L_rotmat[1][2]-math.sin(L_alpha)*L_rotmat[2][2])],
-                           [(math.sin(L_alpha)*L_rotmat[1][0]+math.cos(L_alpha)*L_rotmat[2][0]),
-                            (math.sin(L_alpha)*L_rotmat[1][1] +
-                               math.cos(L_alpha)*L_rotmat[2][1]),
-                            (math.sin(L_alpha)*L_rotmat[1][2]+math.cos(L_alpha)*L_rotmat[2][2])]])
-
-    # Bring each x,y,z axis from rotation axes
-    R_axis_x = R_rotmat[0]
-    R_axis_y = R_rotmat[1]
-    R_axis_z = R_rotmat[2]
-    L_axis_x = L_rotmat[0]
-    L_axis_y = L_rotmat[1]
-    L_axis_z = L_rotmat[2]
+    # Left
+    left_axis = np.asarray([[L_rotmat[0][0], L_rotmat[0][1], L_rotmat[0][2]],
+                            [
+                                (math.cos(L_alpha) * L_rotmat[1][0] - math.sin(L_alpha) * L_rotmat[2][0]),
+                                (math.cos(L_alpha) * L_rotmat[1][1] - math.sin(L_alpha) * L_rotmat[2][1]),
+                                (math.cos(L_alpha) * L_rotmat[1][2] - math.sin(L_alpha) * L_rotmat[2][2])
+                            ],
+                            [
+                                (math.sin(L_alpha) * L_rotmat[1][0] + math.cos(L_alpha) * L_rotmat[2][0]),
+                                (math.sin(L_alpha) * L_rotmat[1][1] + math.cos(L_alpha) * L_rotmat[2][1]),
+                                (math.sin(L_alpha) * L_rotmat[1][2] + math.cos(L_alpha) * L_rotmat[2][2])
+                            ]])
 
     # Attach each axis to the origin
-
     r_foot_axis = np.zeros((4, 4))
     r_foot_axis[3, 3] = 1.0
-    r_foot_axis[:3, :3] = R_rotmat
-    r_foot_axis[:3, 3] = R
+    r_foot_axis[:3, :3] = right_axis
+    r_foot_axis[:3, 3] = right_origin
 
     l_foot_axis = np.zeros((4, 4))
     l_foot_axis[3, 3] = 1.0
-    l_foot_axis[:3, :3] = L_rotmat
-    l_foot_axis[:3, 3] = L
+    l_foot_axis[:3, :3] = left_axis
+    l_foot_axis[:3, 3] = left_origin
 
     foot_axis = np.array([r_foot_axis, l_foot_axis])
 
@@ -1453,268 +1420,247 @@ def calc_axis_shoulder(thorax_axis, r_sho_jc, l_sho_jc, r_wand, l_wand):
 
 
 def calc_axis_elbow(relb, lelb, rwra, rwrb, lwra, lwrb, r_shoulder_jc, l_shoulder_jc, r_elbow_width, l_elbow_width, r_wrist_width, l_wrist_width, mm):
-        """Calculate the elbow joint center and axis.
+    """Calculate the elbow joint center and axis.
 
-        Takes in markers that correspond to (x, y, z) positions of the current
-        frame, the shoulder joint center, elbow widths, wrist widths, and the
-        marker size in millimeters..
+    Takes in markers that correspond to (x, y, z) positions of the current
+    frame, the shoulder joint center, elbow widths, wrist widths, and the
+    marker size in millimeters..
 
-        Markers used: relb, lelb, rwra, rwrb, lwra, lwrb.
+    Markers used: relb, lelb, rwra, rwrb, lwra, lwrb.
 
-        Subject Measurement values used: r_elbow_width, l_elbow_width, r_wrist_width,
-        l_wrist_width.
+    Subject Measurement values used: r_elbow_width, l_elbow_width, r_wrist_width,
+    l_wrist_width.
 
-        Parameters
-        ----------
-        relb : array
-            1x3 RELB marker
-        lelb : array
-            1x3 LELB marker
-        rwra : array
-            1x3 RWRA marker
-        rwrb : array
-            1x3 RWRB marker
-        lwra : array
-            1x3 LWRA marker
-        lwrb : array
-            1x3 LWRB marker
-        r_shoulder_jc : ndarray
-            A 4x4 identity matrix that holds the right shoulder joint center
-        l_shoulder_jc : ndarray
-            A 4x4 identity matrix that holds the left shoulder joint center
-        r_elbow_width : float
-            The width of the right elbow
-        l_elbow_width : float
-            The width of the left elbow
-        r_wrist_width : float
-            The width of the right wrist
-        l_wrist_width : float
-            The width of the left wrist
-        mm : float
-            The thickness of the marker in millimeters
+    Parameters
+    ----------
+    relb : array
+        1x3 RELB marker
+    lelb : array
+        1x3 LELB marker
+    rwra : array
+        1x3 RWRA marker
+    rwrb : array
+        1x3 RWRB marker
+    lwra : array
+        1x3 LWRA marker
+    lwrb : array
+        1x3 LWRB marker
+    r_shoulder_jc : ndarray
+        A 4x4 identity matrix that holds the right shoulder joint center
+    l_shoulder_jc : ndarray
+        A 4x4 identity matrix that holds the left shoulder joint center
+    r_elbow_width : float
+        The width of the right elbow
+    l_elbow_width : float
+        The width of the left elbow
+    r_wrist_width : float
+        The width of the right wrist
+    l_wrist_width : float
+        The width of the left wrist
+    mm : float
+        The thickness of the marker in millimeters
 
-        Returns
-        -------
-        [r_axis, l_axis, r_wri_origin, l_wri_origin] : array
-            An array consisting of a 4x4 affine matrix representing the
-            right elbow axis, a 4x4 affine matrix representing the left 
-            elbow axis, a 4x4 affine matrix representing the right wrist
-            origin, and a 4x4 affine matrix representing the left wrist origin.
+    Returns
+    -------
+    [r_axis, l_axis, r_wri_origin, l_wri_origin] : array
+        An array consisting of a 4x4 affine matrix representing the
+        right elbow axis, a 4x4 affine matrix representing the left 
+        elbow axis, a 4x4 affine matrix representing the right wrist
+        origin, and a 4x4 affine matrix representing the left wrist origin.
 
-        Examples
-        --------
-        >>> import numpy as np
-        >>> from .pyCGM import calc_axis_elbow
-        >>> np.set_printoptions(suppress=True)
-        >>> relb = np.array([ 658.90, 326.07, 1285.28])
-        >>> lelb = np.array([-156.32, 335.25, 1287.39])
-        >>> rwra = np.array([ 776.51, 495.68, 1108.38])
-        >>> rwrb = np.array([ 830.90, 436.75, 1119.11])
-        >>> lwra = np.array([-249.28, 525.32, 1117.09])
-        >>> lwrb = np.array([-311.77, 477.22, 1125.16])
-        >>> shoulder_jc = [np.array([[1., 0., 0.,  429.66],
-        ...                          [0., 1., 0.,  275.06],
-        ...                          [0., 0., 1., 1453.95],
-        ...                          [0., 0., 0.,    1.  ]]),
-        ...                np.array([[1., 0., 0.,   64.51],
-        ...                          [0., 1., 0.,  274.93],
-        ...                          [0., 0., 1., 1463.63],
-        ...                          [0., 0., 0.,    1.  ]])]
-        >>> [np.around(arr, 2) for arr in calc_axis_elbow(relb, lelb, rwra, rwrb, lwra, lwrb, shoulder_jc[0], shoulder_jc[1], 74.0, 74.0, 55.0, 55.0, 7.0)] #doctest: +NORMALIZE_WHITESPACE
-        [array([[   0.14,   -0.99,   -0.  ,  633.66],
-                [   0.69,    0.1 ,    0.72,  304.95],
-                [  -0.71,   -0.1 ,    0.69, 1256.07],
-                [   0.  ,    0.  ,    0.  ,    1.  ]]), 
-        array([[   -0.15,   -0.99,   -0.06, -129.16],
-                [   0.72,   -0.07,   -0.69,  316.86],
-                [   0.68,   -0.15,    0.72, 1258.06],
-                [   0.  ,    0.  ,    0.  ,    1.  ]]), 
-        array([[    1.  ,    0.  ,    0.  ,  793.32],
-                [   0.  ,    1.  ,    0.  ,  451.29],
-                [   0.  ,    0.  ,    1.  , 1084.43],
-                [   0.  ,    0.  ,    0.  ,    1.  ]]),  
-        array([[    1.  ,    0.  ,    0.  , -272.46],
-                [   0.  ,    1.  ,    0.  ,  485.79],
-                [   0.  ,    0.  ,    1.  , 1091.37],
-                [   0.  ,    0.  ,    0.  ,    1.  ]])]
-        """
+    Examples
+    --------
+    >>> import numpy as np
+    >>> from .pyCGM import calc_axis_elbow
+    >>> np.set_printoptions(suppress=True)
+    >>> relb = np.array([ 658.90, 326.07, 1285.28])
+    >>> lelb = np.array([-156.32, 335.25, 1287.39])
+    >>> rwra = np.array([ 776.51, 495.68, 1108.38])
+    >>> rwrb = np.array([ 830.90, 436.75, 1119.11])
+    >>> lwra = np.array([-249.28, 525.32, 1117.09])
+    >>> lwrb = np.array([-311.77, 477.22, 1125.16])
+    >>> shoulder_jc = [np.array([[1., 0., 0.,  429.66],
+    ...                          [0., 1., 0.,  275.06],
+    ...                          [0., 0., 1., 1453.95],
+    ...                          [0., 0., 0.,    1.  ]]),
+    ...                np.array([[1., 0., 0.,   64.51],
+    ...                          [0., 1., 0.,  274.93],
+    ...                          [0., 0., 1., 1463.63],
+    ...                          [0., 0., 0.,    1.  ]])]
+    >>> [np.around(arr, 2) for arr in calc_axis_elbow(relb, lelb, rwra, rwrb, lwra, lwrb, shoulder_jc[0], shoulder_jc[1], 74.0, 74.0, 55.0, 55.0, 7.0)] #doctest: +NORMALIZE_WHITESPACE
+    [array([[   0.14,   -0.99,   -0.  ,  633.66],
+            [   0.69,    0.1 ,    0.72,  304.95],
+            [  -0.71,   -0.1 ,    0.69, 1256.07],
+            [   0.  ,    0.  ,    0.  ,    1.  ]]), 
+    array([[   -0.15,   -0.99,   -0.06, -129.16],
+            [   0.72,   -0.07,   -0.69,  316.86],
+            [   0.68,   -0.15,    0.72, 1258.06],
+            [   0.  ,    0.  ,    0.  ,    1.  ]]), 
+    array([[    1.  ,    0.  ,    0.  ,  793.32],
+            [   0.  ,    1.  ,    0.  ,  451.29],
+            [   0.  ,    0.  ,    1.  , 1084.43],
+            [   0.  ,    0.  ,    0.  ,    1.  ]]),  
+    array([[    1.  ,    0.  ,    0.  , -272.46],
+            [   0.  ,    1.  ,    0.  ,  485.79],
+            [   0.  ,    0.  ,    1.  , 1091.37],
+            [   0.  ,    0.  ,    0.  ,    1.  ]])]
+    """
+    relb, lelb, rwra, rwrb, lwra, lwrb, r_shoulder_jc, l_shoulder_jc = map(np.asarray, [relb, lelb, rwra, rwrb, lwra, lwrb, r_shoulder_jc, l_shoulder_jc])
 
-        r_shoulder_jc = np.asarray(r_shoulder_jc)
-        l_shoulder_jc = np.asarray(l_shoulder_jc)
+    r_elbow_width *= -1
+    r_delta = (r_elbow_width/2.0)-mm
+    l_delta = (l_elbow_width/2.0)+mm
 
-        r_elbow_width *= -1
-        r_delta = (r_elbow_width/2.0)-mm
-        l_delta = (l_elbow_width/2.0)+mm
+    rwri = (rwra + rwrb) / 2.0
+    lwri = (lwra + lwrb) / 2.0
 
-        rwri = [(rwra[0]+rwrb[0])/2.0, (rwra[1]+rwrb[1]) /
-                2.0, (rwra[2]+rwrb[2])/2.0]
-        lwri = [(lwra[0]+lwrb[0])/2.0, (lwra[1]+lwrb[1]) /
-                2.0, (lwra[2]+lwrb[2])/2.0]
+    rsjc = r_shoulder_jc[:3, 3]
+    lsjc = l_shoulder_jc[:3, 3]
 
-        rsjc = r_shoulder_jc[:3, 3]
-        lsjc = l_shoulder_jc[:3, 3]
+    # make the construction vector for finding the elbow joint center
+    r_con_1     = np.subtract(rsjc, relb)
+    r_con_1_div = np.linalg.norm(r_con_1)
+    r_con_1     = np.divide(r_con_1, r_con_1_div)
 
-        # make the construction vector for finding the elbow joint center
-        r_con_1 = np.subtract(rsjc, relb)
-        r_con_1_div = np.linalg.norm(r_con_1)
-        r_con_1 = [r_con_1[0]/r_con_1_div, r_con_1[1] /
-                   r_con_1_div, r_con_1[2]/r_con_1_div]
+    r_con_2     = np.subtract(rwri, relb)
+    r_con_2_div = np.linalg.norm(r_con_2)
+    r_con_2     = np.divide(r_con_2, r_con_2_div)
 
-        r_con_2 = np.subtract(rwri, relb)
-        r_con_2_div = np.linalg.norm(r_con_2)
-        r_con_2 = [r_con_2[0]/r_con_2_div, r_con_2[1] /
-                   r_con_2_div, r_con_2[2]/r_con_2_div]
+    r_cons_vec     = np.cross(r_con_1, r_con_2)
+    r_cons_vec_div = np.linalg.norm(r_cons_vec)
+    r_cons_vec     = np.divide(r_cons_vec, r_cons_vec_div)
 
-        r_cons_vec = np.cross(r_con_1, r_con_2)
-        r_cons_vec_div = np.linalg.norm(r_cons_vec)
-        r_cons_vec = [r_cons_vec[0]/r_cons_vec_div, r_cons_vec[1] /
-                      r_cons_vec_div, r_cons_vec[2]/r_cons_vec_div]
+    r_cons_vec = r_cons_vec * 500 + relb
 
-        r_cons_vec = [r_cons_vec[0]*500+relb[0], r_cons_vec[1]
-                      * 500+relb[1], r_cons_vec[2]*500+relb[2]]
+    l_con_1     = np.subtract(lsjc, lelb)
+    l_con_1_div = np.linalg.norm(l_con_1)
+    l_con_1     = np.divide(l_con_1, l_con_1_div)
 
-        l_con_1 = np.subtract(lsjc, lelb)
-        l_con_1_div = np.linalg.norm(l_con_1)
-        l_con_1 = [l_con_1[0]/l_con_1_div, l_con_1[1] /
-                   l_con_1_div, l_con_1[2]/l_con_1_div]
+    l_con_2     = np.subtract(lwri, lelb)
+    l_con_2_div = np.linalg.norm(l_con_2)
+    l_con_2     = np.divide(l_con_2, l_con_2_div)
 
-        l_con_2 = np.subtract(lwri, lelb)
-        l_con_2_div = np.linalg.norm(l_con_2)
-        l_con_2 = [l_con_2[0]/l_con_2_div, l_con_2[1] /
-                   l_con_2_div, l_con_2[2]/l_con_2_div]
+    l_cons_vec     = np.cross(l_con_1, l_con_2)
+    l_cons_vec_div = np.linalg.norm(l_cons_vec)
 
-        l_cons_vec = np.cross(l_con_1, l_con_2)
-        l_cons_vec_div = np.linalg.norm(l_cons_vec)
+    l_cons_vec = np.divide(l_cons_vec, l_cons_vec_div)
 
-        l_cons_vec = [l_cons_vec[0]/l_cons_vec_div, l_cons_vec[1] /
-                      l_cons_vec_div, l_cons_vec[2]/l_cons_vec_div]
+    l_cons_vec = l_cons_vec * 500 + lelb
 
-        l_cons_vec = [l_cons_vec[0]*500+lelb[0], l_cons_vec[1]
-                      * 500+lelb[1], l_cons_vec[2]*500+lelb[2]]
+    rejc = calc_joint_center(r_cons_vec, rsjc, relb, r_delta)
+    lejc = calc_joint_center(l_cons_vec, lsjc, lelb, l_delta)
 
-        rejc = calc_joint_center(r_cons_vec, rsjc, relb, r_delta)
-        lejc = calc_joint_center(l_cons_vec, lsjc, lelb, l_delta)
+    # this is radius axis for humerus
+    # right
+    x_axis     = np.subtract(rwra, rwrb)
+    x_axis_div = np.linalg.norm(x_axis)
+    x_axis     = np.divide(x_axis, x_axis_div)
 
-        # this is radius axis for humerus
-        # right
-        x_axis = np.subtract(rwra, rwrb)
-        x_axis_div = np.linalg.norm(x_axis)
-        x_axis = [x_axis[0]/x_axis_div, x_axis[1] /
-                  x_axis_div, x_axis[2]/x_axis_div]
+    z_axis     = np.subtract(rejc, rwri)
+    z_axis_div = np.linalg.norm(z_axis)
+    z_axis     = np.divide(z_axis, z_axis_div)
 
-        z_axis = np.subtract(rejc, rwri)
-        z_axis_div = np.linalg.norm(z_axis)
-        z_axis = [z_axis[0]/z_axis_div, z_axis[1] /
-                  z_axis_div, z_axis[2]/z_axis_div]
+    y_axis     = np.cross(z_axis, x_axis)
+    y_axis_div = np.linalg.norm(y_axis)
+    y_axis     = np.divide(y_axis, y_axis_div)
 
-        y_axis = np.cross(z_axis, x_axis)
-        y_axis_div = np.linalg.norm(y_axis)
-        y_axis = [y_axis[0]/y_axis_div, y_axis[1] /
-                  y_axis_div, y_axis[2]/y_axis_div]
+    x_axis     = np.cross(y_axis, z_axis)
+    x_axis_div = np.linalg.norm(x_axis)
+    x_axis     = np.divide(x_axis, x_axis_div)
 
-        x_axis = np.cross(y_axis, z_axis)
-        x_axis_div = np.linalg.norm(x_axis)
-        x_axis = [x_axis[0]/x_axis_div, x_axis[1] /
-                  x_axis_div, x_axis[2]/x_axis_div]
+    r_radius = [x_axis, y_axis, z_axis]
 
-        r_radius = [x_axis, y_axis, z_axis]
+    # left
+    x_axis     = np.subtract(lwra, lwrb)
+    x_axis_div = np.linalg.norm(x_axis)
+    x_axis     = np.divide(x_axis, x_axis_div)
 
-        # left
-        x_axis = np.subtract(lwra, lwrb)
-        x_axis_div = np.linalg.norm(x_axis)
-        x_axis = [x_axis[0]/x_axis_div, x_axis[1] /
-                  x_axis_div, x_axis[2]/x_axis_div]
+    z_axis     = np.subtract(lejc, lwri)
+    z_axis_div = np.linalg.norm(z_axis)
+    z_axis     = np.divide(z_axis, z_axis_div)
 
-        z_axis = np.subtract(lejc, lwri)
-        z_axis_div = np.linalg.norm(z_axis)
-        z_axis = [z_axis[0]/z_axis_div, z_axis[1] /
-                  z_axis_div, z_axis[2]/z_axis_div]
+    y_axis     = np.cross(z_axis, x_axis)
+    y_axis_div = np.linalg.norm(y_axis)
+    y_axis     = np.divide(y_axis, y_axis_div)
 
-        y_axis = np.cross(z_axis, x_axis)
-        y_axis_div = np.linalg.norm(y_axis)
-        y_axis = [y_axis[0]/y_axis_div, y_axis[1] /
-                  y_axis_div, y_axis[2]/y_axis_div]
+    x_axis     = np.cross(y_axis, z_axis)
+    x_axis_div = np.linalg.norm(x_axis)
+    x_axis     = np.divide(x_axis, x_axis_div)
 
-        x_axis = np.cross(y_axis, z_axis)
-        x_axis_div = np.linalg.norm(x_axis)
-        x_axis = [x_axis[0]/x_axis_div, x_axis[1] /
-                  x_axis_div, x_axis[2]/x_axis_div]
+    l_radius = [x_axis, y_axis, z_axis]
 
-        l_radius = [x_axis, y_axis, z_axis]
+    # calculate wrist joint center for humerus
+    r_wrist_width = (r_wrist_width/2.0 + mm)
+    l_wrist_width = (l_wrist_width/2.0 + mm)
 
-        # calculate wrist joint center for humerus
-        r_wrist_width = (r_wrist_width/2.0 + mm)
-        l_wrist_width = (l_wrist_width/2.0 + mm)
+    rwjc = [
+                rwri[0] + r_wrist_width * r_radius[1][0],
+                rwri[1] + r_wrist_width * r_radius[1][1],
+                rwri[2] + r_wrist_width * r_radius[1][2]
+           ]
 
-        rwjc = [rwri[0]+r_wrist_width*r_radius[1][0], rwri[1] +
-                r_wrist_width*r_radius[1][1], rwri[2]+r_wrist_width*r_radius[1][2]]
-        lwjc = [lwri[0]-l_wrist_width*l_radius[1][0], lwri[1] -
-                l_wrist_width*l_radius[1][1], lwri[2]-l_wrist_width*l_radius[1][2]]
+    lwjc = [
+                lwri[0] - l_wrist_width * l_radius[1][0],
+                lwri[1] - l_wrist_width * l_radius[1][1],
+                lwri[2] - l_wrist_width * l_radius[1][2]
+           ]
 
-        # recombine the humerus axis
-        # right
-        z_axis = np.subtract(rsjc, rejc)
-        z_axis_div = np.linalg.norm(z_axis)
-        z_axis = [z_axis[0]/z_axis_div, z_axis[1] /
-                  z_axis_div, z_axis[2]/z_axis_div]
+    # recombine the humerus axis
+    # right
+    z_axis     = np.subtract(rsjc, rejc)
+    z_axis_div = np.linalg.norm(z_axis)
+    z_axis     = np.divide(z_axis, z_axis_div)
 
-        x_axis = np.subtract(rwjc, rejc)
-        x_axis_div = np.linalg.norm(x_axis)
-        x_axis = [x_axis[0]/x_axis_div, x_axis[1] /
-                  x_axis_div, x_axis[2]/x_axis_div]
+    x_axis     = np.subtract(rwjc, rejc)
+    x_axis_div = np.linalg.norm(x_axis)
+    x_axis     = np.divide(x_axis, x_axis_div)
 
-        y_axis = np.cross(x_axis, z_axis)
-        y_axis_div = np.linalg.norm(y_axis)
-        y_axis = [y_axis[0]/y_axis_div, y_axis[1] /
-                  y_axis_div, y_axis[2]/y_axis_div]
+    y_axis     = np.cross(x_axis, z_axis)
+    y_axis_div = np.linalg.norm(y_axis)
+    y_axis     = np.divide(y_axis, y_axis_div)
 
-        x_axis = np.cross(y_axis, z_axis)
-        x_axis_div = np.linalg.norm(x_axis)
-        x_axis = [x_axis[0]/x_axis_div, x_axis[1] /
-                  x_axis_div, x_axis[2]/x_axis_div]
+    x_axis     = np.cross(y_axis, z_axis)
+    x_axis_div = np.linalg.norm(x_axis)
+    x_axis     = np.divide(x_axis, x_axis_div)
 
-        r_axis = np.zeros((4, 4))
-        r_axis[3, 3] = 1.0
-        r_axis[0, :3] = x_axis
-        r_axis[1, :3] = y_axis
-        r_axis[2, :3] = z_axis
-        r_axis[:3, 3] = rejc
+    r_axis = np.zeros((4, 4))
+    r_axis[3, 3] = 1.0
+    r_axis[0, :3] = x_axis
+    r_axis[1, :3] = y_axis
+    r_axis[2, :3] = z_axis
+    r_axis[:3, 3] = rejc
 
-        # left
-        z_axis = np.subtract(lsjc, lejc)
-        z_axis_div = np.linalg.norm(z_axis)
-        z_axis = [z_axis[0]/z_axis_div, z_axis[1] /
-                  z_axis_div, z_axis[2]/z_axis_div]
+    # left
+    z_axis     = np.subtract(lsjc, lejc)
+    z_axis_div = np.linalg.norm(z_axis)
+    z_axis     = np.divide(z_axis, z_axis_div)
 
-        x_axis = np.subtract(lwjc, lejc)
-        x_axis_div = np.linalg.norm(x_axis)
-        x_axis = [x_axis[0]/x_axis_div, x_axis[1] /
-                  x_axis_div, x_axis[2]/x_axis_div]
+    x_axis     = np.subtract(lwjc, lejc)
+    x_axis_div = np.linalg.norm(x_axis)
+    x_axis     = np.divide(x_axis, x_axis_div)
 
-        y_axis = np.cross(x_axis, z_axis)
-        y_axis_div = np.linalg.norm(y_axis)
-        y_axis = [y_axis[0]/y_axis_div, y_axis[1] /
-                  y_axis_div, y_axis[2]/y_axis_div]
+    y_axis     = np.cross(x_axis, z_axis)
+    y_axis_div = np.linalg.norm(y_axis)
+    y_axis     = np.divide(y_axis, y_axis_div)
 
-        x_axis = np.cross(y_axis, z_axis)
-        x_axis_div = np.linalg.norm(x_axis)
-        x_axis = [x_axis[0]/x_axis_div, x_axis[1] /
-                  x_axis_div, x_axis[2]/x_axis_div]
+    x_axis     = np.cross(y_axis, z_axis)
+    x_axis_div = np.linalg.norm(x_axis)
+    x_axis     = np.divide(x_axis, x_axis_div)
 
-        l_axis = np.zeros((4, 4))
-        l_axis[3, 3] = 1.0
-        l_axis[0, :3] = x_axis
-        l_axis[1, :3] = y_axis
-        l_axis[2, :3] = z_axis
-        l_axis[:3, 3] = lejc
+    l_axis = np.zeros((4, 4))
+    l_axis[3, 3] = 1.0
+    l_axis[0, :3] = x_axis
+    l_axis[1, :3] = y_axis
+    l_axis[2, :3] = z_axis
+    l_axis[:3, 3] = lejc
 
-        r_wri_origin = np.identity(4)
-        r_wri_origin[:3, 3] = rwjc
+    r_wri_origin = np.identity(4)
+    r_wri_origin[:3, 3] = rwjc
 
-        l_wri_origin = np.identity(4)
-        l_wri_origin[:3, 3] = lwjc
+    l_wri_origin = np.identity(4)
+    l_wri_origin[:3, 3] = lwjc
 
-        return np.asarray([r_axis, l_axis, r_wri_origin, l_wri_origin])
+    return np.asarray([r_axis, l_axis, r_wri_origin, l_wri_origin])
 
 
 def calc_axis_wrist(r_elbow, l_elbow, r_wrist_jc, l_wrist_jc):
@@ -1927,13 +1873,10 @@ def calc_axis_hand(rwra, rwrb, lwra, lwrb, rfin, lfin, r_wrist_jc, l_wrist_jc, r
             [  0.6 , -0.76,  0.27, 1068.02],
             [  0.  ,  0.  ,  0.  ,    1.  ]])]
     """
-    r_wrist_jc = np.asarray(r_wrist_jc)
-    l_wrist_jc = np.asarray(l_wrist_jc)
+    r_wrist_jc, l_wrist_jc, rwra, rwrb, lwra, lwrb, rfin, lfin = map(np.asarray, [r_wrist_jc, l_wrist_jc, rwra, rwrb, lwra, lwrb, rfin, lfin])
 
-    rwri = [(rwra[0]+rwrb[0])/2.0, (rwra[1]+rwrb[1]) /
-            2.0, (rwra[2]+rwrb[2])/2.0]
-    lwri = [(lwra[0]+lwrb[0])/2.0, (lwra[1]+lwrb[1]) /
-            2.0, (lwra[2]+lwrb[2])/2.0]
+    rwri = (rwra + rwrb) / 2.0
+    lwri = (lwra + lwrb) / 2.0
 
     rwjc = r_wrist_jc[:3, 3]
     lwjc = l_wrist_jc[:3, 3]
@@ -1947,25 +1890,21 @@ def calc_axis_hand(rwra, rwrb, lwra, lwrb, rfin, lfin, r_wrist_jc, l_wrist_jc, r
     rhnd = calc_joint_center(rwri, rwjc, rfin, r_delta)
 
     # Left
-    z_axis = [lwjc[0]-lhnd[0], lwjc[1]-lhnd[1], lwjc[2]-lhnd[2]]
+    z_axis = lwjc - lhnd
     z_axis_div = np.linalg.norm(z_axis)
-    z_axis = [z_axis[0]/z_axis_div, z_axis[1] /
-              z_axis_div, z_axis[2]/z_axis_div]
+    z_axis = np.divide(z_axis, z_axis_div)
 
-    y_axis = [lwri[0]-lwra[0], lwri[1]-lwra[1], lwri[2]-lwra[2]]
+    y_axis = lwri - lwra
     y_axis_div = np.linalg.norm(y_axis)
-    y_axis = [y_axis[0]/y_axis_div, y_axis[1] /
-              y_axis_div, y_axis[2]/y_axis_div]
+    y_axis = np.divide(y_axis, y_axis_div)
 
     x_axis = np.cross(y_axis, z_axis)
     x_axis_div = np.linalg.norm(x_axis)
-    x_axis = [x_axis[0]/x_axis_div, x_axis[1] /
-              x_axis_div, x_axis[2]/x_axis_div]
+    x_axis = np.divide(x_axis, x_axis_div)
 
     y_axis = np.cross(z_axis, x_axis)
     y_axis_div = np.linalg.norm(y_axis)
-    y_axis = [y_axis[0]/y_axis_div, y_axis[1] /
-              y_axis_div, y_axis[2]/y_axis_div]
+    y_axis = np.divide(y_axis, y_axis_div)
 
     l_axis = np.zeros((4, 4))
     l_axis[3, 3] = 1.0
@@ -1975,25 +1914,21 @@ def calc_axis_hand(rwra, rwrb, lwra, lwrb, rfin, lfin, r_wrist_jc, l_wrist_jc, r
     l_axis[:3, 3] = lhnd
 
     # Right
-    z_axis = [rwjc[0]-rhnd[0], rwjc[1]-rhnd[1], rwjc[2]-rhnd[2]]
+    z_axis = rwjc - rhnd
     z_axis_div = np.linalg.norm(z_axis)
-    z_axis = [z_axis[0]/z_axis_div, z_axis[1] /
-              z_axis_div, z_axis[2]/z_axis_div]
+    z_axis = np.divide(z_axis, z_axis_div)
 
-    y_axis = [rwra[0]-rwri[0], rwra[1]-rwri[1], rwra[2]-rwri[2]]
+    y_axis = rwra - rwri
     y_axis_div = np.linalg.norm(y_axis)
-    y_axis = [y_axis[0]/y_axis_div, y_axis[1] /
-              y_axis_div, y_axis[2]/y_axis_div]
+    y_axis = np.divide(y_axis, y_axis_div)
 
     x_axis = np.cross(y_axis, z_axis)
     x_axis_div = np.linalg.norm(x_axis)
-    x_axis = [x_axis[0]/x_axis_div, x_axis[1] /
-              x_axis_div, x_axis[2]/x_axis_div]
+    x_axis = np.divide(x_axis, x_axis_div)
 
     y_axis = np.cross(z_axis, x_axis)
     y_axis_div = np.linalg.norm(y_axis)
-    y_axis = [y_axis[0]/y_axis_div, y_axis[1] /
-              y_axis_div, y_axis[2]/y_axis_div]
+    y_axis = np.divide(y_axis, y_axis_div)
 
     r_axis = np.zeros((4, 4))
     r_axis[3, 3] = 1.0
@@ -2069,6 +2004,9 @@ def calc_joint_center(p_a, p_b, p_c, delta):
     """
 
     # make the two vector using 3 markers, which is on the same plane.
+
+    p_a, p_b, p_c = map(np.asarray, [p_a, p_b, p_c])
+
     vec_1 = p_a - p_c
     vec_2 = p_b - p_c
 
