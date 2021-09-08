@@ -9,64 +9,73 @@ Created on Tue Jul 28 16:55:25 2015
 import numpy as np
 from math import sin, cos, acos, sqrt, radians
 
-def rotmat(x=0,y=0,z=0):
-    """Rotation Matrix function
+def rotmat(x=0, y=0, z=0):
+    r"""Rotation Matrix.
 
     This function creates and returns a rotation matrix.
 
     Parameters
     ----------
-    x,y,z : float, optional
+    x, y, z : float, optional
         Angle, which will be converted to radians, in
         each respective axis to describe the rotations.
         The default is 0 for each unspecified angle.
 
     Returns
     -------
-    Rxyz : array
+    r_xyz : array
         The product of the matrix multiplication.
+
+    Notes
+    -----
+    :math:`r_x = [ [1,0,0], [0, \cos(x), -sin(x)], [0, sin(x), cos(x)] ]`
+    :math:`r_y = [ [cos(y), 0, sin(y)], [0, 1, 0], [-sin(y), 0, cos(y)] ]`
+    :math:`r_z = [ [cos(z), -sin(z), 0], [sin(z), cos(z), 0], [0, 0, 1] ]`
+    :math:`r_{xy} = r_x * r_y`
+    :math:`r_{xyz} = r_{xy} * r_z`
 
     Examples
     --------
     >>> import numpy as np
-    >>> from .pycgmStatic import rotmat
-    >>> rotmat() #doctest: +NORMALIZE_WHITESPACE
-    [[1.0, 0.0, 0.0],
-    [0.0, 1.0, 0.0],
-    [0.0, 0.0, 1.0]]
+    >>> from .pyCGM import rotmat
     >>> x = 0.5
     >>> y = 0.3
     >>> z = 0.8
-    >>> np.around(rotmat(x,y,z), 2)
+    >>> np.around(rotmat(x, y, z), 2) #doctest: +NORMALIZE_WHITESPACE
     array([[ 1.  , -0.01,  0.01],
            [ 0.01,  1.  , -0.01],
            [-0.01,  0.01,  1.  ]])
     >>> x = 0.5
-    >>> np.around(rotmat(x), 2)
-    array([[ 1.  ,  0.  ,  0.  ],
-           [ 0.  ,  1.  , -0.01],
-           [ 0.  ,  0.01,  1.  ]])
+    >>> np.around(rotmat(x), 2) #doctest: +NORMALIZE_WHITESPACE
+    array([[1., 0.  ,  0.  ],
+           [0., 1.  , -0.01],
+           [0., 0.01,  1.  ]])
     >>> x = 1
     >>> y = 1
-    >>> np.around(rotmat(x,y), 2)
+    >>> np.around(rotmat(x,y), 2) #doctest: +NORMALIZE_WHITESPACE
     array([[ 1.  ,  0.  ,  0.02],
            [ 0.  ,  1.  , -0.02],
            [-0.02,  0.02,  1.  ]])
     """
-    x = radians(x)
-    y = radians(y)
-    z = radians(z)
-    Rx = [ [1,0,0],[0,cos(x),sin(x)*-1],[0,sin(x),cos(x)] ]
-    Ry = [ [cos(y),0,sin(y)],[0,1,0],[sin(y)*-1,0,cos(y)] ]
-    Rz = [ [cos(z),sin(z)*-1,0],[sin(z),cos(z),0],[0,0,1] ]
 
-    Rxy = matrixmult(Rx,Ry)
-    Rxyz = matrixmult(Rxy,Rz)
+    x, y, z = radians(x), radians(y), radians(z)
+    r_x = [[1, 0, 0], 
+           [0, cos(x), sin(x) * -1], 
+           [0, sin(x), cos(x)]]
 
-    Ryx = matrixmult(Ry,Rx)
-    Ryxz = matrixmult(Ryx,Rz)
+    r_y = [[cos(y), 0, sin(y)],
+           [0, 1, 0],
+           [sin(y)*-1, 0, cos(y)]]
 
-    return Rxyz
+    r_z = [[cos(z), sin(z)*-1, 0],
+           [sin(z), cos(z), 0],
+           [0, 0, 1]]
+
+    r_xy = np.matmul(r_x, r_y)
+    r_xyz = np.matmul(r_xy, r_z)
+
+    return r_xyz
+
 
 def getDist(p0, p1):
     """Get Distance function
