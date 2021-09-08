@@ -1927,13 +1927,10 @@ def calc_axis_hand(rwra, rwrb, lwra, lwrb, rfin, lfin, r_wrist_jc, l_wrist_jc, r
             [  0.6 , -0.76,  0.27, 1068.02],
             [  0.  ,  0.  ,  0.  ,    1.  ]])]
     """
-    r_wrist_jc = np.asarray(r_wrist_jc)
-    l_wrist_jc = np.asarray(l_wrist_jc)
+    r_wrist_jc, l_wrist_jc, rwra, rwrb, lwra, lwrb, rfin, lfin = map(np.asarray, [r_wrist_jc, l_wrist_jc, rwra, rwrb, lwra, lwrb, rfin, lfin])
 
-    rwri = [(rwra[0]+rwrb[0])/2.0, (rwra[1]+rwrb[1]) /
-            2.0, (rwra[2]+rwrb[2])/2.0]
-    lwri = [(lwra[0]+lwrb[0])/2.0, (lwra[1]+lwrb[1]) /
-            2.0, (lwra[2]+lwrb[2])/2.0]
+    rwri = (rwra + rwrb) / 2.0
+    lwri = (lwra + lwrb) / 2.0
 
     rwjc = r_wrist_jc[:3, 3]
     lwjc = l_wrist_jc[:3, 3]
@@ -1947,25 +1944,21 @@ def calc_axis_hand(rwra, rwrb, lwra, lwrb, rfin, lfin, r_wrist_jc, l_wrist_jc, r
     rhnd = calc_joint_center(rwri, rwjc, rfin, r_delta)
 
     # Left
-    z_axis = [lwjc[0]-lhnd[0], lwjc[1]-lhnd[1], lwjc[2]-lhnd[2]]
+    z_axis = lwjc - lhnd
     z_axis_div = np.linalg.norm(z_axis)
-    z_axis = [z_axis[0]/z_axis_div, z_axis[1] /
-              z_axis_div, z_axis[2]/z_axis_div]
+    z_axis = np.divide(z_axis, z_axis_div)
 
-    y_axis = [lwri[0]-lwra[0], lwri[1]-lwra[1], lwri[2]-lwra[2]]
+    y_axis = lwri - lwra
     y_axis_div = np.linalg.norm(y_axis)
-    y_axis = [y_axis[0]/y_axis_div, y_axis[1] /
-              y_axis_div, y_axis[2]/y_axis_div]
+    y_axis = np.divide(y_axis, y_axis_div)
 
     x_axis = np.cross(y_axis, z_axis)
     x_axis_div = np.linalg.norm(x_axis)
-    x_axis = [x_axis[0]/x_axis_div, x_axis[1] /
-              x_axis_div, x_axis[2]/x_axis_div]
+    x_axis = np.divide(x_axis, x_axis_div)
 
     y_axis = np.cross(z_axis, x_axis)
     y_axis_div = np.linalg.norm(y_axis)
-    y_axis = [y_axis[0]/y_axis_div, y_axis[1] /
-              y_axis_div, y_axis[2]/y_axis_div]
+    y_axis = np.divide(y_axis, y_axis_div)
 
     l_axis = np.zeros((4, 4))
     l_axis[3, 3] = 1.0
@@ -1975,25 +1968,21 @@ def calc_axis_hand(rwra, rwrb, lwra, lwrb, rfin, lfin, r_wrist_jc, l_wrist_jc, r
     l_axis[:3, 3] = lhnd
 
     # Right
-    z_axis = [rwjc[0]-rhnd[0], rwjc[1]-rhnd[1], rwjc[2]-rhnd[2]]
+    z_axis = rwjc - rhnd
     z_axis_div = np.linalg.norm(z_axis)
-    z_axis = [z_axis[0]/z_axis_div, z_axis[1] /
-              z_axis_div, z_axis[2]/z_axis_div]
+    z_axis = np.divide(z_axis, z_axis_div)
 
-    y_axis = [rwra[0]-rwri[0], rwra[1]-rwri[1], rwra[2]-rwri[2]]
+    y_axis = rwra - rwri
     y_axis_div = np.linalg.norm(y_axis)
-    y_axis = [y_axis[0]/y_axis_div, y_axis[1] /
-              y_axis_div, y_axis[2]/y_axis_div]
+    y_axis = np.divide(y_axis, y_axis_div)
 
     x_axis = np.cross(y_axis, z_axis)
     x_axis_div = np.linalg.norm(x_axis)
-    x_axis = [x_axis[0]/x_axis_div, x_axis[1] /
-              x_axis_div, x_axis[2]/x_axis_div]
+    x_axis = np.divide(x_axis, x_axis_div)
 
     y_axis = np.cross(z_axis, x_axis)
     y_axis_div = np.linalg.norm(y_axis)
-    y_axis = [y_axis[0]/y_axis_div, y_axis[1] /
-              y_axis_div, y_axis[2]/y_axis_div]
+    y_axis = np.divide(y_axis, y_axis_div)
 
     r_axis = np.zeros((4, 4))
     r_axis[3, 3] = 1.0
