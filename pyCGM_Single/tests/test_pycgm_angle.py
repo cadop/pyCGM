@@ -15,41 +15,67 @@ class TestPycgmAngle():
     getPelangle
     """
 
-    @pytest.mark.parametrize(["xRot", "yRot", "zRot", "expected"], [
-        (0, 0, 0, [0, 0, 0]),
-        # X rotations
-        (90, 0, 0, [0, 90, 0]), (30, 0, 0, [0, 30, 0]), (-30, 0, 0, [0, -30, 0]), (120, 0, 0, [0, 120, 0]),
-        (-120, 0, 0, [0, -120, 0]), (180, 0, 0, [0, 180, 0]),
-        # Y rotations
-        (0, 90, 0, [90, 0, 0]), (0, 30, 0, [30, 0, 0]), (0, -30, 0, [-30, 0, 0]), (0, 120, 0, [60, -180, -180]),
-        (0, -120, 0, [-60, -180, -180]), (0, 180, 0, [0, -180, -180]),
-        # Z rotations
-        (0, 0, 90, [0, 0, 90]), (0, 0, 30, [0, 0, 30]), (0, 0, -30, [0, 0, -30]), (0, 0, 120, [0, 0, 120]),
-        (0, 0, -120, [0, 0, -120]), (0, 0, 180, [0, 0, 180]),
-        # Multiple Rotations
-        (150, 30, 0, [30, 150, 0]), (45, 0, 60, [0, 45, 60]), (0, 90, 120, [90, 0, 120]), (135, 45, 90, [45, 135, 90])
-    ])
-    def test_getangle_sho(self, xRot, yRot, zRot, expected):
+    @pytest.mark.parametrize(
+        ["xRot", "yRot", "zRot", "expected"],
+        [
+            (0, 0, 0, [[0, 0, 0], [0, 0, 0]]),
+            # X rotations
+            (90, 0, 0, [[0, 90, 0], [0, 90, 0]]),
+            (30, 0, 0, [[0, 30, 0], [0, 30, 0]]),
+            (-30, 0, 0, [[0, -30, 0], [0, -30, 0]]),
+            (120, 0, 0, [[0, 120, 0], [0, 120, 0]]),
+            (-120, 0, 0, [[0, -120, 0], [0, -120, 0]]),
+            (180, 0, 0, [[0, 180, 0], [0, 180, 0]]),
+            # Y rotations
+            (0, 90, 0, [[90, 0, 0], [90, 0, 0]]),
+            (0, 30, 0, [[30, 0, 0], [30, 0, 0]]),
+            (0, -30, 0, [[-30, 0, 0], [-30, 0, 0]]),
+            (0, 120, 0, [[60, -180, -180], [60, -180, -180]]),
+            (0, -120, 0, [[-60, -180, -180], [-60, -180, -180]]),
+            (0, 180, 0, [[0, -180, -180], [0, -180, -180]]),
+            # Z rotations
+            (0, 0, 90, [[0, 0, 90], [0, 0, 90]]),
+            (0, 0, 30, [[0, 0, 30], [0, 0, 30]]),
+            (0, 0, -30, [[0, 0, -30], [0, 0, -30]]),
+            (0, 0, 120, [[0, 0, 120], [0, 0, 120]]),
+            (0, 0, -120, [[0, 0, -120], [0, 0, -120]]),
+            (0, 0, 180, [[0, 0, 180], [0, 0, 180]]),
+            # Multiple Rotations
+            (150, 30, 0, [[30, 150, 0], [30, 150, 0]]),
+            (45, 0, 60, [[0, 45, 60], [0, 45, 60]]),
+            (0, 90, 120, [[90, 0, 120], [90, 0, 120]]),
+            (135, 45, 90, [[45, 135, 90], [45, 135, 90]]),
+        ],
+    )
+    def test_calc_angle_shoulder(self, xRot, yRot, zRot, expected):
         """
-        This test provides coverage of the getangle_sho function in pyCGM.py,
-        defined as getangle_sho(axisP,axisD) where axisP is the proximal axis and axisD is the distal axis.
+        This test provides coverage of the calc_angle_shoulder function in pyCGM.py,
+        defined as calc_angle_shoulder(axis_thorax, axis_hum_right, axis_hum_left) where
+        axis_thorax is the proximal axis and the right and left humerus axes are the distal axes.
 
-        getangle_sho takes in as input two axes, axisP and axisD, and returns in degrees, the Euler angle
-        rotations required to rotate axisP to axisD as a list [alpha, beta, gamma]. getangle_sho uses the XYZ
-        order Euler rotations to calculate the angles. The rotation matrix is obtained by directly comparing
-        the vectors in axisP to those in axisD through dot products between different components
-        of each axis. axisP and axisD each have 3 components to their axis, x, y, and z. 
+        calc_angle_shoulder takes in as input three axes: axis_thorax (proximal), axis_hum_right (distal)
+        and axis_hum_left (distal) and returns in degrees, the Euler angle rotations required
+        to rotate axisP to each axisD as an array [[alpha_right, beta_right, gamma_right], [alpha_left, beta_left, gamma_left]]. 
+        calc_angle_shoulder uses the XYZ order Euler rotations to calculate the angles.
+        The rotation matrix is obtained by directly comparing the vectors in axisP to those in each axisD 
+        through dot products between different components of each axis. axisP and axisD each have 3 
+        components to their axis, x, y, and z. 
         The angles are calculated as follows:
 
-        .. math::
-            \[ \alpha = \arcsin{(axisD_{z} \cdot axisP_{x})} \]
+        :math:`\alpha_{right} = \arcsin{(axis\_hum\_right_{z} \cdot axis\_thorax_{x})}`
 
-            \[ \beta = \arctan2{(-(axisD_{z} \cdot axisP_{y}), axisD_{z} \cdot axisP_{z})} \]
+        :math:`\beta_{right} = \arctan2{(-(axis\_hum\_right_{z} \cdot axis\_thorax_{y}), axis\_hum\_right_{z} \cdot axis\_thorax_{z})}`
 
-            \[ \gamma = \arctan2{(-(axisD_{y} \cdot axisP_{x}), axisD_{x} \cdot axisP_{x})} \]
+        :math:`\gamma_{right} = \arctan2{(-(axis\_hum\_right_{y} \cdot axis\_thorax_{x}), axis\_hum\_right_{x} \cdot axis\_thorax_{x})}`
+
+        :math:`\alpha_{left} = \arcsin{(axis\_hum\_left_{z} \cdot axis\_thorax_{x})}`
+
+        :math:`\beta_{left} = \arctan2{(-(axis\_hum\_left_{z} \cdot axis\_thorax_{y}), axis\_hum\_left_{z} \cdot axis\_thorax_{z})}`
+
+        :math:`\gamma_{left} = \arctan2{(-(axis\_hum\_left_{y} \cdot axis\_thorax_{x}), axis\_hum\_left_{x} \cdot axis\_thorax_{x})}`
 
         This test calls pyCGM.rotmat() to create axisP with an x, y, and z rotation defined in the parameters.
-        It then calls pyCGM.getangle_sho() with axisP and axisD, which was created with no rotation in the
+        It then calls pyCGM.calc_angle_shoulder() with axisP and axisD (x2), which was created with no rotation in the
         x, y or z direction. This result is then compared to the expected result. The results from this test will
         be in the YXZ order, meaning that a parameter with an inputed x rotation will have a result with the same
         angle in the y direction. The only exception to this is a 120, -120, or 180 degree Y rotation. These will end
@@ -59,34 +85,40 @@ class TestPycgmAngle():
         # Create axisP as a rotatinal matrix using the x, y, and z rotations given in testcase
         axisP = pyCGM.rotmat(xRot, yRot, zRot)
         axisD = pyCGM.rotmat(0, 0, 0)
-        result = pyCGM.getangle_sho(axisP, axisD)
+        result = pyCGM.calc_angle_shoulder(axisP, axisD, axisD)
         np.testing.assert_almost_equal(result, expected, rounding_precision)
 
-    def test_getangle_sho_datatypes(self):
+    def test_calc_angle_shoulder_datatypes(self):
         """
-        This test provides coverage of the getangle_sho function in pyCGM.py, defined as getangle_sho(axisP,axisD).
-        It checks that the resulting output from calling getangle_sho is correct for a list of ints, a numpy array of
+        This test provides coverage of the calc_angle_shoulder function in pyCGM.py, defined as 
+        calc_angle_shoulder(axis_thorax, axis_hum_right, axis_hum_left)
+        It checks that the resulting output from calling calc_angle_shoulder is correct for a list of ints, a numpy array of
         ints, a list of floats, and a numpy array of floats.
         """
         axisD = pyCGM.rotmat(0, 0, 0)
         axisP_floats = pyCGM.rotmat(90, 0, 90)
         axisP_ints = [[int(y) for y in x] for x in axisP_floats]
-        expected = [0, 90, 90]
+        expected = [[0, 90, 90], [0, 90, 90]]
 
-        # Check that calling getangle_sho on a list of ints yields the expected results
-        result_int_list = pyCGM.getangle_sho(axisP_ints, axisD)
+        # Check that calling calc_angle_shoulder on a list of ints yields the expected results
+        result_int_list = pyCGM.calc_angle_shoulder(axisP_ints, axisD, axisD)
         np.testing.assert_almost_equal(result_int_list, expected, rounding_precision)
 
-        # Check that calling getangle_sho on a numpy array of ints yields the expected results
-        result_int_nparray = pyCGM.getangle_sho(np.array(axisP_ints, dtype='int'), np.array(axisD, dtype='int'))
+        # Check that calling calc_angle_shoulder on a numpy array of ints yields the expected results
+        result_int_nparray = pyCGM.calc_angle_shoulder(np.array(axisP_ints, dtype='int'),
+                                                       np.array(axisD, dtype='int'), 
+                                                       np.array(axisD, dtype='int'))
+
         np.testing.assert_almost_equal(result_int_nparray, expected, rounding_precision)
 
-        # Check that calling getangle_sho on a list of floats yields the expected results
-        result_float_list = pyCGM.getangle_sho(axisP_floats, axisD)
+        # Check that calling calc_angle_shoulder on a list of floats yields the expected results
+        result_float_list = pyCGM.calc_angle_shoulder(axisP_floats, axisD, axisD)
         np.testing.assert_almost_equal(result_float_list, expected, rounding_precision)
 
-        # Check that calling getangle_sho on a numpy array of floats yields the expected results
-        result_float_nparray = pyCGM.getangle_sho(np.array(axisP_floats, dtype='float'), np.array(axisD, dtype='float'))
+        # Check that calling calc_angle_shoulder on a numpy array of floats yields the expected results
+        result_float_nparray = pyCGM.calc_angle_shoulder(np.array(axisP_floats, dtype='float'),
+                                                         np.array(axisD, dtype='float'),
+                                                         np.array(axisD, dtype='float'))
         np.testing.assert_almost_equal(result_float_nparray, expected, rounding_precision)
 
     @pytest.mark.parametrize(["xRot", "yRot", "zRot", "expected"], [
