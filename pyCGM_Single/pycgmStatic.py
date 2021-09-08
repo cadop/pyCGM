@@ -9,96 +9,109 @@ Created on Tue Jul 28 16:55:25 2015
 import numpy as np
 from math import sin, cos, acos, sqrt, radians
 
-def rotmat(x=0,y=0,z=0):
-    """Rotation Matrix function
+def rotmat(x=0, y=0, z=0):
+    r"""Rotation Matrix.
 
     This function creates and returns a rotation matrix.
 
     Parameters
     ----------
-    x,y,z : float, optional
+    x, y, z : float, optional
         Angle, which will be converted to radians, in
         each respective axis to describe the rotations.
         The default is 0 for each unspecified angle.
 
     Returns
     -------
-    Rxyz : array
+    r_xyz : array
         The product of the matrix multiplication.
+
+    Notes
+    -----
+    :math:`r_x = [ [1,0,0], [0, \cos(x), -sin(x)], [0, sin(x), cos(x)] ]`
+    :math:`r_y = [ [cos(y), 0, sin(y)], [0, 1, 0], [-sin(y), 0, cos(y)] ]`
+    :math:`r_z = [ [cos(z), -sin(z), 0], [sin(z), cos(z), 0], [0, 0, 1] ]`
+    :math:`r_{xy} = r_x * r_y`
+    :math:`r_{xyz} = r_{xy} * r_z`
 
     Examples
     --------
     >>> import numpy as np
-    >>> from .pycgmStatic import rotmat
-    >>> rotmat() #doctest: +NORMALIZE_WHITESPACE
-    [[1.0, 0.0, 0.0],
-    [0.0, 1.0, 0.0],
-    [0.0, 0.0, 1.0]]
+    >>> from .pyCGM import rotmat
     >>> x = 0.5
     >>> y = 0.3
     >>> z = 0.8
-    >>> np.around(rotmat(x,y,z), 2)
+    >>> np.around(rotmat(x, y, z), 2) #doctest: +NORMALIZE_WHITESPACE
     array([[ 1.  , -0.01,  0.01],
            [ 0.01,  1.  , -0.01],
            [-0.01,  0.01,  1.  ]])
     >>> x = 0.5
-    >>> np.around(rotmat(x), 2)
-    array([[ 1.  ,  0.  ,  0.  ],
-           [ 0.  ,  1.  , -0.01],
-           [ 0.  ,  0.01,  1.  ]])
+    >>> np.around(rotmat(x), 2) #doctest: +NORMALIZE_WHITESPACE
+    array([[1., 0.  ,  0.  ],
+           [0., 1.  , -0.01],
+           [0., 0.01,  1.  ]])
     >>> x = 1
     >>> y = 1
-    >>> np.around(rotmat(x,y), 2)
+    >>> np.around(rotmat(x,y), 2) #doctest: +NORMALIZE_WHITESPACE
     array([[ 1.  ,  0.  ,  0.02],
            [ 0.  ,  1.  , -0.02],
            [-0.02,  0.02,  1.  ]])
     """
-    x = radians(x)
-    y = radians(y)
-    z = radians(z)
-    Rx = [ [1,0,0],[0,cos(x),sin(x)*-1],[0,sin(x),cos(x)] ]
-    Ry = [ [cos(y),0,sin(y)],[0,1,0],[sin(y)*-1,0,cos(y)] ]
-    Rz = [ [cos(z),sin(z)*-1,0],[sin(z),cos(z),0],[0,0,1] ]
 
-    Rxy = matrixmult(Rx,Ry)
-    Rxyz = matrixmult(Rxy,Rz)
+    x, y, z = radians(x), radians(y), radians(z)
+    r_x = [[1, 0, 0], 
+           [0, cos(x), sin(x) * -1], 
+           [0, sin(x), cos(x)]]
 
-    Ryx = matrixmult(Ry,Rx)
-    Ryxz = matrixmult(Ryx,Rz)
+    r_y = [[cos(y), 0, sin(y)],
+           [0, 1, 0],
+           [sin(y)*-1, 0, cos(y)]]
 
-    return Rxyz
+    r_z = [[cos(z), sin(z)*-1, 0],
+           [sin(z), cos(z), 0],
+           [0, 0, 1]]
 
-def getDist(p0, p1):
-    """Get Distance function
+    r_xy = np.matmul(r_x, r_y)
+    r_xyz = np.matmul(r_xy, r_z)
+
+    return r_xyz
+
+
+def get_dist(p0, p1):
+    """Get Distance
 
     This function calculates the distance between two 3-D positions.
 
     Parameters
     ----------
     p0 : array
-        Position of first x, y, z coordinate.
+        Position of first (x, y, z) coordinate.
     p1 : array
-        Position of second x, y, z coordinate.
+        Position of second (x, y, z) coordinate.
 
     Returns
     -------
-    float
+    distance : float
         The distance between positions p0 and p1.
 
     Examples
     --------
     >>> import numpy as np
-    >>> from .pycgmStatic import getDist
+    >>> from .pycgmStatic import get_dist
     >>> p0 = [0,1,2]
     >>> p1 = [1,2,3]
-    >>> np.around(getDist(p0,p1), 2)
+    >>> np.around(get_dist(p0,p1), 2)
     1.73
     >>> p0 = np.array([991.45, 741.95, 321.36])
     >>> p1 = np.array([117.09, 142.24, 481.95])
-    >>> np.around(getDist(p0,p1), 2)
+    >>> np.around(get_dist(p0,p1), 2)
     1072.36
     """
-    return sqrt((p0[0] - p1[0])**2 + (p0[1] - p1[1])**2 + (p0[2] - p1[2])**2)
+    p0 = np.asarray(p0)
+    p1 = np.asarray(p1)
+
+    distance = np.linalg.norm(p0 - p1)
+    return distance
 
 def getStatic(motionData,vsk,flat_foot=False,GCS=None):
     """ Get Static Offset function
@@ -166,7 +179,8 @@ def getStatic(motionData,vsk,flat_foot=False,GCS=None):
         calSM['InterAsisDistance'] = vsk['InterAsisDistance']
     else:
         for frame in motionData:
-            iadCalc = IADcalculation(frame)
+            iadCalc = calc_IAD(frame["RASI"] if "RASI" in frame else None,
+                               frame["LASI"] if "LASI" in frame else None) 
             IAD.append(iadCalc)
         InterAsisDistance = np.average(IAD)
         calSM['InterAsisDistance'] = InterAsisDistance
@@ -193,8 +207,8 @@ def getStatic(motionData,vsk,flat_foot=False,GCS=None):
                 RKNE = frame['RKNE']
                 LKNE = frame['LKNE']
 
-                Rdst = getDist(RKNE,RMKN)
-                Ldst = getDist(LKNE,LMKN)
+                Rdst = get_dist(RKNE,RMKN)
+                Ldst = get_dist(LKNE,LMKN)
                 Rwidth.append(Rdst)
                 Lwidth.append(Ldst)
 
@@ -222,8 +236,8 @@ def getStatic(motionData,vsk,flat_foot=False,GCS=None):
                 RANK = frame['RANK']
                 LANK = frame['LANK']
 
-                Rdst = getDist(RMMA,RANK)
-                Ldst = getDist(LMMA,LANK)
+                Rdst = get_dist(RMMA,RANK)
+                Ldst = get_dist(LMMA,LANK)
                 Rwidth.append(Rdst)
                 Lwidth.append(Ldst)
 
@@ -252,12 +266,15 @@ def getStatic(motionData,vsk,flat_foot=False,GCS=None):
 
     for frame in motionData:
         pelvis_origin,pelvis_axis,sacrum = pelvisJointCenter(frame)
-        hip_JC = hipJointCenter(frame,pelvis_origin,pelvis_axis[0],pelvis_axis[1],pelvis_axis[2],calSM)
+        hip_JC = calc_joint_center_hip(pelvis_axis, calSM)
         knee_JC = kneeJointCenter(frame,hip_JC,0,vsk=calSM)
         ankle_JC = ankleJointCenter(frame,knee_JC,0,vsk=calSM)
         angle = staticCalculation(frame,ankle_JC,knee_JC,flat_foot,calSM)
-        head = headJC(frame)
-        headangle = staticCalculationHead(frame,head)
+        head = calc_axis_head(frame['LFHD'] if 'LFHD' in frame else None,
+                              frame['RFHD'] if 'RFHD' in frame else None,
+                              frame['LBHD'] if 'LBHD' in frame else None,
+                              frame['RBHD'] if 'RBHD' in frame else None)
+        headangle = calc_static_head(head)
 
         static_offset.append(angle)
         head_offset.append(headangle)
@@ -274,82 +291,79 @@ def getStatic(motionData,vsk,flat_foot=False,GCS=None):
 
     return calSM
 
-def average(list):
+def average(lst):
     """Average Calculation function
 
-    Calculates the average of the values in a given list or array.
+    Calculates the average of the values in a given lst or array.
 
     Parameters
     ----------
-    list : list
+    lst : list
         List or array of values.
 
     Returns
     -------
-    float
+    avg : float
         The mean of the list.
 
     Examples
     --------
     >>> import numpy as np
     >>> from .pycgmStatic import average
-    >>> list = [1,2,3,4,5]
-    >>> average(list)
+    >>> lst = [1,2,3,4,5]
+    >>> average(lst)
     3.0
-    >>> list = np.array([93.82, 248.96, 782.62])
-    >>> np.around(average(list), 2)
+    >>> lst = np.array([93.82, 248.96, 782.62])
+    >>> np.around(average(lst), 2)
     375.13
     """
-    i =0
-    total = 0.0
-    while(i <len(list)):
-        total = total + list[i]
-        i = i+1
-    return total / len(list)
+    avg = sum(lst) / len(lst)
+    return avg
 
-def IADcalculation(frame):
-    """Inter ASIS Distance (IAD) Calculation function
+def calc_IAD(rasi, lasi):
+    """Inter ASIS Distance (IAD) Calculation
 
-    Calculates the Inter ASIS Distance from a given frame.
+    Calculates the Inter ASIS Distance.
     Markers used: RASI, LASI
 
     Parameters
     ----------
-    frame : dict
-        Dictionary of marker lists.
+    rasi: array
+        1x3 RASI marker
+    lasi: array
+        1x3 LASI marker
 
     Returns
     -------
     IAD : float
-        The mean of the list.
+        The Inter ASIS Distance
 
     Examples
     --------
     >>> import numpy as np
-    >>> from .pycgmStatic import IADcalculation
-    >>> frame = { 'LASI': np.array([ 183.19,  422.79, 1033.07]),
-    ...           'RASI': np.array([ 395.37,  428.1, 1036.83])}
-    >>> np.around(IADcalculation(frame), 2)
+    >>> from .pycgmStatic import calc_IAD
+    >>> lasi = np.array([ 183.19,  422.79, 1033.07])
+    >>> rasi = np.array([ 395.37,  428.1, 1036.83])
+    >>> np.around(calc_IAD(rasi, lasi), 2)
     212.28
     """
-    RASI = frame['RASI']
-    LASI = frame['LASI']
-    IAD = np.sqrt((RASI[0]-LASI[0])*(RASI[0]-LASI[0])+(RASI[1]-LASI[1])*(RASI[1]-LASI[1])+(RASI[2]-LASI[2])*(RASI[2]-LASI[2]))
+    rasi = np.asarray(rasi)
+    lasi = np.asarray(lasi)
 
-    return IAD
+    iad = np.linalg.norm(rasi - lasi)
 
-def staticCalculationHead(frame,head):
-    """Static Head Calculation function
+    return iad
 
-    This function calculates the x,y,z axes of the head,
-    and then calculates the offset of the head using the headoffCalc function.
+def calc_static_head(head_axis):
+    """Static Head Calculation
+
+    This function converts the head axis to a numpy array,
+    and then calculates the offset of the head using the calc_head_offset function.
 
     Parameters
     ----------
-    frame : dict
-        Dictionary of marker lists.
-    head : array
-        An array containing the head axis and head origin.
+    head_axis : array
+        4x4 affine matrix containing the head (x, y, z) axes and origin
 
     Returns
     -------
@@ -359,41 +373,39 @@ def staticCalculationHead(frame,head):
     Examples
     --------
     >>> import numpy as np
-    >>> from .pycgmStatic import staticCalculationHead
-    >>> frame = None
-    >>> head = [[[100.33, 83.39, 1484.08],
-    ...        [98.97, 83.58, 1483.77],
-    ...        [99.35, 82.64, 1484.76]],
-    ...        [99.58, 82.79, 1483.8]]
-    >>> np.around(staticCalculationHead(frame,head), 2)
+    >>> from .pycgmStatic import calc_static_head
+    >>> head_axis = np.array([[ 0.75,    0.6 ,    0.28,   99.58],
+    ...                       [-0.61,    0.79,   -0.03,   82.79],
+    ...                       [-0.23,   -0.15,    0.96, 1483.8 ],
+    ...                       [ 0.  ,    0.  ,    0.  ,    0.  ]])
+    >>> np.around(calc_static_head(head_axis), 2)
     0.28
     """
-    headAxis = head[0]
-    headOrigin = head[1]
-    x_axis = [headAxis[0][0]-headOrigin[0],headAxis[0][1]-headOrigin[1],headAxis[0][2]-headOrigin[2]]
-    y_axis = [headAxis[1][0]-headOrigin[0],headAxis[1][1]-headOrigin[1],headAxis[1][2]-headOrigin[2]]
-    z_axis = [headAxis[2][0]-headOrigin[0],headAxis[2][1]-headOrigin[1],headAxis[2][2]-headOrigin[2]]
 
-    axis = [x_axis,y_axis,z_axis]
-    global_axis = [[0,1,0],[-1,0,0],[0,0,1]]
+    head_axis = np.asarray(head_axis)
 
-    offset = headoffCalc(global_axis,axis)
+    global_axis = [[ 0, 1, 0, 0],
+                   [-1, 0, 0, 0],
+                   [ 0, 0, 1, 0],
+                   [ 0, 0, 0, 0]]
+
+    offset = calc_head_offset(global_axis, head_axis)
 
     return offset
 
-def headoffCalc(axisP, axisD):
-    """Head Offset Calculation function
+def calc_head_offset(axisP, axisD):
+    """Head Offset Calculation
 
     Calculate head offset angle for static calibration.
     This function is only called in static trial.
-    and output will be used in dynamic later.
+    Output will be used later in the dynamic trial.
 
     Parameters
     ----------
-    axisP : list
-        Shows the unit vector of axisP, the position of the proximal axis.
-    axisD : list
-        Shows the unit vector of axisD, the position of the distal axis.
+    axisP : array
+        4x4 affine matrix representing the position of the proximal axis.
+    axisD : array
+        4x4 affine matrix representing the position of the distal axis.
 
     Returns
     -------
@@ -403,20 +415,26 @@ def headoffCalc(axisP, axisD):
     Examples
     --------
     >>> import numpy as np
-    >>> from .pycgmStatic import headoffCalc
-    >>> axisP = [[0.96, 0.81, 0.82],
-    ...         [0.24, 0.72, 0.38],
-    ...         [0.98, 0.21, 0.68]]
-    >>> axisD = [[0.21, 0.25, 0.94],
-    ...         [0.8, 0.45, 0.91],
-    ...         [0.17, 0.67, 0.85]]
-    >>> np.around(headoffCalc(axisP,axisD), 2)
+    >>> from .pycgmStatic import calc_head_offset
+    >>> axisP = np.array([[0.96, 0.81, 0.82, 0],
+    ...                   [0.24, 0.72, 0.38, 0],
+    ...                   [0.98, 0.21, 0.68, 0],
+    ...                   [0,    0,    0,    1]])
+    >>> axisD = np.array([[0.21, 0.25, 0.94, 0],
+    ...                   [0.8,  0.45, 0.91, 0],
+    ...                   [0.17, 0.67, 0.85, 0],
+    ...                   [0,    0,    0,    1]])
+    >>> np.around(calc_head_offset(axisP,axisD), 2)
     0.95
     """
+    axisP = np.asarray(axisP)[:3, :3]
+    axisD = np.asarray(axisD)[:3, :3]
+
+    
     axisPi = np.linalg.inv(axisP)
 
     # rotation matrix is in order XYZ
-    M = matrixmult(axisD,axisPi)
+    M = matrixmult(axisD, axisPi)
 
     # get y angle from rotation matrix using inverse trigonometry.
     getB= M[0][2] / M[2][2]
@@ -657,58 +675,59 @@ def pelvisJointCenter(frame):
     #print('Pelvis JC in static: ',pelvis)
     return pelvis
 
-def hipJointCenter(frame,pel_origin,pel_x,pel_y,pel_z,vsk=None):
-    """Calculate the hip joint center function.
+def calc_joint_center_hip(pelvis, subject):
+    u"""Calculate the right and left hip joint center.
 
-    Takes in a dictionary of x,y,z positions and marker names, as well as an index.
-    Calculates the hip joint center and returns the hip joint center.
+    Takes in a 4x4 affine matrix of pelvis axis and subject measurements
+    dictionary. Calculates and returns the right and left hip joint centers.
 
-    Other landmarks used: origin, sacrum
-    Subject Measurement values used: MeanLegLength, R_AsisToTrocanterMeasure, InterAsisDistance, L_AsisToTrocanterMeasure
+    Subject Measurement values used: MeanLegLength, R_AsisToTrocanterMeasure,
+    InterAsisDistance, L_AsisToTrocanterMeasure
 
-    Hip Joint Center: Computed using Hip Joint Center Calculation (ref. Davis_1991)
+    Hip Joint Center: Computed using Hip Joint Center Calculation [1]_.
 
     Parameters
     ----------
-    frame : dict
-        Dictionary of marker lists.
-    pel_origin : array
-        An array of pel_origin, pel_x, pel_y, pel_z each x,y,z position.
-    pel_x, pel_y, pel_z : int
-        Respective axes of the pelvis.
-    vsk : dict, optional
-        A dictionary containing subject measurements from a VSK file.
+    pelvis : array
+        A 4x4 affine matrix with pelvis x, y, z axes and pelvis origin.
+    subject : dict
+        A dictionary containing subject measurements.
 
     Returns
     -------
-    hip_JC : array
-        Returns an array containing the left hip joint center x, y, z marker positions (1x3),
-        followed by the right hip joint center x, y, z marker positions (1x3).
+    hip_jc : array
+        A 2x3 array that contains two 1x3 arrays
+        containing the x, y, z components of the right and left hip joint
+        centers.
+
+    References
+    ----------
+    .. [1] Davis, R. B., III, Õunpuu, S., Tyburski, D. and Gage, J. R. (1991).
+            A gait analysis data collection and reduction technique.
+            Human Movement Science 10 575–87.
 
     Examples
     --------
     >>> import numpy as np
-    >>> from .pycgmStatic import hipJointCenter
-    >>> frame = None
+    >>> np.set_printoptions(suppress=True)
+    >>> from .pycgmStatic import calc_joint_center_hip
     >>> vsk = {'MeanLegLength': 940.0, 'R_AsisToTrocanterMeasure': 72.51,
-    ...        'L_AsisToTrocanterMeasure': 72.51, 'InterAsisDistance': 215.91}
-    >>> pel_origin = [ 251.61, 391.74, 1032.89]
-    >>> pel_x = [251.74, 392.73, 1032.79]
-    >>> pel_y = [250.62, 391.87, 1032.87]
-    >>> pel_z = [251.60, 391.85, 1033.89]
-    >>> np.around(hipJointCenter(frame,pel_origin,pel_x,pel_y,pel_z,vsk), 2)    #doctest: +NORMALIZE_WHITESPACE
-    array([[183.24, 338.8 , 934.65],
-           [308.9 , 322.3 , 937.19]])
+    ...        'L_AsisToTrocanterMeasure': 72.51, 'InterAsisDistance': 215.90}
+    >>> pelvis_axis = np.array([
+    ...     [ 0.14, 0.98, -0.11,  251.60],
+    ...     [-0.99, 0.13, -0.02,  391.74],
+    ...     [ 0,    0.1,   0.99, 1032.89],
+    ...     [ 0,    0,     0,       1   ]])
+    >>> np.around(calc_joint_center_hip(pelvis_axis,vsk), 2) #doctest: +NORMALIZE_WHITESPACE
+    array([[307.36, 323.83, 938.72],
+           [181.71, 340.33, 936.18]])
     """
-    #Get Global Values
 
     # Requires
     # pelvis axis
 
-    pel_origin=np.asarray(pel_origin)
-    pel_x=np.asarray(pel_x)
-    pel_y=np.asarray(pel_y)
-    pel_z=np.asarray(pel_z)
+    pelvis = np.asarray(pelvis)
+    pel_origin = pelvis[:3, 3]
 
     # Model's eigen value
     #
@@ -717,16 +736,15 @@ def hipJointCenter(frame,pel_origin,pel_x,pel_y,pel_z,vsk=None):
     # mm (marker radius)
     # interAsisMeasure
 
-    #Set the variables needed to calculate the joint angle
-
+    # Set the variables needed to calculate the joint angle
+    # Half of marker size
     mm = 7.0
-    #mm = 14.0 #can this be given?
-    MeanLegLength = vsk['MeanLegLength']
-    R_AsisToTrocanterMeasure = vsk['R_AsisToTrocanterMeasure']
-    L_AsisToTrocanterMeasure = vsk['L_AsisToTrocanterMeasure']
 
-    interAsisMeasure = vsk['InterAsisDistance']
-    C = ( MeanLegLength * 0.115 ) - 15.3
+    mean_leg_length = subject['MeanLegLength']
+    right_asis_to_trochanter = subject['R_AsisToTrocanterMeasure']
+    left_asis_to_trochanter = subject['L_AsisToTrocanterMeasure']
+    interAsisMeasure = subject['InterAsisDistance']
+    C = (mean_leg_length * 0.115) - 15.3
     theta = 0.500000178813934
     beta = 0.314000427722931
     aa = interAsisMeasure/2.0
@@ -735,41 +753,53 @@ def hipJointCenter(frame,pel_origin,pel_x,pel_y,pel_z,vsk=None):
     # Hip Joint Center Calculation (ref. Davis_1991)
 
     # Left: Calculate the distance to translate along the pelvis axis
-    L_Xh = (-L_AsisToTrocanterMeasure - mm) * cos(beta) + C * cos(theta) * sin(beta)
-    L_Yh = S*(C*sin(theta)- aa)
-    L_Zh = (-L_AsisToTrocanterMeasure - mm) * sin(beta) - C * cos(theta) * cos(beta)
+    L_Xh = (-left_asis_to_trochanter - mm) * \
+        cos(beta) + C * cos(theta) * sin(beta)
+    L_Yh = S*(C*sin(theta) - aa)
+    L_Zh = (-left_asis_to_trochanter - mm) * \
+        sin(beta) - C * cos(theta) * cos(beta)
 
     # Right:  Calculate the distance to translate along the pelvis axis
-    R_Xh = (-R_AsisToTrocanterMeasure - mm) * cos(beta) + C * cos(theta) * sin(beta)
-    R_Yh = (C*sin(theta)- aa)
-    R_Zh = (-R_AsisToTrocanterMeasure - mm) * sin(beta) - C * cos(theta) * cos(beta)
+    R_Xh = (-right_asis_to_trochanter - mm) * \
+        cos(beta) + C * cos(theta) * sin(beta)
+    R_Yh = (C*sin(theta) - aa)
+    R_Zh = (-right_asis_to_trochanter - mm) * \
+        sin(beta) - C * cos(theta) * cos(beta)
 
     # get the unit pelvis axis
-    pelvis_xaxis = pel_x-pel_origin
-    pelvis_yaxis = pel_y-pel_origin
-    pelvis_zaxis = pel_z-pel_origin
+    pelvis_xaxis = pelvis[0, :3]
+    pelvis_yaxis = pelvis[1, :3]
+    pelvis_zaxis = pelvis[2, :3]
+    pelvis_axis = pelvis[:3, :3]
 
     # multiply the distance to the unit pelvis axis
-    L_hipJCx = pelvis_xaxis*L_Xh
-    L_hipJCy = pelvis_yaxis*L_Yh
-    L_hipJCz = pelvis_zaxis*L_Zh
-    L_hipJC = np.asarray([  L_hipJCx[0]+L_hipJCy[0]+L_hipJCz[0],
-                            L_hipJCx[1]+L_hipJCy[1]+L_hipJCz[1],
-                            L_hipJCx[2]+L_hipJCy[2]+L_hipJCz[2]])
+    left_hip_jc_x = pelvis_xaxis * L_Xh
+    left_hip_jc_y = pelvis_yaxis * L_Yh
+    left_hip_jc_z = pelvis_zaxis * L_Zh
+    # left_hip_jc = left_hip_jc_x + left_hip_jc_y + left_hip_jc_z
 
-    R_hipJCx = pelvis_xaxis*R_Xh
-    R_hipJCy = pelvis_yaxis*R_Yh
-    R_hipJCz = pelvis_zaxis*R_Zh
-    R_hipJC = np.asarray([  R_hipJCx[0]+R_hipJCy[0]+R_hipJCz[0],
-                            R_hipJCx[1]+R_hipJCy[1]+R_hipJCz[1],
-                            R_hipJCx[2]+R_hipJCy[2]+R_hipJCz[2]])
+    left_hip_jc = np.asarray([
+        left_hip_jc_x[0]+left_hip_jc_y[0]+left_hip_jc_z[0],
+        left_hip_jc_x[1]+left_hip_jc_y[1]+left_hip_jc_z[1],
+        left_hip_jc_x[2]+left_hip_jc_y[2]+left_hip_jc_z[2]
+    ])
 
-    L_hipJC = L_hipJC+pel_origin
-    R_hipJC = R_hipJC+pel_origin
+    left_hip_jc = pelvis_axis.T @ np.array([L_Xh, L_Yh, L_Zh])
 
-    hip_JC = np.asarray([L_hipJC,R_hipJC])
+    R_hipJCx = pelvis_xaxis * R_Xh
+    R_hipJCy = pelvis_yaxis * R_Yh
+    R_hipJCz = pelvis_zaxis * R_Zh
+    right_hip_jc = R_hipJCx + R_hipJCy + R_hipJCz
 
-    return hip_JC
+    right_hip_jc = pelvis_axis.T @ np.array([R_Xh, R_Yh, R_Zh])
+
+    left_hip_jc = left_hip_jc+pel_origin
+    right_hip_jc = right_hip_jc+pel_origin
+
+    hip_jc = np.array([right_hip_jc, left_hip_jc])
+
+    return hip_jc
+
 
 def hipAxisCenter(l_hip_jc,r_hip_jc,pelvis_axis):
     """Calculate the hip joint axis function.
@@ -1177,86 +1207,96 @@ def ankleJointCenter(frame,knee_JC,delta,vsk=None):
     return [R,L,axis]
 
 
-def headJC(frame):
-    """Calculate the head joint axis function.
+def calc_axis_head(lfhd, rfhd, lbhd, rbhd):
+    """Calculate the head joint center and axis.
 
-    Takes in a dictionary of x,y,z positions and marker names.
-    Calculates the head joint center and returns the head joint center and axis.
+    Takes in markers that correspond to (x, y, z) positions of the current
+    frame, and the head offset. 
+
+    Calculates the head joint center and axis.
 
     Markers used: LFHD, RFHD, LBHD, RBHD
 
     Parameters
     ----------
-    frame : dict
-        Dictionary of marker lists.
+    lfhd : array
+        1x3 LFHD marker
+    rfhd : array
+        1x3 RFHD marker
+    lbhd : array
+        1x3 LBHD marker
+    rbhd : array
+        1x3 RBHD marker
 
     Returns
     -------
-    head_axis, origin : list
-        Returns a list containing a 1x3x3 list containing the x, y, z axis
-        components of the head joint center and a 1x3 list containing the
-        head origin x, y, z position.
+    head_axis : array
+        4x4 affine matrix with head (x, y, z) axes and origin.
+
 
     Examples
     --------
     >>> import numpy as np
-    >>> from .pycgmStatic import headJC
-    >>> frame = {'RFHD': np.array([325.83, 402.55, 1722.5]),
-    ...          'LFHD': np.array([184.55, 409.69, 1721.34]),
-    ...          'RBHD': np.array([304.4, 242.91, 1694.97]),
-    ...          'LBHD': np.array([197.86, 251.29, 1696.90])}
-    >>> [np.around(arr, 2) for arr in headJC(frame)] #doctest: +NORMALIZE_WHITESPACE
-    [array([[ 255.22,  407.11, 1722.08],
-            [ 254.19,  406.15, 1721.92],
-            [ 255.18,  405.96, 1722.91]]), array([ 255.19,  406.12, 1721.92])]
+    >>> np.set_printoptions(suppress=True)
+    >>> from .pycgmStatic import calc_axis_head
+    >>> rfhd = np.array([325.82, 402.55, 1722.49])
+    >>> lfhd = np.array([184.55, 409.68, 1721.34])
+    >>> rbhd = np.array([304.39, 242.91, 1694.97])
+    >>> lbhd = np.array([197.86, 251.28, 1696.90])
+    >>> [np.around(arr, 2) for arr in calc_axis_head(lfhd, rfhd, lbhd, rbhd)] #doctest: +NORMALIZE_WHITESPACE
+    [array([  0.03,   0.99,  0.16,  255.18]),
+     array([ -1.  ,   0.03, -0.  ,  406.12]),
+     array([ -0.01,  -0.16,  0.99, 1721.92]),
+       array([0.,     0.,    0.,      1.])]
     """
 
-    #Get the marker positions used for joint calculation
-    LFHD = frame['LFHD']
-    RFHD = frame['RFHD']
-    LBHD = frame['LBHD']
-    RBHD = frame['RBHD']
+    lfhd, rfhd, lbhd, rbhd = map(np.array, [lfhd, rfhd, lbhd, rbhd])
 
-    #get the midpoints of the head to define the sides
-    front = [(LFHD[0]+RFHD[0])/2.0, (LFHD[1]+RFHD[1])/2.0,(LFHD[2]+RFHD[2])/2.0]
-    back = [(LBHD[0]+RBHD[0])/2.0, (LBHD[1]+RBHD[1])/2.0,(LBHD[2]+RBHD[2])/2.0]
-    left = [(LFHD[0]+LBHD[0])/2.0, (LFHD[1]+LBHD[1])/2.0,(LFHD[2]+LBHD[2])/2.0]
-    right = [(RFHD[0]+RBHD[0])/2.0, (RFHD[1]+RBHD[1])/2.0,(RFHD[2]+RBHD[2])/2.0]
-    origin = front
+    # get the midpoints of the head to define the sides
+    front = (lfhd + rfhd) / 2.0
+    back  = (lbhd + rbhd) / 2.0
+    left  = (lfhd + lbhd) / 2.0
+    right = (rfhd + rbhd) / 2.0
 
-    #Get the vectors from the sides with primary x axis facing front
-    #First get the x direction
-    x_vec = [front[0]-back[0],front[1]-back[1],front[2]-back[2]]
-    x_vec_div = norm2d(x_vec)
-    x_vec = [x_vec[0]/x_vec_div,x_vec[1]/x_vec_div,x_vec[2]/x_vec_div]
+    # Get the vectors from the sides with primary x axis facing front
+    # First get the x direction
+    x_axis = np.subtract(front, back)
+    x_axis_norm = np.nan_to_num(np.linalg.norm(x_axis))
+    if x_axis_norm:
+        x_axis = np.divide(x_axis, x_axis_norm)
 
-    #get the direction of the y axis
-    y_vec = [left[0]-right[0],left[1]-right[1],left[2]-right[2]]
-    y_vec_div = norm2d(y_vec)
-    y_vec = [y_vec[0]/y_vec_div,y_vec[1]/y_vec_div,y_vec[2]/y_vec_div]
+    # get the direction of the y axis
+    y_axis = np.subtract(left, right)
+    y_axis_norm = np.nan_to_num(np.linalg.norm(y_axis))
+    if y_axis_norm:
+        y_axis = np.divide(y_axis, y_axis_norm)
 
     # get z axis by cross-product of x axis and y axis.
-    z_vec = cross(x_vec,y_vec)
-    z_vec_div = norm2d(z_vec)
-    z_vec = [z_vec[0]/z_vec_div,z_vec[1]/z_vec_div,z_vec[2]/z_vec_div]
+    z_axis = np.cross(x_axis, y_axis)
+    z_axis_norm = np.nan_to_num(np.linalg.norm(z_axis))
+    if z_axis_norm:
+        z_axis = np.divide(z_axis, z_axis_norm)
 
     # make sure all x,y,z axis is orthogonal each other by cross-product
-    y_vec = cross(z_vec,x_vec)
-    y_vec_div = norm2d(y_vec)
-    y_vec = [y_vec[0]/y_vec_div,y_vec[1]/y_vec_div,y_vec[2]/y_vec_div]
-    x_vec = cross(y_vec,z_vec)
-    x_vec_div = norm2d(x_vec)
-    x_vec = [x_vec[0]/x_vec_div,x_vec[1]/x_vec_div,x_vec[2]/x_vec_div]
+    y_axis = np.cross(z_axis, x_axis)
+    y_axis_norm = np.nan_to_num(np.linalg.norm(y_axis))
+    if y_axis_norm:
+        y_axis = np.divide(y_axis, y_axis_norm)
 
-    #Add the origin back to the vector to get it in the right position
-    x_axis = [x_vec[0]+origin[0],x_vec[1]+origin[1],x_vec[2]+origin[2]]
-    y_axis = [y_vec[0]+origin[0],y_vec[1]+origin[1],y_vec[2]+origin[2]]
-    z_axis = [z_vec[0]+origin[0],z_vec[1]+origin[1],z_vec[2]+origin[2]]
+    x_axis = np.cross(y_axis, z_axis)
+    x_axis_norm = np.nan_to_num(np.linalg.norm(x_axis))
+    if x_axis_norm:
+        x_axis = np.divide(x_axis, x_axis_norm)
 
-    head_axis =[x_axis,y_axis,z_axis]
+    # Create the return matrix
+    head_axis = np.zeros((4, 4))
+    head_axis[3, 3] = 1.0
+    head_axis[0, :3] = x_axis
+    head_axis[1, :3] = y_axis
+    head_axis[2, :3] = z_axis
+    head_axis[:3, 3] = front
 
-    #Return the three axis and origin
-    return [head_axis,origin]
+    return head_axis
 
 def uncorrect_footaxis(frame,ankle_JC):
     """Calculate the anatomically uncorrected foot joint center and axis function.
@@ -1714,78 +1754,112 @@ def getankleangle(axisP,axisD):
     angle = [alpha,beta,gamma]
     return angle
 
-def findJointC(a, b, c, delta):
-    """Calculate the Joint Center function.
+def calc_joint_center(p_a, p_b, p_c, delta):
+    r"""Calculate the Joint Center.
 
-    This function is based on physical markers; a,b,c and the joint center which will be
-    calulcated in this function are all in the same plane.
+    This function is based on the physical markers p_a, p_b, p_c
+    and the resulting joint center are all on the same plane.
 
     Parameters
     ----------
-    a,b,c : list
-        Three markers x, y, z position of a, b, c.
+    p_a : array
+        (x, y, z) position of marker a
+    p_b : array 
+        (x, y, z) position of marker b
+    p_c : array
+        (x, y, z) position of marker c
     delta : float
-        The length from marker to joint center, retrieved from subject measurement file.
+        The length from marker to joint center, retrieved from subject measurement file
 
     Returns
     -------
-    mr : array
-        Returns the Joint C x, y, z positions in a 1x3 list.
+    joint_center : array
+        (x, y, z) position of the joint center
+
+    Notes
+    -----
+    :math:`vec_{1} = p\_a-p\_c, \ vec_{2} = (p\_b-p\_c), \ vec_{3} = vec_{1} \times vec_{2}`
+
+    :math:`mid = \frac{(p\_b+p\_c)}{2.0}`
+
+    :math:`length = (p\_b - mid)`
+
+    :math:`\theta = \arccos(\frac{delta}{vec_{2}})`
+
+    :math:`\alpha = \cos(\theta*2), \ \beta = \sin(\theta*2)`
+
+    :math:`u_x, u_y, u_z = vec_{3}`
+
+    .. math::
+
+        rot =
+        \begin{bmatrix}
+            \alpha+u_x^2*(1-\alpha) & u_x*u_y*(1.0-\alpha)-u_z*\beta & u_x*u_z*(1.0-\alpha)+u_y*\beta \\
+            u_y*u_x*(1.0-\alpha+u_z*\beta & \alpha+u_y^2.0*(1.0-\alpha) & u_y*u_z*(1.0-\alpha)-u_x*\beta \\
+            u_z*u_x*(1.0-\alpha)-u_y*\beta & u_z*u_y*(1.0-\alpha)+u_x*\beta & \alpha+u_z**2.0*(1.0-\alpha) \\
+        \end{bmatrix}
+
+    :math:`r\_vec = rot * vec_2`
+
+    :math:`r\_vec = r\_vec * \frac{length}{norm(r\_vec)}`
+
+    :math:`joint\_center = r\_vec + mid`
 
     Examples
     --------
     >>> import numpy as np
-    >>> from .pycgmStatic import findJointC
-    >>> a = [775.41, 788.65, 514.41]
-    >>> b = [424.57, 46.17, 305.73]
-    >>> c = [618.98, 848.86, 133.52]
-    >>> delta = 42.5
-    >>> np.around(findJointC(a,b,c,delta), 2)
-    array([599.66, 843.26,  96.08])
+    >>> from .pycgmStatic import calc_joint_center
+    >>> p_a = np.array([468.14, 325.09, 673.12])
+    >>> p_b = np.array([355.90, 365.38, 940.69])
+    >>> p_c = np.array([452.35, 329.06, 524.77])
+    >>> delta = 59.5
+    >>> calc_joint_center(p_a, p_b, p_c, delta).round(2)
+    array([396.25, 347.92, 518.63])
     """
+
     # make the two vector using 3 markers, which is on the same plane.
-    v1 = (a[0]-c[0],a[1]-c[1],a[2]-c[2])
-    v2 = (b[0]-c[0],b[1]-c[1],b[2]-c[2])
 
-    # v3 is cross vector of v1, v2
-    # and then it normalized.
-    # v3 = cross(v1,v2)
-    v3 = [v1[1]*v2[2] - v1[2]*v2[1],v1[2]*v2[0] - v1[0]*v2[2],v1[0]*v2[1] - v1[1]*v2[0]]
-    v3_div = norm2d(v3)
-    v3 = [v3[0]/v3_div,v3[1]/v3_div,v3[2]/v3_div]
+    p_a, p_b, p_c = map(np.asarray, [p_a, p_b, p_c])
 
-    m = [(b[0]+c[0])/2.0,(b[1]+c[1])/2.0,(b[2]+c[2])/2.0]
-    length = np.subtract(b,m)
-    length = norm2d(length)
+    vec_1 = p_a - p_c
+    vec_2 = p_b - p_c
 
-    # iterate_acosdomain =  1 - ( delta/norm2d(v2) - int(delta/norm2d(v2)) )
+    # vec_3 is cross vector of vec_1, vec_2, and then it normalized.
+    vec_3 = np.cross(vec_1, vec_2)
+    vec_3_div = np.linalg.norm(vec_3)
+    vec_3 = vec_3 / vec_3_div
 
-    # print "iterate_acosdomain:",iterate_acosdomain
+    mid = (p_b + p_c) / 2.0
+    length = np.subtract(p_b, mid)
+    length = np.linalg.norm(length)
 
+    theta = acos(delta/np.linalg.norm(vec_2))
 
-    theta = acos(delta/norm2d(v2))
+    alpha = cos(theta*2)
+    beta = sin(theta*2)
 
-    cs = cos(theta*2)
-    sn = sin(theta*2)
+    u_x, u_y, u_z = vec_3
 
-    ux = v3[0]
-    uy = v3[1]
-    uz = v3[2]
-
-    # this rotation matrix is called Rodriques' rotation formula.
-    # In order to make a plane, at least 3 number of markers is required which means three physical markers on the segment can make a plane.
+    # This rotation matrix is called Rodriques' rotation formula.
+    # In order to make a plane, at least 3 number of markers is required which
+    # means three physical markers on the segment can make a plane.
     # then the orthogonal vector of the plane will be rotating axis.
     # joint center is determined by rotating the one vector of plane around rotating axis.
-    rot = np.matrix([[cs+ux**2.0*(1.0-cs),ux*uy*(1.0-cs)-uz*sn,ux*uz*(1.0-cs)+uy*sn],
-                    [uy*ux*(1.0-cs)+uz*sn,cs+uy**2.0*(1.0-cs),uy*uz*(1.0-cs)-ux*sn],
-                    [uz*ux*(1.0-cs)-uy*sn,uz*uy*(1.0-cs)+ux*sn,cs+uz**2.0*(1.0-cs)]])
-    r = rot*(np.matrix(v2).transpose())
-    r = r* length/np.linalg.norm(r)
 
-    r = [r[0,0],r[1,0],r[2,0]]
-    mr = np.array([r[0]+m[0],r[1]+m[1],r[2]+m[2]])
+    rot = np.matrix([ 
+        [alpha+u_x**2.0*(1.0-alpha),   u_x*u_y*(1.0-alpha) - u_z*beta, u_x*u_z*(1.0-alpha)+u_y*beta],
+        [u_y*u_x*(1.0-alpha)+u_z*beta, alpha+u_y**2.0 * (1.0-alpha),   u_y*u_z*(1.0-alpha)-u_x*beta],
+        [u_z*u_x*(1.0-alpha)-u_y*beta, u_z*u_y*(1.0-alpha) + u_x*beta, alpha+u_z**2.0*(1.0-alpha)]
+    ])
 
-    return mr
+    r_vec = rot * (np.matrix(vec_2).transpose())
+    r_vec = r_vec * length/np.linalg.norm(r_vec)
+
+    r_vec = np.asarray(r_vec)[:3, 0]
+    joint_center = r_vec + mid
+
+    return joint_center
+
 
 def norm2d(v):
     """2D Vector normalization function
