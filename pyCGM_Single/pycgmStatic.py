@@ -270,7 +270,10 @@ def getStatic(motionData,vsk,flat_foot=False,GCS=None):
         knee_JC = kneeJointCenter(frame,hip_JC,0,vsk=calSM)
         ankle_JC = ankleJointCenter(frame,knee_JC,0,vsk=calSM)
         angle = staticCalculation(frame,ankle_JC,knee_JC,flat_foot,calSM)
-        head = headJC(frame)
+        head = calc_axis_head(frame['LFHD'] if 'LFHD' in frame else None,
+                              frame['RFHD'] if 'RFHD' in frame else None,
+                              frame['LBHD'] if 'LBHD' in frame else None,
+                              frame['RBHD'] if 'RBHD' in frame else None)
         headangle = staticCalculationHead(frame,head)
 
         static_offset.append(angle)
@@ -1469,86 +1472,96 @@ def footJointCenter(frame,static_info,ankle_JC,knee_JC,delta):
 
     return [R,L,foot_axis]
 
-def headJC(frame):
-    """Calculate the head joint axis function.
+def calc_axis_head(lfhd, rfhd, lbhd, rbhd):
+    """Calculate the head joint center and axis.
 
-    Takes in a dictionary of x,y,z positions and marker names.
-    Calculates the head joint center and returns the head joint center and axis.
+    Takes in markers that correspond to (x, y, z) positions of the current
+    frame, and the head offset. 
+
+    Calculates the head joint center and axis.
 
     Markers used: LFHD, RFHD, LBHD, RBHD
 
     Parameters
     ----------
-    frame : dict
-        Dictionary of marker lists.
+    lfhd : array
+        1x3 LFHD marker
+    rfhd : array
+        1x3 RFHD marker
+    lbhd : array
+        1x3 LBHD marker
+    rbhd : array
+        1x3 RBHD marker
 
     Returns
     -------
-    head_axis, origin : list
-        Returns a list containing a 1x3x3 list containing the x, y, z axis
-        components of the head joint center and a 1x3 list containing the
-        head origin x, y, z position.
+    head_axis : array
+        4x4 affine matrix with head (x, y, z) axes and origin.
+
 
     Examples
     --------
     >>> import numpy as np
-    >>> from .pycgmStatic import headJC
-    >>> frame = {'RFHD': np.array([325.83, 402.55, 1722.5]),
-    ...          'LFHD': np.array([184.55, 409.69, 1721.34]),
-    ...          'RBHD': np.array([304.4, 242.91, 1694.97]),
-    ...          'LBHD': np.array([197.86, 251.29, 1696.90])}
-    >>> [np.around(arr, 2) for arr in headJC(frame)] #doctest: +NORMALIZE_WHITESPACE
-    [array([[ 255.22,  407.11, 1722.08],
-            [ 254.19,  406.15, 1721.92],
-            [ 255.18,  405.96, 1722.91]]), array([ 255.19,  406.12, 1721.92])]
+    >>> np.set_printoptions(suppress=True)
+    >>> from .pycgmStatic import calc_axis_head
+    >>> rfhd = np.array([325.82, 402.55, 1722.49])
+    >>> lfhd = np.array([184.55, 409.68, 1721.34])
+    >>> rbhd = np.array([304.39, 242.91, 1694.97])
+    >>> lbhd = np.array([197.86, 251.28, 1696.90])
+    >>> [np.around(arr, 2) for arr in calc_axis_head(lfhd, rfhd, lbhd, rbhd)] #doctest: +NORMALIZE_WHITESPACE
+    [array([  0.03,   0.99,  0.16,  255.18]),
+     array([ -1.  ,   0.03, -0.  ,  406.12]),
+     array([ -0.01,  -0.16,  0.99, 1721.92]),
+       array([0.,     0.,    0.,      1.])]
     """
 
-    #Get the marker positions used for joint calculation
-    LFHD = frame['LFHD']
-    RFHD = frame['RFHD']
-    LBHD = frame['LBHD']
-    RBHD = frame['RBHD']
+    lfhd, rfhd, lbhd, rbhd = map(np.array, [lfhd, rfhd, lbhd, rbhd])
 
-    #get the midpoints of the head to define the sides
-    front = [(LFHD[0]+RFHD[0])/2.0, (LFHD[1]+RFHD[1])/2.0,(LFHD[2]+RFHD[2])/2.0]
-    back = [(LBHD[0]+RBHD[0])/2.0, (LBHD[1]+RBHD[1])/2.0,(LBHD[2]+RBHD[2])/2.0]
-    left = [(LFHD[0]+LBHD[0])/2.0, (LFHD[1]+LBHD[1])/2.0,(LFHD[2]+LBHD[2])/2.0]
-    right = [(RFHD[0]+RBHD[0])/2.0, (RFHD[1]+RBHD[1])/2.0,(RFHD[2]+RBHD[2])/2.0]
-    origin = front
+    # get the midpoints of the head to define the sides
+    front = (lfhd + rfhd) / 2.0
+    back  = (lbhd + rbhd) / 2.0
+    left  = (lfhd + lbhd) / 2.0
+    right = (rfhd + rbhd) / 2.0
 
-    #Get the vectors from the sides with primary x axis facing front
-    #First get the x direction
-    x_vec = [front[0]-back[0],front[1]-back[1],front[2]-back[2]]
-    x_vec_div = norm2d(x_vec)
-    x_vec = [x_vec[0]/x_vec_div,x_vec[1]/x_vec_div,x_vec[2]/x_vec_div]
+    # Get the vectors from the sides with primary x axis facing front
+    # First get the x direction
+    x_axis = np.subtract(front, back)
+    x_axis_norm = np.nan_to_num(np.linalg.norm(x_axis))
+    if x_axis_norm:
+        x_axis = np.divide(x_axis, x_axis_norm)
 
-    #get the direction of the y axis
-    y_vec = [left[0]-right[0],left[1]-right[1],left[2]-right[2]]
-    y_vec_div = norm2d(y_vec)
-    y_vec = [y_vec[0]/y_vec_div,y_vec[1]/y_vec_div,y_vec[2]/y_vec_div]
+    # get the direction of the y axis
+    y_axis = np.subtract(left, right)
+    y_axis_norm = np.nan_to_num(np.linalg.norm(y_axis))
+    if y_axis_norm:
+        y_axis = np.divide(y_axis, y_axis_norm)
 
     # get z axis by cross-product of x axis and y axis.
-    z_vec = cross(x_vec,y_vec)
-    z_vec_div = norm2d(z_vec)
-    z_vec = [z_vec[0]/z_vec_div,z_vec[1]/z_vec_div,z_vec[2]/z_vec_div]
+    z_axis = np.cross(x_axis, y_axis)
+    z_axis_norm = np.nan_to_num(np.linalg.norm(z_axis))
+    if z_axis_norm:
+        z_axis = np.divide(z_axis, z_axis_norm)
 
     # make sure all x,y,z axis is orthogonal each other by cross-product
-    y_vec = cross(z_vec,x_vec)
-    y_vec_div = norm2d(y_vec)
-    y_vec = [y_vec[0]/y_vec_div,y_vec[1]/y_vec_div,y_vec[2]/y_vec_div]
-    x_vec = cross(y_vec,z_vec)
-    x_vec_div = norm2d(x_vec)
-    x_vec = [x_vec[0]/x_vec_div,x_vec[1]/x_vec_div,x_vec[2]/x_vec_div]
+    y_axis = np.cross(z_axis, x_axis)
+    y_axis_norm = np.nan_to_num(np.linalg.norm(y_axis))
+    if y_axis_norm:
+        y_axis = np.divide(y_axis, y_axis_norm)
 
-    #Add the origin back to the vector to get it in the right position
-    x_axis = [x_vec[0]+origin[0],x_vec[1]+origin[1],x_vec[2]+origin[2]]
-    y_axis = [y_vec[0]+origin[0],y_vec[1]+origin[1],y_vec[2]+origin[2]]
-    z_axis = [z_vec[0]+origin[0],z_vec[1]+origin[1],z_vec[2]+origin[2]]
+    x_axis = np.cross(y_axis, z_axis)
+    x_axis_norm = np.nan_to_num(np.linalg.norm(x_axis))
+    if x_axis_norm:
+        x_axis = np.divide(x_axis, x_axis_norm)
 
-    head_axis =[x_axis,y_axis,z_axis]
+    # Create the return matrix
+    head_axis = np.zeros((4, 4))
+    head_axis[3, 3] = 1.0
+    head_axis[0, :3] = x_axis
+    head_axis[1, :3] = y_axis
+    head_axis[2, :3] = z_axis
+    head_axis[:3, 3] = front
 
-    #Return the three axis and origin
-    return [head_axis,origin]
+    return head_axis
 
 def uncorrect_footaxis(frame,ankle_JC):
     """Calculate the anatomically uncorrected foot joint center and axis function.
