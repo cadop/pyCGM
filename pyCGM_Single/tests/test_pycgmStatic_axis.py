@@ -3,7 +3,7 @@ import pyCGM_Single.pycgmStatic as pycgmStatic
 import numpy as np
 from mock import patch
 
-rounding_precision = 8
+rounding_precision = 5
 
 class TestPycgmStaticAxis():
     """
@@ -12,7 +12,7 @@ class TestPycgmStaticAxis():
         pelvisJointCenter
         hipJointCenter
         hipAxisCenter
-        kneeJointCenter
+        calc_axis_knee
         ankleJointCenter
         footJointCenter
         headJC
@@ -909,7 +909,7 @@ class TestPycgmStaticAxis():
         lkne_width = vsk["LeftKneeWidth"] if "LeftKneeWidth" in vsk else None
 
         with patch.object(pycgmStatic, 'calc_joint_center', side_effect=mock_return_val) as mock_find_joint_center:
-            result = pyCGM.calc_axis_knee(rthi, lthi, rkne, lkne, r_hip_jc, l_hip_jc, rkne_width, lkne_width)
+            result = pycgmStatic.calc_axis_knee(rthi, lthi, rkne, lkne, r_hip_jc, l_hip_jc, rkne_width, lkne_width)
 
         right_axis = result[0]
         left_axis = result[1]
