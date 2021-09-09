@@ -291,54 +291,54 @@ def pnt2line(pnt, start, end):
 #        return np.nan
 
 
-def findL5_Pelvis(frame):
-    """Calculate L5 Markers Given Pelvis function
+def calc_l5_pelvis(rhip, lhip, pelvis_axis):
+    """Calculate L5 Markers
 
-    Markers used: `LHip`, `RHip`, `Pelvis_axis`
+    Markers used: RHIP, LHIP
 
     Parameters
     ----------
-    frame : dict
-        Dictionaries of marker lists.
+    rhip: array
+        1x3 RHIP marker
+    lhip: array
+        1x3 LHIP marker
+    pelvis_axis : array
+        4x4 affine matrix containing the pelvis (x, y, z) axes and origin.
 
     Returns
     -------
     midHip, L5 : tuple
-        Returns the (x, y, z) marker positions of the midHip, a (1x3) array,
-        and L5, a (1x3) array, in a tuple.
+        2x3 array containing the (x, y, z) positions of the midHip and L5 markers
 
     Examples
     --------
     >>> import numpy as np
-    >>> from .pycgmKinetics import findL5_Pelvis
-    >>> Pelvis_axis = [np.array([251.60, 391.74, 1032.89]),
-    ...                np.array([[251.74, 392.72, 1032.78],
-    ...                    [250.61, 391.87, 1032.87],
-    ...                    [251.60, 391.84, 1033.88]]),
-    ...                np.array([231.57, 210.25, 1052.24])]
-    >>> LHip = np.array([308.38, 322.80, 937.98])
-    >>> RHip = np.array([182.57, 339.43, 935.52])
-    >>> frame = { 'Pelvis_axis': Pelvis_axis, 'RHip': RHip, 'LHip': LHip}
-    >>> np.around(findL5_Pelvis(frame), 2) #doctest: +NORMALIZE_WHITESPACE
+    >>> from .pycgmKinetics import calc_l5_pelvis
+    >>> lhip = np.array([308.38, 322.80, 937.98])
+    >>> rhip = np.array([182.57, 339.43, 935.52])
+    >>> pelvis_axis = np.array([[251.74, 392.72, 1032.78,  251.60],
+    ...                         [250.61, 391.87, 1032.87,  391.74],
+    ...                         [251.60, 391.84, 1033.88, 1032.89],
+    ...                         [  0,      0,       0,       0   ]])
+    >>> np.around(calc_l5_pelvis(rhip, lhip, pelvis_axis), 2) #doctest: +NORMALIZE_WHITESPACE
     array([[ 245.48,  331.12,  936.75],
            [ 271.53,  371.69, 1043.8 ]])
     """
-    #The L5 position is estimated as (LHJC + RHJC)/2 +
-    #(0.0, 0.0, 0.828) * Length(LHJC - RHJC), where the value 0.828
-    #is a ratio of the distance from the hip joint centre level to the
-    #top of the lumbar 5: this is calculated as in teh vertical (z) axis
-    LHJC = frame['LHip']
-    RHJC = frame['RHip']
-    midHip = (LHJC+RHJC)/2
-    #zOffset = ([0.0,0.0,distance(RHJC, LHJC)*0.925])
-    #L5 = midHip + zOffset
 
-    offset = distance(RHJC,LHJC) * .925
-    z_axis = frame['Pelvis_axis'][1][2]
+    rhip, lhip, pelvis_axis = map(np.asarray, [rhip, lhip, pelvis_axis])
+
+    # The L5 position is estimated as (LHJC + RHJC)/2 +
+    # (0.0, 0.0, 0.828) * Length(LHJC - RHJC), where the value 0.828
+    # is a ratio of the distance from the hip joint centre level to the
+    # top of the lumbar 5: this is calculated as in the vertical (z) axis
+    midHip = (lhip + rhip) / 2
+
+    offset = distance(rhip, lhip) * .925
+    z_axis = pelvis_axis[2, :3]
     norm_dir = np.array(unit(z_axis))
-    L5 = midHip + offset * norm_dir
+    l5 = midHip + offset * norm_dir
 
-    return midHip, L5#midHip + ([0.0, 0.0, zOffset])
+    return [midHip, l5]
 
 def findL5_Thorax(frame):
     """Calculate L5 Markers Given Thorax function.
