@@ -340,15 +340,19 @@ def findL5_Pelvis(frame):
 
     return midHip, L5#midHip + ([0.0, 0.0, zOffset])
 
-def findL5_Thorax(frame):
-    """Calculate L5 Markers Given Thorax function.
+def calc_l5_thorax(rhip, lhip, thorax_axis):
+    """Calculate L5 Markers given Thorax Axis
 
-    Markers used: `C7`, `RHip`, `LHip`, `Thorax_axis`
+    Markers used: RHip, LHip
 
     Parameters
     ----------
-    frame : dict
-        Dictionaries of marker lists.
+    rhip : array
+        1x3 RHip marker
+    lhip : array
+        1x3 LHip marker
+    thorax_axis : array
+        4x4 affine matrix containing the thorax (x, y, z) axes and origin.
 
     Returns
     -------
@@ -357,38 +361,35 @@ def findL5_Thorax(frame):
 
     Examples
     --------
-    >>> from .pycgmKinetics import findL5_Thorax
+    >>> from .pycgmKinetics import calc_l5_thorax
     >>> import numpy as np
-    >>> Thorax_axis = [[[256.34, 365.72, 1461.92], 
-    ...               [257.26, 364.69, 1462.23], 
-    ...               [256.18, 364.43, 1461.36]],
-    ...               [256.27, 364.79, 1462.29]]
-    >>> C7 = np.array([256.78, 371.28, 1459.70])
-    >>> LHip = np.array([308.38, 322.80, 937.98])
-    >>> RHip = np.array([182.57, 339.43, 935.52])
-    >>> frame = { 'C7': C7, 'RHip': RHip, 'LHip': LHip, 'Thorax_axis': Thorax_axis}
-    >>> np.around(findL5_Thorax(frame), 2) #doctest: +NORMALIZE_WHITESPACE
+    >>> lhip = np.array([308.38, 322.80, 937.98])
+    >>> rhip = np.array([182.57, 339.43, 935.52])
+    >>> thorax_axis = np.array([[256.34, 365.72, 1461.92,  256.27], 
+    ...                         [257.26, 364.69, 1462.23,  364.79], 
+    ...                         [256.18, 364.43, 1461.36, 1462.29],
+    ...                         [  0,      0,       0,       0   ]])
+    >>> np.around(calc_l5_thorax(rhip, lhip, thorax_axis), 2) #doctest: +NORMALIZE_WHITESPACE
     array([ 265.16,  359.12, 1049.06])
     """
-    C7_ = frame['C7']
-    x_axis,y_axis,z_axis = frame['Thorax_axis'][0]
+    rhip, lhip, thorax_axis = map(np.asarray, [rhip, lhip, thorax_axis])
+
+    x_axis = thorax_axis[0, :3]
+    y_axis = thorax_axis[1, :3]
+    z_axis = thorax_axis[2, :3]
+
+    midHip = (lhip+rhip)/2
+
     norm_dir_y = np.array(unit(y_axis))
-    if C7_[1] >= 0:
-        C7 = C7_ + 7 * -norm_dir_y
-    else:
-        C7 = C7_ + 7 * norm_dir_y
-
     norm_dir = np.array(unit(z_axis))
-    LHJC = frame['LHip']
-    RHJC = frame['RHip']
-    midHip = (LHJC+RHJC)/2
-    offset = distance(RHJC,LHJC) * .925
 
-    L5 = midHip + offset * norm_dir
-    return L5
+    offset = distance(rhip, lhip) * .925
 
-def getKinetics(data, Bodymass):
-    """Estimate center of mass values in the global coordinate system.
+    l5 = midHip + offset * norm_dir
+    return l5
+
+def l5tKinetics(data, Bodymass):
+    """Estil5te center of mass values in the global coordinate system.
 
     Estimates whole body CoM in global coordinate system using PiG scaling
     factors for determining individual segment CoM.

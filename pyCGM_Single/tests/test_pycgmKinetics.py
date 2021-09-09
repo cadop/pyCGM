@@ -529,50 +529,54 @@ class Test_pycgmKinetics(TestCase):
             for j in range(len(result)):
                 np.testing.assert_almost_equal(result[j], expected[j])
     
-    def test_findL5_Thorax(self):
+    def test_calc_l5_thorax(self):
         """
-        This test provides coverage of the findL5_Thorax function in pycgmKinetics.py,
-        defined as findL5_Thorax(frame), frame contains the markers: C7, RHip, LHip, Thorax_axis
+        This test provides coverage of the calc_l5_thorax function in pycgmKinetics.py,
+        defined calc_l5_thorax(rhip, lhip, thorax_axis)
 
-        Each index in accuracyTests is used as parameters for the function findL5_Thorax 
+        Each index in test_parameters is used as parameters for the function calc_l5_thorax 
         and the result is then checked to be equal with the same index in 
-        accuracyResults using 8 decimal point precision comparison.
+        test_results using 8 decimal point precision comparison.
         """
+
         # Test 3 different frames that contain different markers for C7, RHip, LHip, Thorax_axis.
-        """
-        This function tests 3 different frames.
-        """
-        accuracyTests=[]
-        frame=dict()
-        frame['Thorax_axis'] = [[[256.3454633226447, 365.7223958512035, 1461.920891187948], [257.26637166499415, 364.69602499862503, 1462.2347234647593], [256.1842731803127, 364.4328898435265, 1461.363045336319]], [256.2729542797522, 364.79605748807074, 1462.2905392309394]]
-        frame['C7'] = np.array([226.78051758, 311.28042603, 1259.70300293])
-        frame['LHip'] = np.array([262.38020472, 242.80342417, 521.98979061])
-        frame['RHip'] = np.array([82.53097863, 239.43231855, 835.529000126])
-        accuracyTests.append(frame)
+        test_parameters=[]
+
+        thorax_axis = np.array([[256.3454633226447, 365.7223958512035, 1461.920891187948, 256.2729542797522],
+                                [257.26637166499415, 364.69602499862503, 1462.2347234647593, 364.79605748807074],
+                                [256.1842731803127, 364.4328898435265, 1461.363045336319, 1462.2905392309394],
+                                [0, 0, 0, 0]])
+        rhip = np.array([82.53097863, 239.43231855, 835.529000126])
+        lhip = np.array([262.38020472, 242.80342417, 521.98979061])
+        test_parameters.append([rhip, lhip, thorax_axis])
 
         frame=dict()
-        frame['Thorax_axis'] = [[[309.69280961, 700.32003143, 203.66124527], [1111.49874303, 377.00086678, -140.88485905], [917.9480966, 60.89883132, -342.22796426]], [-857.91982333, -869.67870489, 438.51780456]]
-        frame['C7'] = np.array([921.981682, 643.5500819, 439.96382993])
-        frame['LHip'] = np.array([179.35982654, 815.09778236, 737.19459299])
-        frame['RHip'] = np.array([103.01680043, 333.88103831, 823.33260927])
-        accuracyTests.append(frame)
+        thorax_axis = np.array([[309.69280961, 700.32003143, 203.66124527, 857.91982333],
+                                [1111.49874303, 377.00086678, -140.88485905, -869.67870489],
+                                [917.9480966, 60.89883132, -342.22796426, 438.51780456],
+                                [0, 0, 0, 0]])
+        rhip = np.array([103.01680043, 333.88103831, 823.33260927])
+        lhip = np.array([179.35982654, 815.09778236, 737.19459299])
+        test_parameters.append([rhip, lhip, thorax_axis])
 
         frame=dict()
-        frame['Thorax_axis'] = [[[345.07821036, -746.40495016, -251.18652575], [499.41682335, 40.88439602, 507.51025588], [668.3596798, 1476.88140274, 783.47804105]], [1124.81785806, -776.6778811, 999.39015919]]
-        frame['C7'] = np.array([537.68019187, 691.49433996, 246.01153709])
-        frame['LHip'] = np.array([47.94211912, 338.95742186, 612.52743329])
-        frame['RHip'] = np.array([402.57410142, -967.96374463, 575.63618514])
-        accuracyTests.append(frame)
+        thorax_axis = np.array([[345.07821036, -746.40495016, -251.18652575, 1124.81785806],
+                                [499.41682335, 40.88439602, 507.51025588, -776.6778811],
+                                [668.3596798, 1476.88140274, 783.47804105, 999.39015919],
+                                [0, 0, 0, 0]])
+        rhip = np.array([402.57410142, -967.96374463, 575.63618514])
+        lhip = np.array([47.94211912, 338.95742186, 612.52743329])
+        test_parameters.append([rhip, lhip, thorax_axis])
 
-        accuracyResults=[
+        test_results=[
             ([228.5241582, 320.87776246, 998.59374786]),
             ([569.20914046, 602.88531664, 620.68955025]),
             ([690.41775396, 713.36498782, 1139.36061258])
         ]
-        for i in range(len(accuracyTests)):
-            # Call findL5_Thorax(frame) with each frame in accuracyTests and round each variable in the 3-element returned list.
-            result = [np.around(arr,rounding_precision) for arr in pycgmKinetics.findL5_Thorax(accuracyTests[i])]
-            expected = list(accuracyResults[i])
+        for i in range(len(test_parameters)):
+            # Call calc_l5_thorax(rhip, lhip, thorax_axis) with each frame in test_parameters and round each variable in the 3-element returned list.
+            result = [np.around(arr,rounding_precision) for arr in pycgmKinetics.calc_l5_thorax(*test_parameters[i])]
+            expected = list(test_results[i])
             for j in range(len(result)):
                 np.testing.assert_almost_equal(result[j], expected[j])
     
