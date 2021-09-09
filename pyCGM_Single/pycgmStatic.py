@@ -1968,57 +1968,62 @@ def rotaxis_nonfootflat(frame,ankle_JC):
 
     return [R,L,foot_axis]
 
-def getankleangle(axisP,axisD):
+def calc_static_angle_ankle(axis_p, axis_d):
     """Static angle calculation function.
 
-    This function takes in two axes and returns three angles.
-    It uses an inverse Euler rotation matrix in YXZ order.
-    The output shows the angle in degrees.
+    Takes in two axes and returns the rotation, flexion,
+    and abduction angles in degrees.
+    Uses the inverse Euler rotation matrix in YXZ order.
 
-    Since we use arc sin we must check if the angle is in area between -pi/2 and pi/2
-    but because the static offset angle under pi/2, it doesn't matter.
+    Since we use arcsin we must check if the angle is in area between -pi/2 and pi/2
+    but because the static offset angle is less than pi/2, it doesn't matter.
 
     Parameters
     ----------
-    axisP : list
-        Shows the unit vector of axisP, the position of the proximal axis.
-    axisD : list
-        Shows the unit vector of axisD, the position of the distal axis.
+    axis_p : array
+        4x4 affine matrix representing the position of the proximal axis.
+    axis_d : array
+        4x4 affine matrix representing the position of the distal axis.
 
     Returns
     -------
-    angle : list
-        Returns the gamma, beta, alpha angles in degrees in a 1x3 corresponding list.
+    angle : array
+        1x3 array representing the rotation, flexion, and abduction angles in degrees
 
     Examples
     --------
     >>> import numpy as np
-    >>> from .pycgmStatic import getankleangle
-    >>> axisP = [[ 0.59, 0.11, 0.16],
-    ...         [-0.13, -0.10, -0.90],
-    ...         [0.94, -0.05, 0.75]]
-    >>> axisD = [[0.17, 0.69, -0.37],
-    ...         [0.14, -0.39, 0.94],
-    ...         [-0.16, -0.53, -0.60]]
-    >>> np.around(getankleangle(axisP,axisD), 2)
+    >>> from .pycgmStatic import calc_static_angle_ankle
+    >>> axis_p = np.array([[ 0.59,  0.11,  0.16, 0],
+    ...                   [-0.13, -0.10, -0.90, 0],
+    ...                   [ 0.94, -0.05,  0.75, 0],
+    ...                   [ 0,     0,     0,    0]])
+    >>> axis_d = np.array([[ 0.17,  0.69, -0.37, 0],
+    ...                   [ 0.14, -0.39,  0.94, 0],
+    ...                   [-0.16, -0.53, -0.60, 0],
+    ...                   [ 0,     0,     0,    0]])
+    >>> np.around(calc_static_angle_ankle(axis_p, axis_d), 2)
     array([0.48, 1.  , 1.56])
     """
-    # make inverse matrix of axisP
-    axisPi = np.linalg.inv(axisP)
+    # make inverse matrix of axis_p
+    axis_p = axis_p[:3, :3]
+    axis_d = axis_d[:3, :3]
 
-    # M is multiply of axisD and axisPi
-    M = matrixmult(axisD,axisPi)
+    axis_p_inv = np.linalg.inv(axis_p)
+
+    # M is multiply of axis_d and axis_p_inv
+    M = matrixmult(axis_d, axis_p_inv)
 
     # This is the angle calculation in YXZ Euler angle
-    getA = M[2][1] / sqrt((M[2][0]*M[2][0])+(M[2][2]*M[2][2]))
-    getB = -1*M[2][0] / M[2][2]
-    getG = -1*M[0][1] / M[1][1]
+    a = M[2][1] / sqrt((M[2][0] * M[2][0]) + (M[2][2] * M[2][2]))
+    b = -1 * M[2][0] / M[2][2]
+    g = -1 * M[0][1] / M[1][1]
 
-    gamma =np.arctan(getG)
-    alpha = np.arctan(getA)
-    beta = np.arctan(getB)
+    gamma =np.arctan(g)
+    alpha = np.arctan(a)
+    beta = np.arctan(b)
 
-    angle = [alpha,beta,gamma]
+    angle = [alpha, beta, gamma]
     return angle
 
 def calc_joint_center(p_a, p_b, p_c, delta):
