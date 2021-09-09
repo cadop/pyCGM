@@ -2006,6 +2006,9 @@ def calc_static_angle_ankle(axis_p, axis_d):
     array([0.48, 1.  , 1.56])
     """
     # make inverse matrix of axis_p
+    axis_p = np.asarray(axis_p)
+    axis_d = np.asarray(axis_d)
+
     axis_p = axis_p[:3, :3]
     axis_d = axis_d[:3, :3]
 
