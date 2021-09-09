@@ -1705,7 +1705,7 @@ def calc_axis_flatfoot(rtoe, ltoe, rhee, lhee, ankle_axis, r_sole_delta=0, l_sol
 
     Takes in the RTOE, LTOE, RHEE and LHEE marker positions
     as well as the ankle axes. Calculates the anatomically
-    correct foot axis for feet.
+    correct foot axis for flat feet.
 
     Markers used: RTOE, LTOE, RHEE, LHEE
 
