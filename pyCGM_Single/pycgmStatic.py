@@ -254,7 +254,6 @@ def getStatic(motionData,vsk,flat_foot=False,GCS=None):
         pelvis_origin,pelvis_axis,sacrum = pelvisJointCenter(frame)
         hip_JC = hipJointCenter(frame,pelvis_origin,pelvis_axis[0],pelvis_axis[1],pelvis_axis[2],calSM)
         knee_JC = kneeJointCenter(frame,hip_JC,0,vsk=calSM)
-        ankle_JC = ankleJointCenter(frame,knee_JC,0,vsk=calSM)
         ankle_axis = calc_axis_ankle(frame['RTIB'] if 'RTIB' in frame else None,
                                      frame['LTIB'] if 'LTIB' in frame else None,
                                      frame['RANK'] if 'RANK' in frame else None,
@@ -999,15 +998,23 @@ def kneeJointCenter(frame,hip_JC,delta,vsk=None):
 
 def calc_axis_ankle(rtib, ltib, rank, lank, r_knee_JC, l_knee_JC, rank_width, lank_width, rtib_torsion, ltib_torsion):
     """Calculate the ankle joint center and axis.
+
     Takes in markers that correspond to (x, y, z) positions of the current
     frame, the knee joint centers, ankle widths, and tibial torsions.
+
     Markers used: RTIB, LTIB, RANK, LANK, r_knee_JC, l_knee_JC
+
     Subject Measurement values used:
         RightKneeWidth
+
         LeftKneeWidth
+
         RightTibialTorsion
+
         LeftTibialTorsion
+
     Ankle Axis: Computed using Ankle Axis Calculation [1]_.
+
     Parameters
     ----------
     rtib : array
@@ -1030,15 +1037,18 @@ def calc_axis_ankle(rtib, ltib, rank, lank, r_knee_JC, l_knee_JC, rank_width, la
         Right tibial torsion angle
     ltib_torsion : float
         Left tibial torsion angle
+
     Returns
     -------
     [r_axis, l_axis] : array
         An array of two 4x4 affine matrices representing the right and left
         ankle axes and joint centers.
+
     References
     ----------
     .. [1] Baker, R. (2013). Measuring walking : a handbook of clinical gait
             analysis. Mac Keith Press.
+
     Examples
     --------
     >>> import numpy as np
@@ -1155,24 +1165,24 @@ def calc_axis_ankle(rtib, ltib, rank, lank, r_knee_JC, l_knee_JC, rank_width, la
     rtib_torsion = np.radians(rtib_torsion)
     ltib_torsion = np.radians(ltib_torsion)
 
-    Raxis = [[math.cos(rtib_torsion)*Raxis[0][0]-math.sin(rtib_torsion)*Raxis[1][0],
-              math.cos(rtib_torsion)*Raxis[0][1] -
-              math.sin(rtib_torsion)*Raxis[1][1],
-              math.cos(rtib_torsion)*Raxis[0][2]-math.sin(rtib_torsion)*Raxis[1][2]],
-             [math.sin(rtib_torsion)*Raxis[0][0]+math.cos(rtib_torsion)*Raxis[1][0],
-             math.sin(rtib_torsion)*Raxis[0][1] +
-              math.cos(rtib_torsion)*Raxis[1][1],
-             math.sin(rtib_torsion)*Raxis[0][2]+math.cos(rtib_torsion)*Raxis[1][2]],
+    Raxis = [[cos(rtib_torsion)*Raxis[0][0]-sin(rtib_torsion)*Raxis[1][0],
+              cos(rtib_torsion)*Raxis[0][1] -
+              sin(rtib_torsion)*Raxis[1][1],
+              cos(rtib_torsion)*Raxis[0][2]-sin(rtib_torsion)*Raxis[1][2]],
+             [sin(rtib_torsion)*Raxis[0][0]+cos(rtib_torsion)*Raxis[1][0],
+             sin(rtib_torsion)*Raxis[0][1] +
+              cos(rtib_torsion)*Raxis[1][1],
+             sin(rtib_torsion)*Raxis[0][2]+cos(rtib_torsion)*Raxis[1][2]],
              [Raxis[2][0], Raxis[2][1], Raxis[2][2]]]
 
-    Laxis = [[math.cos(ltib_torsion)*Laxis[0][0]-math.sin(ltib_torsion)*Laxis[1][0],
-              math.cos(ltib_torsion)*Laxis[0][1] -
-              math.sin(ltib_torsion)*Laxis[1][1],
-              math.cos(ltib_torsion)*Laxis[0][2]-math.sin(ltib_torsion)*Laxis[1][2]],
-             [math.sin(ltib_torsion)*Laxis[0][0]+math.cos(ltib_torsion)*Laxis[1][0],
-             math.sin(ltib_torsion)*Laxis[0][1] +
-              math.cos(ltib_torsion)*Laxis[1][1],
-             math.sin(ltib_torsion)*Laxis[0][2]+math.cos(ltib_torsion)*Laxis[1][2]],
+    Laxis = [[cos(ltib_torsion)*Laxis[0][0]-sin(ltib_torsion)*Laxis[1][0],
+              cos(ltib_torsion)*Laxis[0][1] -
+              sin(ltib_torsion)*Laxis[1][1],
+              cos(ltib_torsion)*Laxis[0][2]-sin(ltib_torsion)*Laxis[1][2]],
+             [sin(ltib_torsion)*Laxis[0][0]+cos(ltib_torsion)*Laxis[1][0],
+             sin(ltib_torsion)*Laxis[0][1] +
+              cos(ltib_torsion)*Laxis[1][1],
+             sin(ltib_torsion)*Laxis[0][2]+cos(ltib_torsion)*Laxis[1][2]],
              [Laxis[2][0], Laxis[2][1], Laxis[2][2]]]
 
     r_axis = np.zeros((4, 4))
