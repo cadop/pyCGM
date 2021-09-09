@@ -1744,6 +1744,7 @@ def calc_axis_flatfoot(rtoe, ltoe, rhee, lhee, ankle_axis, r_sole_delta=0, l_sol
     Examples
     --------
     >>> import numpy as np
+    >>> np.set_printoptions(suppress=True)
     >>> from .pycgmStatic import calc_axis_flatfoot
     >>> rhee = [374.01, 181.58, 49.51]
     >>> lhee = [105.30, 180.21, 47.16]
@@ -1760,14 +1761,14 @@ def calc_axis_flatfoot(rtoe, ltoe, rhee, lhee, ankle_axis, r_sole_delta=0, l_sol
     >>> r_sole_delta = 0.45
     >>> l_sole_delta = 0.45
     >>> [np.around(arr, 2) for arr in calc_axis_flatfoot(rtoe, ltoe, rhee, lhee, ankle_axis, r_sole_delta, l_sole_delta)] #doctest: +NORMALIZE_WHITESPACE
-     [array([[442.31, 381.8 ,  43.5 , 442.82],
-             [442.03, 381.89,  42.12, 381.62],
-             [442.49, 380.67,  42.66,  42.66],
-             [  0.  ,   0.  ,   0.  ,   1.  ]]),
-      array([[ 39.15, 382.36,  42.74,  39.44],
-             [ 38.53, 382.16,  41.48, 382.45],
-             [ 39.75, 381.5 ,  41.79,  41.79],
-             [  0.  ,   0.  ,   0.  ,   1.  ]])]
+    [array([[ -0.27,   0.09,   0.96, 442.82],
+            [ -0.91,   0.31,  -0.29, 381.62],
+            [ -0.33,  -0.95,  -0.  ,  42.66],
+            [  0.  ,   0.  ,   0.  ,   1.  ]]), 
+     array([[ -0.42,  -0.14,   0.9 ,  39.44],
+            [ -0.85,  -0.28,  -0.45, 382.45],
+            [  0.31,  -0.95,   0.  ,  41.79],
+            [  0.  ,   0.  ,   0.  ,   1.  ]])]
     """
     #REQUIRED MARKERS:
     # RTOE
@@ -1780,8 +1781,8 @@ def calc_axis_flatfoot(rtoe, ltoe, rhee, lhee, ankle_axis, r_sole_delta=0, l_sol
 
     ankle_jc_right = ankle_axis[0][:3, 3]
     ankle_jc_left = ankle_axis[1][:3, 3]
-    ankle_flexion_right = ankle_axis[0][1, :3] + ankle_jc_right
-    ankle_flexion_left = ankle_axis[1][1, :3] + ankle_jc_left
+    ankle_flexion_right = ankle_axis[0][1, :3]
+    ankle_flexion_left = ankle_axis[1][1, :3]
 
     # Toe axis's origin is marker position of TOE
     right_origin = rtoe
@@ -1792,12 +1793,12 @@ def calc_axis_flatfoot(rtoe, ltoe, rhee, lhee, ankle_axis, r_sole_delta=0, l_sol
 
     # Calculate the z axis
     right_axis_z = ankle_jc_right - rtoe
-    right_axis_z /= np.linalg.norm(right_axis_z)
+    right_axis_z = right_axis_z / np.linalg.norm(right_axis_z)
 
     # For foot flat, Z axis pointing same height of TOE marker from TOE to AJC
     heel_to_toe = rhee - rtoe
     heel_to_toe[2] = 0
-    heel_to_toe /= np.linalg.norm(heel_to_toe)
+    heel_to_toe = heel_to_toe / np.linalg.norm(heel_to_toe)
     A = np.cross(heel_to_toe,right_axis_z)
     A = A/np.linalg.norm(A)
     B = np.cross(A,heel_to_toe)
@@ -1807,22 +1808,17 @@ def calc_axis_flatfoot(rtoe, ltoe, rhee, lhee, ankle_axis, r_sole_delta=0, l_sol
 
     # Bring flexion axis from ankle axis
     right_y_flex = ankle_flexion_right - ankle_jc_right
-    right_y_flex /= np.linalg.norm(right_y_flex)
+    right_y_flex = right_y_flex / np.linalg.norm(right_y_flex)
 
     # Calculate each x,y,z axis of foot using np.cross-product and make sure x,y,z axis is orthogonal each other.
     right_axis_x = np.cross(right_y_flex,right_axis_z)
-    right_axis_x /= np.linalg.norm(right_axis_x)
+    right_axis_x = right_axis_x / np.linalg.norm(right_axis_x)
 
     right_axis_y = np.cross(right_axis_z,right_axis_x)
-    right_axis_y /= np.linalg.norm(right_axis_y)
+    right_axis_y = right_axis_y / np.linalg.norm(right_axis_y)
 
     right_axis_z = np.cross(right_axis_x,right_axis_y)
-    right_axis_z /= np.linalg.norm(right_axis_z)
-
-    # Attach each axis to origin
-    right_axis_x += right_origin
-    right_axis_y += right_origin
-    right_axis_z += right_origin
+    right_axis_z = right_axis_z / np.linalg.norm(right_axis_z)
 
     right_foot_axis = [right_axis_x,right_axis_y,right_axis_z]
 
@@ -1830,12 +1826,12 @@ def calc_axis_flatfoot(rtoe, ltoe, rhee, lhee, ankle_axis, r_sole_delta=0, l_sol
 
     # Calculate the z axis of foot flat.
     left_axis_z = ankle_jc_left - ltoe
-    left_axis_z /= np.linalg.norm(left_axis_z)
+    left_axis_z = left_axis_z / np.linalg.norm(left_axis_z)
 
     # For foot flat, Z axis pointing same height of TOE marker from TOE to AJC
     heel_to_toe = lhee - ltoe
     heel_to_toe[2] = 0
-    heel_to_toe /= np.linalg.norm(heel_to_toe)
+    heel_to_toe = heel_to_toe / np.linalg.norm(heel_to_toe)
     A = np.cross(heel_to_toe,left_axis_z)
     A = A/np.linalg.norm(A)
     B = np.cross(A,heel_to_toe)
@@ -1845,22 +1841,17 @@ def calc_axis_flatfoot(rtoe, ltoe, rhee, lhee, ankle_axis, r_sole_delta=0, l_sol
 
     # Bring flexion axis from ankle axis
     left_y_flex = ankle_flexion_left - ankle_jc_left
-    left_y_flex /= np.linalg.norm(left_y_flex)
+    left_y_flex = left_y_flex / np.linalg.norm(left_y_flex)
 
     # Calculate each x,y,z axis of foot using np.cross-product and make sure (x, y, z) axes are orthogonal to each other
     left_axis_x = np.cross(left_y_flex,left_axis_z)
-    left_axis_x /= np.linalg.norm(left_axis_x)
+    left_axis_x = left_axis_x / np.linalg.norm(left_axis_x)
 
     left_axis_y = np.cross(left_axis_z,left_axis_x)
-    left_axis_y /= np.linalg.norm(left_axis_y)
+    left_axis_y = left_axis_y / np.linalg.norm(left_axis_y)
 
     left_axis_z = np.cross(left_axis_x,left_axis_y)
-    left_axis_z /= np.linalg.norm(left_axis_z)
-
-    # Attach each axis to origin
-    left_axis_x += left_origin
-    left_axis_y += left_origin
-    left_axis_z += left_origin
+    left_axis_z = left_axis_z / np.linalg.norm(left_axis_z)
 
     left_foot_axis = [left_axis_x,left_axis_y,left_axis_z]
 
