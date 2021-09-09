@@ -1855,8 +1855,6 @@ def calc_axis_flatfoot(rtoe, ltoe, rhee, lhee, ankle_axis, r_sole_delta=0, l_sol
 
     left_foot_axis = [left_axis_x,left_axis_y,left_axis_z]
 
-    foot_axis = [right_foot_axis,left_foot_axis]
-
     right_axis = np.identity(4)
     right_axis[:3, :3] = right_foot_axis
     right_axis[:3, 3] = right_origin
