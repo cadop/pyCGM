@@ -11,7 +11,7 @@ class TestUpperBodyAxis():
         headJC
         calc_axis_thorax
         calc_joint_center_shoulder
-        shoulderAxisCalc
+        calc_axis_shoulder
         elbowJointCenter
         wristJointCenter
         handJointCenter
@@ -766,125 +766,458 @@ class TestUpperBodyAxis():
         np.testing.assert_almost_equal(result[0], rand_coor, rounding_precision)
         np.testing.assert_almost_equal(result[1], rand_coor, rounding_precision)
 
-    @pytest.mark.parametrize(["thorax", "shoulderJC", "wand", "expected"], [
-        # Test from running sample data
-        ([[[256.23991128535846, 365.30496976939753, 1459.662169500559], [257.1435863244796, 364.21960599061947, 1459.588978712983], [256.0843053658035, 364.32180498523223, 1458.6575930699294]],  [256.149810236564, 364.3090603933987, 1459.6553639290375]],
-         [np.array([429.66951995, 275.06718615, 1453.95397813]), np.array([64.51952734, 274.93442161, 1463.6313334 ])],
-         [[255.92550222678443, 364.3226950497605, 1460.6297868417887], [256.42380097331767, 364.27770361353487, 1460.6165849382387]],
-         [[np.array([429.66951995, 275.06718615, 1453.95397813]), np.array([64.51952734, 274.93442161, 1463.6313334 ])],
-          [[[430.12731330596756, 275.9513661907463, 1454.0469882869343], [429.6862168456729, 275.1632337671314, 1452.9587414419757],  [428.78061812142147, 275.5243518770602, 1453.9831850281803]],
-           [[64.10400324869988, 275.83192826468195, 1463.7790545425955],  [64.59882848203122, 274.80838068265837, 1464.620183745389],  [65.42564601518438, 275.3570272042577, 1463.6125331307376]]]]),
-        # Test with zeros for all params
-        ([[rand_coor, rand_coor, rand_coor], [0, 0, 0]],
-         [np.array([0, 0, 0]),  np.array([0, 0, 0])],
-         [[0, 0, 0], [0, 0, 0]],
-         [[np.array([0, 0, 0]), np.array([0, 0, 0])],
-          [[nan_3d, nan_3d, nan_3d],
-           [nan_3d, nan_3d, nan_3d]]]),
-        # Testing when adding values in thorax but zeros for all other params
-        ([[rand_coor, rand_coor, rand_coor], [8, 2, -6]],
-         [np.array([0, 0, 0]), np.array([0, 0, 0])],
-         [[0, 0, 0], [0, 0, 0]],
-         [[np.array([0, 0, 0]), np.array([0, 0, 0])],
-          [[nan_3d, nan_3d, [0.78446454, 0.19611614, -0.58834841]],
-           [nan_3d, nan_3d, [0.78446454, 0.19611614, -0.58834841]]]]),
-        # Testing when adding values in shoulderJC but zeros for all other params
-        ([[rand_coor, rand_coor, rand_coor], [0, 0, 0]],
-         [np.array([1, 5, -3]), np.array([0, -9, 2])],
-         [[0, 0, 0], [0, 0, 0]],
-         [[np.array([1, 5, -3]), np.array([0, -9, 2])],
-          [[nan_3d, nan_3d, [0.830969149054, 4.154845745271, -2.4929074471]],
-           [nan_3d, nan_3d, [0.0, -8.02381293981, 1.783069542181]]]]),
-        # Testing when adding values in wand but zeros for all other params
-        ([[rand_coor, rand_coor, rand_coor], [0, 0, 0]],
-         [np.array([0, 0, 0]), np.array([0, 0, 0])],
-         [[1, 0, -7], [-3, 5, 3]],
-         [[np.array([0, 0, 0]), np.array([0, 0, 0])],
-          [[nan_3d, nan_3d, nan_3d],
-           [nan_3d, nan_3d, nan_3d]]]),
-        # Testing when adding values to thorax and shoulderJC
-        ([[rand_coor, rand_coor, rand_coor], [8, 2, -6]],
-         [np.array([1, 5, -3]), np.array([0, -9, 2])],
-         [[0, 0, 0], [0, 0, 0]],
-         [[np.array([1, 5, -3]), np.array([0, -9, 2])],
-          [[[0.50428457, 4.62821343, -3.78488277], [1.15140320, 5.85290468, -3.49963055], [1.85518611, 4.63349167, -3.36650833]],
-           [[-0.5611251741, -9.179560055, 1.191979749], [-0.65430149, -8.305871473, 2.3001252440], [0.5069794004, -8.302903324, 1.493020599]]]]),
-        # Testing when adding values to thorax and wand
-        ([[rand_coor, rand_coor, rand_coor], [8, 2, -6]],
-         [np.array([0, 0, 0]), np.array([0, 0, 0])],
-         [[1, 0, -7], [-3, 5, 3]],
-         [[np.array([0, 0, 0]), np.array([0, 0, 0])],
-          [[[-0.269430125, 0.96225044, -0.03849001], [0.55859, 0.18871284, 0.80769095], [0.78446454, 0.19611614, -0.58834841]],
-           [[-0.6130824329, 0.10218040549, -0.7833831087], [-0.09351638899, 0.9752423423, 0.20039226212], [0.7844645405, 0.19611613513, -0.5883484054]]]]),
-        # Testing when adding values to shoulderJC and wand
-        ([[rand_coor, rand_coor, rand_coor], [0, 0, 0]],
-         [np.array([1, 5, -3]), np.array([0, -9, 2])],
-         [[1, 0, -7], [-3, 5, 3]],
-         [[np.array([1, 5, -3]), np.array([0, -9, 2])],
-          [[[1.98367400, 4.88758011, -2.85947514], [0.93824211, 5.52256679, -2.14964131], [0.83096915, 4.15484575, -2.49290745]],
-           [[-0.80094836, -9.12988352, 1.41552417], [-0.59873343, -8.82624991, 2.78187543], [0.0, -8.02381294, 1.78306954]]]]),
-        # Testing when adding values to thorax, shoulderJC and wand
-        ([[rand_coor, rand_coor, rand_coor], [8, 2, -6]],
-         [np.array([1, 5, -3]), np.array([0, -9, 2])],
-         [[1, 0, -7], [-3, 5, 3]],
-         [[np.array([1, 5, -3]), np.array([0, -9, 2])],
-          [[[0.93321781, 5.62330046, -3.77912558], [1.51400083, 5.69077360, -2.49143833], [1.85518611, 4.63349167, -3.36650833]],
-           [[-0.64460664, -9.08385127, 1.24009787], [-0.57223612, -8.287942994, 2.40684228], [0.50697940, -8.30290332, 1.4930206]]]]),
-        # Testing that when thorax, shoulderJC, and wand are lists of ints
-        ([[rand_coor, rand_coor, rand_coor], [8, 2, -6]],
-         [[1, 5, -3], [0, -9, 2]],
-         [[1, 0, -7], [-3, 5, 3]],
-         [[np.array([1, 5, -3]), np.array([0, -9, 2])],
-          [[[0.93321781, 5.62330046, -3.77912558], [1.51400083, 5.69077360, -2.49143833],
-            [1.85518611, 4.63349167, -3.36650833]],
-           [[-0.64460664, -9.08385127, 1.24009787], [-0.57223612, -8.287942994, 2.40684228],
-            [0.50697940, -8.30290332, 1.4930206]]]]),
-        # Testing that when thorax, shoulderJC and wand are numpy arrays of ints
-        ([[rand_coor, rand_coor, rand_coor], np.array([8, 2, -6], dtype='int')],
-         np.array([np.array([1, 5, -3], dtype='int'), np.array([0, -9, 2], dtype='int')], dtype='int'),
-         np.array([np.array([1, 0, -7], dtype='int'),  np.array([-3, 5, 3], dtype='int')], dtype='int'),
-         [[np.array([1, 5, -3]), np.array([0, -9, 2])],
-          [[[0.93321781, 5.62330046, -3.77912558], [1.51400083, 5.69077360, -2.49143833],
-            [1.85518611, 4.63349167, -3.36650833]],
-           [[-0.64460664, -9.08385127, 1.24009787], [-0.57223612, -8.287942994, 2.40684228],
-            [0.50697940, -8.30290332, 1.4930206]]]]),
-        # Testing that when thorax, shoulderJC and wand are lists of floats
-        ([[rand_coor, rand_coor, rand_coor], [8.0, 2.0, -6.0]],
-         [[1.0, 5.0, -3.0], [0.0, -9.0, 2.0]],
-         [[1.0, 0.0, -7.0], [-3.0, 5.0, 3.0]],
-         [[np.array([1, 5, -3]), np.array([0, -9, 2])],
-          [[[0.93321781, 5.62330046, -3.77912558], [1.51400083, 5.69077360, -2.49143833],
-            [1.85518611, 4.63349167, -3.36650833]],
-           [[-0.64460664, -9.08385127, 1.24009787], [-0.57223612, -8.287942994, 2.40684228],
-            [0.50697940, -8.30290332, 1.4930206]]]]),
-        # Testing that when thorax, shoulderJC and wand are numpy arrays of floats
-        ([[rand_coor, rand_coor, rand_coor], np.array([8.0, 2.0, -6.0], dtype='float')],
-         np.array([np.array([1.0, 5.0, -3.0], dtype='float'), np.array([0.0, -9.0, 2.0], dtype='float')], dtype='float'),
-         np.array([np.array([1.0, 0.0, -7.0], dtype='float'), np.array([-3.0, 5.0, 3.0], dtype='float')], dtype='float'),
-         [[np.array([1.0, 5.0, -3.0]), np.array([0.0, -9.0, 2.0])],
-          [[[0.93321781, 5.62330046, -3.77912558], [1.51400083, 5.69077360, -2.49143833],
-            [1.85518611, 4.63349167, -3.36650833]],
-           [[-0.64460664, -9.08385127, 1.24009787], [-0.57223612, -8.287942994, 2.40684228],
-            [0.50697940, -8.30290332, 1.4930206]]]])])
-    def test_shoulderAxisCalc(self, thorax, shoulderJC, wand, expected):
+    @pytest.mark.parametrize(
+        ["thorax", "joint_center_shoulder", "wand", "expected"],
+        [
+            # Test from running sample data
+            (
+                np.array([[256.23991128535846, 365.30496976939753, 1459.662169500559, 256.149810236564],
+                          [257.1435863244796, 364.21960599061947, 1459.588978712983, 364.3090603933987],
+                          [256.0843053658035, 364.32180498523223, 1458.6575930699294, 1459.6553639290375],
+                          [0, 0, 0, 1]]
+                        ),
+                [
+                    np.array([[0, 0, 0, 429.66951995],
+                              [0, 0, 0, 275.06718615],
+                              [0, 0, 0, 1453.95397813],
+                              [0, 0, 0, 0]]),
+                    np.array([[0, 0, 0, 64.51952734],
+                              [0, 0, 0, 274.93442161],
+                              [0, 0, 0, 1463.6313334],
+                              [0, 0, 0, 0]]),
+                ],
+                [
+                    [255.92550222678443, 364.3226950497605, 1460.6297868417887],
+                    [256.42380097331767, 364.27770361353487, 1460.6165849382387],
+                ],
+                [
+                    np.array([[430.12731330596756, 275.9513661907463, 1454.0469882869343, 429.66951995],
+                              [429.6862168456729, 275.1632337671314, 1452.9587414419757, 275.06718615],
+                              [428.78061812142147, 275.5243518770602, 1453.9831850281803, 1453.95397813],
+                              [0, 0, 0, 1]]
+                            ),
+                    np.array([[64.10400324869988, 275.83192826468195, 1463.7790545425955, 64.51952734],
+                              [64.59882848203122, 274.80838068265837, 1464.620183745389, 274.93442161],
+                              [65.42564601518438, 275.3570272042577, 1463.6125331307376, 1463.6313334],
+                              [0, 0, 0, 1]]
+                            ),
+                ],
+            ),
+            # Test with zeros for all params
+            (
+                np.array([[0, 0, 0, 0],
+                          [0, 0, 0, 0],
+                          [0, 0, 0, 0],
+                          [0, 0, 0, 1]]),
+                [
+                     np.array([[0, 0, 0, 0],
+                               [0, 0, 0, 0],
+                               [0, 0, 0, 0],
+                               [0, 0, 0, 1]]), 
+                     np.array([[0, 0, 0, 0],
+                               [0, 0, 0, 0],
+                               [0, 0, 0, 0],
+                               [0, 0, 0, 1]]) 
+                ],
+                [
+                    [0, 0, 0],
+                    [0, 0, 0],
+                ],
+                [
+                     np.array([[np.nan, np.nan, np.nan, 0],
+                               [np.nan, np.nan, np.nan, 0],
+                               [np.nan, np.nan, np.nan, 0],
+                               [ 0,      0,      0,     1]]), 
+                     np.array([[np.nan, np.nan, np.nan, 0],
+                               [np.nan, np.nan, np.nan, 0],
+                               [np.nan, np.nan, np.nan, 0],
+                               [ 0,      0,      0,     1]]), 
+                ],
+            ),
+            # Testing when adding values in thorax but zeros for all other params
+            (
+                np.array([[0, 0, 0,  8],
+                          [0, 0, 0,  2],
+                          [0, 0, 0, -6],
+                          [0, 0, 0,  1]]),
+                [
+                     np.array([[0, 0, 0, 0],
+                               [0, 0, 0, 0],
+                               [0, 0, 0, 0],
+                               [0, 0, 0, 1]]), 
+                     np.array([[0, 0, 0, 0],
+                               [0, 0, 0, 0],
+                               [0, 0, 0, 0],
+                               [0, 0, 0, 1]]) 
+                ],
+                [
+                    [0, 0, 0],
+                    [0, 0, 0],
+                ],
+                [
+                     np.array([[np.nan,      np.nan,     np.nan,      0],
+                               [np.nan,      np.nan,     np.nan,      0],
+                               [ 0.78446454, 0.19611614, -0.58834841, 0],
+                               [ 0,          0,           0,          1]]), 
+                     np.array([[np.nan,      np.nan,     np.nan,      0],
+                               [np.nan,      np.nan,     np.nan,      0],
+                               [ 0.78446454, 0.19611614, -0.58834841, 0],
+                               [ 0,          0,           0,          1]]), 
+                ]
+            ),
+            # Testing when adding values in joint_center_shoulder but zeros for all other params
+            (
+                np.array([[0, 0, 0, 0],
+                          [0, 0, 0, 0],
+                          [0, 0, 0, 0],
+                          [0, 0, 0, 1]]),
+                [
+                     np.array([[0, 0, 0,  1],
+                               [0, 0, 0,  5],
+                               [0, 0, 0, -3],
+                               [0, 0, 0, 1]]), 
+                     np.array([[0, 0, 0,  0],
+                               [0, 0, 0, -9],
+                               [0, 0, 0,  2],
+                               [0, 0, 0,  1]]) 
+                ],
+                [
+                    [0, 0, 0],
+                    [0, 0, 0]
+                ],
+                [
+                     np.array([[np.nan,         np.nan,          np.nan,         1],
+                               [np.nan,         np.nan,          np.nan,         5],
+                               [ 0.830969149054, 4.154845745271, -2.4929074471, -3],
+                               [ 0,              0,               0,             1]]), 
+                     np.array([[np.nan, np.nan,        np.nan,          0],
+                               [np.nan, np.nan,        np.nan,         -9],
+                               [ 0.0,   -8.02381293981, 1.783069542181, 2],
+                               [ 0,      0,             0,              1]]), 
+                ]
+            ),
+            # Testing when adding values in wand but zeros for all other params
+            (
+                np.array([[0, 0, 0, 0],
+                          [0, 0, 0, 0],
+                          [0, 0, 0, 0],
+                          [0, 0, 0, 1]]),
+                [
+                     np.array([[0, 0, 0, 0],
+                               [0, 0, 0, 0],
+                               [0, 0, 0, 0],
+                               [0, 0, 0, 1]]), 
+                     np.array([[0, 0, 0, 0],
+                               [0, 0, 0, 0],
+                               [0, 0, 0, 0],
+                               [0, 0, 0, 1]]) 
+                ],
+                [
+                    [1, 0, -7],
+                    [-3, 5, 3]
+                ],
+                [
+                     np.array([[np.nan, np.nan, np.nan, 0],
+                               [np.nan, np.nan, np.nan, 0],
+                               [np.nan, np.nan, np.nan, 0],
+                               [ 0,      0,      0,     1]]), 
+                     np.array([[np.nan, np.nan, np.nan, 0],
+                               [np.nan, np.nan, np.nan, 0],
+                               [np.nan, np.nan, np.nan, 0],
+                               [ 0,      0,      0,     1]]), 
+                ],
+            ),
+            # Testing when adding values to thorax and joint_center_shoulder
+            (
+                np.array([[0, 0, 0,  8],
+                          [0, 0, 0,  2],
+                          [0, 0, 0, -6],
+                          [0, 0, 0,  1]]),
+                [
+                     np.array([[0, 0, 0,  1],
+                               [0, 0, 0,  5],
+                               [0, 0, 0, -3],
+                               [0, 0, 0, 1]]), 
+                     np.array([[0, 0, 0,  0],
+                               [0, 0, 0, -9],
+                               [0, 0, 0,  2],
+                               [0, 0, 0,  1]]) 
+                ],
+                [
+                    [0, 0, 0],
+                    [0, 0, 0]
+                ],
+                [
+                    np.array([[0.50428457, 4.62821343, -3.78488277, 1],
+                              [1.15140320, 5.85290468, -3.49963055, 5],
+                              [1.85518611, 4.63349167, -3.36650833, -3],
+                              [0, 0, 0, 1]]),
+                    np.array([[-0.5611251741, -9.179560055, 1.191979749, 0],
+                              [-0.65430149, -8.305871473, 2.3001252440, -9],
+                              [0.5069794004, -8.302903324, 1.493020599, 2],
+                              [0, 0, 0, 1]])
+                ],
+            ),
+            # # Testing when adding values to thorax and wand
+            (
+                np.array([[0, 0, 0,  8],
+                          [0, 0, 0,  2],
+                          [0, 0, 0, -6],
+                          [0, 0, 0,  1]]),
+                [
+                     np.array([[0, 0, 0, 0],
+                               [0, 0, 0, 0],
+                               [0, 0, 0, 0],
+                               [0, 0, 0, 1]]), 
+                     np.array([[0, 0, 0, 0],
+                               [0, 0, 0, 0],
+                               [0, 0, 0, 0],
+                               [0, 0, 0, 1]]) 
+                ],
+                [
+                    [1, 0, -7],
+                    [-3, 5, 3]
+                ],
+                [
+                    np.array([[-0.269430125, 0.96225044, -0.03849001, 0],
+                              [0.55859, 0.18871284, 0.80769095, 0],
+                              [0.78446454, 0.19611614, -0.58834841, 0],
+                              [0, 0, 0, 1]]),
+                    np.array([[-0.6130824329, 0.10218040549, -0.7833831087, 0],
+                              [-0.09351638899, 0.9752423423, 0.20039226212, 0],
+                              [0.7844645405, 0.19611613513, -0.5883484054, 0],
+                              [0, 0, 0, 1]])
+                ]
+            ),
+            # Testing when adding values to joint_center_shoulder and wand
+            (
+                np.array([[0, 0, 0, 0],
+                          [0, 0, 0, 0],
+                          [0, 0, 0, 0],
+                          [0, 0, 0, 1]]),
+                [
+                     np.array([[0, 0, 0,  1],
+                               [0, 0, 0,  5],
+                               [0, 0, 0, -3],
+                               [0, 0, 0,  1]]), 
+                     np.array([[0, 0, 0,  0],
+                               [0, 0, 0, -9],
+                               [0, 0, 0,  2],
+                               [0, 0, 0,  1]]) 
+                ],
+                [
+                    [1, 0, -7],
+                    [-3, 5, 3]
+                ],
+                [
+                    np.array([[1.98367400, 4.88758011, -2.85947514,  1],
+                              [0.93824211, 5.52256679, -2.14964131,  5],
+                              [0.83096915, 4.15484575, -2.49290745, -3],
+                              [0, 0, 0, 1]]),
+                    np.array([[-0.80094836, -9.12988352, 1.41552417, 0],
+                              [-0.59873343, -8.82624991, 2.78187543, -9],
+                              [0.0, -8.02381294, 1.78306954, 2],
+                              [0, 0, 0, 1]])
+                ],
+            ),
+            # Testing when adding values to thorax, joint_center_shoulder and wand
+            (
+                np.array([[0, 0, 0,  8],
+                          [0, 0, 0,  2],
+                          [0, 0, 0, -6],
+                          [0, 0, 0,  1]]),
+                [
+                     np.array([[0, 0, 0,  1],
+                               [0, 0, 0,  5],
+                               [0, 0, 0, -3],
+                               [0, 0, 0,  1]]), 
+                     np.array([[0, 0, 0,  0],
+                               [0, 0, 0, -9],
+                               [0, 0, 0,  2],
+                               [0, 0, 0,  1]]) 
+                ],
+                [
+                    [1, 0, -7],
+                    [-3, 5, 3]
+                ],
+                [
+                    np.array([[0.93321781, 5.62330046, -3.77912558,  1],
+                              [1.51400083, 5.69077360, -2.49143833,  5],
+                              [1.85518611, 4.63349167, -3.36650833, -3],
+                              [0, 0, 0, 1]]),
+                    np.array([[-0.64460664, -9.08385127, 1.24009787, 0],
+                              [-0.57223612, -8.287942994, 2.40684228, -9],
+                              [0.50697940, -8.30290332, 1.4930206, 2],
+                              [0, 0, 0, 1]])
+                ],
+            ),
+            # # Testing that when thorax, joint_center_shoulder, and wand are lists of ints
+            (
+                [[0, 0, 0,  8],
+                 [0, 0, 0,  2],
+                 [0, 0, 0, -6],
+                 [0, 0, 0,  1]],
+                [
+                     [[0, 0, 0,  1],
+                      [0, 0, 0,  5],
+                      [0, 0, 0, -3],
+                      [0, 0, 0,  1]], 
+                     [[0, 0, 0,  0],
+                      [0, 0, 0, -9],
+                      [0, 0, 0,  2],
+                      [0, 0, 0,  1]]
+                ],
+                [
+                    [1, 0, -7], 
+                    [-3, 5, 3]
+                ],
+                [
+                    np.array([[0.93321781, 5.62330046, -3.77912558,  1],
+                              [1.51400083, 5.69077360, -2.49143833,  5],
+                              [1.85518611, 4.63349167, -3.36650833, -3],
+                              [0, 0, 0, 1]]),
+                    np.array([[-0.64460664, -9.08385127, 1.24009787, 0],
+                              [-0.57223612, -8.287942994, 2.40684228, -9],
+                              [0.50697940, -8.30290332, 1.4930206, 2],
+                              [0, 0, 0, 1]])
+                ],
+            ),
+            # Testing that when thorax, joint_center_shoulder and wand are numpy arrays of ints
+            (
+                np.array([[0, 0, 0,  8],
+                          [0, 0, 0,  2],
+                          [0, 0, 0, -6],
+                          [0, 0, 0,  1]], dtype="int"),
+                [
+                     np.array([[0, 0, 0,  1],
+                               [0, 0, 0,  5],
+                               [0, 0, 0, -3],
+                               [0, 0, 0,  1]], dtype="int"), 
+                     np.array([[0, 0, 0,  0],
+                               [0, 0, 0, -9],
+                               [0, 0, 0,  2],
+                               [0, 0, 0,  1]], dtype="int") 
+                ],
+                np.array([[1, 0, -7],
+                          [-3, 5, 3]], dtype="int"),
+                [
+                    np.array([[0.93321781, 5.62330046, -3.77912558,  1],
+                              [1.51400083, 5.69077360, -2.49143833,  5],
+                              [1.85518611, 4.63349167, -3.36650833, -3],
+                              [0, 0, 0, 1]]),
+                    np.array([[-0.64460664, -9.08385127, 1.24009787, 0],
+                              [-0.57223612, -8.287942994, 2.40684228, -9],
+                              [0.50697940, -8.30290332, 1.4930206, 2],
+                              [0, 0, 0, 1]])
+                ],
+            ),
+            # Testing that when thorax, joint_center_shoulder and wand are lists of floats
+            (
+                np.array([[0, 0, 0,  8.0],
+                          [0, 0, 0,  2.0],
+                          [0, 0, 0, -6.0],
+                          [0, 0, 0,  1]]),
+                [
+                     np.array([[0, 0, 0,  1.0],
+                               [0, 0, 0,  5.0],
+                               [0, 0, 0, -3.0],
+                               [0, 0, 0,  1]]), 
+                     np.array([[0, 0, 0,  0.0],
+                               [0, 0, 0, -9.0],
+                               [0, 0, 0,  2.0],
+                               [0, 0, 0,  1]]) 
+                ],
+                [
+                    [1.0, 0.0, -7.0],
+                    [-3.0, 5.0, 3.0]
+                ],
+                [
+                    np.array([[0.93321781, 5.62330046, -3.77912558,  1],
+                              [1.51400083, 5.69077360, -2.49143833,  5],
+                              [1.85518611, 4.63349167, -3.36650833, -3],
+                              [0, 0, 0, 1]]),
+                    np.array([[-0.64460664, -9.08385127, 1.24009787, 0],
+                              [-0.57223612, -8.287942994, 2.40684228, -9],
+                              [0.50697940, -8.30290332, 1.4930206, 2],
+                              [0, 0, 0, 1]])
+                ],
+            ),
+            # Testing that when thorax, joint_center_shoulder and wand are numpy arrays of floats
+            # ["thorax", "joint_center_shoulder", "wand", "expected"],
+            (
+                np.array([[0, 0, 0,  8.0],
+                          [0, 0, 0,  2.0],
+                          [0, 0, 0, -6.0],
+                          [0, 0, 0,  1]], dtype="float"),
+                [
+                     np.array([[0, 0, 0,  1.0],
+                               [0, 0, 0,  5.0],
+                               [0, 0, 0, -3.0],
+                               [0, 0, 0,  1]], dtype="float"), 
+                     np.array([[0, 0, 0,  0.0],
+                               [0, 0, 0, -9.0],
+                               [0, 0, 0,  2.0],
+                               [0, 0, 0,  1]], dtype="float") 
+                ],
+                np.array([[1.0, 0.0, -7.0],
+                          [-3.0, 5.0, 3.0]], dtype="float"),
+                [
+                    np.array([[0.93321781, 5.62330046, -3.77912558,  1],
+                              [1.51400083, 5.69077360, -2.49143833,  5],
+                              [1.85518611, 4.63349167, -3.36650833, -3],
+                              [0, 0, 0, 1]]),
+                    np.array([[-0.64460664, -9.08385127, 1.24009787, 0],
+                              [-0.57223612, -8.287942994, 2.40684228, -9],
+                              [0.50697940, -8.30290332, 1.4930206, 2],
+                              [0, 0, 0, 1]])
+                ],
+            ),
+    ])
+    def test_calc_axis_shoulder(self, thorax, joint_center_shoulder, wand, expected):
         """
-        This test provides coverage of the shoulderAxisCalc function in pyCGM.py, defined as shoulderAxisCalc(frame, thorax, shoulderJC, wand)
+        This test provides coverage of the calc_axis_shoulder function in pyCGM.py, defined as 
+        calc_axis_shoulder(thorax_axis, r_sho_jc, l_sho_jc, r_wand, l_wand):
 
         This test takes 4 parameters:
-        thorax: array containing several x,y,z markers for the thorax
-        shoulderJC: array containing x,y,z position of the shoulder joint center
-        wand: array containing two x,y,z markers for wand
-        expected: the expected result from calling shoulderAxisCalc on thorax, shoulderJC, and wand
+        thorax: 4x4 affine matrix containing the thorax axes and origin
+        joint_center_shoulder: list of two 4x4 affine matrices containing the right and left shoulder
+        axes and origins
+        wand: array containing the (x, y, z) position of the right and left wand markers
+        expected: the expected result from calling calc_axis_shoulder on thorax_axis, r_sho_jc, l_sho_jc, r_wand, and l_wand
 
-        For the left and right shoulder axis, the respective axis is calculated by taking the difference from the respective direction (left or right) and the throax origin. 
+        For the left and right shoulder axis, the respective axis is calculated by taking the difference from the respective direction (left or right) and the thorax origin. 
         The difference is then used to get the direction of each respective shoulder joint center for each shoulder axis in the order of Z, X, Y. 
         The direction is then applied backwords to each shoulder joint center to account for variations in marker sizes. 
 
-        Lastly, it checks that the resulting output is correct when shoulderJC and wand are a list of ints, a
+        Lastly, it checks that the resulting output is correct when joint_center_shoulder and wand are a list of ints, a
         numpy array of ints, a list of floats, and a numpy array of floats, and thorax values are either an int or a
-        float. Thorax cannot be a numpy array due it not being shaped like a multi-dimensional array.
+        float.
         """
-        result = pyCGM.shoulderAxisCalc(None, thorax, shoulderJC, wand)
+        r_sho_jc = joint_center_shoulder[0]
+        l_sho_jc = joint_center_shoulder[1]
+
+        r_wand = wand[0]
+        l_wand = wand[1]
+
+        result = pyCGM.calc_axis_shoulder(thorax, r_sho_jc, l_sho_jc, r_wand, l_wand)
+        
+        right_axis = result[0]
+        left_axis = result[1]
+
+        # Add back right knee origin
+        right_o = right_axis[:3, 3]
+        right_axis[0, :3] += right_o
+        right_axis[1, :3] += right_o
+        right_axis[2, :3] += right_o
+
+        # Add back left knee origin
+        left_o = left_axis[:3, 3]
+        left_axis[0, :3] += left_o
+        left_axis[1, :3] += left_o
+        left_axis[2, :3] += left_o
+
+        result = [right_axis, left_axis]
+
         np.testing.assert_almost_equal(result[0], expected[0], rounding_precision)
         np.testing.assert_almost_equal(result[1], expected[1], rounding_precision)
 
