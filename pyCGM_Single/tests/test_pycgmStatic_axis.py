@@ -9,7 +9,7 @@ class TestPycgmStaticAxis():
     """
     This class tests the axis functions in pycgmStatic.py:
         calc_static_head
-        pelvisJointCenter
+        calc_axis_pelvis
         calc_joint_center_hip
         hipAxisCenter
         kneeJointCenter
@@ -162,108 +162,216 @@ class TestPycgmStaticAxis():
         np.testing.assert_almost_equal(result, expected, rounding_precision)
 
     @pytest.mark.parametrize(["frame", "expected"], [
-        # Test from running sample data
-        ({'RASI': np.array([357.90066528, 377.69210815, 1034.97253418]),
-          'LASI': np.array([145.31594849, 405.79052734, 1030.81445312]),
-          'RPSI': np.array([274.00466919, 205.64402771, 1051.76452637]),
-          'LPSI': np.array([189.15231323, 214.86122131, 1052.73486328])},
-         [np.array([251.60830688, 391.74131775, 1032.89349365]),
-          np.array([[251.74063624, 392.72694721, 1032.78850073], [250.61711554, 391.87232862, 1032.8741063], [251.60295336, 391.84795134, 1033.88777762]]),
-          np.array([231.57849121, 210.25262451, 1052.24969482])]),
-        # Test with zeros for all params
-        ({'SACR': np.array([0, 0, 0]), 'RASI': np.array([0, 0, 0]), 'LASI': np.array([0, 0, 0]),
-          'RPSI': np.array([0, 0, 0]), 'LPSI': np.array([0, 0, 0])},
-         [np.array([0, 0, 0]), np.array([nan_3d, nan_3d, nan_3d]), np.array([0, 0, 0])]),
-        # Testing when adding values to frame['RASI'] and frame['LASI']
-        ({'RASI': np.array([-6, 6, 3]), 'LASI': np.array([-7, -9, 1]), 'RPSI': np.array([0, 0, 0]),
-          'LPSI': np.array([0, 0, 0])},
-         [np.array([-6.5, -1.5, 2.0]),
-          np.array([[-7.44458106, -1.48072284, 2.32771179], [-6.56593805, -2.48907071, 1.86812391], [-6.17841206, -1.64617634, 2.93552855]]),
-          np.array([0, 0, 0])]),
-        # Testing when adding values to frame['RPSI'] and frame['LPSI']
-        ({'RASI': np.array([0, 0, 0]), 'LASI': np.array([0, 0, 0]), 'RPSI': np.array([1, 0, -4]),
-          'LPSI': np.array([7, -2, 2])},
-         [np.array([0, 0, 0]), np.array([nan_3d, nan_3d, nan_3d]), np.array([4., -1.0, -1.0])]),
-        # Testing when adding values to frame['SACR']
-        ({'SACR': np.array([-4, 8, -5]), 'RASI': np.array([0, 0, 0]), 'LASI': np.array([0, 0, 0]),
-          'RPSI': np.array([0, 0, 0]), 'LPSI': np.array([0, 0, 0])},
-         [np.array([0, 0, 0]), np.array([nan_3d, nan_3d, nan_3d]), np.array([-4, 8, -5, ])]),
-        # Testing when adding values to frame['RASI'], frame['LASI'], frame['RPSI'] and frame['LPSI']
-        ({'RASI': np.array([-6, 6, 3]), 'LASI': np.array([-7, -9, 1]), 'RPSI': np.array([1, 0, -4]),
-          'LPSI': np.array([7, -2, 2])},
-         [np.array([-6.5, -1.5, 2.0]),
-          np.array([[-7.45825845, -1.47407957, 2.28472598], [-6.56593805, -2.48907071, 1.86812391], [-6.22180416, -1.64514566, 2.9494945]]),
-          np.array([4.0, -1.0, -1.0])]),
-        # Testing when adding values to frame['SACR'], frame['RASI'] and frame['LASI']
-        ({'SACR': np.array([-4, 8, -5]), 'RASI': np.array([-6, 6, 3]), 'LASI': np.array([-7, -9, 1]),
-          'RPSI': np.array([0, 0, 0]), 'LPSI': np.array([0, 0, 0])},
-         [np.array([-6.5, -1.5, 2.0]),
-          np.array([[-6.72928306, -1.61360872, 2.96670695], [-6.56593805, -2.48907071, 1.86812391], [-5.52887619, -1.59397972, 2.21928602]]),
-          np.array([-4, 8, -5])]),
-        # Testing when adding values to frame['SACR'], frame['RPSI'] and frame['LPSI']
-        ({'SACR': np.array([-4, 8, -5]), 'RASI': np.array([0, 0, 0]), 'LASI': np.array([0, 0, 0]),
-          'RPSI': np.array([1, 0, -4]), 'LPSI': np.array([7, -2, 2])},
-         [np.array([0, 0, 0]), np.array([nan_3d, nan_3d, nan_3d]), np.array([-4, 8, -5])]),
-        # Testing when adding values to frame['SACR'], frame['RASI'], frame['LASI'], frame['RPSI'] and frame['LPSI']
-        ({'SACR': np.array([-4, 8, -5]), 'RASI': np.array([-6, 6, 3]), 'LASI': np.array([-7, -9, 1]),
-          'RPSI': np.array([1, 0, -4]), 'LPSI': np.array([7, -2, 2])},
-         [np.array([-6.5, -1.5, 2.0]),
-          np.array([[-6.72928306, -1.61360872, 2.96670695], [-6.56593805, -2.48907071, 1.86812391], [-5.52887619, -1.59397972, 2.21928602]]),
-          np.array([-4, 8, -5])]),
-        # Testing that when frame is composed of lists of ints
-        ({'SACR': [-4, 8, -5], 'RASI': np.array([-6, 6, 3]), 'LASI': np.array([-7, -9, 1]), 'RPSI': [1, 0, -4],
-          'LPSI': [7, -2, 2]},
-         [np.array([-6.5, -1.5, 2.0]),
-          np.array([[-6.72928306, -1.61360872, 2.96670695], [-6.56593805, -2.48907071, 1.86812391], [-5.52887619, -1.59397972, 2.21928602]]),
-          np.array([-4, 8, -5])]),
-        # Testing that when frame is composed ofe numpy arrays of ints
-        ({'SACR': np.array([-4, 8, -5], dtype='int'), 'RASI': np.array([-6, 6, 3], dtype='int'),
-          'LASI': np.array([-7, -9, 1], dtype='int'), 'RPSI': np.array([1, 0, -4], dtype='int'),
-          'LPSI': np.array([7, -2, 2], dtype='int')},
-         [np.array([-6.5, -1.5, 2.0]),
-          np.array([[-6.72928306, -1.61360872, 2.96670695], [-6.56593805, -2.48907071, 1.86812391], [-5.52887619, -1.59397972, 2.21928602]]),
-          np.array([-4, 8, -5])]),
-        # Testing that when frame is composed of lists of floats
-        ({'SACR': [-4.0, 8.0, -5.0], 'RASI': np.array([-6.0, 6.0, 3.0]), 'LASI': np.array([-7.0, -9.0, 1.0]),
-          'RPSI': [1.0, 0.0, -4.0], 'LPSI': [7.0, -2.0, 2.0]},
-         [np.array([-6.5, -1.5, 2.0]),
-          np.array([[-6.72928306, -1.61360872, 2.96670695], [-6.56593805, -2.48907071, 1.86812391], [-5.52887619, -1.59397972, 2.21928602]]),
-          np.array([-4, 8, -5])]),
-        # Testing that when frame is composed of numpy arrays of floats
-        ({'SACR': np.array([-4.0, 8.0, -5.0], dtype='float'), 'RASI': np.array([-6.0, 6.0, 3.0], dtype='float'),
-          'LASI': np.array([-7.0, -9.0, 1.0], dtype='float'), 'RPSI': np.array([1.0, 0.0, -4.0], dtype='float'),
-          'LPSI': np.array([7.0, -2.0, 2.0], dtype='float')},
-         [np.array([-6.5, -1.5, 2.0]),
-          np.array([[-6.72928306, -1.61360872, 2.96670695], [-6.56593805, -2.48907071, 1.86812391], [-5.52887619, -1.59397972, 2.21928602]]),
-          np.array([-4, 8, -5])])])
-    def test_pelvisJointCenter(self, frame, expected):
+            # Test from running sample data
+            (
+                {
+                    'RASI': np.array([357.90066528, 377.69210815, 1034.97253418]),
+                    'LASI': np.array([145.31594849, 405.79052734, 1030.81445312]),
+                    'RPSI': np.array([274.00466919, 205.64402771, 1051.76452637]),
+                    'LPSI': np.array([189.15231323, 214.86122131, 1052.73486328])
+                },
+                np.array([[ 1.32329356e-01,  9.85629458e-01, -1.04992920e-01, 2.51608307e+02],
+                          [-9.91191344e-01,  1.31010876e-01, -1.93873483e-02, 3.91741318e+02],
+                          [-5.35352721e-03,  1.06633589e-01,  9.94283972e-01, 1.03289349e+03],
+                          [ 0.00000000e+00,  0.00000000e+00,  0.00000000e+00, 1.00000000e+00]])
+            ),
+            # Test with zeros for all params
+            (
+                {
+                    'SACR': np.array([0, 0, 0]),
+                    'RASI': np.array([0, 0, 0]),
+                    'LASI': np.array([0, 0, 0]),
+                    'RPSI': np.array([0, 0, 0]),
+                    'LPSI': np.array([0, 0, 0])
+                },
+                np.array([[np.nan, np.nan, np.nan,  0.],
+                          [np.nan, np.nan, np.nan,  0.],
+                          [np.nan, np.nan, np.nan,  0.],
+                          [0.,  0.,  0.,  1.]])
+            ),
+            # # Testing when adding values to frame['RASI'] and frame['LASI']
+            (
+                {
+                    'RASI': np.array([-6, 6, 3]),
+                    'LASI': np.array([-7, -9, 1]),
+                    'RPSI': np.array([0, 0, 0]),
+                    'LPSI': np.array([0, 0, 0])
+                },
+                np.array([[-0.94458106,  0.01927716,  0.32771179, -6.5],
+                          [-0.06593805, -0.98907071, -0.13187609, -1.5],
+                          [0.32158794, -0.14617634,  0.93552855,  2.],
+                          [0.,  0.,  0.,  1.]])
+            ),
+            # Testing when adding values to frame['RPSI'] and frame['LPSI']
+            (
+                {
+                    'RASI': np.array([0, 0, 0]),
+                    'LASI': np.array([0, 0, 0]),
+                    'RPSI': np.array([1, 0, -4]),
+                    'LPSI': np.array([7, -2, 2])
+                },
+                np.array([[np.nan, np.nan, np.nan,  0.],
+                          [np.nan, np.nan, np.nan,  0.],
+                          [np.nan, np.nan, np.nan,  0.],
+                          [0.,  0.,  0.,  1.]])
+            ),
+            # Testing when adding values to frame['SACR']
+            (
+                {
+                    'SACR': np.array([-4, 8, -5]),
+                    'RASI': np.array([0, 0, 0]),
+                    'LASI': np.array([0, 0, 0]),
+                    'RPSI': np.array([0, 0, 0]),
+                    'LPSI': np.array([0, 0, 0])
+                },
+                np.array([[np.nan, np.nan, np.nan,  0.],
+                          [np.nan, np.nan, np.nan,  0.],
+                          [np.nan, np.nan, np.nan,  0.],
+                          [0.,  0.,  0.,  1.]])
+            ),
+            # Testing when adding values to frame['RASI'], frame['LASI'], frame['RPSI'] and frame['LPSI']
+            (
+                {
+                    'RASI': np.array([-6, 6, 3]),
+                    'LASI': np.array([-7, -9, 1]),
+                    'RPSI': np.array([1, 0, -4]),
+                    'LPSI': np.array([7, -2, 2])
+                },
+                np.array([[-0.95825845,  0.02592043,  0.28472598, -6.5],
+                          [-0.06593805, -0.98907071, -0.13187609, -1.5],
+                          [0.27819584, -0.14514566,  0.9494945,  2.],
+                          [0.,  0.,  0.,  1.]])
+            ),
+            # Testing when adding values to frame['SACR'], frame['RASI'] and frame['LASI']
+            (
+                {
+                    'SACR': np.array([-4, 8, -5]),
+                    'RASI': np.array([-6, 6, 3]),
+                    'LASI': np.array([-7, -9, 1]),
+                    'RPSI': np.array([0, 0, 0]),
+                    'LPSI': np.array([0, 0, 0])
+                },
+                np.array([[-0.22928306, -0.11360872,  0.96670695, -6.5],
+                          [-0.06593805, -0.98907071, -0.13187609, -1.5],
+                          [0.97112381, -0.09397972,  0.21928602,  2.],
+                          [0.,  0.,  0.,  1.]])
+            ),
+            # Testing when adding values to frame['SACR'], frame['RPSI'] and frame['LPSI']
+            (
+                {
+                    'SACR': np.array([-4, 8, -5]),
+                    'RASI': np.array([0, 0, 0]),
+                    'LASI': np.array([0, 0, 0]),
+                    'RPSI': np.array([1, 0, -4]),
+                    'LPSI': np.array([7, -2, 2])
+                },
+                np.array([[np.nan, np.nan, np.nan,  0.],
+                          [np.nan, np.nan, np.nan,  0.],
+                          [np.nan, np.nan, np.nan,  0.],
+                          [0.,  0.,  0.,  1.]])
+            ),
+            # Testing when adding values to frame['SACR'], frame['RASI'], frame['LASI'], frame['RPSI'] and frame['LPSI']
+            (
+                {
+                    'SACR': np.array([-4, 8, -5]),
+                    'RASI': np.array([-6, 6, 3]),
+                    'LASI': np.array([-7, -9, 1]),
+                    'RPSI': np.array([1, 0, -4]),
+                    'LPSI': np.array([7, -2, 2])
+                },
+                np.array([[-0.22928306, -0.11360872,  0.96670695, -6.5],
+                          [-0.06593805, -0.98907071, -0.13187609, -1.5],
+                          [0.97112381, -0.09397972,  0.21928602,  2.],
+                          [0.,  0.,  0.,  1.]])
+            ),
+            # Testing that when frame is composed of lists of ints
+            (
+                {
+                    'SACR': [-4, 8, -5],
+                    'RASI': np.array([-6, 6, 3]),
+                    'LASI': np.array([-7, -9, 1]),
+                    'RPSI': [1, 0, -4],
+                    'LPSI': [7, -2, 2]
+                },
+                np.array([[-0.22928306, -0.11360872,  0.96670695, -6.5],
+                          [-0.06593805, -0.98907071, -0.13187609, -1.5],
+                          [0.97112381, -0.09397972,  0.21928602,  2.],
+                          [0.,  0.,  0.,  1.]])
+            ),
+            # Testing that when frame is composed ofe numpy arrays of ints
+            (
+                {
+                    'SACR': np.array([-4, 8, -5], dtype='int'),
+                    'RASI': np.array([-6, 6, 3], dtype='int'),
+                    'LASI': np.array([-7, -9, 1], dtype='int'),
+                    'RPSI': np.array([1, 0, -4], dtype='int'),
+                    'LPSI': np.array([7, -2, 2], dtype='int')
+                },
+                np.array([[-0.22928306, -0.11360872,  0.96670695, -6.5],
+                          [-0.06593805, -0.98907071, -0.13187609, -1.5],
+                          [0.97112381, -0.09397972,  0.21928602,  2.],
+                          [0.,  0.,  0.,  1.]])
+            ),
+            # Testing that when frame is composed of lists of floats
+            (
+                {
+                    'SACR': [-4.0, 8.0, -5.0],
+                    'RASI': np.array([-6.0, 6.0, 3.0]),
+                    'LASI': np.array([-7.0, -9.0, 1.0]),
+                    'RPSI': [1.0, 0.0, -4.0],
+                    'LPSI': [7.0, -2.0, 2.0]
+                },
+                np.array([[-0.22928306, -0.11360872,  0.96670695, -6.5],
+                          [-0.06593805, -0.98907071, -0.13187609, -1.5],
+                          [0.97112381, -0.09397972,  0.21928602,  2.],
+                          [0.,  0.,  0.,  1.]])
+            ),
+            # Testing that when frame is composed of numpy arrays of floats
+            (
+                {
+                    'SACR': np.array([-4.0, 8.0, -5.0], dtype='float'),
+                    'RASI': np.array([-6.0, 6.0, 3.0], dtype='float'),
+                    'LASI': np.array([-7.0, -9.0, 1.0], dtype='float'),
+                    'RPSI': np.array([1.0, 0.0, -4.0], dtype='float'),
+                    'LPSI': np.array([7.0, -2.0, 2.0], dtype='float')
+                },
+                np.array([[-0.22928306, -0.11360872,  0.96670695, -6.5],
+                          [-0.06593805, -0.98907071, -0.13187609, -1.5],
+                          [0.97112381, -0.09397972,  0.21928602,  2.],
+                          [0.,  0.,  0.,  1.]])
+            )
+        ])
+    def test_calc_axis_pelvis(self, frame, expected):
         """
-        This test provides coverage of the pelvisJointCenter function in pycgmStatic.py, defined as pelvisJointCenter(frame)
+        This test provides coverage of the test_calc_axis_pelvis function in pycgmStatic.py,
+        defined as test_calc_axis_pelvis(rasi, lasi, rpsi, lpsi, sacr)
+
         This test takes 2 parameters:
         frame: dictionary of marker lists
-        expected: the expected result from calling pelvisJointCenter on frame
+        expected: the expected result from calling test_calc_axis_pelvis on frame
 
-        This test is checking to make sure the pelvis joint center and axis are calculated correctly given the input
-        parameters. The test checks to see that the correct values in expected are updated per each input parameter added:
-            When values are added to frame['RASI'] and frame['LASI'], expected[0] and expected[1] should be updated
-            When values are added to frame['RPSI'] and frame['LPSI'], expected[2] should be updated
-            When values are added to frame['SACR'], expected[2] should be updated, and expected[1] should also be updated
-        if there are values for frame['RASI'] and frame['LASI']
-        Values produced from frame['SACR'] takes precedent over frame['RPSI'] and frame['LPSI']
+        This test is checking to make sure the pelvis joint center and axis are calculated
+        correctly given the input parameters. 
 
-        If RPSI and LPSI are given, then the sacrum will be the midpoint of those two markers. If they are not given then the sacrum is already calculated / specified. 
+        If RPSI and LPSI are given, then the sacrum will be the midpoint of those two markers.
+        If they are not given then the sacrum is already calculated / specified. 
         The origin of the pelvis is midpoint of the RASI and LASI markers.
-        The axis of the pelvis is calculated using LASI, RASI, origin, and sacrum in the Gram-Schmidt orthogonalization procedure (ref. Kadaba 1990). 
+        The axis of the pelvis is calculated using LASI, RASI, origin, and sacrum in the 
+        Gram-Schmidt orthogonalization procedure (ref. Kadaba 1990). 
 
         Lastly, it checks that the resulting output is correct when frame is composed of lists of ints, numpy arrays of
         ints, lists of floats, and numpy arrays of floats. frame['LASI'] and frame['RASI'] were kept as numpy arrays
-        every time as list would cause an error in the following line of pycgmStatic.py as lists cannot be divided by floats:
-        origin = (RASI+LASI)/2.0
+        every time as list as lists cannot be divided by floats e.g. o = (rasi+lasi)/2.0
         """
-        result = pycgmStatic.pelvisJointCenter(frame)
-        np.testing.assert_almost_equal(result[0], expected[0], rounding_precision)
-        np.testing.assert_almost_equal(result[1], expected[1], rounding_precision)
-        np.testing.assert_almost_equal(result[2], expected[2], rounding_precision)
+
+        rasi = frame["RASI"] if "RASI" in frame else None
+        lasi = frame["LASI"] if "LASI" in frame else None
+        rpsi = frame["RPSI"] if "RPSI" in frame else None
+        lpsi = frame["LPSI"] if "LPSI" in frame else None
+        sacr = frame["SACR"] if "SACR" in frame else None
+
+        result = pycgmStatic.calc_axis_pelvis(rasi, lasi, rpsi, lpsi, sacr)
+        np.testing.assert_almost_equal(result, expected, rounding_precision)
 
     @pytest.mark.parametrize(["pelvis_axis", "subject", "expected"], [
         # Test from running sample data
