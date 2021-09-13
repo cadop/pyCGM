@@ -292,22 +292,22 @@ def pnt2line(pnt, start, end):
 
 
 def calc_l5_pelvis(rhip, lhip, pelvis_axis):
-    """Calculate L5 Markers given Pelvis Axis
+    """Calculate L5 Markers given Pelvis Axis.
 
     Markers used: RHip, LHip
 
     Parameters
     ----------
-    rhip: array
+    rhip : array
         1x3 RHip marker
-    lhip: array
+    lhip : array
         1x3 LHip marker
     pelvis_axis : array
         4x4 affine matrix containing the pelvis (x, y, z) axes and origin.
 
     Returns
     -------
-    midHip, L5 : tuple
+    midHip, L5 : array
         2x3 array containing the (x, y, z) positions of the midHip and L5 markers
 
     Examples
