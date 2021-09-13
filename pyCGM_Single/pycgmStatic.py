@@ -533,7 +533,11 @@ def staticCalculation(frame,ankle_JC,knee_JC,flat_foot,vsk=None):
 
     # Check if it is flat foot or not.
     if flat_foot == False:
-        RF_axis2 = rotaxis_nonfootflat(frame,ankle_JC)
+        RF_axis2 = calc_axis_nonflatfoot(frame["RTOE"] if "RTOE" in frame else None,
+                                         frame["LTOE"] if "LTOE" in frame else None,
+                                         frame["RHEE"] if "RHEE" in frame else None,
+                                         frame["LHEE"] if "LHEE" in frame else None,
+                                         ankle_axis)
         RF_center2_R_form = RF_axis2[0]
         RF_center2_L_form = RF_axis2[1]
         RF_axis2_R_form = RF_axis2[2][0]
