@@ -1878,8 +1878,8 @@ def calc_axis_nonflatfoot(rtoe, ltoe, rhee, lhee, ankle_axis):
 
     Returns
     -------
-    axis: array
-        array of two 4x4 affine matrices representing the right and left non-flat foot
+    axis : array
+        An array of two 4x4 affine matrices representing the right and left non-flat foot
         axes and origins
 
 
