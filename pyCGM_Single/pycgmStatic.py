@@ -1761,12 +1761,12 @@ def calc_axis_flatfoot(rtoe, ltoe, rhee, lhee, ankle_axis, r_sole_delta=0, l_sol
     >>> r_sole_delta = 0.45
     >>> l_sole_delta = 0.45
     >>> [np.around(arr, 2) for arr in calc_axis_flatfoot(rtoe, ltoe, rhee, lhee, ankle_axis, r_sole_delta, l_sole_delta)] #doctest: +NORMALIZE_WHITESPACE
-    [array([[ -0.27,   0.09,   0.96, 442.82],
-            [ -0.91,   0.31,  -0.29, 381.62],
-            [ -0.33,  -0.95,  -0.  ,  42.66],
+    [array([[ -0.51,   0.18,   0.84, 442.82],
+            [ -0.79,   0.27,  -0.54, 381.62],
+            [ -0.33,  -0.95,   0.  ,  42.66],
             [  0.  ,   0.  ,   0.  ,   1.  ]]), 
-     array([[ -0.42,  -0.14,   0.9 ,  39.44],
-            [ -0.85,  -0.28,  -0.45, 382.45],
+     array([[ -0.29,  -0.09,   0.95,  39.44],
+            [ -0.91,  -0.29,  -0.31, 382.45],
             [  0.31,  -0.95,   0.  ,  41.79],
             [  0.  ,   0.  ,   0.  ,   1.  ]])]
     """
@@ -1788,8 +1788,10 @@ def calc_axis_flatfoot(rtoe, ltoe, rhee, lhee, ankle_axis, r_sole_delta=0, l_sol
     right_origin = rtoe
     left_origin = ltoe
 
-    ankle_jc_right[2] += r_sole_delta
-    ankle_jc_left[2] += l_sole_delta
+    ankle_jc_right = [ankle_jc_right[0], ankle_jc_right[1], ankle_jc_right[2] + r_sole_delta]
+    ankle_jc_left = [ankle_jc_left[0], ankle_jc_left[1], ankle_jc_left[2] + l_sole_delta]
+    #ankle_jc_right[2] += r_sole_delta
+    #ankle_jc_left[2] += l_sole_delta
 
     # Calculate the z axis
     right_axis_z = ankle_jc_right - rtoe
