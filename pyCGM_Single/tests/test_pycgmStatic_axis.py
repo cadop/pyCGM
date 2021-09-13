@@ -11,7 +11,6 @@ class TestPycgmStaticAxis():
         calc_static_head
         calc_axis_pelvis
         calc_joint_center_hip
-        hipAxisCenter
         calc_axis_ankle
         calc_axis_knee
         calc_axis_head
