@@ -1734,7 +1734,7 @@ def calc_axis_flatfoot(rtoe, ltoe, rhee, lhee, ankle_axis, r_sole_delta=0, l_sol
     Returns
     -------
     axis: array
-        array of two 4x4 affine matrices representing the right and left flat foot
+        An array of two 4x4 affine matrices representing the right and left flat foot
         axes and origins
 
     Notes
