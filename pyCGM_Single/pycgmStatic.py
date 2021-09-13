@@ -1901,23 +1901,25 @@ def calc_axis_nonflatfoot(rtoe, ltoe, rhee, lhee, ankle_axis):
             [ -0.94,   0.32,  -0.12, 381.62],
             [ -0.33,  -0.95,   0.03,  42.66],
             [  0.  ,   0.  ,   0.  ,   1.  ]]), 
-    array([[  0.12,   0.06,   0.99,  39.44],
-           [ -0.94,  -0.3 ,   0.13, 382.45],
-           [  0.31,  -0.95,   0.03,  41.79],
-           [  0.  ,   0.  ,   0.  ,   1.  ]])]
+     array([[  0.12,   0.06,   0.99,  39.44],
+            [ -0.94,  -0.3 ,   0.13, 382.45],
+            [  0.31,  -0.95,   0.03,  41.79],
+            [  0.  ,   0.  ,   0.  ,   1.  ]])]
     """
 
     #REQUIRED MARKERS:
     # RTOE
     # LTOE
-    # ankle_JC
-    rtoe, ltoe, rhee, lhee = map(np.asarray, [rtoe, ltoe, rhee, lhee])
+    # RHEE
+    # LHEE
+    # ankle_axis
+
+    rtoe, ltoe, rhee, lhee, ankle_axis = map(np.asarray, [rtoe, ltoe, rhee, lhee, ankle_axis])
 
     ankle_jc_right = ankle_axis[0][:3, 3]
     ankle_jc_left = ankle_axis[1][:3, 3]
     ankle_flexion_right = ankle_axis[0][1, :3] + ankle_jc_right
     ankle_flexion_left = ankle_axis[1][1, :3] + ankle_jc_left
-
 
     # Toe axis's origin is marker position of TOE
     right_origin = rtoe
@@ -1939,7 +1941,6 @@ def calc_axis_nonflatfoot(rtoe, ltoe, rhee, lhee, ankle_axis):
     right_foot_axis = [right_axis_x,right_axis_y,right_axis_z]
 
     # Left
-
     left_axis_z = [lhee[0]-ltoe[0],lhee[1]-ltoe[1],lhee[2]-ltoe[2]]
     left_axis_z = left_axis_z/norm3d(left_axis_z)
 
