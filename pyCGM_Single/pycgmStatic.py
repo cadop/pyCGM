@@ -290,7 +290,7 @@ def getStatic(motionData,vsk,flat_foot=False,GCS=None):
                                    vsk['RightKneeWidth'],
                                    vsk['LeftKneeWidth'])
         ankle_JC = ankleJointCenter(frame,knee_JC,0,vsk=calSM)
-        angle = staticCalculation(frame,ankle_JC,knee_JC,flat_foot,calSM)
+        angle = calc_foot_offset(frame,ankle_JC,knee_JC,flat_foot,calSM)
         head = calc_axis_head(frame['LFHD'] if 'LFHD' in frame else None,
                               frame['RFHD'] if 'RFHD' in frame else None,
                               frame['LBHD'] if 'LBHD' in frame else None,
@@ -466,10 +466,10 @@ def calc_head_offset(axisP, axisD):
 
     return angle
 
-def staticCalculation(rtoe, ltoe, rhee, lhee, ankle_axis, flat_foot, right_sole_delta=0, left_sole_delta=0):
-    """Calculate the Static angle function
+def calc_foot_offset(rtoe, ltoe, rhee, lhee, ankle_axis, flat_foot, right_sole_delta=0, left_sole_delta=0):
+    """Calculate the Static foot offset angles.
 
-    Takes in anatomically uncorrected axis and anatomically correct axis.
+    Takes in anatomically uncorrected axis or anatomically correct axis.
     Corrects the axis depending on flat-footedness.
 
     Calculates the offset angle between those two axes.
@@ -478,21 +478,29 @@ def staticCalculation(rtoe, ltoe, rhee, lhee, ankle_axis, flat_foot, right_sole_
 
     Parameters
     ----------
-    frame : dict
-        Dictionary of marker lists.
-    ankle_JC : array
-        An array containing the x,y,z axes marker positions of the ankle joint center.
+    rtoe : array
+        1x3 RTOE marker
+    ltoe : array
+        1x3 LTOE marker
+    rhee : array
+        1x3 RHEE marker
+    lhee : array
+        1x3 LHEE marker
+    ankle_axis : array
+        array of two 4x4 affine matrices representing the right and left ankle axes and origins
     flat_foot : boolean
-        A boolean indicating if the feet are flat or not.
-    vsk : dict, optional
-        A dictionary containing subject measurements from a VSK file.
+        A boolean indicating if the feet are flat or not
+    r_sole_delta : float, optional
+        The right sole delta from the subject measurement file
+    l_sole_delta : float, optional
+        The left sole delta from the subject measurement file
 
     Returns
     -------
-    angle : list
-        Returns the offset angle represented by a 2x3x3 list.
-        The array contains the right flexion, abduction, rotation angles (1x3x3)
-        followed by the left flexion, abduction, rotation angles (1x3x3).
+    angle : array
+        The foot offset angle represented by a 2x3 array.
+        The array contains the right flexion, abduction, rotation angles (1x3)
+        followed by the left flexion, abduction, rotation angles (1x3).
 
     Notes
     -----
@@ -501,7 +509,7 @@ def staticCalculation(rtoe, ltoe, rhee, lhee, ankle_axis, flat_foot, right_sole_
     Examples
     --------
     >>> import numpy as np
-    >>> from .pycgmStatic import staticCalculation
+    >>> from .pycgmStatic import calc_foot_offset
     >>> rtoe = np.array([427.95, 437.1,  41.77])
     >>> ltoe = np.array([175.79, 379.5,  42.61])
     >>> rhee = np.array([406.46, 227.56,  48.76])
@@ -517,11 +525,11 @@ def staticCalculation(rtoe, ltoe, rhee, lhee, ankle_axis, flat_foot, right_sole_
     >>> flat_foot = True
     >>> right_sole_delta = 0.45
     >>> left_sole_delta = 0.45
-    >>> np.around(staticCalculation(rtoe, ltoe, rhee, lhee, ankle_axis, flat_foot, right_sole_delta, left_sole_delta), 2)
+    >>> np.around(calc_foot_offset(rtoe, ltoe, rhee, lhee, ankle_axis, flat_foot, right_sole_delta, left_sole_delta), 2)
     array([[-0.08,  0.23, -0.66],
            [-0.67,  0.22, -0.3 ]])
     >>> flat_foot = False # Using the same variables and switching the flat_foot flag.
-    >>> np.around(staticCalculation(rtoe, ltoe, rhee, lhee, ankle_axis, flat_foot, right_sole_delta, left_sole_delta), 2)
+    >>> np.around(calc_foot_offset(rtoe, ltoe, rhee, lhee, ankle_axis, flat_foot, right_sole_delta, left_sole_delta), 2)
     array([[-0.08,  0.2 , -0.15],
            [-0.67,  0.19,  0.12]])
     """
