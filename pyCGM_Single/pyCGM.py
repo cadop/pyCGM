@@ -2578,270 +2578,182 @@ def JointAngleCalc(frame,vsk):
     rfoot_prox,rfoot_proy,rfoot_proz,lfoot_prox,lfoot_proy,lfoot_proz = [None]*6
 
     #First Calculate Pelvis
-    axis_pelvis = calc_axis_pelvis(frame['RASI'] if 'RASI' in frame else None,
+    pelvis_axis = calc_axis_pelvis(frame['RASI'] if 'RASI' in frame else None,
                                    frame['LASI'] if 'LASI' in frame else None,
                                    frame['RPSI'] if 'RPSI' in frame else None,
                                    frame['LPSI'] if 'LPSI' in frame else None,
                                    frame['SACR'] if 'SACR' in frame else None)
 
-    kin_Pelvis_axis = axis_pelvis
-
-    kin_Pelvis_JC = axis_pelvis[:3, 3] #quick fix for storing JC
-
-    #change to same format
-    pelvis_vectors = axis_pelvis[:3, :3]
-    pelvis_origin = axis_pelvis[:3, 3]
+    pelvis_axes = pelvis_axis[:3, :3]
+    pelvis_jc = pelvis_axis[:3, 3]
 
     #need to update this based on the file
-    global_Axis = vsk['GCS']
+    global_axes = vsk['GCS']
 
-    #make the array which will be the input of findangle function
-    pelvis_Axis_mod = pelvis_vectors
+    global_pelvis_angle = calc_angle(global_axes,pelvis_axes)
+    pelx = global_pelvis_angle[0]
+    pely = global_pelvis_angle[1]
+    pelz = global_pelvis_angle[2]
 
-    global_pelvis_angle = calc_angle(global_Axis,pelvis_Axis_mod)
+    hip_jc = calc_joint_center_hip(pelvis_axis, vsk)
+    r_hip_jc = hip_jc[0]
+    l_hip_jc = hip_jc[1]
 
-    pelx=global_pelvis_angle[0]
-    pely=global_pelvis_angle[1]
-    pelz=global_pelvis_angle[2]
-
-    # and then find hip JC
-    hip_JC = calc_joint_center_hip(axis_pelvis, vsk)
-
-    kin_L_Hip_JC = hip_JC[0] #quick fix for storing JC
-    kin_R_Hip_JC = hip_JC[1] #quick fix for storing JC
-
-    hip_axis = calc_axis_hip(hip_JC[0],hip_JC[1],axis_pelvis)
+    hip_axis = calc_axis_hip(r_hip_jc, l_hip_jc, pelvis_axis)
+    hip_jc = hip_axis[:3, 3]
+    hip_axes = hip_axis[:3, :3]
 
     axis_knee = calc_axis_knee(frame['RTHI'] if 'RTHI' in frame else None,
                                frame['LTHI'] if 'LTHI' in frame else None,
                                frame['RKNE'] if 'RKNE' in frame else None,
                                frame['LKNE'] if 'LKNE' in frame else None,
-                               hip_JC[0],
-                               hip_JC[1],
+                               r_hip_jc,
+                               l_hip_jc,
                                vsk['RightKneeWidth'],
                                vsk['LeftKneeWidth'])
 
+    knee_jc = [axis_knee[0][:3, 3], axis_knee[1][:3, 3]]
+    r_knee_jc = knee_jc[0]
+    l_knee_jc = knee_jc[1]
+    r_knee_axes = axis_knee[0][:3, :3]
+    l_knee_axes = axis_knee[1][:3, :3]
 
-    knee_JC = [axis_knee[0][:3, 3], axis_knee[1][:3, 3]] #quick fix for storing JC
+    r_pelvis_knee_angle = calc_angle(hip_axis, r_knee_axes)
+    l_pelvis_knee_angle = calc_angle(hip_axis, l_knee_axes)
 
-    kin_R_Knee_JC = knee_JC[0]
-    kin_L_Knee_JC = knee_JC[1]
+    rhipx = r_pelvis_knee_angle[0] * -1
+    rhipy = r_pelvis_knee_angle[1]
+    rhipz = r_pelvis_knee_angle[2] * -1 + 90
 
-    #change to same format
-    Hip_center_form = hip_axis[:3, 3]
-    Hip_axis_form = hip_axis[:3, :3] + Hip_center_form
-    R_Knee_center_form = knee_JC[0]
-    R_Knee_axis_form = axis_knee[0][:3, :3] + R_Knee_center_form
-    L_Knee_center_form = knee_JC[1]
-    L_Knee_axis_form = axis_knee[1][:3, :3] + L_Knee_center_form
+    lhipx = l_pelvis_knee_angle[0] * -1
+    lhipy = l_pelvis_knee_angle[1] * -1
+    lhipz = l_pelvis_knee_angle[2] - 90
 
-    #make the array which will be the input of findangle function
-    hip_Axis = np.vstack([np.subtract(Hip_axis_form[0],Hip_center_form),
-                          np.subtract(Hip_axis_form[1],Hip_center_form),
-                          np.subtract(Hip_axis_form[2],Hip_center_form)])
-
-    R_knee_Axis = np.vstack([np.subtract(R_Knee_axis_form[0],R_Knee_center_form),
-                           np.subtract(R_Knee_axis_form[1],R_Knee_center_form),
-                           np.subtract(R_Knee_axis_form[2],R_Knee_center_form)])
-
-    L_knee_Axis = np.vstack([np.subtract(L_Knee_axis_form[0],L_Knee_center_form),
-                           np.subtract(L_Knee_axis_form[1],L_Knee_center_form),
-                           np.subtract(L_Knee_axis_form[2],L_Knee_center_form)])
-
-    R_pelvis_knee_angle = calc_angle(hip_Axis,R_knee_Axis)
-    L_pelvis_knee_angle = calc_angle(hip_Axis,L_knee_Axis)
-
-    rhipx=R_pelvis_knee_angle[0]*-1
-    rhipy=R_pelvis_knee_angle[1]
-    rhipz=R_pelvis_knee_angle[2]*-1+90
-
-    lhipx=L_pelvis_knee_angle[0]*-1
-    lhipy=L_pelvis_knee_angle[1]*-1
-    lhipz=L_pelvis_knee_angle[2]-90
-
-    axis_ankle = calc_axis_ankle(frame['RTIB'] if 'RTIB' in frame else None,
+    ankle_axis = calc_axis_ankle(frame['RTIB'] if 'RTIB' in frame else None,
                                  frame['LTIB'] if 'LTIB' in frame else None,
                                  frame['RANK'] if 'RANK' in frame else None,
                                  frame['LANK'] if 'LANK' in frame else None,
-                                 R_Knee_center_form,
-                                 L_Knee_center_form,
+                                 r_knee_jc,
+                                 l_knee_jc,
                                  vsk['RightAnkleWidth'],
                                  vsk['LeftAnkleWidth'],
                                  vsk['RightTibialTorsion'],
                                  vsk['LeftTibialTorsion'])
 
-    ankle_JC = [axis_ankle[0][:3, 3], axis_ankle[1][:3, 3]] #quick fix for storing JC
-    kin_R_Ankle_JC = ankle_JC[0] 
-    kin_L_Ankle_JC = ankle_JC[1]
+    ankle_jc = [ankle_axis[0][:3, 3], ankle_axis[1][:3, 3]]
+    r_ankle_jc = ankle_jc[0]
+    l_ankle_jc = ankle_jc[1]
+    r_ankle_axes = ankle_axis[0][:3, :3]
+    l_ankle_axes = ankle_axis[1][:3, :3]
 
-    #change to same format
+    r_knee_ankle_angle = calc_angle(r_knee_axes, r_ankle_axes)
+    l_knee_ankle_angle = calc_angle(l_knee_axes, l_ankle_axes)
 
-    R_Ankle_center_form = ankle_JC[0]
-    R_Ankle_axis_form = axis_ankle[0][:3, :3] + R_Ankle_center_form
-    L_Ankle_center_form = ankle_JC[1]
-    L_Ankle_axis_form = axis_ankle[1][:3, :3] + L_Ankle_center_form
+    rkneex=r_knee_ankle_angle[0]
+    rkneey=r_knee_ankle_angle[1]
+    rkneez=r_knee_ankle_angle[2] * -1 + 90
 
-
-    #make the array which will be the input of findangle function
-    # In case of knee axis I mentioned it before as R_knee_Axis and L_knee_Axis
-    R_ankle_Axis = np.vstack([np.subtract(R_Ankle_axis_form[0],R_Ankle_center_form),
-                              np.subtract(R_Ankle_axis_form[1],R_Ankle_center_form),
-                              np.subtract(R_Ankle_axis_form[2],R_Ankle_center_form)])
-
-    L_ankle_Axis = np.vstack([np.subtract(L_Ankle_axis_form[0],L_Ankle_center_form),
-                              np.subtract(L_Ankle_axis_form[1],L_Ankle_center_form),
-                              np.subtract(L_Ankle_axis_form[2],L_Ankle_center_form)])
-
-    R_knee_ankle_angle = calc_angle(R_knee_Axis,R_ankle_Axis)
-    L_knee_ankle_angle = calc_angle(L_knee_Axis,L_ankle_Axis)
-
-    rkneex=R_knee_ankle_angle[0]
-    rkneey=R_knee_ankle_angle[1]
-    rkneez=R_knee_ankle_angle[2]*-1+90
-
-
-    lkneex=L_knee_ankle_angle[0]
-    lkneey=L_knee_ankle_angle[1]*-1
-    lkneez=L_knee_ankle_angle[2] - 90
+    lkneex=l_knee_ankle_angle[0]
+    lkneey=l_knee_ankle_angle[1] * -1
+    lkneez=l_knee_ankle_angle[2] - 90
 
 
     # ANKLE ANGLE
-
     offset = 0
-    axis_foot = calc_axis_foot(frame['RTOE'] if 'RTOE' in frame else None,
+    foot_axis = calc_axis_foot(frame['RTOE'] if 'RTOE' in frame else None,
                                frame['LTOE'] if 'LTOE' in frame else None,
-                               axis_ankle[0],
-                               axis_ankle[1],
+                               ankle_axis[0],
+                               ankle_axis[1],
                                vsk['RightStaticRotOff'],
                                vsk['LeftStaticRotOff'],
                                vsk['RightStaticPlantFlex'],
                                vsk['LeftStaticPlantFlex'])
 
-    foot_JC = [axis_foot[0][:3, 3], axis_foot[1][:3, 3]] #quick fix for storing JC
-    kin_R_Foot_JC = foot_JC[0] 
-    kin_L_Foot_JC = foot_JC[1]
+    foot_jc = [foot_axis[0][:3, 3], foot_axis[1][:3, 3]]
+    r_foot_jc = foot_jc[0]
+    r_foot_axes = foot_axis[0][:3, :3]
+    l_foot_jc = foot_jc[1]
+    l_foot_axes = foot_axis[1][:3, :3]
 
-    kin_RHEE = frame['RHEE']
-    kin_LHEE = frame['LHEE']
+    rhee = frame['RHEE']
+    lhee = frame['LHEE']
 
-    R_Foot_center_form = foot_JC[0]
-    R_Foot_axis_form = axis_foot[0][:3, :3] + R_Foot_center_form
-    L_Foot_center_form = foot_JC[1]
-    L_Foot_axis_form = axis_foot[1][:3, :3] + L_Foot_center_form
+    r_ankle_foot_angle = calc_angle(r_ankle_axes,r_foot_axes)
+    l_ankle_foot_angle = calc_angle(l_ankle_axes,l_foot_axes)
 
+    ranklex = r_ankle_foot_angle[0] * (-1) - 90
+    rankley = r_ankle_foot_angle[2] * (-1) + 90
+    ranklez = r_ankle_foot_angle[1]
 
-    R_foot_Axis = np.vstack([np.subtract(R_Foot_axis_form[0],R_Foot_center_form),
-                             np.subtract(R_Foot_axis_form[1],R_Foot_center_form),
-                             np.subtract(R_Foot_axis_form[2],R_Foot_center_form)])
-
-    L_foot_Axis = np.vstack([np.subtract(L_Foot_axis_form[0],L_Foot_center_form),
-                             np.subtract(L_Foot_axis_form[1],L_Foot_center_form),
-                             np.subtract(L_Foot_axis_form[2],L_Foot_center_form)])
-
-
-    R_ankle_foot_angle = calc_angle(R_ankle_Axis,R_foot_Axis)
-    L_ankle_foot_angle = calc_angle(L_ankle_Axis,L_foot_Axis)
-
-    ranklex=R_ankle_foot_angle[0]*(-1)-90
-    rankley=R_ankle_foot_angle[2]*(-1)+90
-    ranklez=R_ankle_foot_angle[1]
-
-    lanklex=L_ankle_foot_angle[0]*(-1)-90
-    lankley=L_ankle_foot_angle[2]-90
-    lanklez=L_ankle_foot_angle[1]*(-1)
+    lanklex = l_ankle_foot_angle[0] * (-1) - 90
+    lankley = l_ankle_foot_angle[2] - 90
+    lanklez = l_ankle_foot_angle[1] * (-1)
 
     # ABSOLUTE FOOT ANGLE
+    r_global_foot_angle = calc_angle(global_axes, r_foot_axes)
+    l_global_foot_angle = calc_angle(global_axes, l_foot_axes)
 
-
-    R_global_foot_angle = calc_angle(global_Axis,R_foot_Axis)
-    L_global_foot_angle = calc_angle(global_Axis,L_foot_Axis)
-
-    rfootx=R_global_foot_angle[0]
-    rfooty=R_global_foot_angle[2]-90
-    rfootz=R_global_foot_angle[1]
-    lfootx=L_global_foot_angle[0]
-    lfooty=(L_global_foot_angle[2]-90)*-1
-    lfootz=L_global_foot_angle[1]*-1
+    rfootx = r_global_foot_angle[0]
+    rfooty = r_global_foot_angle[2] - 90
+    rfootz = r_global_foot_angle[1]
+    lfootx = l_global_foot_angle[0]
+    lfooty = (l_global_foot_angle[2] - 90) * -1
+    lfootz = l_global_foot_angle[1] * -1
 
     #First Calculate HEAD
 
-    axis_head = calc_axis_head(frame['LFHD'] if 'LFHD' in frame else None,
+    head_axis = calc_axis_head(frame['LFHD'] if 'LFHD' in frame else None,
                                frame['RFHD'] if 'RFHD' in frame else None,
                                frame['LBHD'] if 'LBHD' in frame else None,
                                frame['RBHD'] if 'RBHD' in frame else None,
                                vsk['HeadOffset'])
+    head_jc = head_axis[:3, 3]
+    head_axes = head_axis[:3, :3]
 
-    kin_Head_JC = axis_head[:3, 3] #quick fix for storing JC
+    lfhd = frame['LFHD']
+    lfhd = frame['RFHD']
+    lbhd = frame['LBHD']
+    rbhd = frame['RBHD']
 
-    LFHD = frame['LFHD'] #as above
-    RFHD = frame['RFHD']
-    LBHD = frame['LBHD']
-    RBHD = frame['RBHD']
+    head_front = np.array((lfhd+lfhd)/2)
+    head_back = np.array((lbhd+rbhd)/2)
 
-    kin_Head_Front = np.array((LFHD+RFHD)/2)
-    kin_Head_Back = np.array((LBHD+RBHD)/2)
-
-    #change to same format
-    Head_center_form = axis_head[:3, 3]
-    Head_axis_form = axis_head[:3, :3] + Head_center_form
     #Global_axis_form = [[0,1,0],[-1,0,0],[0,0,1]]
-    Global_center_form = [0,0,0]
+    global_center = [0,0,0]
+    global_axis = vsk['GCS']
+    global_axes = np.vstack([np.subtract(global_axis[0],global_center),
+                             np.subtract(global_axis[1],global_center),
+                             np.subtract(global_axis[2],global_center)])
 
-    #***********************************************************
-    Global_axis_form = vsk['GCS']
-    #Global_axis_form = rotmat(x=0,y=0,z=180) #this is some weird fix to global axis
+    global_head_angle = calc_angle_head(global_axes, head_axes)
+    headx=(global_head_angle[0] * -1)# + 24.8
 
-    #make the array which will be the input of findangle function
-    head_Axis_mod = np.vstack([np.subtract(Head_axis_form[0],Head_center_form),
-                             np.subtract(Head_axis_form[1],Head_center_form),
-                             np.subtract(Head_axis_form[2],Head_center_form)])
-
-    global_Axis = np.vstack([np.subtract(Global_axis_form[0],Global_center_form),
-                             np.subtract(Global_axis_form[1],Global_center_form),
-                             np.subtract(Global_axis_form[2],Global_center_form)])
-
-    global_head_angle = calc_angle_head(global_Axis,head_Axis_mod)
-
-    headx=(global_head_angle[0]*-1)# + 24.8
-
-    if headx <-180:
-        headx = headx+360
-    heady=global_head_angle[1]*-1
-    headz=global_head_angle[2]#+180
-    if headz <-180:
-        headz = headz-360
-
+    if headx < -180:
+        headx = headx + 360
+    heady = global_head_angle[1] * -1
+    headz = global_head_angle[2]#+180
+    if headz < -180:
+        headz = headz - 360
 
     # Calculate THORAX
-
     thorax_axis = calc_axis_thorax(frame['CLAV'] if 'CLAV' in frame else None,
                                    frame['C7'] if 'C7' in frame else None,
                                    frame['STRN'] if 'STRN' in frame else None,
                                    frame['T10'] if 'T10' in frame else None)
 
-    kin_Thorax_JC = thorax_axis[:3, 3] #quick fix for storing JC
-    kin_Thorax_axis = thorax_axis[:3, :3]
+    thorax_jc = thorax_axis[:3, 3]
+    thorax_axes = thorax_axis[:3, :3]
 
-    # Change to same format
-    Thorax_center_form = thorax_axis[:3, 3]
-    Thorax_axis_form = thorax_axis[:3, :3] + Thorax_center_form
+    global_axis = [[0,1,0],[-1,0,0],[0,0,1]]
+    global_center = [0,0,0]
+    global_axis = rotmat(x=0,y=0,z=180) #this needs to be fixed for the global rotation
 
-    Global_axis_form = [[0,1,0],[-1,0,0],[0,0,1]]
-    Global_center_form = [0,0,0]
-    #*******************************************************
-    Global_axis_form = rotmat(x=0,y=0,z=180) #this needs to be fixed for the global rotation
-
-    #make the array which will be the input of findangle function
-    thorax_Axis_mod = np.vstack([np.subtract(Thorax_axis_form[0],Thorax_center_form),
-                                np.subtract(Thorax_axis_form[1],Thorax_center_form),
-                                np.subtract(Thorax_axis_form[2],Thorax_center_form)])
-
-    global_Axis = np.vstack([np.subtract(Global_axis_form[0],Global_center_form),
-                             np.subtract(Global_axis_form[1],Global_center_form),
-                             np.subtract(Global_axis_form[2],Global_center_form)])
+    global_axes = np.vstack([np.subtract(global_axis[0],global_center),
+                             np.subtract(global_axis[1],global_center),
+                             np.subtract(global_axis[2],global_center)])
 
 
-    global_thorax_angle = calc_angle(global_Axis,thorax_Axis_mod)
+    global_thorax_angle = calc_angle(global_axes,thorax_axes)
 
     if global_thorax_angle[0] > 0:
         global_thorax_angle[0] = global_thorax_angle[0] - 180
@@ -2849,30 +2761,30 @@ def JointAngleCalc(frame,vsk):
     elif global_thorax_angle[0] < 0:
         global_thorax_angle[0] = global_thorax_angle[0] + 180
 
-    thox=global_thorax_angle[0]
-    thoy=global_thorax_angle[1]
-    thoz=global_thorax_angle[2]+90
+    thox = global_thorax_angle[0]
+    thoy = global_thorax_angle[1]
+    thoz = global_thorax_angle[2] + 90
 
     # Calculate NECK
 
-    head_thorax_angle = calc_angle_head(head_Axis_mod,thorax_Axis_mod)
+    head_thorax_angle = calc_angle_head(head_axes,thorax_axes)
 
-    neckx=(head_thorax_angle[0]-180)*-1# - 24.9
-    necky=head_thorax_angle[1]
-    neckz=head_thorax_angle[2]*-1
+    neckx = (head_thorax_angle[0] - 180) * -1 # - 24.9
+    necky = head_thorax_angle[1]
+    neckz = head_thorax_angle[2] * -1
 
-    kin_C7 = frame['C7']#quick fix to calculate CoM
-    kin_CLAV = frame['CLAV']
-    kin_STRN = frame['STRN']
-    kin_T10 = frame['T10']
+    c7 = frame['C7']#quick fix to calculate CoM
+    clav = frame['CLAV']
+    strn = frame['STRN']
+    t10 = frame['T10']
 
     # Calculate SPINE
 
-    pel_tho_angle = calc_angle_spine(pelvis_Axis_mod,thorax_Axis_mod)
+    pel_tho_angle = calc_angle_spine(pelvis_axes,thorax_axes)
 
-    spix=pel_tho_angle[0]
-    spiy=pel_tho_angle[2]*-1
-    spiz=pel_tho_angle[1]
+    spix = pel_tho_angle[0]
+    spiy = pel_tho_angle[2] * -1
+    spiz = pel_tho_angle[1]
 
     # Calculate SHOULDER
 
@@ -2880,7 +2792,7 @@ def JointAngleCalc(frame,vsk):
                             frame['LSHO'] if 'LSHO' in frame else None,
                             thorax_axis)
 
-    shoulder_JC = calc_joint_center_shoulder(frame['RSHO'] if 'RSHO' in frame else None,
+    shoulder_jc = calc_joint_center_shoulder(frame['RSHO'] if 'RSHO' in frame else None,
                                              frame['LSHO'] if 'LSHO' in frame else None,
                                              thorax_axis,
                                              wand[0],
@@ -2888,159 +2800,114 @@ def JointAngleCalc(frame,vsk):
                                              vsk['RightShoulderOffset'],
                                              vsk['LeftShoulderOffset'])
 
-
-    kin_R_Shoulder_JC = shoulder_JC[0] #quick fix for storing JC
-    kin_L_Shoulder_JC = shoulder_JC[1] #quick fix for storing JC
-
-    axis_shoulder = calc_axis_shoulder(thorax_axis,
-                                       shoulder_JC[0],
-                                       shoulder_JC[1],
+    shoulder_axis = calc_axis_shoulder(thorax_axis,
+                                       shoulder_jc[0],
+                                       shoulder_jc[1],
                                        wand[0],
                                        wand[1])
 
-    axis_elbow = calc_axis_elbow(frame['RELB'] if 'RELB' in frame else None,
+    r_shoulder_jc = shoulder_axis[0][:3, 3]
+    l_shoulder_jc = shoulder_axis[1][:3, 3]
+    r_shoulder_axes = shoulder_axis[0][:3, :3]
+    l_shoulder_axes = shoulder_axis[1][:3, :3]
+
+    elbow_axis = calc_axis_elbow(frame['RELB'] if 'RELB' in frame else None,
                                  frame['LELB'] if 'LELB' in frame else None,
                                  frame['RWRA'] if 'RWRA' in frame else None,
                                  frame['RWRB'] if 'RWRB' in frame else None,
                                  frame['LWRA'] if 'LWRA' in frame else None,
                                  frame['LWRB'] if 'LWRB' in frame else None,
-                                 axis_shoulder[0],
-                                 axis_shoulder[1],
+                                 shoulder_axis[0],
+                                 shoulder_axis[1],
                                  vsk['RightElbowWidth'],
                                  vsk['LeftElbowWidth'],
                                  vsk['RightWristWidth'],
                                  vsk['LeftWristWidth'],
                                  7.0)
 
-    kin_R_Humerus_JC = axis_elbow[0][:3, 3] #quick fix for storing JC
-    kin_L_Humerus_JC = axis_elbow[1][:3, 3] #quick fix for storing JC
+    r_elbow_jc = elbow_axis[0][:3, 3]
+    l_elbow_jc = elbow_axis[1][:3, 3]
+    r_elbow_axes = elbow_axis[0][:3, :3]
+    l_elbow_axes = elbow_axis[1][:3, :3]
 
-    # Change to same format
-    R_Clavicle_center_form = axis_shoulder[0][:3, 3]
-    L_Clavicle_center_form = axis_shoulder[1][:3, 3]
-    R_Clavicle_axis_form = axis_shoulder[0][:3, :3] + R_Clavicle_center_form
-    L_Clavicle_axis_form = axis_shoulder[1][:3, :3] + L_Clavicle_center_form
+    r_thorax_shoulder_angle, l_thorax_shoulder_angle = calc_angle_shoulder(thorax_axis,
+                                                                           elbow_axis[0],
+                                                                           elbow_axis[1])
 
-    # Change to same format
-    R_Humerus_center_form = axis_elbow[0][:3, 3]
-    L_Humerus_center_form = axis_elbow[1][:3, 3]
-    R_Humerus_axis_form = axis_elbow[0][:3, :3] + R_Humerus_center_form
-    L_Humerus_axis_form = axis_elbow[1][:3, :3] + L_Humerus_center_form
+    if r_thorax_shoulder_angle[2] < 0:
+        r_thorax_shoulder_angle[2] = r_thorax_shoulder_angle[2] + 180
+    elif r_thorax_shoulder_angle[2] > 0:
+        r_thorax_shoulder_angle[2] = r_thorax_shoulder_angle[2] - 180
 
-    # make the array which will be the input of findangle function
-    R_humerus_Axis_mod = np.vstack([np.subtract(R_Humerus_axis_form[0],R_Humerus_center_form),
-                                   np.subtract(R_Humerus_axis_form[1],R_Humerus_center_form),
-                                   np.subtract(R_Humerus_axis_form[2],R_Humerus_center_form)])
-    L_humerus_Axis_mod = np.vstack([np.subtract(L_Humerus_axis_form[0],L_Humerus_center_form),
-                                    np.subtract(L_Humerus_axis_form[1],L_Humerus_center_form),
-                                    np.subtract(L_Humerus_axis_form[2],L_Humerus_center_form)])
+    if r_thorax_shoulder_angle[1] > 0:
+        r_thorax_shoulder_angle[1] = r_thorax_shoulder_angle[1] - 180
+    elif r_thorax_shoulder_angle[1] < 0:
+        r_thorax_shoulder_angle[1] = r_thorax_shoulder_angle[1] * -1 - 180
 
-    R_thorax_shoulder_angle, L_thorax_shoulder_angle = calc_angle_shoulder(thorax_axis,
-                                                                          axis_elbow[0],
-                                                                          axis_elbow[1])
+    if l_thorax_shoulder_angle[1] < 0:
+        l_thorax_shoulder_angle[1] = l_thorax_shoulder_angle[1]  + 180
+    elif l_thorax_shoulder_angle[1] > 0:
+        l_thorax_shoulder_angle[1] = l_thorax_shoulder_angle[1] - 180
 
-    if R_thorax_shoulder_angle[2] < 0:
-        R_thorax_shoulder_angle[2]=R_thorax_shoulder_angle[2]+180
-    elif R_thorax_shoulder_angle[2] >0:
-        R_thorax_shoulder_angle[2] = R_thorax_shoulder_angle[2]-180
+    rshox = r_thorax_shoulder_angle[0] * -1
+    rshoy = r_thorax_shoulder_angle[1] * -1
+    rshoz = r_thorax_shoulder_angle[2]
+    lshox = l_thorax_shoulder_angle[0] * -1
+    lshoy = l_thorax_shoulder_angle[1]
+    lshoz = (l_thorax_shoulder_angle[2] - 180) * -1
 
-    if R_thorax_shoulder_angle[1] > 0:
-        R_thorax_shoulder_angle[1] = R_thorax_shoulder_angle[1]-180
-    elif R_thorax_shoulder_angle[1] <0:
-        R_thorax_shoulder_angle[1] = R_thorax_shoulder_angle[1]*-1-180
-
-    if L_thorax_shoulder_angle[1] < 0:
-        L_thorax_shoulder_angle[1]=L_thorax_shoulder_angle[1]+180
-    elif L_thorax_shoulder_angle[1] >0:
-        L_thorax_shoulder_angle[1] = L_thorax_shoulder_angle[1]-180
-
-
-
-    rshox=R_thorax_shoulder_angle[0]*-1
-    rshoy=R_thorax_shoulder_angle[1]*-1
-    rshoz=R_thorax_shoulder_angle[2]
-    lshox=L_thorax_shoulder_angle[0]*-1
-    lshoy=L_thorax_shoulder_angle[1]
-    lshoz=(L_thorax_shoulder_angle[2]-180)*-1
-
-    if lshoz >180:
+    if lshoz > 180:
         lshoz = lshoz - 360
 
     # Calculate ELBOW
 
-    axis_wrist = calc_axis_wrist(axis_elbow[0],
-                                 axis_elbow[1],
-                                 axis_elbow[2],
-                                 axis_elbow[3])
+    wrist_axis = calc_axis_wrist(elbow_axis[0],
+                                 elbow_axis[1],
+                                 elbow_axis[2],
+                                 elbow_axis[3])
 
-    kin_R_Radius_JC = axis_wrist[0][:3, 3] #quick fix for storing JC
-    kin_L_Radius_JC = axis_wrist[1][:3, 3] #quick fix for storing JC
+    r_wrist_jc = wrist_axis[0][:3, 3]
+    l_wrist_jc = wrist_axis[1][:3, 3]
+    r_wrist_axes = wrist_axis[0][:3, :3]
+    l_wrist_axes = wrist_axis[1][:3, :3]
 
 
-    # Change to same format
-    R_Radius_center_form = axis_wrist[0][:3, 3]
-    L_Radius_center_form = axis_wrist[1][:3, 3]
-    R_Radius_axis_form = axis_wrist[0][:3, :3] + R_Radius_center_form
-    L_Radius_axis_form = axis_wrist[1][:3, :3] + L_Radius_center_form
+    r_humerus_radius_angle = calc_angle(r_elbow_axes, r_wrist_axes)
+    l_humerus_radius_angle = calc_angle(l_elbow_axes, l_wrist_axes)
 
-    # make the array which will be the input of findangle function
-    R_radius_Axis_mod = np.vstack([np.subtract(R_Radius_axis_form[0],R_Radius_center_form),
-                                    np.subtract(R_Radius_axis_form[1],R_Radius_center_form),
-                                    np.subtract(R_Radius_axis_form[2],R_Radius_center_form)])
-    L_radius_Axis_mod = np.vstack([np.subtract(L_Radius_axis_form[0],L_Radius_center_form),
-                                    np.subtract(L_Radius_axis_form[1],L_Radius_center_form),
-                                    np.subtract(L_Radius_axis_form[2],L_Radius_center_form)])
-
-    R_humerus_radius_angle = calc_angle(R_humerus_Axis_mod,R_radius_Axis_mod)
-    L_humerus_radius_angle = calc_angle(L_humerus_Axis_mod,L_radius_Axis_mod)
-
-    relbx=R_humerus_radius_angle[0]
-    relby=R_humerus_radius_angle[1]
-    relbz=R_humerus_radius_angle[2]-90.0
-    lelbx=L_humerus_radius_angle[0]
-    lelby=L_humerus_radius_angle[1]
-    lelbz=L_humerus_radius_angle[2]-90.0
+    relbx = r_humerus_radius_angle[0]
+    relby = r_humerus_radius_angle[1]
+    relbz = r_humerus_radius_angle[2] - 90.0
+    lelbx = l_humerus_radius_angle[0]
+    lelby = l_humerus_radius_angle[1]
+    lelbz = l_humerus_radius_angle[2] - 90.0
 
     # Calculate WRIST
-    hand_JC = calc_axis_hand(frame['RWRA'] if 'RWRA' in frame else None,
+    hand_jc = calc_axis_hand(frame['RWRA'] if 'RWRA' in frame else None,
                              frame['RWRB'] if 'RWRB' in frame else None,
                              frame['LWRA'] if 'LWRA' in frame else None,
                              frame['LWRB'] if 'LWRB' in frame else None,
                              frame['RFIN'] if 'RFIN' in frame else None,
                              frame['LFIN'] if 'LFIN' in frame else None,
-                             axis_wrist[0],
-                             axis_wrist[1],
+                             wrist_axis[0],
+                             wrist_axis[1],
                              vsk['RightHandThickness'],
                              vsk['LeftHandThickness'])
 
-    kin_R_Hand_JC = hand_JC[0][:3, 3] #quick fix for storing JC
-    kin_L_Hand_JC = hand_JC[1][:3, 3] #quick fix for storing JC
+    r_hand_jc = hand_jc[0][:3, 3]
+    l_hand_jc = hand_jc[1][:3, 3]
+    r_hand_axes = hand_jc[0][:3, :3]
+    l_hand_axes = hand_jc[1][:3, :3]
 
+    r_radius_hand_angle = calc_angle(r_wrist_axes, r_hand_axes)
+    l_radius_hand_angle = calc_angle(l_wrist_axes, l_hand_axes)
 
-    # Change to same format
-
-    R_Hand_center_form = hand_JC[0][:3, 3]
-    L_Hand_center_form = hand_JC[1][:3, 3]
-    R_Hand_axis_form = hand_JC[0][:3, :3] + R_Hand_center_form
-    L_Hand_axis_form = hand_JC[1][:3, :3] + L_Hand_center_form
-
-    # make the array which will be the input of findangle function
-    R_hand_Axis_mod = np.vstack([np.subtract(R_Hand_axis_form[0],R_Hand_center_form),
-                                np.subtract(R_Hand_axis_form[1],R_Hand_center_form),
-                                np.subtract(R_Hand_axis_form[2],R_Hand_center_form)])
-    L_hand_Axis_mod = np.vstack([np.subtract(L_Hand_axis_form[0],L_Hand_center_form),
-                                np.subtract(L_Hand_axis_form[1],L_Hand_center_form),
-                                np.subtract(L_Hand_axis_form[2],L_Hand_center_form)])
-
-    R_radius_hand_angle = calc_angle(R_radius_Axis_mod,R_hand_Axis_mod)
-    L_radius_hand_angle = calc_angle(L_radius_Axis_mod,L_hand_Axis_mod)
-
-    rwrtx=R_radius_hand_angle[0]
-    rwrty=R_radius_hand_angle[1]
-    rwrtz=R_radius_hand_angle[2]*-1 + 90
-    lwrtx=L_radius_hand_angle[0]
-    lwrty=L_radius_hand_angle[1]*-1
-    lwrtz=L_radius_hand_angle[2]-90
+    rwrtx = r_radius_hand_angle[0]
+    rwrty = r_radius_hand_angle[1]
+    rwrtz = r_radius_hand_angle[2] * -1 + 90
+    lwrtx = l_radius_hand_angle[0]
+    lwrty = l_radius_hand_angle[1] * -1
+    lwrtz = l_radius_hand_angle[2] - 90
 
     if lwrtz < -180:
         lwrtz = lwrtz + 360
@@ -3050,397 +2917,397 @@ def JointAngleCalc(frame,vsk):
 
     # Pelvis
         # origin
-    pel_origin = pelvis_origin
+    pel_origin = pelvis_jc
     pel_ox=pel_origin[0]
     pel_oy=pel_origin[1]
     pel_oz=pel_origin[2]
         # xaxis
-    pel_x_axis = pelvis_vectors[0] + pelvis_origin
+    pel_x_axis = pelvis_axes[0] + pelvis_jc
     pel_xx=pel_x_axis[0]
     pel_xy=pel_x_axis[1]
     pel_xz=pel_x_axis[2]
         # yaxis
-    pel_y_axis = pelvis_vectors[1] + pelvis_origin
+    pel_y_axis = pelvis_axes[1] + pelvis_jc
     pel_yx=pel_y_axis[0]
     pel_yy=pel_y_axis[1]
     pel_yz=pel_y_axis[2]
         # zaxis
-    pel_z_axis = pelvis_vectors[2] + pelvis_origin
+    pel_z_axis = pelvis_axes[2] + pelvis_jc
     pel_zx=pel_z_axis[0]
     pel_zy=pel_z_axis[1]
     pel_zz=pel_z_axis[2]
 
     # Hip
         # origin
-    hip_origin = Hip_center_form
+    hip_origin = hip_jc
     hip_ox=hip_origin[0]
     hip_oy=hip_origin[1]
     hip_oz=hip_origin[2]
         # xaxis
-    hip_x_axis = Hip_axis_form[0]
+    hip_x_axis = hip_axes[0] + hip_jc
     hip_xx=hip_x_axis[0]
     hip_xy=hip_x_axis[1]
     hip_xz=hip_x_axis[2]
         # yaxis
-    hip_y_axis = Hip_axis_form[1]
+    hip_y_axis = hip_axes[1] + hip_jc
     hip_yx=hip_y_axis[0]
     hip_yy=hip_y_axis[1]
     hip_yz=hip_y_axis[2]
         # zaxis
-    hip_z_axis = Hip_axis_form[2]
+    hip_z_axis = hip_axes[2] + hip_jc
     hip_zx=hip_z_axis[0]
     hip_zy=hip_z_axis[1]
     hip_zz=hip_z_axis[2]
 
     # R KNEE
         # origin
-    rknee_origin = R_Knee_center_form
+    rknee_origin = r_knee_jc
     rknee_ox=rknee_origin[0]
     rknee_oy=rknee_origin[1]
     rknee_oz=rknee_origin[2]
 
         # xaxis
-    rknee_x_axis = R_Knee_axis_form[0]
+    rknee_x_axis = r_knee_axes[0] + r_knee_jc
     rknee_xx=rknee_x_axis[0]
     rknee_xy=rknee_x_axis[1]
     rknee_xz=rknee_x_axis[2]
         # yaxis
-    rknee_y_axis = R_Knee_axis_form[1]
+    rknee_y_axis = r_knee_axes[1] + r_knee_jc
     rknee_yx=rknee_y_axis[0]
     rknee_yy=rknee_y_axis[1]
     rknee_yz=rknee_y_axis[2]
         # zaxis
-    rknee_z_axis = R_Knee_axis_form[2]
+    rknee_z_axis = r_knee_axes[2] + r_knee_jc
     rknee_zx=rknee_z_axis[0]
     rknee_zy=rknee_z_axis[1]
     rknee_zz=rknee_z_axis[2]
 
     # L KNEE
         # origin
-    lknee_origin = L_Knee_center_form
+    lknee_origin = l_knee_jc
     lknee_ox=lknee_origin[0]
     lknee_oy=lknee_origin[1]
     lknee_oz=lknee_origin[2]
         # xaxis
-    lknee_x_axis = L_Knee_axis_form[0]
+    lknee_x_axis = l_knee_axes[0] + l_knee_jc
     lknee_xx=lknee_x_axis[0]
     lknee_xy=lknee_x_axis[1]
     lknee_xz=lknee_x_axis[2]
         # yaxis
-    lknee_y_axis = L_Knee_axis_form[1]
+    lknee_y_axis = l_knee_axes[1] + l_knee_jc
     lknee_yx=lknee_y_axis[0]
     lknee_yy=lknee_y_axis[1]
     lknee_yz=lknee_y_axis[2]
         # zaxis
-    lknee_z_axis = L_Knee_axis_form[2]
+    lknee_z_axis = l_knee_axes[2] + l_knee_jc
     lknee_zx=lknee_z_axis[0]
     lknee_zy=lknee_z_axis[1]
     lknee_zz=lknee_z_axis[2]
 
     # R ANKLE
         # origin
-    rank_origin = R_Ankle_center_form
+    rank_origin = r_ankle_jc
     rank_ox=rank_origin[0]
     rank_oy=rank_origin[1]
     rank_oz=rank_origin[2]
         # xaxis
-    rank_x_axis = R_Ankle_axis_form[0]
+    rank_x_axis = r_ankle_axes[0] + r_ankle_jc
     rank_xx=rank_x_axis[0]
     rank_xy=rank_x_axis[1]
     rank_xz=rank_x_axis[2]
         # yaxis
-    rank_y_axis = R_Ankle_axis_form[1]
+    rank_y_axis = r_ankle_axes[1] + r_ankle_jc
     rank_yx=rank_y_axis[0]
     rank_yy=rank_y_axis[1]
     rank_yz=rank_y_axis[2]
         # zaxis
-    rank_z_axis = R_Ankle_axis_form[2]
+    rank_z_axis = r_ankle_axes[2] + r_ankle_jc
     rank_zx=rank_z_axis[0]
     rank_zy=rank_z_axis[1]
     rank_zz=rank_z_axis[2]
 
     # L ANKLE
         # origin
-    lank_origin = L_Ankle_center_form
+    lank_origin = l_ankle_jc
     lank_ox=lank_origin[0]
     lank_oy=lank_origin[1]
     lank_oz=lank_origin[2]
         # xaxis
-    lank_x_axis = L_Ankle_axis_form[0]
+    lank_x_axis = l_ankle_axes[0] + l_ankle_jc
     lank_xx=lank_x_axis[0]
     lank_xy=lank_x_axis[1]
     lank_xz=lank_x_axis[2]
         # yaxis
-    lank_y_axis = L_Ankle_axis_form[1]
+    lank_y_axis = l_ankle_axes[1] + l_ankle_jc
     lank_yx=lank_y_axis[0]
     lank_yy=lank_y_axis[1]
     lank_yz=lank_y_axis[2]
         # zaxis
-    lank_z_axis = L_Ankle_axis_form[2]
+    lank_z_axis = l_ankle_axes[2] + l_ankle_jc
     lank_zx=lank_z_axis[0]
     lank_zy=lank_z_axis[1]
     lank_zz=lank_z_axis[2]
 
     # R FOOT
         # origin
-    rfoot_origin = R_Foot_center_form
+    rfoot_origin = r_foot_jc
     rfoot_ox=rfoot_origin[0]
     rfoot_oy=rfoot_origin[1]
     rfoot_oz=rfoot_origin[2]
         # xaxis
-    rfoot_x_axis = R_Foot_axis_form[0]
+    rfoot_x_axis = r_foot_axes[0] + r_foot_jc
     rfoot_xx=rfoot_x_axis[0]
     rfoot_xy=rfoot_x_axis[1]
     rfoot_xz=rfoot_x_axis[2]
         # yaxis
-    rfoot_y_axis = R_Foot_axis_form[1]
+    rfoot_y_axis = r_foot_axes[1] + r_foot_jc
     rfoot_yx=rfoot_y_axis[0]
     rfoot_yy=rfoot_y_axis[1]
     rfoot_yz=rfoot_y_axis[2]
         # zaxis
-    rfoot_z_axis = R_Foot_axis_form[2]
+    rfoot_z_axis = r_foot_axes[2] + r_foot_jc
     rfoot_zx=rfoot_z_axis[0]
     rfoot_zy=rfoot_z_axis[1]
     rfoot_zz=rfoot_z_axis[2]
 
     # L FOOT
         # origin
-    lfoot_origin = L_Foot_center_form
+    lfoot_origin = l_foot_jc
     lfoot_ox=lfoot_origin[0]
     lfoot_oy=lfoot_origin[1]
     lfoot_oz=lfoot_origin[2]
         # xaxis
-    lfoot_x_axis = L_Foot_axis_form[0]
+    lfoot_x_axis = l_foot_axes[0] + l_foot_jc
     lfoot_xx=lfoot_x_axis[0]
     lfoot_xy=lfoot_x_axis[1]
     lfoot_xz=lfoot_x_axis[2]
         # yaxis
-    lfoot_y_axis = L_Foot_axis_form[1]
+    lfoot_y_axis = l_foot_axes[1] + l_foot_jc
     lfoot_yx=lfoot_y_axis[0]
     lfoot_yy=lfoot_y_axis[1]
     lfoot_yz=lfoot_y_axis[2]
         # zaxis
-    lfoot_z_axis = L_Foot_axis_form[2]
+    lfoot_z_axis = l_foot_axes[2] + l_foot_jc
     lfoot_zx=lfoot_z_axis[0]
     lfoot_zy=lfoot_z_axis[1]
     lfoot_zz=lfoot_z_axis[2]
 
     # HEAD
         # origin
-    head_origin = Head_center_form
+    head_origin = head_jc
     head_ox=head_origin[0]
     head_oy=head_origin[1]
     head_oz=head_origin[2]
         # xaxis
-    head_x_axis = Head_axis_form[0]
+    head_x_axis = head_axes[0] + head_jc
     head_xx=head_x_axis[0]
     head_xy=head_x_axis[1]
     head_xz=head_x_axis[2]
         # yaxis
-    head_y_axis = Head_axis_form[1]
+    head_y_axis = head_axes[1] + head_jc
     head_yx=head_y_axis[0]
     head_yy=head_y_axis[1]
     head_yz=head_y_axis[2]
         # zaxis
-    head_z_axis = Head_axis_form[2]
+    head_z_axis = head_axes[2] + head_jc
     head_zx=head_z_axis[0]
     head_zy=head_z_axis[1]
     head_zz=head_z_axis[2]
 
     # THORAX
         # origin
-    tho_origin = Thorax_center_form
+    tho_origin = thorax_jc
     tho_ox=tho_origin[0]
     tho_oy=tho_origin[1]
     tho_oz=tho_origin[2]
         # xaxis
-    tho_x_axis = Thorax_axis_form[0]
+    tho_x_axis = thorax_axes[0] + thorax_jc
     tho_xx=tho_x_axis[0]
     tho_xy=tho_x_axis[1]
     tho_xz=tho_x_axis[2]
         # yaxis
-    tho_y_axis = Thorax_axis_form[1]
+    tho_y_axis = thorax_axes[1] + thorax_jc
     tho_yx=tho_y_axis[0]
     tho_yy=tho_y_axis[1]
     tho_yz=tho_y_axis[2]
         # zaxis
-    tho_z_axis = Thorax_axis_form[2]
+    tho_z_axis = thorax_axes[2] + thorax_jc
     tho_zx=tho_z_axis[0]
     tho_zy=tho_z_axis[1]
     tho_zz=tho_z_axis[2]
 
     # R CLAVICLE
         # origin
-    rclav_origin = R_Clavicle_center_form
+    rclav_origin = r_shoulder_jc
     rclav_ox=rclav_origin[0]
     rclav_oy=rclav_origin[1]
     rclav_oz=rclav_origin[2]
         # xaxis
-    rclav_x_axis = R_Clavicle_axis_form[0]
+    rclav_x_axis = r_shoulder_axes[0] + r_shoulder_jc
     rclav_xx=rclav_x_axis[0]
     rclav_xy=rclav_x_axis[1]
     rclav_xz=rclav_x_axis[2]
         # yaxis
-    rclav_y_axis = R_Clavicle_axis_form[1]
+    rclav_y_axis = r_shoulder_axes[1] + r_shoulder_jc
     rclav_yx=rclav_y_axis[0]
     rclav_yy=rclav_y_axis[1]
     rclav_yz=rclav_y_axis[2]
         # zaxis
-    rclav_z_axis = R_Clavicle_axis_form[2]
+    rclav_z_axis = r_shoulder_axes[2] + r_shoulder_jc
     rclav_zx=rclav_z_axis[0]
     rclav_zy=rclav_z_axis[1]
     rclav_zz=rclav_z_axis[2]
 
     # L CLAVICLE
         # origin
-    lclav_origin = L_Clavicle_center_form
+    lclav_origin = l_shoulder_jc
     lclav_ox=lclav_origin[0]
     lclav_oy=lclav_origin[1]
     lclav_oz=lclav_origin[2]
         # xaxis
-    lclav_x_axis = L_Clavicle_axis_form[0]
+    lclav_x_axis = l_shoulder_axes[0] + l_shoulder_jc
     lclav_xx=lclav_x_axis[0]
     lclav_xy=lclav_x_axis[1]
     lclav_xz=lclav_x_axis[2]
         # yaxis
-    lclav_y_axis = L_Clavicle_axis_form[1]
+    lclav_y_axis = l_shoulder_axes[1] + l_shoulder_jc
     lclav_yx=lclav_y_axis[0]
     lclav_yy=lclav_y_axis[1]
     lclav_yz=lclav_y_axis[2]
         # zaxis
-    lclav_z_axis = L_Clavicle_axis_form[2]
+    lclav_z_axis = l_shoulder_axes[2] + l_shoulder_jc
     lclav_zx=lclav_z_axis[0]
     lclav_zy=lclav_z_axis[1]
     lclav_zz=lclav_z_axis[2]
 
     # R HUMERUS
         # origin
-    rhum_origin = R_Humerus_center_form
+    rhum_origin = r_elbow_jc
     rhum_ox=rhum_origin[0]
     rhum_oy=rhum_origin[1]
     rhum_oz=rhum_origin[2]
         # xaxis
-    rhum_x_axis = R_Humerus_axis_form[0]
+    rhum_x_axis = r_elbow_axes[0] + r_elbow_jc
     rhum_xx=rhum_x_axis[0]
     rhum_xy=rhum_x_axis[1]
     rhum_xz=rhum_x_axis[2]
         # yaxis
-    rhum_y_axis = R_Humerus_axis_form[1]
+    rhum_y_axis = r_elbow_axes[1] + r_elbow_jc
     rhum_yx=rhum_y_axis[0]
     rhum_yy=rhum_y_axis[1]
     rhum_yz=rhum_y_axis[2]
         # zaxis
-    rhum_z_axis = R_Humerus_axis_form[2]
+    rhum_z_axis = r_elbow_axes[2] + r_elbow_jc
     rhum_zx=rhum_z_axis[0]
     rhum_zy=rhum_z_axis[1]
     rhum_zz=rhum_z_axis[2]
 
     # L HUMERUS
         # origin
-    lhum_origin = L_Humerus_center_form
+    lhum_origin = l_elbow_jc
     lhum_ox=lhum_origin[0]
     lhum_oy=lhum_origin[1]
     lhum_oz=lhum_origin[2]
         # xaxis
-    lhum_x_axis = L_Humerus_axis_form[0]
+    lhum_x_axis = l_elbow_axes[0] + l_elbow_jc
     lhum_xx=lhum_x_axis[0]
     lhum_xy=lhum_x_axis[1]
     lhum_xz=lhum_x_axis[2]
         # yaxis
-    lhum_y_axis = L_Humerus_axis_form[1]
+    lhum_y_axis = l_elbow_axes[1] + l_elbow_jc
     lhum_yx=lhum_y_axis[0]
     lhum_yy=lhum_y_axis[1]
     lhum_yz=lhum_y_axis[2]
         # zaxis
-    lhum_z_axis = L_Humerus_axis_form[2]
+    lhum_z_axis = l_elbow_axes[2] + l_elbow_jc
     lhum_zx=lhum_z_axis[0]
     lhum_zy=lhum_z_axis[1]
     lhum_zz=lhum_z_axis[2]
 
     # R RADIUS
         # origin
-    rrad_origin = R_Radius_center_form
+    rrad_origin = r_wrist_jc
     rrad_ox=rrad_origin[0]
     rrad_oy=rrad_origin[1]
     rrad_oz=rrad_origin[2]
         # xaxis
-    rrad_x_axis = R_Radius_axis_form[0]
+    rrad_x_axis = r_wrist_axes[0] + r_wrist_jc
     rrad_xx=rrad_x_axis[0]
     rrad_xy=rrad_x_axis[1]
     rrad_xz=rrad_x_axis[2]
         # yaxis
-    rrad_y_axis = R_Radius_axis_form[1]
+    rrad_y_axis = r_wrist_axes[1] + r_wrist_jc
     rrad_yx=rrad_y_axis[0]
     rrad_yy=rrad_y_axis[1]
     rrad_yz=rrad_y_axis[2]
         # zaxis
-    rrad_z_axis = R_Radius_axis_form[2]
+    rrad_z_axis = r_wrist_axes[2] + r_wrist_jc
     rrad_zx=rrad_z_axis[0]
     rrad_zy=rrad_z_axis[1]
     rrad_zz=rrad_z_axis[2]
 
     # L RADIUS
         # origin
-    lrad_origin = L_Radius_center_form
+    lrad_origin = l_wrist_jc
     lrad_ox=lrad_origin[0]
     lrad_oy=lrad_origin[1]
     lrad_oz=lrad_origin[2]
         # xaxis
-    lrad_x_axis = L_Radius_axis_form[0]
+    lrad_x_axis = l_wrist_axes[0] + l_wrist_jc
     lrad_xx=lrad_x_axis[0]
     lrad_xy=lrad_x_axis[1]
     lrad_xz=lrad_x_axis[2]
         # yaxis
-    lrad_y_axis = L_Radius_axis_form[1]
+    lrad_y_axis = l_wrist_axes[1] + l_wrist_jc
     lrad_yx=lrad_y_axis[0]
     lrad_yy=lrad_y_axis[1]
     lrad_yz=lrad_y_axis[2]
         # zaxis
-    lrad_z_axis = L_Radius_axis_form[2]
+    lrad_z_axis = l_wrist_axes[2] + l_wrist_jc
     lrad_zx=lrad_z_axis[0]
     lrad_zy=lrad_z_axis[1]
     lrad_zz=lrad_z_axis[2]
 
     # R HAND
         # origin
-    rhand_origin = R_Hand_center_form
+    rhand_origin = r_hand_jc
     rhand_ox=rhand_origin[0]
     rhand_oy=rhand_origin[1]
     rhand_oz=rhand_origin[2]
         # xaxis
-    rhand_x_axis= R_Hand_axis_form[0]
+    rhand_x_axis= r_hand_axes[0] + r_hand_jc
     rhand_xx=rhand_x_axis[0]
     rhand_xy=rhand_x_axis[1]
     rhand_xz=rhand_x_axis[2]
         # yaxis
-    rhand_y_axis= R_Hand_axis_form[1]
+    rhand_y_axis= r_hand_axes[1] + r_hand_jc
     rhand_yx=rhand_y_axis[0]
     rhand_yy=rhand_y_axis[1]
     rhand_yz=rhand_y_axis[2]
         # zaxis
-    rhand_z_axis= R_Hand_axis_form[2]
+    rhand_z_axis= r_hand_axes[2] + r_hand_jc
     rhand_zx=rhand_z_axis[0]
     rhand_zy=rhand_z_axis[1]
     rhand_zz=rhand_z_axis[2]
 
     # L HAND
         # origin
-    lhand_origin = L_Hand_center_form
+    lhand_origin = l_hand_jc
     lhand_ox=lhand_origin[0]
     lhand_oy=lhand_origin[1]
     lhand_oz=lhand_origin[2]
         # xaxis
-    lhand_x_axis = L_Hand_axis_form[0]
+    lhand_x_axis = l_hand_axes[0] + l_hand_jc
     lhand_xx=lhand_x_axis[0]
     lhand_xy=lhand_x_axis[1]
     lhand_xz=lhand_x_axis[2]
         # yaxis
-    lhand_y_axis = L_Hand_axis_form[1]
+    lhand_y_axis = l_hand_axes[1] + l_hand_jc
     lhand_yx=lhand_y_axis[0]
     lhand_yy=lhand_y_axis[1]
     lhand_yz=lhand_y_axis[2]
         # zaxis
-    lhand_z_axis = L_Hand_axis_form[2]
+    lhand_z_axis = l_hand_axes[2] + l_hand_jc
     lhand_zx=lhand_z_axis[0]
     lhand_zy=lhand_z_axis[1]
     lhand_zz=lhand_z_axis[2]
@@ -3493,41 +3360,41 @@ def JointAngleCalc(frame,vsk):
 
     #Put temporary dictionary for joint centers to return for now, then modify later
     jc = {}
-    jc['Pelvis_axis'] = kin_Pelvis_axis
-    jc['Thorax_axis'] = kin_Thorax_axis
+    jc['Pelvis_axis'] = pelvis_axis
+    jc['Thorax_axis'] = thorax_axes
 
-    jc['Pelvis'] = kin_Pelvis_JC
-    jc['RHip'] = kin_R_Hip_JC
-    jc['LHip'] = kin_L_Hip_JC
-    jc['RKnee'] = kin_R_Knee_JC
-    jc['LKnee'] = kin_L_Knee_JC
-    jc['RAnkle'] = kin_R_Ankle_JC
-    jc['LAnkle'] = kin_L_Ankle_JC
-    jc['RFoot'] = kin_R_Foot_JC
-    jc['LFoot'] = kin_L_Foot_JC
+    jc['Pelvis'] = pelvis_jc
+    jc['RHip'] = l_hip_jc
+    jc['LHip'] = r_hip_jc
+    jc['RKnee'] = r_knee_jc
+    jc['LKnee'] = l_knee_jc
+    jc['RAnkle'] = r_ankle_jc
+    jc['LAnkle'] = l_ankle_jc
+    jc['RFoot'] = r_foot_jc
+    jc['LFoot'] = l_foot_jc
 
-    jc['RHEE'] = kin_RHEE
-    jc['LHEE'] = kin_LHEE
+    jc['RHEE'] = rhee
+    jc['LHEE'] = lhee
 
-    jc['C7'] = kin_C7
-    jc['CLAV'] = kin_CLAV
-    jc['STRN'] = kin_STRN
-    jc['T10'] = kin_T10
+    jc['C7'] = c7
+    jc['CLAV'] = clav
+    jc['STRN'] = strn
+    jc['T10'] = t10
 
 
-    jc['Front_Head'] = kin_Head_Front
-    jc['Back_Head'] = kin_Head_Back
+    jc['Front_Head'] = head_front
+    jc['Back_Head'] = head_back
 
-    jc['Head'] = kin_Head_JC
-    jc['Thorax'] = kin_Thorax_JC
+    jc['Head'] = head_jc
+    jc['Thorax'] = thorax_jc
 
-    jc['RShoulder'] = kin_R_Shoulder_JC
-    jc['LShoulder'] = kin_L_Shoulder_JC
-    jc['RHumerus'] = kin_R_Humerus_JC
-    jc['LHumerus'] = kin_L_Humerus_JC
-    jc['RRadius'] = kin_R_Radius_JC
-    jc['LRadius'] = kin_L_Radius_JC
-    jc['RHand'] = kin_R_Hand_JC
-    jc['LHand'] = kin_L_Hand_JC
+    jc['RShoulder'] = r_shoulder_jc
+    jc['LShoulder'] = l_shoulder_jc
+    jc['RHumerus'] = r_elbow_jc
+    jc['LHumerus'] = l_elbow_jc
+    jc['RRadius'] = r_wrist_jc
+    jc['LRadius'] = l_wrist_jc
+    jc['RHand'] = r_hand_jc
+    jc['LHand'] = l_hand_jc
 
     return r,jc
