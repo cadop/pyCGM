@@ -466,6 +466,10 @@ def calc_foot_offset(rtoe, ltoe, rhee, lhee, ankle_axis, flat_foot, right_sole_d
 
     It is rotated from uncorrected axis in YXZ order.
 
+    Markers used: RTOE, LTOE, RHEE, LHEE
+
+    Subject Measurement values used: RightSoleDelta, LeftSoleDelta
+
     Parameters
     ----------
     rtoe : array
