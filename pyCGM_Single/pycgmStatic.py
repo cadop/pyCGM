@@ -822,67 +822,6 @@ def calc_joint_center_hip(pelvis, subject):
     return hip_jc
 
 
-def hipAxisCenter(l_hip_jc,r_hip_jc,pelvis_axis):
-    """Calculate the hip joint axis function.
-
-    Takes in a hip joint center of x,y,z positions as well as an index.
-    and takes the hip joint center and pelvis origin/axis from previous functions.
-    Calculates the hip axis and returns hip joint origin and axis.
-
-    Hip center axis: mean at each x,y,z axis of the left and right hip joint center.
-    Hip axis: summation of the pelvis and hip center axes.
-
-    Parameters
-    ----------
-    l_hip_jc, r_hip_jc: array
-        Array of R_hip_jc and L_hip_jc each x,y,z position.
-    pelvis_axis : array
-        An array of pelvis origin and axis. The axis is also composed of 3 arrays,
-        each contain the x axis, y axis and z axis.
-
-    Returns
-    -------
-    hipaxis_center, axis : list
-        Returns a list that contains the hip axis center in a 1x3 list of xyz values,
-        which is then followed by a 3x2x3 list composed of the hip axis center x, y, and z
-        axis components. The xyz axis components are 2x3 lists consisting of the axis center
-        in the first dimension and the direction of the axis in the second dimension.
-
-    Examples
-    --------
-    >>> import numpy as np
-    >>> from .pycgmStatic import hipAxisCenter
-    >>> r_hip_jc = [182.57, 339.43, 935.53]
-    >>> l_hip_jc = [308.38, 322.80, 937.99]
-    >>> pelvis_axis = [np.array([251.61, 391.74, 1032.89]),
-    ...                np.array([[251.74, 392.73, 1032.79],
-    ...                    [250.62, 391.87, 1032.87],
-    ...                    [251.60, 391.85, 1033.89]]),
-    ...                np.array([231.58, 210.25, 1052.25])]
-    >>> [np.around(arr,8) for arr in hipAxisCenter(l_hip_jc,r_hip_jc,pelvis_axis)] #doctest: +NORMALIZE_WHITESPACE
-    [array([245.475, 331.115, 936.76 ]),
-    array([[245.605, 332.105, 936.66 ],
-           [244.485, 331.245, 936.74 ],
-           [245.465, 331.225, 937.76 ]])]
-    """
-
-    # Get shared hip axis, it is inbetween the two hip joint centers
-    hipaxis_center = [(r_hip_jc[0]+l_hip_jc[0])/2.0,(r_hip_jc[1]+l_hip_jc[1])/2.0,(r_hip_jc[2]+l_hip_jc[2])/2.0]
-
-    #convert pelvis_axis to x,y,z axis to use more easy
-    pelvis_x_axis = np.subtract(pelvis_axis[1][0],pelvis_axis[0])
-    pelvis_y_axis = np.subtract(pelvis_axis[1][1],pelvis_axis[0])
-    pelvis_z_axis = np.subtract(pelvis_axis[1][2],pelvis_axis[0])
-
-    #Translate pelvis axis to shared hip centre
-    # Add the origin back to the vector
-    y_axis = [pelvis_y_axis[0]+hipaxis_center[0],pelvis_y_axis[1]+hipaxis_center[1],pelvis_y_axis[2]+hipaxis_center[2]]
-    z_axis = [pelvis_z_axis[0]+hipaxis_center[0],pelvis_z_axis[1]+hipaxis_center[1],pelvis_z_axis[2]+hipaxis_center[2]]
-    x_axis = [pelvis_x_axis[0]+hipaxis_center[0],pelvis_x_axis[1]+hipaxis_center[1],pelvis_x_axis[2]+hipaxis_center[2]]
-
-    axis = [x_axis,y_axis,z_axis]
-
-    return [hipaxis_center,axis]
 
 
 def calc_axis_knee(rthi, lthi, rkne, lkne, r_hip_jc, l_hip_jc, rkne_width, lkne_width):
