@@ -443,60 +443,61 @@ class TestPycgmStaticUtils():
         # Multiple Rotations
         (150, 30, 0, [-0.447832,  0.588003,  0.281035]), (45, 0, 60, [-0.785398, -0, -1.047198]),
         (0, 90, 120, [0, -1.570796,  1.047198]), (135, 45, 90, [-0.523599,  0.955317, -0.955317])])
-    def test_getankleangle(self, xRot, yRot, zRot, expected_results):
+    def test_calc_static_angle_ankle(self, xRot, yRot, zRot, expected_results):
         """
-        This test provides coverage of the getankleangle function in pycgmStatic.py, defined as getankleangle(axisP, axisD)
+        This test provides coverage of the calc_static_angle_ankle function in pycgmStatic.py, 
+        defined as calc_static_angle_ankle(axis_p, axis_d)
 
         This test takes 3 parameters:
-        axisP: the unit vector of axisP, the position of the proximal axis
-        axisD: the unit vector of axisD, the position of the distal axis
-        expected_results: the expected result from calling getankleangle on axisP and axisD. This returns the x, y, z angles
+        axis_p: the unit vector of axis_p, the position of the proximal axis
+        axis_d: the unit vector of axis_d, the position of the distal axis
+        expected_results: the expected result from calling calc_static_angle_ankle on axis_p and axis_d. This returns the x, y, z angles
         from a XYZ Euler angle calculation from a rotational matrix. This rotational matrix is calculated by matrix
-        multiplication of axisD and the inverse of axisP. This angle is in radians, not degrees.
+        multiplication of axis_d and the inverse of axis_p. This angle is in radians, not degrees.
 
         The x, y, and z angles are defined as:
         .. math::
             \[ x = \arctan{\frac{M[2][1]}{\sqrt{M[2][0]^2 + M[2][2]^2}}} \]
             \[ y = \arctan{\frac{-M[2][0]}{M[2][2]}} \]
             \[ z = \arctan{\frac{-M[0][1]}{M[1][1]}} \]
-        where M is the rotation matrix produced from multiplying axisD and :math:`axisP^{-1}`
+        where M is the rotation matrix produced from multiplying axis_d and :math:`axis_p^{-1}`
 
         This test ensures that:
         - A rotation in one axis will only effect the resulting angle in the corresponding axes
         - A rotation in multiple axes can effect the angles in other axes due to XYZ order
         """
-        # Create axisP as a rotatinal matrix using the x, y, and z rotations given
-        axisP = pycgmStatic.rotmat(xRot, yRot, zRot)
-        axisD = pycgmStatic.rotmat(0, 0, 0)
-        result = pycgmStatic.getankleangle(axisP, axisD)
+        # Create axis_p as a rotatinal matrix using the x, y, and z rotations given
+        axis_p = pycgmStatic.rotmat(xRot, yRot, zRot)
+        axis_d = pycgmStatic.rotmat(0, 0, 0)
+        result = pycgmStatic.calc_static_angle_ankle(axis_p, axis_d)
         np.testing.assert_almost_equal(result, expected_results, rounding_precision)
 
-    def test_getankleangle_datatypes(self):
+    def test_calc_static_angle_ankle_datatypes(self):
         """
-        This test provides coverage of the getankleangle function in pycgmStatic.py, defined as getankleangle(axisP, axisD)
+        This test provides coverage of the calc_static_angle_ankle function in pycgmStatic.py, defined as calc_static_angle_ankle(axis_p, axis_d)
 
-        This test checks that the resulting output from calling getankleangle is correct when called with a list of ints,
+        This test checks that the resulting output from calling calc_static_angle_ankle is correct when called with a list of ints,
         a numpy array of ints, a list of floats, and a numpy array of floats.
         """
-        axisD = pycgmStatic.rotmat(0, 0, 0)
-        axisP_floats = pycgmStatic.rotmat(90, 90, 90)
-        axisP_ints = [[int(y) for y in x] for x in axisP_floats]
+        axis_d = pycgmStatic.rotmat(0, 0, 0)
+        axis_p_floats = pycgmStatic.rotmat(90, 90, 90)
+        axis_p_ints = [[int(y) for y in x] for x in axis_p_floats]
         expected_results = [0, -1.570796, 0]
 
-        # Check that calling getankleangle on a list of ints yields the expected results
-        result_int_list = pycgmStatic.getankleangle(axisP_ints, axisD)
+        # Check that calling calc_static_angle_ankle on a list of ints yields the expected results
+        result_int_list = pycgmStatic.calc_static_angle_ankle(axis_p_ints, axis_d)
         np.testing.assert_almost_equal(result_int_list, expected_results, rounding_precision)
 
-        # Check that calling getankleangle on a numpy array of ints yields the expected results
-        result_int_nparray = pycgmStatic.getankleangle(np.array(axisP_ints, dtype='int'), np.array(axisD, dtype='int'))
+        # Check that calling calc_static_angle_ankle on a numpy array of ints yields the expected results
+        result_int_nparray = pycgmStatic.calc_static_angle_ankle(np.array(axis_p_ints, dtype='int'), np.array(axis_d, dtype='int'))
         np.testing.assert_almost_equal(result_int_nparray, expected_results, rounding_precision)
 
-        # Check that calling getankleangle on a list of floats yields the expected results
-        result_float_list = pycgmStatic.getankleangle(axisP_floats, axisD)
+        # Check that calling calc_static_angle_ankle on a list of floats yields the expected results
+        result_float_list = pycgmStatic.calc_static_angle_ankle(axis_p_floats, axis_d)
         np.testing.assert_almost_equal(result_float_list, expected_results, rounding_precision)
 
-        # Check that calling getankleangle on a numpy array of floats yields the expected results
-        result_float_nparray = pycgmStatic.getankleangle(np.array(axisP_floats, dtype='float'), np.array(axisD, dtype='float'))
+        # Check that calling calc_static_angle_ankle on a numpy array of floats yields the expected results
+        result_float_nparray = pycgmStatic.calc_static_angle_ankle(np.array(axis_p_floats, dtype='float'), np.array(axis_d, dtype='float'))
         np.testing.assert_almost_equal(result_float_nparray, expected_results, rounding_precision)
 
     @pytest.mark.parametrize(["v", "expected_results"], [
