@@ -2574,9 +2574,6 @@ def JointAngleCalc(frame,vsk):
     array([ 770.93,  591.05, 1079.05])
     """
 
-    # THIS IS FOOT PROGRESS ANGLE
-    rfoot_prox,rfoot_proy,rfoot_proz,lfoot_prox,lfoot_proy,lfoot_proz = [None]*6
-
     #First Calculate Pelvis
     pelvis_axis = calc_axis_pelvis(frame['RASI'] if 'RASI' in frame else None,
                                    frame['LASI'] if 'LASI' in frame else None,
@@ -2871,7 +2868,6 @@ def JointAngleCalc(frame,vsk):
     r_wrist_axes = wrist_axis[0][:3, :3]
     l_wrist_axes = wrist_axis[1][:3, :3]
 
-
     r_humerus_radius_angle = calc_angle(r_elbow_axes, r_wrist_axes)
     l_humerus_radius_angle = calc_angle(l_elbow_axes, l_wrist_axes)
 
@@ -2911,7 +2907,6 @@ def JointAngleCalc(frame,vsk):
 
     if lwrtz < -180:
         lwrtz = lwrtz + 360
-
 
     # make each axis as same format to store
 
