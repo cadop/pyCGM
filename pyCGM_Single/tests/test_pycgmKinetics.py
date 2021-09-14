@@ -488,44 +488,52 @@ class Test_pycgmKinetics(TestCase):
             with self.assertRaises(Exception):
                 pycgmKinetics.pnt2line(e[0],e[1],e[2])
     
-    def test_findL5_Pelvis(self):
+    def test_calc_l5_pelvis(self):
         """
-        This test provides coverage of the findL5_Pelvis function in pycgmKinetics.py,
-        defined as findL5_Pelvis(frame), where frame contains the markers: LHip, RHip, and Pelvis_axis.
+        This test provides coverage of the calc_l5_pelvis function in pycgmKinetics.py,
+        defined as calc_l5_pelvis(rhip, lhip, pelvis_axis):
 
-        Each index in accuracyTests is used as parameters for the function findL5_Pelvis 
+        Each index in test_parameters is used as parameters for the function calc_l5_pelvis 
         and the result is then checked to be equal with the same index in 
-        accuracyResults using 8 decimal point precision comparison.
+        test_results using 8 decimal point precision comparison.
         """
         # Test 3 different frames that contain different markers for LHip, RHip, and Pelvis_axis.
-        accuracyTests=[]
-        frame={}
-        frame['Pelvis_axis'] = [np.array([151.60830688, 291.74131775, 832.89349365]), np.array([[251.74063624, 392.72694721, 1032.78850073], [250.61711554, 391.87232862, 1032.8741063], [251.60295336, 391.84795134, 1033.88777762]]), np.array([231.57849121, 210.25262451, 1052.24969482])]
-        frame['RHip'] = np.array([208.38050472, 122.80342417, 437.98979061])
-        frame['LHip'] = np.array([282.57097863, 139.43231855, 435.52900012])
-        accuracyTests.append(frame)
 
-        frame=dict()
-        frame['Pelvis_axis'] = [np.array([-553.90052549, -327.14438741, -4.58459872]), np.array([[586.81782059, 994.852335, -164.15032491], [367.53692416, -193.11814502, 141.95648112], [814.64795266, 681.51439276, 87.63894117]]), np.array([424.76800206, 817.17612395, 850.60552074])]
-        frame['RHip'] = np.array([-570.727107, 409.48579719, 387.17336605])
-        frame['LHip'] = np.array([984.96369008, 161.72241084, 714.78280362])
-        accuracyTests.append(frame)
+        test_parameters=[]
 
-        frame=dict()
-        frame['Pelvis_axis'] = [np.array([691.47208667, 395.90359428, 273.23978111]), np.array([[711.02920886, -701.16459687, 532.55441473], [-229.76970935, -650.15236712, 359.70108366], [222.81186893, 536.56366268, 386.21334066]]), np.array([102.63381498, 638.27698716, 806.02729965])]
-        frame['RHip'] = np.array([-651.87182756, -493.94862894, 640.38910712])
-        frame['LHip'] = np.array([624.42435686, 746.90148656, -603.71552902])
-        accuracyTests.append(frame)
+        rhip = np.array([208.38050472, 122.80342417, 437.98979061])
+        lhip = np.array([282.57097863, 139.43231855, 435.52900012])
+        pelvis_axis = np.array([[251.74063624, 392.72694721, 1032.78850073, 151.60830688],
+                                [250.61711554, 391.87232862, 1032.8741063,  291.74131775],
+                                [251.60295336, 391.84795134, 1033.88777762, 832.89349365],
+                                [  0,            0,             0,            0         ]])
+        test_parameters.append([rhip, lhip, pelvis_axis])
 
-        accuracyResults=[
+        rhip = np.array([-570.727107, 409.48579719, 387.17336605])
+        lhip = np.array([984.96369008, 161.72241084, 714.78280362])
+        pelvis_axis = np.array([[586.81782059,  994.852335,  -164.15032491,  553.90052549],
+                                [367.53692416, -193.11814502, 141.95648112, -327.14438741],
+                                [814.64795266,  681.51439276,  87.63894117,   -4.58459872],
+                                [  0,             0,            0,             0         ]])
+        test_parameters.append([rhip, lhip, pelvis_axis])
+
+        rhip = np.array([-651.87182756, -493.94862894, 640.38910712])
+        lhip = np.array([624.42435686, 746.90148656, -603.71552902])
+        pelvis_axis = np.array([[ 711.02920886, -701.16459687, 532.55441473, 691.47208667],
+                                [-229.76970935, -650.15236712, 359.70108366, 395.90359428],
+                                [ 222.81186893,  536.56366268, 386.21334066, 273.23978111],
+                                [   0,             0,            0,            0         ]])
+        test_parameters.append([rhip, lhip, pelvis_axis])
+
+        test_results=[
             ([[245.4757417, 131.1178714, 436.7593954],[261.0890402, 155.4341163, 500.9176188]]),
             ([[207.1182915, 285.604104 , 550.9780848],[1344.7944079, 1237.3558945,  673.3680447]]),
             ([[-13.7237354, 126.4764288,  18.3367891],[ 627.8602897, 1671.5048695, 1130.4333341]])
         ]
-        for i in range(len(accuracyTests)):
-            # Call findL5_Pelvis(frame) with each frame in accuracyTests and round each variable in the 3-element returned list.
-            result = [np.around(arr,rounding_precision) for arr in pycgmKinetics.findL5_Pelvis(accuracyTests[i])]
-            expected = list(accuracyResults[i])
+        for i in range(len(test_parameters)):
+            # Call calc_l5_pelvis(frame) with each frame in test_parameters and round each variable in the 3-element returned list.
+            result = [np.around(arr,rounding_precision) for arr in pycgmKinetics.calc_l5_pelvis(*test_parameters[i])]
+            expected = list(test_results[i])
             for j in range(len(result)):
                 np.testing.assert_almost_equal(result[j], expected[j])
     
