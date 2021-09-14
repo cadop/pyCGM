@@ -388,8 +388,8 @@ def calc_l5_thorax(rhip, lhip, thorax_axis):
     l5 = midHip + offset * norm_dir
     return l5
 
-def l5tKinetics(data, Bodymass):
-    """Estil5te center of mass values in the global coordinate system.
+def getKinetics(data, Bodymass):
+    """Estimate center of mass values in the global coordinate system.
 
     Estimates whole body CoM in global coordinate system using PiG scaling
     factors for determining individual segment CoM.
