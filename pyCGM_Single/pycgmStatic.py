@@ -544,7 +544,11 @@ def staticCalculation(frame,ankle_JC,knee_JC,flat_foot,vsk=None):
 
     # Check if it is flat foot or not.
     if flat_foot == False:
-        RF_axis2 = rotaxis_nonfootflat(frame,ankle_JC)
+        RF_axis2 = calc_axis_nonflatfoot(frame["RTOE"] if "RTOE" in frame else None,
+                                         frame["LTOE"] if "LTOE" in frame else None,
+                                         frame["RHEE"] if "RHEE" in frame else None,
+                                         frame["LHEE"] if "LHEE" in frame else None,
+                                         ankle_axis)
         RF_center2_R_form = RF_axis2[0]
         RF_center2_L_form = RF_axis2[1]
         RF_axis2_R_form = RF_axis2[2][0]
@@ -1576,123 +1580,122 @@ def calc_axis_flatfoot(rtoe, ltoe, rhee, lhee, ankle_axis, r_sole_delta=0, l_sol
 
     return axis
 
-def rotaxis_nonfootflat(frame,ankle_JC):
-    """Calculate the anatomically correct foot joint center and axis function for a non-flat foot.
+def calc_axis_nonflatfoot(rtoe, ltoe, rhee, lhee, ankle_axis):
+    """Calculate the anatomically correct foot joint center and axis for a non-flat foot.
 
-    Takes in a dictionary of xyz positions & marker names
-    and the ankle axis then calculates the anatomically
-    correct foot axis for a non-flat foot.
+    Takes in the RTOE, LTOE, RHEE and LHEE marker positions
+    as well as the ankle axes. Calculates the anatomically
+    correct foot axis for non-flat feet.
 
     Markers used: RTOE, LTOE, RHEE, LHEE
 
     Parameters
     ----------
-    frame : dict
-        Dictionary of marker lists.
-    ankle_JC : array
-        An array of ankle_JC each x,y,z position.
+    rtoe : array
+        1x3 RTOE marker
+    ltoe : array
+        1x3 LTOE marker
+    rhee : array
+        1x3 RHEE marker
+    lhee : array
+        1x3 LHEE marker
+    ankle_axis : array
+        array of two 4x4 affine matrices representing the right and left ankle axes and origins
 
     Returns
     -------
-    R, L, foot_axis: list
-        Returns a list representing the correct foot joint center for a non-flat foot,
-        the list contains two 1x3 arrays representing the foot axis origin x, y, z
-        positions and a 3x2x3 list containing the foot axis center in the first
-        dimension and the direction of the axis in the second dimension.
+    axis : array
+        An array of two 4x4 affine matrices representing the right and left non-flat foot
+        axes and origins
+
 
     Examples
     --------
     >>> import numpy as np
-    >>> from .pycgmStatic import rotaxis_nonfootflat
-    >>> frame = { 'RHEE': [374.01, 181.58, 49.51],
-    ...            'LHEE': [105.30, 180.21, 47.16],
-    ...            'RTOE': [442.82, 381.62, 42.66],
-    ...            'LTOE': [39.44, 382.45, 41.79]}
-    >>> ankle_JC = [np.array([393.76, 247.68, 87.74]),
-    ...            np.array([98.75, 219.47, 80.63]),
-    ...            [[np.array([394.48, 248.37, 87.72]),
-    ...            np.array([393.07, 248.39, 87.62]),
-    ...            np.array([393.69, 247.78, 88.73])],
-    ...            [np.array([98.47, 220.43, 80.53]),
-    ...            np.array([97.79, 219.21, 80.76]),
-    ...            np.array([98.85, 219.60, 81.62])]]]
-    >>> [np.around(arr, 2) for arr in rotaxis_nonfootflat(frame,ankle_JC)] #doctest: +NORMALIZE_WHITESPACE
-    [array([442.82, 381.62,  42.66]),
-    array([ 39.44, 382.45,  41.79]),
-    array([[[442.72, 381.69,  43.65],
-            [441.88, 381.94,  42.54],
-            [442.49, 380.67,  42.69]],
-           [[ 39.56, 382.51,  42.78],
-            [ 38.5 , 382.15,  41.92],
-            [ 39.75, 381.5 ,  41.82]]])]
+    >>> np.set_printoptions(suppress=True)
+    >>> from .pycgmStatic import calc_axis_nonflatfoot
+    >>> rhee = [374.01, 181.58, 49.51]
+    >>> lhee = [105.30, 180.21, 47.16]
+    >>> rtoe = [442.82, 381.62, 42.66]
+    >>> ltoe = [39.44, 382.45, 41.79]
+    >>> ankle_axis = np.array([[[ 0.72,   0.69,  -0.02, 393.76],
+    ...                        [ -0.69,   0.71,  -0.12, 247.68],
+    ...                        [ -0.07,   0.1 ,   0.99,  87.74],
+    ...                        [  0.  ,   0.  ,   0.  ,   1.  ]],
+    ...                       [[ -0.27,   0.96,  -0.1 ,  98.75],
+    ...                        [ -0.96,  -0.26,   0.13, 219.47],
+    ...                        [  0.1 ,   0.13,   0.99,  80.63],
+    ...                        [  0.  ,   0.  ,   0.  ,   1.  ]]])
+    >>> [np.around(arr, 2) for arr in calc_axis_nonflatfoot(rtoe, ltoe, rhee, lhee, ankle_axis)] #doctest: +NORMALIZE_WHITESPACE
+    [array([[ -0.1 ,   0.07,   0.99, 442.82],
+            [ -0.94,   0.32,  -0.12, 381.62],
+            [ -0.33,  -0.95,   0.03,  42.66],
+            [  0.  ,   0.  ,   0.  ,   1.  ]]), 
+     array([[  0.12,   0.06,   0.99,  39.44],
+            [ -0.94,  -0.3 ,   0.13, 382.45],
+            [  0.31,  -0.95,   0.03,  41.79],
+            [  0.  ,   0.  ,   0.  ,   1.  ]])]
     """
 
     #REQUIRED MARKERS:
     # RTOE
     # LTOE
-    # ankle_JC
-    TOE_R = frame['RTOE']
-    TOE_L = frame['LTOE']
-    HEE_R = frame['RHEE']
-    HEE_L = frame['LHEE']
+    # RHEE
+    # LHEE
+    # ankle_axis
 
-    ankle_JC_R = ankle_JC[0]
-    ankle_JC_L = ankle_JC[1]
-    ankle_flexion_R = ankle_JC[2][0][1]
-    ankle_flexion_L = ankle_JC[2][1][1]
+    rtoe, ltoe, rhee, lhee, ankle_axis = map(np.asarray, [rtoe, ltoe, rhee, lhee, ankle_axis])
+
+    ankle_jc_right = ankle_axis[0][:3, 3]
+    ankle_jc_left = ankle_axis[1][:3, 3]
+    ankle_flexion_right = ankle_axis[0][1, :3] + ankle_jc_right
+    ankle_flexion_left = ankle_axis[1][1, :3] + ankle_jc_left
 
     # Toe axis's origin is marker position of TOE
-    R = TOE_R
-    L = TOE_L
-
-    ankle_JC_R = [ankle_JC_R[0],ankle_JC_R[1],ankle_JC_R[2]]
-    ankle_JC_L = [ankle_JC_L[0],ankle_JC_L[1],ankle_JC_L[2]]
+    right_origin = rtoe
+    left_origin = ltoe
 
     # in case of non foot flat we just use the HEE marker
-    R_axis_z = [HEE_R[0]-TOE_R[0],HEE_R[1]-TOE_R[1],HEE_R[2]-TOE_R[2]]
-    R_axis_z = R_axis_z/norm3d(R_axis_z)
+    right_axis_z = rhee - rtoe
+    right_axis_z = right_axis_z/norm3d(right_axis_z)
 
-    y_flex_R = [ankle_flexion_R[0]-ankle_JC_R[0],ankle_flexion_R[1]-ankle_JC_R[1],ankle_flexion_R[2]-ankle_JC_R[2]]
+    y_flex_R = ankle_flexion_right - ankle_jc_right
     y_flex_R = y_flex_R/norm3d(y_flex_R)
 
-    R_axis_x = cross(y_flex_R,R_axis_z)
-    R_axis_x = R_axis_x/norm3d(R_axis_x)
+    right_axis_x = cross(y_flex_R,right_axis_z)
+    right_axis_x = right_axis_x/norm3d(right_axis_x)
 
-    R_axis_y = cross(R_axis_z,R_axis_x)
-    R_axis_y = R_axis_y/norm3d(R_axis_y)
+    right_axis_y = cross(right_axis_z,right_axis_x)
+    right_axis_y = right_axis_y/norm3d(right_axis_y)
 
-    R_axis_x = [R_axis_x[0]+R[0],R_axis_x[1]+R[1],R_axis_x[2]+R[2]]
-    R_axis_y = [R_axis_y[0]+R[0],R_axis_y[1]+R[1],R_axis_y[2]+R[2]]
-    R_axis_z = [R_axis_z[0]+R[0],R_axis_z[1]+R[1],R_axis_z[2]+R[2]]
-
-    R_foot_axis = [R_axis_x,R_axis_y,R_axis_z]
+    right_foot_axis = [right_axis_x,right_axis_y,right_axis_z]
 
     # Left
+    left_axis_z = lhee - ltoe
+    left_axis_z = left_axis_z/norm3d(left_axis_z)
 
-    ankle_JC_R = [ankle_JC_R[0],ankle_JC_R[1],ankle_JC_R[2]]
-    ankle_JC_L = [ankle_JC_L[0],ankle_JC_L[1],ankle_JC_L[2]]
-
-    L_axis_z = [HEE_L[0]-TOE_L[0],HEE_L[1]-TOE_L[1],HEE_L[2]-TOE_L[2]]
-    L_axis_z = L_axis_z/norm3d(L_axis_z)
-
-    y_flex_L = [ankle_flexion_L[0]-ankle_JC_L[0],ankle_flexion_L[1]-ankle_JC_L[1],ankle_flexion_L[2]-ankle_JC_L[2]]
+    y_flex_L = ankle_flexion_left - ankle_jc_left
     y_flex_L = y_flex_L/norm3d(y_flex_L)
 
-    L_axis_x = cross(y_flex_L,L_axis_z)
-    L_axis_x = L_axis_x/norm3d(L_axis_x)
+    left_axis_x = cross(y_flex_L,left_axis_z)
+    left_axis_x = left_axis_x/norm3d(left_axis_x)
 
-    L_axis_y = cross(L_axis_z,L_axis_x)
-    L_axis_y = L_axis_y/norm3d(L_axis_y)
+    left_axis_y = cross(left_axis_z,left_axis_x)
+    left_axis_y = left_axis_y/norm3d(left_axis_y)
 
-    L_axis_x = [L_axis_x[0]+L[0],L_axis_x[1]+L[1],L_axis_x[2]+L[2]]
-    L_axis_y = [L_axis_y[0]+L[0],L_axis_y[1]+L[1],L_axis_y[2]+L[2]]
-    L_axis_z = [L_axis_z[0]+L[0],L_axis_z[1]+L[1],L_axis_z[2]+L[2]]
+    left_foot_axis = [left_axis_x,left_axis_y,left_axis_z]
 
-    L_foot_axis = [L_axis_x,L_axis_y,L_axis_z]
+    right_axis = np.identity(4)
+    right_axis[:3, :3] = right_foot_axis
+    right_axis[:3, 3] = right_origin
 
-    foot_axis = [R_foot_axis,L_foot_axis]
+    left_axis = np.identity(4)
+    left_axis[:3, :3] = left_foot_axis
+    left_axis[:3, 3] = left_origin
 
-    return [R,L,foot_axis]
+    axis = [right_axis, left_axis]
+
+    return axis
 
 def calc_static_angle_ankle(axis_p, axis_d):
     """Static angle calculation function.
