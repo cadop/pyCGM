@@ -2582,7 +2582,7 @@ def JointAngleCalc(frame,vsk):
                                    frame['SACR'] if 'SACR' in frame else None)
 
     pelvis_axes = pelvis_axis[:3, :3]
-    pelvis_jc = pelvis_axis[:3, 3]
+    pelvis_jc   = pelvis_axis[:3, 3]
 
     #need to update this based on the file
     global_axes = vsk['GCS']
@@ -2597,7 +2597,7 @@ def JointAngleCalc(frame,vsk):
     l_hip_jc = hip_jc[1]
 
     hip_axis = calc_axis_hip(r_hip_jc, l_hip_jc, pelvis_axis)
-    hip_jc = hip_axis[:3, 3]
+    hip_jc   = hip_axis[:3, 3]
     hip_axes = hip_axis[:3, :3]
 
     axis_knee = calc_axis_knee(frame['RTHI'] if 'RTHI' in frame else None,
@@ -2609,9 +2609,9 @@ def JointAngleCalc(frame,vsk):
                                vsk['RightKneeWidth'],
                                vsk['LeftKneeWidth'])
 
-    knee_jc = [axis_knee[0][:3, 3], axis_knee[1][:3, 3]]
-    r_knee_jc = knee_jc[0]
-    l_knee_jc = knee_jc[1]
+    knee_jc     = [axis_knee[0][:3, 3], axis_knee[1][:3, 3]]
+    r_knee_jc   = knee_jc[0]
+    l_knee_jc   = knee_jc[1]
     r_knee_axes = axis_knee[0][:3, :3]
     l_knee_axes = axis_knee[1][:3, :3]
 
@@ -2637,9 +2637,9 @@ def JointAngleCalc(frame,vsk):
                                  vsk['RightTibialTorsion'],
                                  vsk['LeftTibialTorsion'])
 
-    ankle_jc = [ankle_axis[0][:3, 3], ankle_axis[1][:3, 3]]
-    r_ankle_jc = ankle_jc[0]
-    l_ankle_jc = ankle_jc[1]
+    ankle_jc     = [ankle_axis[0][:3, 3], ankle_axis[1][:3, 3]]
+    r_ankle_jc   = ankle_jc[0]
+    l_ankle_jc   = ankle_jc[1]
     r_ankle_axes = ankle_axis[0][:3, :3]
     l_ankle_axes = ankle_axis[1][:3, :3]
 
@@ -2666,10 +2666,10 @@ def JointAngleCalc(frame,vsk):
                                vsk['RightStaticPlantFlex'],
                                vsk['LeftStaticPlantFlex'])
 
-    foot_jc = [foot_axis[0][:3, 3], foot_axis[1][:3, 3]]
-    r_foot_jc = foot_jc[0]
+    foot_jc     = [foot_axis[0][:3, 3], foot_axis[1][:3, 3]]
+    r_foot_jc   = foot_jc[0]
     r_foot_axes = foot_axis[0][:3, :3]
-    l_foot_jc = foot_jc[1]
+    l_foot_jc   = foot_jc[1]
     l_foot_axes = foot_axis[1][:3, :3]
 
     rhee = frame['RHEE']
@@ -2704,7 +2704,7 @@ def JointAngleCalc(frame,vsk):
                                frame['LBHD'] if 'LBHD' in frame else None,
                                frame['RBHD'] if 'RBHD' in frame else None,
                                vsk['HeadOffset'])
-    head_jc = head_axis[:3, 3]
+    head_jc   = head_axis[:3, 3]
     head_axes = head_axis[:3, :3]
 
     lfhd = frame['LFHD']
@@ -2712,8 +2712,8 @@ def JointAngleCalc(frame,vsk):
     lbhd = frame['LBHD']
     rbhd = frame['RBHD']
 
-    head_front = np.array((lfhd+lfhd)/2)
-    head_back = np.array((lbhd+rbhd)/2)
+    head_front = np.array((lfhd + lfhd) / 2)
+    head_back  = np.array((lbhd + rbhd) / 2)
 
     #Global_axis_form = [[0,1,0],[-1,0,0],[0,0,1]]
     global_center = [0,0,0]
@@ -2738,12 +2738,12 @@ def JointAngleCalc(frame,vsk):
                                    frame['STRN'] if 'STRN' in frame else None,
                                    frame['T10'] if 'T10' in frame else None)
 
-    thorax_jc = thorax_axis[:3, 3]
+    thorax_jc   = thorax_axis[:3, 3]
     thorax_axes = thorax_axis[:3, :3]
 
-    global_axis = [[0,1,0],[-1,0,0],[0,0,1]]
+    global_axis   = [[0,1,0],[-1,0,0],[0,0,1]]
     global_center = [0,0,0]
-    global_axis = rotmat(x=0,y=0,z=180) #this needs to be fixed for the global rotation
+    global_axis   = rotmat(x=0,y=0,z=180) #this needs to be fixed for the global rotation
 
     global_axes = np.vstack([np.subtract(global_axis[0],global_center),
                              np.subtract(global_axis[1],global_center),
@@ -2770,10 +2770,10 @@ def JointAngleCalc(frame,vsk):
     necky = head_thorax_angle[1]
     neckz = head_thorax_angle[2] * -1
 
-    c7 = frame['C7']#quick fix to calculate CoM
+    c7   = frame['C7']#quick fix to calculate CoM
     clav = frame['CLAV']
     strn = frame['STRN']
-    t10 = frame['T10']
+    t10  = frame['T10']
 
     # Calculate SPINE
 
@@ -2803,8 +2803,8 @@ def JointAngleCalc(frame,vsk):
                                        wand[0],
                                        wand[1])
 
-    r_shoulder_jc = shoulder_axis[0][:3, 3]
-    l_shoulder_jc = shoulder_axis[1][:3, 3]
+    r_shoulder_jc   = shoulder_axis[0][:3, 3]
+    l_shoulder_jc   = shoulder_axis[1][:3, 3]
     r_shoulder_axes = shoulder_axis[0][:3, :3]
     l_shoulder_axes = shoulder_axis[1][:3, :3]
 
@@ -2822,8 +2822,8 @@ def JointAngleCalc(frame,vsk):
                                  vsk['LeftWristWidth'],
                                  7.0)
 
-    r_elbow_jc = elbow_axis[0][:3, 3]
-    l_elbow_jc = elbow_axis[1][:3, 3]
+    r_elbow_jc   = elbow_axis[0][:3, 3]
+    l_elbow_jc   = elbow_axis[1][:3, 3]
     r_elbow_axes = elbow_axis[0][:3, :3]
     l_elbow_axes = elbow_axis[1][:3, :3]
 
@@ -2863,8 +2863,8 @@ def JointAngleCalc(frame,vsk):
                                  elbow_axis[2],
                                  elbow_axis[3])
 
-    r_wrist_jc = wrist_axis[0][:3, 3]
-    l_wrist_jc = wrist_axis[1][:3, 3]
+    r_wrist_jc   = wrist_axis[0][:3, 3]
+    l_wrist_jc   = wrist_axis[1][:3, 3]
     r_wrist_axes = wrist_axis[0][:3, :3]
     l_wrist_axes = wrist_axis[1][:3, :3]
 
@@ -2890,8 +2890,8 @@ def JointAngleCalc(frame,vsk):
                              vsk['RightHandThickness'],
                              vsk['LeftHandThickness'])
 
-    r_hand_jc = hand_jc[0][:3, 3]
-    l_hand_jc = hand_jc[1][:3, 3]
+    r_hand_jc   = hand_jc[0][:3, 3]
+    l_hand_jc   = hand_jc[1][:3, 3]
     r_hand_axes = hand_jc[0][:3, :3]
     l_hand_axes = hand_jc[1][:3, :3]
 
