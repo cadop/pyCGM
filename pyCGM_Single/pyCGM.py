@@ -3359,37 +3359,37 @@ def JointAngleCalc(frame,vsk):
     jc['Thorax_axis'] = thorax_axes
 
     jc['Pelvis'] = pelvis_jc
-    jc['RHip'] = l_hip_jc
-    jc['LHip'] = r_hip_jc
-    jc['RKnee'] = r_knee_jc
-    jc['LKnee'] = l_knee_jc
+    jc['RHip']   = l_hip_jc
+    jc['LHip']   = r_hip_jc
+    jc['RKnee']  = r_knee_jc
+    jc['LKnee']  = l_knee_jc
     jc['RAnkle'] = r_ankle_jc
     jc['LAnkle'] = l_ankle_jc
-    jc['RFoot'] = r_foot_jc
-    jc['LFoot'] = l_foot_jc
+    jc['RFoot']  = r_foot_jc
+    jc['LFoot']  = l_foot_jc
 
     jc['RHEE'] = rhee
     jc['LHEE'] = lhee
 
-    jc['C7'] = c7
+    jc['C7']   = c7
     jc['CLAV'] = clav
     jc['STRN'] = strn
-    jc['T10'] = t10
+    jc['T10']  = t10
 
 
     jc['Front_Head'] = head_front
-    jc['Back_Head'] = head_back
+    jc['Back_Head']  = head_back
 
-    jc['Head'] = head_jc
+    jc['Head']   = head_jc
     jc['Thorax'] = thorax_jc
 
     jc['RShoulder'] = r_shoulder_jc
     jc['LShoulder'] = l_shoulder_jc
-    jc['RHumerus'] = r_elbow_jc
-    jc['LHumerus'] = l_elbow_jc
-    jc['RRadius'] = r_wrist_jc
-    jc['LRadius'] = l_wrist_jc
-    jc['RHand'] = r_hand_jc
-    jc['LHand'] = l_hand_jc
+    jc['RHumerus']  = r_elbow_jc
+    jc['LHumerus']  = l_elbow_jc
+    jc['RRadius']   = r_wrist_jc
+    jc['LRadius']   = l_wrist_jc
+    jc['RHand']     = r_hand_jc
+    jc['LHand']     = l_hand_jc
 
     return r,jc
