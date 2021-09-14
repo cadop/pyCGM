@@ -1930,7 +1930,7 @@ def calc_axis_nonflatfoot(rtoe, ltoe, rhee, lhee, ankle_axis):
     left_origin = ltoe
 
     # in case of non foot flat we just use the HEE marker
-    right_axis_z = [rhee[0]-rtoe[0],rhee[1]-rtoe[1],rhee[2]-rtoe[2]]
+    right_axis_z = rhee - rtoe
     right_axis_z = right_axis_z/norm3d(right_axis_z)
 
     y_flex_R = ankle_flexion_right - ankle_jc_right
@@ -1945,7 +1945,7 @@ def calc_axis_nonflatfoot(rtoe, ltoe, rhee, lhee, ankle_axis):
     right_foot_axis = [right_axis_x,right_axis_y,right_axis_z]
 
     # Left
-    left_axis_z = [lhee[0]-ltoe[0],lhee[1]-ltoe[1],lhee[2]-ltoe[2]]
+    left_axis_z = lhee - ltoe
     left_axis_z = left_axis_z/norm3d(left_axis_z)
 
     y_flex_L = ankle_flexion_left - ankle_jc_left
