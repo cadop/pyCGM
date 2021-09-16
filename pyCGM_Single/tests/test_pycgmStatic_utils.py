@@ -290,143 +290,311 @@ class TestPycgmStaticUtils():
         result_float_nparray = pycgmStatic.headoffCalc(np.array(axisP_floats, dtype='float'), np.array(axisD, dtype='float'))
         np.testing.assert_almost_equal(result_float_nparray, expected_results, rounding_precision)
 
-    @pytest.mark.parametrize(["frame", "ankle_JC", "flat_foot", "vsk", "expected_results"], [
-        # Test from running sample data
-        ({'RTOE': np.array([433.33508301, 354.97229004, 44.27765274]),
-          'LTOE': np.array([31.77310181, 331.23657227, 42.15322876]),
-          'RHEE': np.array([381.88534546, 148.47607422, 49.99120331]),
-          'LHEE': np.array([122.18766785, 138.55477905, 46.29433441])},
-         [np.array([397.45738291, 217.50712216, 87.83068433]), np.array([112.28082818, 175.83265027, 80.98477997]),
-          [[np.array(rand_coor), np.array([396.73749179, 218.18875543, 87.69979179]), np.array(rand_coor)],
-           [np.array(rand_coor), np.array([111.34886681, 175.49163538, 81.10789314]), np.array(rand_coor)]]],
-         False,
-         {},
-         [[-0.015688860223839234, 0.2703999495115947, -0.15237642705642993],
-          [0.009550866847196991, 0.20242596489042683, -0.019420801722458948]]),
-        # Testing with zeros for all params
-        ({'RTOE': np.array([0, 0, 0]), 'LTOE': np.array([0, 0, 0]),
-          'RHEE': np.array([0, 0, 0]), 'LHEE': np.array([0, 0, 0])},
-         [np.array([0, 0, 0]), np.array([0, 0, 0]),
-          [[np.array(rand_coor), np.array([0, 0, 0]), np.array(rand_coor)],
-           [np.array(rand_coor), np.array([0, 0, 0]), np.array(rand_coor)]]],
-         False,
-         {},
-         [nan_3d, nan_3d]),
-        # Testing with values for frame
-        ({'RTOE': np.array([1, -4, -1]), 'LTOE': np.array([1, -1, -5]),
-          'RHEE': np.array([1, -7, -4]), 'LHEE': np.array([-6, -5, 1])},
-         [np.array([0, 0, 0]), np.array([0, 0, 0]),
-          [[np.array(rand_coor), np.array([0, 0, 0]), np.array(rand_coor)],
-           [np.array(rand_coor), np.array([0, 0, 0]), np.array(rand_coor)]]],
-         False,
-         {},
-         [nan_3d, nan_3d]),
-        # Testing with values for ankle_JC
-        ({'RTOE': np.array([0, 0, 0]), 'LTOE': np.array([0, 0, 0]),
-          'RHEE': np.array([0, 0, 0]), 'LHEE': np.array([0, 0, 0])},
-         [np.array([3, 3, -2]), np.array([5, 9, -4]),
-          [[np.array(rand_coor), np.array([6, -9, 9]), np.array(rand_coor)],
-           [np.array(rand_coor), np.array([-5, 6, 9]), np.array(rand_coor)]]],
-         False,
-         {},
-         [nan_3d, nan_3d]),
-        # Testing with values for vsk
-        ({'RTOE': np.array([0, 0, 0]), 'LTOE': np.array([0, 0, 0]),
-          'RHEE': np.array([0, 0, 0]), 'LHEE': np.array([0, 0, 0])},
-         [np.array([0, 0, 0]), np.array([0, 0, 0]),
-          [[np.array(rand_coor), np.array([0, 0, 0]), np.array(rand_coor)],
-           [np.array(rand_coor), np.array([0, 0, 0]), np.array(rand_coor)]]],
-         False,
-         {'RightSoleDelta': 0.64, 'LeftSoleDelta': 0.19},
-         [nan_3d, nan_3d]),
-        # Testing with values for frame and ankle_JC
-        ({'RTOE': np.array([1, -4, -1]), 'LTOE': np.array([1, -1, -5]),
-          'RHEE': np.array([1, -7, -4]), 'LHEE': np.array([-6, -5, 1])},
-         [np.array([3, 3, -2]), np.array([5, 9, -4]),
-          [[np.array(rand_coor), np.array([6, -9, 9]), np.array(rand_coor)],
-           [np.array(rand_coor), np.array([-5, 6, 9]), np.array(rand_coor)]]],
-         False,
-         {},
-         [[-0.590828, -0.802097, -0.554384], [0.955226, 0.156745, 0.166848]]),
-        # Testing with values for frame, ankle_JC, and vsk
-        ({'RTOE': np.array([1, -4, -1]), 'LTOE': np.array([1, -1, -5]),
-          'RHEE': np.array([1, -7, -4]), 'LHEE': np.array([-6, -5, 1])},
-         [np.array([3, 3, -2]), np.array([5, 9, -4]),
-          [[np.array(rand_coor), np.array([6, -9, 9]), np.array(rand_coor)],
-           [np.array(rand_coor), np.array([-5, 6, 9]), np.array(rand_coor)]]],
-         False,
-         {'RightSoleDelta': 0.64, 'LeftSoleDelta': 0.19},
-         [[-0.590828, -0.802097, -0.554384], [0.955226, 0.156745, 0.166848]]),
-        # Testing with values for frame, ankle_JC, vsk and flat_foot = True
-        ({'RTOE': np.array([1, -4, -1]), 'LTOE': np.array([1, -1, -5]),
-          'RHEE': np.array([1, -7, -4]), 'LHEE': np.array([-6, -5, 1])},
-         [np.array([3, 3, -2]), np.array([5, 9, -4]),
-          [[np.array(rand_coor), np.array([6, -9, 9]), np.array(rand_coor)],
-           [np.array(rand_coor), np.array([-5, 6, 9]), np.array(rand_coor)]]],
-         True,
-         {'RightSoleDelta': 0.64, 'LeftSoleDelta': 0.19},
-         [[0.041042018208567545, -0.3065439019577841, -0.3106927663413161], [0.39326377295256626, 0.5657243847333632, 0.2128595189127902]]),
-        # Testing that when frame and ankle_JC are composed of lists of ints and vsk values are ints
-        ({'RTOE': [1, -4, -1], 'LTOE': [1, -1, -5], 'RHEE': [1, -7, -4], 'LHEE': [-6, -5, 1]},
-         [[3, 3, -2], [5, 9, -4],
-          [[rand_coor, [6, -9, 9], rand_coor],
-           [rand_coor, [-5, 6, 9], rand_coor]]],
-         True,
-         {'RightSoleDelta': 1, 'LeftSoleDelta': -1},
-         [[0.041042018208567545, -0.30654390195778408, -0.30110158620693045],
-          [00.3932637729525662, 0.56572438473336295, 0.22802611517428609]]),
-        # Testing that when frame and ankle_JC are composed of numpy arrays of ints and vsk values are ints
-        ({'RTOE': np.array([1, -4, -1], dtype='int'), 'LTOE': np.array([1, -1, -5], dtype='int'),
-          'RHEE': np.array([1, -7, -4], dtype='int'), 'LHEE': np.array([-6, -5, 1], dtype='int')},
-         [np.array([3, 3, -2], dtype='int'), np.array([5, 9, -4], dtype='int'),
-          [np.array([rand_coor, [6, -9, 9], rand_coor], dtype='int'),
-           np.array([rand_coor, [-5, 6, 9], rand_coor], dtype='int')]],
-         True,
-         {'RightSoleDelta': 1, 'LeftSoleDelta': -1},
-         [[0.041042018208567545, -0.30654390195778408, -0.30110158620693045],
-          [00.3932637729525662, 0.56572438473336295, 0.22802611517428609]]),
-        # Testing that when frame and ankle_JC are composed of lists of floats and vsk values are floats
-        ({'RTOE': [1.0, -4.0, -1.0], 'LTOE': [1.0, -1.0, -5.0], 'RHEE': [1.0, -7.0, -4.0], 'LHEE': [-6.0, -5.0, 1.0]},
-         [[3.0, 3.0, -2.0], [5.0, 9.0, -4.0],
-          [[rand_coor, [6.0, -9.0, 9.0], rand_coor],
-           [rand_coor, [-5.0, 6.0, 9.0], rand_coor]]],
-         True,
-         {'RightSoleDelta': 1.0, 'LeftSoleDelta': -1.0},
-         [[0.041042018208567545, -0.30654390195778408, -0.30110158620693045],
-          [00.3932637729525662, 0.56572438473336295, 0.22802611517428609]]),
-        # Testing that when frame and ankle_JC are composed of numpy arrays of floats and vsk values are floats
-        ({'RTOE': np.array([1.0, -4.0, -1.0], dtype='float'), 'LTOE': np.array([1.0, -1.0, -5.0], dtype='float'),
-          'RHEE': np.array([1.0, -7.0, -4.0], dtype='float'), 'LHEE': np.array([-6.0, -5.0, 1.0], dtype='float')},
-         [np.array([3.0, 3.0, -2.0], dtype='float'), np.array([5.0, 9.0, -4.0], dtype='float'),
-          [np.array([rand_coor, [6.0, -9.0, 9.0], rand_coor], dtype='float'),
-           np.array([rand_coor, [-5.0, 6.0, 9.0], rand_coor], dtype='float')]],
-         True,
-         {'RightSoleDelta': 1.0, 'LeftSoleDelta': -1.0},
-         [[0.041042018208567545, -0.30654390195778408, -0.30110158620693045],
-          [00.3932637729525662, 0.56572438473336295, 0.22802611517428609]])])
-    def test_staticCalculation(self, frame, ankle_JC, flat_foot, vsk, expected_results):
+    @pytest.mark.parametrize(
+        ["frame", "ankle_axis", "flat_foot", "vsk", "expected_results"],
+        [
+            # Test from running sample data
+            (
+                {
+                    "RTOE": np.array([433.33508301, 354.97229004, 44.27765274]),
+                    "LTOE": np.array([31.77310181, 331.23657227, 42.15322876]),
+                    "RHEE": np.array([381.88534546, 148.47607422, 49.99120331]),
+                    "LHEE": np.array([122.18766785, 138.55477905, 46.29433441]),
+                },
+                np.array([[[  0,            0,           0,          397.45738291],
+                           [396.73749179, 218.18875543, 87.69979179, 217.50712216],
+                           [  0,            0,           0,           87.83068433],
+                           [  0,            0,           0,            1         ]],
+                          [[  0,            0,           0,          112.28082818],
+                           [111.34886681, 175.49163538, 81.10789314, 175.83265027],
+                           [  0,            0,           0,           80.98477997],
+                           [  0,            0,           0,            1         ]]]),
+                False,
+                {},
+                [
+                    [-0.015688860223839234, 0.2703999495115947, -0.15237642705642993],
+                    [0.009550866847196991, 0.20242596489042683, -0.019420801722458948],
+                ],
+            ),
+            # Testing with zeros for all params
+            (
+                {
+                    "RTOE": np.array([0, 0, 0]),
+                    "LTOE": np.array([0, 0, 0]),
+                    "RHEE": np.array([0, 0, 0]),
+                    "LHEE": np.array([0, 0, 0]),
+                },
+                np.array([[[0, 0, 0, 0],
+                           [0, 0, 0, 0],
+                           [0, 0, 0, 0],
+                           [0, 0, 0, 1]],
+                          [[0, 0, 0, 0],
+                           [0, 0, 0, 0],
+                           [0, 0, 0, 0],
+                           [0, 0, 0, 1]]]),
+                False,
+                {},
+                [nan_3d, nan_3d],
+            ),
+            # Testing with values for frame
+            (
+                {
+                    "RTOE": np.array([1, -4, -1]),
+                    "LTOE": np.array([1, -1, -5]),
+                    "RHEE": np.array([1, -7, -4]),
+                    "LHEE": np.array([-6, -5, 1]),
+                },
+                np.array([[[0, 0, 0, 0],
+                           [0, 0, 0, 0],
+                           [0, 0, 0, 0],
+                           [0, 0, 0, 1]],
+                          [[0, 0, 0, 0],
+                           [0, 0, 0, 0],
+                           [0, 0, 0, 0],
+                           [0, 0, 0, 1]]]),
+                False,
+                {},
+                [nan_3d, nan_3d],
+            ),
+            # Testing with values for ankle_axis
+            (
+                {
+                    "RTOE": np.array([0, 0, 0]),
+                    "LTOE": np.array([0, 0, 0]),
+                    "RHEE": np.array([0, 0, 0]),
+                    "LHEE": np.array([0, 0, 0]),
+                },
+                np.array([[[ 0,  0, 0,  3],
+                           [ 6, -9, 9,  3],
+                           [ 0,  0, 0, -2],
+                           [ 0,  0, 0,  1]],
+                          [[ 0,  0, 0,  5],
+                           [-5,  6, 9,  9],
+                           [ 0,  0, 0, -4],
+                           [ 0,  0, 0,  1]]]),
+                False,
+                {},
+                [nan_3d, nan_3d],
+            ),
+            # Testing with values for vsk
+            (
+                {
+                    "RTOE": np.array([0, 0, 0]),
+                    "LTOE": np.array([0, 0, 0]),
+                    "RHEE": np.array([0, 0, 0]),
+                    "LHEE": np.array([0, 0, 0]),
+                },
+                np.array([[[0, 0, 0, 0],
+                           [0, 0, 0, 0],
+                           [0, 0, 0, 0],
+                           [0, 0, 0, 1]],
+                          [[0, 0, 0, 0],
+                           [0, 0, 0, 0],
+                           [0, 0, 0, 0],
+                           [0, 0, 0, 1]]]),
+                False,
+                {"RightSoleDelta": 0.64, "LeftSoleDelta": 0.19},
+                [nan_3d, nan_3d],
+            ),
+            # Testing with values for frame and ankle_axis
+            (
+                {
+                    "RTOE": np.array([1, -4, -1]),
+                    "LTOE": np.array([1, -1, -5]),
+                    "RHEE": np.array([1, -7, -4]),
+                    "LHEE": np.array([-6, -5, 1]),
+                },
+                np.array([[[ 0,  0, 0,  3],
+                           [ 6, -9, 9,  3],
+                           [ 0,  0, 0, -2],
+                           [ 0,  0, 0,  1]],
+                          [[ 0,  0, 0,  5],
+                           [-5,  6, 9,  9],
+                           [ 0,  0, 0, -4],
+                           [ 0,  0, 0,  1]]]),
+                False,
+                {},
+                [[-0.590828, -0.802097, -0.554384], [0.955226, 0.156745, 0.166848]],
+            ),
+            # Testing with values for frame, ankle_axis, and vsk
+            (
+                {
+                    "RTOE": np.array([1, -4, -1]),
+                    "LTOE": np.array([1, -1, -5]),
+                    "RHEE": np.array([1, -7, -4]),
+                    "LHEE": np.array([-6, -5, 1]),
+                },
+                np.array([[[ 0,  0, 0,  3],
+                           [ 6, -9, 9,  3],
+                           [ 0,  0, 0, -2],
+                           [ 0,  0, 0,  1]],
+                          [[ 0,  0, 0,  5],
+                           [-5,  6, 9,  9],
+                           [ 0,  0, 0, -4],
+                           [ 0,  0, 0,  1]]]),
+                False,
+                {"RightSoleDelta": 0.64, "LeftSoleDelta": 0.19},
+                [[-0.590828, -0.802097, -0.554384], [0.955226, 0.156745, 0.166848]],
+            ),
+            # Testing with values for frame, ankle_axis, vsk and flat_foot = True
+            (
+                {
+                    "RTOE": np.array([1, -4, -1]),
+                    "LTOE": np.array([1, -1, -5]),
+                    "RHEE": np.array([1, -7, -4]),
+                    "LHEE": np.array([-6, -5, 1]),
+                },
+                np.array([[[ 0,  0, 0,  3],
+                           [ 6, -9, 9,  3],
+                           [ 0,  0, 0, -2],
+                           [ 0,  0, 0,  1]],
+                          [[ 0,  0, 0,  5],
+                           [-5,  6, 9,  9],
+                           [ 0,  0, 0, -4],
+                           [ 0,  0, 0,  1]]]),
+                True,
+                {"RightSoleDelta": 0.64, "LeftSoleDelta": 0.19},
+                [
+                    [0.041042018208567545, -0.3065439019577841, -0.3106927663413161],
+                    [0.39326377295256626, 0.5657243847333632, 0.2128595189127902],
+                ],
+            ),
+            # Testing that when frame and ankle_axis are composed of lists of ints and vsk values are ints
+            (
+                {
+                    "RTOE": [1, -4, -1],
+                    "LTOE": [1, -1, -5],
+                    "RHEE": [1, -7, -4],
+                    "LHEE": [-6, -5, 1],
+                },
+                [[[ 0,  0, 0,  3],
+                  [ 6, -9, 9,  3],
+                  [ 0,  0, 0, -2],
+                  [ 0,  0, 0,  1]],
+                 [[ 0,  0, 0,  5],
+                  [-5,  6, 9,  9],
+                  [ 0,  0, 0, -4],
+                  [ 0,  0, 0,  1]]],
+                True,
+                {"RightSoleDelta": 1, "LeftSoleDelta": -1},
+                [
+                    [0.041042018208567545, -0.30654390195778408, -0.30110158620693045],
+                    [00.3932637729525662, 0.56572438473336295, 0.22802611517428609],
+                ],
+            ),
+            # Testing that when frame and ankle_axis are composed of numpy arrays of ints and vsk values are ints
+            (
+                {
+                    "RTOE": np.array([1, -4, -1], dtype="int"),
+                    "LTOE": np.array([1, -1, -5], dtype="int"),
+                    "RHEE": np.array([1, -7, -4], dtype="int"),
+                    "LHEE": np.array([-6, -5, 1], dtype="int"),
+                },
+                np.array([[[ 0,  0, 0,  3],
+                           [ 6, -9, 9,  3],
+                           [ 0,  0, 0, -2],
+                           [ 0,  0, 0,  1]],
+                          [[ 0,  0, 0,  5],
+                           [-5,  6, 9,  9],
+                           [ 0,  0, 0, -4],
+                           [ 0,  0, 0,  1]]], dtype="int"),
+                True,
+                {"RightSoleDelta": 1, "LeftSoleDelta": -1},
+                [
+                    [0.041042018208567545, -0.30654390195778408, -0.30110158620693045],
+                    [00.3932637729525662, 0.56572438473336295, 0.22802611517428609],
+                ],
+            ),
+            # Testing that when frame and ankle_axis are composed of lists of floats and vsk values are floats
+            (
+                {
+                    "RTOE": [1.0, -4.0, -1.0],
+                    "LTOE": [1.0, -1.0, -5.0],
+                    "RHEE": [1.0, -7.0, -4.0],
+                    "LHEE": [-6.0, -5.0, 1.0],
+                },
+                [[[ 0.0,  0.0, 0.0,  3.0],
+                  [ 6.0, -9.0, 9.0,  3.0],
+                  [ 0.0,  0.0, 0.0, -2.0],
+                  [ 0.0,  0.0, 0.0,  1.0]],
+                 [[ 0.0,  0.0, 0.0,  5.0],
+                  [-5.0,  6.0, 9.0,  9.0],
+                  [ 0.0,  0.0, 0.0, -4.0],
+                  [ 0.0,  0.0, 0.0,  1.0]]],
+                True,
+                {"RightSoleDelta": 1.0, "LeftSoleDelta": -1.0},
+                [
+                    [0.041042018208567545, -0.30654390195778408, -0.30110158620693045],
+                    [00.3932637729525662, 0.56572438473336295, 0.22802611517428609],
+                ],
+            ),
+            # Testing that when frame and ankle_axis are composed of numpy arrays of floats and vsk values are floats
+            (
+                {
+                    "RTOE": np.array([1.0, -4.0, -1.0], dtype="float"),
+                    "LTOE": np.array([1.0, -1.0, -5.0], dtype="float"),
+                    "RHEE": np.array([1.0, -7.0, -4.0], dtype="float"),
+                    "LHEE": np.array([-6.0, -5.0, 1.0], dtype="float"),
+                },
+                np.array([[[ 0.0,  0.0, 0.0,  3.0],
+                           [ 6.0, -9.0, 9.0,  3.0],
+                           [ 0.0,  0.0, 0.0, -2.0],
+                           [ 0.0,  0.0, 0.0,  1.0]],
+                          [[ 0.0,  0.0, 0.0,  5.0],
+                           [-5.0,  6.0, 9.0,  9.0],
+                           [ 0.0,  0.0, 0.0, -4.0],
+                           [ 0.0,  0.0, 0.0,  1.0]]], dtype="float"),
+                True,
+                {"RightSoleDelta": 1.0, "LeftSoleDelta": -1.0},
+                [
+                    [0.041042018208567545, -0.30654390195778408, -0.30110158620693045],
+                    [00.3932637729525662, 0.56572438473336295, 0.22802611517428609],
+                ],
+            ),
+        ],
+    )
+    def test_calc_foot_offset(self, frame, ankle_axis, flat_foot, vsk, expected_results):
         """
-        This test provides coverage of the staticCalculation function in pycgmStatic.py, defined as staticCalculation(frame, ankle_JC, knee_JC, flat_foot, vsk)
+        This test provides coverage of the calc_foot_offset function in pycgmStatic.py, defined as
+        calc_foot_offset(rtoe, ltoe, rhee, lhee, ankle_axis, flat_foot, right_sole_delta=0, left_sole_delta=0)
 
         This test takes 5 parameters:
         frame: dictionary of marker lists
-        ankle_JC: array containing the x,y,z axes marker positions of the ankle joint center
+        ankle_axis: array of two 4x4 affine matrices representing the right and left ankle axes and origins
         flat_foot: boolean indicating if the feet are flat or not
         vsk: dictionary containing subject measurements from a VSK file
-        expected_results: the expected result from calling staticCalculation on frame, ankle_JC, flat_foot, and vsk
+        expected_results: the expected result from calling calc_foot_offset on frame, ankle_axis, flat_foot, and vsk
 
         This function first calculates the anatomically incorrect foot axis by calling uncorrect_footaxis. It then
-        calculates the anatomically correct foot joint center and axis using either rotaxis_footflat or
-        rotaxis_nonfootflat depending on if foot_flat is True or False. It then does some array manipulation and calls
-        getankleangle with the anatomically correct and anatomically incorrect axes, once for the left and once for the
+        calculates the anatomically correct foot joint center and axis using either calc_axis_flatfoot or
+        calc_axis_nonflatfoot depending on if foot_flat is True or False. It then does some array manipulation and calls
+        calc_static_angle_ankle with the anatomically correct and anatomically incorrect axes, once for the left and once for the
         right, to calculate the offset angle between the two axes.
 
         This test ensures that:
         - Different offset angles are returned depending on whether flat_foot is True or not
-        - The resulting output is correct when frame and ankle_JC are composed of lists of ints, numpy arrays of ints,
+        - The resulting output is correct when frame and ankle_axis are composed of lists of ints, numpy arrays of ints,
         lists of floats, and numpy arrays of floats and when the vsk values are ints and floats.
         """
-        result = pycgmStatic.staticCalculation(frame, ankle_JC, None, flat_foot, vsk)
+        rtoe = frame["RTOE"] if "RTOE" in frame else None
+        ltoe = frame["LTOE"] if "LTOE" in frame else None
+        rhee = frame["RHEE"] if "RHEE" in frame else None
+        lhee = frame["LHEE"] if "LHEE" in frame else None
+
+        right_sole_delta = vsk["RightSoleDelta"] if "RightSoleDelta" in vsk else None
+        left_sole_delta = vsk["LeftSoleDelta"] if "LeftSoleDelta" in vsk else None
+
+        ankle_axis = np.asarray(ankle_axis)
+
+        right_ankle_axis = ankle_axis[0]
+        right_ankle_o = right_ankle_axis[:3, 3]
+        right_ankle_axis[1, :3] -= right_ankle_o
+
+        left_ankle_axis = ankle_axis[1]
+        left_ankle_o = left_ankle_axis[:3, 3]
+        left_ankle_axis[1, :3] -= left_ankle_o
+
+        result = pycgmStatic.calc_foot_offset(rtoe, ltoe, rhee, lhee, ankle_axis, flat_foot, right_sole_delta, left_sole_delta)
         np.testing.assert_almost_equal(result, expected_results, rounding_precision)
 
     @pytest.mark.parametrize(["xRot", "yRot", "zRot", "expected_results"], [
