@@ -290,7 +290,7 @@ def getStatic(motionData,vsk,flat_foot=False,GCS=None):
                                    vsk['RightKneeWidth'],
                                    vsk['LeftKneeWidth'])
         ankle_JC = ankleJointCenter(frame,knee_JC,0,vsk=calSM)
-        angle = staticCalculation(frame,ankle_JC,knee_JC,flat_foot,calSM)
+        angle = calc_foot_offset(frame,ankle_JC,knee_JC,flat_foot,calSM)
         head = calc_axis_head(frame['LFHD'] if 'LFHD' in frame else None,
                               frame['RFHD'] if 'RFHD' in frame else None,
                               frame['LBHD'] if 'LBHD' in frame else None,
@@ -466,35 +466,45 @@ def calc_head_offset(axisP, axisD):
 
     return angle
 
-def staticCalculation(frame,ankle_JC,knee_JC,flat_foot,vsk=None):
-    """Calculate the Static angle function
+def calc_foot_offset(rtoe, ltoe, rhee, lhee, ankle_axis, flat_foot, right_sole_delta=0, left_sole_delta=0):
+    """Calculate the Static foot offset angles.
 
-    Takes in anatomically uncorrected axis and anatomically correct axis.
+    Takes in anatomically uncorrected axis or anatomically correct axis.
     Corrects the axis depending on flat-footedness.
 
     Calculates the offset angle between those two axes.
 
     It is rotated from uncorrected axis in YXZ order.
 
+    Markers used: RTOE, LTOE, RHEE, LHEE
+
+    Subject Measurement values used: RightSoleDelta, LeftSoleDelta
+
     Parameters
     ----------
-    frame : dict
-        Dictionary of marker lists.
-    ankle_JC : array
-        An array containing the x,y,z axes marker positions of the ankle joint center.
-    knee_JC : array
-        An array containing the x,y,z axes marker positions of the knee joint center.
+    rtoe : array
+        1x3 RTOE marker
+    ltoe : array
+        1x3 LTOE marker
+    rhee : array
+        1x3 RHEE marker
+    lhee : array
+        1x3 LHEE marker
+    ankle_axis : array
+        array of two 4x4 affine matrices representing the right and left ankle axes and origins
     flat_foot : boolean
-        A boolean indicating if the feet are flat or not.
-    vsk : dict, optional
-        A dictionary containing subject measurements from a VSK file.
+        A boolean indicating if the feet are flat or not
+    r_sole_delta : float, optional
+        The right sole delta from the subject measurement file
+    l_sole_delta : float, optional
+        The left sole delta from the subject measurement file
 
     Returns
     -------
-    angle : list
-        Returns the offset angle represented by a 2x3x3 list.
-        The array contains the right flexion, abduction, rotation angles (1x3x3)
-        followed by the left flexion, abduction, rotation angles (1x3x3).
+    angle : array
+        The foot offset angle represented by a 2x3 array.
+        The array contains the right flexion, abduction, rotation angles (1x3)
+        followed by the left flexion, abduction, rotation angles (1x3).
 
     Notes
     -----
@@ -503,101 +513,60 @@ def staticCalculation(frame,ankle_JC,knee_JC,flat_foot,vsk=None):
     Examples
     --------
     >>> import numpy as np
-    >>> from .pycgmStatic import staticCalculation
-    >>> frame = {'RTOE': np.array([427.95, 437.1,  41.77]),
-    ...          'LTOE': np.array([175.79, 379.5,  42.61]),
-    ...          'RHEE': np.array([406.46, 227.56,  48.76]),
-    ...          'LHEE': np.array([223.6, 173.43,  47.93])}
-    >>> ankle_JC = [np.array([393.76, 247.68, 87.74]),
-    ...            np.array([98.75, 219.47, 80.63]),
-    ...            [[np.array([394.48, 248.37, 87.72]),
-    ...            np.array([393.07, 248.39, 87.62]),
-    ...            np.array([393.69, 247.78, 88.73])],
-    ...            [np.array([98.47, 220.43, 80.53]),
-    ...            np.array([97.79, 219.21, 80.76]),
-    ...            np.array([98.85, 219.60, 81.62])]]]
-    >>> knee_JC = [np.array([364.18, 292.17, 515.19]),
-    ...           np.array([143.55, 279.90, 524.78]),
-    ...           np.array([[[364.65, 293.07, 515.19],
-    ...           [363.29, 292.61, 515.04],
-    ...           [364.05, 292.24, 516.18]],
-    ...           [[143.66, 280.89, 524.63],
-    ...           [142.56, 280.02, 524.86],
-    ...           [143.65, 280.05, 525.77]]])]
+    >>> from .pycgmStatic import calc_foot_offset
+    >>> rtoe = np.array([427.95, 437.1,  41.77])
+    >>> ltoe = np.array([175.79, 379.5,  42.61])
+    >>> rhee = np.array([406.46, 227.56,  48.76])
+    >>> lhee = np.array([223.6, 173.43,  47.93])
+    >>> ankle_axis = np.array([[[ 0.72,  0.69, -0.02, 393.76],
+    ...                         [-0.69,  0.71, -0.12, 247.68],
+    ...                         [-0.07,  0.1 ,  0.99,  87.74],
+    ...                         [ 0.  ,  0.  ,  0.  ,   1.  ]],
+    ...                        [[-0.28,  0.96, -0.1 ,  98.75],
+    ...                         [-0.96, -0.26,  0.13, 219.47],
+    ...                         [ 0.1 ,  0.13,  0.99,  80.63],
+    ...                         [ 0.  ,  0.  ,  0.  ,   1.  ]]])
     >>> flat_foot = True
-    >>> vsk = { 'RightSoleDelta': 0.45,'LeftSoleDelta': 0.45 }
-    >>> np.around(staticCalculation(frame,ankle_JC,knee_JC,flat_foot,vsk), 2)
+    >>> right_sole_delta = 0.45
+    >>> left_sole_delta = 0.45
+    >>> np.around(calc_foot_offset(rtoe, ltoe, rhee, lhee, ankle_axis, flat_foot, right_sole_delta, left_sole_delta), 2)
     array([[-0.08,  0.23, -0.66],
            [-0.67,  0.22, -0.3 ]])
     >>> flat_foot = False # Using the same variables and switching the flat_foot flag.
-    >>> np.around(staticCalculation(frame,ankle_JC,knee_JC,flat_foot,vsk), 2)
+    >>> np.around(calc_foot_offset(rtoe, ltoe, rhee, lhee, ankle_axis, flat_foot, right_sole_delta, left_sole_delta), 2)
     array([[-0.08,  0.2 , -0.15],
            [-0.67,  0.19,  0.12]])
     """
+    rtoe, ltoe, rhee, lhee, ankle_axis = map(np.asarray, [rtoe, ltoe, rhee, lhee, ankle_axis])
 
-    # Get the each axis from the function.
-    uncorrect_foot = uncorrect_footaxis(frame,ankle_JC)
+    r_ankle_axis = ankle_axis[0]
+    l_ankle_axis = ankle_axis[1]
 
-    #change the reference uncorrect foot axis to same format
-    RF_center1_R_form = uncorrect_foot[0]
-    RF_center1_L_form = uncorrect_foot[1]
-    RF_axis1_R_form = uncorrect_foot[2][0]
-    RF_axis1_L_form = uncorrect_foot[2][1]
+    uncorrect_foot = calc_axis_uncorrect_foot(rtoe, ltoe, r_ankle_axis, l_ankle_axis)
 
-    #make the array which will be the input of findangle function
-    RF1_R_Axis = np.vstack([np.subtract(RF_axis1_R_form[0],RF_center1_R_form),
-                            np.subtract(RF_axis1_R_form[1],RF_center1_R_form),
-                            np.subtract(RF_axis1_R_form[2],RF_center1_R_form)])
-    RF1_L_Axis = np.vstack([np.subtract(RF_axis1_L_form[0],RF_center1_L_form),
-                            np.subtract(RF_axis1_L_form[1],RF_center1_L_form),
-                            np.subtract(RF_axis1_L_form[2],RF_center1_L_form)])
+    uncorrect_foot_right = uncorrect_foot[0]
+    uncorrect_foot_left = uncorrect_foot[1]
 
     # Check if it is flat foot or not.
     if flat_foot == False:
-        RF_axis2 = calc_axis_nonflatfoot(frame["RTOE"] if "RTOE" in frame else None,
-                                         frame["LTOE"] if "LTOE" in frame else None,
-                                         frame["RHEE"] if "RHEE" in frame else None,
-                                         frame["LHEE"] if "LHEE" in frame else None,
-                                         ankle_axis)
-        RF_center2_R_form = RF_axis2[0]
-        RF_center2_L_form = RF_axis2[1]
-        RF_axis2_R_form = RF_axis2[2][0]
-        RF_axis2_L_form = RF_axis2[2][1]
-        # make the array to same format for calculating angle.
-        RF2_R_Axis = np.vstack([np.subtract(RF_axis2_R_form[0],RF_center2_R_form),
-                            np.subtract(RF_axis2_R_form[1],RF_center2_R_form),
-                            np.subtract(RF_axis2_R_form[2],RF_center2_R_form)])
-        RF2_L_Axis = np.vstack([np.subtract(RF_axis2_L_form[0],RF_center2_L_form),
-                            np.subtract(RF_axis2_L_form[1],RF_center2_L_form),
-                            np.subtract(RF_axis2_L_form[2],RF_center2_L_form)])
+        nonflat_foot = calc_axis_nonflatfoot(rtoe, ltoe, rhee, lhee, ankle_axis)
+        nonflat_foot_right = nonflat_foot[0]
+        nonflat_foot_left = nonflat_foot[1]
 
-        R_AnkleFlex_angle = getankleangle(RF1_R_Axis,RF2_R_Axis)
-        L_AnkleFlex_angle = getankleangle(RF1_L_Axis,RF2_L_Axis)
+        right_angle = calc_static_angle_ankle(uncorrect_foot_right, nonflat_foot_right)
+        left_angle = calc_static_angle_ankle(uncorrect_foot_left, nonflat_foot_left)
 
     elif flat_foot == True:
-        RF_axis3 = calc_axis_flatfoot(frame["RTOE"] if "RTOE" in frame else None,
-                                      frame["LTOE"] if "LTOE" in frame else None, 
-                                      frame["RHEE"] if "RHEE" in frame else None, 
-                                      frame["LHEE"] if "LHEE" in frame else None, 
-                                      ankle_JC,
-                                      vsk["RightSoleDelta"],
-                                      vsk["LeftSoleDelta"])
-        RF_center3_R_form = RF_axis3[0]
-        RF_center3_L_form = RF_axis3[1]
-        RF_axis3_R_form = RF_axis3[2][0]
-        RF_axis3_L_form = RF_axis3[2][1]
-        # make the array to same format for calculating angle.
-        RF3_R_Axis = np.vstack([np.subtract(RF_axis3_R_form[0],RF_center3_R_form),
-                            np.subtract(RF_axis3_R_form[1],RF_center3_R_form),
-                            np.subtract(RF_axis3_R_form[2],RF_center3_R_form)])
-        RF3_L_Axis = np.vstack([np.subtract(RF_axis3_L_form[0],RF_center3_L_form),
-                            np.subtract(RF_axis3_L_form[1],RF_center3_L_form),
-                            np.subtract(RF_axis3_L_form[2],RF_center3_L_form)])
+        flat_foot = calc_axis_flatfoot(rtoe, ltoe, rhee, lhee, ankle_axis,
+                                      right_sole_delta,
+                                      left_sole_delta)
+        flat_foot_right = flat_foot[0]
+        flat_foot_left = flat_foot[1]
 
-        R_AnkleFlex_angle = getankleangle(RF1_R_Axis,RF3_R_Axis)
-        L_AnkleFlex_angle = getankleangle(RF1_L_Axis,RF3_L_Axis)
+        right_angle = calc_static_angle_ankle(uncorrect_foot_right, flat_foot_right)
+        left_angle = calc_static_angle_ankle(uncorrect_foot_left, flat_foot_left)
 
-    angle = [R_AnkleFlex_angle,L_AnkleFlex_angle]
+    angle = np.asarray([right_angle, left_angle])
 
     return angle
 
