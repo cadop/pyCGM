@@ -235,14 +235,14 @@ class TestPycgmStaticUtils():
         (0, 0, 90, [0]), (0, 0, 30, [0]), (0, 0, -30, [0]), (0, 0, 120, [0]), (0, 0, -120, [0]), (0, 0, 180, [0]),
         # Multiple Rotations
         (150, 30, 0, [-0.523599]), (45, 0, 60, [0.713724]), (0, 90, 120, [1.570796]), (135, 45, 90, [-0.955317])])
-    def test_headoffCalc(self, xRot, yRot, zRot, expected_results):
+    def test_calc_head_offset(self, xRot, yRot, zRot, expected_results):
         """
-        This test provides coverage of the headoffCalc function in pycgmStatic.py, defined as headoffCalc(axisP, axisD)
+        This test provides coverage of the calc_head_offset function in pycgmStatic.py, defined as calc_head_offset(axisP, axisD)
 
         This test takes 3 parameters:
         axisP: the unit vector of axisP, the position of the proximal axis
         axisD: the unit vector of axisD, the position of the distal axis
-        expected_results: the expected result from calling headoffCalc on axisP and axisD. This returns the y-rotation
+        expected_results: the expected result from calling calc_head_offset on axisP and axisD. This returns the y-rotation
         from a rotational matrix calculated by matrix multiplication of axisD and the inverse of axisP. This angle is in
         radians, not degrees.
 
@@ -259,14 +259,14 @@ class TestPycgmStaticUtils():
         # Create axisP as a rotational matrix using the x, y, and z rotations given
         axisP = pycgmStatic.rotmat(xRot, yRot, zRot)
         axisD = pycgmStatic.rotmat(0, 0, 0)
-        result = pycgmStatic.headoffCalc(axisP, axisD)
+        result = pycgmStatic.calc_head_offset(axisP, axisD)
         np.testing.assert_almost_equal(result, expected_results, rounding_precision)
 
-    def test_headoffCalc_datatypes(self):
+    def test_calc_head_offset_datatypes(self):
         """
-        This test provides coverage of the headoffCalc function in pycgmStatic.py, defined as headoffCalc(axisP, axisD)
+        This test provides coverage of the calc_head_offset function in pycgmStatic.py, defined as calc_head_offset(axisP, axisD)
 
-        This test checks that the resulting output from calling headoffCalc is correct when called with a list of ints,
+        This test checks that the resulting output from calling calc_head_offset is correct when called with a list of ints,
         a numpy array of ints, a list of floats, and a numpy array of floats.
         """
         axisD = pycgmStatic.rotmat(0, 0, 0)
@@ -274,20 +274,20 @@ class TestPycgmStaticUtils():
         axisP_ints = [[int(y) for y in x] for x in axisP_floats]
         expected_results = [1.570796]
 
-        # Check that calling headoffCalc on a list of ints yields the expected results
-        result_int_list = pycgmStatic.headoffCalc(axisP_ints, axisD)
+        # Check that calling calc_head_offset on a list of ints yields the expected results
+        result_int_list = pycgmStatic.calc_head_offset(axisP_ints, axisD)
         np.testing.assert_almost_equal(result_int_list, expected_results, rounding_precision)
 
-        # Check that calling headoffCalc on a numpy array of ints yields the expected results
-        result_int_nparray = pycgmStatic.headoffCalc(np.array(axisP_ints, dtype='int'), np.array(axisD, dtype='int'))
+        # Check that calling calc_head_offset on a numpy array of ints yields the expected results
+        result_int_nparray = pycgmStatic.calc_head_offset(np.array(axisP_ints, dtype='int'), np.array(axisD, dtype='int'))
         np.testing.assert_almost_equal(result_int_nparray, expected_results, rounding_precision)
 
-        # Check that calling headoffCalc on a list of floats yields the expected results
-        result_float_list = pycgmStatic.headoffCalc(axisP_floats, axisD)
+        # Check that calling calc_head_offset on a list of floats yields the expected results
+        result_float_list = pycgmStatic.calc_head_offset(axisP_floats, axisD)
         np.testing.assert_almost_equal(result_float_list, expected_results, rounding_precision)
 
-        # Check that calling headoffCalc on a numpy array of floats yields the expected results
-        result_float_nparray = pycgmStatic.headoffCalc(np.array(axisP_floats, dtype='float'), np.array(axisD, dtype='float'))
+        # Check that calling calc_head_offset on a numpy array of floats yields the expected results
+        result_float_nparray = pycgmStatic.calc_head_offset(np.array(axisP_floats, dtype='float'), np.array(axisD, dtype='float'))
         np.testing.assert_almost_equal(result_float_nparray, expected_results, rounding_precision)
 
     @pytest.mark.parametrize(["frame", "ankle_JC", "flat_foot", "vsk", "expected_results"], [
