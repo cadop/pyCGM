@@ -265,6 +265,23 @@ def getStatic(motionData,vsk,flat_foot=False,GCS=None):
     calSM['LeftHandThickness'] = vsk['LeftHandThickness']
 
     for frame in motionData:
+        pelvis_axis = calc_axis_pelvis(frame['RASI'] if 'RASI' in frame else None,
+                                       frame['LASI'] if 'LASI' in frame else None,
+                                       frame['RPSI'] if 'RPSI' in frame else None,
+                                       frame['LPSI'] if 'LPSI' in frame else None,
+                                       frame['SACR'] if 'SACR' in frame else None)
+
+        hip_jc = calc_joint_center_hip(pelvis_axis, calSM)
+
+        knee_axis = calc_axis_knee(frame['RTHI'] if 'RTHI' in frame else None,
+                                   frame['LTHI'] if 'LTHI' in frame else None,
+                                   frame['RKNE'] if 'RKNE' in frame else None,
+                                   frame['LKNE'] if 'LKNE' in frame else None,
+                                   hip_jc[0],
+                                   hip_jc[1],
+                                   vsk['RightKneeWidth'],
+                                   vsk['LeftKneeWidth'])
+
         ankle_axis = calc_axis_ankle(frame['RTIB'] if 'RTIB' in frame else None,
                                      frame['LTIB'] if 'LTIB' in frame else None,
                                      frame['RANK'] if 'RANK' in frame else None,
@@ -275,26 +292,21 @@ def getStatic(motionData,vsk,flat_foot=False,GCS=None):
                                      vsk['LeftAnkleWidth'],
                                      vsk['RightTibialTorsion'],
                                      vsk['LeftTibialTorsion'])
-        pelvis_axis = calc_axis_pelvis(frame['RASI'] if 'RASI' in frame else None,
-                                       frame['LASI'] if 'LASI' in frame else None,
-                                       frame['RPSI'] if 'RPSI' in frame else None,
-                                       frame['LPSI'] if 'LPSI' in frame else None,
-                                       frame['SACR'] if 'SACR' in frame else None)
-        hip_JC = calc_joint_center_hip(pelvis_axis, calSM)
-        knee_axis = calc_axis_knee(frame['RTHI'] if 'RTHI' in frame else None,
-                                   frame['LTHI'] if 'LTHI' in frame else None,
-                                   frame['RKNE'] if 'RKNE' in frame else None,
-                                   frame['LKNE'] if 'LKNE' in frame else None,
-                                   hip_JC[0],
-                                   hip_JC[1],
-                                   vsk['RightKneeWidth'],
-                                   vsk['LeftKneeWidth'])
-        ankle_JC = ankleJointCenter(frame,knee_JC,0,vsk=calSM)
-        angle = calc_foot_offset(frame,ankle_JC,knee_JC,flat_foot,calSM)
+
+        angle = calc_foot_offset(frame["RTOE"] if "RTOE" in frame else None,
+                                 frame["LTOE"] if "LTOE" in frame else None,
+                                 frame["RHEE"] if "LHEE" in frame else None,
+                                 frame["LHEE"] if "LHEE" in frame else None,
+                                 ankle_axis,
+                                 flat_foot,
+                                 vsk['RightSoleDelta'] if "RightSoleDelta" in frame else 0,
+                                 vsk['LeftSoleDelta'] if "LeftSoleDelta" in frame else 0)
+
         head = calc_axis_head(frame['LFHD'] if 'LFHD' in frame else None,
                               frame['RFHD'] if 'RFHD' in frame else None,
                               frame['LBHD'] if 'LBHD' in frame else None,
                               frame['RBHD'] if 'RBHD' in frame else None)
+
         headangle = calc_static_head(head)
 
         static_offset.append(angle)
