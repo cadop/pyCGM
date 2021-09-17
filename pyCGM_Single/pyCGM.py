@@ -2708,11 +2708,11 @@ def JointAngleCalc(frame,vsk):
     head_axes = head_axis[:3, :3]
 
     lfhd = frame['LFHD']
-    lfhd = frame['RFHD']
+    rfhd = frame['RFHD']
     lbhd = frame['LBHD']
     rbhd = frame['RBHD']
 
-    head_front = np.array((lfhd + lfhd) / 2)
+    head_front = np.array((lfhd + rfhd) / 2)
     head_back  = np.array((lbhd + rbhd) / 2)
 
     #Global_axis_form = [[0,1,0],[-1,0,0],[0,0,1]]
@@ -3356,11 +3356,11 @@ def JointAngleCalc(frame,vsk):
     #Put temporary dictionary for joint centers to return for now, then modify later
     jc = {}
     jc['Pelvis_axis'] = pelvis_axis
-    jc['Thorax_axis'] = thorax_axes
+    jc['Thorax_axis'] = thorax_axis
 
     jc['Pelvis'] = pelvis_jc
-    jc['RHip']   = l_hip_jc
-    jc['LHip']   = r_hip_jc
+    jc['RHip']   = r_hip_jc
+    jc['LHip']   = l_hip_jc
     jc['RKnee']  = r_knee_jc
     jc['LKnee']  = l_knee_jc
     jc['RAnkle'] = r_ankle_jc
