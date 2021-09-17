@@ -316,10 +316,10 @@ def calc_l5_pelvis(rhip, lhip, pelvis_axis):
     >>> from .pycgmKinetics import calc_l5_pelvis
     >>> lhip = np.array([308.38, 322.80, 937.98])
     >>> rhip = np.array([182.57, 339.43, 935.52])
-    >>> pelvis_axis = np.array([[251.74, 392.72, 1032.78,  251.60],
-    ...                         [250.61, 391.87, 1032.87,  391.74],
-    ...                         [251.60, 391.84, 1033.88, 1032.89],
-    ...                         [  0,      0,       0,       0   ]])
+    >>> pelvis_axis = np.array([[   0.14,    0.98,   -0.11,  251.6 ],
+    ...                         [  -0.99,    0.13,   -0.02,  391.74],
+    ...                         [   0.  ,    0.1 ,    0.99, 1032.89],
+    ...                         [   0.  ,    0.  ,    0.  ,    0.  ]])
     >>> np.around(calc_l5_pelvis(rhip, lhip, pelvis_axis), 2) #doctest: +NORMALIZE_WHITESPACE
     array([[ 245.48,  331.12,  936.75],
            [ 271.53,  371.69, 1043.8 ]])
@@ -334,7 +334,7 @@ def calc_l5_pelvis(rhip, lhip, pelvis_axis):
     midHip = (lhip + rhip) / 2
 
     offset = distance(rhip, lhip) * .925
-    z_axis = pelvis_axis[2, :3]
+    z_axis = pelvis_axis[2, :3] + pelvis_axis[:3, 3]
     norm_dir = np.array(unit(z_axis))
     l5 = midHip + offset * norm_dir
 
@@ -365,18 +365,19 @@ def calc_l5_thorax(rhip, lhip, thorax_axis):
     >>> import numpy as np
     >>> lhip = np.array([308.38, 322.80, 937.98])
     >>> rhip = np.array([182.57, 339.43, 935.52])
-    >>> thorax_axis = np.array([[256.34, 365.72, 1461.92,  256.27], 
-    ...                         [257.26, 364.69, 1462.23,  364.79], 
-    ...                         [256.18, 364.43, 1461.36, 1462.29],
-    ...                         [  0,      0,       0,       0   ]])
+    >>> thorax_axis = np.array([[   0.07,    0.93,   -0.37,  256.27],
+    ...                         [   0.99,   -0.1 ,   -0.06,  364.79],
+    ...                         [  -0.09,   -0.36,   -0.93, 1462.29],
+    ...                         [   0.  ,    0.  ,    0.  ,    0.  ]])
     >>> np.around(calc_l5_thorax(rhip, lhip, thorax_axis), 2) #doctest: +NORMALIZE_WHITESPACE
     array([ 265.16,  359.12, 1049.06])
     """
     rhip, lhip, thorax_axis = map(np.asarray, [rhip, lhip, thorax_axis])
 
-    x_axis = thorax_axis[0, :3]
-    y_axis = thorax_axis[1, :3]
-    z_axis = thorax_axis[2, :3]
+    thorax_o = thorax_axis[:3, 3]
+    x_axis = thorax_axis[0, :3] + thorax_o
+    y_axis = thorax_axis[1, :3] + thorax_o
+    z_axis = thorax_axis[2, :3] + thorax_o
 
     midHip = (lhip+rhip)/2
 
@@ -487,7 +488,10 @@ def getKinetics(data, Bodymass):
 
                 if seg == 'Pelvis':
 
-                    midHip,L5 = findL5_Pelvis(frame) #see function above
+                    midHip,L5 = calc_l5_pelvis(frame["RHip"] if "RHip" in frame else None, 
+                                               frame["LHip"] if "LHip" in frame else None,
+                                               frame["Pelvis_axis"] if "Pelvis_axis" in frame else None)
+                                            
                     segTemp[seg]['Prox'] = midHip
                     segTemp[seg]['Dist'] = L5
 
@@ -500,8 +504,10 @@ def getKinetics(data, Bodymass):
                     #pelvis segment, but localised to the thorax.
 
 
-                    L5 = findL5_Thorax(frame)
-                    #_,L5 = findL5_Pelvis(frame)
+                    L5 = calc_l5_thorax(frame["RHip"] if "RHip" in frame else None, 
+                                        frame["LHip"] if "LHip" in frame else None,
+                                        frame["Thorax_axis"] if "Thorax_axis" in frame else None)
+                    #_,L5 = calc_l5_pelvis(frame)
                     C7 = frame['C7']
 
                     #y_axis = frame['Thorax_axis'][0][0]
