@@ -3602,7 +3602,7 @@ class TestLowerBodyAxis():
     def test_calc_joint_center_hip(self, pelvis_axis, subject, expected):
         """
         This test provides coverage of the calc_joint_center_hip function in pyCGM.py,
-        defined as calc_joint_center_hip(pelvis_axis, subject)
+        defined as calc_joint_center_hip(pelvis, mean_leg_length, right_asis_to_trochanter, left_asis_to_trochanter, inter_asis_distance)
 
         This test takes 2 parameters:
         pelvis_axis: 4x4 affine matrix representing the pelvis axes and origin
@@ -3618,6 +3618,10 @@ class TestLowerBodyAxis():
         Lastly, it checks that the resulting output is correct when the pelvis axis is composed of lists of ints, 
         numpy arrays of ints, lists of floats, and numpy arrays of floats and vsk values are ints or floats.
         """
+        mean_leg_length = subject["MeanLegLength"]
+        right_asis_to_trochanter = subject["R_AsisToTrocanterMeasure"]
+        left_asis_to_trochanter = subject["L_AsisToTrocanterMeasure"]
+        inter_asis_distance = subject["InterAsisDistance"]
 
         pelvis_axis = np.asarray(pelvis_axis)
         pelvis_o = pelvis_axis[:3, 3]
@@ -3625,7 +3629,7 @@ class TestLowerBodyAxis():
         pelvis_axis[1, :3] -= pelvis_o
         pelvis_axis[2, :3] -= pelvis_o
 
-        result = pyCGM.calc_joint_center_hip(pelvis_axis, subject)
+        result = pyCGM.calc_joint_center_hip(pelvis_axis, mean_leg_length, right_asis_to_trochanter, left_asis_to_trochanter, inter_asis_distance)
         np.testing.assert_almost_equal(result, expected, rounding_precision)
 
     @pytest.mark.parametrize(["l_hip_jc", "r_hip_jc", "pelvis_axis", "expected"], [
