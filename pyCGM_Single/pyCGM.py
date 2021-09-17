@@ -144,7 +144,7 @@ def calc_axis_pelvis(rasi, lasi, rpsi, lpsi, sacr=None):
     return pelvis
 
 
-def calc_joint_center_hip(pelvis, subject):
+def calc_joint_center_hip(pelvis, mean_leg_length, right_asis_to_trochanter, left_asis_to_trochanter, inter_asis_distance):
     u"""Calculate the right and left hip joint center.
 
     Takes in a 4x4 affine matrix of pelvis axis and subject measurements
@@ -186,15 +186,17 @@ def calc_joint_center_hip(pelvis, subject):
     >>> import numpy as np
     >>> np.set_printoptions(suppress=True)
     >>> from .pyCGM import calc_joint_center_hip
-    >>> vsk = {'MeanLegLength': 940.0, 'R_AsisToTrocanterMeasure': 72.51,
-    ...        'L_AsisToTrocanterMeasure': 72.51, 'InterAsisDistance': 215.90}
+    >>> mean_leg_length = 940.0 
+    >>> right_asis_to_trochanter = 72.51
+    >>> left_asis_to_trochanter = 72.51
+    >>> inter_asis_distance = 215.90
     >>> pelvis_axis = np.array([
     ...     [0.14, 0.98, -0.11, 251.60],
     ...     [-0.99, 0.13, -0.02, 391.74],
     ...     [0, 0.1, 0.99, 1032.89],
     ...     [0, 0, 0, 1]
     ... ])
-    >>> np.around(calc_joint_center_hip(pelvis_axis,vsk), 2) #doctest: +NORMALIZE_WHITESPACE
+    >>> np.around(calc_joint_center_hip(pelvis_axis, mean_leg_length, right_asis_to_trochanter, left_asis_to_trochanter, inter_asis_distance), 2) #doctest: +NORMALIZE_WHITESPACE
     array([[307.36, 323.83, 938.72],
            [181.71, 340.33, 936.18]])
     """
@@ -216,14 +218,10 @@ def calc_joint_center_hip(pelvis, subject):
     # Half of marker size
     mm = 7.0
 
-    mean_leg_length = subject['MeanLegLength']
-    right_asis_to_trochanter = subject['R_AsisToTrocanterMeasure']
-    left_asis_to_trochanter = subject['L_AsisToTrocanterMeasure']
-    interAsisMeasure = subject['InterAsisDistance']
     C = (mean_leg_length * 0.115) - 15.3
     theta = 0.500000178813934
     beta = 0.314000427722931
-    aa = interAsisMeasure/2.0
+    aa = inter_asis_distance/2.0
     S = -1
 
     # Hip Joint Center Calculation (ref. Davis_1991)
@@ -2592,7 +2590,12 @@ def JointAngleCalc(frame,vsk):
     pely = global_pelvis_angle[1]
     pelz = global_pelvis_angle[2]
 
-    hip_jc = calc_joint_center_hip(pelvis_axis, vsk)
+    hip_jc = calc_joint_center_hip(pelvis_axis, 
+                                   vsk["MeanLegLength"], 
+                                   vsk["R_AsisToTrocanterMeasure"],
+                                   vsk["L_AsisToTrocanterMeasure"],
+                                   vsk["InterAsisDistance"])
+    
     r_hip_jc = hip_jc[0]
     l_hip_jc = hip_jc[1]
 
