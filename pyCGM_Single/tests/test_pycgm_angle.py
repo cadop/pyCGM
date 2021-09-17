@@ -8,11 +8,10 @@ rounding_precision = 6
 class TestPycgmAngle():
     """
     This class tests the functions used for getting angles in pyCGM.py:
-    getangle_sho
-    getangle_spi
-    getangle
-    getHeadangle
-    getPelangle
+    calc_angle_shoulder
+    calc_angle_spine
+    calc_angle
+    calc_angle_head
     """
 
     @pytest.mark.parametrize(

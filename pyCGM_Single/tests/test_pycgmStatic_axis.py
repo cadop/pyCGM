@@ -16,7 +16,7 @@ class TestPycgmStaticAxis():
         calc_axis_head
         calc_axis_uncorrect_foot
         calc_axis_flatfoot
-        rotaxis_nonfootflat
+        calc_axis_nonflatfoot
         calc_joint_center
     """
     nan_3d = [np.nan, np.nan, np.nan]

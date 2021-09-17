@@ -8,7 +8,7 @@ rounding_precision = 5
 class TestUpperBodyAxis():
     """
     This class tests the upper body axis functions in pyCGM.py:
-        headJC
+        calc_axis_head
         calc_axis_thorax
         calc_joint_center_shoulder
         calc_axis_shoulder
@@ -5462,7 +5462,7 @@ class TestLowerBodyAxis():
 class TestAxisUtils():
     """
     This class tests the lower body axis functions in pyCGM.py:
-    findJointC
+    calc_joint_center
     JointAngleCalc
     """
 
