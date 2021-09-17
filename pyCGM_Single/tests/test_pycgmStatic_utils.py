@@ -17,9 +17,9 @@ class TestPycgmStaticUtils():
     getStatic
     average
     calc_IAD
-    headoffCalc
-    staticCalculation
-    getankleangle
+    calc_head_offset
+    calc_foot_offset
+    calc_static_angle_ankle
     norm2d
     norm3d
     normDiv
