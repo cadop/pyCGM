@@ -279,8 +279,8 @@ def getStatic(motionData,vsk,flat_foot=False,GCS=None):
                                    frame['LKNE'] if 'LKNE' in frame else None,
                                    hip_jc[0],
                                    hip_jc[1],
-                                   vsk['RightKneeWidth'],
-                                   vsk['LeftKneeWidth'])
+                                   calSM['RightKneeWidth'],
+                                   calSM['LeftKneeWidth'])
 
         ankle_axis = calc_axis_ankle(frame['RTIB'] if 'RTIB' in frame else None,
                                      frame['LTIB'] if 'LTIB' in frame else None,
@@ -288,10 +288,10 @@ def getStatic(motionData,vsk,flat_foot=False,GCS=None):
                                      frame['LANK'] if 'LANK' in frame else None,
                                      knee_axis[0][:3, 3],
                                      knee_axis[1][:3, 3],
-                                     vsk['RightAnkleWidth'],
-                                     vsk['LeftAnkleWidth'],
-                                     vsk['RightTibialTorsion'],
-                                     vsk['LeftTibialTorsion'])
+                                     calSM['RightAnkleWidth'],
+                                     calSM['LeftAnkleWidth'],
+                                     calSM['RightTibialTorsion'],
+                                     calSM['LeftTibialTorsion'])
 
         angle = calc_foot_offset(frame["RTOE"] if "RTOE" in frame else None,
                                  frame["LTOE"] if "LTOE" in frame else None,
@@ -299,8 +299,8 @@ def getStatic(motionData,vsk,flat_foot=False,GCS=None):
                                  frame["LHEE"] if "LHEE" in frame else None,
                                  ankle_axis,
                                  flat_foot,
-                                 vsk['RightSoleDelta'] if "RightSoleDelta" in frame else 0,
-                                 vsk['LeftSoleDelta'] if "LeftSoleDelta" in frame else 0)
+                                 calSM['RightSoleDelta'] if "RightSoleDelta" in frame else 0,
+                                 calSM['LeftSoleDelta'] if "LeftSoleDelta" in frame else 0)
 
         head = calc_axis_head(frame['LFHD'] if 'LFHD' in frame else None,
                               frame['RFHD'] if 'RFHD' in frame else None,
