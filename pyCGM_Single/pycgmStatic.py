@@ -1418,8 +1418,6 @@ def calc_axis_uncorrect_foot(rtoe, ltoe, r_ankle_axis, l_ankle_axis):
 
     return foot_axis
 
-    R_sole_delta = vsk['RightSoleDelta']
-    L_sole_delta = vsk['LeftSoleDelta']
 
 def calc_axis_flatfoot(rtoe, ltoe, rhee, lhee, ankle_axis, r_sole_delta=0, l_sole_delta=0):
     """Calculate the anatomically correct foot joint center and axis for a flat foot.
