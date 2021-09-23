@@ -1,9 +1,10 @@
 API for pycgm
 =============
 
-.. currentmodule:: pycgm
+.. currentmodule:: pyCGM_Single
 
 .. autosummary::
    :toctree: generated/
 
-   axis
+   pycgmStatic
+   pyCGM
