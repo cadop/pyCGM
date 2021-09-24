@@ -507,6 +507,11 @@ class Test_pycgmKinetics(TestCase):
                                 [250.61711554, 391.87232862, 1032.8741063,  291.74131775],
                                 [251.60295336, 391.84795134, 1033.88777762, 832.89349365],
                                 [  0,            0,             0,            0         ]])
+        pelvis_o = pelvis_axis[:3, 3]
+        pelvis_axis[0, :3] -= pelvis_o
+        pelvis_axis[1, :3] -= pelvis_o
+        pelvis_axis[2, :3] -= pelvis_o
+
         test_parameters.append([rhip, lhip, pelvis_axis])
 
         rhip = np.array([-570.727107, 409.48579719, 387.17336605])
@@ -515,6 +520,11 @@ class Test_pycgmKinetics(TestCase):
                                 [367.53692416, -193.11814502, 141.95648112, -327.14438741],
                                 [814.64795266,  681.51439276,  87.63894117,   -4.58459872],
                                 [  0,             0,            0,             0         ]])
+        pelvis_o = pelvis_axis[:3, 3]
+        pelvis_axis[0, :3] -= pelvis_o
+        pelvis_axis[1, :3] -= pelvis_o
+        pelvis_axis[2, :3] -= pelvis_o
+
         test_parameters.append([rhip, lhip, pelvis_axis])
 
         rhip = np.array([-651.87182756, -493.94862894, 640.38910712])
@@ -523,6 +533,11 @@ class Test_pycgmKinetics(TestCase):
                                 [-229.76970935, -650.15236712, 359.70108366, 395.90359428],
                                 [ 222.81186893,  536.56366268, 386.21334066, 273.23978111],
                                 [   0,             0,            0,            0         ]])
+        pelvis_o = pelvis_axis[:3, 3]
+        pelvis_axis[0, :3] -= pelvis_o
+        pelvis_axis[1, :3] -= pelvis_o
+        pelvis_axis[2, :3] -= pelvis_o
+
         test_parameters.append([rhip, lhip, pelvis_axis])
 
         test_results=[
@@ -554,6 +569,11 @@ class Test_pycgmKinetics(TestCase):
                                 [257.26637166499415, 364.69602499862503, 1462.2347234647593, 364.79605748807074],
                                 [256.1842731803127, 364.4328898435265, 1461.363045336319, 1462.2905392309394],
                                 [0, 0, 0, 0]])
+        thorax_o = thorax_axis[:3, 3]
+        thorax_axis[0, :3] -= thorax_o
+        thorax_axis[1, :3] -= thorax_o
+        thorax_axis[2, :3] -= thorax_o
+
         rhip = np.array([82.53097863, 239.43231855, 835.529000126])
         lhip = np.array([262.38020472, 242.80342417, 521.98979061])
         test_parameters.append([rhip, lhip, thorax_axis])
@@ -563,6 +583,11 @@ class Test_pycgmKinetics(TestCase):
                                 [1111.49874303, 377.00086678, -140.88485905, -869.67870489],
                                 [917.9480966, 60.89883132, -342.22796426, 438.51780456],
                                 [0, 0, 0, 0]])
+        thorax_o = thorax_axis[:3, 3]
+        thorax_axis[0, :3] -= thorax_o
+        thorax_axis[1, :3] -= thorax_o
+        thorax_axis[2, :3] -= thorax_o
+
         rhip = np.array([103.01680043, 333.88103831, 823.33260927])
         lhip = np.array([179.35982654, 815.09778236, 737.19459299])
         test_parameters.append([rhip, lhip, thorax_axis])
@@ -572,6 +597,11 @@ class Test_pycgmKinetics(TestCase):
                                 [499.41682335, 40.88439602, 507.51025588, -776.6778811],
                                 [668.3596798, 1476.88140274, 783.47804105, 999.39015919],
                                 [0, 0, 0, 0]])
+        thorax_o = thorax_axis[:3, 3]
+        thorax_axis[0, :3] -= thorax_o
+        thorax_axis[1, :3] -= thorax_o
+        thorax_axis[2, :3] -= thorax_o
+
         rhip = np.array([402.57410142, -967.96374463, 575.63618514])
         lhip = np.array([47.94211912, 338.95742186, 612.52743329])
         test_parameters.append([rhip, lhip, thorax_axis])
