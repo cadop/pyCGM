@@ -817,11 +817,16 @@ def calc_joint_center_hip(pelvis, subject):
 
 def calc_axis_knee(rthi, lthi, rkne, lkne, r_hip_jc, l_hip_jc, rkne_width, lkne_width):
     """Calculate the knee joint center and axis.
+
     Takes in markers that correspond to (x, y, z) positions of the current
     frame, the hip joint center, and knee widths.
+
     Markers used: RTHI, LTHI, RKNE, LKNE, r_hip_jc, l_hip_jc
+
     Subject Measurement values used: RightKneeWidth, LeftKneeWidth
+
     Knee joint center: Computed using Knee Axis Calculation [1]_.
+
     Parameters
     ----------
     rthi : array
@@ -840,18 +845,22 @@ def calc_axis_knee(rthi, lthi, rkne, lkne, r_hip_jc, l_hip_jc, rkne_width, lkne_
         The width of the right knee
     lkne_width : float
         The width of the left knee
+
     Returns
     -------
     [r_axis, l_axis] : array
         An array of two 4x4 affine matrices representing the right and left
         knee axes and joint centers.
+
     References
     ----------
     .. [1] Baker, R. (2013). Measuring walking : a handbook of clinical gait
             analysis. Mac Keith Press.
+
     Notes
     -----
     Delta is changed suitably to knee.
+
     Examples
     --------
     >>> import numpy as np
@@ -866,13 +875,13 @@ def calc_axis_knee(rthi, lthi, rkne, lkne, r_hip_jc, l_hip_jc, rkne_width, lkne_
     >>> lkne_width = 105.0
     >>> [arr.round(2) for arr in calc_axis_knee(rthi, lthi, rkne, lkne, l_hip_jc, r_hip_jc, rkne_width, lkne_width)] #doctest: +NORMALIZE_WHITESPACE
     [array([[  0.3 ,   0.95,   0.  , 365.09],
-        [ -0.87,   0.28,  -0.4 , 282.84],
-        [ -0.38,   0.12,   0.92, 500.13],
-        [  0.  ,   0.  ,   0.  ,   1.  ]]),
+            [ -0.87,   0.28,  -0.4 , 282.84],
+            [ -0.38,   0.12,   0.92, 500.13],
+            [  0.  ,   0.  ,   0.  ,   1.  ]]),
      array([[  0.11,   0.98,  -0.15, 139.57],
-        [ -0.92,   0.16,   0.35, 277.13],
-        [  0.37,   0.1 ,   0.93, 508.67],
-        [  0.  ,   0.  ,   0.  ,   1.  ]])]
+            [ -0.92,   0.16,   0.35, 277.13],
+            [  0.37,   0.1 ,   0.93, 508.67],
+            [  0.  ,   0.  ,   0.  ,   1.  ]])]
     """
     # Get Global Values
     mm = 7.0
