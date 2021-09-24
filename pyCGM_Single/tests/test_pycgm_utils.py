@@ -11,31 +11,130 @@ class TestUtils():
     matrixmult
     rotmat
     """
-    rand_coor = [np.random.randint(0, 10), np.random.randint(0, 10), np.random.randint(0, 10)]
 
-    @pytest.mark.parametrize(["frame", "thorax", "expected"], [
-        ({'RSHO': [428.88476562, 270.552948, 1500.73010254], 'LSHO': [68.24668121, 269.01049805, 1510.1072998]}, [[[256.23991128535846, 365.30496976939753, 1459.662169500559], rand_coor, rand_coor], [256.149810236564, 364.3090603933987, 1459.6553639290375]], [[255.92550222678443, 364.3226950497605, 1460.6297868417887], [256.42380097331767, 364.27770361353487, 1460.6165849382387]]),
-        ({'RSHO': [0, 0, 1], 'LSHO': [0, 1, 0]}, [[[1, 0, 0], rand_coor, rand_coor], [0, 0, 0]], [[0, 1, 0], [0, 0, 1]]),
-        ({'RSHO': [0, 1, 1], 'LSHO': [1, 1, 1]}, [[[1, 0, 0], rand_coor, rand_coor], [0, 0, 0]], [[0, 0.70710678, -0.70710678], [0, -0.70710678, 0.70710678]]),
-        ({'RSHO': [0, 1, 1], 'LSHO': [1, 1, 1]}, [[[1, 0, 0], rand_coor, rand_coor], [-1, 0, 0]], [[-1, 0.70710678, -0.70710678], [-1, -0.70710678, 0.70710678]]),
-        ({'RSHO': [1, 2, 1], 'LSHO': [2, 1, 2]}, [[[1, 0, 0], rand_coor, rand_coor], [0, 0, 0]], [[0, 0.4472136, -0.89442719], [0, -0.89442719, 0.4472136]]),
-        ({'RSHO': [1, 2, 1], 'LSHO': [2, 2, 2]}, [[[1, 0, 0], rand_coor, rand_coor], [0, 0, 0]], [[0, 0.4472136, -0.89442719], [0, -0.70710678, 0.70710678]]),
-        ({'RSHO': [1, 2, 2], 'LSHO': [2, 1, 2]}, [[[1, 0, 0], rand_coor, rand_coor], [0, 0, 0]], [[0, 0.70710678, -0.70710678], [0, -0.89442719, 0.4472136]]),
-        ({'RSHO': [1, 1, 1], 'LSHO': [1, 1, 1]}, [[[1, 0, 1], rand_coor, rand_coor], [0, 0, 0]], [[0.70710678, 0, -0.70710678], [-0.70710678, 0, 0.70710678]]),
-        ({'RSHO': [1, 1, 1], 'LSHO': [1, 1, 1]}, [[[1, 0, 1], rand_coor, rand_coor], [0, 0, 1]], [[0, 0, 0], [0, 0, 2]]),
-        ({'RSHO': [0, 1, 0], 'LSHO': [0, 0, -1]}, [[[0, 3, 4], rand_coor, rand_coor], [0, 0, 0]], [[1, 0, 0], [-1, 0, 0]]),
-        ({'RSHO': [1, 0, 0], 'LSHO': [0, 1, 0]}, [[[7, 0, 24], rand_coor, rand_coor], [0, 0, 0]], [[0, -1, 0], [-0.96, 0, 0.28]]),
-        ({'RSHO': [1, 0, 0], 'LSHO': [0, 0, 1]}, [[[8, 0, 6], rand_coor, rand_coor], [8, 0, 0]], [[8, 1, 0], [8, -1, 0]])])
-    def test_findwandmarker(self, frame, thorax, expected):
+    rand_coor = [
+        np.random.randint(0, 10),
+        np.random.randint(0, 10),
+        np.random.randint(0, 10),
+    ]
+
+    @pytest.mark.parametrize(
+        ["frame", "thorax_axis", "expected"],
+        [
+            (
+                {
+                    "RSHO": [428.88476562, 270.552948, 1500.73010254],
+                    "LSHO": [68.24668121, 269.01049805, 1510.1072998],
+                },
+                np.array([[256.23991128535846, 365.30496976939753, 1459.662169500559, 256.149810236564 ],
+                          [  0,                  0,                   0,              364.3090603933987],
+                          [  0,                  0,                   0,             1459.6553639290375],
+                          [  0,                  0,                   0,                1              ]]),
+                [
+                    [255.92550222678443, 364.3226950497605, 1460.6297868417887],
+                    [256.42380097331767, 364.27770361353487, 1460.6165849382387],
+                ],
+            ),
+            (
+                {"RSHO": [0, 0, 1], "LSHO": [0, 1, 0]},
+                np.array([[1, 0, 0, 0],
+                          [0, 0, 0, 0],
+                          [0, 0, 0, 0],
+                          [0, 0, 0, 1]]),
+                [[0, 1, 0], [0, 0, 1]],
+            ),
+            (
+                {"RSHO": [0, 1, 1], "LSHO": [1, 1, 1]},
+                np.array([[1, 0, 0, 0],
+                          [0, 0, 0, 0],
+                          [0, 0, 0, 0],
+                          [0, 0, 0, 1]]),
+                [[0, 0.70710678, -0.70710678], [0, -0.70710678, 0.70710678]],
+            ),
+            (
+                {"RSHO": [0, 1, 1], "LSHO": [1, 1, 1]},
+                np.array([[1, 0, 0, -1],
+                          [0, 0, 0,  0],
+                          [0, 0, 0,  0],
+                          [0, 0, 0,  1]]),
+                [[-1, 0.70710678, -0.70710678], [-1, -0.70710678, 0.70710678]],
+            ),
+            (
+                {"RSHO": [1, 2, 1], "LSHO": [2, 1, 2]},
+                np.array([[1, 0, 0, 0],
+                          [0, 0, 0, 0],
+                          [0, 0, 0, 0],
+                          [0, 0, 0, 1]]),
+                [[0, 0.4472136, -0.89442719], [0, -0.89442719, 0.4472136]],
+            ),
+            (
+                {"RSHO": [1, 2, 1], "LSHO": [2, 2, 2]},
+                np.array([[1, 0, 0, 0],
+                          [0, 0, 0, 0],
+                          [0, 0, 0, 0],
+                          [0, 0, 0, 1]]),
+                [[0, 0.4472136, -0.89442719], [0, -0.70710678, 0.70710678]],
+            ),
+            (
+                {"RSHO": [1, 2, 2], "LSHO": [2, 1, 2]},
+                np.array([[1, 0, 0, 0],
+                          [0, 0, 0, 0],
+                          [0, 0, 0, 0],
+                          [0, 0, 0, 1]]),
+                [[0, 0.70710678, -0.70710678], [0, -0.89442719, 0.4472136]],
+            ),
+            (
+                {"RSHO": [1, 1, 1], "LSHO": [1, 1, 1]},
+                np.array([[1, 0, 1, 0],
+                          [0, 0, 0, 0],
+                          [0, 0, 0, 0],
+                          [0, 0, 0, 1]]),
+                [[0.70710678, 0, -0.70710678], [-0.70710678, 0, 0.70710678]],
+            ),
+            (
+                {"RSHO": [1, 1, 1], "LSHO": [1, 1, 1]},
+                np.array([[1, 0, 1, 0],
+                          [0, 0, 0, 0],
+                          [0, 0, 0, 1],
+                          [0, 0, 0, 1]]),
+                [[0, 0, 0], [0, 0, 2]],
+            ),
+            (
+                {"RSHO": [0, 1, 0], "LSHO": [0, 0, -1]},
+                np.array([[0, 3, 4, 0],
+                          [0, 0, 0, 0],
+                          [0, 0, 0, 0],
+                          [0, 0, 0, 1]]),
+                [[1, 0, 0], [-1, 0, 0]],
+            ),
+            (
+                {"RSHO": [1, 0, 0], "LSHO": [0, 1, 0]},
+                np.array([[7, 0, 24, 0],
+                          [0, 0,  0, 0],
+                          [0, 0,  0, 0],
+                          [0, 0,  0, 1]]),
+                [[0, -1, 0], [-0.96, 0, 0.28]],
+            ),
+            (
+                {"RSHO": [1, 0, 0], "LSHO": [0, 0, 1]},
+                np.array([[8, 0, 6, 8],
+                          [0, 0, 0, 0],
+                          [0, 0, 0, 0],
+                          [0, 0, 0, 1]]),
+                [[8, 1, 0], [8, -1, 0]],
+            ),
+        ],
+    )
+    def test_calc_marker_wand(self, frame, thorax_axis, expected):
         """
-        This test provides coverage of the findwandmarker function in pyCGM.py, defined as findwandmarker(frame,thorax)
-        where frame is a dictionary of x, y, z positions and marker names and thorax is the thorax axis and origin.
+        This test provides coverage of the calc_marker_wand function in pyCGM.py, defined as 
+        calc_marker_wand(rsho, lsho, thorax_axis), where rsho and lsho are (x, y, z) marker positions
+        and thorax_axis is a 4x4 affine matrix representing the thorax axis and origin.
 
-        The function takes in the xyz position of the Right Shoulder and Left Shoulder markers, as well as the thorax
-        frame, which is a list of [ xyz axis vectors, origin ]. The wand marker position is returned as a 2x3 array
-        containing the right wand marker x, y, z positions (1x3) followed by the left wand marker x, y, z positions
-        (1x3). The thorax axis is provided in global coordinates, which are subtracted inside the function to define
-        the unit vectors.
+        The function takes in the (x, y, z) position of the Right Shoulder and Left Shoulder markers, as well as the thorax
+        axis, which is a 4x4 affine matrix representing the thorax axis and origin.  The wand marker position is
+        returned as a 2x3 array containing the right wand marker (x, y, z) positions (1x3) followed by the 
+        left wand marker (x, y, z) positions (1x3).
 
         For the Right and Left wand markers, the function performs the same calculation, with the difference being the
         corresponding sides marker. Each wand marker is defined as the cross product between the unit vector of the
@@ -58,7 +157,15 @@ class TestUtils():
         - The function requires global positions
         - The thorax y and z axis do not change the results
         """
-        result = pyCGM.findwandmarker(frame, thorax)
+        rsho = frame["RSHO"] if "RSHO" in frame else None
+        lsho = frame["LSHO"] if "LSHO" in frame else None
+
+        thorax_o = thorax_axis[:3, 3]
+        thorax_axis[0, :3] -= thorax_o
+        thorax_axis[1, :3] -= thorax_o
+        thorax_axis[2, :3] -= thorax_o
+
+        result = pyCGM.calc_marker_wand(rsho, lsho, thorax_axis)
         np.testing.assert_almost_equal(result, expected, rounding_precision)
 
     def test_findwandmarker_datatypes(self):
