@@ -168,25 +168,47 @@ class TestUtils():
         result = pyCGM.calc_marker_wand(rsho, lsho, thorax_axis)
         np.testing.assert_almost_equal(result, expected, rounding_precision)
 
-    def test_findwandmarker_datatypes(self):
+    def test_calc_marker_wand_datatypes(self):
         """
-        This test provides coverage of the findwandmarker function in pyCGM.py, defined as findwandmarker(frame,thorax)
-        where frame is a dictionary of x, y, z positions and marker names and thorax is the thorax axis.
+        This test provides coverage of the calc_marker_wand function in pyCGM.py, defined as 
+        calc_marker_wand(rsho, lsho, thorax_axis), where rsho and lsho are (x, y, z) marker positions
+        and thorax_axis is a 4x4 affine matrix representing the thorax axis and origin.
 
         This test checks that the resulting output from calling cross is correct when called with ints or floats.
         """
         frame_int = {'RSHO': [1, 0, 0], 'LSHO': [0, 0, 1]}
         frame_float = {'RSHO': [1.0, 0.0, 0.0], 'LSHO': [0.0, 0.0, 1.0]}
-        thorax_int = [[[8, 0, 6], [0, 0, 0], [0, 0, 0]], [8, 0, 0]]
-        thorax_float = [[[8.0, 0.0, 6.0], [0.0, 0.0, 0.0], [0.0, 0.0, 0.0]], [8.0, 0.0, 0.0]]
+        thorax_int = np.array([[8, 0, 6, 8], 
+                               [0, 0, 0, 0],
+                               [0, 0, 0, 0],
+                               [0, 0, 0, 1]])
+        thorax_float = np.array([[8.0, 0.0, 6.0, 8.0], 
+                                 [0.0, 0.0, 0.0, 0.0],
+                                 [0.0, 0.0, 0.0, 0.0],
+                                 [0.0, 0.0, 0.0, 1.0]])
         expected = [[8, 1, 0], [8, -1, 0]]
 
-        # Check that calling findwandmarker yields the expected results when frame and thorax consist of ints
-        result_int_list = pyCGM.findwandmarker(frame_int, thorax_int)
+
+        thorax_o = thorax_int[:3, 3]
+        thorax_int[0, :3] -= thorax_o
+        thorax_int[1, :3] -= thorax_o
+        thorax_int[2, :3] -= thorax_o
+
+        thorax_o = thorax_float[:3, 3]
+        thorax_float[0, :3] -= thorax_o
+        thorax_float[1, :3] -= thorax_o
+        thorax_float[2, :3] -= thorax_o
+
+        # Check that calling calc_marker_wand yields the expected results when frame and thorax consist of ints
+        rsho_int = frame_int["RSHO"] if "RSHO" in frame_int else None
+        lsho_int = frame_int["LSHO"] if "LSHO" in frame_int else None
+        result_int_list = pyCGM.calc_marker_wand(rsho_int, lsho_int, thorax_int)
         np.testing.assert_almost_equal(result_int_list, expected, rounding_precision)
 
-        # Check that calling findwandmarker yields the expected results when frame and thorax consist of floats
-        result_float_list = pyCGM.findwandmarker(frame_float, thorax_float)
+        # Check that calling calc_marker_wand yields the expected results when frame and thorax consist of floats
+        rsho_float = frame_float["RSHO"] if "RSHO" in frame_float else None
+        lsho_float = frame_float["LSHO"] if "LSHO" in frame_float else None
+        result_float_list = pyCGM.calc_marker_wand(rsho_float, lsho_float, thorax_float)
         np.testing.assert_almost_equal(result_float_list, expected, rounding_precision)
 
     @pytest.mark.parametrize(["A", "B", "expected"], [
