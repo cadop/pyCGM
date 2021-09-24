@@ -522,7 +522,7 @@ class TestPycgmIO:
             array_result = np.asarray(result, dtype=np.float64)
             len_result = len(array_result)
             #Test that the truncated results are equal
-            np.testing.assert_equal(truncated_result, array_result[:7])
+            np.testing.assert_almost_equal(truncated_result, array_result[:7], 11)
             #Test we have written the correct number of results
             np.testing.assert_equal(len_result, len_written)
         
