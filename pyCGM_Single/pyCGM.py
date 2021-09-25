@@ -1188,7 +1188,7 @@ def calc_marker_wand(rsho, lsho, thorax_axis):
     thorax_origin = thorax_axis[:3, 3]
 
     axis_x_vec = thorax_axis[0, :3]
-    axis_x_vec /= np.linalg.norm(axis_x_vec)
+    axis_x_vec = axis_x_vec / np.linalg.norm(axis_x_vec)
 
     # Calculate for getting a wand marker
 
