@@ -129,54 +129,6 @@ class TestPycgmStaticUtils():
         result_float_nparray = pycgmStatic.get_dist(np.array(p0_float, dtype='float'), np.array(p1_float, dtype='float'))
         np.testing.assert_almost_equal(result_float_nparray, expected_results, rounding_precision)
 
-    @pytest.mark.parametrize(["lst", "expected_results"], [
-        ([0], 0),
-        ([3], 3),
-        ([-1], -1),
-        ([1, 2], 1.5),
-        ([-1, 3], 1),
-        ([-3, 1], -1),
-        ([-2, 0, 2], 0),
-        ([1, 2, 3, 4, 5], 3),
-        ([-1, -2, -3, -4, -5], -3),
-        ([0.1, 0.2, 0.3, 0.4, 0.5], 0.3)])
-    def test_average(self, lst, expected_results):
-        """
-        This test provides coverage of the average function in pycgmStatic.py, defined as average(lst)
-
-        This test takes 2 parameters:
-        lst: list or array of values
-        expected_results: the expected result from calling average on lst. This will be the average of all the values given in lst.
-        """
-        result = pycgmStatic.average(lst)
-        np.testing.assert_almost_equal(result, expected_results, rounding_precision)
-
-    def test_average_datatypes(self):
-        """
-        This test provides coverage of the average function in pycgmStatic.py, defined as average(list)
-
-        This test checks that the resulting output from calling average is correct when called with a list of ints,
-        a numpy array of ints, a list of floats, and a numpy array of floats.
-        """
-        list_int = [-1, -2, -3, -4, -5]
-        list_float = [-1.0, -2.0, -3.0, -4.0, -5.0]
-        expected_results = -3
-
-        # Check that calling average on a list of ints yields the expected results
-        result_int_list = pycgmStatic.average(list_int)
-        np.testing.assert_almost_equal(result_int_list, expected_results, rounding_precision)
-
-        # Check that calling average on a numpy array of ints yields the expected results
-        result_int_nparray = pycgmStatic.average(np.array(list_int, dtype='int'))
-        np.testing.assert_almost_equal(result_int_nparray, expected_results, rounding_precision)
-
-        # Check that calling average on a list of floats yields the expected results
-        result_float_list = pycgmStatic.average(list_float)
-        np.testing.assert_almost_equal(result_float_list, expected_results, rounding_precision)
-
-        # Check that calling average on a numpy array of floats yields the expected results
-        result_float_nparray = pycgmStatic.average(np.array(list_float, dtype='float'))
-        np.testing.assert_almost_equal(result_float_nparray, expected_results, rounding_precision)
 
     @pytest.mark.parametrize(["frame", "expected_results"], [
         ({'RASI': np.array([0, 0, 0]), 'LASI': np.array([0, 0, 0])}, 0),
