@@ -3,7 +3,6 @@ import numpy as np
 from pyCGM_Single.pyCGM_Helpers import getfilenames
 from pyCGM_Single.pycgmIO import loadData, dataAsDict
 from pyCGM_Single.clusterCalc import target_dict, segment_dict
-from pyCGM_Single.pyCGM import pelvisJointCenter
 import pyCGM_Single.Pipelines as Pipelines
 import os
 import mock 
@@ -275,7 +274,7 @@ class TestPipelinesGapFilling:
         cls.data_original = dataAsDict(motionData, npArray=True)
         cls.static_original = dataAsDict(staticData, npArray=True)
         for frame in motionData:
-            frame['SACR'] = pelvisJointCenter(frame)[2]
+            frame['SACR'] = frame['SACR'] if 'SACR' in frame else (frame['RPSI'] + frame['LPSI']) / 2.0
         cls.data_with_sacrum_original = dataAsDict(motionData, npArray=True)
         Pipelines.clearMarker(motionData, 'LFHD')
         cls.data_with_sacrum_clear_marker = dataAsDict(motionData, npArray=True)
