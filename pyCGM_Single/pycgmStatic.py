@@ -42,14 +42,14 @@ def rotmat(x=0, y=0, z=0):
     >>> y = 0.3
     >>> z = 0.8
     >>> np.around(rotmat(x, y, z), 2) #doctest: +NORMALIZE_WHITESPACE
-    array([[ 1.  , -0.01,  0.01],
-           [ 0.01,  1.  , -0.01],
-           [-0.01,  0.01,  1.  ]])
+    array([[ 1.  ,  -0.01,  0.01],
+           [ 0.01,   1.  , -0.01],
+           [-0.01,   0.01,  1.  ]])
     >>> x = 0.5
     >>> np.around(rotmat(x), 2) #doctest: +NORMALIZE_WHITESPACE
-    array([[1., 0.  ,  0.  ],
-           [0., 1.  , -0.01],
-           [0., 0.01,  1.  ]])
+    array([[ 1. , 0.  ,  0.  ],
+           [ 0. , 1.  , -0.01],
+           [ 0. , 0.01,  1.  ]])
     >>> x = 1
     >>> y = 1
     >>> np.around(rotmat(x,y), 2) #doctest: +NORMALIZE_WHITESPACE

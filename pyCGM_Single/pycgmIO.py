@@ -665,7 +665,7 @@ def loadData(filename, rawData=True):
         >>> c3dData[0]['RHNO'] #doctest: +NORMALIZE_WHITESPACE
         array([-259.45016479, -844.99560547, 1464.26330566])
         >>> c3dData[0]['C7'] #doctest: +NORMALIZE_WHITESPACE
-        array([-2.20681717e+02, -1.07236075e+00, 1.45551550e+03])
+        array([-220.68171692,   -1.07236075, 1455.51550293])
         """
         print(filename)
         if str(filename).endswith('.c3d'):
