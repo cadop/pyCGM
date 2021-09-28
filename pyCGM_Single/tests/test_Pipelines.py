@@ -274,7 +274,7 @@ class TestPipelinesGapFilling:
         cls.data_original = dataAsDict(motionData, npArray=True)
         cls.static_original = dataAsDict(staticData, npArray=True)
         for frame in motionData:
-            frame['SACR'] = (frame['RPSI'] + frame['LPSI']) / 2.0
+            frame['SACR'] = frame['SACR'] if 'SACR' in frame else (frame['RPSI'] + frame['LPSI']) / 2.0
         cls.data_with_sacrum_original = dataAsDict(motionData, npArray=True)
         Pipelines.clearMarker(motionData, 'LFHD')
         cls.data_with_sacrum_clear_marker = dataAsDict(motionData, npArray=True)
