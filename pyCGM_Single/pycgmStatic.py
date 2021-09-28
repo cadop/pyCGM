@@ -796,14 +796,14 @@ def calc_joint_center_hip(pelvis, subject):
         left_hip_jc_x[2]+left_hip_jc_y[2]+left_hip_jc_z[2]
     ])
 
-    left_hip_jc = pelvis_axis.T @ np.array([L_Xh, L_Yh, L_Zh])
+    left_hip_jc = np.matmul(pelvis_axis.T, np.array([L_Xh, L_Yh, L_Zh]))
 
     R_hipJCx = pelvis_xaxis * R_Xh
     R_hipJCy = pelvis_yaxis * R_Yh
     R_hipJCz = pelvis_zaxis * R_Zh
     right_hip_jc = R_hipJCx + R_hipJCy + R_hipJCz
 
-    right_hip_jc = pelvis_axis.T @ np.array([R_Xh, R_Yh, R_Zh])
+    right_hip_jc = np.matmul(pelvis_axis.T, np.array([R_Xh, R_Yh, R_Zh]))
 
     left_hip_jc = left_hip_jc+pel_origin
     right_hip_jc = right_hip_jc+pel_origin
