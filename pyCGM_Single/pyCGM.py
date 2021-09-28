@@ -1175,13 +1175,13 @@ def calc_marker_wand(rsho, lsho, thorax_axis):
     >>> from .pyCGM import calc_marker_wand
     >>> rsho = np.array([428.88, 270.55, 1500.73])
     >>> lsho = np.array([68.24, 269.01, 1510.10])
-    >>> thorax_axis = np.array([[ 0.07,  0.93, -0.37,  256.27], 
-    ...                        [  0.99, -0.1 , -0.06,  364.8 ], 
-    ...                        [ -0.09, -0.36, -0.93, 1462.29], 
-    ...                        [  0.,    0.,    0.,      1.]])
+    >>> thorax_axis = np.array([[ 0.09,  1.  ,  0.01,  256.14],
+    ...                         [ 1.  , -0.09, -0.07,  364.3 ],
+    ...                         [-0.06, -9.98, -1.  , 1459.65],
+    ...                         [ 0.  ,  0.  ,  0.  ,    1.  ]])
     >>> [np.around(arr, 2) for arr in calc_marker_wand(rsho, lsho, thorax_axis)] #doctest: +NORMALIZE_WHITESPACE
-    [array([ 256.78,  365.61, 1462.  ]), 
-     array([ 255.79,  365.67, 1462.16])]
+    [array([ 255.91,  364.31, 1460.62]),
+     array([ 256.42,  364.27, 1460.61])]
     """
 
     thorax_axis = np.asarray(thorax_axis)
@@ -2466,9 +2466,9 @@ def rotmat(x=0, y=0, z=0):
            [-0.01,  0.01,  1.  ]])
     >>> x = 0.5
     >>> np.around(rotmat(x), 2) #doctest: +NORMALIZE_WHITESPACE
-    array([[1., 0.  ,  0.  ],
-           [0., 1.  , -0.01],
-           [0., 0.01,  1.  ]])
+    array([[ 1. ,  0.  ,  0.  ],
+           [ 0. ,  1.  , -0.01],
+           [ 0. ,  0.01,  1.  ]])
     >>> x = 1
     >>> y = 1
     >>> np.around(rotmat(x,y), 2) #doctest: +NORMALIZE_WHITESPACE
