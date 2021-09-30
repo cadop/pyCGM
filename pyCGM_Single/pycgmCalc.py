@@ -144,7 +144,7 @@ def calcAngles(data,**kargs):
             [  3.04,  -7.02, -17.41],
             [ -3.  ,  -4.54,  -1.74],
             ...,
-            [ 36.3 ,   0.  ,   0.  ],
+            [ 36.3 ,  -0.  ,   0.  ],
             [  9.92,  15.25, 126.24],
             [  6.64,  17.64, 123.81]]])
     >>> around(result[1], 2) #Array of axis values #doctest: +NORMALIZE_WHITESPACE

@@ -500,7 +500,6 @@ def rigid_fill(Data,static):
     Examples
     --------
     >>> from .pyCGM_Helpers import getfilenames
-    >>> from .pyCGM import pelvisJointCenter
     >>> from numpy import array, nan, around
     >>> from .pycgmIO import loadData, dataAsDict
     >>> dynamic_trial,static_trial,_,_,_ = getfilenames(x=3)
@@ -509,10 +508,8 @@ def rigid_fill(Data,static):
     >>> staticData = loadData(static_trial)
     SampleData/Sample_2/RoboStatic.c3d
 
-    Sacrum must be calculated for this file using ``pyCGM.pelvisJointCenter``.
-
     >>> for frame in motionData:
-    ...     frame['SACR'] = pelvisJointCenter(frame)[2]
+    ...     frame['SACR'] = frame['SACR'] if 'SACR' in frame else (frame['RPSI'] + frame['LPSI']) / 2.0
 
     Testing gap filling.
 
