@@ -646,6 +646,7 @@ def loadData(filename, rawData=True):
         RoboResults.csv and RoboResults.c3d in SampleData are used to
         test the output.
 
+        >>> np.set_printoptions(suppress=True)
         >>> csvFile = 'SampleData/Sample_2/RoboResults.csv'
         >>> c3dFile = 'SampleData/Sample_2/RoboStatic.c3d'
         >>> csvData = loadData(csvFile)
