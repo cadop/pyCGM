@@ -2914,401 +2914,311 @@ def JointAngleCalc(frame,vsk):
     # make each axis as same format to store
 
     # Pelvis
-        # origin
+    # origin
     pel_origin = pelvis_jc
-    pel_ox=pel_origin[0]
-    pel_oy=pel_origin[1]
-    pel_oz=pel_origin[2]
-        # xaxis
+    pel_ox, pel_oy, pel_oz = pel_origin
+    
+	# xaxis
     pel_x_axis = pelvis_axes[0] + pelvis_jc
-    pel_xx=pel_x_axis[0]
-    pel_xy=pel_x_axis[1]
-    pel_xz=pel_x_axis[2]
-        # yaxis
+    pel_xx, pel_xy, pel_xz = pel_x_axis
+    
+	# yaxis
     pel_y_axis = pelvis_axes[1] + pelvis_jc
-    pel_yx=pel_y_axis[0]
-    pel_yy=pel_y_axis[1]
-    pel_yz=pel_y_axis[2]
-        # zaxis
+    pel_yx, pel_yy, pel_yz = pel_y_axis
+    
+	# zaxis
     pel_z_axis = pelvis_axes[2] + pelvis_jc
-    pel_zx=pel_z_axis[0]
-    pel_zy=pel_z_axis[1]
-    pel_zz=pel_z_axis[2]
+    pel_zx, pel_zy, pel_zz = pel_z_axis
 
     # Hip
-        # origin
+    # origin
     hip_origin = hip_jc
-    hip_ox=hip_origin[0]
-    hip_oy=hip_origin[1]
-    hip_oz=hip_origin[2]
-        # xaxis
+    hip_ox, hip_oy, hip_oz = hip_origin
+    
+	# xaxis
     hip_x_axis = hip_axes[0] + hip_jc
-    hip_xx=hip_x_axis[0]
-    hip_xy=hip_x_axis[1]
-    hip_xz=hip_x_axis[2]
-        # yaxis
+    hip_xx, hip_xy, hip_xz = hip_x_axis
+    
+	# yaxis
     hip_y_axis = hip_axes[1] + hip_jc
-    hip_yx=hip_y_axis[0]
-    hip_yy=hip_y_axis[1]
-    hip_yz=hip_y_axis[2]
-        # zaxis
+    hip_yx, hip_yy, hip_yz = hip_y_axis
+    
+	# zaxis
     hip_z_axis = hip_axes[2] + hip_jc
-    hip_zx=hip_z_axis[0]
-    hip_zy=hip_z_axis[1]
-    hip_zz=hip_z_axis[2]
+    hip_zx, hip_zy, hip_zz = hip_z_axis
 
     # R KNEE
-        # origin
+    # origin
     rknee_origin = r_knee_jc
-    rknee_ox=rknee_origin[0]
-    rknee_oy=rknee_origin[1]
-    rknee_oz=rknee_origin[2]
+    rknee_ox, rknee_oy, rknee_oz = rknee_origin
 
-        # xaxis
+    
+	# xaxis
     rknee_x_axis = r_knee_axes[0] + r_knee_jc
-    rknee_xx=rknee_x_axis[0]
-    rknee_xy=rknee_x_axis[1]
-    rknee_xz=rknee_x_axis[2]
-        # yaxis
+    rknee_xx, rknee_xy, rknee_xz = rknee_x_axis
+    
+	# yaxis
     rknee_y_axis = r_knee_axes[1] + r_knee_jc
-    rknee_yx=rknee_y_axis[0]
-    rknee_yy=rknee_y_axis[1]
-    rknee_yz=rknee_y_axis[2]
-        # zaxis
+    rknee_yx, rknee_yy, rknee_yz = rknee_y_axis
+    
+	# zaxis
     rknee_z_axis = r_knee_axes[2] + r_knee_jc
-    rknee_zx=rknee_z_axis[0]
-    rknee_zy=rknee_z_axis[1]
-    rknee_zz=rknee_z_axis[2]
+    rknee_zx, rknee_zy, rknee_zz = rknee_z_axis
 
     # L KNEE
-        # origin
+    # origin
     lknee_origin = l_knee_jc
-    lknee_ox=lknee_origin[0]
-    lknee_oy=lknee_origin[1]
-    lknee_oz=lknee_origin[2]
-        # xaxis
+    lknee_ox, lknee_oy, lknee_oz = lknee_origin
+    
+	# xaxis
     lknee_x_axis = l_knee_axes[0] + l_knee_jc
-    lknee_xx=lknee_x_axis[0]
-    lknee_xy=lknee_x_axis[1]
-    lknee_xz=lknee_x_axis[2]
-        # yaxis
+    lknee_xx, lknee_xy, lknee_xz = lknee_x_axis
+    
+	# yaxis
     lknee_y_axis = l_knee_axes[1] + l_knee_jc
-    lknee_yx=lknee_y_axis[0]
-    lknee_yy=lknee_y_axis[1]
-    lknee_yz=lknee_y_axis[2]
-        # zaxis
+    lknee_yx, lknee_yy, lknee_yz = lknee_y_axis
+    
+	# zaxis
     lknee_z_axis = l_knee_axes[2] + l_knee_jc
-    lknee_zx=lknee_z_axis[0]
-    lknee_zy=lknee_z_axis[1]
-    lknee_zz=lknee_z_axis[2]
+    lknee_zx, lknee_zy, lknee_zz = lknee_z_axis
 
     # R ANKLE
-        # origin
+    # origin
     rank_origin = r_ankle_jc
-    rank_ox=rank_origin[0]
-    rank_oy=rank_origin[1]
-    rank_oz=rank_origin[2]
-        # xaxis
+    rank_ox, rank_oy, rank_oz = rank_origin
+    
+	# xaxis
     rank_x_axis = r_ankle_axes[0] + r_ankle_jc
-    rank_xx=rank_x_axis[0]
-    rank_xy=rank_x_axis[1]
-    rank_xz=rank_x_axis[2]
-        # yaxis
+    rank_xx, rank_xy, rank_xz = rank_x_axis
+    
+	# yaxis
     rank_y_axis = r_ankle_axes[1] + r_ankle_jc
-    rank_yx=rank_y_axis[0]
-    rank_yy=rank_y_axis[1]
-    rank_yz=rank_y_axis[2]
-        # zaxis
+    rank_yx, rank_yy, rank_yz = rank_y_axis
+    
+	# zaxis
     rank_z_axis = r_ankle_axes[2] + r_ankle_jc
-    rank_zx=rank_z_axis[0]
-    rank_zy=rank_z_axis[1]
-    rank_zz=rank_z_axis[2]
+    rank_zx, rank_zy, rank_zz = rank_z_axis
 
     # L ANKLE
-        # origin
+    # origin
     lank_origin = l_ankle_jc
-    lank_ox=lank_origin[0]
-    lank_oy=lank_origin[1]
-    lank_oz=lank_origin[2]
-        # xaxis
+    lank_ox, lank_oy, lank_oz = lank_origin
+    
+	# xaxis
     lank_x_axis = l_ankle_axes[0] + l_ankle_jc
-    lank_xx=lank_x_axis[0]
-    lank_xy=lank_x_axis[1]
-    lank_xz=lank_x_axis[2]
-        # yaxis
+    lank_xx, lank_xy, lank_xz = lank_x_axis
+    
+	# yaxis
     lank_y_axis = l_ankle_axes[1] + l_ankle_jc
-    lank_yx=lank_y_axis[0]
-    lank_yy=lank_y_axis[1]
-    lank_yz=lank_y_axis[2]
-        # zaxis
+    lank_yx, lank_yy, lank_yz = lank_y_axis
+    
+	# zaxis
     lank_z_axis = l_ankle_axes[2] + l_ankle_jc
-    lank_zx=lank_z_axis[0]
-    lank_zy=lank_z_axis[1]
-    lank_zz=lank_z_axis[2]
+    lank_zx, lank_zy, lank_zz = lank_z_axis
 
     # R FOOT
-        # origin
+    # origin
     rfoot_origin = r_foot_jc
-    rfoot_ox=rfoot_origin[0]
-    rfoot_oy=rfoot_origin[1]
-    rfoot_oz=rfoot_origin[2]
-        # xaxis
+    rfoot_ox, rfoot_oy, rfoot_oz = rfoot_origin
+    
+	# xaxis
     rfoot_x_axis = r_foot_axes[0] + r_foot_jc
-    rfoot_xx=rfoot_x_axis[0]
-    rfoot_xy=rfoot_x_axis[1]
-    rfoot_xz=rfoot_x_axis[2]
-        # yaxis
+    rfoot_xx, rfoot_xy, rfoot_xz = rfoot_x_axis
+    
+	# yaxis
     rfoot_y_axis = r_foot_axes[1] + r_foot_jc
-    rfoot_yx=rfoot_y_axis[0]
-    rfoot_yy=rfoot_y_axis[1]
-    rfoot_yz=rfoot_y_axis[2]
-        # zaxis
+    rfoot_yx, rfoot_yy, rfoot_yz = rfoot_y_axis
+    
+	# zaxis
     rfoot_z_axis = r_foot_axes[2] + r_foot_jc
-    rfoot_zx=rfoot_z_axis[0]
-    rfoot_zy=rfoot_z_axis[1]
-    rfoot_zz=rfoot_z_axis[2]
+    rfoot_zx, rfoot_zy, rfoot_zz = rfoot_z_axis
 
     # L FOOT
-        # origin
+    # origin
     lfoot_origin = l_foot_jc
-    lfoot_ox=lfoot_origin[0]
-    lfoot_oy=lfoot_origin[1]
-    lfoot_oz=lfoot_origin[2]
-        # xaxis
+    lfoot_ox, lfoot_oy, lfoot_oz = lfoot_origin
+    
+	# xaxis
     lfoot_x_axis = l_foot_axes[0] + l_foot_jc
-    lfoot_xx=lfoot_x_axis[0]
-    lfoot_xy=lfoot_x_axis[1]
-    lfoot_xz=lfoot_x_axis[2]
-        # yaxis
+    lfoot_xx, lfoot_xy, lfoot_xz = lfoot_x_axis
+    
+	# yaxis
     lfoot_y_axis = l_foot_axes[1] + l_foot_jc
-    lfoot_yx=lfoot_y_axis[0]
-    lfoot_yy=lfoot_y_axis[1]
-    lfoot_yz=lfoot_y_axis[2]
-        # zaxis
+    lfoot_yx, lfoot_yy, lfoot_yz = lfoot_y_axis
+    
+	# zaxis
     lfoot_z_axis = l_foot_axes[2] + l_foot_jc
-    lfoot_zx=lfoot_z_axis[0]
-    lfoot_zy=lfoot_z_axis[1]
-    lfoot_zz=lfoot_z_axis[2]
+    lfoot_zx, lfoot_zy, lfoot_zz = lfoot_z_axis
 
     # HEAD
-        # origin
+    # origin
     head_origin = head_jc
-    head_ox=head_origin[0]
-    head_oy=head_origin[1]
-    head_oz=head_origin[2]
-        # xaxis
+    head_ox, head_oy, head_oz = head_origin
+    
+	# xaxis
     head_x_axis = head_axes[0] + head_jc
-    head_xx=head_x_axis[0]
-    head_xy=head_x_axis[1]
-    head_xz=head_x_axis[2]
-        # yaxis
+    head_xx, head_xy, head_xz = head_x_axis
+    
+	# yaxis
     head_y_axis = head_axes[1] + head_jc
-    head_yx=head_y_axis[0]
-    head_yy=head_y_axis[1]
-    head_yz=head_y_axis[2]
-        # zaxis
+    head_yx, head_yy, head_yz = head_y_axis
+    
+	# zaxis
     head_z_axis = head_axes[2] + head_jc
-    head_zx=head_z_axis[0]
-    head_zy=head_z_axis[1]
-    head_zz=head_z_axis[2]
+    head_zx, head_zy, head_zz = head_z_axis
 
     # THORAX
-        # origin
+    # origin
     tho_origin = thorax_jc
-    tho_ox=tho_origin[0]
-    tho_oy=tho_origin[1]
-    tho_oz=tho_origin[2]
-        # xaxis
+    tho_ox, tho_oy, tho_oz = tho_origin
+    
+	# xaxis
     tho_x_axis = thorax_axes[0] + thorax_jc
-    tho_xx=tho_x_axis[0]
-    tho_xy=tho_x_axis[1]
-    tho_xz=tho_x_axis[2]
-        # yaxis
+    tho_xx, tho_xy, tho_xz = tho_x_axis
+    
+	# yaxis
     tho_y_axis = thorax_axes[1] + thorax_jc
-    tho_yx=tho_y_axis[0]
-    tho_yy=tho_y_axis[1]
-    tho_yz=tho_y_axis[2]
-        # zaxis
+    tho_yx, tho_yy, tho_yz = tho_y_axis
+    
+	# zaxis
     tho_z_axis = thorax_axes[2] + thorax_jc
-    tho_zx=tho_z_axis[0]
-    tho_zy=tho_z_axis[1]
-    tho_zz=tho_z_axis[2]
+    tho_zx, tho_zy, tho_zz = tho_z_axis
 
     # R CLAVICLE
-        # origin
+    # origin
     rclav_origin = r_shoulder_jc
-    rclav_ox=rclav_origin[0]
-    rclav_oy=rclav_origin[1]
-    rclav_oz=rclav_origin[2]
-        # xaxis
+    rclav_ox, rclav_oy, rclav_oz = rclav_origin
+    
+	# xaxis
     rclav_x_axis = r_shoulder_axes[0] + r_shoulder_jc
-    rclav_xx=rclav_x_axis[0]
-    rclav_xy=rclav_x_axis[1]
-    rclav_xz=rclav_x_axis[2]
-        # yaxis
+    rclav_xx, rclav_xy, rclav_xz = rclav_x_axis
+    
+	# yaxis
     rclav_y_axis = r_shoulder_axes[1] + r_shoulder_jc
-    rclav_yx=rclav_y_axis[0]
-    rclav_yy=rclav_y_axis[1]
-    rclav_yz=rclav_y_axis[2]
-        # zaxis
+    rclav_yx, rclav_yy, rclav_yz = rclav_y_axis
+    
+	# zaxis
     rclav_z_axis = r_shoulder_axes[2] + r_shoulder_jc
-    rclav_zx=rclav_z_axis[0]
-    rclav_zy=rclav_z_axis[1]
-    rclav_zz=rclav_z_axis[2]
+    rclav_zx, rclav_zy, rclav_zz = rclav_z_axis
 
     # L CLAVICLE
-        # origin
+    # origin
     lclav_origin = l_shoulder_jc
-    lclav_ox=lclav_origin[0]
-    lclav_oy=lclav_origin[1]
-    lclav_oz=lclav_origin[2]
-        # xaxis
+    lclav_ox, lclav_oy, lclav_oz = lclav_origin
+    
+	# xaxis
     lclav_x_axis = l_shoulder_axes[0] + l_shoulder_jc
-    lclav_xx=lclav_x_axis[0]
-    lclav_xy=lclav_x_axis[1]
-    lclav_xz=lclav_x_axis[2]
-        # yaxis
+    lclav_xx, lclav_xy, lclav_xz = lclav_x_axis
+    
+	# yaxis
     lclav_y_axis = l_shoulder_axes[1] + l_shoulder_jc
-    lclav_yx=lclav_y_axis[0]
-    lclav_yy=lclav_y_axis[1]
-    lclav_yz=lclav_y_axis[2]
-        # zaxis
+    lclav_yx, lclav_yy, lclav_yz = lclav_y_axis
+    
+	# zaxis
     lclav_z_axis = l_shoulder_axes[2] + l_shoulder_jc
-    lclav_zx=lclav_z_axis[0]
-    lclav_zy=lclav_z_axis[1]
-    lclav_zz=lclav_z_axis[2]
+    lclav_zx, lclav_zy, lclav_zz = lclav_z_axis
 
     # R HUMERUS
-        # origin
+    # origin
     rhum_origin = r_elbow_jc
-    rhum_ox=rhum_origin[0]
-    rhum_oy=rhum_origin[1]
-    rhum_oz=rhum_origin[2]
-        # xaxis
+    rhum_ox, rhum_oy, rhum_oz = rhum_origin
+    
+	# xaxis
     rhum_x_axis = r_elbow_axes[0] + r_elbow_jc
-    rhum_xx=rhum_x_axis[0]
-    rhum_xy=rhum_x_axis[1]
-    rhum_xz=rhum_x_axis[2]
-        # yaxis
+    rhum_xx, rhum_xy, rhum_xz = rhum_x_axis
+    
+	# yaxis
     rhum_y_axis = r_elbow_axes[1] + r_elbow_jc
-    rhum_yx=rhum_y_axis[0]
-    rhum_yy=rhum_y_axis[1]
-    rhum_yz=rhum_y_axis[2]
-        # zaxis
+    rhum_yx, rhum_yy, rhum_yz = rhum_y_axis
+    
+	# zaxis
     rhum_z_axis = r_elbow_axes[2] + r_elbow_jc
-    rhum_zx=rhum_z_axis[0]
-    rhum_zy=rhum_z_axis[1]
-    rhum_zz=rhum_z_axis[2]
+    rhum_zx, rhum_zy, rhum_zz = rhum_z_axis
 
     # L HUMERUS
-        # origin
+    # origin
     lhum_origin = l_elbow_jc
-    lhum_ox=lhum_origin[0]
-    lhum_oy=lhum_origin[1]
-    lhum_oz=lhum_origin[2]
-        # xaxis
+    lhum_ox, lhum_oy, lhum_oz = lhum_origin
+    
+	# xaxis
     lhum_x_axis = l_elbow_axes[0] + l_elbow_jc
-    lhum_xx=lhum_x_axis[0]
-    lhum_xy=lhum_x_axis[1]
-    lhum_xz=lhum_x_axis[2]
-        # yaxis
+    lhum_xx, lhum_xy, lhum_xz = lhum_x_axis
+    
+	# yaxis
     lhum_y_axis = l_elbow_axes[1] + l_elbow_jc
-    lhum_yx=lhum_y_axis[0]
-    lhum_yy=lhum_y_axis[1]
-    lhum_yz=lhum_y_axis[2]
-        # zaxis
+    lhum_yx, lhum_yy, lhum_yz = lhum_y_axis
+    
+	# zaxis
     lhum_z_axis = l_elbow_axes[2] + l_elbow_jc
-    lhum_zx=lhum_z_axis[0]
-    lhum_zy=lhum_z_axis[1]
-    lhum_zz=lhum_z_axis[2]
+    lhum_zx, lhum_zy, lhum_zz = lhum_z_axis
 
     # R RADIUS
-        # origin
+    # origin
     rrad_origin = r_wrist_jc
-    rrad_ox=rrad_origin[0]
-    rrad_oy=rrad_origin[1]
-    rrad_oz=rrad_origin[2]
-        # xaxis
+    rrad_ox, rrad_oy, rrad_oz = rrad_origin
+    
+	# xaxis
     rrad_x_axis = r_wrist_axes[0] + r_wrist_jc
-    rrad_xx=rrad_x_axis[0]
-    rrad_xy=rrad_x_axis[1]
-    rrad_xz=rrad_x_axis[2]
-        # yaxis
+    rrad_xx, rrad_xy, rrad_xz = rrad_x_axis
+    
+	# yaxis
     rrad_y_axis = r_wrist_axes[1] + r_wrist_jc
-    rrad_yx=rrad_y_axis[0]
-    rrad_yy=rrad_y_axis[1]
-    rrad_yz=rrad_y_axis[2]
-        # zaxis
+    rrad_yx, rrad_yy, rrad_yz = rrad_y_axis
+    
+	# zaxis
     rrad_z_axis = r_wrist_axes[2] + r_wrist_jc
-    rrad_zx=rrad_z_axis[0]
-    rrad_zy=rrad_z_axis[1]
-    rrad_zz=rrad_z_axis[2]
+    rrad_zx, rrad_zy, rrad_zz = rrad_z_axis
 
     # L RADIUS
-        # origin
+    # origin
     lrad_origin = l_wrist_jc
-    lrad_ox=lrad_origin[0]
-    lrad_oy=lrad_origin[1]
-    lrad_oz=lrad_origin[2]
-        # xaxis
+    lrad_ox, lrad_oy, lrad_oz = lrad_origin
+    
+	# xaxis
     lrad_x_axis = l_wrist_axes[0] + l_wrist_jc
-    lrad_xx=lrad_x_axis[0]
-    lrad_xy=lrad_x_axis[1]
-    lrad_xz=lrad_x_axis[2]
-        # yaxis
+    lrad_xx, lrad_xy, lrad_xz = lrad_x_axis
+    
+	# yaxis
     lrad_y_axis = l_wrist_axes[1] + l_wrist_jc
-    lrad_yx=lrad_y_axis[0]
-    lrad_yy=lrad_y_axis[1]
-    lrad_yz=lrad_y_axis[2]
-        # zaxis
+    lrad_yx, lrad_yy, lrad_yz = lrad_y_axis
+    
+	# zaxis
     lrad_z_axis = l_wrist_axes[2] + l_wrist_jc
-    lrad_zx=lrad_z_axis[0]
-    lrad_zy=lrad_z_axis[1]
-    lrad_zz=lrad_z_axis[2]
+    lrad_zx, lrad_zy, lrad_zz = lrad_z_axis
 
     # R HAND
-        # origin
+    # origin
     rhand_origin = r_hand_jc
-    rhand_ox=rhand_origin[0]
-    rhand_oy=rhand_origin[1]
-    rhand_oz=rhand_origin[2]
-        # xaxis
+    rhand_ox, rhand_oy, rhand_oz = rhand_origin
+    
+	# xaxis
     rhand_x_axis= r_hand_axes[0] + r_hand_jc
-    rhand_xx=rhand_x_axis[0]
-    rhand_xy=rhand_x_axis[1]
-    rhand_xz=rhand_x_axis[2]
-        # yaxis
+    rhand_xx, rhand_xy, rhand_xz = rhand_x_axis
+    
+	# yaxis
     rhand_y_axis= r_hand_axes[1] + r_hand_jc
-    rhand_yx=rhand_y_axis[0]
-    rhand_yy=rhand_y_axis[1]
-    rhand_yz=rhand_y_axis[2]
-        # zaxis
+    rhand_yx, rhand_yy, rhand_yz = rhand_y_axis
+    
+	# zaxis
     rhand_z_axis= r_hand_axes[2] + r_hand_jc
-    rhand_zx=rhand_z_axis[0]
-    rhand_zy=rhand_z_axis[1]
-    rhand_zz=rhand_z_axis[2]
+    rhand_zx, rhand_zy, rhand_zz = rhand_z_axis
 
     # L HAND
-        # origin
+    # origin
     lhand_origin = l_hand_jc
-    lhand_ox=lhand_origin[0]
-    lhand_oy=lhand_origin[1]
-    lhand_oz=lhand_origin[2]
-        # xaxis
+    lhand_ox, lhand_oy, lhand_oz = lhand_origin
+    
+	# xaxis
     lhand_x_axis = l_hand_axes[0] + l_hand_jc
-    lhand_xx=lhand_x_axis[0]
-    lhand_xy=lhand_x_axis[1]
-    lhand_xz=lhand_x_axis[2]
-        # yaxis
+    lhand_xx, lhand_xy, lhand_xz = lhand_x_axis
+    
+	# yaxis
     lhand_y_axis = l_hand_axes[1] + l_hand_jc
-    lhand_yx=lhand_y_axis[0]
-    lhand_yy=lhand_y_axis[1]
-    lhand_yz=lhand_y_axis[2]
-        # zaxis
+    lhand_yx, lhand_yy, lhand_yz = lhand_y_axis
+    
+	# zaxis
     lhand_z_axis = l_hand_axes[2] + l_hand_jc
-    lhand_zx=lhand_z_axis[0]
-    lhand_zy=lhand_z_axis[1]
-    lhand_zz=lhand_z_axis[2]
+    lhand_zx, lhand_zy, lhand_zz = lhand_z_axis
     #-----------------------------------------------------
 
     #Store everything in an array to send back to results of process
