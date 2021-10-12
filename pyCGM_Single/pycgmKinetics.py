@@ -322,7 +322,7 @@ def calc_l5_pelvis(rhip, lhip, pelvis_axis):
     ...                         [   0.  ,    0.  ,    0.  ,    0.  ]])
     >>> np.around(calc_l5_pelvis(rhip, lhip, pelvis_axis), 2) #doctest: +NORMALIZE_WHITESPACE
     array([[ 245.48,  331.12,  936.75],
-           [ 271.53,  371.69, 1043.8 ]])
+           [ 268.79,  367.43, 1032.58]])
     """
 
     rhip, lhip, pelvis_axis = map(np.asarray, [rhip, lhip, pelvis_axis])
@@ -370,7 +370,7 @@ def calc_l5_thorax(rhip, lhip, thorax_axis):
     ...                         [  -0.09,   -0.36,   -0.93, 1462.29],
     ...                         [   0.  ,    0.  ,    0.  ,    0.  ]])
     >>> np.around(calc_l5_thorax(rhip, lhip, thorax_axis), 2) #doctest: +NORMALIZE_WHITESPACE
-    array([ 265.16,  359.12, 1049.06])
+    array([ 263.1 ,  356.18, 1037.28])
     """
     rhip, lhip, thorax_axis = map(np.asarray, [rhip, lhip, thorax_axis])
 
@@ -433,7 +433,7 @@ def getKinetics(data, Bodymass):
     ...                            splitAnglesAxis=False,formatData=False,returnjoints=True)
     >>> CoM_coords = getKinetics(joint_centers, calSM['Bodymass'])
     >>> around(CoM_coords[0], 2) #doctest: +NORMALIZE_WHITESPACE
-    array([-942.76, -3.58, 865.33])
+    array([-941.92,   -3.61,  861.25])
     """
 
     #get PiG scaling table
