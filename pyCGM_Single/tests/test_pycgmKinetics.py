@@ -541,9 +541,9 @@ class Test_pycgmKinetics(TestCase):
         test_parameters.append([rhip, lhip, pelvis_axis])
 
         test_results=[
-            ([[245.4757417, 131.1178714, 436.7593954],[261.0890402, 155.4341163, 500.9176188]]),
-            ([[207.1182915, 285.604104 , 550.9780848],[1344.7944079, 1237.3558945,  673.3680447]]),
-            ([[-13.7237354, 126.4764288,  18.3367891],[ 627.8602897, 1671.5048695, 1130.4333341]])
+            ([[245.4757417, 131.1178714, 436.7593954],[259.4517538, 152.8841965, 494.1896754]]),
+            ([[207.1182915, 285.604104 , 550.9780848],[1225.4921557, 1137.5505716,  660.5336381]]),
+            ([[-13.7237354, 126.4764288,  18.3367891],[ 560.5806676, 1509.4856708, 1013.8134802]])
         ]
         for i in range(len(test_parameters)):
             # Call calc_l5_pelvis(frame) with each frame in test_parameters and round each variable in the 3-element returned list.
@@ -607,9 +607,9 @@ class Test_pycgmKinetics(TestCase):
         test_parameters.append([rhip, lhip, thorax_axis])
 
         test_results=[
-            ([228.5241582, 320.87776246, 998.59374786]),
-            ([569.20914046, 602.88531664, 620.68955025]),
-            ([690.41775396, 713.36498782, 1139.36061258])
+            ([222.64453555, 312.51375226, 965.0543617]),
+            ([524.32479428, 599.90758376, 637.42326153]),
+            ([641.63885079, 605.57773325, 1082.18002455])
         ]
         for i in range(len(test_parameters)):
             # Call calc_l5_thorax(rhip, lhip, thorax_axis) with each frame in test_parameters and round each variable in the 3-element returned list.
@@ -654,11 +654,11 @@ class Test_pycgmKinetics(TestCase):
             calSM['Bodymass']+=35.75 #Increment the bodymass by a substantial amount each time.
         
         accuracyResults=[
-            ([ 246.57466721,  313.55662383, 1026.56323492]),
-            ([ 246.59137623,  313.6216639 , 1026.56440096]),
-            ([ 246.60850798,  313.6856272 , 1026.56531282]),
-            ([ 246.6260863 ,  313.74845693, 1026.56594554]),
-            ([ 246.64410308,  313.81017167, 1026.5663452 ]),
+            ([ 246.20714152,  313.2883123 , 1023.12249686]),
+            ([ 246.22381501,  313.35311265, 1023.12366644]),
+            ([ 246.24089682,  313.41683743, 1023.12458133]),
+            ([ 246.2584113 ,  313.47942974, 1023.12521649]),
+            ([ 246.27634998,  313.54090826, 1023.12561807]),
         ]
         for i in range(len(accuracyResults)):
             # Call getKinetics(joint_centers,bodymass) and round each variable in the 3-element returned list to the 8th decimal precision.
