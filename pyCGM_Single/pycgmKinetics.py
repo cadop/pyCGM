@@ -333,7 +333,7 @@ def calc_l5_pelvis(rhip, lhip, pelvis_axis):
     # top of the lumbar 5: this is calculated as in the vertical (z) axis
     midHip = (lhip + rhip) / 2
 
-    offset = distance(rhip, lhip) * .925
+    offset = distance(rhip, lhip) * .828
     z_axis = pelvis_axis[2, :3] + pelvis_axis[:3, 3]
     norm_dir = np.array(unit(z_axis))
     l5 = midHip + offset * norm_dir
@@ -384,7 +384,7 @@ def calc_l5_thorax(rhip, lhip, thorax_axis):
     norm_dir_y = np.array(unit(y_axis))
     norm_dir = np.array(unit(z_axis))
 
-    offset = distance(rhip, lhip) * .925
+    offset = distance(rhip, lhip) * .828
 
     l5 = midHip + offset * norm_dir
     return l5
