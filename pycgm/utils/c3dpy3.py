@@ -22,12 +22,12 @@
 
 import array
 import io
-import numpy as np
 import operator
 import struct
 import warnings
 from functools import reduce
 
+import numpy as np
 
 PROCESSOR_INTEL = 84
 PROCESSOR_DEC = 85
@@ -791,7 +791,7 @@ class Reader(Manager):
 
         self.check_metadata()
 
-    def read_frames(self, copy=True,onlyXYZ=False):
+    def read_frames(self, copy=True,onlyXYZ=False, yield_frame_no=True):
         '''Iterate over the data frames from our C3D file handle.
 
         Arguments
@@ -833,9 +833,12 @@ class Reader(Manager):
         point_dtype = [np.int16, np.float32][is_float]
         point_scale = [scale, 1][is_float]
         dim=5
+        # dtype = float
         if onlyXYZ==True:
             dim=3
+            # point = [('x', 'f8'), ('y', 'f8'), ('z', 'f8')]
         points = np.zeros((ppf, dim), float)
+        # points = np.zeros((ppf, dim), dtype)
 
         # TODO: handle ANALOG:BITS parameter here!
         p = self.get('ANALOG:FORMAT')
@@ -888,9 +891,15 @@ class Reader(Manager):
                 analog = (raw.astype(float) - offsets) * scales * gen_scale
 
             if copy:
-                yield frame_no, points.copy(), analog.copy()
+                if not yield_frame_no:
+                    yield points.copy(), analog.copy()
+                else:
+                    yield frame_no, points.copy(), analog.copy()
             else:
-                yield frame_no, points, analog
+                if not yield_frame_no:
+                    yield points
+                else:
+                    yield frame_no, points, analog
 
 
 class Writer(Manager):
