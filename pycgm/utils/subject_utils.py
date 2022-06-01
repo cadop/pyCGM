@@ -78,7 +78,7 @@ def structure_model(static_trial_filename, dynamic_trials, measurement_filename,
     # calibrate subject measurements
     static_trial = load_c3d(static_trial_filename)
 
-    calibrated_measurements_dict = static.getStatic(old_static_data, uncalibrated_measurements_dict, static_trial)
+    calibrated_measurements_dict = static.getStatic(uncalibrated_measurements_dict, static_trial)
     calibrated_measurements_split = [list(calibrated_measurements_dict.keys()), list(calibrated_measurements_dict.values())]
 
     measurements_struct = structure_measurements(calibrated_measurements_split)

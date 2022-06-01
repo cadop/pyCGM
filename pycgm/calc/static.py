@@ -12,15 +12,35 @@ import numpy.lib.recfunctions as rfn
 from . import dynamic
 
 
-def getStatic(motionData, vsk, data, flat_foot=False, GCS=None):
+def get_markers(arr, names, points_only=True):
+    if isinstance(names, str):
+        names = [names]
+    num_frames = arr[0][0].shape[0]
+
+    if any(name not in arr[0].dtype.names for name in names):
+        return None
+
+    point = [('x', 'f8'), ('y', 'f8'), ('z', 'f8')]
+    marker_dtype = [('frame', 'f8'), ('point', point)]
+    rec = rfn.repack_fields(arr[names]).view(marker_dtype).reshape(len(names), int(num_frames))
+
+
+    if points_only:
+        rec = rec['point'][['x', 'y', 'z']]
+
+    rec = rfn.structured_to_unstructured(rec)
+
+
+    return rec
+
+
+def getStatic(vsk, data, flat_foot=False, GCS=None):
     """ Get Static Offset function
 
     Calculate the static offset angle values and return the values in radians
 
     Parameters
     ----------
-    motionData : dict
-        Dictionary of marker lists.
     vsk : dict, optional
         Dictionary of various attributes of the skeleton.
     flat_foot : boolean, optional
@@ -55,7 +75,6 @@ def getStatic(motionData, vsk, data, flat_foot=False, GCS=None):
     >>> result['LeftTibialTorsion']
     0.0
     """
-    IAD = []
     calSM = {}
     LeftLegLength = vsk['LeftLegLength']
     RightLegLength = vsk['RightLegLength']
@@ -75,77 +94,46 @@ def getStatic(motionData, vsk, data, flat_foot=False, GCS=None):
     if vsk['InterAsisDistance'] != 0:
         calSM['InterAsisDistance'] = vsk['InterAsisDistance']
     else:
-        for frame in motionData:
-            iadCalc = calc_IAD(frame["RASI"] if "RASI" in frame else None,
-                               frame["LASI"] if "LASI" in frame else None) 
-            IAD.append(iadCalc)
-        InterAsisDistance = np.average(IAD)
-        calSM['InterAsisDistance'] = InterAsisDistance
+        IAD = calc_IAD(get_markers(data, 'RASI')[0],
+                       get_markers(data, 'LASI')[0])
+        calSM['InterAsisDistance'] = np.average(IAD)
 
     try:
         calSM['RightKneeWidth'] = vsk['RightKneeWidth']
-        calSM['LeftKneeWidth'] = vsk['LeftKneeWidth']
-
+        calSM['LeftKneeWidth']  = vsk['LeftKneeWidth']
     except:
         #no knee width
         calSM['RightKneeWidth'] = 0
-        calSM['LeftKneeWidth'] = 0
+        calSM['LeftKneeWidth']  = 0
 
     if calSM['RightKneeWidth'] == 0:
-        if 'RMKN' in list(motionData[0].keys()):
-            #medial knee markers are available
-            Rwidth = []
-            Lwidth = []
-            #average each frame
-            for frame in motionData:
-                RMKN = frame['RMKN']
-                LMKN = frame['LMKN']
+        if 'RMKN' in data.dtype.names:
+            rdst = get_dist(get_markers(data, 'RKNE')[0],
+                            get_markers(data, 'RMKN')[0])
 
-                RKNE = frame['RKNE']
-                LKNE = frame['LKNE']
+            ldst = get_dist(get_markers(data, 'LKNE')[0],
+                            get_markers(data, 'LMKN')[0])
 
-                Rdst = get_dist(RKNE,RMKN)
-                Ldst = get_dist(LKNE,LMKN)
-                Rwidth.append(Rdst)
-                Lwidth.append(Ldst)
-
-            calSM['RightKneeWidth'] = sum(Rwidth)/len(Rwidth)
-            calSM['LeftKneeWidth'] = sum(Lwidth)/len(Lwidth)
+            calSM['RightKneeWidth'] = np.average(rdst)
+            calSM['LeftKneeWidth']  = np.average(ldst)
     try:
         calSM['RightAnkleWidth'] = vsk['RightAnkleWidth']
-        calSM['LeftAnkleWidth'] = vsk['LeftAnkleWidth']
-
+        calSM['LeftAnkleWidth']  = vsk['LeftAnkleWidth']
     except:
         #no knee width
         calSM['RightAnkleWidth'] = 0
         calSM['LeftAnkleWidth'] = 0
 
     if calSM['RightAnkleWidth'] == 0:
-        if 'RMKN' in list(motionData[0].keys()):
-            #medial knee markers are available
-            Rwidth = []
-            Lwidth = []
-            #average each frame
-            for frame in motionData:
-                RMMA = frame['RMMA']
-                LMMA = frame['LMMA']
+        if 'RMKN' in data.dtype.names:
+            rdst = get_dist(get_markers(data, 'RMMA')[0],
+                            get_markers(data, 'RANK')[0])
 
-                RANK = frame['RANK']
-                LANK = frame['LANK']
+            ldst = get_dist(get_markers(data, 'LMMA')[0],
+                            get_markers(data, 'LANK')[0])
 
-                Rdst = get_dist(RMMA,RANK)
-                Ldst = get_dist(LMMA,LANK)
-                Rwidth.append(Rdst)
-                Lwidth.append(Ldst)
-
-            calSM['RightAnkleWidth'] = sum(Rwidth)/len(Rwidth)
-            calSM['LeftAnkleWidth'] = sum(Lwidth)/len(Lwidth)
-
-    #calSM['RightKneeWidth'] = vsk['RightKneeWidth']
-    #calSM['LeftKneeWidth'] = vsk['LeftKneeWidth']
-
-    #calSM['RightAnkleWidth'] = vsk['RightAnkleWidth']
-    #calSM['LeftAnkleWidth'] = vsk['LeftAnkleWidth']
+            calSM['RightAnkleWidth'] = np.average(rdst)
+            calSM['LeftAnkleWidth']  = np.average(ldst)
 
     calSM['RightTibialTorsion'] = vsk['RightTibialTorsion']
     calSM['LeftTibialTorsion'] =vsk['LeftTibialTorsion']
@@ -161,26 +149,6 @@ def getStatic(motionData, vsk, data, flat_foot=False, GCS=None):
     calSM['RightHandThickness'] = vsk['RightHandThickness']
     calSM['LeftHandThickness'] = vsk['LeftHandThickness']
 
-    def get_markers(arr, names, points_only=True):
-        if isinstance(names, str):
-            names = [names]
-        num_frames = arr[0][0].shape[0]
-
-        if any(name not in arr[0].dtype.names for name in names):
-            return None
-
-        point = [('x', 'f8'), ('y', 'f8'), ('z', 'f8')]
-        marker_dtype = [('frame', 'f8'), ('point', point)]
-        rec = rfn.repack_fields(arr[names]).view(marker_dtype).reshape(len(names), int(num_frames))
-
-
-        if points_only:
-            rec = rec['point'][['x', 'y', 'z']]
-
-        rec = rfn.structured_to_unstructured(rec)
-
-
-        return rec
 
     pelvis_axis = dynamic.CalcAxes().calc_axis_pelvis(get_markers(data, 'RASI')[0],
                                                       get_markers(data, 'LASI')[0],
@@ -276,7 +244,11 @@ def get_dist(p0, p1):
     >>> np.around(getDist(p0,p1), 2)
     1072.36
     """
-    return np.sqrt((p0[0] - p1[0])**2 + (p0[1] - p1[1])**2 + (p0[2] - p1[2])**2)
+    p0 = np.asarray(p0)
+    p1 = np.asarray(p1)
+
+    distance = np.linalg.norm(p0 - p1)
+    return distance
 
 
 def calc_IAD(rasi, lasi):
