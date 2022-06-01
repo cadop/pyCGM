@@ -68,19 +68,19 @@ def structure_model(static_trial_filename, dynamic_trials, measurement_filename,
 
     start = time.time()
 
-
-    # HACK
-    # load static trial, measurements for use in getStatic (has not been refactored)
-    old_static_data = loadData(static_trial_filename)
+    # Load measurements
     uncalibrated_measurements = loadVSK(measurement_filename)
     uncalibrated_measurements_dict = dict(zip(uncalibrated_measurements[0], uncalibrated_measurements[1]))
 
-    # calibrate subject measurements
-    calibrated_measurements_dict = static.getStatic(old_static_data, uncalibrated_measurements_dict)
+    # Load static
+    static_trial = load_c3d(static_trial_filename)
+
+    # Calibrate subject measurements
+    calibrated_measurements_dict = static.getStatic(uncalibrated_measurements_dict, static_trial)
     calibrated_measurements_split = [list(calibrated_measurements_dict.keys()), list(calibrated_measurements_dict.values())]
 
+    # Structure calibrated measurements
     measurements_struct = structure_measurements(calibrated_measurements_split)
-    static_trial = load_c3d(static_trial_filename)
 
     dynamic_dtype = []
     marker_structs = []
