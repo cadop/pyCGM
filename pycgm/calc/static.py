@@ -150,20 +150,21 @@ def getStatic(vsk, data, flat_foot=False, GCS=None):
     calSM['LeftHandThickness'] = vsk['LeftHandThickness']
 
 
-    pelvis_axis = dynamic.CalcAxes().calc_axis_pelvis(get_markers(data, 'RASI')[0],
+    dynamic_axis_funcs = dynamic.CalcAxes()
+    pelvis_axis = dynamic_axis_funcs.calc_axis_pelvis(get_markers(data, 'RASI')[0],
                                                       get_markers(data, 'LASI')[0],
                                                       get_markers(data, 'RPSI')[0],
                                                       get_markers(data, 'LPSI')[0],
                                                       get_markers(data, 'SACR')[0] if 'SACR' in data.dtype.names else None)
 
 
-    hip_jc = dynamic.CalcAxes().calc_joint_center_hip(pelvis_axis, 
+    hip_jc = dynamic_axis_funcs.calc_joint_center_hip(pelvis_axis, 
                                                       calSM['MeanLegLength'],
                                                       calSM['R_AsisToTrocanterMeasure'],
                                                       calSM['L_AsisToTrocanterMeasure'],
                                                       calSM['InterAsisDistance'])
 
-    knee_axis = dynamic.CalcAxes().calc_axis_knee(get_markers(data, 'RTHI')[0],
+    knee_axis = dynamic_axis_funcs.calc_axis_knee(get_markers(data, 'RTHI')[0],
                                                   get_markers(data, 'LTHI')[0],
                                                   get_markers(data, 'RKNE')[0],
                                                   get_markers(data, 'LKNE')[0],
@@ -172,7 +173,7 @@ def getStatic(vsk, data, flat_foot=False, GCS=None):
                                                   calSM['RightKneeWidth'],
                                                   calSM['LeftKneeWidth'])
 
-    ankle_axis = dynamic.CalcAxes().calc_axis_ankle(get_markers(data, 'RTIB')[0],
+    ankle_axis = dynamic_axis_funcs.calc_axis_ankle(get_markers(data, 'RTIB')[0],
                                                     get_markers(data, 'LTIB')[0],
                                                     get_markers(data, 'RANK')[0],
                                                     get_markers(data, 'LANK')[0],
