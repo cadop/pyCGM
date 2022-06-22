@@ -52,7 +52,6 @@ def load_c3d(filename, return_frame_count=False):
 
     return dynamic_struct
 
-
 def loadVSK(filename, dict=True):
     """Open and load a vsk file.
 
