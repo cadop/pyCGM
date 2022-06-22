@@ -6,7 +6,7 @@ from numpy.lib import recfunctions as rfn
 
 from ..defaults.types import POINT_DTYPE
 from ..calc import static
-from .new_io import load_c3d, loadVSK
+from .io import load_c3d, loadVSK
 
 
 def structure_model(static_trial_filename, dynamic_trials, measurement_filename, axis_result_keys, angle_result_keys):
