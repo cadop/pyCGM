@@ -4,9 +4,11 @@ import time
 import numpy as np
 from numpy.lib import recfunctions as rfn
 
+from ..defaults.types import POINT_DTYPE
 from ..calc import static
-from .new_io import marker_dtype, load_c3d, loadVSK
-from .pycgmIO import loadData
+from .new_io import load_c3d, loadVSK
+
+
 
 
 def structure_model(static_trial_filename, dynamic_trials, measurement_filename, axis_result_keys, angle_result_keys):
@@ -132,7 +134,7 @@ def get_markers(arr, names, points_only=True, debug=False):
         names = [names]
     num_frames = arr[0][0].shape[0]
 
-    rec = rfn.repack_fields(arr[names]).view(marker_dtype()).reshape(len(names), int(num_frames))
+    rec = rfn.repack_fields(arr[names]).view(POINT_DTYPE).reshape(len(names), int(num_frames))
 
 
     if points_only:
@@ -183,9 +185,9 @@ def add_virtual_marker(dynamic_trial, name, marker_data):
 
     marker_positions = np.empty((num_markers, num_frames), dtype=(("4f8")))
     marker_positions[:] = trial_uns
-    marker_positions.dtype = marker_dtype()
+    marker_positions.dtype = POINT_DTYPE
 
-    marker_xyz = [(key, (marker_dtype(), (num_frames,))) for key in dtype_names]
+    marker_xyz = [(key, (POINT_DTYPE, (num_frames,))) for key in dtype_names]
     dynamic_struct = np.empty((1), dtype=marker_xyz)
 
     for i, key in enumerate(dtype_names):
