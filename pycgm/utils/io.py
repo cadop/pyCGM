@@ -3,7 +3,7 @@ import xml.etree.ElementTree as ET
 
 import numpy as np
 
-from . import c3dpy3 as c3d
+from . import c3d
 from ..defaults.types import POINT_DTYPE
 
 
