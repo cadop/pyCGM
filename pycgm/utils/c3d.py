@@ -21,17 +21,13 @@
 '''A Python library for reading and writing C3D files.'''
 
 import array
-try:
-    from cStringIO import StringIO as FileIO
-    pyver = 2
-except:
-    from io import BytesIO as FileIO
-    pyver = 3
-import numpy as np
+import io
 import operator
 import struct
 import warnings
+from functools import reduce
 
+import numpy as np
 
 PROCESSOR_INTEL = 84
 PROCESSOR_DEC = 85
@@ -218,7 +214,7 @@ class Param(object):
                  desc='',
                  bytes_per_element=1,
                  dimensions=None,
-                 param_bytes=b'',
+                 bytes=b'',
                  handle=None):
         '''Set up a new parameter with at least a name.
 
@@ -243,8 +239,7 @@ class Param(object):
         self.desc = desc
         self.bytes_per_element = bytes_per_element
         self.dimensions = dimensions or []
-        if pyver == 2:
-            self.bytes = bytes(param_bytes)
+        self.bytes = bytes
 
         if handle:
             self.read(handle)
@@ -255,7 +250,7 @@ class Param(object):
     @property
     def num_elements(self):
         '''Return the number of elements in this parameter's array value.'''
-        return reduce(operator.mul, self.dimensions, 1) # noqa: F821
+        return reduce(operator.mul, self.dimensions, 1)
 
     @property
     def total_bytes(self):
@@ -308,7 +303,7 @@ class Param(object):
         if self.total_bytes:
             self.bytes = handle.read(self.total_bytes)
         size, = struct.unpack('B', handle.read(1))
-        self.desc = size and handle.read(size) or ''
+        self.desc = size and handle.read(size).decode('utf-8') or ''
 
     def _as(self, fmt):
         '''Unpack the raw bytes of this param using the given struct format.'''
@@ -352,17 +347,14 @@ class Param(object):
     @property
     def string_value(self):
         '''Get the param as a raw byte string.'''
-        return self.bytes
+        return self.bytes.decode('utf-8')
 
     def _as_array(self, fmt):
         '''Unpack the raw bytes of this param using the given data format.'''
         assert self.dimensions, \
             '{}: cannot get value as {} array!'.format(self.name, fmt)
         elems = array.array(fmt)
-        if pyver == 2:
-            elems.fromstring(self.bytes)
-        else:
-            elems.frombytes(self.bytes)
+        elems.frombytes(self.bytes)
         return np.array(elems).reshape(self.dimensions)
 
     @property
@@ -406,7 +398,7 @@ class Param(object):
         assert len(self.dimensions) == 2, \
             '{}: cannot get value as string array!'.format(self.name)
         l, n = self.dimensions
-        return [self.bytes[i*l:(i+1)*l] for i in range(n)]
+        return [self.bytes[i*l:(i+1)*l].decode('utf-8') for i in range(n)]
 
 
 class Group(dict):
@@ -450,7 +442,7 @@ class Group(dict):
             1 + len(self.name) + # size of name and name bytes
             2 + # next offset marker
             1 + len(self.desc) + # size of desc and desc bytes
-            sum(p.binary_size() for p in self.itervalues()))
+            sum(p.binary_size() for p in list(self.values())))
 
     def write(self, group_id, handle):
         '''Write this parameter group, with parameters, to a file handle.
@@ -467,7 +459,7 @@ class Group(dict):
         handle.write(struct.pack('<h', 3 + len(self.desc)))
         handle.write(struct.pack('B', len(self.desc)))
         handle.write(self.desc)
-        for param in self.itervalues():
+        for param in list(self.values()):
             param.write(group_id, handle)
 
     def get_int8(self, key):
@@ -583,6 +575,7 @@ class Manager(dict):
         if group_id in self:
             raise KeyError(group_id)
         name = name.upper()
+        #print(name)
         if name in self:
             raise KeyError(name)
         group = self[name] = self[group_id] = Group(name, desc)
@@ -680,7 +673,7 @@ class Manager(dict):
 
     def parameter_blocks(self):
         '''Compute the size (in 512B blocks) of the parameter section.'''
-        bytes = 4. + sum(g.binary_size() for g in self.itervalues())
+        bytes = 4. + sum(g.binary_size() for g in list(self.values()))
         return int(np.ceil(bytes / 512))
 
     def frame_rate(self):
@@ -727,7 +720,7 @@ class Reader(Manager):
 
     >>> r = c3d.Reader(open('capture.c3d', 'rb')) #doctest: +SKIP
     >>> for frame_no, points, analog in r.read_frames(): #doctest: +SKIP
-    ...     print('{0.shape} points in this frame'.format(points))
+    ...     print('{0.shape} points in this frame'.format(points)) 
     '''
 
     def __init__(self, handle):
@@ -763,14 +756,14 @@ class Reader(Manager):
         # boundary issues.
         bytes = self._handle.read(512 * parameter_blocks - 4)
         while bytes:
-            buf = FileIO(bytes)
+            buf = io.BytesIO(bytes)
 
             chars_in_name, group_id = struct.unpack('bb', buf.read(2))
             if group_id == 0 or chars_in_name == 0:
                 # we've reached the end of the parameter section.
                 break
 
-            name = buf.read(abs(chars_in_name)).upper()
+            name = buf.read(abs(chars_in_name)).decode('utf-8').upper()
             offset_to_next, = struct.unpack('<h', buf.read(2))
 
             if group_id > 0:
@@ -784,7 +777,7 @@ class Reader(Manager):
                 # otherwise, add a new group.
                 group_id = abs(group_id)
                 size, = struct.unpack('B', buf.read(1))
-                desc = size and buf.read(size) or ''
+                desc = size and buf.read(size).decode('utf-8') or ''
                 group = self.get(group_id)
                 if group is not None:
                     group.name = name
@@ -794,12 +787,11 @@ class Reader(Manager):
                     try: self.add_group(group_id, name, desc)
                     except: print("C3D Conflict of Information: ",group_id,name,desc)
 
-
             bytes = bytes[2 + abs(chars_in_name) + offset_to_next:]
 
         self.check_metadata()
 
-    def read_frames(self, copy=True,onlyXYZ=False):
+    def read_frames(self, copy=True,onlyXYZ=False, yield_frame_no=True):
         '''Iterate over the data frames from our C3D file handle.
 
         Arguments
@@ -841,9 +833,12 @@ class Reader(Manager):
         point_dtype = [np.int16, np.float32][is_float]
         point_scale = [scale, 1][is_float]
         dim=5
+        # dtype = float
         if onlyXYZ==True:
             dim=3
+            # point = [('x', 'f8'), ('y', 'f8'), ('z', 'f8')]
         points = np.zeros((ppf, dim), float)
+        # points = np.zeros((ppf, dim), dtype)
 
         # TODO: handle ANALOG:BITS parameter here!
         p = self.get('ANALOG:FORMAT')
@@ -871,7 +866,7 @@ class Reader(Manager):
             gen_scale = param.float_value
 
         self._handle.seek((self.header.data_block - 1) * 512)
-        for frame_no in xrange(self.first_frame(), self.last_frame() + 1): # noqa: F821
+        for frame_no in range(self.first_frame(), self.last_frame() + 1):
             raw = np.fromfile(self._handle, dtype=point_dtype,
                 count=4 * self.header.point_count).reshape((ppf, 4))
 
@@ -896,14 +891,20 @@ class Reader(Manager):
                 analog = (raw.astype(float) - offsets) * scales * gen_scale
 
             if copy:
-                yield frame_no, points.copy(), analog.copy()
+                if not yield_frame_no:
+                    yield points.copy(), analog.copy()
+                else:
+                    yield frame_no, points.copy(), analog.copy()
             else:
-                yield frame_no, points, analog
+                if not yield_frame_no:
+                    yield points
+                else:
+                    yield frame_no, points, analog
 
 
 class Writer(Manager):
     '''This class manages the task of writing metadata and frames to a C3D file.
-
+    
     >>> r = c3d.Reader(open('data.c3d', 'rb')) #doctest: +SKIP
     >>> frames = smooth_frames(r.read_frames()) #doctest: +SKIP
     >>> w = c3d.Writer(open('smoothed.c3d', 'wb')) #doctest: +SKIP
@@ -941,7 +942,7 @@ class Writer(Manager):
 
         # groups
         self._handle.write(struct.pack('BBBB', 0, 0, self.parameter_blocks(), 84))
-        id_groups = sorted((i, g) for i, g in self.iteritems() if isinstance(i, int))
+        id_groups = sorted((i, g) for i, g in list(self.items()) if isinstance(i, int))
         for group_id, group in id_groups:
             group.write(group_id, self._handle)
 
@@ -993,7 +994,7 @@ class Writer(Manager):
             The units that the point numbers represent.
         '''
         try:
-            points, analog = iter(frames).next()
+            points, analog = next(iter(frames))
         except StopIteration:
             return
 
@@ -1030,7 +1031,7 @@ class Writer(Manager):
         point_group.add_param('LABELS', desc='labels',
                               data_size=-1,
                               dimensions=[5, ppf],
-                              bytes=''.join('M%03d ' % i for i in xrange(ppf)))  # noqa: F821
+                              bytes=''.join('M%03d ' % i for i in range(ppf)))
         point_group.add_param('DESCRIPTIONS', desc='descriptions',
                               data_size=-1,
                               dimensions=[16, ppf],

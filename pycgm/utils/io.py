@@ -3,12 +3,8 @@ import xml.etree.ElementTree as ET
 
 import numpy as np
 
-from . import c3dpy3 as c3d
-
-
-def marker_dtype():
-    point = [('x', 'f8'), ('y', 'f8'), ('z', 'f8')]
-    return [('frame', 'f8'), ('point', point)]
+from . import c3d
+from ..defaults.types import POINT_DTYPE
 
 
 def load_c3d(filename, return_frame_count=False):
@@ -40,9 +36,9 @@ def load_c3d(filename, return_frame_count=False):
     frame_numbers = np.arange(num_frames)
     float_arr = np.column_stack(frames_list[:, 0]).astype(np.float).reshape(num_markers, num_frames, 3)
 
-    marker_xyz = [(key, (marker_dtype(), (num_frames,))) for key in marker_names]
+    marker_xyz = [(key, (POINT_DTYPE, (num_frames,))) for key in marker_names]
     marker_positions = np.insert(float_arr, 0, frame_numbers, axis=2)
-    marker_positions.dtype = marker_dtype()
+    marker_positions.dtype = POINT_DTYPE
 
     dynamic_struct = np.empty((1), dtype=marker_xyz)
     for i, name in enumerate(dynamic_struct.dtype.names):
@@ -55,7 +51,6 @@ def load_c3d(filename, return_frame_count=False):
         return dynamic_struct, num_frames
 
     return dynamic_struct
-
 
 def loadVSK(filename, dict=True):
     """Open and load a vsk file.

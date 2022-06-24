@@ -4,7 +4,7 @@ import numpy as np
 import numpy.lib.recfunctions as rfn
 
 from ..defaults.parameters import Angle, Axis, Marker, Measurement
-from ..utils import subject_utils
+from ..defaults.types import POINT_DTYPE
 from .model_creator import ModelCreator
 
 
@@ -85,7 +85,7 @@ class Model(ModelCreator):
         if any(name not in arr[0].dtype.names for name in names):
             return None
 
-        rec = rfn.repack_fields(arr[names]).view(subject_utils.marker_dtype()).reshape(len(names), int(num_frames))
+        rec = rfn.repack_fields(arr[names]).view(POINT_DTYPE).reshape(len(names), int(num_frames))
 
 
         if points_only:

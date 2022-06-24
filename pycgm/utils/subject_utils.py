@@ -4,9 +4,9 @@ import time
 import numpy as np
 from numpy.lib import recfunctions as rfn
 
+from ..defaults.types import POINT_DTYPE
 from ..calc import static
-from .new_io import marker_dtype, load_c3d, loadVSK
-from .pycgmIO import loadData
+from .io import load_c3d, loadVSK
 
 
 def structure_model(static_trial_filename, dynamic_trials, measurement_filename, axis_result_keys, angle_result_keys):
@@ -132,7 +132,7 @@ def get_markers(arr, names, points_only=True, debug=False):
         names = [names]
     num_frames = arr[0][0].shape[0]
 
-    rec = rfn.repack_fields(arr[names]).view(marker_dtype()).reshape(len(names), int(num_frames))
+    rec = rfn.repack_fields(arr[names]).view(POINT_DTYPE).reshape(len(names), int(num_frames))
 
 
     if points_only:
@@ -146,112 +146,3 @@ def get_markers(arr, names, points_only=True, debug=False):
 
     return rec
 
-
-def add_virtual_marker(dynamic_trial, name, marker_data):
-    '''
-    Params:
-
-    dynamic_trial: structured array containing dynamic trial data
-        e.g. subject.dynamic.filename
-
-    name: name of the virtual marker
-
-    marker_data: structured array containing the data for the virtual marker
-        dtype is [('frame', '<f8'), ('point', [('x', '<f8'), ('y', '<f8'), ('z', '<f8')])]
-
-
-    Returns a new dynamic trial with the virtual marker added
-        return dtype is [('markers', dynamic_struct.dtype)]
-    '''
-    start = time.time()
-
-    if np.ndim(marker_data) == 2:
-        marker_data = marker_data[0]
-
-    num_frames = dynamic_trial.markers[0][0].shape[0]
-    num_markers = len(dynamic_trial.markers.dtype.names)
-    dtype_names = list(dynamic_trial.markers.dtype.names)
-
-    trial_uns = get_markers(dynamic_trial.markers, dtype_names, False).reshape(num_markers, num_frames, 4)
-
-    marker_data.dtype = np.dtype(("4f8"))
-    marker_data = marker_data.reshape(num_frames, 4)
-    trial_uns = np.insert(trial_uns, 0, marker_data, axis=0)
-
-    dtype_names.insert(0, name)
-    num_markers = len(dtype_names)
-
-    marker_positions = np.empty((num_markers, num_frames), dtype=(("4f8")))
-    marker_positions[:] = trial_uns
-    marker_positions.dtype = marker_dtype()
-
-    marker_xyz = [(key, (marker_dtype(), (num_frames,))) for key in dtype_names]
-    dynamic_struct = np.empty((1), dtype=marker_xyz)
-
-    for i, key in enumerate(dtype_names):
-        dynamic_struct[key][0][:, np.newaxis] = marker_positions[i]
-
-    trial_dtype = [('markers', dynamic_struct.dtype)]
-
-    dynamic_trial = np.zeros((1), dtype=trial_dtype)
-    dynamic_trial['markers'] = dynamic_struct
-    dynamic_trial = dynamic_trial.view(np.recarray)
-
-    end = time.time()
-    print(f'Time to extend dynamic struct with marker {name}: {end-start}')
-
-    return dynamic_trial
-
-
-def update_subject_struct(subject, modified_trial_name, with_virtual_markers):
-    '''
-    Restructures a subject after a trial has been modified
-    '''
-    start = time.time()
-
-    # Create a new dynamic trial dtype
-    # Uses the existing dynamic trial dtypes, unless it's the modified trial
-    dynamic_dtype = []
-    for trial_name in subject.dynamic.dtype.names:
-        if trial_name == modified_trial_name:
-            dynamic_dtype.append((trial_name, with_virtual_markers.dtype))
-        else:
-            dynamic_dtype.append((trial_name, subject.dynamic[trial_name].dtype))
-
-
-    # Create a new subject
-    subject_dtype = [('static', [('markers', subject.static.markers.dtype), \
-                                 ('measurements', subject.static.measurements.dtype)]), \
-                     ('dynamic', dynamic_dtype)]
-    new_subject = np.zeros((1), dtype=subject_dtype)
-
-    # verify that the new dtype is correct
-    print(f'\n{new_subject["dynamic"][modified_trial_name].dtype == with_virtual_markers.dtype=}')
-
-    # Copy the static data
-    new_subject['static']['markers'] = subject.static.markers
-    new_subject['static']['measurements'] = subject.static.measurements
-
-    # Copy the dynamic data, replacing the modified trial
-    for trial_name in subject.dynamic.dtype.names:
-        if trial_name == modified_trial_name:
-            new_subject['dynamic'][trial_name] = with_virtual_markers
-        else:
-            new_subject['dynamic'][trial_name]['markers'] = subject.dynamic[trial_name].markers
-
-    new_subject = new_subject.view(np.recarray)
-
-    end = time.time()
-    print(f'Time to update subject struct: {end-start}\n')
-
-    return new_subject
-
-
-def add_dynamic_marker(subject, dynamic_trial_name, marker_name, marker_data):
-    """ 
-    TODO consider whether or not marker_data already has frame numbers, add if not
-    """ 
-    with_added_marker = add_virtual_marker(subject.dynamic[dynamic_trial_name], marker_name, marker_data)
-    new_subject = update_subject_struct(subject, dynamic_trial_name, with_added_marker)
-
-    return new_subject
