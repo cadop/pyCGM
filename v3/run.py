@@ -1,6 +1,8 @@
 import os
-from model.model import Model
+
 import pyCGM
+from model.model import Model
+from csv_diff import diff_pycgm_csv
 
 def get_data_dir():
     """
@@ -17,6 +19,9 @@ model = Model(os.path.join(script_dir, 'Sample_2/RoboStatic.c3d'), \
 
 # Run individual model
 model.run()
+
+# Verify RoboWalk results
+# diff_pycgm_csv(model, 'RoboWalk', os.path.join(script_dir, 'Sample_2/pycgm_results.csv'))
 
 # Run set of models
 cgm = pyCGM.PyCGM([model, model, model, model])

@@ -6,6 +6,7 @@ Created on Tue Jul 28 16:55:25 2015
 
 @author: cadop
 """
+import math
 import numpy as np
 import numpy.lib.recfunctions as rfn
 
@@ -150,39 +151,38 @@ def getStatic(vsk, data, flat_foot=False, GCS=None):
     calSM['LeftHandThickness'] = vsk['LeftHandThickness']
 
 
-    dynamic_axis_funcs = dynamic.CalcAxes()
-    pelvis_axis = dynamic_axis_funcs.calc_axis_pelvis(get_markers(data, 'RASI')[0],
-                                                      get_markers(data, 'LASI')[0],
-                                                      get_markers(data, 'RPSI')[0],
-                                                      get_markers(data, 'LPSI')[0],
-                                                      get_markers(data, 'SACR')[0] if 'SACR' in data.dtype.names else None)
+    pelvis_axis = calc_axis_pelvis(get_markers(data, 'RASI')[0],
+                                   get_markers(data, 'LASI')[0],
+                                   get_markers(data, 'RPSI')[0],
+                                   get_markers(data, 'LPSI')[0],
+                                   get_markers(data, 'SACR')[0] if 'SACR' in data.dtype.names else None)
 
 
-    hip_jc = dynamic_axis_funcs.calc_joint_center_hip(pelvis_axis, 
-                                                      calSM['MeanLegLength'],
-                                                      calSM['R_AsisToTrocanterMeasure'],
-                                                      calSM['L_AsisToTrocanterMeasure'],
-                                                      calSM['InterAsisDistance'])
+    hip_jc = calc_joint_center_hip(pelvis_axis, 
+                                   calSM['MeanLegLength'],
+                                   calSM['R_AsisToTrocanterMeasure'],
+                                   calSM['L_AsisToTrocanterMeasure'],
+                                   calSM['InterAsisDistance'])
 
-    knee_axis = dynamic_axis_funcs.calc_axis_knee(get_markers(data, 'RTHI')[0],
-                                                  get_markers(data, 'LTHI')[0],
-                                                  get_markers(data, 'RKNE')[0],
-                                                  get_markers(data, 'LKNE')[0],
-                                                  hip_jc[0],
-                                                  hip_jc[1],
-                                                  calSM['RightKneeWidth'],
-                                                  calSM['LeftKneeWidth'])
+    knee_axis = calc_axis_knee(get_markers(data, 'RTHI')[0],
+                               get_markers(data, 'LTHI')[0],
+                               get_markers(data, 'RKNE')[0],
+                               get_markers(data, 'LKNE')[0],
+                               hip_jc[0],
+                               hip_jc[1],
+                               calSM['RightKneeWidth'],
+                               calSM['LeftKneeWidth'])
 
-    ankle_axis = dynamic_axis_funcs.calc_axis_ankle(get_markers(data, 'RTIB')[0],
-                                                    get_markers(data, 'LTIB')[0],
-                                                    get_markers(data, 'RANK')[0],
-                                                    get_markers(data, 'LANK')[0],
-                                                    knee_axis[0],
-                                                    knee_axis[1],
-                                                    calSM['RightAnkleWidth'],
-                                                    calSM['LeftAnkleWidth'],
-                                                    calSM['RightTibialTorsion'],
-                                                    calSM['LeftTibialTorsion'])
+    ankle_axis = calc_axis_ankle(get_markers(data, 'RTIB')[0],
+                                 get_markers(data, 'LTIB')[0],
+                                 get_markers(data, 'RANK')[0],
+                                 get_markers(data, 'LANK')[0],
+                                 knee_axis[0],
+                                 knee_axis[1],
+                                 calSM['RightAnkleWidth'],
+                                 calSM['LeftAnkleWidth'],
+                                 calSM['RightTibialTorsion'],
+                                 calSM['LeftTibialTorsion'])
 
     static_foot_offset = calc_foot_offset(get_markers(data, 'RTOE')[0],
                                           get_markers(data, 'LTOE')[0],
@@ -280,6 +280,476 @@ def calc_IAD(rasi, lasi):
     212.28
     """
     return np.linalg.norm(rasi - lasi, axis=1)
+
+
+def calc_axis_pelvis(rasi, lasi, rpsi, lpsi, sacr=None):
+    """
+    Make the Pelvis Axis.
+    """
+
+    # Get the Pelvis Joint Centre
+    if sacr is None:
+        sacr = (rpsi + lpsi) / 2.0
+
+    # Origin is Midpoint between RASI and LASI
+    o = (rasi+lasi)/2.0
+
+
+    b1 = o - sacr
+    b2 = lasi - rasi
+
+    # y is normalized b2
+    y = b2 / np.linalg.norm(b2,axis=1)[:, np.newaxis]
+
+    b3 = b1 - ( y * np.sum(b1*y,axis=1)[:, np.newaxis] )
+    x = b3/np.linalg.norm(b3,axis=1)[:, np.newaxis]
+
+    # Z-axis is cross product of x and y vectors.
+    z = np.cross(x, y)
+
+    num_frames = rasi.shape[0]
+    pelvis_stack = np.column_stack([x,y,z,o])
+    pelvis_matrix = pelvis_stack.reshape(num_frames,4,3).transpose(0,2,1)
+
+    return pelvis_matrix
+
+
+def calc_joint_center_hip(pelvis, mean_leg_length, right_asis_to_trochanter, left_asis_to_trochanter, inter_asis_distance):
+    u"""Calculate the right and left hip joint center.
+
+    Takes in a 4x4 affine matrix of pelvis axis and subject measurements
+    dictionary. Calculates and returns the right and left hip joint centers.
+
+    Subject Measurement values used:
+        MeanLegLength
+
+        R_AsisToTrocanterMeasure
+
+        InterAsisDistance
+
+        L_AsisToTrocanterMeasure
+
+    Hip Joint Center: Computed using Hip Joint Center Calculation [1]_.
+
+    Parameters
+    ----------
+    pelvis : array
+        A 4x4 affine matrix with pelvis x, y, z axes and pelvis origin.
+    subject : dict
+        A dictionary containing subject measurements.
+
+    Returns
+    -------
+    hip_jc : array
+        A 2x3 array that contains two 1x3 arrays
+        containing the x, y, z components of the right and left hip joint
+        centers.
+
+    References
+    ----------
+    .. [1] Davis, R. B., III, Õunpuu, S., Tyburski, D. and Gage, J. R. (1991).
+            A gait analysis data collection and reduction technique.
+            Human Movement Science 10 575–87.
+
+    Examples
+    --------
+    >>> import numpy as np
+    >>> np.set_printoptions(suppress=True)
+    >>> from .pyCGM import calc_joint_center_hip
+    >>> mean_leg_length = 940.0 
+    >>> right_asis_to_trochanter = 72.51
+    >>> left_asis_to_trochanter = 72.51
+    >>> inter_asis_distance = 215.90
+    >>> pelvis_axis = np.array([[
+    ...                            [ 0.14, 0.98, -0.11,  251.60],
+    ...                            [-0.99, 0.13, -0.02,  391.74],
+    ...                            [ 0,    0.1,   0.99, 1032.89],
+    ...                         ],
+    ...                         [
+    ...                            [ 0.14, 0.98, -0.11,  251.60],
+    ...                            [-0.99, 0.13, -0.02,  391.74],
+    ...                            [ 0,    0.1,   0.99, 1032.89],
+    ...                        ]])
+    >>> np.around(calc_joint_center_hip(pelvis_axis, mean_leg_length, right_asis_to_trochanter, left_asis_to_trochanter, inter_asis_distance), 2) #doctest: +NORMALIZE_WHITESPACE
+    array([[307.36, 323.83, 938.72],
+           [181.71, 340.33, 936.18]])
+    """
+
+    # Requires
+    # pelvis axis
+
+    # Model's eigen value
+    #
+    # LegLength
+    # MeanLegLength
+    # mm (marker radius)
+    # interAsisMeasure
+
+    # Set the variables needed to calculate the joint angle
+    # Half of marker size
+    mm = 7.0
+
+    C = (mean_leg_length * 0.115) - 15.3
+    theta = 0.500000178813934
+    beta = 0.314000427722931
+    aa = inter_asis_distance/2.0
+    S = -1
+
+    # Hip Joint Center Calculation (ref. Davis_1991)
+
+    # Left: Calculate the distance to translate along the pelvis axis
+    L_Xh = (-left_asis_to_trochanter - mm) * \
+        math.cos(beta) + C * math.cos(theta) * math.sin(beta)
+    L_Yh = S*(C*math.sin(theta) - aa)
+    L_Zh = (-left_asis_to_trochanter - mm) * \
+        math.sin(beta) - C * math.cos(theta) * math.cos(beta)
+
+    # Right:  Calculate the distance to translate along the pelvis axis
+    R_Xh = (-right_asis_to_trochanter - mm) * \
+        math.cos(beta) + C * math.cos(theta) * math.sin(beta)
+    R_Yh = (C*math.sin(theta) - aa)
+    R_Zh = (-right_asis_to_trochanter - mm) * \
+        math.sin(beta) - C * math.cos(theta) * math.cos(beta)
+
+    # get the unit pelvis axis
+    pelvis = np.array(pelvis)
+
+    pelvis_xaxis = pelvis[:, :, 0]
+    pelvis_yaxis = pelvis[:, :, 1]
+    pelvis_zaxis = pelvis[:, :, 2]
+    pel_origin   = pelvis[:, :, 3]
+    pelvis_axis = np.array([pelvis_xaxis, pelvis_yaxis, pelvis_zaxis])
+
+    # multiply the distance to the unit pelvis axis
+    left_hip_jc_x = pelvis_xaxis * L_Xh
+    left_hip_jc_y = pelvis_yaxis * L_Yh
+    left_hip_jc_z = pelvis_zaxis * L_Zh
+
+
+    left_hip_jc = np.array([left_hip_jc_x, left_hip_jc_y, left_hip_jc_z])
+    left_hip_jc = np.matmul(pelvis_axis.T, np.array([L_Xh, L_Yh, L_Zh])).T
+
+    right_hip_jc_x = pelvis_xaxis * R_Xh
+    right_hip_jc_y = pelvis_yaxis * R_Yh
+    right_hip_jc_z = pelvis_zaxis * R_Zh
+
+    right_hip_jc = np.array([right_hip_jc_x, right_hip_jc_y, right_hip_jc_z])
+    right_hip_jc = np.matmul(pelvis_axis.T, np.array([R_Xh, R_Yh, R_Zh])).T
+
+
+    left_hip_jc = left_hip_jc+pel_origin
+    right_hip_jc = right_hip_jc+pel_origin
+
+    num_frames = pelvis.shape[0]
+
+    right = np.zeros((num_frames, 4, 3))
+    x = np.zeros((num_frames, 3))
+    y = np.zeros((num_frames, 3))
+    z = np.zeros((num_frames, 3))
+    o = right_hip_jc
+
+    right_stack = np.column_stack([x, y, z, o])
+    right_hip_jc_matrix = right_stack.reshape(num_frames, 4, 3).transpose(0,2,1)
+
+    left = np.zeros((num_frames, 4, 3))
+    x = np.zeros((num_frames, 3))
+    y = np.zeros((num_frames, 3))
+    z = np.zeros((num_frames, 3))
+    o = left_hip_jc
+
+    left_stack = np.column_stack([x, y, z, o])
+    left_hip_jc_matrix = left_stack.reshape(num_frames, 4, 3).transpose(0,2,1)
+
+    hip_jc = np.array([right_hip_jc_matrix, left_hip_jc_matrix])
+
+    return hip_jc
+
+
+def calc_axis_knee(rthi, lthi, rkne, lkne, r_hip_jc, l_hip_jc, rkne_width, lkne_width):
+    """Calculate the knee joint center and axis.
+
+    Takes in markers that correspond to (x, y, z) positions of the current
+    frame, the hip joint center, and knee widths.
+
+    Markers used: RTHI, LTHI, RKNE, LKNE, r_hip_jc, l_hip_jc
+
+    Subject Measurement values used: RightKneeWidth, LeftKneeWidth
+
+    Knee joint center: Computed using Knee Axis Calculation [1]_.
+
+    Parameters
+    ----------
+    rthi : array
+        1x3 RTHI marker
+    lthi : array
+        1x3 LTHI marker
+    rkne : array
+        1x3 RKNE marker
+    lkne : array
+        1x3 LKNE marker
+    r_hip_jc : array
+        4x4 affine matrix containing the right hip joint center.
+    l_hip_jc : array
+        4x4 affine matrix containing the left hip joint center.
+    rkne_width : float
+        The width of the right knee
+    lkne_width : float
+        The width of the left knee
+
+    Returns
+    -------
+    [r_axis, l_axis] : array
+        An array of two 4x4 affine matrices representing the right and left
+        knee axes and joint centers.
+
+    References
+    ----------
+    .. [1] Baker, R. (2013). Measuring walking : a handbook of clinical gait
+            analysis. Mac Keith Press.
+
+    Notes
+    -----
+    Delta is changed suitably to knee.
+
+    Examples
+    --------
+    >>> import numpy as np
+    >>> np.set_printoptions(suppress=True)
+    >>> rthi = np.array([426.50, 262.65, 673.66])
+    >>> lthi = np.array([51.93, 320.01, 723.03])
+    >>> rkne = np.array([416.98, 266.22, 524.04])
+    >>> lkne = np.array([84.62, 286.69, 529.39])
+    >>> l_hip_jc = [182.57, 339.43, 935.52]
+    >>> r_hip_jc = [309.38, 322.80, 937.98]
+    >>> rkne_width = 105.0
+    >>> lkne_width = 105.0
+    >>> [arr.round(2) for arr in calc_axis_knee(rthi, lthi, rkne, lkne, l_hip_jc, r_hip_jc, rkne_width, lkne_width)] #doctest: +NORMALIZE_WHITESPACE
+    [array([[  0.3 ,   0.95,   0.  , 365.09],
+        [ -0.87,   0.28,  -0.4 , 282.84],
+        [ -0.38,   0.12,   0.92, 500.13],
+        [  0.  ,   0.  ,   0.  ,   1.  ]]),
+     array([[  0.11,   0.98,  -0.15, 139.57],
+        [ -0.92,   0.16,   0.35, 277.13],
+        [  0.37,   0.1 ,   0.93, 508.67],
+        [  0.  ,   0.  ,   0.  ,   1.  ]])]
+    """
+    # Get Global Values
+    mm = 7.0
+    r_delta = (rkne_width/2.0) + mm
+    l_delta = (lkne_width/2.0) + mm
+    r_hip_jc = r_hip_jc[:, :, 3]
+    l_hip_jc = l_hip_jc[:, :, 3]
+
+    # Determine the position of kneeJointCenter using calc_joint_center function
+    r_knee_o = dynamic.CalcUtils().calc_joint_center(rthi, r_hip_jc, rkne, r_delta)
+    l_knee_o = dynamic.CalcUtils().calc_joint_center(lthi, l_hip_jc, lkne, l_delta)
+
+    # Z axis is Thigh bone calculated by the hipJC and  kneeJC
+    # the axis is then normalized
+    axis_z = r_hip_jc-r_knee_o
+
+    # X axis is perpendicular to the points plane which is determined by KJC, HJC, KNE markers.
+    # and calculated by each point's vector cross vector.
+    # the axis is then normalized.
+    # axis_x = cross(axis_z,thi_kne_R)
+    axis_x = np.cross(axis_z, rkne-r_hip_jc)
+
+    # Y axis is determined by cross product of axis_z and axis_x.
+    # the axis is then normalized.
+    axis_y = np.cross(axis_z, axis_x)
+
+    r_axis = np.array([axis_x, axis_y, axis_z])
+
+    # Z axis is Thigh bone calculated by the hipJC and  kneeJC
+    # the axis is then normalized
+    axis_z = l_hip_jc-l_knee_o
+
+    # X axis is perpendicular to the points plane which is determined by KJC, HJC, KNE markers.
+    # and calculated by each point's vector cross vector.
+    # the axis is then normalized.
+    # axis_x = cross(thi_kne_L,axis_z)
+    # using hipjc instead of thigh marker
+    axis_x = np.cross(lkne-l_hip_jc, axis_z)
+
+    # Y axis is determined by cross product of axis_z and axis_x.
+    # the axis is then normalized.
+    axis_y = np.cross(axis_z, axis_x)
+
+    l_axis = np.array([axis_x, axis_y, axis_z])
+
+    r_knee_x = r_axis[0]/np.linalg.norm(r_axis[0], axis=1)[:, np.newaxis] 
+    r_knee_y = r_axis[1]/np.linalg.norm(r_axis[1], axis=1)[:, np.newaxis]
+    r_knee_z = r_axis[2]/np.linalg.norm(r_axis[2], axis=1)[:, np.newaxis]
+
+    l_knee_x = l_axis[0]/np.linalg.norm(l_axis[0], axis=1)[:, np.newaxis]
+    l_knee_y = l_axis[1]/np.linalg.norm(l_axis[1], axis=1)[:, np.newaxis]
+    l_knee_z = l_axis[2]/np.linalg.norm(l_axis[2], axis=1)[:, np.newaxis]
+
+    num_frames = rthi.shape[0]
+
+    r_knee_axis = np.column_stack([r_knee_x, r_knee_y, r_knee_z, r_knee_o])
+    l_knee_axis = np.column_stack([l_knee_x, l_knee_y, l_knee_z, l_knee_o])
+
+    r_axis_matrix = r_knee_axis.reshape(num_frames, 4, 3).transpose(0, 2, 1)
+    l_axis_matrix = l_knee_axis.reshape(num_frames, 4, 3).transpose(0, 2, 1)
+
+    return np.asarray([r_axis_matrix, l_axis_matrix])
+
+
+def calc_axis_ankle(rtib, ltib, rank, lank, r_knee_jc, l_knee_jc, rank_width, lank_width, rtib_torsion, ltib_torsion):
+    """Calculate the ankle joint center and axis.
+
+    Takes in markers that correspond to (x, y, z) positions of the current
+    frame, the knee joint centers, ankle widths, and tibial torsions.
+
+    Markers used: RTIB, LTIB, RANK, LANK, r_knee_JC, l_knee_JC
+
+    Subject Measurement values used:
+        RightKneeWidth
+
+        LeftKneeWidth
+
+        RightTibialTorsion
+
+        LeftTibialTorsion
+
+    Ankle Axis: Computed using Ankle Axis Calculation [1]_.
+
+    Parameters
+    ----------
+    rtib : array
+        1x3 RTIB marker
+    ltib : array
+        1x3 LTIB marker
+    rank : array
+        1x3 RANK marker
+    lank : array
+        1x3 LANK marker
+    r_knee_JC : array
+        The (x,y,z) position of the right knee joint center.
+    l_knee_JC : array
+        The (x,y,z) position of the left knee joint center.
+    rank_width : float
+        The width of the right ankle
+    lank_width : float
+        The width of the left ankle
+    rtib_torsion : float
+        Right tibial torsion angle
+    ltib_torsion : float
+        Left tibial torsion angle
+
+    Returns
+    -------
+    [r_axis, l_axis] : array
+        An array of two 4x4 affine matrices representing the right and left
+        ankle axes and joint centers.
+
+    References
+    ----------
+    .. [1] Baker, R. (2013). Measuring walking : a handbook of clinical gait
+            analysis. Mac Keith Press.
+
+    Examples
+    --------
+    >>> import numpy as np
+    >>> np.set_printoptions(suppress=True)
+    >>> rank_width = 70.0
+    >>> lank_width = 70.0
+    >>> rtib_torsion = 0.0
+    >>> ltib_torsion = 0.0
+    >>> rtib = np.array([433.97, 211.93, 273.30])
+    >>> ltib = np.array([50.04, 235.90, 364.32])
+    >>> rank = np.array([422.77, 217.74, 92.86])
+    >>> lank = np.array([58.57, 208.54, 86.16])
+    >>> knee_JC = np.array([[365.09, 282.84, 500.13],
+    ...                     [139.57, 277.13, 508.67]])
+    >>> [np.around(arr, 2) for arr in calc_axis_ankle(rtib, ltib, rank, lank, knee_JC[0], knee_JC[1], rank_width, lank_width, rtib_torsion, ltib_torsion)] #doctest: +NORMALIZE_WHITESPACE
+                [array([[  0.69,   0.73,  -0.02, 392.33],
+                        [ -0.72,   0.68,  -0.11, 246.32],
+                        [ -0.07,   0.09,   0.99,  88.31],
+                        [  0.  ,   0.  ,   0.  ,   1.  ]]),
+                 array([[ -0.28,   0.96,  -0.1 ,  98.76],
+                        [ -0.96,  -0.26,   0.13, 219.53],
+                        [  0.09,   0.13,   0.99,  80.85],
+                        [  0.  ,   0.  ,   0.  ,   1.  ]])]
+    """
+    # Get Global Values
+    mm = 7.0
+    r_delta = (rank_width/2.0) + mm
+    l_delta = (lank_width/2.0) + mm
+    r_knee_jc = r_knee_jc[:, :, 3]
+    l_knee_jc = l_knee_jc[:, :, 3]
+
+    # This is Torsioned Tibia and this describe the ankle angles
+    # Tibial frontal plane being defined by ANK,TIB and KJC
+
+    # Determine the position of ankleJointCenter using calc_joint_center function
+    r_ankle_jc = dynamic.CalcUtils().calc_joint_center(rtib, r_knee_jc, rank, r_delta)
+    l_ankle_jc = dynamic.CalcUtils().calc_joint_center(ltib, l_knee_jc, lank, l_delta)
+
+    # Ankle Axis Calculation(ref. Clinical Gait Analysis hand book, Baker2013)
+    # Right axis calculation
+
+    # Z axis is shank bone calculated by the ankleJC and  kneeJC
+    axis_z = r_knee_jc - r_ankle_jc
+
+    # X axis is perpendicular to the points plane which is determined by ANK,TIB and KJC markers.
+    # and calculated by each point's vector cross vector.
+    # tib_ank_R vector is making a tibia plane to be assumed as rigid segment.
+    tib_ank_R = rtib - rank
+    axis_x = np.cross(axis_z, tib_ank_R)
+
+    # Y axis is determined by cross product of axis_z and axis_x.
+    axis_y = np.cross(axis_z, axis_x)
+
+    r_axis = np.array([axis_x, axis_y, axis_z])
+
+    # Left axis calculation
+
+    # Z axis is shank bone calculated by the ankleJC and  kneeJC
+    axis_z = l_knee_jc - l_ankle_jc
+
+    # X axis is perpendicular to the points plane which is determined by ANK,TIB and KJC markers.
+    # and calculated by each point's vector cross vector.
+    # tib_ank_L vector is making a tibia plane to be assumed as rigid segment.
+    tib_ank_L = ltib - lank
+    axis_x = np.cross(tib_ank_L, axis_z)
+
+    # Y axis is determined by cross product of axis_z and axis_x.
+    axis_y = np.cross(axis_z, axis_x)
+
+    l_axis = np.array([axis_x, axis_y, axis_z])
+
+    # Clear the name of axis and then normalize it.
+    r_ankle_x = r_axis[0]/np.linalg.norm(r_axis[0], axis=1)[:, np.newaxis]
+    r_ankle_y = r_axis[1]/np.linalg.norm(r_axis[1], axis=1)[:, np.newaxis]
+    r_ankle_z = r_axis[2]/np.linalg.norm(r_axis[2], axis=1)[:, np.newaxis]
+
+    l_ankle_x = l_axis[0]/np.linalg.norm(l_axis[0], axis=1)[:, np.newaxis]
+    l_ankle_y = l_axis[1]/np.linalg.norm(l_axis[1], axis=1)[:, np.newaxis]
+    l_ankle_z = l_axis[2]/np.linalg.norm(l_axis[2], axis=1)[:, np.newaxis]
+
+    # Put both axis in array
+    r_axis = np.array([r_ankle_x, r_ankle_y, r_ankle_z])
+    l_axis = np.array([l_ankle_x, l_ankle_y, l_ankle_z])
+
+
+    # Rotate the axes about the tibia torsion.
+    rtib_torsion = np.radians(rtib_torsion)
+    ltib_torsion = np.radians(ltib_torsion)
+
+    r_axis_x, r_axis_y, r_axis_z = np.cos(rtib_torsion) * r_axis - np.sin(rtib_torsion) * r_axis
+    l_axis_x, l_axis_y, l_axis_z = np.cos(ltib_torsion) * l_axis - np.sin(ltib_torsion) * l_axis
+
+    r_ankle_axis = np.column_stack([r_axis_x, r_axis_y, r_axis_z, r_ankle_jc])
+    l_ankle_axis = np.column_stack([l_axis_x, l_axis_y, l_axis_z, l_ankle_jc])
+
+    num_frames = rtib.shape[0]
+    r_axis_matrix = r_ankle_axis.reshape(num_frames, 4, 3).transpose(0, 2, 1)
+    l_axis_matrix = l_ankle_axis.reshape(num_frames, 4, 3).transpose(0, 2, 1)
+
+
+    return np.asarray([r_axis_matrix, l_axis_matrix])
 
 
 def calc_static_head(head_axis):

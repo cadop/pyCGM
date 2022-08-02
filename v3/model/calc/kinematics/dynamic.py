@@ -2,6 +2,7 @@ import math
 from math import pi
 
 import numpy as np
+from ..function import Function
 
 
 class CalcAxes():
@@ -13,7 +14,9 @@ class CalcAxes():
                       self.calc_marker_wand, self.calc_joint_center_shoulder, self.calc_axis_shoulder,
                       self.calc_axis_elbow, self.calc_axis_wrist, self.calc_axis_hand]
 
-    def calc_axis_pelvis(self, rasi, lasi, rpsi, lpsi, sacr=None):
+    @Function.info(markers=['RASI', 'LASI', 'RPSI', 'LPSI', 'SACR'],
+              returns_axes=['Pelvis'])
+    def calc_axis_pelvis(rasi, lasi, rpsi, lpsi, sacr=None):
         """
         Make the Pelvis Axis.
         """
@@ -44,7 +47,13 @@ class CalcAxes():
 
         return pelvis_matrix
 
-    def calc_joint_center_hip(self, pelvis, mean_leg_length, right_asis_to_trochanter, left_asis_to_trochanter, inter_asis_distance):
+    @Function.info(measurements=['MeanLegLength',
+                                 'R_AsisToTrocanterMeasure',
+                                 'L_AsisToTrocanterMeasure',
+                                 'InterAsisDistance'],
+                           axes=['Pelvis'],
+                   returns_axes=['RHipJC', 'LHipJC'])
+    def calc_joint_center_hip(mean_leg_length, right_asis_to_trochanter, left_asis_to_trochanter, inter_asis_distance, pelvis):
         u"""Calculate the right and left hip joint center.
 
         Takes in a 4x4 affine matrix of pelvis axis and subject measurements
@@ -195,7 +204,9 @@ class CalcAxes():
         return hip_jc
 
 
-    def calc_axis_hip(self, r_hip_jc, l_hip_jc, pelvis_axis):
+    @Function.info(axes=['RHipJC', 'LHipJC', 'Pelvis'],
+           returns_axes=['Hip'])
+    def calc_axis_hip(r_hip_jc, l_hip_jc, pelvis_axis):
         r"""Make the hip axis.
 
         Takes in the x, y, z positions of right and left hip joint center and
@@ -264,7 +275,11 @@ class CalcAxes():
         return hip_matrix
 
 
-    def calc_axis_knee(self, rthi, lthi, rkne, lkne, r_hip_jc, l_hip_jc, rkne_width, lkne_width):
+    @Function.info(markers=['RTHI', 'LTHI', 'RKNE', 'LKNE'],
+              measurements=['RightKneeWidth', 'LeftKneeWidth'],
+                      axes=['RHipJC', 'LHipJC'],
+              returns_axes=['RKnee', 'LKnee'])
+    def calc_axis_knee(rthi, lthi, rkne, lkne, rkne_width, lkne_width, r_hip_jc, l_hip_jc):
         """Calculate the knee joint center and axis.
 
         Takes in markers that correspond to (x, y, z) positions of the current
@@ -395,7 +410,11 @@ class CalcAxes():
         return np.asarray([r_axis_matrix, l_axis_matrix])
 
 
-    def calc_axis_ankle(self, rtib, ltib, rank, lank, r_knee_jc, l_knee_jc, rank_width, lank_width, rtib_torsion, ltib_torsion):
+    @Function.info(markers=['RTIB', 'LTIB', 'RANK', 'LANK'],
+              measurements=['RightAnkleWidth', 'LeftAnkleWidth', 'RightTibialTorsion', 'LeftTibialTorsion'],
+                      axes=['RKnee',  'LKnee'],
+              returns_axes=['RAnkle', 'LAnkle'])
+    def calc_axis_ankle(rtib, ltib, rank, lank, rank_width, lank_width, rtib_torsion, ltib_torsion, r_knee_jc, l_knee_jc):
         """Calculate the ankle joint center and axis.
 
         Takes in markers that correspond to (x, y, z) positions of the current
@@ -551,7 +570,11 @@ class CalcAxes():
         return np.asarray([r_axis_matrix, l_axis_matrix])
 
 
-    def calc_axis_foot(self, rtoe, ltoe, r_ankle_axis, l_ankle_axis, r_static_rot_off, l_static_rot_off, r_static_plant_flex, l_static_plant_flex):
+    @Function.info(markers=['RTOE', 'LTOE'],
+              measurements=['RightStaticRotOff', 'LeftStaticRotOff', 'RightStaticPlantFlex', 'LeftStaticPlantFlex'],
+                      axes=['RAnkle', 'LAnkle'],
+              returns_axes=['RFoot', 'LFoot'])
+    def calc_axis_foot(rtoe, ltoe, r_static_rot_off, l_static_rot_off, r_static_plant_flex, l_static_plant_flex, r_ankle_axis, l_ankle_axis):
         """Calculate the foot joint center and axis.
 
         Takes in markers that correspond to (x, y, z) positions of the current
@@ -743,7 +766,10 @@ class CalcAxes():
 
 # Upperbody Coordinate System
 
-    def calc_axis_head(self, lfhd, rfhd, lbhd, rbhd, head_offset):
+    @Function.info(markers=[ 'LFHD', 'RFHD', 'LBHD', 'RBHD'],
+              measurements=['HeadOffset'],
+              returns_axes=['Head'])
+    def calc_axis_head(lfhd, rfhd, lbhd, rbhd, head_offset):
         """Calculate the head joint center and axis.
 
         Takes in markers that correspond to (x, y, z) positions of the current
@@ -832,7 +858,9 @@ class CalcAxes():
         return head_axis_matrix
 
 
-    def calc_axis_thorax(self, clav, c7, strn, t10):
+    @Function.info(markers=['CLAV', 'C7', 'STRN', 'T10'],
+              returns_axes=['Thorax'])
+    def calc_axis_thorax(clav, c7, strn, t10):
         r"""Make the Thorax Axis.
 
 
@@ -934,7 +962,10 @@ class CalcAxes():
         return thorax_axis_matrix
 
 
-    def calc_marker_wand(self, rsho, lsho, thorax_axis):
+    @Function.info(markers=['RSHO', 'LSHO'],
+                      axes=['Thorax'],
+              returns_axes=['RWand', 'LWand'])
+    def calc_marker_wand(rsho, lsho, thorax_axis):
         """Calculate the wand marker position.
 
         Takes in markers that correspond to (x, y, z) positions of the current
@@ -1011,7 +1042,11 @@ class CalcAxes():
         return np.array([right_wand_matrix, left_wand_matrix])
 
 
-    def calc_joint_center_shoulder(self, rsho, lsho, thorax_axis, r_wand, l_wand, r_sho_off, l_sho_off):
+    @Function.info(markers=['RSHO', 'LSHO'],
+              measurements=['RightShoulderOffset','LeftShoulderOffset'],
+                      axes=['Thorax', 'RWand', 'LWand'],
+              returns_axes=['RClavJC', 'LClavJC'])
+    def calc_joint_center_shoulder(rsho, lsho, r_sho_off, l_sho_off, thorax_axis, r_wand, l_wand):
         """Calculate the shoulder joint center.
 
         Takes in markers that correspond to (x, y, z) positions of the current
@@ -1101,7 +1136,9 @@ class CalcAxes():
         return np.array([right_shoulder_jc_matrix, left_shoulder_jc_matrix])
 
 
-    def calc_axis_shoulder(self, thorax_axis, r_sho_jc, l_sho_jc, r_wand, l_wand):
+    @Function.info(axes=['Thorax', 'RClavJC', 'LClavJC', 'RWand', 'LWand'],
+           returns_axes=['RClav', 'LClav'])
+    def calc_axis_shoulder(thorax_axis, r_sho_jc, l_sho_jc, r_wand, l_wand):
         """Make the Shoulder axis.
 
         Takes in the thorax axis, right and left shoulder joint center,
@@ -1209,7 +1246,12 @@ class CalcAxes():
         return np.array([right_shoulder_axis_matrix, left_shoulder_axis_matrix])
 
 
-    def calc_axis_elbow(self, relb, lelb, rwra, rwrb, lwra, lwrb, r_shoulder_jc, l_shoulder_jc, r_elbow_width, l_elbow_width, r_wrist_width, l_wrist_width, mm):
+    @Function.info(markers=['RELB', 'LELB', 'RWRA', 'RWRB', 'LWRA', 'LWRB'],
+              measurements=['RightElbowWidth', 'LeftElbowWidth', 'RightWristWidth', 'LeftWristWidth'],
+                      axes=['RClav',  'LClav'],
+                 constants=[7.0],
+              returns_axes=['RHum', 'LHum', 'RWristJC', 'LWristJC'])
+    def calc_axis_elbow(relb, lelb, rwra, rwrb, lwra, lwrb, r_elbow_width, l_elbow_width, r_wrist_width, l_wrist_width, r_shoulder_jc, l_shoulder_jc, mm):
         """Calculate the elbow joint center and axis.
 
         Takes in markers that correspond to (x, y, z) positions of the current
@@ -1422,7 +1464,9 @@ class CalcAxes():
         return np.asarray([r_elbow_axis_matrix, l_elbow_axis_matrix, r_wrist_jc_matrix, l_wrist_jc_matrix])
 
 
-    def calc_axis_wrist(self, r_elbow, l_elbow, r_wrist_jc, l_wrist_jc):
+    @Function.info(axes=['RHum', 'LHum', 'RWristJC', 'LWristJC'],
+           returns_axes=['RRad', 'LRad'])
+    def calc_axis_wrist(r_elbow, l_elbow, r_wrist_jc, l_wrist_jc):
         r"""Calculate the wrist joint center and axis.
 
         Takes in the right and left elbow axes, 
@@ -1536,7 +1580,11 @@ class CalcAxes():
         return np.asarray([r_wrist_axis_matrix, l_wrist_axis_matrix])
 
 
-    def calc_axis_hand(self, rwra, rwrb, lwra, lwrb, rfin, lfin, r_wrist_jc, l_wrist_jc, r_hand_thickness, l_hand_thickness):
+    @Function.info(markers=['RWRA',   'RWRB', 'LWRA',   'LWRB', 'RFIN',   'LFIN'],
+              measurements=['RightHandThickness', 'LeftHandThickness'],
+                      axes=['RWristJC', 'LWristJC'],
+              returns_axes=['RHand', 'LHand'])
+    def calc_axis_hand(rwra, rwrb, lwra, lwrb, rfin, lfin, r_hand_thickness, l_hand_thickness, r_wrist_jc, l_wrist_jc):
         r"""Calculate the hand joint center and axis.
 
         Takes in markers that correspond to (x, y, z) positions of the current
@@ -1683,7 +1731,10 @@ class CalcAngles():
         self.funcs = [self.calc_angle_pelvis, self.calc_angle_hip, self.calc_angle_knee, self.calc_angle_ankle, self.calc_angle_foot, self.calc_angle_head,
                       self.calc_angle_thorax, self.calc_angle_neck, self.calc_angle_spine, self.calc_angle_shoulder, self.calc_angle_elbow, self.calc_angle_wrist]
 
-    def calc_angle_pelvis(self, axis_p, axis_d):
+    @Function.info(axes=['Pelvis'],
+           measurements=['GCS'],
+         returns_angles=['Pelvis'])
+    def calc_angle_pelvis(axis_p, axis_d):
         r"""Pelvis angle calculation.
 
         This function takes in two axes and returns three angles and uses the
@@ -1726,54 +1777,60 @@ class CalcAngles():
         >>> np.around(CalcAngles().pelvis_angle(axis_p,axis_d), 2)
         array([-174.82,  -39.26,  100.54])
         """
-        angle = self.calc_angle(axis_p, axis_d)
+        angle = CalcAngles().calc_angle(axis_p, axis_d)
         return np.asarray(angle)
 
-    def calc_angle_hip(self, r_axis_p, r_axis_d, l_axis_p, l_axis_d):
+    @Function.info(axes=['Hip', 'RKnee', 'Hip', 'LKnee'],
+         returns_angles=['RHip', 'LHip'])
+    def calc_angle_hip(r_axis_p, r_axis_d, l_axis_p, l_axis_d):
         r"""Normal angle calculation.
 
             Please refer to the static get_angle function for documentation.
         """
 
-        right_angles = self.calc_angle(r_axis_p, r_axis_d)
+        right_angles = CalcAngles().calc_angle(r_axis_p, r_axis_d)
         right_angles[:, 0] *= -1
         right_angles[:, 2] = right_angles[:, 2] * -1 + 90
 
-        left_angles = self.calc_angle(l_axis_p, l_axis_d)
+        left_angles = CalcAngles().calc_angle(l_axis_p, l_axis_d)
         left_angles[:, 0] *= -1
         left_angles[:, 1] *= -1
         left_angles[:, 2] = left_angles[:, 2] - 90
 
         return np.array([right_angles, left_angles])
 
-    def calc_angle_knee(self, r_axis_p, r_axis_d, l_axis_p, l_axis_d):
+    @Function.info(axes=['RKnee', 'RAnkle', 'LKnee', 'LAnkle'],
+         returns_angles=['RKnee', 'LKnee'])
+    def calc_angle_knee(r_axis_p, r_axis_d, l_axis_p, l_axis_d):
         r"""Normal angle calculation.
 
             Please refer to the static get_angle function for documentation.
         """
 
-        right_angles = self.calc_angle(r_axis_p, r_axis_d)
+        right_angles = CalcAngles().calc_angle(r_axis_p, r_axis_d)
         right_angles[:, 2] = right_angles[:, 2] * -1 + 90
 
-        left_angles = self.calc_angle(l_axis_p, l_axis_d)
+        left_angles = CalcAngles().calc_angle(l_axis_p, l_axis_d)
         left_angles[:, 1]  *= -1
         left_angles[:, 2] -= 90
 
         return np.array([right_angles, left_angles])
 
-    def calc_angle_ankle(self, r_axis_p, r_axis_d, l_axis_p, l_axis_d):
+    @Function.info(axes=['RAnkle', 'RFoot', 'LAnkle', 'LFoot'],
+         returns_angles=['RAnkle', 'LAnkle'])
+    def calc_angle_ankle(r_axis_p, r_axis_d, l_axis_p, l_axis_d):
         r"""Normal angle calculation.
 
             Please refer to the static get_angle function for documentation.
         """
 
-        right_angles = self.calc_angle(r_axis_p, r_axis_d)
+        right_angles = CalcAngles().calc_angle(r_axis_p, r_axis_d)
         right_z = np.copy(right_angles[:, 1])
         right_angles[:, 0] = (right_angles[:, 0] * -1) - 90
         right_angles[:, 1] = (right_angles[:, 2] * -1) + 90
         right_angles[:, 2] = right_z
 
-        left_angles = self.calc_angle(l_axis_p, l_axis_d)
+        left_angles = CalcAngles().calc_angle(l_axis_p, l_axis_d)
         left_z = np.copy(left_angles[:, 1] * -1)
         left_angles[:, 0] = left_angles[:, 0] * -1 - 90
         left_angles[:, 1] = left_angles[:, 2] - 90
@@ -1781,25 +1838,31 @@ class CalcAngles():
 
         return np.array([right_angles, left_angles])
 
-    def calc_angle_foot(self, r_axis_p, r_axis_d, l_axis_p, l_axis_d):
+    @Function.info(measurements=['GCS'],
+                           axes=['RFoot', 'LFoot'],
+                 returns_angles=['RFoot', 'LFoot'])
+    def calc_angle_foot(r_axis_p, r_axis_d, l_axis_d):
         r"""Normal angle calculation.
 
             Please refer to the static get_angle function for documentation.
         """
 
-        right_angles = self.calc_angle(r_axis_p, r_axis_d)
+        right_angles = CalcAngles().calc_angle(r_axis_p, r_axis_d)
         right_z = np.copy(right_angles[:, 1])
         right_angles[:, 1] = right_angles[:, 2] - 90
         right_angles[:, 2] = right_z
 
-        left_angles = self.calc_angle(l_axis_p, l_axis_d)
+        left_angles = CalcAngles().calc_angle(r_axis_p, l_axis_d)
         left_z = np.copy(left_angles[:, 1] * -1)
         left_angles[:, 1] = (left_angles[:, 2] -90) * -1
         left_angles[:, 2] = left_z
 
         return np.array([right_angles, left_angles])
 
-    def calc_angle_head(self, axis_p, axis_d):
+    @Function.info(axes=['Head'],
+           measurements=['GCS'],
+         returns_angles=['Head'])
+    def calc_angle_head(axis_p, axis_d):
         r"""Head angle calculation.
 
         Takes in two axes and returns the head rotation, 
@@ -1922,7 +1985,10 @@ class CalcAngles():
         return np.asarray(angle)
 
 
-    def calc_angle_thorax(self, axis_p, axis_d):
+    @Function.info(axes=['Thorax'],
+           measurements=['GCS'],
+         returns_angles=['Thorax'])
+    def calc_angle_thorax(axis_p, axis_d):
         r"""Normal angle calculation.
 
             Please refer to the static get_angle function for documentation.
@@ -1934,7 +2000,7 @@ class CalcAngles():
                                  np.subtract(global_axis_form[1], global_center),
                                  np.subtract(global_axis_form[2], global_center)])
 
-        thorax = self.calc_angle(global_axis, axis_d)
+        thorax = CalcAngles().calc_angle(global_axis, axis_d)
 
         def thorax_conditions(thorax_x):
             if thorax_x > 0:
@@ -1948,7 +2014,9 @@ class CalcAngles():
 
         return np.asarray(thorax)
 
-    def calc_angle_neck(self, axis_p, axis_d):
+    @Function.info(axes=['Head', 'Thorax'],
+         returns_angles=['Neck'])
+    def calc_angle_neck(axis_p, axis_d):
         r"""Head angle calculation.
 
         Takes in two axes and returns the head rotation, 
@@ -2053,7 +2121,9 @@ class CalcAngles():
 
         return np.asarray(angle)
 
-    def calc_angle_spine(self, axis_pelvis, axis_thorax):
+    @Function.info(axes=['Pelvis', 'Thorax'],
+         returns_angles=['Spine'])
+    def calc_angle_spine(axis_pelvis, axis_thorax):
         r"""Spine angle calculation.
 
         Takes in the pelvis and thorax axes and returns the spine rotation, 
@@ -2116,7 +2186,9 @@ class CalcAngles():
 
         return np.asarray(angle)
 
-    def calc_angle_shoulder(self, axis_thorax, axis_hum_right, axis_hum_left):
+    @Function.info(axes=['Thorax', 'RHum', 'LHum'],
+         returns_angles=['RShoulder', 'LShoulder'])
+    def calc_angle_shoulder(axis_thorax, axis_hum_right, axis_hum_left):
         r"""Shoulder angle calculation.
 
         Takes in the thorax and elbow axes and returns the right and 
@@ -2245,30 +2317,34 @@ class CalcAngles():
 
         return angles
 
-    def calc_angle_elbow(self, r_axis_p, r_axis_d, l_axis_p, l_axis_d):
+    @Function.info(axes=['RHum', 'RRad', 'LHum', 'LRad'],
+         returns_angles=['RElbow', 'LElbow'])
+    def calc_angle_elbow(r_axis_p, r_axis_d, l_axis_p, l_axis_d):
         r"""Normal angle calculation.
 
             Please refer to the static get_angle function for documentation.
         """
 
-        right_angles = self.calc_angle(r_axis_p, r_axis_d)
+        right_angles = CalcAngles().calc_angle(r_axis_p, r_axis_d)
         right_angles[:, 2] -= 90
 
-        left_angles = self.calc_angle(l_axis_p, l_axis_d)
+        left_angles = CalcAngles().calc_angle(l_axis_p, l_axis_d)
         left_angles[:, 2] -= 90
 
         return np.array([right_angles, left_angles])
 
-    def calc_angle_wrist(self, r_axis_p, r_axis_d, l_axis_p, l_axis_d):
+    @Function.info(axes=['RRad', 'RHand', 'LRad', 'LHand'],
+         returns_angles=['RWrist', 'LWrist'])
+    def calc_angle_wrist(r_axis_p, r_axis_d, l_axis_p, l_axis_d):
         r"""Normal angle calculation.
 
             Please refer to the static get_angle function for documentation.
         """
 
-        right_angles = self.calc_angle(r_axis_p, r_axis_d)
+        right_angles = CalcAngles().calc_angle(r_axis_p, r_axis_d)
         right_angles[:, 2] = right_angles[:, 2] * -1 + 90
 
-        left_angles = self.calc_angle(l_axis_p, l_axis_d)
+        left_angles = CalcAngles().calc_angle(l_axis_p, l_axis_d)
         left_angles[:, 1] *= -1
         left_angles[:, 2] -= 90
 
