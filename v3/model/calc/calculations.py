@@ -33,6 +33,20 @@ class Calculations:
         return list(itertools.chain.from_iterable([function.returned_angles for function in self.angle_functions]))
 
 
+    def index_of_axis_function(self, function_name):
+        for idx, function in enumerate(self.axis_function_set):
+            if function.name == function_name:
+                return idx
+        return len(self.axis_function_set)
+
+
+    def index_of_angle_function(self, function_name):
+        for idx, function in enumerate(self.angle_function_set):
+            if function.name == function_name:
+                return idx
+        return len(self.angle_function_set)
+
+
     def update_trial_names(self, trial_names):
         for trial_name in trial_names:
             for function in self.axis_functions:

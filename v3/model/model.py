@@ -1,3 +1,4 @@
+import time
 from .calc.calculations import Calculations
 from .utils.structure import structure_model
 from .trial_set import TrialSet
@@ -34,6 +35,7 @@ class Model():
         self.trial_set.run(self.calc)
 
     def structure(self):
+        start = time.time()
         self.data = structure_model(self.static_filename,
                                     self.dynamic_filenames,
                                     self.measurement_filename,
@@ -41,13 +43,43 @@ class Model():
                                     self.calc.returned_angles)
 
         self.trial_set = TrialSet(self.data, self.calc)
+        end = time.time()
+        print(f"Time to structure model: {end - start}s")
 
     
-    def add_axis_function(self, function):
-        self.calc.axis_function_set.append(function)
+    def insert_axis_function(self, function, index=None, before=None, after=None):
+
+        if index is not None:
+            self.calc.axis_function_set.insert(index, function)
+
+        elif before is not None:
+            func_idx = self.calc.index_of_axis_function(before)
+            self.calc.axis_function_set.insert(func_idx, function)
+
+        elif after is not None:
+            func_idx = self.calc.index_of_axis_function(after)
+            self.calc.axis_function_set.insert(func_idx + 1, function)
+
+        else:
+            self.calc.axis_function_set.append(function)
+
         self.structure()
 
-    def add_angle_function(self, function):
-        self.calc.angle_function_set.append(function)
+    def insert_angle_function(self, function, index=None, before=None, after=None):
+
+        if index is not None:
+            self.calc.angle_function_set.insert(index, function)
+
+        elif before is not None:
+            func_idx = self.calc.index_of_angle_function(before)
+            self.calc.angle_function_set.insert(func_idx, function)
+
+        elif after is not None:
+            func_idx = self.calc.index_of_angle_function(after)
+            self.calc.angle_function_set.insert(func_idx + 1, function)
+
+        else:
+            self.calc.angle_function_set.append(function)
+
         self.structure()
                                     

@@ -62,14 +62,14 @@ model = Model(os.path.join(script_dir, 'Sample_2/RoboStatic.c3d'), \
              [os.path.join(script_dir, 'Sample_2/RoboWalk.c3d'), os.path.join(script_dir, 'ROM/Sample_Dynamic.c3d')], \
               os.path.join(script_dir, 'Sample_2/RoboSM.vsk'))
 # Add function to existing set
-model.add_axis_function(calc_axis_eye)
+model.insert_axis_function(calc_axis_eye, before='calc_axis_pelvis')
 model.run()
-
-# Create model with predefined axis and angle function or function list
-model = Model(os.path.join(script_dir, 'Sample_2/RoboStatic.c3d'), \
-             [os.path.join(script_dir, 'Sample_2/RoboWalk.c3d'), os.path.join(script_dir, 'ROM/Sample_Dynamic.c3d')], \
-              os.path.join(script_dir, 'Sample_2/RoboSM.vsk'),
-              calc_axis_eye,
-              calc_angle_eye)
-model.run()
-
+#
+# # Create model with predefined axis and angle function or function list
+# model = Model(os.path.join(script_dir, 'Sample_2/RoboStatic.c3d'), \
+#              [os.path.join(script_dir, 'Sample_2/RoboWalk.c3d'), os.path.join(script_dir, 'ROM/Sample_Dynamic.c3d')], \
+#               os.path.join(script_dir, 'Sample_2/RoboSM.vsk'),
+#               calc_axis_eye,
+#               calc_angle_eye)
+# model.run()
+#
