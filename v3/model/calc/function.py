@@ -1,4 +1,3 @@
-from . import defaults
 import numpy as np
 
 
@@ -6,17 +5,10 @@ class Function:
     def __init__(self, func, parameters=None, returns=None):
         self.func = func
         self.name = func.__name__
+
         self.parameter_values = {}
-
-        if parameters is None:
-            self.parameters = defaults.parameters()[self.name]
-        else:
-            self.parameters = parameters
-
-        if returns is None:
-            self.returns = defaults.returns()[self.name]
-        else:
-            self.returns = returns
+        self.parameters = parameters
+        self.returns = returns
 
     @property
     def required_markers(self):

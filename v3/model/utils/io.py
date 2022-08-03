@@ -24,8 +24,6 @@ def load_c3d(filename, return_frame_count=False):
         A structured array of the file's marker data
     """
 
-    start = time.time()
-
     reader = c3d.Reader(open(filename, 'rb'))
     labels = reader.get('POINT:LABELS').string_array
     frames_list = np.array(list(reader.read_frames(True, True, yield_frame_no=False)), dtype=object)
@@ -43,9 +41,6 @@ def load_c3d(filename, return_frame_count=False):
     dynamic_struct = np.empty((1), dtype=marker_xyz)
     for i, name in enumerate(dynamic_struct.dtype.names):
         dynamic_struct[name][0][:, np.newaxis] = marker_positions[i]
-
-    end = time.time()
-    print(f'Time to read/structure {filename}: {end - start}')
 
     if return_frame_count:
         return dynamic_struct, num_frames

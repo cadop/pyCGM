@@ -1,5 +1,4 @@
 import re
-import time
 
 import numpy as np
 from numpy.lib import recfunctions as rfn
@@ -66,7 +65,6 @@ def structure_model(static_trial_filename, dynamic_trials, measurement_filename,
     if isinstance(dynamic_trials, str):
         dynamic_trials = [dynamic_trials]
 
-    start = time.time()
 
     # Load measurements
     uncalibrated_measurements = loadVSK(measurement_filename)
@@ -119,14 +117,10 @@ def structure_model(static_trial_filename, dynamic_trials, measurement_filename,
 
     model = model.view(np.recarray)
 
-    end = time.time()
-    print(f'Total time to load and structure model: {end-start}\n')
-
     return model
 
 
 def get_markers(arr, names, points_only=True, debug=False):
-    start = time.time()
 
     if isinstance(names, str):
         names = [names]
@@ -139,10 +133,6 @@ def get_markers(arr, names, points_only=True, debug=False):
         rec = rec['point'][['x', 'y', 'z']]
 
     rec = rfn.structured_to_unstructured(rec)
-
-    end = time.time()
-    if debug:
-        print(f'Time to get {len(names)} markers: {end-start}')
 
     return rec
 
