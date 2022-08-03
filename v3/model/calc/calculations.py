@@ -15,16 +15,14 @@ class Calculations:
     @property
     def axis_functions(self):
         if self.axis_function_set is None:
-            return CalcAxes().funcs
-        else:
-            return self.axis_function_set
+            self.axis_function_set = CalcAxes().funcs
+        return self.axis_function_set
 
     @property
     def angle_functions(self):
         if self.angle_function_set is None:
-            return CalcAngles().funcs
-        else:
-            return self.angle_function_set
+            self.angle_function_set = CalcAngles().funcs
+        return self.angle_function_set
 
     @property
     def returned_axes(self):
