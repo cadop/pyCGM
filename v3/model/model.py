@@ -42,7 +42,7 @@ class Model():
                                     self.calc.returned_axes,
                                     self.calc.returned_angles)
 
-        self.trial_set = TrialSet(self.data, self.calc)
+        self.trial_set = TrialSet(self.data)
 
         self.calc.update_trial_names(self.trial_set.dynamic_trial_names)
         self.calc.expand_parameters_from_data(self.data)

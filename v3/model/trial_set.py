@@ -2,8 +2,7 @@ import time
 
 
 class TrialSet():
-    def __init__(self, data, calculations):
-        self.static_trial = data.static
+    def __init__(self, data):
         self.dynamic_trials = data.dynamic
         self.dynamic_trial_names = data.dynamic.dtype.names
 
