@@ -7,9 +7,6 @@ class TrialSet():
         self.dynamic_trials = data.dynamic
         self.dynamic_trial_names = data.dynamic.dtype.names
 
-        calculations.update_trial_names(self.dynamic_trial_names)
-        calculations.expand_parameters_from_data(data)
-
 
     def run(self, calc):
         for trial_name in self.dynamic_trial_names:
