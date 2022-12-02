@@ -7,8 +7,8 @@ from ..utils.constants import POINT_DTYPE
 import numpy.lib.recfunctions as rfn
 
 
-class Calculations:
-    def __init__(self, axis_function_set, angle_function_set):
+class DynamicCalc:
+    def __init__(self, axis_function_set=None, angle_function_set=None):
         self.axis_function_set = axis_function_set
         self.angle_function_set = angle_function_set
 
@@ -86,21 +86,23 @@ class Calculations:
                     else:
                         function.parameter_values[trial_name].append(None)
 
-                for parameter_name in function.required_axes:
-                # ============== Axes ============== 
-                    if parameter_name in trials.dynamic[trial_name].axes.dtype.names:
-                        # Add parameter from axes struct
-                        function.parameter_values[trial_name].append(trials.dynamic[trial_name].axes[parameter_name][0])
-                    else:
-                        function.parameter_values[trial_name].append(None)
+                if 'axes' in trials.dynamic[trial_name].dtype.names:
+                    for parameter_name in function.required_axes:
+                    # ============== Axes ============== 
+                        if parameter_name in trials.dynamic[trial_name].axes.dtype.names:
+                            # Add parameter from axes struct
+                            function.parameter_values[trial_name].append(trials.dynamic[trial_name].axes[parameter_name][0])
+                        else:
+                            function.parameter_values[trial_name].append(None)
 
-                for parameter_name in function.required_angles:
-                # ============== Angles ============== 
-                    if parameter_name in trials.dynamic[trial_name].angles.dtype.names:
-                        # Add parameter from angles struct
-                        function.parameter_values[trial_name].append(trials.dynamic[trial_name].angles[parameter_name])
-                    else:
-                        function.parameter_values[trial_name].append(None)
+                if 'angles' in trials.dynamic[trial_name].dtype.names:
+                    for parameter_name in function.required_angles:
+                    # ============== Angles ============== 
+                        if parameter_name in trials.dynamic[trial_name].angles.dtype.names:
+                            # Add parameter from angles struct
+                            function.parameter_values[trial_name].append(trials.dynamic[trial_name].angles[parameter_name])
+                        else:
+                            function.parameter_values[trial_name].append(None)
 
                 for parameter_name in function.required_constants:
                 # ============== Constants ============== 

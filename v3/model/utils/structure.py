@@ -120,6 +120,67 @@ def structure_model(static_trial_filename, dynamic_trials, measurement_filename,
     return model
 
 
+def structure_model_input(static_trial_filename, dynamic_trials, measurement_filename):
+    def structure_measurements(measurements):
+        sm_names = measurements[0]
+        sm_dtype = []
+        for key in sm_names:
+            if key == "GCS":
+                sm_dtype.append((key, 'f8', (3,3)))
+            else:
+                sm_dtype.append((key, 'f8'))
+        measurements_struct = np.array(tuple(measurements[1]), dtype=sm_dtype)
+        return measurements_struct
+
+    if isinstance(dynamic_trials, str):
+        dynamic_trials = [dynamic_trials]
+
+
+    # Load measurements
+    uncalibrated_measurements = loadVSK(measurement_filename)
+
+    # Structure uncalibrated measurements
+    measurements_struct = structure_measurements(uncalibrated_measurements)
+
+    # Load static
+    static_trial = load_c3d(static_trial_filename)
+
+    dynamic_dtype = []
+    marker_structs = []
+    parsed_filenames = []
+
+    for trial_name in dynamic_trials:
+        dynamic_trial = load_c3d(trial_name)
+
+        marker_dtype = dynamic_trial.dtype
+
+        # parse just the name of the trial
+        filename = re.findall(r'[^\/]+(?=\.)', trial_name)[0]
+        parsed_filenames.append(filename)
+
+        marker_structs.append(dynamic_trial)
+
+        trial_dtype = [('markers', marker_dtype)]
+
+        dynamic_dtype.append((filename, trial_dtype))
+
+
+    model_dtype = [('static', [('markers', static_trial.dtype), \
+                               ('measurements', measurements_struct.dtype)]), \
+                   ('dynamic', dynamic_dtype)]
+
+    model = np.zeros((1), dtype=model_dtype)
+    model['static']['markers'] = static_trial
+    model['static']['measurements'] = measurements_struct
+
+    for i, trial_name in enumerate(parsed_filenames):
+        model['dynamic'][trial_name]['markers'] = marker_structs[i]
+
+    model = model.view(np.recarray)
+
+    return model
+
+
 def get_markers(arr, names, points_only=True, debug=False):
 
     if isinstance(names, str):

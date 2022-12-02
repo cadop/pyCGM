@@ -1,14 +1,14 @@
 import time
 
 
-class TrialSet():
+class DynamicTrialSet():
     def __init__(self, data):
-        self.dynamic_trials = data.dynamic
-        self.dynamic_trial_names = data.dynamic.dtype.names
+        self.trials = data.dynamic
+        self.trial_names = data.dynamic.dtype.names
 
 
     def run(self, calc):
-        for trial_name in self.dynamic_trial_names:
+        for trial_name in self.trial_names:
             for function in calc.axis_functions:
                 start = time.time()
                 ret_axes = function.run(trial_name)
@@ -18,11 +18,11 @@ class TrialSet():
                     # Multiple axes returned by one function
                     for ret_axes_index, axis in enumerate(ret_axes):
                         # Insert each axis into model
-                        self.dynamic_trials[trial_name].axes[function.returned_axes[ret_axes_index]] = axis
+                        self.trials[trial_name].axes[function.returned_axes[ret_axes_index]] = axis
 
                 else:
                     # Insert returned axis into model
-                    self.dynamic_trials[trial_name].axes[function.returned_axes[0]] = ret_axes
+                    self.trials[trial_name].axes[function.returned_axes[0]] = ret_axes
 
                 end = time.time()
 
@@ -38,11 +38,11 @@ class TrialSet():
                     # Multiple angles returned by one function
                     for ret_angles_index, angle in enumerate(ret_angles):
                         # Insert each angle into model
-                        self.dynamic_trials[trial_name].angles[function.returned_angles[ret_angles_index]] = angle
+                        self.trials[trial_name].angles[function.returned_angles[ret_angles_index]] = angle
 
                 else:
                     # Insert returned angle into model
-                    self.dynamic_trials[trial_name].angles[function.returned_angles[0]] = ret_angles
+                    self.trials[trial_name].angles[function.returned_angles[0]] = ret_angles
 
                 end = time.time()
 

@@ -59,6 +59,13 @@ class Function:
             return angles
         return []
 
+    @property
+    def returned_constants(self):
+        constants = self.returns.get('constants')
+        if constants[0] is not None:
+            return constants
+        return []
+
     def run(self, trial_name):
         return np.asarray(self.func(*self.parameter_values[trial_name]))
 
@@ -74,8 +81,9 @@ class Function:
             required_angles       = to_list(kwargs.get('angles'))
             required_constants    = to_list(kwargs.get('constants'))
 
-            returns_axes   = to_list(kwargs.get('returns_axes'))
-            returns_angles = to_list(kwargs.get('returns_angles'))
+            returns_axes      = to_list(kwargs.get('returns_axes'))
+            returns_angles    = to_list(kwargs.get('returns_angles'))
+            returns_constants = to_list(kwargs.get('returns'))
 
 
             # if returns_axes is not [None] and returns_angles is not [None]:
@@ -87,8 +95,9 @@ class Function:
                            "angles":       required_angles,
                            "constants":    required_constants }
 
-            returns = { "axes":   returns_axes,
-                        "angles": returns_angles }
+            returns = { "axes":      returns_axes,
+                        "angles":    returns_angles,
+                        "constants": returns_constants }
              
             return Function(func, parameters, returns)
              
