@@ -3,7 +3,7 @@ import time
 from .calc.kinematics import dynamic, static
 from .calc.calculations import DynamicCalc
 from .calc.static_calculations import StaticCalc
-from .utils.structure import structure_model, structure_model_input
+from .utils.structure import structure_model, structure_model
 from .trial_set import DynamicTrialSet
 from .static_trial import StaticTrial
 
@@ -67,12 +67,23 @@ class Model():
         #                                     self.dynamic_filenames,
         #                                     self.measurement_filename)
 
-        static_data = structure_model_input(self.static_filename,
-                                            self.dynamic_filenames,
-                                            self.measurement_filename)
-        self.static_trial = StaticTrial()
-        self.static_calc.expand_parameters_from_data(static_data, self.static_trial.calibrated_measurements)
-        # self.static_trial.run(self.static_calc)
+        model = structure_model(self.static_filename,
+                                self.dynamic_filenames,
+                                self.measurement_filename,
+                                self.static_calc, 
+                                self.dynamic_calc)
+        
+        # TODO consider adding flat_foot as a flag to Model init, conditionally run/return static foot axis
+        model.static.measurements.FlatFoot = 0;
+        
+        # TODO calculate GCS
+        model.static.measurements.GCS = [ [1, 0, 0],
+                                          [0, 1, 0],
+                                          [0, 0, 1] ]
+
+        self.static_trial = StaticTrial(model.static)
+        self.static_calc.expand_parameters_from_data(model, self.static_trial.struct)
+        self.static_trial.run(self.static_calc)
 
         # self.dynamic_trials = TrialSet(self.data, self.calc)
         end = time.time()
