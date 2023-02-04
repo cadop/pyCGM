@@ -3,8 +3,8 @@ import itertools
 
 
 class StaticTrial():
-    def __init__(self):
-        self.calibrated_measurements = {}
+    def __init__(self, static_trial_struct):
+        self.struct = static_trial_struct
 
 
     def run(self, calc):
@@ -12,14 +12,20 @@ class StaticTrial():
             start = time.time()
             returned = function.run('static')
 
-            print(function.returns)
-
             if function.returns['axes'] != [None]:
-                self.calibrated_measurements['axes'][function.returns] = returned
+                for axis in function.returns['axes']:
+                    self.struct.calibrated.axes[axis] = returned[0]
             elif function.returns['angles'] != [None]:
-                self.calibrated_measurements['angles'][function.returns] = returned
-            elif function.returns['other'] != [None]:
-                self.calibrated_measurements['other'][function.returns] = returned
+                for angle in function.returns['angles']:
+                    self.struct.calibrated.angles[angle] = returned
+            elif function.returns['constants'] != [None]:
+                if returned.ndim == 1:
+                    for idx, constant in enumerate(function.returns['constants']):
+                        self.struct.calibrated.measurements[constant] = returned[idx]
+
+                else:
+                    for constant in function.returns['constants']:
+                        self.struct.calibrated.measurements[constant] = returned
 
 
             # # Insert returned axes into the model structured array
