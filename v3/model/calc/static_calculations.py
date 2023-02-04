@@ -16,20 +16,24 @@ class StaticCalc:
         return self.function_set
 
     @property
+    def required_measurements(self):
+        return set(itertools.chain.from_iterable([function.required_measurements for function in self.functions]))
+
+    @property
     def returned_measurements(self):
-        return list(itertools.chain.from_iterable([function.returned_measurements for function in self.functions]))
+        return set(itertools.chain.from_iterable([function.returned_measurements for function in self.functions]))
 
     @property
     def returned_axes(self):
-        return list(itertools.chain.from_iterable([function.returned_axes for function in self.functions]))
+        return set(itertools.chain.from_iterable([function.returned_axes for function in self.functions]))
 
     @property
     def returned_angles(self):
-        return list(itertools.chain.from_iterable([function.returned_angles for function in self.functions]))
+        return set(itertools.chain.from_iterable([function.returned_angles for function in self.functions]))
 
     @property
     def returned_constants(self):
-        return list(itertools.chain.from_iterable([function.returned_constants for function in self.functions]))
+        return set(itertools.chain.from_iterable([function.returned_constants for function in self.functions]))
 
 
     def index_of_function(self, function_name):
@@ -43,7 +47,7 @@ class StaticCalc:
         for function in self.function_set:
             function.parameter_values['static'] =  []
 
-    def expand_parameters_from_data(self, trial, calibrated_dict):
+    def expand_parameters_from_data(self, trial, static_struct):
         """
         Expand each function's parameter names to values to in passed data
         """
@@ -63,10 +67,10 @@ class StaticCalc:
 
             for parameter_name in function.required_measurements:
             # ============== Measurements ============== 
-                if parameter_name in trial.static.measurements.dtype.names:
-                    # Use measurement name to retrieve from measurements struct
+                if parameter_name in trial.static.calibrated[0].measurements.dtype.names:
+                    # Use measurement name to retrieve from calibrated[0] measurements struct
                     try:
-                        expanded_parameter = trial.static.measurements[parameter_name][0]
+                        expanded_parameter = trial.static.calibrated[0].measurements[parameter_name]
                     except ValueError:
                         expanded_parameter = None
 
@@ -76,17 +80,17 @@ class StaticCalc:
 
             for parameter_name in function.required_axes:
             # ============== Axes ============== 
-                if parameter_name in calibrated_dict['axes']:
+                if parameter_name in static_struct.calibrated[0].axes.dtype.names:
                     # Add parameter from axes dict
-                    function.parameter_values['static'].append(calibrated_dict['axes'][parameter_name])
+                    function.parameter_values['static'].append(static_struct.calibrated[0].axes[parameter_name])
                 else:
                     function.parameter_values['static'].append(None)
 
             for parameter_name in function.required_angles:
             # ============== Angles ============== 
-                if parameter_name in calibrated_dict['angles']:
+                if parameter_name in static_struct.calibrated[0].angles:
                     # Add parameter from angles dict
-                    function.parameter_values['static'].append(calibrated_dict['angles'][parameter_name])
+                    function.parameter_values['static'].append(static_struct.calibrated[0].angles[parameter_name])
                 else:
                     function.parameter_values['static'].append(None)
 
@@ -94,7 +98,6 @@ class StaticCalc:
             # ============== Constants ============== 
                 function.parameter_values['static'].append(parameter_name)
             
-        print("\nTODO: getStatic. Parameters should be in place at least\n")
 
 
     def get_markers(self, arr, names, points_only=True, debug=False):
