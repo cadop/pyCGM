@@ -83,7 +83,7 @@ class Function:
 
             returns_axes      = to_list(kwargs.get('returns_axes'))
             returns_angles    = to_list(kwargs.get('returns_angles'))
-            returns_constants = to_list(kwargs.get('returns'))
+            returns_constants = to_list(kwargs.get('returns_constants'))
 
 
             # if returns_axes is not [None] and returns_angles is not [None]:
