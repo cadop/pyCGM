@@ -11,10 +11,15 @@ import numpy as np
 import numpy.lib.recfunctions as rfn
 
 from ..function import Function
+from .shared import CalcUtils as CalcUtils
 
 class StaticCalc():
     def __init__(self):
-        self.funcs = [ self.calc_axis_pelvis,
+        self.funcs = [ self.calibrate_mean_leg_length,
+                       self.calibrate_bodymass,
+                       self.calibrate_asis_to_trocanter_measure,
+                       self.calibrate_inter_asis_distance,
+                       self.calc_axis_pelvis,
                        self.calc_joint_center_hip,
                        self.calc_axis_knee,
                        self.calc_axis_ankle,
@@ -22,11 +27,59 @@ class StaticCalc():
                        self.calc_foot_offset,
                        self.calc_axis_head,
                        self.calc_axis_uncorrect_foot,
-                       self.calc_axis_flatfoot,
                        self.calc_axis_nonflatfoot,
+                       self.calc_axis_flatfoot,
                        self.calc_static_angle_ankle ]
 
 
+    @Function.info(measurements=['RightLegLength', 'LeftLegLength'],
+              returns_constants=['MeanLegLength'])
+    def calibrate_mean_leg_length(left_leg_length, right_leg_length):
+        return (left_leg_length + right_leg_length) / 2.0
+
+
+    @Function.info(measurements=['Bodymass'],
+              returns_constants=['Bodymass'])
+    def calibrate_bodymass(bodymass):
+        return bodymass
+
+
+    @Function.info(measurements=['RightAsisTrocanterDistance', 'LeftAsisTrocanterDistance', 'RightLegLength', 'LeftLegLength'],
+              returns_constants=['R_AsisToTrocanterMeasure', 'L_AsisToTrocanterMeasure'])
+    def calibrate_asis_to_trocanter_measure(right_asis_to_trochanter, left_asis_to_trochanter, right_leg_length, left_leg_length):
+        if left_asis_to_trochanter != 0 and right_asis_to_trochanter != 0:
+            return right_asis_to_trochanter, left_asis_to_trochanter
+        else:
+            right_asis_to_trochanter_calibrated = ( 0.1288 * right_leg_length ) - 48.56
+            left_asis_to_trochanter_calibrated = ( 0.1288 * left_leg_length ) - 48.56
+            return np.array([right_asis_to_trochanter_calibrated, left_asis_to_trochanter_calibrated])
+
+    @Function.info(markers=['RASI', 'LASI'],
+              measurements=['InterAsisDistance'],
+         returns_constants=['InterAsisDistance'])
+    def calibrate_inter_asis_distance(rasi, lasi, inter_asis_distance):
+        if inter_asis_distance != 0:
+            return inter_asis_distance
+        else:
+            inter_asis_distance = np.linalg.norm(rasi - lasi, axis=1)
+            return np.average(inter_asis_distance)
+
+
+    @Function.info(measurements=['RightKneeWidth', 'LeftKneeWidth'],
+                        markers=['RMKN', 'RKNE', 'LMKN', 'LKNE'],
+              returns_constants=['RightKneeWidth', 'LeftKneeWidth'])
+    def calibrate_knee_width(right_knee_width, left_knee_with, rmkn, rkne, lmkn, lkne):
+        if right_knee_width == 0:
+            1/0
+            if rmkn in data.dtype.names:
+                rdst = get_dist(get_markers(data, 'RKNE')[0],
+                                get_markers(data, 'RMKN')[0])
+
+                ldst = get_dist(get_markers(data, 'LKNE')[0],
+                                get_markers(data, 'LMKN')[0])
+
+                calSM['RightKneeWidth'] = np.average(rdst)
+                calSM['LeftKneeWidth']  = np.average(ldst)
 
 
     @Function.info(markers=['RASI', 'LASI', 'RPSI', 'LPSI', 'SACR'],
@@ -609,8 +662,8 @@ class StaticCalc():
 
     @Function.info(markers=['RTOE', 'LTOE', 'RHEE', 'LHEE'],
                       axes=['RAnkle, LAnkle'],
-                 constants=['FlatFoot', 'RightSoleDelta', 'LeftSoleDelta'])
-    def calc_foot_offset(rtoe, ltoe, rhee, lhee, ankle_axis, flat_foot, right_sole_delta=0, left_sole_delta=0):
+                 constants=['RightSoleDelta', 'LeftSoleDelta'])
+    def calc_foot_offset(rtoe, ltoe, rhee, lhee, r_ankle_axis, l_ankle_axis, right_sole_delta=0, left_sole_delta=0):
         """Calculate the Static foot offset angles.
 
         Takes in anatomically uncorrected axis or anatomically correct axis.
@@ -681,9 +734,6 @@ class StaticCalc():
         array([[-0.08,  0.2 , -0.15],
                [-0.67,  0.19,  0.12]])
         """
-        r_ankle_axis = ankle_axis[0]
-        l_ankle_axis = ankle_axis[1]
-
         uncorrect_foot = calc_axis_uncorrect_foot(rtoe, ltoe, r_ankle_axis, l_ankle_axis)
 
         uncorrect_foot_right = uncorrect_foot[0]
@@ -952,8 +1002,8 @@ class StaticCalc():
     @Function.info(markers=['RTOE', 'LTOE', 'RHEE', 'LHEE'],
                       axes=['RAnkle', 'LAnkle'],
                  constants=['RightSoleDelta', 'LeftSoleDelta'],
-              returns_axes=['RFoot', 'LFoot'])
-    def calc_axis_flatfoot(rtoe, ltoe, rhee, lhee, r_ankle_axis, l_ankle_axis, r_sole_delta=0, l_sole_delta=0):
+              returns_axes=['RFootFlat', 'LFootFlat'])
+    def calc_axis_flatfoot(flat_foot, rtoe, ltoe, rhee, lhee, r_ankle_axis, l_ankle_axis, r_sole_delta=0, l_sole_delta=0):
         """Calculate the anatomically correct foot joint center and axis for a flat foot.
 
         Takes in the RTOE, LTOE, RHEE and LHEE marker positions
@@ -1386,46 +1436,10 @@ def getStatic(vsk, data, flat_foot=False, GCS=None):
     0.0
     """
     calSM = {}
-    LeftLegLength = vsk['LeftLegLength']
-    RightLegLength = vsk['RightLegLength']
-    calSM['MeanLegLength'] = (LeftLegLength+RightLegLength)/2.0
-    calSM['Bodymass'] = vsk['Bodymass']
 
-    #Define the global coordinate system
-    if GCS == None: calSM['GCS'] = [[1,0,0],[0,1,0],[0,0,1]]
 
-    if vsk['LeftAsisTrocanterDistance'] != 0 and vsk['RightAsisTrocanterDistance'] != 0:
-        calSM['L_AsisToTrocanterMeasure'] = vsk['LeftAsisTrocanterDistance']
-        calSM['R_AsisToTrocanterMeasure'] = vsk['RightAsisTrocanterDistance']
-    else:
-        calSM['R_AsisToTrocanterMeasure'] = ( 0.1288 * RightLegLength ) - 48.56
-        calSM['L_AsisToTrocanterMeasure'] = ( 0.1288 * LeftLegLength ) - 48.56
 
-    if vsk['InterAsisDistance'] != 0:
-        calSM['InterAsisDistance'] = vsk['InterAsisDistance']
-    else:
-        IAD = calc_IAD(get_markers(data, 'RASI')[0],
-                       get_markers(data, 'LASI')[0])
-        calSM['InterAsisDistance'] = np.average(IAD)
 
-    try:
-        calSM['RightKneeWidth'] = vsk['RightKneeWidth']
-        calSM['LeftKneeWidth']  = vsk['LeftKneeWidth']
-    except:
-        #no knee width
-        calSM['RightKneeWidth'] = 0
-        calSM['LeftKneeWidth']  = 0
-
-    if calSM['RightKneeWidth'] == 0:
-        if 'RMKN' in data.dtype.names:
-            rdst = get_dist(get_markers(data, 'RKNE')[0],
-                            get_markers(data, 'RMKN')[0])
-
-            ldst = get_dist(get_markers(data, 'LKNE')[0],
-                            get_markers(data, 'LMKN')[0])
-
-            calSM['RightKneeWidth'] = np.average(rdst)
-            calSM['LeftKneeWidth']  = np.average(ldst)
     try:
         calSM['RightAnkleWidth'] = vsk['RightAnkleWidth']
         calSM['LeftAnkleWidth']  = vsk['LeftAnkleWidth']
@@ -1458,10 +1472,6 @@ def getStatic(vsk, data, flat_foot=False, GCS=None):
 
     calSM['RightHandThickness'] = vsk['RightHandThickness']
     calSM['LeftHandThickness'] = vsk['LeftHandThickness']
-
-
-
-
 
     knee_axis = calc_axis_knee(get_markers(data, 'RTHI')[0],
                                get_markers(data, 'LTHI')[0],
