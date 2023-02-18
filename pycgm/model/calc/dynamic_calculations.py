@@ -67,6 +67,7 @@ class DynamicCalc:
         """
         for trial_name in trials.dynamic.dtype.names:
             for function in self.axis_functions + self.angle_functions:
+                function.parameter_values[trial_name] = []
 
                 for parameter_name in function.required_markers:
                 # ============== Markers ============== 

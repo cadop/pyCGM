@@ -56,6 +56,7 @@ class StaticCalc:
         Expand each function's parameter names to values to in passed data
         """
         for function in self.static_functions:
+            function.parameter_values['static'] = []
 
             for parameter_name in function.required_markers:
             # ============== Markers ============== 
