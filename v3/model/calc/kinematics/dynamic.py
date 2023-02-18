@@ -1249,11 +1249,10 @@ class CalcAxes():
 
 
     @Function.info(markers=['RELB', 'LELB', 'RWRA', 'RWRB', 'LWRA', 'LWRB'],
-              measurements=['RightElbowWidth', 'LeftElbowWidth', 'RightWristWidth', 'LeftWristWidth'],
+              measurements=['mm', 'RightElbowWidth', 'LeftElbowWidth', 'RightWristWidth', 'LeftWristWidth'],
                       axes=['RClav',  'LClav'],
-                 constants=[7.0],
               returns_axes=['RHum', 'LHum', 'RWristJC', 'LWristJC'])
-    def calc_axis_elbow(relb, lelb, rwra, rwrb, lwra, lwrb, r_elbow_width, l_elbow_width, r_wrist_width, l_wrist_width, r_shoulder_jc, l_shoulder_jc, mm):
+    def calc_axis_elbow(relb, lelb, rwra, rwrb, lwra, lwrb, mm, r_elbow_width, l_elbow_width, r_wrist_width, l_wrist_width, r_shoulder_jc, l_shoulder_jc):
         """Calculate the elbow joint center and axis.
 
         Takes in markers that correspond to (x, y, z) positions of the current
@@ -1339,6 +1338,7 @@ class CalcAxes():
                 [   0.  ,    0.  ,    1.  , 1091.37],
                 [   0.  ,    0.  ,    0.  ,    1.  ]])]
         """
+        mm=7.0
 
         r_elbow_width *= -1
         r_delta = (r_elbow_width/2.0)-mm
@@ -1733,9 +1733,9 @@ class CalcAngles():
         self.funcs = [self.calc_angle_pelvis, self.calc_angle_hip, self.calc_angle_knee, self.calc_angle_ankle, self.calc_angle_foot, self.calc_angle_head,
                       self.calc_angle_thorax, self.calc_angle_neck, self.calc_angle_spine, self.calc_angle_shoulder, self.calc_angle_elbow, self.calc_angle_wrist]
 
-    @Function.info(axes=['Pelvis'],
-           measurements=['GCS'],
-         returns_angles=['Pelvis'])
+    @Function.info(measurements=['GCS'],
+                           axes=['Pelvis'],
+                 returns_angles=['Pelvis'])
     def calc_angle_pelvis(axis_p, axis_d):
         r"""Pelvis angle calculation.
 
@@ -1861,9 +1861,9 @@ class CalcAngles():
 
         return np.array([right_angles, left_angles])
 
-    @Function.info(axes=['Head'],
-           measurements=['GCS'],
-         returns_angles=['Head'])
+    @Function.info(measurements=['GCS'],
+                           axes=['Head'],
+                 returns_angles=['Head'])
     def calc_angle_head(axis_p, axis_d):
         r"""Head angle calculation.
 

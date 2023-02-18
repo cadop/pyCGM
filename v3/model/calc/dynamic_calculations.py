@@ -1,10 +1,11 @@
 import itertools
 import time
 
-from .kinematics.dynamic import CalcAxes, CalcAngles
-from ..utils.constants import POINT_DTYPE
-
 import numpy.lib.recfunctions as rfn
+
+from ..utils.constants import POINT_DTYPE
+from .kinematics.dynamic import CalcAngles
+from .kinematics.dynamic import CalcAxes
 
 
 class DynamicCalc:
@@ -23,6 +24,12 @@ class DynamicCalc:
         if self.angle_function_set is None:
             self.angle_function_set = CalcAngles().funcs
         return self.angle_function_set
+
+    @property
+    def required_measurements(self):
+        required_by_axis = set(itertools.chain.from_iterable([function.required_measurements for function in self.axis_functions]))
+        required_by_angle = set(itertools.chain.from_iterable([function.required_measurements for function in self.angle_functions]))
+        return set(required_by_axis.union(required_by_angle))
 
     @property
     def returned_axes(self):
@@ -65,9 +72,7 @@ class DynamicCalc:
                 # ============== Markers ============== 
                     if parameter_name in trials.dynamic[trial_name].markers.dtype.names:
                         # Use marker name to retrieve from marker struct
-                        expanded_parameter = self.get_markers(trials.dynamic[trial_name].markers, parameter_name, True)
-                        if expanded_parameter is not None:
-                            expanded_parameter = expanded_parameter[0]
+                        expanded_parameter = self.get_markers(trials.dynamic[trial_name].markers, parameter_name, True)[0]
                         function.parameter_values[trial_name].append(expanded_parameter)
                     else:
                         function.parameter_values[trial_name].append(None)
@@ -75,19 +80,15 @@ class DynamicCalc:
 
                 for parameter_name in function.required_measurements:
                 # ============== Measurements ============== 
-                    if parameter_name in trials.static.measurements.dtype.names:
+                    if parameter_name in trials.static.calibrated.measurements.dtype.names:
                         # Use measurement name to retrieve from measurements struct
-                        try:
-                            expanded_parameter = trials.static.measurements[parameter_name][0]
-                        except ValueError:
-                            expanded_parameter = None
-
-                        function.parameter_values[trial_name].append(expanded_parameter)
+                        function.parameter_values[trial_name].append(trials.static.calibrated.measurements[parameter_name][0])
                     else:
                         function.parameter_values[trial_name].append(None)
 
                 if 'axes' in trials.dynamic[trial_name].dtype.names:
                     for parameter_name in function.required_axes:
+                            
                     # ============== Axes ============== 
                         if parameter_name in trials.dynamic[trial_name].axes.dtype.names:
                             # Add parameter from axes struct
@@ -103,10 +104,6 @@ class DynamicCalc:
                             function.parameter_values[trial_name].append(trials.dynamic[trial_name].angles[parameter_name])
                         else:
                             function.parameter_values[trial_name].append(None)
-
-                for parameter_name in function.required_constants:
-                # ============== Constants ============== 
-                    function.parameter_values[trial_name].append(parameter_name)
 
 
     def get_markers(self, arr, names, points_only=True, debug=False):
@@ -132,4 +129,3 @@ class DynamicCalc:
             print(f'Time to get {len(names)} markers: {end-start}')
 
         return rec
-

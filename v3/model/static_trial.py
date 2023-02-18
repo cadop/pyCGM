@@ -1,5 +1,5 @@
-import time
 import itertools
+import time
 
 
 class StaticTrial():
@@ -8,38 +8,30 @@ class StaticTrial():
 
 
     def run(self, calc):
-        for function in calc.functions:
-            start = time.time()
+        start = time.time()
+        for function in calc.static_functions:
             returned = function.run('static')
 
             if function.returns['axes'] != [None]:
-                for axis in function.returns['axes']:
-                    self.struct.calibrated.axes[axis] = returned[0]
+                if returned.ndim == 4:
+                    for idx, axis in enumerate(function.returns['axes']):
+                        self.struct.calibrated.axes[axis] = returned[idx]
+                else:
+                    axis = function.returns['axes'][0]
+                    self.struct.calibrated.axes[axis] = returned
+
             elif function.returns['angles'] != [None]:
                 for angle in function.returns['angles']:
                     self.struct.calibrated.angles[angle] = returned
-            elif function.returns['constants'] != [None]:
+
+            elif function.returns['measurements'] != [None]:
                 if returned.ndim == 1:
-                    for idx, constant in enumerate(function.returns['constants']):
-                        self.struct.calibrated.measurements[constant] = returned[idx]
-
+                    for idx, measurement in enumerate(function.returns['measurements']):
+                        self.struct.calibrated.measurements[measurement] = returned[idx]
                 else:
-                    for constant in function.returns['constants']:
-                        self.struct.calibrated.measurements[constant] = returned
+                    for measurement in function.returns['measurements']:
+                        self.struct.calibrated.measurements[measurement] = returned
 
-
-            # # Insert returned axes into the model structured array
-            # if returned.ndim == 4:
-            #     # Multiple axes returned by one function
-            #     for axis in returned:
-            #         # Insert each axis into model
-            #         self.calibrated_measurements[function.returns] = axis
-
-            # else:
-            #     # Insert returned axis into model
-            #     self.calibrated_measurements[function.returns[0]] = returned
 
             end = time.time()
-
             print(f"\t{'static':<20}\t{function.name:<25}\t{end-start:.5f}s")
-

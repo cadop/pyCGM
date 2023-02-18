@@ -39,10 +39,10 @@ class Function:
         return []
 
     @property
-    def required_constants(self):
-        constants = self.parameters.get('constants')
-        if constants[0] is not None:
-            return constants
+    def returned_measurements(self):
+        measurements = self.returns.get('measurements')
+        if measurements[0] is not None:
+            return measurements
         return []
 
     @property
@@ -59,19 +59,20 @@ class Function:
             return angles
         return []
 
-    @property
-    def returned_constants(self):
-        constants = self.returns.get('constants')
-        if constants[0] is not None:
-            return constants
-        return []
-
     def run(self, trial_name):
-        return np.asarray(self.func(*self.parameter_values[trial_name]))
+        params = []
+        for value in self.parameter_values[trial_name]:
+            if type(value) == np.ndarray:
+                if value.shape == (1,) and value.dtype in [np.float, np.bool_]:
+                    params.append(value[0])
+                else:
+                    params.append(value)
+            else:
+                params.append(value)
+        return np.asarray(self.func(*params))
 
 
     def info(*args, **kwargs):
-
         def structure(func):
             to_list = lambda value : [value] if not isinstance(value, list) else value
 
@@ -79,27 +80,20 @@ class Function:
             required_measurements = to_list(kwargs.get('measurements'))
             required_axes         = to_list(kwargs.get('axes'))
             required_angles       = to_list(kwargs.get('angles'))
-            required_constants    = to_list(kwargs.get('constants'))
 
-            returns_axes      = to_list(kwargs.get('returns_axes'))
-            returns_angles    = to_list(kwargs.get('returns_angles'))
-            returns_constants = to_list(kwargs.get('returns_constants'))
-
-
-            # if returns_axes is not [None] and returns_angles is not [None]:
-            #     raise Exception(func.__name__ + " returns both axes and angles")
+            returns_axes         = to_list(kwargs.get('returns_axes'))
+            returns_angles       = to_list(kwargs.get('returns_angles'))
+            returns_measurements = to_list(kwargs.get('returns_measurements'))
 
             parameters = { "markers":      required_markers,
                            "measurements": required_measurements,
                            "axes":         required_axes,
-                           "angles":       required_angles,
-                           "constants":    required_constants }
+                           "angles":       required_angles }
 
-            returns = { "axes":      returns_axes,
-                        "angles":    returns_angles,
-                        "constants": returns_constants }
+            returns = { "axes":         returns_axes,
+                        "angles":       returns_angles,
+                        "measurements": returns_measurements }
              
             return Function(func, parameters, returns)
              
         return structure
-

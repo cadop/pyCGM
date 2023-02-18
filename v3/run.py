@@ -1,8 +1,11 @@
 import os
 
-import pyCGM
-from model.model import Model
+import numpy as np
 from csv_diff import diff_pycgm_csv
+from model.model import Model
+
+import pyCGM
+
 
 def get_data_dir():
     """
@@ -18,11 +21,11 @@ script_dir = get_data_dir()
 #               os.path.join(script_dir, 'Sample_2/RoboSM.vsk'))
 
 model = Model(os.path.join(script_dir, 'Sample_2/RoboStatic.c3d'), \
-              os.path.join(script_dir, 'ROM/Sample_Dynamic.c3d'), \
+              os.path.join(script_dir, 'Sample_2/RoboWalk.c3d'), \
               os.path.join(script_dir, 'Sample_2/RoboSM.vsk'))
 
-# Run individual model
-# model.run()
+# Run model
+model.run()
 
 # Verify RoboWalk results
 # diff_pycgm_csv(model, 'RoboWalk', os.path.join(script_dir, 'Sample_2/pycgm_results.csv'))
@@ -34,4 +37,3 @@ model = Model(os.path.join(script_dir, 'Sample_2/RoboStatic.c3d'), \
 
 # Access model output
 # print(f"{model.data.dynamic.RoboWalk.axes.Pelvis.shape=}")
-

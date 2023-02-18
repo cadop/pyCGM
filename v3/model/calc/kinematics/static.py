@@ -7,79 +7,55 @@ Created on Tue Jul 28 16:55:25 2015
 @author: cadop
 """
 import math
+
 import numpy as np
 import numpy.lib.recfunctions as rfn
 
 from ..function import Function
 from .shared import CalcUtils as CalcUtils
 
-class StaticCalc():
+class CalcStatic():
     def __init__(self):
         self.funcs = [ self.calibrate_mean_leg_length,
-                       self.calibrate_bodymass,
-                       self.calibrate_asis_to_trocanter_measure,
+                       self.calibrate_asis_to_troc_measure,
                        self.calibrate_inter_asis_distance,
                        self.calc_axis_pelvis,
                        self.calc_joint_center_hip,
                        self.calc_axis_knee,
                        self.calc_axis_ankle,
-                       self.calc_static_head, 
-                       self.calc_foot_offset,
-                       self.calc_axis_head,
                        self.calc_axis_uncorrect_foot,
-                       self.calc_axis_nonflatfoot,
-                       self.calc_axis_flatfoot,
-                       self.calc_static_angle_ankle ]
+                       self.calc_axis_head,
+                       self.calc_static_head, 
+                       self.calc_axis_foot,
+                       self.calc_static_ankle_offsets ]
 
 
     @Function.info(measurements=['RightLegLength', 'LeftLegLength'],
-              returns_constants=['MeanLegLength'])
-    def calibrate_mean_leg_length(left_leg_length, right_leg_length):
+           returns_measurements=['MeanLegLength'])
+    def calibrate_mean_leg_length(right_leg_length, left_leg_length):
         return (left_leg_length + right_leg_length) / 2.0
 
 
-    @Function.info(measurements=['Bodymass'],
-              returns_constants=['Bodymass'])
-    def calibrate_bodymass(bodymass):
-        return bodymass
-
-
-    @Function.info(measurements=['RightAsisTrocanterDistance', 'LeftAsisTrocanterDistance', 'RightLegLength', 'LeftLegLength'],
-              returns_constants=['R_AsisToTrocanterMeasure', 'L_AsisToTrocanterMeasure'])
-    def calibrate_asis_to_trocanter_measure(right_asis_to_trochanter, left_asis_to_trochanter, right_leg_length, left_leg_length):
+    @Function.info(measurements=['RightAsisTrocanterDistance', 'LeftAsisTrocanterDistance', 'RightLegLength', 'LeftLegLength', 'FlatFoot'],
+           returns_measurements=['R_AsisToTrocanterMeasure', 'L_AsisToTrocanterMeasure'])
+    def calibrate_asis_to_troc_measure(right_asis_to_trochanter, left_asis_to_trochanter, right_leg_length, left_leg_length, flat_foot):
         if left_asis_to_trochanter != 0 and right_asis_to_trochanter != 0:
-            return right_asis_to_trochanter, left_asis_to_trochanter
+            return np.array(right_asis_to_trochanter, left_asis_to_trochanter)
         else:
             right_asis_to_trochanter_calibrated = ( 0.1288 * right_leg_length ) - 48.56
             left_asis_to_trochanter_calibrated = ( 0.1288 * left_leg_length ) - 48.56
             return np.array([right_asis_to_trochanter_calibrated, left_asis_to_trochanter_calibrated])
 
+
     @Function.info(markers=['RASI', 'LASI'],
               measurements=['InterAsisDistance'],
-         returns_constants=['InterAsisDistance'])
+      returns_measurements=['InterAsisDistance'])
     def calibrate_inter_asis_distance(rasi, lasi, inter_asis_distance):
         if inter_asis_distance != 0:
             return inter_asis_distance
         else:
             inter_asis_distance = np.linalg.norm(rasi - lasi, axis=1)
             return np.average(inter_asis_distance)
-
-
-    @Function.info(measurements=['RightKneeWidth', 'LeftKneeWidth'],
-                        markers=['RMKN', 'RKNE', 'LMKN', 'LKNE'],
-              returns_constants=['RightKneeWidth', 'LeftKneeWidth'])
-    def calibrate_knee_width(right_knee_width, left_knee_with, rmkn, rkne, lmkn, lkne):
-        if right_knee_width == 0:
-            1/0
-            if rmkn in data.dtype.names:
-                rdst = get_dist(get_markers(data, 'RKNE')[0],
-                                get_markers(data, 'RMKN')[0])
-
-                ldst = get_dist(get_markers(data, 'LKNE')[0],
-                                get_markers(data, 'LMKN')[0])
-
-                calSM['RightKneeWidth'] = np.average(rdst)
-                calSM['LeftKneeWidth']  = np.average(ldst)
 
 
     @Function.info(markers=['RASI', 'LASI', 'RPSI', 'LPSI', 'SACR'],
@@ -116,10 +92,7 @@ class StaticCalc():
         return pelvis_matrix
 
 
-    @Function.info(measurements=['MeanLegLength',
-                                 'R_AsisToTrocanterMeasure',
-                                 'L_AsisToTrocanterMeasure',
-                                 'InterAsisDistance'],
+    @Function.info(measurements=['MeanLegLength', 'R_AsisToTrocanterMeasure', 'L_AsisToTrocanterMeasure', 'InterAsisDistance'],
                            axes=['Pelvis'],
                    returns_axes=['RHipJC', 'LHipJC'])
     def calc_joint_center_hip(mean_leg_length, right_asis_to_trochanter, left_asis_to_trochanter, inter_asis_distance, pelvis):
@@ -569,7 +542,7 @@ class StaticCalc():
 
 
     @Function.info(axes=['Head'],
-      returns_constants=['HeadOffset'])
+   returns_measurements=['HeadOffset'])
     def calc_static_head(head_axis):
         """Static Head Calculation
 
@@ -655,113 +628,7 @@ class StaticCalc():
 
         offset = calc_head_offset(global_axis, head_axis)
 
-        return offset
-
-
-
-
-    @Function.info(markers=['RTOE', 'LTOE', 'RHEE', 'LHEE'],
-                      axes=['RAnkle, LAnkle'],
-                 constants=['RightSoleDelta', 'LeftSoleDelta'])
-    def calc_foot_offset(rtoe, ltoe, rhee, lhee, r_ankle_axis, l_ankle_axis, right_sole_delta=0, left_sole_delta=0):
-        """Calculate the Static foot offset angles.
-
-        Takes in anatomically uncorrected axis or anatomically correct axis.
-        Corrects the axis depending on flat-footedness.
-
-        Calculates the offset angle between those two axes.
-
-        It is rotated from uncorrected axis in YXZ order.
-
-        Markers used: RTOE, LTOE, RHEE, LHEE
-
-        Subject Measurement values used: RightSoleDelta, LeftSoleDelta
-
-        Parameters
-        ----------
-        rtoe : array
-            1x3 RTOE marker
-        ltoe : array
-            1x3 LTOE marker
-        rhee : array
-            1x3 RHEE marker
-        lhee : array
-            1x3 LHEE marker
-        ankle_axis : array
-            array of two 4x4 affine matrices representing the right and left ankle axes and origins
-        flat_foot : boolean
-            A boolean indicating if the feet are flat or not
-        r_sole_delta : float, optional
-            The right sole delta from the subject measurement file
-        l_sole_delta : float, optional
-            The left sole delta from the subject measurement file
-
-        Returns
-        -------
-        angle : array
-            The foot offset angle represented by a 2x3 array.
-            The array contains the right flexion, abduction, rotation angles (1x3)
-            followed by the left flexion, abduction, rotation angles (1x3).
-
-        Notes
-        -----
-        The correct axis changes depending on the flat foot option.
-
-        Examples
-        --------
-        >>> import numpy as np
-        >>> from .pycgmStatic import calc_foot_offset
-        >>> rtoe = np.array([427.95, 437.1,  41.77])
-        >>> ltoe = np.array([175.79, 379.5,  42.61])
-        >>> rhee = np.array([406.46, 227.56,  48.76])
-        >>> lhee = np.array([223.6, 173.43,  47.93])
-        >>> ankle_axis = np.array([[[ 0.72,  0.69, -0.02, 393.76],
-        ...                         [-0.69,  0.71, -0.12, 247.68],
-        ...                         [-0.07,  0.1 ,  0.99,  87.74],
-        ...                         [ 0.  ,  0.  ,  0.  ,   1.  ]],
-        ...                        [[-0.28,  0.96, -0.1 ,  98.75],
-        ...                         [-0.96, -0.26,  0.13, 219.47],
-        ...                         [ 0.1 ,  0.13,  0.99,  80.63],
-        ...                         [ 0.  ,  0.  ,  0.  ,   1.  ]]])
-        >>> flat_foot = True
-        >>> right_sole_delta = 0.45
-        >>> left_sole_delta = 0.45
-        >>> np.around(calc_foot_offset(rtoe, ltoe, rhee, lhee, ankle_axis, flat_foot, right_sole_delta, left_sole_delta), 2)
-        array([[-0.08,  0.23, -0.66],
-               [-0.67,  0.22, -0.3 ]])
-        >>> flat_foot = False # Using the same variables and switching the flat_foot flag.
-        >>> np.around(calc_foot_offset(rtoe, ltoe, rhee, lhee, ankle_axis, flat_foot, right_sole_delta, left_sole_delta), 2)
-        array([[-0.08,  0.2 , -0.15],
-               [-0.67,  0.19,  0.12]])
-        """
-        uncorrect_foot = calc_axis_uncorrect_foot(rtoe, ltoe, r_ankle_axis, l_ankle_axis)
-
-        uncorrect_foot_right = uncorrect_foot[0]
-        uncorrect_foot_left = uncorrect_foot[1]
-
-        # Check if it is flat foot or not.
-        if flat_foot == False:
-            nonflat_foot = calc_axis_nonflatfoot(rtoe, ltoe, rhee, lhee, ankle_axis)
-            nonflat_foot_right = nonflat_foot[0]
-            nonflat_foot_left  = nonflat_foot[1]
-
-            right_angle = calc_static_angle_ankle(uncorrect_foot_right, nonflat_foot_right)
-            left_angle  = calc_static_angle_ankle(uncorrect_foot_left, nonflat_foot_left)
-
-        # elif flat_foot == True:
-        elif flat_foot == True:
-            flat_foot = calc_axis_flatfoot(rtoe, ltoe, rhee, lhee, ankle_axis,
-                                           right_sole_delta,
-                                           left_sole_delta)
-            flat_foot_right = flat_foot[0]
-            flat_foot_left  = flat_foot[1]
-
-            right_angle = calc_static_angle_ankle(uncorrect_foot_right, flat_foot_right)
-            left_angle  = calc_static_angle_ankle(uncorrect_foot_left, flat_foot_left)
-
-        angle = np.asarray([right_angle, left_angle])
-
-        return angle
+        return np.average(offset)
 
 
     @Function.info(markers=['LFHD', 'RFHD', 'LBHD', 'RBHD'],
@@ -850,7 +717,7 @@ class StaticCalc():
 
     @Function.info(markers=['RTOE', 'LTOE'],
                       axes=['RAnkle', 'LAnkle'],
-              returns_axes=['RFootUncorrect', 'LFootUncorrect'])
+              returns_axes=['RFootUncorrected', 'LFootUncorrected'])
     def calc_axis_uncorrect_foot(rtoe, ltoe, r_ankle_axis, l_ankle_axis):
         """Calculate the foot joint center and axis.
 
@@ -1000,177 +867,10 @@ class StaticCalc():
 
 
     @Function.info(markers=['RTOE', 'LTOE', 'RHEE', 'LHEE'],
-                      axes=['RAnkle', 'LAnkle'],
-                 constants=['RightSoleDelta', 'LeftSoleDelta'],
-              returns_axes=['RFootFlat', 'LFootFlat'])
-    def calc_axis_flatfoot(flat_foot, rtoe, ltoe, rhee, lhee, r_ankle_axis, l_ankle_axis, r_sole_delta=0, l_sole_delta=0):
-        """Calculate the anatomically correct foot joint center and axis for a flat foot.
-
-        Takes in the RTOE, LTOE, RHEE and LHEE marker positions
-        as well as the ankle axes. Calculates the anatomically
-        correct foot axis for flat feet.
-
-        Markers used: RTOE, LTOE, RHEE, LHEE
-
-        Subject Measurement values used:
-            RightSoleDelta
-
-            LeftSoleDelta
-
-        Parameters
-        ----------
-        rtoe : array
-            1x3 RTOE marker
-        ltoe : array
-            1x3 LTOE marker
-        rhee : array
-            1x3 RHEE marker
-        lhee : array
-            1x3 LHEE marker
-        ankle_axis : array
-            array of two 4x4 affine matrices representing the right and left ankle axes and origins
-        r_sole_delta : float, optional
-            The right sole delta from the subject measurement file
-        l_sole_delta : float, optional
-            The left sole delta from the subject measurement file
-
-        Returns
-        -------
-        axis : array
-            An array of two 4x4 affine matrices representing the right and left flat foot
-            axes and origins
-
-        Notes
-        -----
-        If the subject wears a shoe, sole_delta is applied. then axes are changed following sole_delta.
-
-        Examples
-        --------
-        >>> import numpy as np
-        >>> np.set_printoptions(suppress=True)
-        >>> from .pycgmStatic import calc_axis_flatfoot
-        >>> rhee = [374.01, 181.58, 49.51]
-        >>> lhee = [105.30, 180.21, 47.16]
-        >>> rtoe = [442.82, 381.62, 42.66]
-        >>> ltoe = [39.44, 382.45, 41.79]
-        >>> ankle_axis = np.array([[[ 0.72,   0.69,  -0.02, 393.76],
-        ...                        [ -0.69,   0.71,  -0.12, 247.68],
-        ...                        [ -0.07,   0.1 ,   0.99,  87.74],
-        ...                        [  0.  ,   0.  ,   0.  ,   1.  ]],
-        ...                       [[ -0.27,   0.96,  -0.1 ,  98.75],
-        ...                        [ -0.96,  -0.26,   0.13, 219.47],
-        ...                        [  0.1 ,   0.13,   0.99,  80.63],
-        ...                        [  0.  ,   0.  ,   0.  ,   1.  ]]])
-        >>> r_sole_delta = 0.45
-        >>> l_sole_delta = 0.45
-        >>> [np.around(arr, 2) for arr in calc_axis_flatfoot(rtoe, ltoe, rhee, lhee, ankle_axis, r_sole_delta, l_sole_delta)] #doctest: +NORMALIZE_WHITESPACE
-        [array([[ -0.51,   0.18,   0.84, 442.82],
-                [ -0.79,   0.27,  -0.54, 381.62],
-                [ -0.33,  -0.95,   0.  ,  42.66],
-                [  0.  ,   0.  ,   0.  ,   1.  ]]), 
-         array([[ -0.29,  -0.09,   0.95,  39.44],
-                [ -0.91,  -0.29,  -0.31, 382.45],
-                [  0.31,  -0.95,   0.  ,  41.79],
-                [  0.  ,   0.  ,   0.  ,   1.  ]])]
-        """
-        #REQUIRED MARKERS:
-        # RTOE
-        # LTOE
-        # RHEE
-        # LHEE
-        # ankle_axis
-
-        ankle_jc_right = r_ankle_axis[:, :, 3]
-        ankle_jc_left  = l_ankle_axis[:, :, 3]
-
-        ankle_flexion_right = r_ankle_axis[:, :, 1] + ankle_jc_right
-        ankle_flexion_left = l_ankle_axis[:, :, 1] + ankle_jc_left
-
-        # Toe axis's origin is marker position of TOE
-        right_origin = rtoe
-        left_origin = ltoe
-
-        ankle_jc_right[:, 2] += r_sole_delta
-        ankle_jc_left[:, 2]  += l_sole_delta
-
-        # Calculate the z axis
-        right_axis_z = ankle_jc_right - rtoe
-        right_axis_z = np.divide(right_axis_z, np.linalg.norm(right_axis_z, axis=1)[:, np.newaxis])
-
-        # For foot flat, Z axis pointing same height of TOE marker from TOE to AJC
-        heel_to_toe = rhee - rtoe
-        heel_to_toe[:, 2] = 0
-        heel_to_toe = np.divide(heel_to_toe, np.linalg.norm(heel_to_toe, axis=1)[:, np.newaxis])
-
-        A = np.cross(heel_to_toe, right_axis_z)
-        A /= np.linalg.norm(A, axis=1)[:, np.newaxis]
-        B = np.cross(A, heel_to_toe)
-        B /= np.linalg.norm(B, axis=1)[:, np.newaxis]
-        C = np.cross(B, A)
-        right_axis_z = C / np.linalg.norm(C, axis=1)[:, np.newaxis]
-
-        # Bring flexion axis from ankle axis
-        right_y_flex = ankle_flexion_right - ankle_jc_right
-        right_y_flex = np.divide(right_y_flex, np.linalg.norm(right_y_flex, axis=1)[:, np.newaxis])
-
-        # Calculate each x,y,z axis of foot using np.cross-product and make sure x,y,z axis is orthogonal each other.
-        right_axis_x = np.cross(right_y_flex,right_axis_z)
-        right_axis_x = np.divide(right_axis_x, np.linalg.norm(right_axis_x, axis=1)[:, np.newaxis])
-
-        right_axis_y = np.cross(right_axis_z,right_axis_x)
-        right_axis_y = np.divide(right_axis_y, np.linalg.norm(right_axis_y, axis=1)[:, np.newaxis])
-
-        right_axis_z = np.cross(right_axis_x,right_axis_y)
-        right_axis_z = np.divide(right_axis_z, np.linalg.norm(right_axis_z, axis=1)[:, np.newaxis])
-
-        right_foot_axis = np.column_stack([right_axis_x, right_axis_y, right_axis_z, right_origin])
-
-        # Left
-
-        # Calculate the z axis of foot flat.
-        left_axis_z = ankle_jc_left - ltoe
-        left_axis_z = np.divide(left_axis_z, np.linalg.norm(left_axis_z, axis=1)[:, np.newaxis])
-
-        # For foot flat, Z axis pointing same height of TOE marker from TOE to AJC
-        heel_to_toe = lhee - ltoe
-        heel_to_toe[:, 2] = 0
-        heel_to_toe = np.divide(heel_to_toe, np.linalg.norm(heel_to_toe, axis=1)[:, np.newaxis])
-        A = np.cross(heel_to_toe, left_axis_z)
-        A = A / np.linalg.norm(A)
-        B = np.cross(A, heel_to_toe)
-        B = B / np.linalg.norm(B)
-        C = np.cross(B, A)
-        left_axis_z = C / np.linalg.norm(C)
-
-        # Bring flexion axis from ankle axis
-        left_y_flex = ankle_flexion_left - ankle_jc_left
-        left_y_flex = np.divide(left_y_flex, np.linalg.norm(left_y_flex, axis=1)[:, np.newaxis])
-
-        # Calculate each x,y,z axis of foot using np.cross-product and make sure (x, y, z) axes are orthogonal to each other
-        left_axis_x = np.cross(left_y_flex,left_axis_z)
-        left_axis_x = np.divide(left_axis_x, np.linalg.norm(left_axis_x, axis=1)[:, np.newaxis])
-
-        left_axis_y = np.cross(left_axis_z,left_axis_x)
-        left_axis_y = np.divide(left_axis_y, np.linalg.norm(left_axis_y, axis=1)[:, np.newaxis])
-
-        left_axis_z = np.cross(left_axis_x,left_axis_y)
-        left_axis_z = np.divide(left_axis_z, np.linalg.norm(left_axis_z, axis=1)[:, np.newaxis])
-
-        left_foot_axis = np.column_stack([left_axis_x, left_axis_y, left_axis_z, left_origin])
-
-        num_frames = rtoe.shape[0]
-        r_foot = right_foot_axis.reshape(num_frames,4,3).transpose(0,2,1)
-        l_foot = left_foot_axis.reshape(num_frames,4,3).transpose(0,2,1)
-
-        axis = np.array([r_foot, l_foot])
-
-        return axis
-
-
-    @Function.info(markers=['RTOE', 'LTOE', 'RHEE', 'LHEE'],
+              measurements=['FlatFoot', 'RightSoleDelta', 'LeftSoleDelta'],
                       axes=['RAnkle', 'LAnkle'],
               returns_axes=['RFoot', 'LFoot'])
-    def calc_axis_nonflatfoot(rtoe, ltoe, rhee, lhee, r_ankle_axis, l_ankle_axis):
+    def calc_axis_foot(rtoe, ltoe, rhee, lhee, flat_foot, r_sole_delta, l_sole_delta, r_ankle_axis, l_ankle_axis):
         """Calculate the anatomically correct foot joint center and axis for a non-flat foot.
 
         Takes in the RTOE, LTOE, RHEE and LHEE marker positions
@@ -1226,7 +926,6 @@ class StaticCalc():
                 [  0.31,  -0.95,   0.03,  41.79],
                 [  0.  ,   0.  ,   0.  ,   1.  ]])]
         """
-
         #REQUIRED MARKERS:
         # RTOE
         # LTOE
@@ -1243,48 +942,126 @@ class StaticCalc():
         right_origin = rtoe
         left_origin = ltoe
 
-        # in case of non foot flat we just use the HEE marker
-        right_axis_z = rhee - rtoe
-        right_axis_z = np.divide(right_axis_z, np.linalg.norm(right_axis_z, axis=1)[:, np.newaxis])
+        if not flat_foot:
+            # in case of non foot flat we just use the HEE marker
+            right_axis_z = rhee - rtoe
+            right_axis_z = np.divide(right_axis_z, np.linalg.norm(right_axis_z, axis=1)[:, np.newaxis])
 
-        y_flex_R = ankle_flexion_right - ankle_jc_right
-        y_flex_R = np.divide(y_flex_R, np.linalg.norm(y_flex_R, axis=1)[:, np.newaxis])
+            y_flex_R = ankle_flexion_right - ankle_jc_right
+            y_flex_R = np.divide(y_flex_R, np.linalg.norm(y_flex_R, axis=1)[:, np.newaxis])
 
-        right_axis_x = np.cross(y_flex_R, right_axis_z)
-        right_axis_x = np.divide(right_axis_x, np.linalg.norm(right_axis_x, axis=1)[:, np.newaxis])
+            right_axis_x = np.cross(y_flex_R, right_axis_z)
+            right_axis_x = np.divide(right_axis_x, np.linalg.norm(right_axis_x, axis=1)[:, np.newaxis])
 
-        right_axis_y = np.cross(right_axis_z, right_axis_x)
-        right_axis_y = np.divide(right_axis_y, np.linalg.norm(right_axis_y, axis=1)[:, np.newaxis])
+            right_axis_y = np.cross(right_axis_z, right_axis_x)
+            right_axis_y = np.divide(right_axis_y, np.linalg.norm(right_axis_y, axis=1)[:, np.newaxis])
 
-        r_foot_axis = np.column_stack([right_axis_x, right_axis_y, right_axis_z, right_origin])
+            r_foot_axis = np.column_stack([right_axis_x, right_axis_y, right_axis_z, right_origin])
 
-        # Left
-        left_axis_z = lhee - ltoe
-        left_axis_z = np.divide(left_axis_z, np.linalg.norm(left_axis_z))
+            # Left
+            left_axis_z = lhee - ltoe
+            left_axis_z = np.divide(left_axis_z, np.linalg.norm(left_axis_z))
 
-        y_flex_L = ankle_flexion_left - ankle_jc_left
-        y_flex_L = np.divide(y_flex_L, np.linalg.norm(y_flex_L, axis=1)[:, np.newaxis])
+            y_flex_L = ankle_flexion_left - ankle_jc_left
+            y_flex_L = np.divide(y_flex_L, np.linalg.norm(y_flex_L, axis=1)[:, np.newaxis])
 
-        left_axis_x = np.cross(y_flex_L, left_axis_z)
-        left_axis_x = np.divide(left_axis_x, np.linalg.norm(left_axis_x, axis=1)[:, np.newaxis])
+            left_axis_x = np.cross(y_flex_L, left_axis_z)
+            left_axis_x = np.divide(left_axis_x, np.linalg.norm(left_axis_x, axis=1)[:, np.newaxis])
 
-        left_axis_y = np.cross(left_axis_z, left_axis_x)
-        left_axis_y = np.divide(left_axis_y, np.linalg.norm(left_axis_y, axis=1)[:, np.newaxis])
+            left_axis_y = np.cross(left_axis_z, left_axis_x)
+            left_axis_y = np.divide(left_axis_y, np.linalg.norm(left_axis_y, axis=1)[:, np.newaxis])
 
-        l_foot_axis = np.column_stack([left_axis_x, left_axis_y, left_axis_z, left_origin])
+            l_foot_axis = np.column_stack([left_axis_x, left_axis_y, left_axis_z, left_origin])
 
-        num_frames = rtoe.shape[0]
-        r_foot = r_foot_axis.reshape(num_frames,4,3).transpose(0,2,1)
-        l_foot = l_foot_axis.reshape(num_frames,4,3).transpose(0,2,1)
+            num_frames = rtoe.shape[0]
+            r_foot = r_foot_axis.reshape(num_frames,4,3).transpose(0,2,1)
+            l_foot = l_foot_axis.reshape(num_frames,4,3).transpose(0,2,1)
 
-        axis = np.array([r_foot, l_foot])
+            axis = np.array([r_foot, l_foot])
 
-        return axis
+            return axis
+        
+        elif flat_foot:
+            ankle_jc_right[:, 2] += r_sole_delta
+            ankle_jc_left[:, 2]  += l_sole_delta
+
+            # Calculate the z axis
+            right_axis_z = ankle_jc_right - rtoe
+            right_axis_z = np.divide(right_axis_z, np.linalg.norm(right_axis_z, axis=1)[:, np.newaxis])
+
+            # For foot flat, Z axis pointing same height of TOE marker from TOE to AJC
+            heel_to_toe = rhee - rtoe
+            heel_to_toe[:, 2] = 0
+            heel_to_toe = np.divide(heel_to_toe, np.linalg.norm(heel_to_toe, axis=1)[:, np.newaxis])
+
+            A = np.cross(heel_to_toe, right_axis_z)
+            A /= np.linalg.norm(A, axis=1)[:, np.newaxis]
+            B = np.cross(A, heel_to_toe)
+            B /= np.linalg.norm(B, axis=1)[:, np.newaxis]
+            C = np.cross(B, A)
+            right_axis_z = C / np.linalg.norm(C, axis=1)[:, np.newaxis]
+
+            # Bring flexion axis from ankle axis
+            right_y_flex = ankle_flexion_right - ankle_jc_right
+            right_y_flex = np.divide(right_y_flex, np.linalg.norm(right_y_flex, axis=1)[:, np.newaxis])
+
+            # Calculate each x,y,z axis of foot using np.cross-product and make sure x,y,z axis is orthogonal each other.
+            right_axis_x = np.cross(right_y_flex,right_axis_z)
+            right_axis_x = np.divide(right_axis_x, np.linalg.norm(right_axis_x, axis=1)[:, np.newaxis])
+
+            right_axis_y = np.cross(right_axis_z,right_axis_x)
+            right_axis_y = np.divide(right_axis_y, np.linalg.norm(right_axis_y, axis=1)[:, np.newaxis])
+
+            right_axis_z = np.cross(right_axis_x,right_axis_y)
+            right_axis_z = np.divide(right_axis_z, np.linalg.norm(right_axis_z, axis=1)[:, np.newaxis])
+
+            right_foot_axis = np.column_stack([right_axis_x, right_axis_y, right_axis_z, right_origin])
+
+            # Left
+
+            # Calculate the z axis of foot flat.
+            left_axis_z = ankle_jc_left - ltoe
+            left_axis_z = np.divide(left_axis_z, np.linalg.norm(left_axis_z, axis=1)[:, np.newaxis])
+
+            # For foot flat, Z axis pointing same height of TOE marker from TOE to AJC
+            heel_to_toe = lhee - ltoe
+            heel_to_toe[:, 2] = 0
+            heel_to_toe = np.divide(heel_to_toe, np.linalg.norm(heel_to_toe, axis=1)[:, np.newaxis])
+            A = np.cross(heel_to_toe, left_axis_z)
+            A = A / np.linalg.norm(A)
+            B = np.cross(A, heel_to_toe)
+            B = B / np.linalg.norm(B)
+            C = np.cross(B, A)
+            left_axis_z = C / np.linalg.norm(C)
+
+            # Bring flexion axis from ankle axis
+            left_y_flex = ankle_flexion_left - ankle_jc_left
+            left_y_flex = np.divide(left_y_flex, np.linalg.norm(left_y_flex, axis=1)[:, np.newaxis])
+
+            # Calculate each x,y,z axis of foot using np.cross-product and make sure (x, y, z) axes are orthogonal to each other
+            left_axis_x = np.cross(left_y_flex,left_axis_z)
+            left_axis_x = np.divide(left_axis_x, np.linalg.norm(left_axis_x, axis=1)[:, np.newaxis])
+
+            left_axis_y = np.cross(left_axis_z,left_axis_x)
+            left_axis_y = np.divide(left_axis_y, np.linalg.norm(left_axis_y, axis=1)[:, np.newaxis])
+
+            left_axis_z = np.cross(left_axis_x,left_axis_y)
+            left_axis_z = np.divide(left_axis_z, np.linalg.norm(left_axis_z, axis=1)[:, np.newaxis])
+
+            left_foot_axis = np.column_stack([left_axis_x, left_axis_y, left_axis_z, left_origin])
+
+            num_frames = rtoe.shape[0]
+            r_foot = right_foot_axis.reshape(num_frames,4,3).transpose(0,2,1)
+            l_foot = left_foot_axis.reshape(num_frames,4,3).transpose(0,2,1)
+
+            axis = np.array([r_foot, l_foot])
+
+            return axis
 
 
-    @Function.info(axes=['RFootUncorrect', 'RFoot', 'LFootUncorrect', 'LFoot'],
-         returns_angles=['RFoot', 'LFoot'])
-    def calc_static_angle_ankle(r_foot_axis_uncorrect, r_foot_axis, l_foot_axis_uncorrect, l_foot_axis):
+    @Function.info(axes=['RFootUncorrected', 'RFoot', 'LFootUncorrected', 'LFoot'],
+   returns_measurements=['RightStaticRotOff', 'RightStaticPlantFlex', 'LeftStaticRotOff', 'LeftStaticPlantFlex'])
+    def calc_static_ankle_offsets(r_foot_axis_uncorrect, r_foot_axis, l_foot_axis_uncorrect, l_foot_axis):
         """Static angle calculation function.
 
         Takes in two axes and returns the rotation, flexion,
@@ -1344,7 +1121,8 @@ class StaticCalc():
         alpha = np.arctan(a)
         beta = np.arctan(b)
 
-        r_angle = np.array([alpha, beta, gamma])
+        right_static_rot_off    = np.average(alpha) * -1
+        right_static_plant_flex = np.average(beta)
 
         l_foot_axis_uncorrect = np.asarray(l_foot_axis_uncorrect)
         l_foot_axis = np.asarray(l_foot_axis)
@@ -1368,239 +1146,7 @@ class StaticCalc():
         alpha = np.arctan(a)
         beta = np.arctan(b)
 
-        l_angle = np.array([alpha, beta, gamma])
-        return r_angle, l_angle
+        left_static_rot_off     = np.average(alpha)
+        left_static_plant_flex  = np.average(beta)
 
-
-def get_markers(arr, names, points_only=True):
-    if isinstance(names, str):
-        names = [names]
-    num_frames = arr[0][0].shape[0]
-
-    if any(name not in arr[0].dtype.names for name in names):
-        return None
-
-    point = [('x', 'f8'), ('y', 'f8'), ('z', 'f8')]
-    marker_dtype = [('frame', 'f8'), ('point', point)]
-    rec = rfn.repack_fields(arr[names]).view(marker_dtype).reshape(len(names), int(num_frames))
-
-
-    if points_only:
-        rec = rec['point'][['x', 'y', 'z']]
-
-    rec = rfn.structured_to_unstructured(rec)
-
-
-    return rec
-
-
-def getStatic(vsk, data, flat_foot=False, GCS=None):
-    """ Get Static Offset function
-
-    Calculate the static offset angle values and return the values in radians
-
-    Parameters
-    ----------
-    vsk : dict, optional
-        Dictionary of various attributes of the skeleton.
-    flat_foot : boolean, optional
-        A boolean indicating if the feet are flat or not.
-        The default value is False.
-    GCS : array, optional
-        An array containing the Global Coordinate System.
-        If not provided, the default will be set to: [[1, 0, 0], [0, 1, 0], [0, 0, 1]].
-
-    Returns
-    -------
-    calSM : dict
-        Dictionary containing various marker lists of offsets.
-
-    Examples
-    --------
-    >>> from .pycgmIO import loadC3D, loadVSK
-    >>> from .pycgmStatic import getStatic
-    >>> import os
-    >>> from .pyCGM_Helpers import getfilenames
-    >>> fileNames=getfilenames(2)
-    >>> c3dFile = fileNames[1]
-    >>> vskFile = fileNames[2]
-    >>> result = loadC3D(c3dFile)
-    >>> data = result[0]
-    >>> vskData = loadVSK(vskFile, False)
-    >>> result = getStatic(data,vskData,flat_foot=False)
-    >>> result['Bodymass']
-    75.0
-    >>> result['RightKneeWidth']
-    105.0
-    >>> result['LeftTibialTorsion']
-    0.0
-    """
-    calSM = {}
-
-
-
-
-    try:
-        calSM['RightAnkleWidth'] = vsk['RightAnkleWidth']
-        calSM['LeftAnkleWidth']  = vsk['LeftAnkleWidth']
-    except:
-        #no knee width
-        calSM['RightAnkleWidth'] = 0
-        calSM['LeftAnkleWidth'] = 0
-
-    if calSM['RightAnkleWidth'] == 0:
-        if 'RMKN' in data.dtype.names:
-            rdst = get_dist(get_markers(data, 'RMMA')[0],
-                            get_markers(data, 'RANK')[0])
-
-            ldst = get_dist(get_markers(data, 'LMMA')[0],
-                            get_markers(data, 'LANK')[0])
-
-            calSM['RightAnkleWidth'] = np.average(rdst)
-            calSM['LeftAnkleWidth']  = np.average(ldst)
-
-    calSM['RightTibialTorsion'] = vsk['RightTibialTorsion']
-    calSM['LeftTibialTorsion'] =vsk['LeftTibialTorsion']
-
-    calSM['RightShoulderOffset'] = vsk['RightShoulderOffset']
-    calSM['LeftShoulderOffset'] = vsk['LeftShoulderOffset']
-
-    calSM['RightElbowWidth'] = vsk['RightElbowWidth']
-    calSM['LeftElbowWidth'] = vsk['LeftElbowWidth']
-    calSM['RightWristWidth'] = vsk['RightWristWidth']
-    calSM['LeftWristWidth'] = vsk['LeftWristWidth']
-
-    calSM['RightHandThickness'] = vsk['RightHandThickness']
-    calSM['LeftHandThickness'] = vsk['LeftHandThickness']
-
-    knee_axis = calc_axis_knee(get_markers(data, 'RTHI')[0],
-                               get_markers(data, 'LTHI')[0],
-                               get_markers(data, 'RKNE')[0],
-                               get_markers(data, 'LKNE')[0],
-                               hip_jc[0],
-                               hip_jc[1],
-                               calSM['RightKneeWidth'],
-                               calSM['LeftKneeWidth'])
-
-    ankle_axis = calc_axis_ankle(get_markers(data, 'RTIB')[0],
-                                 get_markers(data, 'LTIB')[0],
-                                 get_markers(data, 'RANK')[0],
-                                 get_markers(data, 'LANK')[0],
-                                 knee_axis[0],
-                                 knee_axis[1],
-                                 calSM['RightAnkleWidth'],
-                                 calSM['LeftAnkleWidth'],
-                                 calSM['RightTibialTorsion'],
-                                 calSM['LeftTibialTorsion'])
-
-    static_foot_offset = calc_foot_offset(get_markers(data, 'RTOE')[0],
-                                          get_markers(data, 'LTOE')[0],
-                                          get_markers(data, 'RHEE')[0],
-                                          get_markers(data, 'LHEE')[0],
-                                          ankle_axis,
-                                          flat_foot,
-                                          calSM['RightSoleDelta'] if 'RightSoleDelta' in calSM else 0,
-                                          calSM['LeftSoleDelta'] if 'LeftSoleDelta' in calSM else 0)
-
-    head = calc_axis_head(get_markers(data, 'LFHD')[0],
-                          get_markers(data, 'RFHD')[0],
-                          get_markers(data, 'LBHD')[0],
-                          get_markers(data, 'RBHD')[0])
-
-    head_offset = calc_static_head(head)
-
-    right_static_rot_off    = np.average(static_foot_offset[0][0]) * -1
-    right_static_plant_flex = np.average(static_foot_offset[0][1])
-    left_static_rot_off     = np.average(static_foot_offset[1][0])
-    left_static_plant_flex  = np.average(static_foot_offset[1][1])
-    static_head=np.average(head_offset)
-
-    calSM['RightStaticRotOff']    = right_static_rot_off
-    calSM['RightStaticPlantFlex'] = right_static_plant_flex
-    calSM['LeftStaticRotOff']     = left_static_rot_off
-    calSM['LeftStaticPlantFlex']  = left_static_plant_flex
-    calSM['HeadOffset']           = static_head
-
-    return calSM
-
-
-def get_dist(p0, p1):
-    """Get Distance function
-
-    This function calculates the distance between two 3-D positions.
-
-    Parameters
-    ----------
-    p0 : array
-        Position of first x, y, z coordinate.
-    p1 : array
-        Position of second x, y, z coordinate.
-
-    Returns
-    -------
-    float
-        The distance between positions p0 and p1.
-
-    Examples
-    --------
-    >>> import numpy as np
-    >>> from .pycgmStatic import getDist
-    >>> p0 = [0,1,2]
-    >>> p1 = [1,2,3]
-    >>> np.around(getDist(p0,p1), 2)
-    1.73
-    >>> p0 = np.array([991.45, 741.95, 321.36])
-    >>> p1 = np.array([117.09, 142.24, 481.95])
-    >>> np.around(getDist(p0,p1), 2)
-    1072.36
-    """
-    p0 = np.asarray(p0)
-    p1 = np.asarray(p1)
-
-    distance = np.linalg.norm(p0 - p1)
-    return distance
-
-
-def calc_IAD(rasi, lasi):
-    """Inter ASIS Distance (IAD) Calculation
-
-    Calculates the Inter ASIS Distance.
-    Markers used: RASI, LASI
-
-    Parameters
-    ----------
-    rasi: array
-        1x3 RASI marker
-    lasi: array
-        1x3 LASI marker
-
-    Returns
-    -------
-    IAD : float
-        The Inter ASIS Distance
-
-    Examples
-    --------
-    >>> import numpy as np
-    >>> from .pycgmStatic import calc_IAD
-    >>> lasi = np.array([ 183.19,  422.79, 1033.07])
-    >>> rasi = np.array([ 395.37,  428.1, 1036.83])
-    >>> np.around(calc_IAD(rasi, lasi), 2)
-    212.28
-    """
-    return np.linalg.norm(rasi - lasi, axis=1)
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
+        return np.array([right_static_rot_off, right_static_plant_flex, left_static_rot_off, left_static_plant_flex])
