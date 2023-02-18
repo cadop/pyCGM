@@ -1,5 +1,5 @@
-import time
 import os
+import time
 
 
 class DynamicTrialSet():
@@ -48,4 +48,3 @@ class DynamicTrialSet():
                 end = time.time()
 
                 print(f"\t{trial_name:<20}\t{function.name:<25}\t{end-start:.5f}s")
-
