@@ -35,16 +35,7 @@ class Model():
         """
         Run each of the Model's trials
         """
-        # Run static trial 
-        self.static_calc.expand_parameters_from_data(self.data)
         self.static_trial.run(self.static_calc)
-
-        # Load calibrated parameters
-        self.dynamic_trials = DynamicTrialSet(self.data)
-        self.dynamic_calc.update_trial_names(self.dynamic_trials.trial_names)
-        self.dynamic_calc.expand_parameters_from_data(self.data)
-
-        # Run dynamic trials
         self.dynamic_trials.run(self.dynamic_calc)
 
     def structure(self):
@@ -64,6 +55,14 @@ class Model():
 
         # Structure static trial
         self.static_trial = StaticTrial(self.data.static)
+
+        # Load calibrated parameters
+        self.dynamic_trials = DynamicTrialSet(self.data)
+        self.dynamic_calc.update_trial_names(self.dynamic_trials.trial_names)
+
+        # Set parameters to locations in struct
+        self.static_calc.expand_parameters_from_data(self.data)
+        self.dynamic_calc.expand_parameters_from_data(self.data)
 
         end = time.time()
         print(f"Time to structure model: {end - start}s")
