@@ -28,7 +28,7 @@ model = Model(os.path.join(script_dir, 'Sample_2/RoboStatic.c3d'), \
 model.run()
 
 # Verify RoboWalk results
-# diff_pycgm_csv(model, 'RoboWalk', os.path.join(script_dir, 'Sample_2/pycgm_results.csv'))
+diff_pycgm_csv(model, 'RoboWalk', os.path.join(script_dir, 'Sample_2/pycgm_results.csv'))
 
 # Run set of models
 # cgm = pyCGM.PyCGM([model, model, model, model])
