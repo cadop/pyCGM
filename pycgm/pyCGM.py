@@ -1,6 +1,6 @@
 import time
 
-from .model.model import Model
+from model.model import Model
 
 
 class PyCGM():
