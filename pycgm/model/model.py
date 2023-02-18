@@ -35,7 +35,6 @@ class Model():
         """
         Run each of the Model's trials
         """
-        self.static_calc.expand_parameters_from_data(self.data)
         self.static_trial.run(self.static_calc)
 
         self.dynamic_calc.expand_parameters_from_data(self.data)
@@ -58,6 +57,7 @@ class Model():
 
         # Structure static trial
         self.static_trial = StaticTrial(self.data.static)
+        self.static_calc.expand_parameters_from_data(self.data)
 
         # Load calibrated parameters
         self.dynamic_trials = DynamicTrialSet(self.data)
