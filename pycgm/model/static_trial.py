@@ -8,8 +8,8 @@ class StaticTrial():
 
 
     def run(self, calc):
-        start = time.time()
         for function in calc.static_functions:
+            start = time.time()
             returned = function.run('static')
 
             if function.returns['axes'] != [None]:
