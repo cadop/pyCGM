@@ -1,3 +1,4 @@
+import copy
 import itertools
 import time
 
@@ -10,14 +11,8 @@ from .kinematics.static import CalcStatic
 
 class StaticCalc:
     def __init__(self, function_set=None):
-        self.function_set = function_set
+        self.static_functions = copy.deepcopy(CalcStatic().funcs) if function_set is None else function_set
         self.update_parameter_values()
-
-    @property
-    def static_functions(self):
-        if self.function_set is None:
-            return CalcStatic().funcs
-        return self.function_set
 
     @property
     def required_measurements(self):
