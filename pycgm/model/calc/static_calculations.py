@@ -11,46 +11,46 @@ from .kinematics.static import CalcStatic
 
 class StaticCalc:
     def __init__(self, function_set=None):
-        self.static_functions = copy.deepcopy(CalcStatic().funcs) if function_set is None else function_set
+        self.function_set = copy.deepcopy(CalcStatic().funcs) if function_set is None else function_set
         self.update_parameter_values()
 
     @property
     def required_measurements(self):
-        return set(itertools.chain.from_iterable([function.required_measurements for function in self.static_functions]))
+        return set(itertools.chain.from_iterable([function.required_measurements for function in self.function_set]))
 
     @property
     def returned_measurements(self):
-        return set(itertools.chain.from_iterable([function.returned_measurements for function in self.static_functions]))
+        return set(itertools.chain.from_iterable([function.returned_measurements for function in self.function_set]))
 
     @property
     def returned_axes(self):
-        return set(itertools.chain.from_iterable([function.returned_axes for function in self.static_functions]))
+        return set(itertools.chain.from_iterable([function.returned_axes for function in self.function_set]))
 
     @property
     def returned_angles(self):
-        return set(itertools.chain.from_iterable([function.returned_angles for function in self.static_functions]))
+        return set(itertools.chain.from_iterable([function.returned_angles for function in self.function_set]))
 
     @property
     def returned_measurements(self):
-        return set(itertools.chain.from_iterable([function.returned_measurements for function in self.static_functions]))
+        return set(itertools.chain.from_iterable([function.returned_measurements for function in self.function_set]))
 
 
     def index_of_function(self, function_name):
-        for idx, function in enumerate(self.static_functions):
+        for idx, function in enumerate(self.function_set):
             if function.name == function_name:
                 return idx
-        return len(self.static_functions)
+        return len(self.function_set)
 
 
     def update_parameter_values(self):
-        for function in self.static_functions:
+        for function in self.function_set:
             function.parameter_values['static'] =  []
 
     def expand_parameters_from_data(self, data):
         """
         Expand each function's parameter names to values to in passed data
         """
-        for function in self.static_functions:
+        for function in self.function_set:
             function.parameter_values['static'] = []
 
             for parameter_name in function.required_markers:

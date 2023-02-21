@@ -8,7 +8,7 @@ class StaticTrial():
 
 
     def run(self, calc):
-        for function in calc.static_functions:
+        for function in calc.function_set:
             start = time.time()
             returned = function.run('static')
 
