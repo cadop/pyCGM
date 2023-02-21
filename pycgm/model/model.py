@@ -64,7 +64,7 @@ class Model():
 
 
         end = time.time()
-        print(f"Time to structure model: {end - start}s")
+        # print(f"Time to structure model: {end - start}s")
 
     
     def insert_static_function(self, function, index=None, before=None, after=None):
