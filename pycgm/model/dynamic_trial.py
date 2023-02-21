@@ -2,7 +2,7 @@ import os
 import time
 
 
-class DynamicTrialSet():
+class DynamicTrial():
     def __init__(self, data):
         self.trials = data.dynamic
         self.trial_names = data.dynamic.dtype.names

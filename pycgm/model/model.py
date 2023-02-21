@@ -6,7 +6,7 @@ from .calc.dynamic_calculations import DynamicCalc
 from .calc.kinematics import dynamic
 from .calc.kinematics import static
 from .calc.static_calculations import StaticCalc
-from .dynamic_trial_set import DynamicTrialSet
+from .dynamic_trial_set import DynamicTrial
 from .static_trial import StaticTrial
 from .utils.structure import structure_model
 
@@ -59,7 +59,7 @@ class Model():
         self.static_calc.expand_parameters_from_data(self.data)
 
         # Load calibrated parameters
-        self.dynamic_trials = DynamicTrialSet(self.data)
+        self.dynamic_trials = DynamicTrial(self.data)
         self.dynamic_calc.update_trial_names(self.dynamic_trials.trial_names)
 
 
