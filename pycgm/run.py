@@ -1,8 +1,8 @@
 import os
 
 import numpy as np
-from csv_diff import diff_pycgm_csv
 from model.model import Model
+from model.utils.csv_diff import diff_pycgm_csv
 
 import pyCGM
 
