@@ -17,8 +17,7 @@ class Model():
                  dynamic_filenames,
                  measurement_filename,
                  static_functions=None,
-                 dynamic_axis_functions=None,
-                 dynamic_angle_functions=None):
+                 dynamic_functions=None):
         """
         Represents a Model
         """
@@ -27,7 +26,7 @@ class Model():
         self.measurement_filename = measurement_filename
 
         self.static_calc  = StaticCalc(static_functions)
-        self.dynamic_calc = DynamicCalc(dynamic_axis_functions, dynamic_angle_functions)
+        self.dynamic_calc = DynamicCalc(dynamic_functions)
         self.structure()
 
 
@@ -68,38 +67,38 @@ class Model():
         print(f"Time to structure model: {end - start}s")
 
     
-    def insert_axis_function(self, function, index=None, before=None, after=None):
+    def insert_static_function(self, function, index=None, before=None, after=None):
 
         if index is not None:
-            self.dynamic_calc.axis_function_set.insert(index, function)
+            self.static_calc.function_set.insert(index, function)
 
         elif before is not None:
-            func_idx = self.dynamic_calc.index_of_axis_function(before)
-            self.dynamic_calc.axis_function_set.insert(func_idx, function)
+            func_idx = self.static_calc.index_of_function(before)
+            self.static_calc.function_set.insert(func_idx, function)
 
         elif after is not None:
-            func_idx = self.dynamic_calc.index_of_axis_function(after)
-            self.dynamic_calc.axis_function_set.insert(func_idx + 1, function)
+            func_idx = self.static_calc.index_of_function(after)
+            self.static_calc.function_set.insert(func_idx + 1, function)
 
         else:
-            self.dynamic_calc.axis_function_set.append(function)
+            self.static_calc.function_set.append(function)
 
         self.structure()
 
-    def insert_angle_function(self, function, index=None, before=None, after=None):
+    def insert_dynamic_function(self, function, index=None, before=None, after=None):
 
         if index is not None:
-            self.dynamic_calc.angle_function_set.insert(index, function)
+            self.dynamic_calc.function_set.insert(index, function)
 
         elif before is not None:
-            func_idx = self.dynamic_calc.index_of_angle_function(before)
-            self.dynamic_calc.angle_function_set.insert(func_idx, function)
+            func_idx = self.dynamic_calc.index_of_function(before)
+            self.dynamic_calc.function_set.insert(func_idx, function)
 
         elif after is not None:
-            func_idx = self.dynamic_calc.index_of_angle_function(after)
-            self.dynamic_calc.angle_function_set.insert(func_idx + 1, function)
+            func_idx = self.dynamic_calc.index_of_function(after)
+            self.dynamic_calc.function_set.insert(func_idx + 1, function)
 
         else:
-            self.dynamic_calc.angle_function_set.append(function)
+            self.dynamic_calc.function_set.append(function)
 
         self.structure()

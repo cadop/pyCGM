@@ -7,14 +7,27 @@ from ..function import Function
 from .shared import CalcUtils as CalcUtils
 
 
-class CalcAxes():
+class CalcDynamic():
 
     def __init__(self):
-        self.funcs = [self.calc_axis_pelvis, self.calc_joint_center_hip,
-                      self.calc_axis_hip, self.calc_axis_knee, self.calc_axis_ankle,
-                      self.calc_axis_foot, self.calc_axis_head, self.calc_axis_thorax,
-                      self.calc_marker_wand, self.calc_joint_center_shoulder, self.calc_axis_shoulder,
-                      self.calc_axis_elbow, self.calc_axis_wrist, self.calc_axis_hand]
+        self.funcs = [
+                      # Axes
+                      self.calc_axis_pelvis, self.calc_joint_center_hip,
+                      self.calc_axis_hip, self.calc_axis_knee,
+                      self.calc_axis_ankle, self.calc_axis_foot,
+                      self.calc_axis_head, self.calc_axis_thorax,
+                      self.calc_marker_wand, self.calc_joint_center_shoulder,
+                      self.calc_axis_shoulder, self.calc_axis_elbow,
+                      self.calc_axis_wrist, self.calc_axis_hand,
+
+                      # Angles
+                      self.calc_angle_pelvis, self.calc_angle_hip,
+                      self.calc_angle_knee, self.calc_angle_ankle,
+                      self.calc_angle_foot, self.calc_angle_head,
+                      self.calc_angle_thorax, self.calc_angle_neck,
+                      self.calc_angle_spine, self.calc_angle_shoulder,
+                      self.calc_angle_elbow, self.calc_angle_wrist
+                     ]
 
     @Function.info(markers=['RASI', 'LASI', 'RPSI', 'LPSI', 'SACR'],
               returns_axes=['Pelvis'])
@@ -1726,13 +1739,6 @@ class CalcAxes():
         return np.asarray([r_hand_axis_matrix, l_hand_axis_matrix])
 
 
-
-class CalcAngles():
-
-    def __init__(self):
-        self.funcs = [self.calc_angle_pelvis, self.calc_angle_hip, self.calc_angle_knee, self.calc_angle_ankle, self.calc_angle_foot, self.calc_angle_head,
-                      self.calc_angle_thorax, self.calc_angle_neck, self.calc_angle_spine, self.calc_angle_shoulder, self.calc_angle_elbow, self.calc_angle_wrist]
-
     @Function.info(measurements=['GCS'],
                            axes=['Pelvis'],
                  returns_angles=['Pelvis'])
@@ -1776,10 +1782,10 @@ class CalcAngles():
         ...           [ 0.71, -0.11, -0.69, 857.41],
         ...           [ 0.67, -0.14, 0.72, 418.56],
         ...           [0, 0, 0, 1]]
-        >>> np.around(CalcAngles().pelvis_angle(axis_p,axis_d), 2)
+        >>> np.around(CalcDynamic().pelvis_angle(axis_p,axis_d), 2)
         array([-174.82,  -39.26,  100.54])
         """
-        angle = CalcAngles().calc_angle(axis_p, axis_d)
+        angle = CalcDynamic().calc_angle(axis_p, axis_d)
         return np.asarray(angle)
 
     @Function.info(axes=['Hip', 'RKnee', 'Hip', 'LKnee'],
@@ -1790,11 +1796,11 @@ class CalcAngles():
             Please refer to the static get_angle function for documentation.
         """
 
-        right_angles = CalcAngles().calc_angle(r_axis_p, r_axis_d)
+        right_angles = CalcDynamic().calc_angle(r_axis_p, r_axis_d)
         right_angles[:, 0] *= -1
         right_angles[:, 2] = right_angles[:, 2] * -1 + 90
 
-        left_angles = CalcAngles().calc_angle(l_axis_p, l_axis_d)
+        left_angles = CalcDynamic().calc_angle(l_axis_p, l_axis_d)
         left_angles[:, 0] *= -1
         left_angles[:, 1] *= -1
         left_angles[:, 2] = left_angles[:, 2] - 90
@@ -1809,10 +1815,10 @@ class CalcAngles():
             Please refer to the static get_angle function for documentation.
         """
 
-        right_angles = CalcAngles().calc_angle(r_axis_p, r_axis_d)
+        right_angles = CalcDynamic().calc_angle(r_axis_p, r_axis_d)
         right_angles[:, 2] = right_angles[:, 2] * -1 + 90
 
-        left_angles = CalcAngles().calc_angle(l_axis_p, l_axis_d)
+        left_angles = CalcDynamic().calc_angle(l_axis_p, l_axis_d)
         left_angles[:, 1]  *= -1
         left_angles[:, 2] -= 90
 
@@ -1826,13 +1832,13 @@ class CalcAngles():
             Please refer to the static get_angle function for documentation.
         """
 
-        right_angles = CalcAngles().calc_angle(r_axis_p, r_axis_d)
+        right_angles = CalcDynamic().calc_angle(r_axis_p, r_axis_d)
         right_z = np.copy(right_angles[:, 1])
         right_angles[:, 0] = (right_angles[:, 0] * -1) - 90
         right_angles[:, 1] = (right_angles[:, 2] * -1) + 90
         right_angles[:, 2] = right_z
 
-        left_angles = CalcAngles().calc_angle(l_axis_p, l_axis_d)
+        left_angles = CalcDynamic().calc_angle(l_axis_p, l_axis_d)
         left_z = np.copy(left_angles[:, 1] * -1)
         left_angles[:, 0] = left_angles[:, 0] * -1 - 90
         left_angles[:, 1] = left_angles[:, 2] - 90
@@ -1849,12 +1855,12 @@ class CalcAngles():
             Please refer to the static get_angle function for documentation.
         """
 
-        right_angles = CalcAngles().calc_angle(r_axis_p, r_axis_d)
+        right_angles = CalcDynamic().calc_angle(r_axis_p, r_axis_d)
         right_z = np.copy(right_angles[:, 1])
         right_angles[:, 1] = right_angles[:, 2] - 90
         right_angles[:, 2] = right_z
 
-        left_angles = CalcAngles().calc_angle(r_axis_p, l_axis_d)
+        left_angles = CalcDynamic().calc_angle(r_axis_p, l_axis_d)
         left_z = np.copy(left_angles[:, 1] * -1)
         left_angles[:, 1] = (left_angles[:, 2] -90) * -1
         left_angles[:, 2] = left_z
@@ -2002,7 +2008,7 @@ class CalcAngles():
                                  np.subtract(global_axis_form[1], global_center),
                                  np.subtract(global_axis_form[2], global_center)])
 
-        thorax = CalcAngles().calc_angle(global_axis, axis_d)
+        thorax = CalcDynamic().calc_angle(global_axis, axis_d)
 
         def thorax_conditions(thorax_x):
             if thorax_x > 0:
@@ -2327,10 +2333,10 @@ class CalcAngles():
             Please refer to the static get_angle function for documentation.
         """
 
-        right_angles = CalcAngles().calc_angle(r_axis_p, r_axis_d)
+        right_angles = CalcDynamic().calc_angle(r_axis_p, r_axis_d)
         right_angles[:, 2] -= 90
 
-        left_angles = CalcAngles().calc_angle(l_axis_p, l_axis_d)
+        left_angles = CalcDynamic().calc_angle(l_axis_p, l_axis_d)
         left_angles[:, 2] -= 90
 
         return np.array([right_angles, left_angles])
@@ -2343,10 +2349,10 @@ class CalcAngles():
             Please refer to the static get_angle function for documentation.
         """
 
-        right_angles = CalcAngles().calc_angle(r_axis_p, r_axis_d)
+        right_angles = CalcDynamic().calc_angle(r_axis_p, r_axis_d)
         right_angles[:, 2] = right_angles[:, 2] * -1 + 90
 
-        left_angles = CalcAngles().calc_angle(l_axis_p, l_axis_d)
+        left_angles = CalcDynamic().calc_angle(l_axis_p, l_axis_d)
         left_angles[:, 1] *= -1
         left_angles[:, 2] -= 90
 

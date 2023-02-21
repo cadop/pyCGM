@@ -1,64 +1,40 @@
+import copy
 import itertools
 import time
 
 import numpy.lib.recfunctions as rfn
 
 from ..utils.constants import POINT_DTYPE
-from .kinematics.dynamic import CalcAngles
-from .kinematics.dynamic import CalcAxes
+from .kinematics.dynamic import CalcDynamic
 
 
 class DynamicCalc:
-    def __init__(self, axis_function_set=None, angle_function_set=None):
-        self.axis_function_set = axis_function_set
-        self.angle_function_set = angle_function_set
-
-    @property
-    def axis_functions(self):
-        if self.axis_function_set is None:
-            self.axis_function_set = CalcAxes().funcs
-        return self.axis_function_set
-
-    @property
-    def angle_functions(self):
-        if self.angle_function_set is None:
-            self.angle_function_set = CalcAngles().funcs
-        return self.angle_function_set
+    def __init__(self, function_set=None):
+        self.function_set = copy.deepcopy(CalcDynamic().funcs) if function_set is None else function_set
 
     @property
     def required_measurements(self):
-        required_by_axis = set(itertools.chain.from_iterable([function.required_measurements for function in self.axis_functions]))
-        required_by_angle = set(itertools.chain.from_iterable([function.required_measurements for function in self.angle_functions]))
-        return set(required_by_axis.union(required_by_angle))
+        return set(itertools.chain.from_iterable([function.required_measurements for function in self.function_set]))
 
     @property
     def returned_axes(self):
-        return list(itertools.chain.from_iterable([function.returned_axes for function in self.axis_functions]))
+        return set(itertools.chain.from_iterable([function.returned_axes for function in self.function_set]))
 
     @property
     def returned_angles(self):
-        return list(itertools.chain.from_iterable([function.returned_angles for function in self.angle_functions]))
+        return set(itertools.chain.from_iterable([function.returned_angles for function in self.function_set]))
 
 
-    def index_of_axis_function(self, function_name):
-        for idx, function in enumerate(self.axis_function_set):
+    def index_of_function(self, function_name):
+        for idx, function in enumerate(self.function_set):
             if function.name == function_name:
                 return idx
-        return len(self.axis_function_set)
-
-
-    def index_of_angle_function(self, function_name):
-        for idx, function in enumerate(self.angle_function_set):
-            if function.name == function_name:
-                return idx
-        return len(self.angle_function_set)
+        return len(self.function_set)
 
 
     def update_trial_names(self, trial_names):
         for trial_name in trial_names:
-            for function in self.axis_functions:
-                function.parameter_values[trial_name] =  []
-            for function in self.angle_functions:
+            for function in self.function_set:
                 function.parameter_values[trial_name] =  []
 
     def expand_parameters_from_data(self, trials):
@@ -66,7 +42,7 @@ class DynamicCalc:
         Expand each function's parameter names to values to in passed data
         """
         for trial_name in trials.dynamic.dtype.names:
-            for function in self.axis_functions + self.angle_functions:
+            for function in self.function_set:
                 function.parameter_values[trial_name] = []
 
                 for parameter_name in function.required_markers:
