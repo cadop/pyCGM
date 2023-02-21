@@ -1,9 +1,8 @@
 import os 
 
-from model.model import Model
-from model.calc.function import Function
-
 import numpy as np
+from model.calc.function import Function
+from model.model import Model
 
 def get_data_dir():
     """
@@ -62,14 +61,14 @@ model = Model(os.path.join(script_dir, 'Sample_2/RoboStatic.c3d'), \
              [os.path.join(script_dir, 'Sample_2/RoboWalk.c3d'), os.path.join(script_dir, 'ROM/Sample_Dynamic.c3d')], \
               os.path.join(script_dir, 'Sample_2/RoboSM.vsk'))
 # Add function to existing set
-model.insert_axis_function(calc_axis_eye, before='calc_axis_pelvis')
+model.insert_dynamic_function(calc_axis_eye, before='calc_axis_pelvis')
+model.insert_dynamic_function(calc_angle_eye, before='calc_angle_pelvis')
 model.run()
 #
 # # Create model with predefined axis and angle function or function list
-# model = Model(os.path.join(script_dir, 'Sample_2/RoboStatic.c3d'), \
-#              [os.path.join(script_dir, 'Sample_2/RoboWalk.c3d'), os.path.join(script_dir, 'ROM/Sample_Dynamic.c3d')], \
-#               os.path.join(script_dir, 'Sample_2/RoboSM.vsk'),
-#               calc_axis_eye,
-#               calc_angle_eye)
-# model.run()
-#
+model = Model(os.path.join(script_dir, 'Sample_2/RoboStatic.c3d'), \
+             [os.path.join(script_dir, 'Sample_2/RoboWalk.c3d'), os.path.join(script_dir, 'ROM/Sample_Dynamic.c3d')], \
+              os.path.join(script_dir, 'Sample_2/RoboSM.vsk'),
+              [calc_axis_eye],
+              [calc_angle_eye])
+model.run()
