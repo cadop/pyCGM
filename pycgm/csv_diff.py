@@ -39,34 +39,17 @@ def diff_pycgm_csv(model, trial_name, csv_filename):
                 original_x = frame[slc.start + 3:slc.start + 6] - original_o
                 original_y = frame[slc.start + 6:slc.start + 9] - original_o
                 original_z = frame[slc.start + 9:slc.stop]      - original_o
-                refactored_x = model_output_axes[key][0][frame_idx][:, 0]
-                refactored_y = model_output_axes[key][0][frame_idx][:, 1]
-                refactored_z = model_output_axes[key][0][frame_idx][:, 2]
-                refactored_o = model_output_axes[key][0][frame_idx][:, 3]
-                if not np.allclose(original_o, refactored_o):
+
+                original_matrix = np.array([original_x, original_y, original_z, original_o]).T
+                model_matrix = model_output_axes[key][0][frame_idx]
+
+                if not np.allclose(original_matrix, model_matrix):
                     accurate = False
-                    error = abs((original_o - refactored_o) / original_o) * 100
-                    print(f'\nAxis mismatch, Frame {frame_idx}: {key}, origin ({error})%')
-                    print(f"{original_o=}\n{refactored_o=}")
+                    error = abs((original_matrix - model_matrix) / original_matrix) * 100
+                    print(f'\nAxis mismatch, Frame {frame_idx}: {key} ({error=})%')
+                    print(f"{original_matrix=}\n{model_matrix=}")
                     return
-                if not np.allclose(original_x, refactored_x):
-                    accurate = False
-                    error = abs((original_x - refactored_x) / original_x) * 100
-                    print(f'\nAxis mismatch, Frame {frame_idx}: {key}, x-axis ({error})%')
-                    print(f"{original_x=}\n{refactored_x=}")
-                    return
-                if not np.allclose(original_y, refactored_y):
-                    accurate = False
-                    error = abs((original_y - refactored_y) / original_y) * 100
-                    print(f'\nAxis mismatch, Frame {frame_idx}: {key}, y-axis ({error})%')
-                    print(f"{original_y=}\n{refactored_y=}")
-                    return
-                if not np.allclose(original_z, refactored_z):
-                    accurate = False
-                    error = abs((original_z - refactored_z) / original_z) * 100
-                    print(f'\nAxis mismatch, Frame {frame_idx}: {key}, z-axis ({error})%')
-                    print(f"{original_z=}\n{refactored_z=}")
-                    return
+
     print(f'{trial_name} axes match:', accurate)
 
     # Compare angles, frame by frame 
@@ -74,30 +57,12 @@ def diff_pycgm_csv(model, trial_name, csv_filename):
             frame = frame[1:59]
 
             for key, slc in angle_slice_map.items():
-                original_x = frame[slc][0]
-                original_y = frame[slc][1]
-                original_z = frame[slc][2]
-                refactored_x = model_output_angles[key][0][frame_idx][0]
-                refactored_y = model_output_angles[key][0][frame_idx][1]
-                refactored_z = model_output_angles[key][0][frame_idx][2]
-                if not np.allclose(original_x, refactored_x):
+                original_angle = np.array(frame[slc])
+                refactored_angle = model_output_angles[key][0][frame_idx]
+                if not np.allclose(original_angle, refactored_angle):
                     accurate = False
-                    error = abs((original_x - refactored_x) / original_x) * 100
-                    print(f'\nAngle mismatch, Frame {frame_idx}: {key} X ({error})%')
-                    print(f"{original_x=}\n{refactored_x=}")
-                    return
-                if not np.allclose(original_y, refactored_y):
-                    accurate = False
-                    error = abs((original_y - refactored_y) / original_y) * 100
-                    print(f'\nAngle mismatch, Frame {frame_idx}: {key} Y ({error})%')
-                    print(f"{original_y=}\n{refactored_y=}")
-                    return
-                if not np.allclose(original_z, refactored_z):
-                    accurate = False
-                    error = abs((original_z - refactored_z) / original_z) * 100
-                    print(f'\nAngle mismatch, Frame {frame_idx}: {key} Z ({error})%')
-                    print(f"{original_z=}\n{refactored_z=}")
+                    error = abs((original_angle - refactored_angle) / original_angle) * 100
+                    print(f'\nAngle mismatch, Frame {frame_idx}: {key} ({error=})%')
+                    print(f"{original_angle=}\n{refactored_angle=}")
                     return
     print(f'{trial_name} angles match:', accurate)
-
-
