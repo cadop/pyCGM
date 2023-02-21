@@ -6,7 +6,7 @@ from .calc.dynamic_calculations import DynamicCalc
 from .calc.kinematics import dynamic
 from .calc.kinematics import static
 from .calc.static_calculations import StaticCalc
-from .dynamic_trial_set import DynamicTrial
+from .dynamic_trial import DynamicTrial
 from .static_trial import StaticTrial
 from .utils.structure import structure_model
 
