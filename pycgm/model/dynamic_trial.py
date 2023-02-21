@@ -40,4 +40,4 @@ class DynamicTrial():
 
 
                 end = time.time()
-                print(f"\t{'static':<20}\t{function.name:<25}\t{end-start:.5f}s")
+                print(f"\t{trial_name:<20}\t{function.name:<25}\t{end-start:.5f}s")
