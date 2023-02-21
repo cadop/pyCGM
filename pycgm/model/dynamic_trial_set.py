@@ -10,41 +10,34 @@ class DynamicTrialSet():
 
     def run(self, calc):
         for trial_name in self.trial_names:
-            for function in calc.axis_functions:
+            for function in calc.function_set:
                 start = time.time()
-                ret_axes = function.run(trial_name)
+                returned = function.run(trial_name)
 
-                # Insert returned axes into the model structured array
-                if ret_axes.ndim == 4:
-                    # Multiple axes returned by one function
-                    for ret_axes_index, axis in enumerate(ret_axes):
-                        # Insert each axis into model
-                        self.trials[trial_name].axes[function.returned_axes[ret_axes_index]] = axis
+                if function.returns['axes'] != [None]:
+                    if returned.ndim == 4:
+                        for idx, axis in enumerate(function.returns['axes']):
+                            self.trials[trial_name].axes[axis] = returned[idx]
+                    else:
+                        axis = function.returns['axes'][0]
+                        self.trials[trial_name].axes[axis] = returned
 
-                else:
-                    # Insert returned axis into model
-                    self.trials[trial_name].axes[function.returned_axes[0]] = ret_axes
+                elif function.returns['angles'] != [None]:
+                    if returned.ndim == 3:
+                        for idx, angle in enumerate(function.returns['angles']):
+                            self.trials[trial_name].angles[angle] = returned[idx]
+                    else:
+                        angle = function.returns['angles'][0]
+                        self.trials[trial_name].angles[angle] = returned
+
+                elif function.returns['measurements'] != [None]:
+                    if returned.ndim == 1:
+                        for idx, measurement in enumerate(function.returns['measurements']):
+                            self.trials[trial_name].measurements[measurement] = returned[idx]
+                    else:
+                        for measurement in function.returns['measurements']:
+                            self.trials[trial_name].measurements[measurement] = returned
+
 
                 end = time.time()
-
-                print(f"\t{trial_name:<20}\t{function.name:<25}\t{end-start:.5f}s")
-
-            for function in calc.angle_functions:
-                start = time.time()
-
-                ret_angles = function.run(trial_name)
-
-                # Insert returned angles into the model structured array
-                if ret_angles.ndim == 3:
-                    # Multiple angles returned by one function
-                    for ret_angles_index, angle in enumerate(ret_angles):
-                        # Insert each angle into model
-                        self.trials[trial_name].angles[function.returned_angles[ret_angles_index]] = angle
-
-                else:
-                    # Insert returned angle into model
-                    self.trials[trial_name].angles[function.returned_angles[0]] = ret_angles
-
-                end = time.time()
-
-                print(f"\t{trial_name:<20}\t{function.name:<25}\t{end-start:.5f}s")
+                print(f"\t{'static':<20}\t{function.name:<25}\t{end-start:.5f}s")
