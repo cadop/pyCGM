@@ -14,12 +14,29 @@ script_dir = get_data_dir()
 
 
 @Function.info(markers=["RFHD", "LFHD", "RBHD", "LBHD"],
+          measurements=["HeadOffset"],
+                  axes=["Head"],
+  returns_measurements=['REyeDiameter', 'LEyeDiameter'])
+def calibrate_eye_diameter(rfhd, lfhd, rbhd, lbhd, head_offset, head_axis):
+        """
+        Calibrate the eye diameter.
+        Example of a function that returns a custom measurement.
+        """
+
+        r_diameter = np.average(rfhd - rbhd) + head_offset
+        l_diameter = np.average(lfhd - lbhd) + head_offset
+
+        return np.array([r_diameter, l_diameter])
+
+
+@Function.info(markers=["RFHD", "LFHD", "RBHD", "LBHD"],
           measurements=["Bodymass", "HeadOffset"],
                   axes=["Head"],
           returns_axes=['REye', 'LEye'])
 def calc_axis_eye(bodymass, head_offset, rfhd, lfhd, rbhd, lbhd, head_axis):
         """
         Make the Eye Axis.
+        Example of a function that returns a custom axis.
         """
 
         num_frames = rfhd.shape[0]
@@ -39,36 +56,30 @@ def calc_axis_eye(bodymass, head_offset, rfhd, lfhd, rbhd, lbhd, head_axis):
 
         return np.array([r_eye_axis_matrix, l_eye_axis_matrix])
 
-@Function.info(markers=["RFHD", "LFHD", "RBHD", "LBHD"],
-          measurements=["Bodymass", "HeadOffset"],
-                  axes=["Head"],
-        returns_angles=['REye', 'LEye'])
-def calc_angle_eye(bodymass, head_offset, rfhd, lfhd, rbhd, lbhd, head_axis):
-        """
-        Make the Eye Angle.
-        """
 
-        num_frames = rfhd.shape[0]
-        r = np.zeros((num_frames, 3))
-        l = np.zeros((num_frames, 3))
+# Create a model with 2 dynamic trials
+extended_model = Model(os.path.join(script_dir, 'Sample_2/RoboStatic.c3d'), \
+                      [os.path.join(script_dir, 'Sample_2/RoboWalk.c3d'), os.path.join(script_dir, 'ROM/Sample_Dynamic.c3d')], \
+                       os.path.join(script_dir, 'Sample_2/RoboSM.vsk'))
 
-        eye_angle= np.array([r, l])
+# Extend default CGM with custom functions
+extended_model.insert_static_function(calibrate_eye_diameter, after='calc_static_head')
+extended_model.insert_dynamic_function(calc_axis_eye, after='calc_axis_head')
+extended_model.run()
 
-        return eye_angle
+# Access extended model outputs
+print(f'{extended_model.data.static.calibrated.measurements.REyeDiameter=}')
+print(f'{extended_model.data.dynamic.RoboWalk.axes.Pelvis.shape=}')
+print(f'{extended_model.data.dynamic.RoboWalk.axes.REye.shape=}')
 
+# Create the same model with predefined static and dynamic function sets
+custom_model = Model(os.path.join(script_dir, 'Sample_2/RoboStatic.c3d'), \
+                    [os.path.join(script_dir, 'Sample_2/RoboWalk.c3d'), os.path.join(script_dir, 'ROM/Sample_Dynamic.c3d')], \
+                     os.path.join(script_dir, 'Sample_2/RoboSM.vsk'),
+                     static_functions=[calibrate_eye_diameter],
+                     dynamic_functions=[calc_axis_eye])
+custom_model.run()
 
-model = Model(os.path.join(script_dir, 'Sample_2/RoboStatic.c3d'), \
-             [os.path.join(script_dir, 'Sample_2/RoboWalk.c3d'), os.path.join(script_dir, 'ROM/Sample_Dynamic.c3d')], \
-              os.path.join(script_dir, 'Sample_2/RoboSM.vsk'))
-# Add function to existing set
-model.insert_dynamic_function(calc_axis_eye, before='calc_axis_pelvis')
-model.insert_dynamic_function(calc_angle_eye, before='calc_angle_pelvis')
-model.run()
-#
-# # Create model with predefined axis and angle function or function list
-model = Model(os.path.join(script_dir, 'Sample_2/RoboStatic.c3d'), \
-             [os.path.join(script_dir, 'Sample_2/RoboWalk.c3d'), os.path.join(script_dir, 'ROM/Sample_Dynamic.c3d')], \
-              os.path.join(script_dir, 'Sample_2/RoboSM.vsk'),
-              [calc_axis_eye],
-              [calc_angle_eye])
-model.run()
+# Access custom model outputs
+print(f'{custom_model.data.static.calibrated.measurements.REyeDiameter=}')
+print(f'{custom_model.data.dynamic.RoboWalk.axes.REye.shape=}')
