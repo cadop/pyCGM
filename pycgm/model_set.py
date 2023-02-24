@@ -3,7 +3,7 @@ import time
 from model.model import Model
 
 
-class PyCGM():
+class ModelSet():
     def __init__(self, models):
         if isinstance(models, Model):
             models = [models]
@@ -23,4 +23,3 @@ class PyCGM():
 
     def __getitem__(self, index):
         return self.models[index]
-
