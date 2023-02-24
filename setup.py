@@ -22,8 +22,8 @@ setuptools.setup(
         "License :: OSI Approved :: MIT",
         "Operating System :: OS Independent",
     ],
-    python_requires='>=2.7, !=3.0, !=3.1, !=3.2, !=3.3, !=3.4, !=3.5',
-    install_requires=['numpy>=1.15','scipy'],
+    python_requires='>3.6',
+    install_requires=['numpy>=1.15'],
     package_data={
         "": [
             "SampleData/*/*.c3d",
