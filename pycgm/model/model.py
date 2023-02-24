@@ -48,7 +48,7 @@ class Model():
                                     self.static_calc, 
                                     self.dynamic_calc)
         
-        # TODO consider adding flat_foot as a flag to Model init
+        # TODO consider adding helpers to structure custom data
         self.data.static.calibrated.measurements.FlatFoot = 0;
         
         # TODO calculate GCS
@@ -67,7 +67,7 @@ class Model():
         # print(f"Time to structure model: {end - start}s")
 
     
-    def insert_static_function(self, function, index=None, before=None, after=None):
+    def insert_static_function(self, function, index=None, before=None, after=None, replaces=None):
 
         if index is not None:
             self.static_calc.function_set.insert(index, function)
@@ -80,12 +80,16 @@ class Model():
             func_idx = self.static_calc.index_of_function(after)
             self.static_calc.function_set.insert(func_idx + 1, function)
 
+        elif replaces is not None:
+            func_idx = self.static_calc.index_of_function(replaces)
+            self.static_calc.function_set[func_idx] = function
+
         else:
             self.static_calc.function_set.append(function)
 
         self.structure()
 
-    def insert_dynamic_function(self, function, index=None, before=None, after=None):
+    def insert_dynamic_function(self, function, index=None, before=None, after=None, replaces=None):
 
         if index is not None:
             self.dynamic_calc.function_set.insert(index, function)
@@ -97,6 +101,10 @@ class Model():
         elif after is not None:
             func_idx = self.dynamic_calc.index_of_function(after)
             self.dynamic_calc.function_set.insert(func_idx + 1, function)
+
+        elif replaces is not None:
+            func_idx = self.dynamic_calc.index_of_function(replaces)
+            self.dynamic_calc.function_set[func_idx] = function
 
         else:
             self.dynamic_calc.function_set.append(function)
