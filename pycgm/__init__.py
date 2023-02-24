@@ -1,6 +1,8 @@
 import os
+
+from .model.calc.function import Function
 from .model.model import Model
-from pycgm.pyCGM import PyCGM
+from .model.model_set import ModelSet
 
 def get_data_dir():
     """
