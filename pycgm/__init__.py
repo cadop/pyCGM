@@ -1,6 +1,8 @@
 import os
 
 from .model.calc.function import Function
+from .model.calc.kinematics.dynamic import CalcDynamic
+from .model.calc.kinematics.static import CalcStatic
 from .model.model import Model
 from .model.model_set import ModelSet
 
