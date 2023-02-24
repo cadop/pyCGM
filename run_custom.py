@@ -9,9 +9,9 @@ script_dir = pycgm.get_data_dir()
 
 
 @pycgm.Function.info(markers=["RFHD", "LFHD", "RBHD", "LBHD"],
-          measurements=["HeadOffset"],
-                  axes=["Head"],
-  returns_measurements=['REyeDiameter', 'LEyeDiameter'])
+                measurements=["HeadOffset"],
+                        axes=["Head"],
+        returns_measurements=['REyeDiameter', 'LEyeDiameter'])
 def calibrate_eye_diameter(rfhd, lfhd, rbhd, lbhd, head_offset, head_axis):
         """
         Calibrate the eye diameter.
@@ -25,9 +25,9 @@ def calibrate_eye_diameter(rfhd, lfhd, rbhd, lbhd, head_offset, head_axis):
 
 
 @pycgm.Function.info(markers=["RFHD", "LFHD", "RBHD", "LBHD"],
-          measurements=["Bodymass", "HeadOffset"],
-                  axes=["Head"],
-          returns_axes=['REye', 'LEye'])
+                measurements=["Bodymass", "HeadOffset"],
+                        axes=["Head"],
+                returns_axes=['REye', 'LEye'])
 def calc_axis_eye(bodymass, head_offset, rfhd, lfhd, rbhd, lbhd, head_axis):
         """
         Make the Eye Axis.
@@ -54,8 +54,8 @@ def calc_axis_eye(bodymass, head_offset, rfhd, lfhd, rbhd, lbhd, head_axis):
 
 # Create a model with 2 dynamic trials
 extended_model = pycgm.Model(os.path.join(script_dir, 'Sample_2/RoboStatic.c3d'), \
-                      [os.path.join(script_dir, 'Sample_2/RoboWalk.c3d'), os.path.join(script_dir, 'ROM/Sample_Dynamic.c3d')], \
-                       os.path.join(script_dir, 'Sample_2/RoboSM.vsk'))
+                            [os.path.join(script_dir, 'Sample_2/RoboWalk.c3d'), os.path.join(script_dir, 'ROM/Sample_Dynamic.c3d')], \
+                             os.path.join(script_dir, 'Sample_2/RoboSM.vsk'))
 
 # Extend default CGM with custom functions
 extended_model.insert_static_function(calibrate_eye_diameter, after='calc_static_head')
@@ -69,10 +69,10 @@ print(f'{extended_model.data.dynamic.RoboWalk.axes.REye.shape=}')
 
 # Create the same model with predefined static and dynamic function sets
 custom_model = pycgm.Model(os.path.join(script_dir, 'Sample_2/RoboStatic.c3d'), \
-                    [os.path.join(script_dir, 'Sample_2/RoboWalk.c3d'), os.path.join(script_dir, 'ROM/Sample_Dynamic.c3d')], \
-                     os.path.join(script_dir, 'Sample_2/RoboSM.vsk'),
-                     static_functions=[calibrate_eye_diameter],
-                     dynamic_functions=[calc_axis_eye])
+                          [os.path.join(script_dir, 'Sample_2/RoboWalk.c3d'), os.path.join(script_dir, 'ROM/Sample_Dynamic.c3d')], \
+                           os.path.join(script_dir, 'Sample_2/RoboSM.vsk'),
+                           static_functions=[calibrate_eye_diameter],
+                           dynamic_functions=[calc_axis_eye])
 custom_model.run()
 
 # Access custom model outputs
