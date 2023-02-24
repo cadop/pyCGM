@@ -1,6 +1,7 @@
 import os
 
 import pycgm
+from pycgm.model.utils.csv_diff import diff_pycgm_csv
 
 script_dir = pycgm.get_data_dir()
 

@@ -3,6 +3,7 @@ import os
 import numpy as np
 
 import pycgm
+from pycgm.model.utils.csv_diff import diff_pycgm_csv
 
 
 script_dir = pycgm.get_data_dir()
@@ -61,6 +62,7 @@ extended_model = pycgm.Model(os.path.join(script_dir, 'Sample_2/RoboStatic.c3d')
 extended_model.insert_static_function(calibrate_eye_diameter, after='calc_static_head')
 extended_model.insert_dynamic_function(calc_axis_eye, after='calc_axis_head')
 extended_model.run()
+diff_pycgm_csv(extended_model, 'RoboWalk', os.path.join(script_dir, 'Sample_2/pycgm_results.csv'))
 
 # Access extended model outputs
 print(f'{extended_model.data.static.calibrated.measurements.REyeDiameter=}')
