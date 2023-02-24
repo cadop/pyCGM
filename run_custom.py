@@ -1,19 +1,14 @@
 import os 
 
 import numpy as np
-from model.calc.function import Function
-from model.model import Model
 
-def get_data_dir():
-    """
-    Returns the directory of the package.
-    """
-    return os.path.join(os.path.dirname(__file__), 'SampleData')
-
-script_dir = get_data_dir()
+import pycgm
 
 
-@Function.info(markers=["RFHD", "LFHD", "RBHD", "LBHD"],
+script_dir = pycgm.get_data_dir()
+
+
+@pycgm.Function.info(markers=["RFHD", "LFHD", "RBHD", "LBHD"],
           measurements=["HeadOffset"],
                   axes=["Head"],
   returns_measurements=['REyeDiameter', 'LEyeDiameter'])
@@ -29,7 +24,7 @@ def calibrate_eye_diameter(rfhd, lfhd, rbhd, lbhd, head_offset, head_axis):
         return np.array([r_diameter, l_diameter])
 
 
-@Function.info(markers=["RFHD", "LFHD", "RBHD", "LBHD"],
+@pycgm.Function.info(markers=["RFHD", "LFHD", "RBHD", "LBHD"],
           measurements=["Bodymass", "HeadOffset"],
                   axes=["Head"],
           returns_axes=['REye', 'LEye'])
@@ -58,7 +53,7 @@ def calc_axis_eye(bodymass, head_offset, rfhd, lfhd, rbhd, lbhd, head_axis):
 
 
 # Create a model with 2 dynamic trials
-extended_model = Model(os.path.join(script_dir, 'Sample_2/RoboStatic.c3d'), \
+extended_model = pycgm.Model(os.path.join(script_dir, 'Sample_2/RoboStatic.c3d'), \
                       [os.path.join(script_dir, 'Sample_2/RoboWalk.c3d'), os.path.join(script_dir, 'ROM/Sample_Dynamic.c3d')], \
                        os.path.join(script_dir, 'Sample_2/RoboSM.vsk'))
 
@@ -73,7 +68,7 @@ print(f'{extended_model.data.dynamic.RoboWalk.axes.Pelvis.shape=}')
 print(f'{extended_model.data.dynamic.RoboWalk.axes.REye.shape=}')
 
 # Create the same model with predefined static and dynamic function sets
-custom_model = Model(os.path.join(script_dir, 'Sample_2/RoboStatic.c3d'), \
+custom_model = pycgm.Model(os.path.join(script_dir, 'Sample_2/RoboStatic.c3d'), \
                     [os.path.join(script_dir, 'Sample_2/RoboWalk.c3d'), os.path.join(script_dir, 'ROM/Sample_Dynamic.c3d')], \
                      os.path.join(script_dir, 'Sample_2/RoboSM.vsk'),
                      static_functions=[calibrate_eye_diameter],
