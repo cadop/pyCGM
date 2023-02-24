@@ -8,7 +8,7 @@ from ..utils.constants import POINT_DTYPE
 from .kinematics.dynamic import CalcDynamic
 
 
-class DynamicCalc:
+class DynamicConfig:
     def __init__(self, function_set=None):
         self.function_set = copy.deepcopy(CalcDynamic().funcs) if function_set is None else function_set
 

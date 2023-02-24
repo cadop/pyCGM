@@ -9,7 +9,7 @@ from ..utils.constants import POINT_DTYPE
 from .kinematics.static import CalcStatic
 
 
-class StaticCalc:
+class StaticConfig:
     def __init__(self, function_set=None):
         self.function_set = copy.deepcopy(CalcStatic().funcs) if function_set is None else function_set
         self.update_parameter_values()
