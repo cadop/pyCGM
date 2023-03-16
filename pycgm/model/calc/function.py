@@ -63,7 +63,7 @@ class Function:
         params = []
         for value in self.parameter_values[trial_name]:
             if type(value) == np.ndarray:
-                if value.shape == (1,) and value.dtype in [np.float, np.bool_]:
+                if value.shape == (1,) and value.dtype in [np.float64, np.bool_]:
                     params.append(value[0])
                 else:
                     params.append(value)

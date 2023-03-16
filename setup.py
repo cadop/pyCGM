@@ -23,7 +23,7 @@ setuptools.setup(
         "Operating System :: OS Independent",
     ],
     python_requires='>3.6',
-    install_requires=['numpy>=1.15'],
+    install_requires=['numpy>1.20'],
     package_data={
         "": [
             "SampleData/*/*.c3d",
