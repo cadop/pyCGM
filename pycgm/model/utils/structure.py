@@ -3,7 +3,6 @@ import re
 import numpy as np
 from numpy.lib import recfunctions as rfn
 
-from ..calc.kinematics import static
 from .constants import POINT_DTYPE
 from .io import load_c3d
 from .io import loadVSK
@@ -23,40 +22,45 @@ def structure_vsk(measurements):
     return measurements_struct
 
 
-def structure_model(static_trial_filename, dynamic_trials, measurement_filename, static_calculations, dynamic_calculations):
+# TODO
+# load before
+# don't pass filenames, pass data
+def structure_model(static_trial_filename, dynamic_trials_filenames, measurement_filename, static_calculations, dynamic_calculations):
+    """
 
-    if isinstance(dynamic_trials, str):
-        dynamic_trials = [dynamic_trials]
+    Note
+    ----
+    Using different dtypes for measurements|markers|axes|angles of the same name
+    will throw an error because the tuples are different
+        ("FlatFoot", np.bool_)
+        ("FlatFoot", bool)
+
+    """
+
+    if isinstance(dynamic_trials_filenames, str):
+        dynamic_trials = [dynamic_trials_filenames]
 
     # Load measurements
-    measurements = loadVSK(measurement_filename)
+    if measurement_filename is not None:
+        measurements = loadVSK(measurement_filename)
+        # Structure uncalibrated measurements
+        measurements_struct = structure_vsk(measurements)
+    else:
+        measurements_struct = np.zeros((1))
 
-    # Structure uncalibrated measurements
-    measurements_struct = structure_vsk(measurements)
+    # Load static
+    static_trial, num_frames = load_c3d(static_trial_filename, return_frame_count=True)
     
     # Get intersection of (VSK input + static input/ouput + dynamic input/output) names
     required_static_measurements = static_calculations.required_measurements
     returned_static_measurements = static_calculations.returned_measurements
     required_dynamic_measurements = dynamic_calculations.required_measurements
-    
-    calibrated_measurement_names = required_static_measurements.union(returned_static_measurements).union(required_dynamic_measurements)
-
-    # Load static
-    static_trial, num_frames = load_c3d(static_trial_filename, return_frame_count=True)
+    calibrated_measurement_tuples = required_static_measurements | returned_static_measurements | required_dynamic_measurements
 
     # Structure static dtype
-    calibrated_axes_dtype         = np.dtype([(key, 'f8', (num_frames, 3, 4)) for key in static_calculations.returned_axes])
-    calibrated_angles_dtype       = np.dtype([(key, 'f8', (num_frames, 3)) for key in static_calculations.returned_angles])
-
-    calibrated_measurements_dtype = []
-    for key in calibrated_measurement_names:
-        if key == "GCS":
-            calibrated_measurements_dtype.append((key, 'f8', (3,3)))
-        elif key == "FlatFoot":
-            calibrated_measurements_dtype.append((key, '?'))
-        else:
-            calibrated_measurements_dtype.append((key, 'f8'))
-    calibrated_measurements_dtype = np.dtype(calibrated_measurements_dtype)
+    calibrated_measurements_dtype = np.dtype([(name, dtype) for name, dtype in calibrated_measurement_tuples])
+    calibrated_axes_dtype         = np.dtype([(key, dtype.base, (num_frames,) + dtype.shape) for key, dtype in static_calculations.returned_axes])
+    calibrated_angles_dtype       = np.dtype([(key, dtype.base, (num_frames,) + dtype.shape) for key, dtype in static_calculations.returned_angles])
 
     static_dtype = [ ('markers', static_trial.dtype), \
                      ('measurements', measurements_struct.dtype), \
@@ -76,8 +80,8 @@ def structure_model(static_trial_filename, dynamic_trials, measurement_filename,
         dynamic_trial, num_frames = load_c3d(trial_name, return_frame_count=True)
 
         marker_dtype = dynamic_trial.dtype
-        axes_dtype   = np.dtype([(key, 'f8', (num_frames, 3, 4)) for key in dynamic_calculations.returned_axes])
-        angles_dtype = np.dtype([(key, 'f8', (num_frames, 3)) for key in dynamic_calculations.returned_angles])
+        axes_dtype   = np.dtype([(key, dtype.base, (num_frames,) + dtype.shape) for key, dtype in dynamic_calculations.returned_axes])
+        angles_dtype = np.dtype([(key, dtype.base, (num_frames,) + dtype.shape) for key, dtype in dynamic_calculations.returned_angles])
 
         # parse just the name of the trial
         filename = re.findall(r'[^\/]+(?=\.)', trial_name)[0]
@@ -102,7 +106,7 @@ def structure_model(static_trial_filename, dynamic_trials, measurement_filename,
 
     # Copy required input measurements to calibrated measurements struct
     vsk_names = set(measurements[0])
-    required_by_both = list(vsk_names.intersection(calibrated_measurement_names))
+    required_by_both = list({x[0] for x in calibrated_measurement_tuples} & vsk_names)
     intersecting_values = model['static']['measurements'][required_by_both]
     model['static']['calibrated']['measurements'][required_by_both] = intersecting_values
 

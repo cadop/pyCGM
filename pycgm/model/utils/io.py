@@ -32,7 +32,7 @@ def load_c3d(filename, return_frame_count=False):
     num_markers = len(frames_list[0][0])
     num_frames = len(frames_list)
     frame_numbers = np.arange(num_frames)
-    float_arr = np.column_stack(frames_list[:, 0]).astype(np.float64).reshape(num_markers, num_frames, 3)
+    float_arr = np.column_stack(frames_list[:, 0]).astype(float).reshape(num_markers, num_frames, 3)
 
     marker_xyz = [(key, (POINT_DTYPE, (num_frames,))) for key in marker_names]
     marker_positions = np.insert(float_arr, 0, frame_numbers, axis=2)

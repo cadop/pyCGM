@@ -1739,7 +1739,7 @@ class CalcDynamic():
         return np.asarray([r_hand_axis_matrix, l_hand_axis_matrix])
 
 
-    @Function.info(measurements=['GCS'],
+    @Function.info(measurements=[('GCS', (float, (3, 3)))],
                            axes=['Pelvis'],
                  returns_angles=['Pelvis'])
     def calc_angle_pelvis(axis_p, axis_d):
@@ -1846,7 +1846,7 @@ class CalcDynamic():
 
         return np.array([right_angles, left_angles])
 
-    @Function.info(measurements=['GCS'],
+    @Function.info(measurements=[('GCS', (float, (3, 3)))],
                            axes=['RFoot', 'LFoot'],
                  returns_angles=['RFoot', 'LFoot'])
     def calc_angle_foot(r_axis_p, r_axis_d, l_axis_d):
@@ -1867,7 +1867,7 @@ class CalcDynamic():
 
         return np.array([right_angles, left_angles])
 
-    @Function.info(measurements=['GCS'],
+    @Function.info(measurements=[('GCS', (float, (3, 3)))],
                            axes=['Head'],
                  returns_angles=['Head'])
     def calc_angle_head(axis_p, axis_d):
@@ -1994,7 +1994,7 @@ class CalcDynamic():
 
 
     @Function.info(axes=['Thorax'],
-           measurements=['GCS'],
+           measurements=[('GCS', (float, (3, 3)))],
          returns_angles=['Thorax'])
     def calc_angle_thorax(axis_p, axis_d):
         r"""Normal angle calculation.

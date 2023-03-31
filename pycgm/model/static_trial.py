@@ -12,25 +12,28 @@ class StaticTrial():
             start = time.time()
             returned = function.run('static')
 
-            if function.returns['axes'] != [None]:
+            if function.returns['axes'] != []:
                 if returned.ndim == 4:
                     for idx, axis in enumerate(function.returns['axes']):
-                        self.struct.calibrated.axes[axis] = returned[idx]
+                        axis_name = axis[0]
+                        self.struct.calibrated.axes[axis_name][0] = returned[idx]
                 else:
-                    axis = function.returns['axes'][0]
+                    axis = function.returns['axes'][0][0]
                     self.struct.calibrated.axes[axis] = returned
 
-            elif function.returns['angles'] != [None]:
+            elif function.returns['angles'] != []:
                 for angle in function.returns['angles']:
                     self.struct.calibrated.angles[angle] = returned
 
-            elif function.returns['measurements'] != [None]:
+            elif function.returns['measurements'] != []:
                 if returned.ndim == 1:
                     for idx, measurement in enumerate(function.returns['measurements']):
-                        self.struct.calibrated.measurements[measurement] = returned[idx]
+                        measurement_name = measurement[0]
+                        self.struct.calibrated.measurements[measurement_name] = returned[idx]
                 else:
                     for measurement in function.returns['measurements']:
-                        self.struct.calibrated.measurements[measurement] = returned
+                        measurement_name = measurement[0]
+                        self.struct.calibrated.measurements[measurement_name] = returned
 
 
             end = time.time()

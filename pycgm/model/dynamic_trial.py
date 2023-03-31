@@ -14,23 +14,25 @@ class DynamicTrial():
                 start = time.time()
                 returned = function.run(trial_name)
 
-                if function.returns['axes'] != [None]:
+                if function.returns['axes'] != []:
                     if returned.ndim == 4:
                         for idx, axis in enumerate(function.returns['axes']):
-                            self.trials[trial_name].axes[axis] = returned[idx]
+                            axis_name = axis[0]
+                            self.trials[trial_name].axes[axis_name] = returned[idx]
                     else:
-                        axis = function.returns['axes'][0]
+                        axis = function.returns['axes'][0][0]
                         self.trials[trial_name].axes[axis] = returned
 
-                elif function.returns['angles'] != [None]:
+                elif function.returns['angles'] != []:
                     if returned.ndim == 3:
                         for idx, angle in enumerate(function.returns['angles']):
-                            self.trials[trial_name].angles[angle] = returned[idx]
+                            angle_name = angle[0]
+                            self.trials[trial_name].angles[angle_name] = returned[idx]
                     else:
-                        angle = function.returns['angles'][0]
+                        angle = function.returns['angles'][0][0]
                         self.trials[trial_name].angles[angle] = returned
 
-                elif function.returns['measurements'] != [None]:
+                elif function.returns['measurements'] != []:
                     if returned.ndim == 1:
                         for idx, measurement in enumerate(function.returns['measurements']):
                             self.trials[trial_name].measurements[measurement] = returned[idx]

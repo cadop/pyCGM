@@ -53,8 +53,9 @@ class StaticConfig:
         for function in self.function_set:
             function.parameter_values['static'] = []
 
-            for parameter_name in function.required_markers:
+            for parameter_tuple in function.required_markers:
             # ============== Markers ============== 
+                parameter_name = parameter_tuple[0]
                 if parameter_name in data.static.markers.dtype.names:
                     # Use marker name to retrieve from marker struct
                     expanded_parameter = self.get_markers(data.static.markers, parameter_name, True)[0]
@@ -62,24 +63,27 @@ class StaticConfig:
                 else:
                     function.parameter_values['static'].append(None)
 
-            for parameter_name in function.required_measurements:
+            for parameter_tuple in function.required_measurements:
             # ============== Measurements ============== 
+                parameter_name = parameter_tuple[0]
                 if parameter_name in data.static.calibrated.measurements.dtype.names:
                     # Use measurement name to retrieve from calibrated measurements struct
                     function.parameter_values['static'].append(data.static.calibrated.measurements[parameter_name])
                 else:
                     function.parameter_values['static'].append(None)
 
-            for parameter_name in function.required_axes:
+            for parameter_tuple in function.required_axes:
             # ============== Axes ============== 
+                parameter_name = parameter_tuple[0]
                 if parameter_name in data.static.calibrated.axes.dtype.names:
                     # Add parameter from axes dict
                     function.parameter_values['static'].append(data.static.calibrated.axes[parameter_name][0])
                 else:
                     function.parameter_values['static'].append(None)
 
-            for parameter_name in function.required_angles:
+            for parameter_tuple in function.required_angles:
             # ============== Angles ============== 
+                parameter_name = parameter_tuple[0]
                 if parameter_name in data.static.calibrated.angles:
                     # Add parameter from angles dict
                     function.parameter_values['static'].append(data.static.calibrated.angles[parameter_name][0])

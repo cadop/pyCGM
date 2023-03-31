@@ -45,8 +45,9 @@ class DynamicConfig:
             for function in self.function_set:
                 function.parameter_values[trial_name] = []
 
-                for parameter_name in function.required_markers:
+                for parameter_tuple in function.required_markers:
                 # ============== Markers ============== 
+                    parameter_name = parameter_tuple[0]
                     if parameter_name in trials.dynamic[trial_name].markers.dtype.names:
                         # Use marker name to retrieve from marker struct
                         expanded_parameter = self.get_markers(trials.dynamic[trial_name].markers, parameter_name, True)[0]
@@ -55,8 +56,9 @@ class DynamicConfig:
                         function.parameter_values[trial_name].append(None)
 
 
-                for parameter_name in function.required_measurements:
+                for parameter_tuple in function.required_measurements:
                 # ============== Measurements ============== 
+                    parameter_name = parameter_tuple[0]
                     if parameter_name in trials.static.calibrated.measurements.dtype.names:
                         # Use measurement name to retrieve from measurements struct
                         function.parameter_values[trial_name].append(trials.static.calibrated.measurements[parameter_name][0])
@@ -64,9 +66,9 @@ class DynamicConfig:
                         function.parameter_values[trial_name].append(None)
 
                 if 'axes' in trials.dynamic[trial_name].dtype.names:
-                    for parameter_name in function.required_axes:
-                            
+                    for parameter_tuple in function.required_axes:
                     # ============== Axes ============== 
+                        parameter_name = parameter_tuple[0]
                         if parameter_name in trials.dynamic[trial_name].axes.dtype.names:
                             # Add parameter from axes struct
                             function.parameter_values[trial_name].append(trials.dynamic[trial_name].axes[parameter_name][0])
@@ -74,8 +76,9 @@ class DynamicConfig:
                             function.parameter_values[trial_name].append(None)
 
                 if 'angles' in trials.dynamic[trial_name].dtype.names:
-                    for parameter_name in function.required_angles:
+                    for parameter_tuple in function.required_angles:
                     # ============== Angles ============== 
+                        parameter_name = parameter_tuple[0]
                         if parameter_name in trials.dynamic[trial_name].angles.dtype.names:
                             # Add parameter from angles struct
                             function.parameter_values[trial_name].append(trials.dynamic[trial_name].angles[parameter_name])

@@ -36,7 +36,7 @@ class CalcStatic():
         return (left_leg_length + right_leg_length) / 2.0
 
 
-    @Function.info(measurements=['RightAsisTrocanterDistance', 'LeftAsisTrocanterDistance', 'RightLegLength', 'LeftLegLength', 'FlatFoot'],
+    @Function.info(measurements=['RightAsisTrocanterDistance', 'LeftAsisTrocanterDistance', 'RightLegLength', 'LeftLegLength', ('FlatFoot', np.bool_)],
            returns_measurements=['R_AsisToTrocanterMeasure', 'L_AsisToTrocanterMeasure'])
     def calibrate_asis_to_troc_measure(right_asis_to_trochanter, left_asis_to_trochanter, right_leg_length, left_leg_length, flat_foot):
         if left_asis_to_trochanter != 0 and right_asis_to_trochanter != 0:
@@ -867,7 +867,7 @@ class CalcStatic():
 
 
     @Function.info(markers=['RTOE', 'LTOE', 'RHEE', 'LHEE'],
-              measurements=['FlatFoot', 'RightSoleDelta', 'LeftSoleDelta'],
+              measurements=[('FlatFoot', np.bool_), 'RightSoleDelta', 'LeftSoleDelta'],
                       axes=['RAnkle', 'LAnkle'],
               returns_axes=['RFoot', 'LFoot'])
     def calc_axis_foot(rtoe, ltoe, rhee, lhee, flat_foot, r_sole_delta, l_sole_delta, r_ankle_axis, l_ankle_axis):
