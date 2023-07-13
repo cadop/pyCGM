@@ -9,6 +9,7 @@ from .calc.static_config import StaticConfig
 from .dynamic_trial import DynamicTrial
 from .preprocess.preprocess import Preprocess
 from .static_trial import StaticTrial
+from .utils.io import IO
 from .utils.structure import structure_model
 
 
@@ -18,7 +19,7 @@ class Model():
                  dynamic_filenames,
                  measurement_filename,
                  static_functions=None,
-                 dynamic_functions=None):
+                 dynamic_functions=None,
                  preprocess=None):
         """
         Represents a Model
@@ -42,18 +43,15 @@ class Model():
         else:
             self.preprocess_config = Preprocess()
 
+        self.load()
         self.preprocess()
         self.structure()
 
 
-    def run(self):
-        """
-        Run each of the Model's trials
-        """
-        self.static_trial.run(self.static_config)
+    def load(self):
+        io = IO(self.static_filename, self.dynamic_filenames, self.measurement_filename)
+        self.static_data, self.dynamic_data, self.measurement_data = io.load()
 
-        self.dynamic_config.expand_parameters_from_data(self.data)
-        self.dynamic_trials.run(self.dynamic_config)
     def preprocess(self):
         self.preprocess_config.measurements = self.measurement_data
         self.preprocess_config.static_data = self.static_data
@@ -63,9 +61,9 @@ class Model():
     def structure(self):
         start = time.time()
 
-        self.data = structure_model(self.static_filename,
-                                    self.dynamic_filenames,
-                                    self.measurement_filename,
+        self.data = structure_model(self.measurement_data,
+                                    self.static_data,
+                                    self.dynamic_data,
                                     self.static_config, 
                                     self.dynamic_config)
         
@@ -86,6 +84,16 @@ class Model():
 
         end = time.time()
         # print(f"Time to structure model: {end - start}s")
+
+    def run(self):
+        """
+        Run each of the Model's trials
+        """
+        self.static_trial.run(self.static_config)
+
+        self.dynamic_config.expand_parameters_from_data(self.data)
+        self.dynamic_trials.run(self.dynamic_config)
+
 
     
     def insert_static_function(self, function, index=None, before=None, after=None, replaces=None):
