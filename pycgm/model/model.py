@@ -7,6 +7,7 @@ from .calc.kinematics.dynamic import CalcDynamic
 from .calc.kinematics.static import CalcStatic
 from .calc.static_config import StaticConfig
 from .dynamic_trial import DynamicTrial
+from .preprocess.preprocess import Preprocess
 from .static_trial import StaticTrial
 from .utils.structure import structure_model
 
@@ -18,6 +19,7 @@ class Model():
                  measurement_filename,
                  static_functions=None,
                  dynamic_functions=None):
+                 preprocess=None):
         """
         Represents a Model
         """
@@ -35,6 +37,12 @@ class Model():
         else:
             self.dynamic_config = DynamicConfig(dynamic_functions)
 
+        if issubclass(type(preprocess), Preprocess):
+            self.preprocess_config = preprocess
+        else:
+            self.preprocess_config = Preprocess()
+
+        self.preprocess()
         self.structure()
 
 
@@ -46,6 +54,11 @@ class Model():
 
         self.dynamic_config.expand_parameters_from_data(self.data)
         self.dynamic_trials.run(self.dynamic_config)
+    def preprocess(self):
+        self.preprocess_config.measurements = self.measurement_data
+        self.preprocess_config.static_data = self.static_data
+        self.preprocess_config.dynamic_data = self.dynamic_data
+        self.preprocess_config.run()
 
     def structure(self):
         start = time.time()
