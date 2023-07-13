@@ -50,7 +50,7 @@ class DynamicConfig:
                     parameter_name = parameter_tuple[0]
                     if parameter_name in trials.dynamic[trial_name].markers.dtype.names:
                         # Use marker name to retrieve from marker struct
-                        expanded_parameter = self.get_markers(trials.dynamic[trial_name].markers, parameter_name, True)[0]
+                        expanded_parameter = self._get_markers(trials.dynamic[trial_name].markers, parameter_name, True)[0]
                         function.parameter_values[trial_name].append(expanded_parameter)
                     else:
                         function.parameter_values[trial_name].append(None)
@@ -86,7 +86,11 @@ class DynamicConfig:
                             function.parameter_values[trial_name].append(None)
 
 
-    def get_markers(self, arr, names, points_only=True, debug=False):
+    def _get_markers(self, arr, names, points_only=True, debug=False):
+        """
+            If you pass all names, returns a reference of the original array
+            If you pass a subset of names, returns a copy
+        """
         start = time.time()
 
         if isinstance(names, str):

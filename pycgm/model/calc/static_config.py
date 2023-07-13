@@ -58,7 +58,7 @@ class StaticConfig:
                 parameter_name = parameter_tuple[0]
                 if parameter_name in data.static.markers.dtype.names:
                     # Use marker name to retrieve from marker struct
-                    expanded_parameter = self.get_markers(data.static.markers, parameter_name, True)[0]
+                    expanded_parameter = self._get_markers(data.static.markers, parameter_name, True)[0]
                     function.parameter_values['static'].append(expanded_parameter)
                 else:
                     function.parameter_values['static'].append(None)
@@ -91,7 +91,11 @@ class StaticConfig:
                     function.parameter_values['static'].append(None)
 
 
-    def get_markers(self, arr, names, points_only=True, debug=False):
+    def _get_markers(self, arr, names, points_only=True, debug=False):
+        """
+            If you pass all names, returns a reference of the original array
+            If you pass a subset of names, returns a copy
+        """
         start = time.time()
 
         if isinstance(names, str):
