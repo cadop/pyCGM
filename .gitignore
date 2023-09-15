@@ -8,3 +8,5 @@ dist
 env*
 venv*
 docs/source/generated
+.DS_Store
+.vscode

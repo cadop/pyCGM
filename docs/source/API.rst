@@ -6,12 +6,5 @@ API for pycgm
 .. autosummary::
    :toctree: generated/
 
-   pyCGM
-   pycgmKinetics
-   pycgmIO
-   Pipelines
-   pyCGM_Helpers
-   pycgmCalc
    pycgmStatic
-   clusterCalc
-   pycgmClusters
+   pyCGM

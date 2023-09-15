@@ -1,10 +1,7 @@
 Getting Started with pycgm
 ==========================
 
-.. currentmodule:: pyCGM_Single 
+.. currentmodule:: pycgm
 
 .. autosummary::
    :toctree: generated/
-
-    runpyCGM
-    pycgm_embed
